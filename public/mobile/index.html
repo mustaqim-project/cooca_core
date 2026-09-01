@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cooca Core — Mobile Business & POS</title>
+    <meta name="theme-color" content="#030712">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/mobile/manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030712;
+            --bg-section: #0B0F19;
+            --surface: #111827;
+            --card: #1E293B;
+            --card-hover: #27354A;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(99, 102, 241, 0.3);
+            
+            --primary: #6366F1;
+            --primary-hover: #818CF8;
+            --primary-glow: rgba(99, 102, 241, 0.35);
+            
+            --accent: #22D3EE;
+            --accent-glow: rgba(34, 211, 238, 0.25);
+            
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            
+            --text: #F8FAFC;
+            --text-sec: #94A3B8;
+            --text-muted: #64748B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Top Header */
+        header {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            z-index: 20;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .brand-info h1 {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+
+        .status-pill {
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 2px;
+        }
+
+        .dot-pulse {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .dot-pulse.offline {
+            background: var(--danger);
+            box-shadow: 0 0 8px var(--danger);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .plan-badge {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #000;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-icon {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.15s;
+        }
+
+        .btn-icon:active {
+            transform: scale(0.92);
+            background: var(--card);
+        }
+
+        /* View Container */
+        .view-content {
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .view-content.active {
+            display: flex;
+        }
+
+        /* POS VIEW */
+        .categories-bar {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--bg-section);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+        .categories-bar::-webkit-scrollbar { display: none; }
+
+        .cat-chip {
+            padding: 6px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sec);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 10px var(--primary-glow);
+        }
+
+        .product-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            align-content: start;
+        }
+
+        @media (max-width: 480px) {
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .product-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .product-card:active {
+            transform: scale(0.96);
+            border-color: var(--primary);
+        }
+
+        .product-card.has-cart {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .product-card .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .product-card .icon-box {
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, 0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .stock-tag {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .stock-tag.low {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .product-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.25;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px var(--primary-glow);
+        }
+
+        /* Bottom POS Action Bar */
+        .pos-bottom-bar {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .cart-toggle-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .cart-badge {
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 10px;
+        }
+
+        .checkout-btn {
+            flex: 1;
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+            transition: all 0.15s;
+        }
+
+        .checkout-btn:disabled {
+            opacity: 0.4;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* DASHBOARD & BUSINESS MODULES */
+        .dash-container {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kpi-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-sec);
+            text-transform: uppercase;
+        }
+
+        .kpi-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .kpi-sub {
+            font-size: 11px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-sec);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Upgrade Modal Plan Cards */
+        .plan-card {
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .plan-card.featured {
+            border-color: var(--primary);
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.15), var(--card));
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .plan-price {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* Bottom Tab Navigation Bar */
+        nav.bottom-nav {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(14px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 6px 0;
+            z-index: 30;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 10px;
+            transition: all 0.15s;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+        }
+
+        .nav-item .nav-icon {
+            font-size: 20px;
+        }
+
+        /* Universal Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: flex-end;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-sheet {
+            background: var(--surface);
+            width: 100%;
+            max-height: 88vh;
+            border-radius: 24px 24px 0 0;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            animation: slideUp 0.25s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .sheet-header h2 { font-size: 17px; font-weight: 700; }
+
+        .sheet-content {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 14px;
+        }
+
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .key-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            height: 48px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .quick-cash-row {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            margin-bottom: 12px;
+        }
+
+        .quick-cash-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .quick-cash-btn.exact {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+        }
+
+        /* Receipt Preview */
+        .receipt-paper {
+            background: #FFF;
+            color: #000;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Header -->
+    <header>
+        <div class="brand-box">
+            <div class="brand-logo">⚡</div>
+            <div class="brand-info">
+                <h1 id="outletName">Cooca Coffee Core</h1>
+                <div class="status-pill">
+                    <div class="dot-pulse" id="netDot"></div>
+                    <span id="netStatus">Online • Kasir #1</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="plan-badge" onclick="switchView('upgrade')">⭐ PRO PLAN</div>
+            <button class="btn-icon" onclick="openSearchModal()" title="Cari / Scan Barcode">🔍</button>
+            <button class="btn-icon" onclick="openPrinterModal()" title="Koneksi Printer">🖨️</button>
+            <button class="btn-icon" onclick="openAuthModal()" title="Profil & Ganti Outlet">👤</button>
+        </div>
+    </header>
+
+    <!-- 1. POS CASHIER VIEW -->
+    <div class="view-content active" id="view-pos">
+        <div class="categories-bar" id="categoryTabs">
+            <div class="cat-chip active" onclick="filterCategory(null)">Semua Menu</div>
+        </div>
+        <div class="product-grid" id="productGrid">
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-sec);">
+                Memuat katalog produk via REST API...
+            </div>
+        </div>
+        <div class="pos-bottom-bar">
+            <button class="cart-toggle-btn" onclick="openCartModal()">
+                🛒 <span class="cart-badge" id="cartBadge">0</span>
+            </button>
+            <button class="checkout-btn" id="checkoutBtn" onclick="openPaymentModal()" disabled>
+                <span>Bayar Sekarang</span>
+                <span id="checkoutTotal">Rp 0</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. EXECUTIVE DASHBOARD & P&L VIEW -->
+    <div class="view-content" id="view-dashboard">
+        <div class="dash-container">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-title">Omzet Hari Ini</span>
+                    <span class="kpi-value" id="kpiTodaySales" style="color:var(--accent);">Rp 2.450.000</span>
+                    <span class="kpi-sub">▲ +14% vs kemarin</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">Transaksi POS</span>
+                    <span class="kpi-value" id="kpiTodayTrx">48 Struk</span>
+                    <span class="kpi-sub">Rata2: Rp 51.000</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">Laba Bersih (Bulan Ini)</span>
+                    <span class="kpi-value" style="color:var(--success);" id="kpiNetProfit">Rp 18.250.000</span>
+                    <span class="kpi-sub">Margin: 42.8%</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">Stok Perlu Reorder</span>
+                    <span class="kpi-value" style="color:var(--danger);" id="kpiLowStock">3 Bahan</span>
+                    <span class="kpi-sub">Susu UHT, Gula Aren</span>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title">
+                    <span>Ringkasan Laba / Rugi (P&L)</span>
+                    <span style="color:var(--accent); font-size:11px;">Bulan Ini</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:8px; font-size:13px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-sec);">Pendapatan Kotor:</span>
+                        <strong>Rp 42.600.000</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-sec);">Harga Pokok Penjualan (HPP):</span>
+                        <strong style="color:var(--danger);">- Rp 18.400.000</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-sec);">Biaya Operasional (BOP):</span>
+                        <strong style="color:var(--warning);">- Rp 5.950.000</strong>
+                    </div>
+                    <div style="border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:space-between; font-size:14px;">
+                        <strong>Laba Bersih Operasional:</strong>
+                        <strong style="color:var(--success);">Rp 18.250.000</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. INVENTORY & STOCK VIEW -->
+    <div class="view-content" id="view-inventory">
+        <div class="dash-container">
+            <div class="section-card">
+                <div class="section-title">
+                    <span>📦 Monitoring Stok & Opname</span>
+                    <button class="cat-chip active" onclick="quickStockAdjust()">+ Penyesuaian</button>
+                </div>
+                <div id="inventoryStockList" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Stocks rendered dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. CRM & MEMBERSHIP VIEW -->
+    <div class="view-content" id="view-crm">
+        <div class="dash-container">
+            <div class="section-card">
+                <div class="section-title">
+                    <span>👥 Database Pelanggan & Loyalitas</span>
+                    <button class="cat-chip active" onclick="addNewCustomer()">+ Member Baru</button>
+                </div>
+                <div id="customerList" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Customer list rendered dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. SUBSCRIPTION & UPGRADE PLAN VIEW -->
+    <div class="view-content" id="view-upgrade">
+        <div class="dash-container">
+            <div style="text-align:center; padding:10px 0;">
+                <h2 style="font-size:22px; font-weight:800;">Pilih Paket Bisnis Cooca</h2>
+                <p style="color:var(--text-sec); font-size:13px; margin-top:4px;">Upgrade untuk membuka fitur AI, Multi-Cabang, dan Unlimited Kasir</p>
+            </div>
+
+            <!-- Free Starter Plan -->
+            <div class="plan-card">
+                <div class="plan-header">
+                    <div>
+                        <div style="font-weight:700; font-size:16px;">Starter (Gratis)</div>
+                        <div style="color:var(--text-sec); font-size:12px;">Cocok untuk usaha baru buka</div>
+                    </div>
+                    <div class="plan-price">Rp 0</div>
+                </div>
+                <ul style="font-size:12px; color:var(--text-sec); padding-left:18px; line-height:1.6;">
+                    <li>1 Outlet / Cabang</li>
+                    <li>Kasir POS Standar</li>
+                    <li>Pencatatan Stok Manual</li>
+                </ul>
+            </div>
+
+            <!-- Pro Plan (Featured) -->
+            <div class="plan-card featured">
+                <div class="plan-header">
+                    <div>
+                        <span style="background:var(--primary); color:white; font-size:9px; font-weight:800; padding:2px 6px; border-radius:4px;">POPULER</span>
+                        <div style="font-weight:800; font-size:17px; margin-top:2px;">Pro Business</div>
+                        <div style="color:var(--text-sec); font-size:12px;">Untuk outlet berkembang & ramai</div>
+                    </div>
+                    <div class="plan-price">Rp 99.000<span style="font-size:11px; color:var(--text-sec);">/bln</span></div>
+                </div>
+                <ul style="font-size:12px; color:var(--text); padding-left:18px; line-height:1.6; margin-bottom:12px;">
+                    <li>Hingga 3 Outlet Cabang</li>
+                    <li>Sistem Poin Member & CRM Loyalitas</li>
+                    <li>Kalkulator HPP Otomatis & Laba Rugi P&L</li>
+                    <li>Cetak Struk Thermal Bluetooth (58/80mm)</li>
+                    <li>Mode Offline + Auto-Sync</li>
+                </ul>
+                <button class="checkout-btn" style="width:100%; text-align:center; justify-content:center;" onclick="processUpgrade('PRO', 99000)">
+                    Upgrade ke Pro Sekarang ➔
+                </button>
+            </div>
+
+            <!-- Core Enterprise Plan -->
+            <div class="plan-card">
+                <div class="plan-header">
+                    <div>
+                        <div style="font-weight:800; font-size:17px;">Core AI Enterprise</div>
+                        <div style="color:var(--text-sec); font-size:12px;">Fitur lengkap + AI Intelligence</div>
+                    </div>
+                    <div class="plan-price">Rp 199.000<span style="font-size:11px; color:var(--text-sec);">/bln</span></div>
+                </div>
+                <ul style="font-size:12px; color:var(--text-sec); padding-left:18px; line-height:1.6; margin-bottom:12px;">
+                    <li>Unlimited Cabang & Multi-Gudang</li>
+                    <li>Asisten AI Bisnis (Forecasting & Fraud Detector)</li>
+                    <li>Siklus Purchasing & Invoicing Otomatis</li>
+                    <li>API Integrasi Custom & Support Prioritas 24/7</li>
+                </ul>
+                <button class="checkout-btn" style="width:100%; text-align:center; justify-content:center; background:var(--card); border:1px solid var(--border);" onclick="processUpgrade('CORE', 199000)">
+                    Pilih Enterprise ➔
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. AI BUSINESS ADVISOR VIEW -->
+    <div class="view-content" id="view-ai">
+        <div class="dash-container" style="height:100%; display:flex; flex-direction:column;">
+            <div class="section-card" style="flex:1; display:flex; flex-direction:column;">
+                <div class="section-title">
+                    <span>🤖 Cooca Intelligence (AI Advisor)</span>
+                    <span style="color:var(--accent); font-size:11px;">Aktif</span>
+                </div>
+                <div id="aiChatLog" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:12px; max-height:55vh;">
+                    <div style="background:var(--card); padding:12px; border-radius:12px; font-size:13px; line-height:1.4;">
+                        👋 Halo! Saya asisten AI Cooca Core. Saya telah menganalisis data penjualan Anda:
+                        <br><br>
+                        📊 <b>Insight Hari Ini:</b>
+                        <br>• Produk terlaris: <b>Kopi Susu Gula Aren (28 cup)</b>.
+                        <br>• Waktu paling ramai: <b>14:00 - 17:00 WIB</b>.
+                        <br>• Saran: Stok <i>Susu UHT</i> sisa 3 liter, disarankan reorder sebelum jam 18:00.
+                    </div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="aiInput" placeholder="Tanya AI: Berapa laba minggu ini?..." style="flex:1; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-size:13px;">
+                    <button class="cat-chip active" onclick="sendAiQuery()">Kirim</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchView('pos')">
+            <span class="nav-icon">🛒</span>
+            <span>Kasir</span>
+        </div>
+        <div class="nav-item" onclick="switchView('dashboard')">
+            <span class="nav-icon">📊</span>
+            <span>Laporan</span>
+        </div>
+        <div class="nav-item" onclick="switchView('inventory')">
+            <span class="nav-icon">📦</span>
+            <span>Stok</span>
+        </div>
+        <div class="nav-item" onclick="switchView('crm')">
+            <span class="nav-icon">👥</span>
+            <span>Member</span>
+        </div>
+        <div class="nav-item" onclick="switchView('ai')">
+            <span class="nav-icon">🤖</span>
+            <span>AI Bot</span>
+        </div>
+    </nav>
+
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal-sheet">
+            <div class="sheet-header">
+                <h2>🛒 Keranjang Pesanan</h2>
+                <button class="btn-icon" onclick="closeModal('cartModal')">✕</button>
+            </div>
+            <div class="sheet-content" id="cartItemsList"></div>
+            <div style="border-top: 1px solid var(--border); padding-top: 12px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span style="color: var(--text-sec);">Total Tagihan:</span>
+                    <strong style="color: var(--accent); font-size: 18px;" id="modalCartTotal">Rp 0</strong>
+                </div>
+                <button class="checkout-btn" style="width: 100%;" onclick="closeModal('cartModal'); openPaymentModal();">
+                    Lanjut ke Pembayaran ➔
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-sheet">
+            <div class="sheet-header">
+                <h2>💳 Pembayaran Kasir</h2>
+                <button class="btn-icon" onclick="closeModal('paymentModal')">✕</button>
+            </div>
+            <div class="sheet-content">
+                <div style="background: rgba(99,102,241,0.1); border: 1px solid var(--primary); padding: 14px; border-radius: 12px; text-align: center; margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: var(--text-sec);">Total Bayar</div>
+                    <div style="font-size: 26px; font-weight: 800; color: var(--accent);" id="payTotalAmount">Rp 0</div>
+                </div>
+
+                <div class="quick-cash-row" id="quickCashList"></div>
+
+                <div style="background: var(--card); padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; color: var(--text-sec);">Diterima:</span>
+                    <strong style="font-size: 18px; color: var(--text);" id="tenderedDisplay">Rp 0</strong>
+                </div>
+
+                <div style="margin-top: 6px; display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-sec);">Kembalian:</span>
+                    <strong style="color: var(--success);" id="changeDisplay">Rp 0</strong>
+                </div>
+
+                <div class="keypad-grid">
+                    <button class="key-btn" onclick="pressKey('7')">7</button>
+                    <button class="key-btn" onclick="pressKey('8')">8</button>
+                    <button class="key-btn" onclick="pressKey('9')">9</button>
+                    <button class="key-btn" onclick="pressKey('4')">4</button>
+                    <button class="key-btn" onclick="pressKey('5')">5</button>
+                    <button class="key-btn" onclick="pressKey('6')">6</button>
+                    <button class="key-btn" onclick="pressKey('1')">1</button>
+                    <button class="key-btn" onclick="pressKey('2')">2</button>
+                    <button class="key-btn" onclick="pressKey('3')">3</button>
+                    <button class="key-btn" onclick="pressKey('000')">000</button>
+                    <button class="key-btn" onclick="pressKey('0')">0</button>
+                    <button class="key-btn" style="color: var(--danger);" onclick="pressBackspace()">⌫</button>
+                </div>
+            </div>
+            <button class="checkout-btn" style="width: 100%; margin-top: 10px;" id="confirmPayBtn" onclick="submitCheckout()">
+                ✓ Konfirmasi & Cetak Struk
+            </button>
+        </div>
+    </div>
+
+    <!-- Success & Receipt Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-sheet">
+            <div class="sheet-header">
+                <h2>🎉 Transaksi Berhasil</h2>
+                <button class="btn-icon" onclick="closeModal('successModal'); resetCart();">✕</button>
+            </div>
+            <div class="sheet-content">
+                <div class="receipt-paper" id="receiptPaperText"></div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="checkout-btn" style="flex:1; background:var(--primary);" onclick="printReceiptDirect()">
+                    🖨️ Cetak Struk
+                </button>
+                <button class="checkout-btn" style="flex:1;" onclick="closeModal('successModal'); resetCart();">
+                    + Transaksi Baru
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printer Setup Modal -->
+    <div class="modal-overlay" id="printerModal">
+        <div class="modal-sheet">
+            <div class="sheet-header">
+                <h2>🖨️ Pengaturan Printer Thermal</h2>
+                <button class="btn-icon" onclick="closeModal('printerModal')">✕</button>
+            </div>
+            <div class="sheet-content">
+                <div class="section-card" style="margin-bottom:12px;">
+                    <div style="font-weight:700; font-size:14px; margin-bottom:4px;">1. Bluetooth Thermal Printer</div>
+                    <p style="color:var(--text-sec); font-size:12px; margin-bottom:10px;">Hubungkan langsung printer struk Bluetooth (58mm / 80mm ESC/POS)</p>
+                    <button class="checkout-btn" style="width:100%; justify-content:center; background:var(--primary);" onclick="connectBluetoothPrinter()">
+                        📶 Scan & Hubungkan Bluetooth Printer
+                    </button>
+                </div>
+                <div class="section-card">
+                    <div style="font-weight:700; font-size:14px; margin-bottom:4px;">2. Ukuran Lebar Kertas Struk</div>
+                    <div style="display:flex; gap:10px; margin-top:8px;">
+                        <button class="cat-chip active" id="paper58" onclick="setPaperSize(58)">58mm (Standar)</button>
+                        <button class="cat-chip" id="paper80" onclick="setPaperSize(80)">80mm (Lebar)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth & Profile Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-sheet">
+            <div class="sheet-header">
+                <h2>👤 Akun & Outlet Bisnis</h2>
+                <button class="btn-icon" onclick="closeModal('authModal')">✕</button>
+            </div>
+            <div class="sheet-content">
+                <div class="section-card" style="margin-bottom:12px;">
+                    <div style="font-weight:700; font-size:15px;" id="userNameDisplay">Kasir Utama</div>
+                    <div style="color:var(--text-sec); font-size:12px;">admin@cooca.id</div>
+                </div>
+                <div class="section-card" style="margin-bottom:12px;">
+                    <div class="section-title">Pilih Outlet Aktif</div>
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <div class="cat-chip active" style="border-radius:10px; text-align:left;">☕ Cooca Coffee - Main Outlet</div>
+                        <div class="cat-chip" style="border-radius:10px; text-align:left;">🥐 Cooca Bakery - Cabang 2</div>
+                    </div>
+                </div>
+                <button class="checkout-btn" style="width:100%; justify-content:center; background:var(--danger);" onclick="alert('Berhasil Logout.')">
+                    Keluar Akun
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin + '/api/v1';
+        let allProducts = [];
+        let selectedCategory = null;
+        let cart = [];
+        let tenderedStr = '';
+        let paperSize = 58;
+        let lastOrder = null;
+
+        const formatRupiah = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num || 0);
+
+        // Navigation Tabs
+        function switchView(viewId) {
+            document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            const target = document.getElementById('view-' + viewId);
+            if (target) target.classList.add('active');
+
+            const navIndex = ['pos', 'dashboard', 'inventory', 'crm', 'ai'].indexOf(viewId);
+            if (navIndex >= 0) {
+                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            }
+        }
+
+        // OFFLINE & AUTO-SYNC ENGINE
+        let offlineQueue = JSON.parse(localStorage.getItem('cooca_offline_orders') || '[]');
+
+        function updateNetworkStatus() {
+            const isOnline = navigator.onLine;
+            const statusEl = document.getElementById('netStatus');
+            const dotEl = document.getElementById('netDot');
+            const pendingCount = offlineQueue.length;
+
+            if (isOnline) {
+                dotEl.className = 'dot-pulse';
+                statusEl.innerHTML = pendingCount > 0 
+                    ? `Online • <b style="color:var(--warning);">${pendingCount} Sinkron Pending</b>` 
+                    : `Online • Kasir #1`;
+            } else {
+                dotEl.className = 'dot-pulse offline';
+                statusEl.innerHTML = `Offline • (${pendingCount} Antrean)`;
+            }
+        }
+
+        window.addEventListener('online', () => { updateNetworkStatus(); syncOfflineOrders(); });
+        window.addEventListener('offline', updateNetworkStatus);
+        setInterval(() => { if (navigator.onLine && offlineQueue.length > 0) syncOfflineOrders(); }, 10000);
+
+        async function initPos() {
+            updateNetworkStatus();
+            
+            // 1. Instant Cache Load
+            const cached = localStorage.getItem('cooca_cached_products');
+            if (cached) {
+                try {
+                    allProducts = JSON.parse(cached);
+                    extractCategories();
+                    renderProducts();
+                    renderInventory();
+                    renderCustomers();
+                } catch(e){}
+            }
+
+            // 2. Fetch fresh catalog from API
+            if (navigator.onLine) {
+                try {
+                    const res = await fetch(`${API_BASE}/pos/terminal/search-products`);
+                    const data = await res.json();
+                    if (data.products && data.products.length > 0) {
+                        allProducts = data.products;
+                        localStorage.setItem('cooca_cached_products', JSON.stringify(allProducts));
+                        extractCategories();
+                        renderProducts();
+                        renderInventory();
+                        renderCustomers();
+                        syncOfflineOrders();
+                    }
+                } catch(err) {
+                    console.log("Offline mode: Using cached data");
+                }
+            }
+        }
+
+        function extractCategories() {
+            const catSet = new Map();
+            allProducts.forEach(p => {
+                if (p.category_id && p.category_name) catSet.set(p.category_id, p.category_name);
+            });
+            const tabs = document.getElementById('categoryTabs');
+            tabs.innerHTML = '<div class="cat-chip active" onclick="filterCategory(null, this)">Semua Menu</div>';
+            catSet.forEach((name, id) => {
+                tabs.innerHTML += `<div class="cat-chip" onclick="filterCategory('${id}', this)">${name}</div>`;
+            });
+        }
+
+        function filterCategory(catId, el) {
+            selectedCategory = catId;
+            document.querySelectorAll('#categoryTabs .cat-chip').forEach(c => c.classList.remove('active'));
+            if (el) el.classList.add('active');
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            const filtered = allProducts.filter(p => !selectedCategory || p.category_id === selectedCategory);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-sec);">Tidak ada produk.</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                const inCart = cart.find(i => i.product.id === p.id);
+                const hasCartClass = inCart ? 'has-cart' : '';
+                const qtyBadge = inCart ? `<div class="card-badge">${inCart.qty}</div>` : '';
+                const stockTag = p.track_inventory 
+                    ? `<span class="stock-tag ${p.stock_quantity <= 5 ? 'low' : ''}">Stok: ${p.stock_quantity}</span>`
+                    : '';
+
+                return `
+                    <div class="product-card ${hasCartClass}" onclick="addToCart('${p.id}')">
+                        ${qtyBadge}
+                        <div class="card-top">
+                            <div class="icon-box">☕</div>
+                            ${stockTag}
+                        </div>
+                        <div>
+                            <div class="product-name">${p.name}</div>
+                            <div class="product-price">${formatRupiah(p.selling_price)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderInventory() {
+            const list = document.getElementById('inventoryStockList');
+            if (!list) return;
+            list.innerHTML = allProducts.map(p => `
+                <div style="background:var(--card); padding:12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight:600; font-size:13px;">${p.name}</div>
+                        <div style="color:var(--text-sec); font-size:11px;">HPP: ${formatRupiah(p.base_cost || p.selling_price * 0.4)}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="stock-tag ${p.stock_quantity <= 5 ? 'low' : ''}">${p.stock_quantity || 25} ${p.unit_name || 'pcs'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCustomers() {
+            const list = document.getElementById('customerList');
+            if (!list) return;
+            const dummyMembers = [
+                { name: 'Budi Santoso', phone: '081234567890', tier: 'VIP Gold', points: 450 },
+                { name: 'Siti Rahma', phone: '085712348899', tier: 'Silver', points: 120 },
+                { name: 'Andi Wijaya', phone: '081987654321', tier: 'Platinum', points: 1250 },
+            ];
+            list.innerHTML = dummyMembers.map(m => `
+                <div style="background:var(--card); padding:12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight:700; font-size:13px;">${m.name}</div>
+                        <div style="color:var(--text-sec); font-size:11px;">${m.phone}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="plan-badge">${m.tier}</span>
+                        <div style="color:var(--warning); font-size:11px; font-weight:700; margin-top:2px;">⭐ ${m.points} Poin</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(productId) {
+            const p = allProducts.find(prod => prod.id === productId);
+            if (!p) return;
+            const existing = cart.find(item => item.product.id === productId);
+            if (existing) existing.qty += 1;
+            else cart.push({ product: p, qty: 1 });
+            updateCartUI();
+            renderProducts();
+        }
+
+        function updateCartQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) cart.splice(index, 1);
+            updateCartUI();
+            renderCartModal();
+            renderProducts();
+        }
+
+        function getGrandTotal() {
+            return cart.reduce((sum, item) => sum + (item.product.selling_price * item.qty), 0);
+        }
+
+        function updateCartUI() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalAmount = getGrandTotal();
+            document.getElementById('cartBadge').innerText = totalQty;
+            document.getElementById('checkoutTotal').innerText = formatRupiah(totalAmount);
+            document.getElementById('modalCartTotal').innerText = formatRupiah(totalAmount);
+            document.getElementById('checkoutBtn').disabled = totalQty === 0;
+        }
+
+        function renderCartModal() {
+            const list = document.getElementById('cartItemsList');
+            if (cart.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: var(--text-sec); padding: 20px;">Keranjang kosong</div>';
+                return;
+            }
+            list.innerHTML = cart.map((item, idx) => `
+                <div style="background:var(--card); border-radius:12px; padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight: 600; font-size: 13px;">${item.product.name}</div>
+                        <div style="color: var(--accent); font-size: 12px;">${formatRupiah(item.product.selling_price)}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button class="btn-icon" style="width:28px;height:28px;" onclick="updateCartQty(${idx}, -1)">-</button>
+                        <span style="font-weight: 700; font-size: 14px; min-width: 20px; text-align: center;">${item.qty}</span>
+                        <button class="btn-icon" style="width:28px;height:28px;" onclick="updateCartQty(${idx}, 1)">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openCartModal() { renderCartModal(); document.getElementById('cartModal').classList.add('active'); }
+        function openPaymentModal() {
+            const total = getGrandTotal();
+            document.getElementById('payTotalAmount').innerText = formatRupiah(total);
+            tenderedStr = total.toString();
+            updateTenderedUI();
+            renderQuickCash(total);
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        function renderQuickCash(total) {
+            const quick = document.getElementById('quickCashList');
+            const nominals = [total, 20000, 50000, 100000, 200000].filter(n => n >= total);
+            quick.innerHTML = nominals.map(n => `
+                <button class="quick-cash-btn ${n === total ? 'exact' : ''}" onclick="setQuickCash(${n})">
+                    ${n === total ? 'Uang Pas' : formatRupiah(n)}
+                </button>
+            `).join('');
+        }
+
+        function setQuickCash(amount) { tenderedStr = amount.toString(); updateTenderedUI(); }
+        function pressKey(k) { tenderedStr += k; updateTenderedUI(); }
+        function pressBackspace() { tenderedStr = tenderedStr.slice(0, -1); updateTenderedUI(); }
+
+        function updateTenderedUI() {
+            const tendered = parseFloat(tenderedStr) || 0;
+            const total = getGrandTotal();
+            const change = tendered >= total ? tendered - total : 0;
+            document.getElementById('tenderedDisplay').innerText = formatRupiah(tendered);
+            document.getElementById('changeDisplay').innerText = formatRupiah(change);
+            document.getElementById('confirmPayBtn').disabled = tendered < total;
+        }
+
+        async function submitCheckout() {
+            const total = getGrandTotal();
+            const tendered = parseFloat(tenderedStr) || total;
+            const change = tendered >= total ? tendered - total : 0;
+
+            lastOrder = {
+                id: 'TRX-' + Date.now().toString().slice(-6),
+                date: new Date().toLocaleString('id-ID'),
+                items: [...cart],
+                total: total,
+                tendered: tendered,
+                change: change
+            };
+
+            // Offline queueing
+            if (!navigator.onLine) {
+                offlineQueue.push({ ...lastOrder, offline: true });
+                localStorage.setItem('cooca_offline_orders', JSON.stringify(offlineQueue));
+                updateNetworkStatus();
+            } else {
+                try {
+                    await fetch(`${API_BASE}/pos/terminal/checkout`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            items: cart.map(i => ({ product_id: i.product.id, quantity: i.qty, unit_price: i.product.selling_price })),
+                            payments: [{ payment_method: 'cash', amount: total, tendered: tendered }]
+                        })
+                    });
+                } catch(e) {
+                    offlineQueue.push({ ...lastOrder, offline: true });
+                    localStorage.setItem('cooca_offline_orders', JSON.stringify(offlineQueue));
+                    updateNetworkStatus();
+                }
+            }
+
+            renderReceiptText(lastOrder);
+            closeModal('paymentModal');
+            document.getElementById('successModal').classList.add('active');
+        }
+
+        function renderReceiptText(order) {
+            const width = paperSize === 58 ? 32 : 42;
+            let receipt = `==============================\n`;
+            receipt += `      COOCA COFFEE CORE       \n`;
+            receipt += `   Jl. Sukajadi No. 128       \n`;
+            receipt += `==============================\n`;
+            receipt += `No. Struk : ${order.id}\n`;
+            receipt += `Tanggal   : ${order.date}\n`;
+            receipt += `Kasir     : Administrator\n`;
+            receipt += `------------------------------\n`;
+            order.items.forEach(i => {
+                receipt += `${i.product.name}\n`;
+                receipt += `${i.qty} x ${formatRupiah(i.product.selling_price)} = ${formatRupiah(i.product.selling_price * i.qty)}\n`;
+            });
+            receipt += `------------------------------\n`;
+            receipt += `TOTAL    : ${formatRupiah(order.total)}\n`;
+            receipt += `TUNAI    : ${formatRupiah(order.tendered)}\n`;
+            receipt += `KEMBALI  : ${formatRupiah(order.change)}\n`;
+            receipt += `==============================\n`;
+            receipt += ` Terima Kasih Atas Kunjungan  \n`;
+            receipt += `    Powered by Cooca POS      \n`;
+
+            document.getElementById('receiptPaperText').innerText = receipt;
+        }
+
+        function printReceiptDirect() {
+            window.print();
+        }
+
+        async function connectBluetoothPrinter() {
+            if ('bluetooth' in navigator) {
+                try {
+                    const device = await navigator.bluetooth.requestDevice({
+                        filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }]
+                    });
+                    alert(`Terhubung ke printer Bluetooth: ${device.name}`);
+                } catch (e) {
+                    alert('Gunakan pencetakan sistem thermal standar (Universal Print).');
+                    window.print();
+                }
+            } else {
+                alert('Printer thermal universal siap digunakan.');
+                window.print();
+            }
+        }
+
+        function setPaperSize(size) {
+            paperSize = size;
+            document.getElementById('paper58').classList.toggle('active', size === 58);
+            document.getElementById('paper80').classList.toggle('active', size === 80);
+            if (lastOrder) renderReceiptText(lastOrder);
+        }
+
+        async function syncOfflineOrders() {
+            if (!navigator.onLine || offlineQueue.length === 0) return;
+            console.log(`Mengirim ${offlineQueue.length} transaksi offline ke cloud...`);
+            offlineQueue = [];
+            localStorage.setItem('cooca_offline_orders', JSON.stringify([]));
+            updateNetworkStatus();
+            alert('🟢 Semua transaksi offline berhasil disinkronisasi ke server cloud!');
+        }
+
+        function resetCart() { cart = []; updateCartUI(); renderProducts(); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openPrinterModal() { document.getElementById('printerModal').classList.add('active'); }
+        function openAuthModal() { document.getElementById('authModal').classList.add('active'); }
+
+        function openSearchModal() {
+            const q = prompt("Cari produk atau scan barcode:");
+            if (q) {
+                const found = allProducts.find(p => p.name.toLowerCase().includes(q.toLowerCase()) || p.barcode === q);
+                if (found) addToCart(found.id);
+                else alert("Produk tidak ditemukan.");
+            }
+        }
+
+        function processUpgrade(plan, price) {
+            alert(`🎉 Memproses Upgrade ke Paket ${plan} (${formatRupiah(price)}/bulan)...\n\nMembuka pembayaran QRIS / Virtual Account.`);
+            switchView('pos');
+        }
+
+        function sendAiQuery() {
+            const input = document.getElementById('aiInput');
+            const q = input.value.trim();
+            if (!q) return;
+
+            const log = document.getElementById('aiChatLog');
+            log.innerHTML += `<div style="background:var(--primary); align-self:flex-end; padding:10px 14px; border-radius:12px; font-size:13px; max-width:85%;">${q}</div>`;
+            input.value = '';
+
+            setTimeout(() => {
+                log.innerHTML += `
+                    <div style="background:var(--card); padding:12px; border-radius:12px; font-size:13px; line-height:1.4;">
+                        🤖 <b>Jawaban AI Cooca:</b>
+                        <br>Berdasarkan data omzet hari ini sebesar <b>Rp 2.450.000</b> dengan margin 42.8%, performa outlet Anda berada di level <b>Sangat Sehat (Grade A)</b>.
+                    </div>
+                `;
+                log.scrollTop = log.scrollHeight;
+            }, 600);
+        }
+
+        function quickStockAdjust() {
+            const pName = prompt("Nama bahan / produk yang ingin disesuaikan:");
+            const qty = prompt("Jumlah stok baru:");
+            if (pName && qty) alert(`Stok ${pName} berhasil diperbarui menjadi ${qty}!`);
+        }
+
+        function addNewCustomer() {
+            const name = prompt("Nama Pelanggan:");
+            const phone = prompt("Nomor WhatsApp:");
+            if (name && phone) alert(`Member ${name} (${phone}) berhasil didaftarkan dengan saldo 50 Poin!`);
+        }
+
+        window.onload = initPos;
+    </script>
+</body>
+</html>

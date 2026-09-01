@@ -1,0 +1,69 @@
+name: cooca_pos_mobile
+description: "Cooca POS Enterprise — Mobile Business Management & Cashier App"
+publish_to: 'none'
+version: 2.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Networking
+  http: ^1.2.0
+
+  # State Management
+  provider: ^6.1.1
+
+  # Local Storage
+  shared_preferences: ^2.2.2
+  sqflite: ^2.3.2
+  path_provider: ^2.1.2
+  path: ^1.9.0
+
+  # UI & Animations
+  google_fonts: ^8.2.1
+  flutter_animate: ^4.5.0
+  shimmer: ^4.0.0
+  fl_chart: ^1.2.0
+  cached_network_image: ^4.0.0
+
+  # Utilities
+  intl: ^0.20.3
+  uuid: ^4.3.3
+  package_info_plus: ^10.2.1
+  url_launcher: ^6.2.6
+  share_plus: ^13.3.0
+
+  # QR Code
+  qr_flutter: ^4.1.0
+
+  # SVG
+  flutter_svg: ^2.0.9
+
+  # Connectivity
+  connectivity_plus: ^7.3.1
+
+  # Permissions
+  permission_handler: ^13.0.1
+
+  # Image
+  image_picker: ^1.1.2
+
+  # Printing
+  printing: ^5.13.1
+  pdf: ^3.11.1
+  flutter_blue_plus: ^2.3.12
+  esc_pos_utils_plus: ^2.0.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/images/

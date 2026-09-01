@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Prevent direct access to sensitive files
+    RewriteRule ^(\.env|\.git|composer\.(json|lock)|package\.(json|lock)|phpunit\.xml) - [F,L,NC]
+
+    # Handle Authorization Header for API & Sanctum on LiteSpeed/Hostinger
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect to public folder
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
