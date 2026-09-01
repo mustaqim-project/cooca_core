@@ -16,7 +16,7 @@
         <p class="text-xs text-slate-300 leading-relaxed">
             1. Buka <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-indigo-400 hover:underline font-semibold">Google Cloud Console > Credentials</a>.<br>
             2. Buat <strong>OAuth 2.0 Client IDs</strong> dengan Application Type: <em>Web application</em>.<br>
-            3. Tambahkan <strong>Authorized redirect URIs</strong> dengan URL di bawah: 
+            3. Tambahkan <strong>Authorized redirect URIs</strong> dengan URL di bawah:
             <code class="px-2 py-0.5 rounded bg-slate-950 text-emerald-400 font-mono text-[11px]">{{ $googleRedirectUri }}</code><br>
             4. Salin <strong>Client ID</strong> dan <strong>Client Secret</strong> ke formulir di bawah ini.
         </p>
@@ -24,7 +24,7 @@
 
     <!-- Main Settings Form -->
     <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
-        
+
         <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6 text-xs">
             @csrf
 
@@ -37,7 +37,7 @@
 
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1.5">Google Client ID</label>
-                    <input type="text" name="google_client_id" value="{{ old('google_client_id', $googleClientId) }}" 
+                    <input type="text" name="google_client_id" value="{{ old('google_client_id', $googleClientId) }}"
                            placeholder="Contoh: 1234567890-abcdefg.apps.googleusercontent.com"
                            class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white font-mono text-xs">
                     <p class="text-[11px] text-slate-500 mt-1">Client ID publik dari Google Cloud Console.</p>
@@ -50,7 +50,7 @@
                             <span x-text="showSecret ? 'Sembunyikan' : 'Tampilkan Secret'"></span>
                         </button>
                     </div>
-                    <input :type="showSecret ? 'text' : 'password'" name="google_client_secret" value="{{ old('google_client_secret', $googleClientSecret) }}" 
+                    <input :type="showSecret ? 'text' : 'password'" name="google_client_secret" value="{{ old('google_client_secret', $googleClientSecret) }}"
                            placeholder="••••••••••••••••••••••••••••••••"
                            class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white font-mono text-xs">
                     <p class="text-[11px] text-slate-500 mt-1">Kunci rahasia API Google. Disimpan aman pada sistem.</p>
@@ -58,7 +58,7 @@
 
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1.5">Google Authorized Redirect URI</label>
-                    <input type="text" name="google_redirect_uri" value="{{ old('google_redirect_uri', $googleRedirectUri) }}" 
+                    <input type="text" name="google_redirect_uri" value="{{ old('google_redirect_uri', $googleRedirectUri) }}"
                            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-300 font-mono text-xs">
                     <p class="text-[11px] text-slate-500 mt-1">URL Callback yang wajib didaftarkan pada Authorized redirect URIs di Google Cloud Console.</p>
                 </div>
@@ -111,6 +111,14 @@
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
+                    <div><label class="block font-semibold text-slate-300 mb-1.5">Harga Top Up Token (Rp)</label><input type="number" name="ai_token_topup_price" value="{{ old('ai_token_topup_price', $aiTokenTopupPrice) }}" min="0" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
+                    <div><label class="block font-semibold text-slate-300 mb-1.5">Jumlah Token per Top Up</label><input type="number" name="ai_token_topup_amount" value="{{ old('ai_token_topup_amount', $aiTokenTopupAmount) }}" min="1" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
+                    <div><label class="block font-semibold text-slate-300 mb-1.5">Batas Storage Owner (GB)</label><input type="number" name="owner_storage_limit_gb" value="{{ old('owner_storage_limit_gb', $ownerStorageLimitGb) }}" min="1" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
+                    <div><label class="block font-semibold text-slate-300 mb-1.5">Harga Top Up Storage (Rp)</label><input type="number" name="storage_topup_price" value="{{ old('storage_topup_price', $storageTopupPrice) }}" min="0" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
+                    <div><label class="block font-semibold text-slate-300 mb-1.5">Storage per Top Up (GB)</label><input type="number" name="storage_topup_gb" value="{{ old('storage_topup_gb', $storageTopupGb) }}" min="1" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1.5">Kuota Token AI Bulanan (Tokens) <span class="text-rose-400">*</span></label>
@@ -148,7 +156,7 @@
 
             <!-- Submit Button -->
             <div class="pt-4 flex justify-end">
-                <button type="submit" 
+                <button type="submit"
                         class="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-2">
                     <i data-lucide="save" class="w-4 h-4"></i>
                     <span>Simpan Pengaturan</span>

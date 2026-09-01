@@ -128,11 +128,14 @@ final class AuthWebController extends Controller
             return $user;
         });
 
+        \App\Domain\Mail\DynamicMailConfig::bootstrap();
+        event(new \Illuminate\Auth\Events\Registered($user));
+
         Auth::guard('web')->login($user);
         $request->session()->regenerate();
         session(['active_business_id' => $user->active_business_id]);
 
-        return redirect()->route('dashboard')->with('success', 'Selamat datang! Bisnis Anda telah berhasil dibuat.');
+        return redirect()->route('dashboard')->with('success', 'Selamat datang! Bisnis Anda telah berhasil dibuat. Tautan verifikasi email telah dikirimkan ke alamat email Anda.');
     }
 
     /**

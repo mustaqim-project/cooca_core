@@ -34,6 +34,19 @@
         </div>
     </div>
 
+    <div class="glass-card rounded-2xl p-5 border border-cyan-500/30 bg-cyan-950/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-cyan-300 text-xs font-bold uppercase tracking-wider"><i data-lucide="hard-drive" class="w-4 h-4"></i> Storage Owner</div>
+            <p class="text-xs text-slate-300 mt-2">{{ number_format($usage['storage']['used_mb'], 2, ',', '.') }} MB digunakan dari {{ number_format($usage['storage']['limit_gb'], 2, ',', '.') }} GB. Batas berlaku gabungan untuk semua bisnis owner ini.</p>
+            <div class="w-full md:w-96 bg-slate-800 rounded-full h-1.5 overflow-hidden mt-3"><div class="bg-cyan-400 h-full" style="width: {{ $usage['storage']['percentage'] }}%"></div></div>
+        </div>
+        <a href="{{ route('billing.checkout', ['type' => 'storage']) }}" class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> Top Up Storage</a>
+    </div>
+
+    <div class="flex justify-end">
+        <a href="{{ route('billing.checkout', ['type' => 'ai_token']) }}" class="px-4 py-2 rounded-xl border border-amber-500/40 text-amber-300 hover:bg-amber-500/10 text-xs font-bold flex items-center gap-2"><i data-lucide="bot" class="w-4 h-4"></i> Top Up Token AI</a>
+    </div>
+
     <!-- Alert / No Data Punishment Banner -->
     <div class="glass-card rounded-2xl p-4 border border-emerald-500/30 bg-emerald-950/20 flex items-start gap-3">
         <div class="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0">
@@ -143,7 +156,7 @@
                 </span>
                 <h3 class="text-2xl font-black text-white">Buka Seluruh Potensi Bisnis Anda Tanpa Batas</h3>
                 <p class="text-xs text-slate-400 max-w-xl">
-                    Dapatkan katalog produk unlimited, multi-gudang, transaksi tanpa batas, integrasi WhatsApp, dan 10 Juta Token AI setiap bulan hanya seharga Rp129.000/bulan.
+                    Dapatkan katalog produk unlimited, multi-gudang, transaksi tanpa batas, integrasi WhatsApp, dan token AI setiap bulan hanya seharga Rp {{ number_format($monthlyPrice, 0, ',', '.') }}/bulan.
                 </p>
             </div>
 
@@ -151,13 +164,13 @@
                 <a href="{{ route('billing.checkout', ['cycle' => 'monthly']) }}"
                    class="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white text-xs font-black shadow-xl shadow-purple-500/20 transition flex items-center gap-2">
                     <i data-lucide="zap" class="w-4 h-4"></i>
-                    <span>Pilih Bulanan (Rp 129.000/bln)</span>
+                    <span>Pilih Bulanan (Rp {{ number_format($monthlyPrice, 0, ',', '.') }}/bln)</span>
                 </a>
 
                 <a href="{{ route('billing.checkout', ['cycle' => 'annual']) }}"
                    class="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black shadow-xl shadow-emerald-500/20 transition flex items-center gap-2">
                     <i data-lucide="sparkles" class="w-4 h-4"></i>
-                    <span>Pilih Tahunan Hemat 2 Bulan (Rp 1.290.000/thn)</span>
+                    <span>Pilih Tahunan {{ $annualDiscountBadge }} (Rp {{ number_format($annualPrice, 0, ',', '.') }}/thn)</span>
                 </a>
             </div>
         </div>

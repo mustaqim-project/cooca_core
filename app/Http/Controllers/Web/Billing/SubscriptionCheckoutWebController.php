@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Web\Billing;
 
 use App\Domain\Billing\EntitlementService;
 use App\Http\Controllers\Controller;
+use App\Models\PaymentAccount;
 use App\Models\SubscriptionPayment;
+use App\Models\SystemSetting;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,16 +26,42 @@ final class SubscriptionCheckoutWebController extends Controller
     public function checkout(Request $request): View
     {
         $business = Context::requireBusiness();
+        $type = $request->get('type', 'subscription');
+        if (!in_array($type, ['subscription', 'ai_token', 'storage'], true)) $type = 'subscription';
         $cycle = $request->get('cycle', 'monthly');
         if (!in_array($cycle, ['monthly', 'annual'], true)) {
             $cycle = 'monthly';
         }
 
-        $basePrice = $cycle === 'annual' ? 1290000 : 129000;
-        $paymentMethods = SubscriptionPayment::PAYMENT_METHODS;
+        $monthlyPrice = $this->entitlementService->getMonthlyPrice();
+        $annualPrice = $this->entitlementService->getAnnualPrice();
+        $basePrice = $cycle === 'annual' ? $annualPrice : $monthlyPrice;
+        $topupPrice = $type === 'ai_token' ? $this->entitlementService->getTokenTopupPrice() : $this->entitlementService->getStorageTopupPrice();
+        $topupQuantity = $type === 'ai_token' ? $this->entitlementService->getTokenTopupAmount() : $this->entitlementService->getStorageTopupBytes();
+
+        // Auto-seed default accounts if table is empty
+        if (PaymentAccount::count() === 0) {
+            foreach (PaymentAccount::getDefaultAccounts() as $account) {
+                PaymentAccount::create($account);
+            }
+        }
+
+        $paymentAccounts = PaymentAccount::active()->ordered()->get();
+        $annualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
         $currentUsage = $this->entitlementService->getUsageSummary($business);
 
-        return view('app.billing.checkout', compact('business', 'cycle', 'basePrice', 'paymentMethods', 'currentUsage'));
+        return view('app.billing.checkout', compact(
+            'business',
+            'type',
+            'cycle',
+            'basePrice',
+            'monthlyPrice',
+            'annualPrice',
+            'annualDiscountBadge',
+            'paymentAccounts',
+            'currentUsage'
+            , 'topupPrice', 'topupQuantity'
+        ));
     }
 
     /**
@@ -44,17 +72,24 @@ final class SubscriptionCheckoutWebController extends Controller
         $business = Context::requireBusiness();
         $user = auth()->user();
 
+        // Get allowed bank codes
+        $validCodes = PaymentAccount::active()->pluck('bank_code')->toArray();
+        if (empty($validCodes)) {
+            $validCodes = array_keys(SubscriptionPayment::PAYMENT_METHODS);
+        }
+
         $validated = $request->validate([
-            'cycle' => ['required', 'string', 'in:monthly,annual'],
-            'payment_method' => ['required', 'string', 'in:bca,mandiri,bri,qris'],
+            'order_type' => ['nullable', 'string', 'in:subscription,ai_token,storage'],
+            'cycle' => ['nullable', 'string', 'in:monthly,annual'],
+            'payment_method' => ['required', 'string', 'in:' . implode(',', $validCodes)],
         ]);
 
-        $payment = $this->entitlementService->createPaymentOrder(
-            business: $business,
-            user: $user,
-            cycle: $validated['cycle'],
-            paymentMethod: $validated['payment_method']
-        );
+        $orderType = $validated['order_type'] ?? 'subscription';
+        $payment = $orderType === 'ai_token'
+            ? $this->entitlementService->createTokenTopupOrder($business, $user, $validated['payment_method'])
+            : ($orderType === 'storage'
+                ? $this->entitlementService->createStorageTopupOrder($business, $user, $validated['payment_method'])
+                : $this->entitlementService->createPaymentOrder($business, $user, $validated['cycle'] ?? 'monthly', $validated['payment_method']));
 
         return redirect()->route('billing.payment.show', $payment)
             ->with('success', "Pesanan #{$payment->order_number} berhasil dibuat. Silakan selesaikan pembayaran sesuai nominal unik.");

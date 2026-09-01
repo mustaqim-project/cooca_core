@@ -153,6 +153,11 @@ class Business extends Model
         return $this->hasMany(AiTokenUsage::class);
     }
 
+    public function aiTokenTopups(): HasMany
+    {
+        return $this->hasMany(AiTokenTopup::class);
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);

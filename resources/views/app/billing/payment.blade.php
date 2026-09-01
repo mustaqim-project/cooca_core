@@ -122,7 +122,7 @@
             <!-- Destination Account Details -->
             <div class="space-y-4 text-xs">
                 <div class="space-y-1">
-                    <span class="text-slate-400">Bank Tujuan:</span>
+                    <span class="text-slate-400">Bank / Saluran Tujuan:</span>
                     <div class="text-sm font-bold text-white flex items-center gap-2">
                         <i data-lucide="building-2" class="w-4 h-4 text-cyan-400"></i>
                         <span>{{ $methodDetails['bank_name'] }}</span>
@@ -130,10 +130,10 @@
                 </div>
 
                 <div class="space-y-1">
-                    <span class="text-slate-400">Nomor Rekening Tujuan:</span>
+                    <span class="text-slate-400">Nomor Rekening / ID Tujuan:</span>
                     <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
                         <span class="font-mono text-base font-black text-white tracking-wider">{{ $methodDetails['account_number'] }}</span>
-                        @if($payment->payment_method !== 'qris')
+                        @if(($methodDetails['type'] ?? '') !== 'qris')
                         <button type="button"
                                 @click="copyToClipboard('{{ str_replace(['-', ' '], '', $methodDetails['account_number']) }}', 'rekening')"
                                 class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1">
@@ -148,26 +148,50 @@
                     <span class="text-slate-400">Atas Nama Rekening:</span>
                     <div class="font-bold text-slate-200">{{ $methodDetails['account_name'] }}</div>
                 </div>
+
+                @if(!empty($methodDetails['instructions']))
+                <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-1">
+                    <div class="flex items-center gap-1.5 text-slate-300 font-bold">
+                        <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        <span>Panduan Pembayaran:</span>
+                    </div>
+                    <p class="text-slate-400 text-[11px] leading-relaxed">{{ $methodDetails['instructions'] }}</p>
+                </div>
+                @endif
             </div>
 
             <!-- QRIS Display if QRIS method selected -->
-            @if($payment->payment_method === 'qris')
-            <div class="p-4 rounded-2xl bg-white text-slate-900 text-center space-y-2">
-                <div class="font-black text-sm tracking-wider uppercase">QRIS COOCA PAY</div>
-                <div class="w-48 h-48 mx-auto bg-slate-100 rounded-xl border border-slate-300 flex items-center justify-center p-2">
-                    <!-- QRIS Placeholder Graphic -->
-                    <div class="text-center space-y-1">
-                        <i data-lucide="qr-code" class="w-32 h-32 text-slate-800 mx-auto"></i>
-                        <span class="text-[10px] font-mono font-bold text-slate-600 block">NMID: ID1020304050</span>
-                    </div>
+            @if(($methodDetails['type'] ?? '') === 'qris' || $payment->payment_method === 'qris')
+            <div class="p-4 rounded-2xl bg-white text-slate-900 text-center space-y-3">
+                <div class="font-black text-sm tracking-wider uppercase text-slate-900">QRIS PEMBAYARAN RESMI</div>
+                <div class="w-52 h-52 mx-auto bg-slate-50 rounded-2xl border border-slate-300 flex items-center justify-center p-2 shadow-inner">
+                    @if(!empty($methodDetails['qr_image_url']))
+                        <img src="{{ $methodDetails['qr_image_url'] }}" alt="QRIS Code" class="max-h-48 max-w-full object-contain">
+                    @else
+                        <!-- QRIS Standard Graphic -->
+                        <div class="text-center space-y-1">
+                            <i data-lucide="qr-code" class="w-32 h-32 text-slate-800 mx-auto"></i>
+                            <span class="text-[10px] font-mono font-bold text-slate-600 block">{{ $methodDetails['account_number'] }}</span>
+                        </div>
+                    @endif
                 </div>
-                <div class="text-[11px] text-slate-600 font-semibold">Scan menggunakan BCA Mobile, GoPay, OVO, ShopeePay, Dana, dll.</div>
+                <div class="text-[11px] text-slate-600 font-semibold">Buka aplikasi mobile banking atau e-Wallet favorit Anda, lalu scan kode QR di atas.</div>
             </div>
             @endif
         </div>
 
         <!-- Right: Upload Proof Form OR Status Preview -->
-        <div class="space-y-6">
+        <div class="space-y-6" x-data="{
+            proofPreview: null,
+            onProofChange(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    this.proofPreview = URL.createObjectURL(file);
+                } else {
+                    this.proofPreview = null;
+                }
+            }
+        }">
             <div class="glass-card rounded-3xl p-6 border border-slate-800 space-y-5">
                 <div class="border-b border-slate-800 pb-3">
                     <h3 class="text-base font-black text-white flex items-center gap-2">
@@ -185,9 +209,15 @@
                     <!-- File input -->
                     <div class="space-y-1.5">
                         <label class="font-bold text-slate-300">File Struk Bukti Transfer <span class="text-rose-400">*</span></label>
-                        <input type="file" name="payment_proof" required accept="image/*,.pdf"
+                        <input type="file" name="payment_proof" required accept="image/*,.pdf" @change="onProofChange($event)"
                                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-400 cursor-pointer">
                         <p class="text-[10px] text-slate-500">Format: JPG, PNG, WEBP, atau PDF (Maks. 5MB).</p>
+                    </div>
+
+                    <!-- Live Image Preview -->
+                    <div x-show="proofPreview" x-cloak class="p-3 rounded-2xl bg-slate-950 border border-emerald-500/40 text-center space-y-1.5">
+                        <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Preview Foto Struk Dipilih</span>
+                        <img :src="proofPreview" alt="Struk Preview" class="max-h-48 mx-auto object-contain rounded-xl border border-slate-800">
                     </div>
 
                     <!-- Sender Bank -->

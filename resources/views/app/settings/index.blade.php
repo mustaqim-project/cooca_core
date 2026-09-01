@@ -552,39 +552,56 @@
         
         <!-- Add Member Form or Plan Upgrade Card -->
         @if($canAddMember)
-        <div class="glass-card p-6 rounded-2xl max-w-3xl border border-slate-800 space-y-4">
-            <div>
+        <div class="glass-card p-6 rounded-3xl max-w-4xl border border-slate-800 space-y-4">
+            <div class="border-b border-slate-800 pb-3">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <i data-lucide="user-plus" class="w-4 h-4 text-emerald-400"></i>
-                    <span>Tambah Karyawan / Anggota Tim Baru</span>
+                    <span>Tambah Karyawan / Buat Akun Pengguna Baru</span>
                 </h3>
-                <p class="text-xs text-slate-400 mt-1">Undang karyawan dengan mendaftarkan email akun Cooca Core mereka dan tentukan pembatasan peran akses.</p>
+                <p class="text-xs text-slate-400 mt-1">
+                    Tambahkan staf baru ke workspace bisnis Anda. Jika email belum pernah terdaftar di Cooca Core, sistem akan langsung membuatkan akun otomatis dengan nama dan kata sandi yang Anda tentukan di bawah.
+                </p>
             </div>
 
             <form method="POST" action="{{ route('settings.members.store') }}" class="space-y-4 text-xs">
                 @csrf
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                    <div class="sm:col-span-7">
-                        <label class="block font-semibold text-slate-300 mb-1">Email Pengguna Terdaftar *</label>
-                        <input type="email" name="email" required placeholder="karyawan@email.com"
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Nama Lengkap Karyawan</label>
+                        <input type="text" name="name" placeholder="Contoh: Siti Rahma"
                                class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
                     </div>
 
-                    <div class="sm:col-span-5">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Alamat Email Karyawan *</label>
+                        <input type="email" name="email" required placeholder="kasir@tokosaya.com"
+                               class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Password Akun (Jika Akun Baru)</label>
+                        <input type="text" name="password" placeholder="Default: password123"
+                               class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                    </div>
+
+                    <div>
                         <label class="block font-semibold text-slate-300 mb-1">Peran Akses (Role) *</label>
-                        <select name="role" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-medium">
+                        <select name="role" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-semibold">
                             <option value="cashier">Kasir POS (HPP & Margin Dirahasiakan)</option>
                             <option value="inventory">Staf Gudang (Stok & Penerimaan PO)</option>
-                            <option value="admin">Administrator Toko (Akses Operasional)</option>
+                            <option value="admin">Administrator / Manajer Toko</option>
                             <option value="staff">Staf Operasional</option>
                             <option value="owner">Co-Owner (Akses Penuh)</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between pt-2">
-                    <span class="text-[11px] text-slate-500">Karyawan harus sudah memiliki akun terdaftar di Cooca Core.</span>
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
+                    <span class="text-[11px] text-slate-400">
+                        <i data-lucide="info" class="w-3.5 h-3.5 inline text-emerald-400 mr-1"></i>
+                        Karyawan dapat langsung masuk di halaman <strong>/login</strong> menggunakan email dan password yang Anda berikan.
+                    </span>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition whitespace-nowrap">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>Tambahkan Karyawan</span>
                     </button>
@@ -592,7 +609,7 @@
             </form>
         </div>
         @else
-        <div class="p-6 rounded-2xl bg-gradient-to-r from-purple-950/30 via-slate-900 to-indigo-950/30 border border-purple-500/30 max-w-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="p-6 rounded-3xl bg-gradient-to-r from-purple-950/30 via-slate-900 to-indigo-950/30 border border-purple-500/30 max-w-4xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-start gap-3.5">
                 <div class="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 shrink-0">
                     <i data-lucide="lock" class="w-5 h-5"></i>
@@ -618,7 +635,7 @@
         @endif
 
         <!-- Team Members Table -->
-        <div class="glass-card rounded-2xl overflow-hidden max-w-3xl border border-slate-800">
+        <div class="glass-card rounded-3xl overflow-hidden max-w-4xl border border-slate-800 space-y-4">
             <div class="p-5 border-b border-slate-800 flex items-center justify-between">
                 <div>
                     <h3 class="text-sm font-bold text-white">Daftar Anggota Tim & Peran Akses ({{ $members->count() }})</h3>
@@ -632,28 +649,41 @@
                         <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
                             <th class="py-3 px-4 font-semibold">Nama Pengguna</th>
                             <th class="py-3 px-4 font-semibold">Email</th>
-                            <th class="py-3 px-4 font-semibold">Peran (Role)</th>
+                            <th class="py-3 px-4 font-semibold">Ubah Role Akses</th>
                             <th class="py-3 px-4 font-semibold text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-800/60">
                         @foreach($members as $m)
                         <tr class="hover:bg-slate-900/40">
-                            <td class="py-3.5 px-4 font-bold text-white">{{ $m->user?->name ?? 'User' }}</td>
+                            <td class="py-3.5 px-4 font-bold text-white">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-[11px]">
+                                        {{ substr($m->user?->name ?? 'U', 0, 1) }}
+                                    </div>
+                                    <span>{{ $m->user?->name ?? 'User' }}</span>
+                                </div>
+                            </td>
                             <td class="py-3.5 px-4 text-slate-300 font-mono">{{ $m->user?->email }}</td>
                             <td class="py-3.5 px-4">
-                                @php
-                                    $roleBadgeClass = match($m->role) {
-                                        'owner' => 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
-                                        'admin' => 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
-                                        'cashier' => 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
-                                        'inventory' => 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
-                                        default => 'bg-slate-800 text-slate-300'
-                                    };
-                                @endphp
-                                <span class="px-2.5 py-1 rounded-full font-bold uppercase text-[10px] {{ $roleBadgeClass }}">
-                                    {{ $m->role }}
+                                @if($m->role !== 'owner' || $members->where('role', 'owner')->count() > 1)
+                                <form method="POST" action="{{ route('settings.members.role', $m->id) }}" class="flex items-center gap-1.5">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="role" onchange="this.form.submit()"
+                                            class="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-xs font-semibold text-white focus:border-emerald-500">
+                                        <option value="cashier" {{ $m->role === 'cashier' ? 'selected' : '' }}>Kasir (Cashier)</option>
+                                        <option value="inventory" {{ $m->role === 'inventory' ? 'selected' : '' }}>Gudang (Inventory)</option>
+                                        <option value="admin" {{ $m->role === 'admin' ? 'selected' : '' }}>Admin / Manajer</option>
+                                        <option value="staff" {{ $m->role === 'staff' ? 'selected' : '' }}>Staff</option>
+                                        <option value="owner" {{ $m->role === 'owner' ? 'selected' : '' }}>Owner</option>
+                                    </select>
+                                </form>
+                                @else
+                                <span class="px-2.5 py-1 rounded-full font-bold uppercase text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                    Owner Utama
                                 </span>
+                                @endif
                             </td>
                             <td class="py-3.5 px-4 text-right">
                                 @if($m->role !== 'owner' || $members->where('role', 'owner')->count() > 1)
@@ -662,12 +692,12 @@
                                       class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-rose-400 hover:text-rose-300 font-semibold text-xs">
-                                        Hapus
+                                    <button type="submit" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition" title="Hapus Anggota">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </form>
                                 @else
-                                <span class="text-[10px] text-slate-500">Owner Utama</span>
+                                <span class="text-[10px] text-slate-500">-</span>
                                 @endif
                             </td>
                         </tr>
@@ -676,6 +706,73 @@
                 </table>
             </div>
         </div>
+
+        <!-- Role & Permission Reference Matrix -->
+        <div class="glass-card p-6 rounded-3xl max-w-4xl border border-slate-800 space-y-4">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="shield-check" class="w-4 h-4 text-cyan-400"></i>
+                <h4 class="text-xs font-bold text-white uppercase tracking-wider">Matriks Hak Akses & Pembatasan Role (RBAC)</h4>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <!-- Role Kasir -->
+                <div class="p-4 rounded-2xl bg-slate-950/80 border border-emerald-500/20 space-y-2">
+                    <div class="font-bold text-emerald-400 flex items-center gap-1.5">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>
+                        <span>Kasir (Cashier)</span>
+                    </div>
+                    <ul class="space-y-1 text-[11px] text-slate-300 list-disc list-inside">
+                        <li>Buka & tutup kasir (POS)</li>
+                        <li>Input transaksi & cetak struk</li>
+                        <li>Penerimaan QRIS & Tunai</li>
+                        <li class="text-rose-400 list-none font-semibold">❌ HPP & Biaya dirahasiakan</li>
+                    </ul>
+                </div>
+
+                <!-- Role Gudang -->
+                <div class="p-4 rounded-2xl bg-slate-950/80 border border-amber-500/20 space-y-2">
+                    <div class="font-bold text-amber-400 flex items-center gap-1.5">
+                        <i data-lucide="boxes" class="w-4 h-4"></i>
+                        <span>Gudang (Inventory)</span>
+                    </div>
+                    <ul class="space-y-1 text-[11px] text-slate-300 list-disc list-inside">
+                        <li>Multi-lokasi gudang & outlet</li>
+                        <li>Penerimaan Purchase Order</li>
+                        <li>Stok opname & penyesuaian</li>
+                        <li>Mutasi antar outlet</li>
+                    </ul>
+                </div>
+
+                <!-- Role Admin -->
+                <div class="p-4 rounded-2xl bg-slate-950/80 border border-blue-500/20 space-y-2">
+                    <div class="font-bold text-blue-400 flex items-center gap-1.5">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                        <span>Admin / Manajer</span>
+                    </div>
+                    <ul class="space-y-1 text-[11px] text-slate-300 list-disc list-inside">
+                        <li>Katalog produk & kategori</li>
+                        <li>Kelola supplier & pelanggan</li>
+                        <li>Faktur & invoice piutang</li>
+                        <li>Operasional seluruh outlet</li>
+                    </ul>
+                </div>
+
+                <!-- Role Owner -->
+                <div class="p-4 rounded-2xl bg-slate-950/80 border border-indigo-500/20 space-y-2">
+                    <div class="font-bold text-indigo-400 flex items-center gap-1.5">
+                        <i data-lucide="crown" class="w-4 h-4"></i>
+                        <span>Owner / Co-Owner</span>
+                    </div>
+                    <ul class="space-y-1 text-[11px] text-slate-300 list-disc list-inside">
+                        <li>Akses 100% semua fitur</li>
+                        <li>Laporan laba rugi & margin</li>
+                        <li>Kalkulator HPP 3-Pilar</li>
+                        <li>Pengaturan tim & billing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 @endsection

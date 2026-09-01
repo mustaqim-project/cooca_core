@@ -136,8 +136,7 @@
                 class="glass-card p-5 rounded-2xl relative overflow-hidden group border border-slate-800 hover:border-teal-500/40 transition-all flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Estimasi Laba Bersih
-                            (MTD)</span>
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Estimasi Laba Bersih (MTD)</span>
                         <div
                             class="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
                             <i data-lucide="trending-up" class="w-5 h-5"></i>
@@ -202,8 +201,7 @@
                 class="glass-card p-5 rounded-2xl relative overflow-hidden group border border-slate-800 hover:border-purple-500/40 transition-all flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Piutang Belum
-                            Lunas</span>
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Piutang Belum Lunas</span>
                         <div
                             class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
                             <i data-lucide="receipt" class="w-5 h-5"></i>
@@ -216,8 +214,7 @@
                 </div>
                 <div
                     class="mt-3 pt-3 border-t border-slate-800/80 text-xs text-slate-400 flex items-center justify-between">
-                    <span><span x-text="stats.unpaid_invoices_count">{{ $stats['unpaid_invoices_count'] }}</span> Faktur
-                        Tertunda</span>
+                    <span><span x-text="stats.unpaid_invoices_count">{{ $stats['unpaid_invoices_count'] }}</span> Faktur Tertunda</span>
                     <a href="{{ route('invoices.create') }}" class="text-[10px] text-purple-400 hover:underline font-bold">
                         + Faktur
                     </a>

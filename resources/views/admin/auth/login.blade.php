@@ -100,6 +100,9 @@
                         <input type="checkbox" name="remember" class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-indigo-600 focus:ring-indigo-500/20">
                         <span>Ingat Sesi Masuk</span>
                     </label>
+                    <a href="{{ route('admin.password.request') }}" class="text-indigo-400 hover:text-indigo-300 font-semibold hover:underline">
+                        Lupa kata sandi?
+                    </a>
                 </div>
 
                 <button type="submit" 

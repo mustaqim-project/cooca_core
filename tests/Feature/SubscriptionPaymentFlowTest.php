@@ -16,6 +16,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class SubscriptionPaymentFlowTest extends TestCase
@@ -216,5 +217,40 @@ class SubscriptionPaymentFlowTest extends TestCase
         // Business remains Free plan
         $sub = BusinessSubscription::where('business_id', $this->business->id)->first();
         $this->assertFalse($sub?->isCorePlan() ?? false);
+    }
+
+    public function test_approved_token_topup_is_fifo_and_expires_after_thirty_days(): void
+    {
+        $service = new EntitlementService();
+        $first = $service->createTokenTopupOrder($this->business, $this->user);
+        $service->submitPaymentProof($first, UploadedFile::fake()->image('first.png'));
+        $service->approvePayment($first, $this->admin);
+
+        $second = $service->createTokenTopupOrder($this->business, $this->user);
+        $service->submitPaymentProof($second, UploadedFile::fake()->image('second.png'));
+        $service->approvePayment($second, $this->admin);
+
+        $this->assertTrue($service->deductAiTokens($this->business, 1_000_001, 'test', $this->user));
+        $this->assertSame(0, (int) $this->business->aiTokenTopups()->where('payment_id', $first->id)->first()->remaining_tokens);
+        $this->assertSame(999_999, (int) $this->business->aiTokenTopups()->where('payment_id', $second->id)->first()->remaining_tokens);
+
+        Carbon::setTestNow(Carbon::now()->addDays(31));
+        $this->assertFalse($service->canAccessAi($this->business));
+        Carbon::setTestNow();
+    }
+
+    public function test_approved_storage_topup_adds_capacity_to_owner_across_businesses(): void
+    {
+        $service = new EntitlementService();
+        $payment = $service->createStorageTopupOrder($this->business, $this->user);
+        $service->submitPaymentProof($payment, UploadedFile::fake()->image('storage.png'));
+        $service->approvePayment($payment, $this->admin);
+
+        $summary = app(\App\Domain\Storage\OwnerStorageQuotaService::class)->getSummary($this->user);
+        $this->assertSame(4.0, $summary['limit_gb']);
+        $this->assertDatabaseHas('owner_storage_topups', [
+            'owner_id' => $this->user->id,
+            'payment_id' => $payment->id,
+        ]);
     }
 }

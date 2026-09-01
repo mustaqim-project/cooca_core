@@ -28,6 +28,11 @@ final class AdminSettingController extends Controller
         $subscriptionPriceAnnual = SystemSetting::get('subscription_price_annual', '1290000');
         $subscriptionAiTokensMonthly = SystemSetting::get('subscription_ai_tokens_monthly', '10000000');
         $subscriptionAnnualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
+        $aiTokenTopupPrice = SystemSetting::get('ai_token_topup_price', '50000');
+        $aiTokenTopupAmount = SystemSetting::get('ai_token_topup_amount', '1000000');
+        $ownerStorageLimitGb = SystemSetting::get('owner_storage_limit_gb', '3');
+        $storageTopupPrice = SystemSetting::get('storage_topup_price', '50000');
+        $storageTopupGb = SystemSetting::get('storage_topup_gb', '1');
 
         return view('admin.settings.index', compact(
             'googleClientId',
@@ -38,7 +43,8 @@ final class AdminSettingController extends Controller
             'subscriptionPriceMonthly',
             'subscriptionPriceAnnual',
             'subscriptionAiTokensMonthly',
-            'subscriptionAnnualDiscountBadge'
+            'subscriptionAnnualDiscountBadge', 'aiTokenTopupPrice', 'aiTokenTopupAmount',
+            'ownerStorageLimitGb', 'storageTopupPrice', 'storageTopupGb'
         ));
     }
 
@@ -53,10 +59,15 @@ final class AdminSettingController extends Controller
             'google_client_secret' => ['nullable', 'string', 'max:500'],
             'google_redirect_uri' => ['nullable', 'string', 'max:500'],
             'allow_google_login' => ['nullable', 'boolean'],
-            'subscription_price_monthly' => ['required', 'numeric', 'min:0'],
-            'subscription_price_annual' => ['required', 'numeric', 'min:0'],
-            'subscription_ai_tokens_monthly' => ['required', 'integer', 'min:0'],
+            'subscription_price_monthly' => ['nullable', 'numeric', 'min:0'],
+            'subscription_price_annual' => ['nullable', 'numeric', 'min:0'],
+            'subscription_ai_tokens_monthly' => ['nullable', 'integer', 'min:0'],
             'subscription_annual_discount_badge' => ['nullable', 'string', 'max:64'],
+            'ai_token_topup_price' => ['nullable', 'numeric', 'min:0'],
+            'ai_token_topup_amount' => ['nullable', 'integer', 'min:1'],
+            'owner_storage_limit_gb' => ['nullable', 'integer', 'min:1'],
+            'storage_topup_price' => ['nullable', 'numeric', 'min:0'],
+            'storage_topup_gb' => ['nullable', 'integer', 'min:1'],
         ]);
 
         SystemSetting::set('app_name', $validated['app_name'], 'general');
@@ -69,11 +80,22 @@ final class AdminSettingController extends Controller
         SystemSetting::set('google_redirect_uri', $validated['google_redirect_uri'] ?? url('/auth/google/callback'), 'google_api');
         SystemSetting::set('allow_google_login', $request->has('allow_google_login') ? '1' : '0', 'google_api');
 
-        // Save Subscription Pricing
-        SystemSetting::set('subscription_price_monthly', (string) $validated['subscription_price_monthly'], 'billing');
-        SystemSetting::set('subscription_price_annual', (string) $validated['subscription_price_annual'], 'billing');
-        SystemSetting::set('subscription_ai_tokens_monthly', (string) $validated['subscription_ai_tokens_monthly'], 'billing');
-        SystemSetting::set('subscription_annual_discount_badge', $validated['subscription_annual_discount_badge'] ?? 'Hemat 2 Bulan', 'billing');
+        // Save Subscription Pricing if provided
+        if (isset($validated['subscription_price_monthly'])) {
+            SystemSetting::set('subscription_price_monthly', (string) $validated['subscription_price_monthly'], 'billing');
+        }
+        if (isset($validated['subscription_price_annual'])) {
+            SystemSetting::set('subscription_price_annual', (string) $validated['subscription_price_annual'], 'billing');
+        }
+        if (isset($validated['subscription_ai_tokens_monthly'])) {
+            SystemSetting::set('subscription_ai_tokens_monthly', (string) $validated['subscription_ai_tokens_monthly'], 'billing');
+        }
+        if (isset($validated['subscription_annual_discount_badge'])) {
+            SystemSetting::set('subscription_annual_discount_badge', $validated['subscription_annual_discount_badge'], 'billing');
+        }
+        foreach (['ai_token_topup_price', 'ai_token_topup_amount', 'owner_storage_limit_gb', 'storage_topup_price', 'storage_topup_gb'] as $setting) {
+            if (isset($validated[$setting])) SystemSetting::set($setting, (string) $validated[$setting], 'billing');
+        }
 
         return redirect()->route('admin.settings.index')->with('success', 'Konfigurasi Google API, Harga Langganan, dan Sistem berhasil disimpan.');
     }

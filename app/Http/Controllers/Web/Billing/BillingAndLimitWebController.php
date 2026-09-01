@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web\Billing;
 
 use App\Domain\Billing\EntitlementService;
 use App\Http\Controllers\Controller;
+use App\Models\SystemSetting;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,8 +25,11 @@ final class BillingAndLimitWebController extends Controller
     {
         $business = Context::requireBusiness();
         $usage = $this->entitlementService->getUsageSummary($business);
+        $monthlyPrice = $this->entitlementService->getMonthlyPrice();
+        $annualPrice = $this->entitlementService->getAnnualPrice();
+        $annualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
 
-        return view('app.billing.limits', compact('business', 'usage'));
+        return view('app.billing.limits', compact('business', 'usage', 'monthlyPrice', 'annualPrice', 'annualDiscountBadge'));
     }
 
     /**
@@ -38,9 +42,11 @@ final class BillingAndLimitWebController extends Controller
 
         $this->entitlementService->upgradeToCore($business, $cycle);
 
-        $cycleName = $cycle === 'annual' ? 'Core Annual (Rp1.290.000/thn)' : 'Core Monthly (Rp129.000/bln)';
+        $monthlyPriceFormatted = number_format($this->entitlementService->getMonthlyPrice(), 0, ',', '.');
+        $annualPriceFormatted = number_format($this->entitlementService->getAnnualPrice(), 0, ',', '.');
+        $cycleName = $cycle === 'annual' ? "Core Annual (Rp{$annualPriceFormatted}/thn)" : "Core Monthly (Rp{$monthlyPriceFormatted}/bln)";
 
         return redirect()->route('billing.limits')
-            ->with('success', "Selamat! Bisnis Anda kini aktif pada paket {$cycleName}. Seluruh kuota transaksi, produk, dan 10 Juta token AI telah terbuka penuh.");
+            ->with('success', "Selamat! Bisnis Anda kini aktif pada paket {$cycleName}. Seluruh kuota transaksi, produk, dan token AI telah terbuka penuh.");
     }
 }

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Models\Traits\HasUuid;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,7 +30,7 @@ use Laravel\Sanctum\HasApiTokens;
     'avatar',
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasUuid, Notifiable;
@@ -82,5 +83,10 @@ class User extends Authenticatable
     public function activeBusiness(): BelongsTo
     {
         return $this->belongsTo(Business::class, 'active_business_id');
+    }
+
+    public function storageTopups(): HasMany
+    {
+        return $this->hasMany(OwnerStorageTopup::class, 'owner_id');
     }
 }

@@ -77,7 +77,7 @@ class PaymentAccount extends Model
         return [
             'bca' => [
                 'bank_code' => 'bca',
-                'bank_name' => 'Bank Central Asia (BCA)',
+                'bank_name' => 'Bank BCA Transfer',
                 'account_name' => 'PT Cooca Teknologi Indonesia',
                 'account_number' => '8735-0812-999',
                 'type' => self::TYPE_BANK_TRANSFER,
@@ -89,7 +89,7 @@ class PaymentAccount extends Model
             ],
             'mandiri' => [
                 'bank_code' => 'mandiri',
-                'bank_name' => 'Bank Mandiri',
+                'bank_name' => 'Bank Mandiri Transfer',
                 'account_name' => 'PT Cooca Teknologi Indonesia',
                 'account_number' => '137-00-1928374-1',
                 'type' => self::TYPE_BANK_TRANSFER,
@@ -101,7 +101,7 @@ class PaymentAccount extends Model
             ],
             'bri' => [
                 'bank_code' => 'bri',
-                'bank_name' => 'Bank Rakyat Indonesia (BRI)',
+                'bank_name' => 'Bank BRI Transfer',
                 'account_name' => 'PT Cooca Teknologi Indonesia',
                 'account_number' => '0341-01-002847-50-3',
                 'type' => self::TYPE_BANK_TRANSFER,
@@ -113,9 +113,9 @@ class PaymentAccount extends Model
             ],
             'qris' => [
                 'bank_code' => 'qris',
-                'bank_name' => 'QRIS Cooca Pay (Semua Bank & e-Wallet)',
+                'bank_name' => 'QRIS Instant (Semua Bank & e-Wallet)',
                 'account_name' => 'COOCA.ID INDONESIA',
-                'account_number' => 'NMID: ID1020304050',
+                'account_number' => 'Scan QR Code Cooca Pay',
                 'type' => self::TYPE_QRIS,
                 'instructions' => 'Buka aplikasi BCA Mobile, GoPay, OVO, ShopeePay, atau Dana, scan kode QRIS Cooca, masukkan nominal sesuai angka unik, dan upload screenshot bukti bayar.',
                 'icon' => 'qr-code',

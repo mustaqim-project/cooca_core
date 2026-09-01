@@ -88,6 +88,10 @@ final class SettingWebController extends Controller
 
         // Handle upload new logo
         if ($request->hasFile('logo')) {
+            $owner = app(\App\Domain\Storage\OwnerStorageQuotaService::class)->ownerForBusiness($business);
+            if ($owner && !app(\App\Domain\Storage\OwnerStorageQuotaService::class)->canUpload($owner, (int) $request->file('logo')->getSize())) {
+                return back()->withErrors(['logo' => 'Kuota storage owner tidak mencukupi. Silakan top up storage terlebih dahulu.']);
+            }
             if ($business->logo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($business->logo_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($business->logo_path);
             }
@@ -132,14 +136,22 @@ final class SettingWebController extends Controller
         }
 
         $validated = $request->validate([
+            'name' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email'],
+            'password' => ['nullable', 'string', 'min:6'],
             'role' => ['required', 'string', 'in:owner,admin,cashier,staff,inventory'],
         ]);
 
         $user = \App\Models\User::where('email', $validated['email'])->first();
 
         if (! $user) {
-            return back()->with('error', "Pengguna dengan email {$validated['email']} belum terdaftar di Cooca Core. Minta karyawan untuk mendaftar akun terlebih dahulu.");
+            // Auto create employee account with owner-specified password
+            $user = \App\Models\User::create([
+                'name' => ! empty($validated['name']) ? $validated['name'] : explode('@', $validated['email'])[0],
+                'email' => $validated['email'],
+                'password' => \Illuminate\Support\Facades\Hash::make($validated['password'] ?? 'password123'),
+                'email_verified_at' => now(),
+            ]);
         }
 
         if ($business->users()->where('users.id', $user->id)->exists()) {
@@ -151,7 +163,36 @@ final class SettingWebController extends Controller
             'role' => $validated['role'],
         ]);
 
-        return back()->with('success', "Karyawan {$user->name} ({$validated['email']}) berhasil ditambahkan sebagai {$validated['role']}.");
+        // If user doesn't have an active business context set, link this business
+        if (! $user->active_business_id) {
+            $user->update(['active_business_id' => $business->id]);
+        }
+
+        return back()->with('success', "Karyawan {$user->name} ({$validated['email']}) berhasil ditambahkan dengan role " . strtoupper($validated['role']) . ". Karyawan dapat langsung login di /login dengan email & password yang didaftarkan.");
+    }
+
+    /**
+     * Update employee role in business workspace.
+     */
+    public function updateMemberRole(Request $request, \App\Models\BusinessMembership $member): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+
+        if ($member->business_id !== $business->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'role' => ['required', 'string', 'in:owner,admin,cashier,staff,inventory'],
+        ]);
+
+        if ($member->role === 'owner' && $validated['role'] !== 'owner' && $business->memberships()->where('role', 'owner')->count() <= 1) {
+            return back()->with('error', 'Tidak dapat mengubah role satu-satunya Owner bisnis.');
+        }
+
+        $member->update(['role' => $validated['role']]);
+
+        return back()->with('success', "Role akses untuk anggota tim berhasil diubah menjadi " . strtoupper($validated['role']) . ".");
     }
 
     /**

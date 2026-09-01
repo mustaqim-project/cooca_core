@@ -9,14 +9,17 @@ use Illuminate\Support\Facades\Storage;
 
 class StorageQuotaService
 {
-    public const DEFAULT_FREE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024; // 5 GB
-    public const DEFAULT_CORE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024; // 5 GB
+    public const DEFAULT_FREE_LIMIT_BYTES = OwnerStorageQuotaService::DEFAULT_LIMIT_BYTES;
+    public const DEFAULT_CORE_LIMIT_BYTES = OwnerStorageQuotaService::DEFAULT_LIMIT_BYTES;
 
     /**
      * Get estimated storage usage for a given business in bytes.
      */
     public function getUsageBytes(Business $business): int
     {
+        $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
+        if ($owner) return app(OwnerStorageQuotaService::class)->getUsageBytes($owner);
+
         $businessPath = "businesses/{$business->id}";
         $totalBytes = 0;
 
@@ -36,7 +39,8 @@ class StorageQuotaService
     public function canUpload(Business $business, int $additionalBytes = 0): bool
     {
         $currentUsage = $this->getUsageBytes($business);
-        $maxLimit = self::DEFAULT_CORE_LIMIT_BYTES;
+        $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
+        $maxLimit = $owner ? app(OwnerStorageQuotaService::class)->getLimitBytes($owner) : self::DEFAULT_CORE_LIMIT_BYTES;
 
         return ($currentUsage + $additionalBytes) <= $maxLimit;
     }
@@ -47,7 +51,8 @@ class StorageQuotaService
     public function getSummary(Business $business): array
     {
         $usedBytes = $this->getUsageBytes($business);
-        $limitBytes = self::DEFAULT_CORE_LIMIT_BYTES;
+        $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
+        $limitBytes = $owner ? app(OwnerStorageQuotaService::class)->getLimitBytes($owner) : self::DEFAULT_CORE_LIMIT_BYTES;
         $usedMb = round($usedBytes / (1024 * 1024), 2);
         $limitGb = round($limitBytes / (1024 * 1024 * 1024), 1);
         $percentage = $limitBytes > 0 ? round(($usedBytes / $limitBytes) * 100, 1) : 0;

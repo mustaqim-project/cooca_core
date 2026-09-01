@@ -197,6 +197,17 @@ Route::middleware('auth:web')->group(function (): void {
         Route::post('/settings/members', [SettingWebController::class, 'storeMember'])->name('settings.members.store');
         Route::delete('/settings/members/{member}', [SettingWebController::class, 'destroyMember'])->name('settings.members.destroy');
 
+        Route::middleware('require.role:owner')->group(function (): void {
+            Route::get('/feedback/bugs', [\App\Http\Controllers\Web\FeedbackWebController::class, 'bugs'])->name('feedback.bugs.index');
+            Route::get('/feedback/bugs/create', [\App\Http\Controllers\Web\FeedbackWebController::class, 'createBug'])->name('feedback.bugs.create');
+            Route::post('/feedback/bugs', [\App\Http\Controllers\Web\FeedbackWebController::class, 'storeBug'])->name('feedback.bugs.store');
+            Route::get('/feedback/bugs/{bugReport}', [\App\Http\Controllers\Web\FeedbackWebController::class, 'showBug'])->name('feedback.bugs.show');
+            Route::get('/feedback/features', [\App\Http\Controllers\Web\FeedbackWebController::class, 'features'])->name('feedback.features.index');
+            Route::get('/feedback/features/create', [\App\Http\Controllers\Web\FeedbackWebController::class, 'createFeature'])->name('feedback.features.create');
+            Route::post('/feedback/features', [\App\Http\Controllers\Web\FeedbackWebController::class, 'storeFeature'])->name('feedback.features.store');
+            Route::get('/feedback/features/{featureRequest}', [\App\Http\Controllers\Web\FeedbackWebController::class, 'showFeature'])->name('feedback.features.show');
+        });
+
         // SaaS Plan & Resource Quota Limits
         Route::get('/billing/limits', [\App\Http\Controllers\Web\Billing\BillingAndLimitWebController::class, 'index'])->name('billing.limits');
         Route::post('/billing/upgrade', [\App\Http\Controllers\Web\Billing\BillingAndLimitWebController::class, 'upgrade'])->name('billing.upgrade');
@@ -321,6 +332,13 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/subscriptions/{payment}', [\App\Http\Controllers\Admin\AdminSubscriptionController::class, 'show'])->name('subscriptions.show');
         Route::post('/subscriptions/{payment}/approve', [\App\Http\Controllers\Admin\AdminSubscriptionController::class, 'approve'])->name('subscriptions.approve');
         Route::post('/subscriptions/{payment}/reject', [\App\Http\Controllers\Admin\AdminSubscriptionController::class, 'reject'])->name('subscriptions.reject');
+
+        Route::get('/feedback/bugs', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'bugs'])->name('feedback.bugs.index');
+        Route::get('/feedback/bugs/{bugReport}', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'showBug'])->name('feedback.bugs.show');
+        Route::patch('/feedback/bugs/{bugReport}', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'updateBug'])->name('feedback.bugs.update');
+        Route::get('/feedback/features', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'features'])->name('feedback.features.index');
+        Route::get('/feedback/features/{featureRequest}', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'showFeature'])->name('feedback.features.show');
+        Route::patch('/feedback/features/{featureRequest}', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'updateFeature'])->name('feedback.features.update');
 
         // CMS Rekening & Payment Accounts
         Route::get('/payment-accounts', [\App\Http\Controllers\Admin\AdminPaymentAccountController::class, 'index'])->name('payment-accounts.index');
