@@ -169,6 +169,12 @@
                     <span>Monitoring Token AI</span>
                 </a>
 
+                <a href="{{ route('admin.feedback.bugs.index') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.feedback.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <i data-lucide="messages-square" class="w-4 h-4 text-cyan-400"></i>
+                    <span>Bug & Request Fitur</span>
+                </a>
+
                 <div class="px-3 pt-4 pb-1 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Konfigurasi</div>
 
                 <a href="{{ route('admin.payment-accounts.index') }}" 

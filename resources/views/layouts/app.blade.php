@@ -345,6 +345,14 @@
                             {{ $isCorePlan ? 'Core' : 'Free' }}
                         </span>
                     </a>
+
+                    @if(\App\Support\Context::isOwner())
+                    <a href="{{ route('feedback.bugs.index') }}"
+                       class="flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all {{ request()->routeIs('feedback.*') ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-900 hover:text-white' }}">
+                        <i data-lucide="life-buoy" class="w-4 h-4 text-cyan-400"></i>
+                        <span>Dukungan Produk</span>
+                    </a>
+                    @endif
                 </div>
 
             </nav>
