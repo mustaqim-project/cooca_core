@@ -52,7 +52,7 @@ final class PosTerminalFeatureTest extends TestCase
 
         $this->business->users()->attach($this->user->id, [
             'id' => (string) Str::uuid(),
-            'role' => 'admin',
+            'role' => 'owner',
         ]);
 
         $this->user->update(['active_business_id' => $this->business->id]);
@@ -219,6 +219,12 @@ final class PosTerminalFeatureTest extends TestCase
     {
         $this->actingAs($this->user);
 
+        // Buka shift kasir terlebih dahulu (wajib sebelum transaksi POS)
+        $this->postJson(route('pos.shifts.open'), [
+            'location_id' => $this->location->id,
+            'opening_cash' => 100000,
+        ]);
+
         // Create order
         $payload = [
             'location_id' => $this->location->id,
@@ -331,6 +337,12 @@ final class PosTerminalFeatureTest extends TestCase
     {
         $this->actingAs($this->user);
 
+        // Buka shift kasir terlebih dahulu (wajib sebelum transaksi POS)
+        $this->postJson(route('pos.shifts.open'), [
+            'location_id' => $this->location->id,
+            'opening_cash' => 100000,
+        ]);
+
         // Create a 10% voucher
         $voucher = \App\Models\Voucher::create([
             'business_id' => $this->business->id,
@@ -366,5 +378,29 @@ final class PosTerminalFeatureTest extends TestCase
         // Verify voucher used_count incremented
         $voucher->refresh();
         $this->assertEquals(1, $voucher->used_count);
+    }
+
+    public function test_pos_checkout_is_blocked_when_no_shift_is_open(): void
+    {
+        $this->actingAs($this->user);
+
+        // Pastikan belum ada shift terbuka
+        $this->assertNull(PosShift::where('user_id', $this->user->id)->where('status', 'open')->first());
+
+        $payload = [
+            'location_id' => $this->location->id,
+            'items' => [
+                ['product_id' => $this->product->id, 'product_name' => $this->product->name, 'quantity' => 1, 'unit_price' => 50000],
+            ],
+            'payments' => [
+                ['payment_method' => 'cash', 'amount' => 50000],
+            ],
+        ];
+
+        $resp = $this->postJson(route('pos.checkout'), $payload);
+
+        // Transaksi harus ditolak selama shift belum dibuka
+        $resp->assertStatus(403);
+        $this->assertNull(PosOrder::where('business_id', $this->business->id)->first());
     }
 }

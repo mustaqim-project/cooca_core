@@ -173,4 +173,9 @@ class PosOrder extends Model
     {
         return $this->hasMany(PosOrderPayment::class);
     }
+
+    public function salesReturns(): HasMany
+    {
+        return $this->hasMany(SalesReturn::class);
+    }
 }

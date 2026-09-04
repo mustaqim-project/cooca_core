@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Pembayaran ' . $payment->order_number . ' — Cooca Core',
+    'title' => 'Pembayaran ' . $payment->order_number . ' — Cooca UMKM',
     'headerTitle' => 'Instruksi Pembayaran & Konfirmasi',
-    'headerSubtitle' => 'Selesaikan transfer dan upload bukti transfer untuk aktivasi paket Cooca Core'
+    'headerSubtitle' => 'Selesaikan transfer dan upload bukti transfer untuk aktivasi paket Cooca UMKM'
 ])
 
 @section('content')
@@ -56,7 +56,7 @@
         <div class="space-y-1 text-xs">
             <h4 class="font-bold text-white text-sm">Bukti Pembayaran Sedang Diverifikasi</h4>
             <p class="text-cyan-200">
-                Bukti transfer Anda telah kami terima pada <strong class="text-white">{{ $payment->proof_uploaded_at?->format('d M Y H:i') }}</strong>. Tim Admin kami sedang mencocokkan mutasi bank Anda. Paket Cooca Core akan aktif otomatis setelah disetujui (biasanya 5–15 menit).
+                Bukti transfer Anda telah kami terima pada <strong class="text-white">{{ $payment->proof_uploaded_at?->format('d M Y H:i') }}</strong>. Tim Admin kami sedang mencocokkan mutasi bank Anda. Paket Cooca UMKM akan aktif otomatis setelah disetujui (biasanya 5–15 menit).
             </p>
         </div>
     </div>
@@ -72,7 +72,7 @@
             <div class="space-y-1 text-xs">
                 <h4 class="font-bold text-white text-sm">Pembayaran Telah Disetujui!</h4>
                 <p class="text-emerald-200">
-                    Paket Cooca Core Anda telah aktif hingga <strong class="text-white">{{ $payment->business->subscription?->ends_at?->format('d M Y') }}</strong>. Nikmati seluruh fitur unlimited dan 10.000.000 Token AI!
+                    Paket Cooca UMKM Anda telah aktif hingga <strong class="text-white">{{ $payment->business->subscription?->ends_at?->format('d M Y') }}</strong>. Nikmati seluruh fitur Pro & Patungan tanpa batas!
                 </p>
             </div>
         </div>
@@ -95,17 +95,17 @@
                 <div class="text-right">
                     <span class="text-[10px] text-slate-400">Paket:</span>
                     <div class="text-xs font-black text-emerald-400 uppercase">
-                        {{ $payment->cycle === 'annual' ? 'Core Tahunan' : 'Core Bulanan' }}
+                        {{ $payment->package_name ?? ($payment->cycle === 'annual' ? 'Patungan Tahunan' : ($payment->cycle === 'monthly' ? 'Patungan Bulanan' : 'Top Up')) }}
                     </div>
                 </div>
             </div>
 
             <!-- Transfer Amount Box with 3-digit Highlight -->
-            <div class="p-5 rounded-2xl bg-slate-950/80 border border-indigo-500/30 space-y-2">
+            <div class="p-5 rounded-2xl bg-slate-950/80 border border-indigo-500/30 space-y-3">
                 <div class="text-xs text-slate-400">Total Transfer (Wajib Pas Hingga 3 Digit Terakhir):</div>
                 <div class="flex items-baseline justify-between">
                     <div class="text-2xl sm:text-3xl font-black font-mono text-white tracking-tight">
-                        Rp {{ number_format($payment->amount, 0, ',', '.') }}<span class="text-amber-400 underline decoration-2">{{ str_pad((string)$payment->unique_code, 3, '0', STR_PAD_LEFT) }}</span>
+                        Rp {{ number_format($payment->total_payable, 0, ',', '.') }}
                     </div>
                     <button type="button"
                             @click="copyToClipboard('{{ (int)$payment->total_payable }}', 'nominal')"
@@ -114,8 +114,18 @@
                         <span x-text="copiedText === 'nominal' ? 'Tersalin!' : 'Salin'"></span>
                     </button>
                 </div>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] space-y-1 text-slate-300">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Harga Pokok:</span>
+                        <span class="font-mono text-white">Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Kode Unik Verifikasi:</span>
+                        <span class="font-mono text-amber-400 font-bold">+{{ str_pad((string)$payment->unique_code, 3, '0', STR_PAD_LEFT) }}</span>
+                    </div>
+                </div>
                 <p class="text-[11px] text-amber-300/90 leading-relaxed pt-1">
-                    ⚠️ <strong class="text-white">Penting:</strong> 3 digit terakhir (<span class="font-mono font-bold text-amber-400">{{ $payment->unique_code }}</span>) adalah kode identifikasi unik untuk mempercepat verifikasi otomatis rekening Anda.
+                    ⚠️ <strong class="text-white">Penting:</strong> 3 digit terakhir (<span class="font-mono font-bold text-amber-400">{{ str_pad((string)$payment->unique_code, 3, '0', STR_PAD_LEFT) }}</span>) adalah kode identifikasi unik untuk mempercepat verifikasi mutasi rekening Anda.
                 </p>
             </div>
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Pos;
 
+use App\Domain\Commerce\SalesReturnService;
 use App\Domain\Pos\PosOrderService;
 use App\Http\Controllers\Controller;
 use App\Models\PosOrder;
@@ -15,7 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 final class PosOrderController extends Controller
 {
     public function __construct(
-        private readonly PosOrderService $orderService = new PosOrderService
+        private readonly PosOrderService $orderService = new PosOrderService,
+        private readonly SalesReturnService $salesReturnService = new SalesReturnService,
     ) {}
 
     /**
@@ -123,10 +125,28 @@ final class PosOrderController extends Controller
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:255'],
             'restore_stock' => ['nullable', 'boolean'],
+            'items' => ['nullable', 'array', 'min:1'],
+            'items.*.pos_order_item_id' => ['required_with:items', 'exists:pos_order_items,id'],
+            'items.*.quantity' => ['required_with:items', 'numeric', 'gt:0'],
         ]);
 
+        if (! empty($validated['items'])) {
+            try {
+                $return = $this->salesReturnService->createFromPosOrder($posOrder, $validated['items'], ['reason' => $validated['reason'], 'created_by' => $user->id]);
+                $return = $this->salesReturnService->approve($return, $user->id);
+                $this->salesReturnService->complete($return, $user->id);
+            } catch (\InvalidArgumentException $exception) {
+                return response()->json(['message' => $exception->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+            return response()->json(['message' => "Refund parsial #{$posOrder->order_number} berhasil.", 'order' => $posOrder->fresh(['items', 'payments', 'salesReturns']), 'return' => $return], Response::HTTP_OK);
+        }
+
         $restoreStock = (bool) ($validated['restore_stock'] ?? true);
-        $refunded = $this->orderService->refundOrder($posOrder, $user, $validated['reason'], $restoreStock);
+        try {
+            $refunded = $this->orderService->refundOrder($posOrder, $user, $validated['reason'], $restoreStock);
+        } catch (\InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         return response()->json([
             'message' => "Transaksi #{$refunded->order_number} berhasil direfund / diretur.",

@@ -39,7 +39,7 @@ final class UserPanelAndAuthWebTest extends TestCase
 
     public function test_login_and_register_views_are_accessible(): void
     {
-        $this->get('/login')->assertOk()->assertSee('Cooca Core');
+        $this->get('/login')->assertOk()->assertSee('Cooca UMKM');
         $this->get('/register')->assertOk()->assertSee('Daftarkan Bisnis Anda');
     }
 
@@ -205,7 +205,7 @@ final class UserPanelAndAuthWebTest extends TestCase
             ->withSession(['active_business_id' => $biz->id])
             ->get('/reports')
             ->assertOk()
-            ->assertSee('Laporan HPP & Analitik Struktur Biaya');
+            ->assertSee('Laporan & Analitik');
 
         $this->actingAs($user)
             ->withSession(['active_business_id' => $biz->id])

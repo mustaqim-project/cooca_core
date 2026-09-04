@@ -51,6 +51,8 @@ final class DynamicMailConfig
             }
 
             if ($encryption !== null) {
+                $scheme = $encryption === 'ssl' ? 'smtps' : 'smtp';
+                Config::set('mail.mailers.smtp.scheme', $scheme);
                 Config::set('mail.mailers.smtp.encryption', $encryption === 'none' || $encryption === '' ? null : $encryption);
             }
 

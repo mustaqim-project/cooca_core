@@ -7,10 +7,22 @@
 @section('content')
 <div class="space-y-6" x-data="{
     showAddModal: false,
-    showEditModal: false,
+    showEditModal: {{ $editProduct ? 'true' : 'false' }},
     showAddCategoryModal: false,
     showAddUnitModal: false,
-    editProduct: { id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, is_active: true, description: '' },
+    editProduct: {!! $editProduct ? json_encode([
+        'id' => $editProduct->id,
+        'slug' => $editProduct->slug,
+        'name' => $editProduct->name,
+        'sku' => $editProduct->code ?? '',
+        'category_id' => $editProduct->category_id ?? '',
+        'output_unit_id' => $editProduct->output_unit_id,
+        'base_cost' => (float) $editProduct->base_cost,
+        'selling_price' => (float) $editProduct->selling_price,
+        'min_stock' => (float) $editProduct->min_stock,
+        'is_active' => (bool) $editProduct->is_active,
+        'description' => $editProduct->description ?? '',
+    ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, is_active: true, description: '' }" !!},
     openEditModal(p) {
         this.editProduct = { ...p };
         this.showEditModal = true;
@@ -36,11 +48,20 @@
             </select>
         </form>
 
-        <button @click="showAddModal = true" 
-                class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Tambah Produk Baru</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('import.index', ['tab' => 'products']) }}" 
+               class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+               title="Import data produk massal dari file Excel / CSV">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-teal-400"></i>
+                <span>Import Excel</span>
+            </a>
+
+            <button @click="showAddModal = true" 
+                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Tambah Produk Baru</span>
+            </button>
+        </div>
     </div>
 
     <!-- Products Table Card -->
@@ -101,6 +122,13 @@
                                    class="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold text-xs transition-colors flex items-center gap-1">
                                     <i data-lucide="git-fork" class="w-3.5 h-3.5"></i>
                                     <span>BOM</span>
+                                </a>
+
+                                <a href="{{ route('calculator.index', ['product_id' => $prod->id, 'tab' => 'advanced']) }}" 
+                                   class="px-2.5 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 font-semibold text-xs transition-colors flex items-center gap-1" 
+                                   title="Hitung HPP & tetapkan harga jual di Kalkulator">
+                                    <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+                                    <span>Kalkulasi HPP</span>
                                 </a>
 
                                 <button @click="openEditModal({

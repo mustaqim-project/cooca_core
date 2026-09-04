@@ -282,7 +282,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Paket Free Plan dibatasi 1 pengguna (Solo Owner). Tingkatkan ke Cooca Core untuk menambahkan kasir, staf gudang, dan tim tanpa batas.',
+              'Paket Free Plan dibatasi 1 pengguna (Solo Owner). Tingkatkan ke Cooca UMKM untuk menambahkan kasir, staf gudang, dan tim tanpa batas.',
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
@@ -304,7 +304,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               child: Text(
-                'Upgrade Cooca Core (Rp 129.000/bln)',
+                'Upgrade Cooca UMKM (Rp 129.000/bln)',
                 style: GoogleFonts.plusJakartaSans(
                   fontWeight: FontWeight.w800,
                   color: Colors.white,

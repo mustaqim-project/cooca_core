@@ -34,6 +34,7 @@ class Invoice extends Model
     protected $fillable = [
         'business_id',
         'customer_id',
+        'location_id',
         'purchase_order_id',
         'sales_order_id',
         'invoice_number',
@@ -90,6 +91,11 @@ class Invoice extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
+    }
+
     /**
      * @return BelongsTo<PurchaseOrder, $this>
      */
@@ -125,6 +131,11 @@ class Invoice extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(InvoicePayment::class);
+    }
+
+    public function salesReturns(): HasMany
+    {
+        return $this->hasMany(SalesReturn::class);
     }
 
     /**

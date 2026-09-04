@@ -9,6 +9,7 @@ use App\Models\Material;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
+use App\Models\Supplier;
 use Carbon\Carbon;
 use InvalidArgumentException;
 
@@ -43,6 +44,9 @@ final class PurchaseOrderService
         $type = $poData['po_type'] ?? PurchaseOrder::TYPE_CUSTOMER;
         $poNumber = $poData['po_number'] ?? $this->numberGenerator->generatePoNumber($business, $type);
         $orderDate = ! empty($poData['order_date']) ? Carbon::parse($poData['order_date']) : Carbon::today();
+
+        $supplier = ! empty($poData['supplier_id']) ? Supplier::find($poData['supplier_id']) : null;
+        $supplierNameSnapshot = $supplier?->name;
 
         /** @var PurchaseOrder $po */
         $po = PurchaseOrder::create([
@@ -93,6 +97,8 @@ final class PurchaseOrderService
                 'quantity' => (float) $item['quantity'],
                 'unit_id' => $unitId,
                 'unit_price' => $unitPrice,
+                'purchase_price_snapshot' => $unitPrice,
+                'supplier_name_snapshot' => $supplierNameSnapshot,
                 'cost_price_snapshot' => $costSnapshot,
                 'notes' => $item['notes'] ?? null,
             ]);

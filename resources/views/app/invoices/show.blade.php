@@ -14,15 +14,27 @@
             <span>Kembali ke Daftar Faktur</span>
         </a>
 
-        <div class="flex items-center gap-2">
-            @if($invoice->balance_due > 0 && $invoice->status !== 'void')
-            <button @click="showPaymentModal = true" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition-all">
+        <div class="flex items-center gap-2 flex-wrap">
+            {{-- Tombol Konfirmasi & Rilis Faktur (hanya tampil saat draft) --}}
+            @if($invoice->status === 'draft')
+            <form method="POST" action="{{ route('invoices.confirm', $invoice->id) }}" onsubmit="return confirm('Konfirmasi dan rilis faktur ini? Stok barang akan dipotong dari gudang yang dipilih.')">
+                @csrf
+                <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition-all">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <span>Konfirmasi &amp; Rilis Faktur</span>
+                </button>
+            </form>
+            @endif
+
+            {{-- Tombol Catat Pembayaran (hanya saat ada sisa tagihan dan bukan void) --}}
+            @if($invoice->balance_due > 0 && $invoice->status !== 'void' && $invoice->status !== 'draft')
+            <button @click="showPaymentModal = true" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow-lg shadow-sky-500/20 flex items-center gap-1.5 transition-all">
                 <i data-lucide="wallet" class="w-4 h-4"></i>
                 <span>Catat Pembayaran</span>
             </button>
             @endif
 
-            <a href="{{ route('invoices.print', $invoice->id) }}?download=1" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition-all">
+            <a href="{{ route('invoices.print', $invoice->id) }}?download=1" target="_blank" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold flex items-center gap-1.5 transition-all">
                 <i data-lucide="download" class="w-4 h-4"></i>
                 <span>Download PDF</span>
             </a>
@@ -31,6 +43,17 @@
                 <i data-lucide="printer" class="w-4 h-4 text-slate-400"></i>
                 <span>Cetak (A4)</span>
             </a>
+
+            {{-- Tombol Void (hanya tampil saat bukan draft/void dan belum ada pembayaran) --}}
+            @if(!in_array($invoice->status, ['draft','void']) && $invoice->paid_amount == 0)
+            <form method="POST" action="{{ route('invoices.void', $invoice->id) }}" onsubmit="return confirm('Batalkan (void) faktur ini? Stok yang sudah dipotong akan dikembalikan ke gudang.')">
+                @csrf
+                <button type="submit" class="px-3.5 py-2 rounded-xl bg-rose-900/50 hover:bg-rose-700/60 text-rose-400 text-xs font-semibold border border-rose-800/60 flex items-center gap-1.5 transition-colors">
+                    <i data-lucide="ban" class="w-4 h-4"></i>
+                    <span>Void / Batalkan</span>
+                </button>
+            </form>
+            @endif
         </div>
     </div>
 
@@ -92,6 +115,18 @@
                 @endif
             </div>
         </div>
+
+        {{-- Badge Gudang Asal Pengeluaran Barang --}}
+        @if($invoice->location)
+        <div class="flex items-center gap-2 text-xs text-slate-400 py-2 border-t border-slate-800/60">
+            <i data-lucide="warehouse" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+            <span>Barang dikeluarkan dari gudang:</span>
+            <span class="font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/25">{{ $invoice->location->name }}</span>
+            @if($invoice->location->type)
+                <span class="text-slate-500">({{ $invoice->location->type }})</span>
+            @endif
+        </div>
+        @endif
 
         <!-- Items Table -->
         <div class="overflow-x-auto">

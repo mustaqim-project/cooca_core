@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Riwayat Pembayaran Langganan — Cooca Core',
+    'title' => 'Riwayat Pembayaran Langganan — Cooca UMKM',
     'headerTitle' => 'Riwayat Pembayaran & Tagihan',
-    'headerSubtitle' => 'Daftar transaksi langganan dan status persetujuan paket Cooca Core bisnis Anda'
+    'headerSubtitle' => 'Daftar transaksi langganan dan status persetujuan paket Cooca UMKM bisnis Anda'
 ])
 
 @section('content')

@@ -48,6 +48,12 @@ final class Context
      */
     public static function membership(): ?BusinessMembership
     {
+        if (self::$membership === null && ($user = self::user()) && ($business = self::business())) {
+            self::$membership = BusinessMembership::where('business_id', $business->id)
+                ->where('user_id', $user->id)
+                ->first();
+        }
+
         return self::$membership;
     }
 
@@ -65,7 +71,7 @@ final class Context
      */
     public static function role(): ?string
     {
-        return self::$membership?->role;
+        return self::membership()?->customRole?->slug ?? self::membership()?->role;
     }
 
     /**
@@ -101,7 +107,9 @@ final class Context
         }
 
         /** @var \App\Models\Role|null $role */
-        $role = \App\Models\Role::where('slug', $roleSlug)
+        $role = self::$membership?->customRole;
+        if ($role === null) {
+            $role = \App\Models\Role::where('slug', $roleSlug)
             ->where(function ($query) {
                 if ($businessId = self::business()?->id) {
                     $query->where('business_id', $businessId)->orWhereNull('business_id');
@@ -109,7 +117,9 @@ final class Context
                     $query->whereNull('business_id');
                 }
             })
+            ->orderByRaw('business_id IS NULL')
             ->first();
+        }
 
         return $role ? $role->permissions()->pluck('slug')->all() : [];
     }
@@ -121,6 +131,10 @@ final class Context
     {
         if (self::isOwner()) {
             return true;
+        }
+
+        if (self::$membership !== null) {
+            return self::$membership->hasPermission($permission);
         }
 
         return in_array($permission, self::permissions(), true);

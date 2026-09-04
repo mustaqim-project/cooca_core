@@ -1,7 +1,7 @@
 @extends('layouts.admin', [
     'title' => 'Verifikasi Pembayaran #' . $payment->order_number . ' — Admin Console',
     'headerTitle' => 'Verifikasi Pembayaran Langganan',
-    'headerSubtitle' => 'Periksa kesesuaian mutasi bank dan setujui aktivasi lisensi Cooca Core'
+    'headerSubtitle' => 'Periksa kesesuaian mutasi bank dan setujui aktivasi lisensi Cooca UMKM'
 ])
 
 @section('content')
@@ -37,7 +37,7 @@
         <div class="text-xs space-y-0.5">
             <div class="font-bold text-white">Pembayaran Telah Disetujui</div>
             <div class="text-emerald-300">
-                Disetujui oleh <strong class="text-white">{{ $payment->approver->name ?? 'Admin' }}</strong> pada {{ $payment->approved_at?->format('d M Y H:i:s') }}. Paket Cooca Core bisnis telah aktif.
+                Disetujui oleh <strong class="text-white">{{ $payment->approver->name ?? 'Admin' }}</strong> pada {{ $payment->approved_at?->format('d M Y H:i:s') }}. Paket Cooca UMKM bisnis telah aktif.
             </div>
             @if($payment->admin_notes)
                 <div class="text-slate-400 text-[11px]">Catatan: {{ $payment->admin_notes }}</div>
@@ -82,7 +82,7 @@
                 </div>
                 <div class="flex justify-between py-1.5 border-b border-slate-800/80">
                     <span class="text-slate-400">Paket Dipesan:</span>
-                    <span class="font-bold text-indigo-300 uppercase">{{ $payment->cycle === 'annual' ? 'Cooca Core Tahunan' : 'Cooca Core Bulanan' }}</span>
+                    <span class="font-bold text-indigo-300 uppercase">{{ $payment->cycle === 'annual' ? 'Cooca UMKM Tahunan' : 'Cooca UMKM Bulanan' }}</span>
                 </div>
                 <div class="flex justify-between py-1.5 border-b border-slate-800/80">
                     <span class="text-slate-400">Nominal Pokok:</span>
@@ -204,7 +204,7 @@
             </div>
 
             <p class="text-xs text-slate-300 leading-relaxed">
-                Apakah Anda yakin ingin menyetujui pembayaran <strong class="text-white font-mono">#{{ $payment->order_number }}</strong>? Paket Cooca Core untuk bisnis <strong class="text-emerald-400">{{ $payment->business->name }}</strong> akan langsung diaktifkan dengan kuota 10.000.000 Token AI.
+                Apakah Anda yakin ingin menyetujui pembayaran <strong class="text-white font-mono">#{{ $payment->order_number }}</strong>? Paket Cooca UMKM untuk bisnis <strong class="text-emerald-400">{{ $payment->business->name }}</strong> akan langsung diaktifkan dengan kuota 10.000.000 Token AI.
             </p>
 
             <form method="POST" action="{{ route('admin.subscriptions.approve', $payment) }}" class="space-y-4">

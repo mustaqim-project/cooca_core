@@ -34,6 +34,16 @@ final class CheckResourceEntitlement
             'recipe' => $this->entitlementService->canCreateRecipe($business),
             'invoice' => $this->entitlementService->canCreateInvoiceThisMonth($business),
             'ai' => $this->entitlementService->canAccessAi($business),
+            'material' => $this->entitlementService->canCreateMaterial($business),
+            'customer' => $this->entitlementService->canCreateCustomer($business),
+            'supplier' => $this->entitlementService->canCreateSupplier($business),
+            'outlet' => $this->entitlementService->canCreateLocation($business, 'outlet'),
+            'warehouse' => $this->entitlementService->canCreateLocation($business, 'warehouse'),
+            'purchase_order', 'po' => $this->entitlementService->canCreatePurchaseOrderThisMonth($business),
+            'pos' => $this->entitlementService->canCreatePosTransactionThisMonth($business),
+            'import' => $this->entitlementService->canImportData($business),
+            'export' => $this->entitlementService->canExportData($business),
+            'member', 'user' => $this->entitlementService->canAddMember($business),
             default => true,
         };
 
@@ -41,8 +51,20 @@ final class CheckResourceEntitlement
             $labels = [
                 'product' => 'Katalog Produk (Maks. 50 pada paket Free)',
                 'recipe' => 'Resep HPP / BOM (Maks. 20 pada paket Free)',
+                'material' => 'Bahan Baku (Maks. 20 pada paket Free)',
+                'customer' => 'Pelanggan / CRM (Maks. 30 pada paket Free)',
+                'supplier' => 'Pemasok / Supplier (Maks. 20 pada paket Free)',
+                'outlet' => 'Outlet / Cabang (Maks. 1 pada paket Free)',
+                'warehouse' => 'Gudang / Central Kitchen (Maks. 1 pada paket Free)',
                 'invoice' => 'Faktur Penjualan (Maks. 10 per bulan pada paket Free)',
+                'purchase_order' => 'Purchase Order (Maks. 10 per bulan pada paket Free)',
+                'po' => 'Purchase Order (Maks. 10 per bulan pada paket Free)',
+                'pos' => 'Transaksi POS Kasir (Maks. 100 per bulan pada paket Free)',
                 'ai' => 'Fitur Asisten & Prediksi AI (Khusus Paket Core)',
+                'import' => 'Fitur Import Data Excel/CSV (Khusus Paket Core)',
+                'export' => 'Fitur Export Data Lanjutan (Khusus Paket Core)',
+                'member' => 'Tambah Karyawan / Pengguna (Maks. 1 Owner Solo pada paket Free)',
+                'user' => 'Tambah Karyawan / Pengguna (Maks. 1 Owner Solo pada paket Free)',
             ];
             $label = $labels[$resourceType] ?? $resourceType;
 
@@ -50,7 +72,7 @@ final class CheckResourceEntitlement
                 return response()->json([
                     'success' => false,
                     'code' => 'RESOURCE_LIMIT_EXCEEDED',
-                    'message' => "Batas kuota {$label} telah tercapai. Tingkatkan ke Cooca Core (Rp129.000/bln) untuk akses tanpa batas.",
+                    'message' => "Batas kuota {$label} telah tercapai. Tingkatkan ke Cooca UMKM (Rp129.000/bln) untuk akses tanpa batas.",
                     'upgrade_url' => route('billing.limits'),
                 ], 403);
             }
@@ -62,3 +84,4 @@ final class CheckResourceEntitlement
         return $next($request);
     }
 }
+

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Purchasing;
 
-use App\Domain\Accounting\AutoJournalService;
 use App\Domain\Inventory\StockService;
+use App\Domain\Purchasing\SupplierInvoiceService;
 use App\Http\Controllers\Controller;
 use App\Models\GoodsReceipt;
 use App\Models\GoodsReceiptItem;
@@ -15,14 +15,34 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
 final class GoodsReceiptController extends Controller
 {
     public function __construct(
-        private readonly AutoJournalService $journalService = new AutoJournalService,
-        private readonly StockService $stockService = new StockService
+        private readonly StockService $stockService = new StockService,
+        private readonly SupplierInvoiceService $supplierInvoiceService = new SupplierInvoiceService
     ) {}
+
+    public function index(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $receipts = GoodsReceipt::with(['supplier', 'location', 'items.product'])
+            ->where('business_id', $business->id)
+            ->latest('receipt_date')
+            ->paginate(20);
+        return response()->json(['goods_receipts' => $receipts]);
+    }
+
+    public function show(Request $request, GoodsReceipt $goodsReceipt): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        if ($goodsReceipt->business_id !== $business->id) {
+            return response()->json(['message' => 'Goods Receipt tidak ditemukan.'], Response::HTTP_NOT_FOUND);
+        }
+        return response()->json(['goods_receipt' => $goodsReceipt->load(['supplier', 'location', 'items.product', 'supplierInvoice'])]);
+    }
 
     /**
      * Store Goods Receipt from Purchase Order.
@@ -50,6 +70,22 @@ final class GoodsReceiptController extends Controller
         ]);
 
         $goodsReceipt = DB::transaction(function () use ($business, $purchaseOrder, $validated, $user) {
+            $purchaseOrder = PurchaseOrder::with('items')->lockForUpdate()->findOrFail($purchaseOrder->id);
+            $receivedByProduct = GoodsReceiptItem::query()
+                ->whereHas('goodsReceipt', fn ($query) => $query->where('purchase_order_id', $purchaseOrder->id)->where('status', 'completed'))
+                ->selectRaw('product_id, SUM(quantity) as quantity')
+                ->groupBy('product_id')
+                ->pluck('quantity', 'product_id');
+            foreach ($validated['items'] as $item) {
+                $source = $purchaseOrder->items->firstWhere('product_id', $item['product_id']);
+                $quantity = (float) $item['quantity'];
+                if (! $source && $quantity > 0) {
+                    throw ValidationException::withMessages(['items' => 'Produk penerimaan tidak terdapat pada Purchase Order.']);
+                }
+                if ($source && $quantity > (float) $source->quantity - (float) ($receivedByProduct[$source->product_id] ?? 0) + 0.00005) {
+                    throw ValidationException::withMessages(['items' => "Quantity penerimaan melebihi sisa PO untuk {$source->item_name}."]);
+                }
+            }
             $receiptNumber = $validated['receipt_number'] ?? ('GR-' . date('Ym') . '-' . rand(1000, 9999));
 
             $gr = GoodsReceipt::create([
@@ -98,7 +134,11 @@ final class GoodsReceiptController extends Controller
             }
 
             // Update Purchase Order status
-            $purchaseOrder->update(['status' => PurchaseOrder::STATUS_COMPLETED]);
+            $currentByProduct = collect($validated['items'])->groupBy('product_id')->map(fn ($rows) => (float) $rows->sum('quantity'));
+            $fullyReceived = $purchaseOrder->items->every(fn ($item) => (float) ($receivedByProduct[$item->product_id] ?? 0) + (float) ($currentByProduct[$item->product_id] ?? 0) >= (float) $item->quantity - 0.00005);
+            $purchaseOrder->update(['status' => $fullyReceived ? PurchaseOrder::STATUS_COMPLETED : PurchaseOrder::STATUS_PARTIALLY_INVOICED]);
+
+            $this->supplierInvoiceService->createFromGoodsReceipt($gr);
 
             return $gr;
         });

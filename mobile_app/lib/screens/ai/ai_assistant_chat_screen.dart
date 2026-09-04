@@ -14,7 +14,7 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
   final List<Map<String, String>> _messages = [
     {
       'role': 'assistant',
-      'text': 'Halo! Saya AI Business Assistant Cooca Core. Tanyakan apa saja tentang HPP, margin keuntungan, atau tren penjualan toko Anda hari ini.',
+      'text': 'Halo! Saya AI Business Assistant Cooca UMKM. Tanyakan apa saja tentang HPP, margin keuntungan, atau tren penjualan toko Anda hari ini.',
     },
   ];
   bool _isLoading = false;

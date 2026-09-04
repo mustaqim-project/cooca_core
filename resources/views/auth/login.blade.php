@@ -1,4 +1,4 @@
-@extends('layouts.guest', ['title' => 'Masuk — Cooca Core'])
+@extends('layouts.guest', ['title' => 'Masuk — Cooca UMKM'])
 
 @section('content')
     <div class="sm:mx-auto sm:w-full sm:max-w-md px-4">
@@ -9,7 +9,7 @@
                 <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="COOCA.ID"
                     style="height: 38px; width: auto; object-fit: contain;">
             </a>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Cooca Core</h2>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Cooca UMKM</h2>
             <p class="mt-2 text-sm text-slate-400">Business Operating System — cooca.id</p>
         </div>
 

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\Billing;
 use App\Domain\Billing\EntitlementService;
 use App\Http\Controllers\Controller;
 use App\Models\PaymentAccount;
+use App\Models\BillingPackage;
 use App\Models\SubscriptionPayment;
 use App\Models\SystemSetting;
 use App\Support\Context;
@@ -28,6 +29,7 @@ final class SubscriptionCheckoutWebController extends Controller
         $business = Context::requireBusiness();
         $type = $request->get('type', 'subscription');
         if (!in_array($type, ['subscription', 'ai_token', 'storage'], true)) $type = 'subscription';
+        $packageMode = $request->has('type');
         $cycle = $request->get('cycle', 'monthly');
         if (!in_array($cycle, ['monthly', 'annual'], true)) {
             $cycle = 'monthly';
@@ -38,6 +40,15 @@ final class SubscriptionCheckoutWebController extends Controller
         $basePrice = $cycle === 'annual' ? $annualPrice : $monthlyPrice;
         $topupPrice = $type === 'ai_token' ? $this->entitlementService->getTokenTopupPrice() : $this->entitlementService->getStorageTopupPrice();
         $topupQuantity = $type === 'ai_token' ? $this->entitlementService->getTokenTopupAmount() : $this->entitlementService->getStorageTopupBytes();
+        $packages = $this->entitlementService->activePackages($type);
+        $packagesData = $packages->map(fn (BillingPackage $package): array => [
+            'id' => $package->id,
+            'name' => $package->name,
+            'price' => $package->price,
+            'duration_days' => $package->duration_days,
+            'token_quantity' => $package->token_quantity,
+            'storage_bytes' => $package->storage_bytes,
+        ])->values()->all();
 
         // Auto-seed default accounts if table is empty
         if (PaymentAccount::count() === 0) {
@@ -60,7 +71,7 @@ final class SubscriptionCheckoutWebController extends Controller
             'annualDiscountBadge',
             'paymentAccounts',
             'currentUsage'
-            , 'topupPrice', 'topupQuantity'
+            , 'topupPrice', 'topupQuantity', 'packages', 'packagesData', 'packageMode'
         ));
     }
 
@@ -80,16 +91,31 @@ final class SubscriptionCheckoutWebController extends Controller
 
         $validated = $request->validate([
             'order_type' => ['nullable', 'string', 'in:subscription,ai_token,storage'],
+            'package_id' => ['nullable', 'uuid', 'exists:billing_packages,id'],
             'cycle' => ['nullable', 'string', 'in:monthly,annual'],
             'payment_method' => ['required', 'string', 'in:' . implode(',', $validCodes)],
         ]);
 
         $orderType = $validated['order_type'] ?? 'subscription';
-        $payment = $orderType === 'ai_token'
+        $package = !empty($validated['package_id'])
+            ? BillingPackage::active()->where('id', $validated['package_id'])->where('type', $orderType)->firstOrFail()
+            : null;
+
+        // If subscription order without explicit package_id, resolve from BillingPackage catalog
+        if (!$package && $orderType === 'subscription') {
+            $cycle = $validated['cycle'] ?? 'monthly';
+            $package = $cycle === 'annual'
+                ? BillingPackage::active()->where('type', BillingPackage::TYPE_SUBSCRIPTION)->where(fn ($q) => $q->where('code', 'core-annual')->orWhere('duration_days', '>=', 360))->orderBy('sort_order')->first()
+                : BillingPackage::active()->where('type', BillingPackage::TYPE_SUBSCRIPTION)->where(fn ($q) => $q->where('code', 'core-monthly')->orWhere('duration_days', '<=', 31))->orderBy('sort_order')->first();
+        }
+
+        $payment = $package
+            ? $this->entitlementService->createPackageOrder($business, $user, $package, $validated['payment_method'])
+            : ($orderType === 'ai_token'
             ? $this->entitlementService->createTokenTopupOrder($business, $user, $validated['payment_method'])
             : ($orderType === 'storage'
                 ? $this->entitlementService->createStorageTopupOrder($business, $user, $validated['payment_method'])
-                : $this->entitlementService->createPaymentOrder($business, $user, $validated['cycle'] ?? 'monthly', $validated['payment_method']));
+                : $this->entitlementService->createPaymentOrder($business, $user, $validated['cycle'] ?? 'monthly', $validated['payment_method'])));
 
         return redirect()->route('billing.payment.show', $payment)
             ->with('success', "Pesanan #{$payment->order_number} berhasil dibuat. Silakan selesaikan pembayaran sesuai nominal unik.");

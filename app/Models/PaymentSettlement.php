@@ -9,6 +9,7 @@ use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PaymentSettlement extends Model
 {
@@ -48,5 +49,10 @@ class PaymentSettlement extends Model
     public function reconciler(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reconciled_by');
+    }
+
+    public function allocations(): HasMany
+    {
+        return $this->hasMany(PaymentSettlementAllocation::class, 'payment_settlement_id');
     }
 }

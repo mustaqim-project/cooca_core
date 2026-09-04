@@ -10,6 +10,21 @@ use App\Models\User;
 final class OperatingModeService
 {
     /**
+     * Ambil role eksplisit user di dalam bisnis tertentu dari tabel membership (business_users).
+     * Tidak bergantung pada global scope/Context agar aman dipakai dari mana saja.
+     */
+    private function userRole(Business $business, ?User $user): ?string
+    {
+        if ($user === null) {
+            return null;
+        }
+
+        return $user->memberships()
+            ->where('business_id', $business->id)
+            ->first()?->role;
+    }
+
+    /**
      * Determine if the business is running in Solo-Owner Mode (1 user) or Team Mode (>1 users).
      */
     public function isSoloMode(Business $business): bool
@@ -30,7 +45,7 @@ final class OperatingModeService
             return true;
         }
 
-        if ($user && $user->hasRole('owner')) {
+        if ($this->userRole($business, $user) === 'owner') {
             return true;
         }
 
@@ -46,12 +61,8 @@ final class OperatingModeService
             return false; // Solo owner always has full visibility
         }
 
-        if (!$user) {
-            return true;
-        }
-
         // If user is owner or admin, they can see costs; regular staff/cashier cannot
-        return !($user->hasRole('owner') || $user->hasRole('admin'));
+        return !in_array($this->userRole($business, $user), ['owner', 'admin'], true);
     }
 
     /**

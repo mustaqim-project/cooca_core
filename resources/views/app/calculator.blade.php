@@ -1,12 +1,12 @@
 @extends('layouts.app', [
-    'title' => 'Kalkulator HPP — Cooca Core',
+    'title' => 'Kalkulator HPP — Cooca UMKM',
     'headerTitle' => 'Kalkulator HPP & Penetapan Harga',
     'headerSubtitle' => 'Hitung modal bersih per porsi/pcs secara mudah dan tentukan harga jual yang menguntungkan'
 ])
 
 @section('content')
 <div class="space-y-6" x-data="{
-    activeTab: 'quick', // 'quick' or 'advanced'
+    activeTab: '{{ $tab }}', // 'quick' or 'advanced'
 
     // QUICK MODE STATE
     quickName: 'Kopi Susu Gula Aren',
@@ -166,7 +166,7 @@
     products: {{ Js::from($products) }},
     fees: {{ Js::from($fees) }},
     recentRuns: {{ Js::from($recentRuns) }},
-    selectedProductId: '',
+    selectedProductId: '{{ $selectedProductId ?? '' }}',
     selectedProduct: null,
     selectedCostModel: null,
     isCalculating: false,
@@ -180,7 +180,14 @@
     applyErrorMsg: '',
 
     init() {
-        if (this.products.length > 0) {
+        // If a product was passed via URL (?product_id=...), preselect it.
+        const preselected = this.selectedProductId;
+        if (preselected && this.products.some(p => p.id === preselected)) {
+            this.selectProduct(preselected);
+            return;
+        }
+        // Otherwise fallback to first product (advanced mode) or leave empty (quick mode).
+        if (this.activeTab === 'advanced' && this.products.length > 0) {
             this.selectProduct(this.products[0].id);
         }
     },
@@ -571,7 +578,12 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-wrap">
+                <a href="{{ route('products.index') }}"
+                   class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white flex items-center gap-1.5 transition">
+                    <i data-lucide="package" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Katalog Produk</span>
+                </a>
                 <select x-model="selectedProductId" @change="selectProduct($event.target.value)"
                         class="px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-xs font-semibold text-white min-w-[240px]">
                     <option value="">-- Pilih Produk --</option>
@@ -585,6 +597,13 @@
                        class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white flex items-center gap-1.5 transition">
                         <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                         <span>Edit Resep BOM</span>
+                    </a>
+                </template>
+                <template x-if="selectedProduct">
+                    <a :href="'/products?edit=' + selectedProduct.id"
+                       class="px-3.5 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition">
+                        <i data-lucide="pencil-line" class="w-3.5 h-3.5"></i>
+                        <span>Edit Harga di Produk</span>
                     </a>
                 </template>
             </div>

@@ -86,6 +86,15 @@ final class PosOrderService
             throw new InvalidArgumentException('Metode pembayaran harus ditentukan minimal 1 metode.');
         }
 
+        $entitlement = app(\App\Domain\Billing\EntitlementService::class);
+        $sub = $entitlement->getSubscription($business);
+        if (! $sub->isCorePlan()) {
+            $allowed = $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_POS, \App\Domain\Billing\EntitlementService::FREE_POS_MONTHLY_LIMIT);
+            if (! $allowed) {
+                throw new \DomainException('Batas kuota transaksi POS bulanan (maks. 100 transaksi/bulan untuk Free Plan) telah tercapai. Silakan tingkatkan ke paket Cooca UMKM.');
+            }
+        }
+
         return DB::transaction(function () use ($business, $cashier, $itemsData, $paymentsData, $attributes, $shift) {
             $orderNumber = $attributes['order_number'] ?? $this->generateOrderNumber($business);
             $locationId = $attributes['location_id'] ?? $shift?->location_id ?? Location::where('business_id', $business->id)->where('is_primary', true)->value('id') ?? Location::where('business_id', $business->id)->value('id');
@@ -109,7 +118,7 @@ final class PosOrderService
                 $productName = $row['product_name'] ?? $product?->name ?? 'Item Custom';
                 $productCode = $product?->code;
                 $unitPrice = (float) ($row['unit_price'] ?? $product?->selling_price ?? 0.0);
-                
+
                 // Unit HPP from Product base_cost or active BOM/cost model
                 $unitHpp = 0.0;
                 if ($product) {
@@ -396,6 +405,11 @@ final class PosOrderService
     public function refundOrder(PosOrder $order, User $user, string $reason, bool $restoreStock = true): PosOrder
     {
         return DB::transaction(function () use ($order, $user, $reason, $restoreStock) {
+            $order = PosOrder::with(['items', 'payments'])->lockForUpdate()->findOrFail($order->id);
+            if ($order->status !== PosOrder::STATUS_COMPLETED) {
+                throw new InvalidArgumentException('Hanya transaksi POS completed yang dapat direfund penuh.');
+            }
+
             $order->update([
                 'status' => PosOrder::STATUS_REFUNDED,
                 'refund_reason' => $reason,

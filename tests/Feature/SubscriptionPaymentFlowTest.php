@@ -66,7 +66,7 @@ class SubscriptionPaymentFlowTest extends TestCase
         $response = $this->get(route('billing.checkout', ['cycle' => 'monthly']));
 
         $response->assertStatus(200);
-        $response->assertSee('Cooca Core');
+        $response->assertSee('Cooca UMKM');
         $response->assertSee('Pilih Metode Pembayaran');
         $response->assertSee('Bank BCA Transfer');
         $response->assertSee('QRIS');
@@ -83,8 +83,8 @@ class SubscriptionPaymentFlowTest extends TestCase
 
         $payment = SubscriptionPayment::where('business_id', $this->business->id)->first();
         $this->assertNotNull($payment);
-        $this->assertStringStartsWith('SUB-', $payment->order_number);
-        $this->assertEquals(129000, $payment->amount);
+        $this->assertTrue(str_starts_with($payment->order_number, 'SUB-') || str_starts_with($payment->order_number, 'PKG-'));
+        $this->assertEquals(25000, $payment->amount);
         $this->assertGreaterThan(0, $payment->unique_code);
         $this->assertEquals($payment->amount + $payment->unique_code, $payment->total_payable);
         $this->assertEquals('pending', $payment->status);
@@ -176,12 +176,12 @@ class SubscriptionPaymentFlowTest extends TestCase
         $this->assertEquals($this->admin->id, $payment->approved_by);
         $this->assertNotNull($payment->approved_at);
 
-        // Verify business subscription is automatically Core with 10M tokens!
+        // Verify business subscription is automatically Core with 0 free tokens (top-up only)!
         $sub = BusinessSubscription::where('business_id', $this->business->id)->first();
         $this->assertNotNull($sub);
         $this->assertEquals(BusinessSubscription::PLAN_CORE_MONTHLY, $sub->plan_code);
         $this->assertEquals('active', $sub->status);
-        $this->assertEquals(10_000_000, $sub->ai_tokens_remaining);
+        $this->assertEquals(0, $sub->ai_tokens_monthly_allowance);
         $this->assertTrue($sub->isCorePlan());
     }
 

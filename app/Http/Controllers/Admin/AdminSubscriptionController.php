@@ -83,7 +83,7 @@ final class AdminSubscriptionController extends Controller
         $message = match ($payment->payment_type) {
             'ai_token' => "Pembayaran #{$payment->order_number} disetujui. Batch token AI telah ditambahkan.",
             'storage' => "Pembayaran #{$payment->order_number} disetujui. Kapasitas storage owner telah ditambahkan.",
-            default => "Pembayaran #{$payment->order_number} berhasil disetujui! Paket Cooca Core untuk bisnis {$payment->business->name} telah aktif.",
+            default => "Pembayaran #{$payment->order_number} berhasil disetujui! Paket Cooca UMKM untuk bisnis {$payment->business->name} telah aktif.",
         };
 
         return redirect()->route('admin.subscriptions.show', $payment)->with('success', $message);

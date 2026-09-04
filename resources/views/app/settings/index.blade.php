@@ -40,10 +40,10 @@
 
     <!-- Tab 0: Master Data CMS (Suppliers, Units, Categories) -->
     <div x-show="activeTab === 'masterdata'" class="space-y-8" style="display: none;">
-        
+
         <!-- Grid 1: Suppliers & Custom Units -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
+
             <!-- CMS Suppliers -->
             <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between">
                 <div class="p-5 border-b border-slate-800 flex items-center justify-between">
@@ -213,7 +213,7 @@
 
         <!-- Grid 2: Product Categories & Material Categories -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
+
             <!-- CMS Kategori Produk -->
             <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between">
                 <div class="p-5 border-b border-slate-800 flex items-center justify-between">
@@ -525,7 +525,7 @@
                 <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
                     <label class="block font-bold text-emerald-400 mb-1">Strategi Pembulatan Output Akhir (§37 Blueprint)</label>
                     <p class="text-[11px] text-slate-400 mb-2">Hanya diterapkan pada HPP per unit final dan Harga Jual final. Kalkulasi internal tetap menjaga presisi desimal murni.</p>
-                    
+
                     <select name="rounding_strategy" required class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-mono text-xs">
                         <option value="ROUND" {{ $business->rounding_strategy === 'ROUND' ? 'selected' : '' }}>ROUND — Pembulatan Standar Terdekat</option>
                         <option value="CEIL" {{ $business->rounding_strategy === 'CEIL' ? 'selected' : '' }}>CEIL — Pembulatan Ke Atas (Plafon)</option>
@@ -549,7 +549,7 @@
 
     <!-- Tab 3: Team Members & Roles -->
     <div x-show="activeTab === 'members'" class="space-y-6" style="display: none;">
-        
+
         <!-- Add Member Form or Plan Upgrade Card -->
         @if($canAddMember)
         <div class="glass-card p-6 rounded-3xl max-w-4xl border border-slate-800 space-y-4">
@@ -559,7 +559,7 @@
                     <span>Tambah Karyawan / Buat Akun Pengguna Baru</span>
                 </h3>
                 <p class="text-xs text-slate-400 mt-1">
-                    Tambahkan staf baru ke workspace bisnis Anda. Jika email belum pernah terdaftar di Cooca Core, sistem akan langsung membuatkan akun otomatis dengan nama dan kata sandi yang Anda tentukan di bawah.
+                    Tambahkan staf baru ke workspace bisnis Anda. Jika email belum pernah terdaftar di Cooca UMKM, sistem akan langsung membuatkan akun otomatis dengan nama dan kata sandi yang Anda tentukan di bawah.
                 </p>
             </div>
 
@@ -586,12 +586,10 @@
 
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Peran Akses (Role) *</label>
-                        <select name="role" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-semibold">
-                            <option value="cashier">Kasir POS (HPP & Margin Dirahasiakan)</option>
-                            <option value="inventory">Staf Gudang (Stok & Penerimaan PO)</option>
-                            <option value="admin">Administrator / Manajer Toko</option>
-                            <option value="staff">Staf Operasional</option>
-                            <option value="owner">Co-Owner (Akses Penuh)</option>
+                        <select name="role_id" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-semibold">
+                            @foreach($roles as $roleOption)
+                                <option value="{{ $roleOption->id }}">{{ $roleOption->name }}{{ $roleOption->business_id ? ' (Custom)' : ' (Preset)' }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -622,14 +620,14 @@
                         </span>
                     </h3>
                     <p class="text-xs text-slate-400 mt-1">
-                        Paket saat ini adalah <strong>Free Plan (Mode Solo Owner 1 Pengguna)</strong>. Untuk mendelegasikan tugas ke kasir, staf gudang, dan admin tanpa batas, tingkatkan ke <strong>Cooca Core</strong>.
+                        Paket saat ini adalah <strong>Free Plan (Mode Solo Owner 1 Pengguna)</strong>. Untuk mendelegasikan tugas ke kasir, staf gudang, dan admin tanpa batas, tingkatkan ke <strong>Cooca UMKM</strong>.
                     </p>
                 </div>
             </div>
-            <a href="{{ route('billing.checkout') }}" 
+            <a href="{{ route('billing.checkout') }}"
                class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-black text-xs shadow-lg shadow-purple-500/25 flex items-center gap-1.5 transition whitespace-nowrap">
                 <i data-lucide="sparkles" class="w-4 h-4"></i>
-                <span>Upgrade Cooca Core</span>
+                <span>Upgrade Cooca UMKM</span>
             </a>
         </div>
         @endif
@@ -670,13 +668,11 @@
                                 <form method="POST" action="{{ route('settings.members.role', $m->id) }}" class="flex items-center gap-1.5">
                                     @csrf
                                     @method('PUT')
-                                    <select name="role" onchange="this.form.submit()"
+                                        <select name="role_id" onchange="this.form.submit()"
                                             class="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-xs font-semibold text-white focus:border-emerald-500">
-                                        <option value="cashier" {{ $m->role === 'cashier' ? 'selected' : '' }}>Kasir (Cashier)</option>
-                                        <option value="inventory" {{ $m->role === 'inventory' ? 'selected' : '' }}>Gudang (Inventory)</option>
-                                        <option value="admin" {{ $m->role === 'admin' ? 'selected' : '' }}>Admin / Manajer</option>
-                                        <option value="staff" {{ $m->role === 'staff' ? 'selected' : '' }}>Staff</option>
-                                        <option value="owner" {{ $m->role === 'owner' ? 'selected' : '' }}>Owner</option>
+                                        @foreach($roles as $roleOption)
+                                            <option value="{{ $roleOption->id }}" {{ ($m->role_id === $roleOption->id || (!$m->role_id && $m->role === $roleOption->slug)) ? 'selected' : '' }}>{{ $roleOption->name }}</option>
+                                        @endforeach
                                     </select>
                                 </form>
                                 @else

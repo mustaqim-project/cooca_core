@@ -19,7 +19,19 @@ class JournalEntry extends Model
 
     public const REF_POS_REFUND = 'pos_refund';
 
+    public const REF_INVOICE = 'invoice';
+
+    public const REF_INVOICE_PAYMENT = 'invoice_payment';
+
     public const REF_EXPENSE = 'expense';
+
+    public const REF_GOODS_RECEIPT = 'goods_receipt';
+
+    public const REF_SUPPLIER_PAYMENT = 'supplier_payment';
+
+    public const REF_SALES_RETURN = 'sales_return';
+
+    public const REF_PURCHASE_RETURN = 'purchase_return';
 
     public const REF_SETTLEMENT = 'settlement';
 

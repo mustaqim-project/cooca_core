@@ -160,6 +160,70 @@
             </div>
         </div>
     </div>
+
+    <!-- Average Harga Snapshot Transaksi (Bukan Harga Master) -->
+    <div class="glass-card rounded-2xl p-5 border border-slate-800">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-extrabold text-sm text-white flex items-center gap-2">
+                <i data-lucide="scale" class="w-4 h-4 text-amber-400"></i>
+                <span>Average Harga dari Snapshot Transaksi</span>
+            </h3>
+            <span class="text-[10px] px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 font-bold uppercase">Source: Transaction Snapshot</span>
+        </div>
+        <p class="text-[11px] text-slate-500 mb-4">Average harga dihitung dari snapshot harga yang tersimpan pada tiap detail transaksi (HPP & harga jual saat transaksi), bukan dari harga master produk saat ini. Perubahan harga master tidak akan mengubah angka di bawah ini.</p>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div class="rounded-xl bg-slate-900/60 border border-slate-800 p-4">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Avg Harga Jual</div>
+                <div class="text-xl font-black text-emerald-400 font-mono mt-1">Rp {{ number_format($averageSellingPrice, 0, ',', '.') }}</div>
+                <div class="text-[10px] text-slate-500 mt-1">{{ number_format($snapshotTotalQty, 0, ',', '.') }} unit terjual</div>
+            </div>
+            <div class="rounded-xl bg-slate-900/60 border border-slate-800 p-4">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Avg Harga Modal (HPP)</div>
+                <div class="text-xl font-black text-slate-300 font-mono mt-1">Rp {{ number_format($averageCostPrice, 0, ',', '.') }}</div>
+                <div class="text-[10px] text-slate-500 mt-1">Weighted average by qty</div>
+            </div>
+            <div class="rounded-xl bg-slate-900/60 border border-slate-800 p-4">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Modal (Snapshot)</div>
+                <div class="text-xl font-black text-cyan-400 font-mono mt-1">Rp {{ number_format($snapshotTotalModal, 0, ',', '.') }}</div>
+                <div class="text-[10px] text-slate-500 mt-1">Total Penjualan: Rp {{ number_format($snapshotTotalSales, 0, ',', '.') }}</div>
+            </div>
+            <div class="rounded-xl bg-slate-900/60 border border-slate-800 p-4">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Gross Profit & Margin</div>
+                <div class="text-xl font-black text-teal-400 font-mono mt-1">Rp {{ number_format($snapshotGrossProfit, 0, ',', '.') }}</div>
+                <div class="text-[10px] text-emerald-400 mt-1">Margin: {{ number_format($snapshotMarginPercent, 1) }}%</div>
+            </div>
+        </div>
+
+        @if(! empty($productAveragePrices))
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-900/60 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-800">
+                    <tr>
+                        <th class="py-2 px-3">Produk</th>
+                        <th class="py-2 px-3 text-center">Qty Terjual</th>
+                        <th class="py-2 px-3 text-right">Avg Harga Jual</th>
+                        <th class="py-2 px-3 text-right">Avg Harga Modal</th>
+                        <th class="py-2 px-3 text-right">Gross Profit</th>
+                        <th class="py-2 px-3 text-right">Margin</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 font-mono">
+                    @foreach($productAveragePrices as $prod)
+                    <tr>
+                        <td class="py-2.5 px-3 font-sans font-bold text-white">{{ $prod['product_name'] }}</td>
+                        <td class="py-2.5 px-3 text-center">{{ number_format($prod['total_quantity'], 0, ',', '.') }}</td>
+                        <td class="py-2.5 px-3 text-right">Rp {{ number_format($prod['average_selling_price'], 0, ',', '.') }}</td>
+                        <td class="py-2.5 px-3 text-right">Rp {{ number_format($prod['average_cost_price'], 0, ',', '.') }}</td>
+                        <td class="py-2.5 px-3 text-right text-emerald-400 font-bold">Rp {{ number_format($prod['gross_profit'], 0, ',', '.') }}</td>
+                        <td class="py-2.5 px-3 text-right">{{ number_format($prod['margin_percentage'], 1) }}%</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+    </div>
 </div>
 
 <!-- Chart.js Scripts -->

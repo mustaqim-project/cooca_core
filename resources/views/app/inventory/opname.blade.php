@@ -5,12 +5,17 @@
     showCreateModal: false,
     selectedLocationId: '{{ $locations->first()?->id ?? '' }}',
     items: [
-        @if($products->count() > 0)
-            { product_id: '{{ $products->first()->id }}', physical_quantity: 0 }
+        @if($materials->count() > 0)
+            { material_id: '{{ $materials->first()->id }}', physical_quantity: 0 }
+        @elseif($products->count() > 0)
+            { material_id: '', product_id: '{{ $products->first()->id }}', physical_quantity: 0 }
         @endif
     ],
     addItem() {
-        this.items.push({ product_id: '{{ $products->first()?->id ?? '' }}', physical_quantity: 0 });
+        this.items.push({ 
+            material_id: '{{ $materials->first()?->id ?? '' }}', 
+            physical_quantity: 0 
+        });
     },
     removeItem(idx) {
         this.items.splice(idx, 1);
@@ -21,7 +26,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-black text-white tracking-tight">Stock Opname Fisik</h1>
-            <p class="text-sm text-slate-400 mt-1">Lakukan perhitungan fisik inventori berkala dan rekonsiliasi selisih sistem secara otomatis.</p>
+            <p class="text-sm text-slate-400 mt-1">Lakukan perhitungan fisik inventori bahan baku berkala dan rekonsiliasi selisih sistem secara otomatis.</p>
         </div>
         <div class="flex items-center gap-3">
             <a href="{{ route('inventory.stocks') }}" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
@@ -60,7 +65,7 @@
                     <tr class="hover:bg-slate-800/40 transition">
                         <td class="py-3.5 px-4">
                             <div class="font-bold text-white font-mono">#{{ $op->opname_number }}</div>
-                            <div class="text-[11px] text-slate-400">{{ $op->notes ?? 'Stock taking rutin' }}</div>
+                            <div class="text-[11px] text-slate-400">{{ $op->notes ?? 'Stock taking rutin bahan baku' }}</div>
                         </td>
                         <td class="py-3.5 px-4">
                             <div>{{ $op->opname_date->format('d/m/Y') }}</div>
@@ -70,7 +75,7 @@
                             <div class="font-medium text-slate-200">{{ $op->conductor->name ?? 'Staff' }}</div>
                         </td>
                         <td class="py-3.5 px-4 text-center font-mono font-bold">
-                            {{ $op->items->count() }} Item
+                            {{ $op->items->count() }} Bahan/Item
                         </td>
                         <td class="py-3.5 px-4 text-center">
                             @if($op->status === 'reconciled')
@@ -131,21 +136,22 @@
 
                 <div>
                     <label class="block text-slate-400 font-bold uppercase mb-1">Catatan</label>
-                    <input type="text" name="notes" placeholder="Misal: Opname bulanan akhir bulan..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    <input type="text" name="notes" placeholder="Misal: Opname bulanan fisik bahan baku..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
                 </div>
 
                 <!-- Items Row -->
                 <div class="space-y-2 pt-2 border-t border-slate-800">
                     <div class="flex items-center justify-between">
-                        <label class="font-bold text-slate-300 uppercase tracking-wider">Hasil Hitungan Fisik:</label>
-                        <button type="button" @click="addItem()" class="text-emerald-400 hover:text-emerald-300 font-bold">+ Tambah Baris</button>
+                        <label class="font-bold text-slate-300 uppercase tracking-wider">Hasil Hitungan Fisik Bahan Baku:</label>
+                        <button type="button" @click="addItem()" class="text-emerald-400 hover:text-emerald-300 font-bold">+ Tambah Bahan</button>
                     </div>
 
                     <template x-for="(item, idx) in items" :key="idx">
                         <div class="flex items-center gap-2">
-                            <select :name="'items[' + idx + '][product_id]'" x-model="item.product_id" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
-                                @foreach($products as $p)
-                                    <option value="{{ $p->id }}">{{ $p->name }}</option>
+                            <select :name="'items[' + idx + '][material_id]'" x-model="item.material_id" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                                <option value="">-- Pilih Bahan Baku --</option>
+                                @foreach($materials as $m)
+                                    <option value="{{ $m->id }}">{{ $m->name }} ({{ $m->unit->code ?? 'unit' }})</option>
                                 @endforeach
                             </select>
                             <input type="number" step="any" :name="'items[' + idx + '][physical_quantity]'" x-model.number="item.physical_quantity" placeholder="Qty Fisik" class="w-28 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-center">

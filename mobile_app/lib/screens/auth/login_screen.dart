@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Cooca Core',
+                          'Cooca UMKM',
                           style: GoogleFonts.plusJakartaSans(
                             color: AppColors.textPrimary,
                             fontSize: 28, fontWeight: FontWeight.w800,
@@ -154,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Gunakan email dan password Cooca Core Anda',
+                            'Gunakan email dan password Cooca UMKM Anda',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 13, color: AppColors.textMuted,
                             ),

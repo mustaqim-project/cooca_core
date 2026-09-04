@@ -92,6 +92,7 @@ final class ProfileController extends Controller
         }
 
         $user->update(['password' => Hash::make((string) $request->input('password'))]);
+        $user->tokens()->delete();
 
         return response()->json([
             'message' => 'Kata sandi berhasil diubah.',

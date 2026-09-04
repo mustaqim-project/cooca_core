@@ -1,7 +1,7 @@
 @extends('layouts.admin', [
-    'title' => 'Pengaturan Google API & Sistem — Admin Console',
-    'headerTitle' => 'Konfigurasi Google API & Sistem',
-    'headerSubtitle' => 'Kelola kredensial OAuth Google untuk otentikasi Single Sign-On (SSO) pengguna'
+    'title' => 'Sistem & Integrasi — Admin Console',
+    'headerTitle' => 'Sistem & Integrasi',
+    'headerSubtitle' => 'Kelola integrasi Google OAuth, pengaturan umum aplikasi, dan pintu masuk konfigurasi sistem lainnya'
 ])
 
 @section('content')
@@ -22,13 +22,37 @@
         </p>
     </div>
 
+    <!-- Shortcuts to related config -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="{{ route('admin.billing-packages.index', 'subscription') }}"
+           class="glass-card p-4 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 hover:bg-emerald-950/40 transition flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <i data-lucide="layers-3" class="w-5 h-5 text-emerald-400"></i>
+                <div>
+                    <div class="text-sm font-bold text-white">Harga & Paket Billing</div>
+                    <div class="text-xs text-slate-400 mt-0.5">Harga langganan Core, top-up token, dan storage kini dikelola terpusat di CMS Paket & Harga.</div>
+                </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-emerald-300 shrink-0"></i>
+        </a>
+
+        <a href="{{ route('admin.smtp.index') }}" class="glass-card p-4 rounded-2xl border border-cyan-500/30 bg-cyan-950/20 hover:bg-cyan-950/40 transition flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <i data-lucide="mail-cog" class="w-5 h-5 text-cyan-400"></i>
+                <div>
+                    <div class="text-sm font-bold text-white">Pengaturan SMTP Email</div>
+                    <div class="text-xs text-slate-400 mt-0.5">Konfigurasi server pengiriman email sistem verifikasi & notifikasi billing.</div>
+                </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-cyan-300 shrink-0"></i>
+        </a>
+    </div>
+
     <!-- Main Settings Form -->
     <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
-
         <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6 text-xs">
             @csrf
-
-            <!-- Section 1: Google OAuth API -->
+<!-- Section 1: Google OAuth API -->
             <div class="space-y-4">
                 <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
                     <i data-lucide="chrome" class="w-4 h-4 text-red-400"></i>
@@ -46,12 +70,12 @@
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="block font-semibold text-slate-300">Google Client Secret</label>
-                        <button type="button" @click="showSecret = !showSecret" class="text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1">
-                            <span x-text="showSecret ? 'Sembunyikan' : 'Tampilkan Secret'"></span>
+                        <button type="button" @click="showSecret = !showSecret" class="text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold">
+                            <span x-text="showSecret ? 'Sembunyikan' : 'Lihat'"></span>
                         </button>
                     </div>
                     <input :type="showSecret ? 'text' : 'password'" name="google_client_secret" value="{{ old('google_client_secret', $googleClientSecret) }}"
-                           placeholder="••••••••••••••••••••••••••••••••"
+                           placeholder="••••••••••••••••••••••••••••••"
                            class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white font-mono text-xs">
                     <p class="text-[11px] text-slate-500 mt-1">Kunci rahasia API Google. Disimpan aman pada sistem.</p>
                 </div>
@@ -74,73 +98,7 @@
                     </label>
                 </div>
             </div>
-
-            <!-- Section 2: SaaS Subscription Pricing Configuration -->
-            <div class="space-y-4 pt-4 border-t border-slate-800">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-emerald-400"></i>
-                        <h3 class="text-sm font-bold text-white">Pengaturan Harga & Paket Langganan SaaS</h3>
-                    </div>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        Cooca Core Tier
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Harga Paket Bulanan (Rp) <span class="text-rose-400">*</span></label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 font-bold font-mono text-xs">Rp</span>
-                            <input type="number" name="subscription_price_monthly" value="{{ old('subscription_price_monthly', $subscriptionPriceMonthly) }}" required min="0" step="1000"
-                                   placeholder="129000"
-                                   class="w-full pl-11 pr-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono font-bold text-xs">
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-1">Biaya langganan paket Core siklus per bulan.</p>
-                    </div>
-
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Harga Paket Tahunan (Rp) <span class="text-rose-400">*</span></label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 font-bold font-mono text-xs">Rp</span>
-                            <input type="number" name="subscription_price_annual" value="{{ old('subscription_price_annual', $subscriptionPriceAnnual) }}" required min="0" step="1000"
-                                   placeholder="1290000"
-                                   class="w-full pl-11 pr-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono font-bold text-xs">
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-1">Biaya langganan paket Core siklus 1 tahun penuh.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
-                    <div><label class="block font-semibold text-slate-300 mb-1.5">Harga Top Up Token (Rp)</label><input type="number" name="ai_token_topup_price" value="{{ old('ai_token_topup_price', $aiTokenTopupPrice) }}" min="0" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
-                    <div><label class="block font-semibold text-slate-300 mb-1.5">Jumlah Token per Top Up</label><input type="number" name="ai_token_topup_amount" value="{{ old('ai_token_topup_amount', $aiTokenTopupAmount) }}" min="1" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
-                    <div><label class="block font-semibold text-slate-300 mb-1.5">Batas Storage Owner (GB)</label><input type="number" name="owner_storage_limit_gb" value="{{ old('owner_storage_limit_gb', $ownerStorageLimitGb) }}" min="1" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
-                    <div><label class="block font-semibold text-slate-300 mb-1.5">Harga Top Up Storage (Rp)</label><input type="number" name="storage_topup_price" value="{{ old('storage_topup_price', $storageTopupPrice) }}" min="0" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
-                    <div><label class="block font-semibold text-slate-300 mb-1.5">Storage per Top Up (GB)</label><input type="number" name="storage_topup_gb" value="{{ old('storage_topup_gb', $storageTopupGb) }}" min="1" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Kuota Token AI Bulanan (Tokens) <span class="text-rose-400">*</span></label>
-                        <div class="relative">
-                            <input type="number" name="subscription_ai_tokens_monthly" value="{{ old('subscription_ai_tokens_monthly', $subscriptionAiTokensMonthly) }}" required min="0" step="100000"
-                                   placeholder="10000000"
-                                   class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono font-bold text-xs">
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-1">Standar kuota AI Gemini per bulan untuk pelanggan Core (default 10.000.000 token).</p>
-                    </div>
-
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Badge Promo / Label Diskon Tahunan</label>
-                        <input type="text" name="subscription_annual_discount_badge" value="{{ old('subscription_annual_discount_badge', $subscriptionAnnualDiscountBadge) }}"
-                               placeholder="Contoh: Hemat 2 Bulan"
-                               class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white text-xs">
-                        <p class="text-[11px] text-slate-500 mt-1">Badge promo yang muncul pada opsi paket tahunan di halaman checkout.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 3: General Application Settings -->
+<!-- Section 2: General Application Settings -->
             <div class="space-y-4 pt-4 border-t border-slate-800">
                 <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
                     <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i>

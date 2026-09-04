@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('business_users', function (Blueprint $table): void {
+            $table->foreignUuid('role_id')->nullable()->after('role')->constrained('roles')->nullOnDelete();
+            $table->index(['business_id', 'role_id']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('business_users', function (Blueprint $table): void {
+            $table->dropForeign(['role_id']);
+            $table->dropIndex(['business_id', 'role_id']);
+            $table->dropColumn('role_id');
+        });
+    }
+};

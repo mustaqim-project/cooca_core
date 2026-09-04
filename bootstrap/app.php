@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'business.context' => SetActiveBusinessContext::class,
             'business.active' => EnsureActiveBusiness::class,
+            'profile.complete' => \App\Http\Middleware\EnsureOwnerProfileComplete::class,
             'require.role' => RequireRole::class,
             'require.permission' => \App\Http\Middleware\RequirePermission::class,
             'entitlement' => \App\Http\Middleware\CheckResourceEntitlement::class,

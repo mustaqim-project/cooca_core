@@ -45,7 +45,7 @@ class _MoreScreenState extends State<MoreScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Upgrade ke Cooca Core',
+              'Upgrade ke Cooca UMKM',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -201,7 +201,7 @@ class _MoreScreenState extends State<MoreScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Upgrade ke Cooca Core',
+                              'Upgrade ke Cooca UMKM',
                               style: GoogleFonts.plusJakartaSans(
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
@@ -291,7 +291,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 icon: Icons.stars_rounded,
                 color: AppColors.purple,
                 title: 'Paket & Langganan',
-                subtitle: 'Periksa penggunaan kuota & upgrade Cooca Core',
+                subtitle: 'Periksa penggunaan kuota & upgrade Cooca UMKM',
                 onTap: () => Navigator.pushNamed(context, '/billing/upgrade'),
               ),
 

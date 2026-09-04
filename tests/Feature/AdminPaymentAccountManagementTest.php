@@ -207,7 +207,7 @@ class AdminPaymentAccountManagementTest extends TestCase
     {
         $response = $this->actingAs($this->admin, 'admin')
             ->post(route('admin.settings.update'), [
-                'app_name' => 'Cooca Core Platform',
+                'app_name' => 'Cooca UMKM Platform',
                 'subscription_price_monthly' => 149000,
                 'subscription_price_annual' => 1490000,
                 'subscription_ai_tokens_monthly' => 15000000,

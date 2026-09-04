@@ -1,7 +1,7 @@
 @extends('layouts.admin', [
     'title' => 'Kelola Bisnis (Tenants) — Admin Console',
     'headerTitle' => 'Manajemen Tenant Bisnis UMKM',
-    'headerSubtitle' => 'Kelola seluruh workspace bisnis yang beroperasi di platform Cooca Core'
+    'headerSubtitle' => 'Kelola seluruh workspace bisnis yang beroperasi di platform Cooca UMKM'
 ])
 
 @section('content')
@@ -60,7 +60,7 @@
                 <select name="plan" onchange="this.form.submit()"
                         class="px-3 py-2 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl text-xs text-white">
                     <option value="">Semua Paket</option>
-                    <option value="core" {{ request('plan') === 'core' ? 'selected' : '' }}>Cooca Core</option>
+                    <option value="core" {{ request('plan') === 'core' ? 'selected' : '' }}>Cooca UMKM</option>
                     <option value="free" {{ request('plan') === 'free' ? 'selected' : '' }}>Free Plan</option>
                 </select>
 
@@ -147,14 +147,14 @@
                         </td>
                         <td class="py-3.5 px-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('admin.businesses.show', $biz->id) }}" 
+                                <a href="{{ route('admin.businesses.show', $biz->id) }}"
                                    class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition">
                                     Detail
                                 </a>
-                                <form method="POST" action="{{ route('admin.businesses.toggle-status', $biz->id) }}" 
+                                <form method="POST" action="{{ route('admin.businesses.toggle-status', $biz->id) }}"
                                       onsubmit="return confirm('Apakah Anda yakin ingin mengubah status aktif bisnis {{ $biz->name }}?')">
                                     @csrf
-                                    <button type="submit" 
+                                    <button type="submit"
                                             class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition {{ $biz->is_active ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30' }}">
                                         {{ $biz->is_active ? 'Suspend' : 'Aktifkan' }}
                                     </button>

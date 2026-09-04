@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Checkout Langganan — Cooca Core',
+    'title' => 'Checkout Patungan — Cooca UMKM',
     'headerTitle' => 'Pilih Metode Pembayaran',
-    'headerSubtitle' => 'Tingkatkan bisnis Anda ke Cooca Core dengan akses tanpa batas dan 10 Juta Token AI'
+    'headerSubtitle' => 'Ikut program Patungan Cooca UMKM untuk akses fitur tanpa batas dan kolaborasi bisnis'
 ])
 
 @section('content')
@@ -11,13 +11,17 @@
 <div class="max-w-5xl mx-auto space-y-8" x-data="{
     cycle: '{{ $cycle }}',
     orderType: '{{ $type }}',
+    packageId: '{{ $packages->first()?->id ?? '' }}',
     paymentMethod: '{{ $defaultSelectedCode }}',
     monthlyPrice: {{ (int)$monthlyPrice }},
     annualPrice: {{ (int)$annualPrice }},
     topupPrice: {{ (int)$topupPrice }},
     get currentPrice() {
+        const selected = this.packageId ? this.packages.find(item => item.id === this.packageId) : null;
+        if (selected) return Number(selected.price);
         return this.orderType === 'subscription' ? (this.cycle === 'annual' ? this.annualPrice : this.monthlyPrice) : this.topupPrice;
     },
+    packages: {{ \Illuminate\Support\Js::from($packagesData) }},
     formatRupiah(val) {
         return new Intl.NumberFormat('id-ID').format(val);
     }
@@ -40,65 +44,46 @@
         @csrf
         <input type="hidden" name="cycle" :value="cycle">
         <input type="hidden" name="order_type" value="{{ $type }}">
+        <input type="hidden" name="package_id" :value="packageId">
         <input type="hidden" name="payment_method" :value="paymentMethod">
 
         <!-- Left Column: Plan Selector & Payment Method (2 cols) -->
         <div class="lg:col-span-2 space-y-6">
 
-            @if($type === 'subscription')
-            <!-- 1. Billing Cycle Selector Card -->
-            <div class="glass-card rounded-3xl p-6 border border-slate-800 space-y-5">
+            @if($packages->isNotEmpty())
+            <div class="glass-card rounded-3xl p-6 border border-emerald-500/30 space-y-5">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-base font-black text-white flex items-center gap-2">
-                        <i data-lucide="calendar" class="w-5 h-5 text-emerald-400"></i>
-                        <span>Pilih Periode Langganan</span>
-                    </h3>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                        Hemat Biaya
+                    <div>
+                        <h3 class="text-base font-black text-white">{{ $type === 'subscription' ? 'Pilih Paket Patungan' : ($type === 'ai_token' ? 'Pilih Paket Top Up Token AI' : 'Pilih Paket Storage') }}</h3>
+                        <p class="text-xs text-slate-400 mt-1">{{ $type === 'subscription' ? 'Harga resmi program patungan UMKM Cooca.' : 'Paket top up kuota tambahan.' }}</p>
+                    </div>
+                    @if($type === 'subscription')
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        Patungan UMKM
                     </span>
+                    @endif
                 </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Bulanan Option -->
-                    <div @click="cycle = 'monthly'"
-                         class="cursor-pointer rounded-2xl p-5 border transition-all relative overflow-hidden"
-                         :class="cycle === 'monthly' ? 'bg-purple-950/40 border-purple-500 shadow-lg shadow-purple-500/10' : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-black text-white uppercase tracking-wider">Bulanan</span>
-                            <div class="w-4 h-4 rounded-full border flex items-center justify-center"
-                                 :class="cycle === 'monthly' ? 'border-purple-400 bg-purple-500' : 'border-slate-600'">
-                                <div x-show="cycle === 'monthly'" class="w-1.5 h-1.5 rounded-full bg-white"></div>
-                            </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    @foreach($packages as $package)
+                    <button type="button" @click="packageId = '{{ $package->id }}'; cycle = '{{ $package->duration_days >= 360 ? 'annual' : 'monthly' }}'" :class="packageId === '{{ $package->id }}' ? 'border-emerald-400 bg-emerald-950/40 shadow-lg shadow-emerald-500/10' : 'border-slate-800 bg-slate-900/60'" class="text-left rounded-2xl border p-4 transition hover:border-emerald-400/60 relative overflow-hidden">
+                        <div class="flex items-start justify-between gap-2">
+                            <span class="font-bold text-white text-sm">{{ $package->name }}</span>
+                            <span class="w-4 h-4 rounded-full border border-emerald-400 shrink-0 flex items-center justify-center" :class="packageId === '{{ $package->id }}' ? 'bg-emerald-400' : ''">
+                                <span x-show="packageId === '{{ $package->id }}'" class="w-1.5 h-1.5 rounded-full bg-slate-950"></span>
+                            </span>
                         </div>
-                        <div class="text-2xl font-black text-white font-mono">Rp {{ number_format($monthlyPrice, 0, ',', '.') }}</div>
-                        <p class="text-[11px] text-slate-400 mt-1">Ditagih setiap bulan, fleksibel dibatalkan kapan saja.</p>
-                    </div>
-
-                    <!-- Tahunan Option -->
-                    <div @click="cycle = 'annual'"
-                         class="cursor-pointer rounded-2xl p-5 border transition-all relative overflow-hidden"
-                         :class="cycle === 'annual' ? 'bg-emerald-950/40 border-emerald-500 shadow-lg shadow-emerald-500/10' : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'">
-                        <div class="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-500 text-slate-950">
-                            {{ $annualDiscountBadge }}
-                        </div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-black text-white uppercase tracking-wider">Tahunan</span>
-                            <div class="w-4 h-4 rounded-full border flex items-center justify-center mr-16"
-                                 :class="cycle === 'annual' ? 'border-emerald-400 bg-emerald-500' : 'border-slate-600'">
-                                <div x-show="cycle === 'annual'" class="w-1.5 h-1.5 rounded-full bg-white"></div>
-                            </div>
-                        </div>
-                        <div class="text-2xl font-black text-emerald-400 font-mono">Rp {{ number_format($annualPrice, 0, ',', '.') }}</div>
-                        <p class="text-[11px] text-slate-400 mt-1">
-                            Setara Rp {{ number_format($annualPrice / 12, 0, ',', '.') }}/bln. Lebih hemat & praktis 1 tahun.
-                        </p>
-                    </div>
+                        <div class="text-2xl font-black text-emerald-400 font-mono mt-3">Rp {{ number_format($package->price, 0, ',', '.') }}</div>
+                        <p class="text-[11px] text-slate-400 mt-1">{{ $package->description }}</p>
+                        @if($type === 'subscription')
+                            <p class="text-[11px] text-cyan-300 mt-2 font-medium">Akses Pro/Patungan {{ $package->duration_days }} hari</p>
+                        @elseif($type === 'ai_token')
+                            <p class="text-[11px] text-amber-300 mt-2">{{ number_format($package->token_quantity, 0, ',', '.') }} token · {{ $package->token_expiry_days ?? 30 }} hari</p>
+                        @else
+                            <p class="text-[11px] text-cyan-300 mt-2">{{ number_format(($package->storage_bytes ?? 0) / 1073741824, 2, ',', '.') }} GB permanen</p>
+                        @endif
+                    </button>
+                    @endforeach
                 </div>
-            </div>
-            @else
-            <div class="glass-card rounded-3xl p-6 border border-amber-500/30 space-y-3">
-                <h3 class="text-base font-black text-white">{{ $type === 'ai_token' ? 'Top Up Token AI' : 'Top Up Storage Owner' }}</h3>
-                <p class="text-xs text-slate-300">{{ $type === 'ai_token' ? number_format($topupQuantity, 0, ',', '.') . ' token AI, berlaku 30 hari sejak pembayaran disetujui.' : number_format($topupQuantity / 1073741824, 2, ',', '.') . ' GB kapasitas tambahan untuk seluruh bisnis owner.' }}</p>
             </div>
             @endif
 
@@ -159,7 +144,7 @@
             <div class="glass-card rounded-3xl p-6 border border-slate-800 space-y-6 sticky top-24">
                 <div class="border-b border-slate-800 pb-4">
                     <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Ringkasan Pesanan</span>
-                    <h4 class="text-lg font-black text-white mt-1">Cooca Core License</h4>
+                    <h4 class="text-lg font-black text-white mt-1">Cooca UMKM — Patungan</h4>
                     <p class="text-xs text-emerald-400 font-medium">Bisnis: {{ $business->name }}</p>
                 </div>
 
@@ -175,7 +160,11 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                        <span>10.000.000 Token AI / Bulan</span>
+                        <span>Import & Export Excel Tanpa Batas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                        <span>Akses Asisten Pintar AI (Top-Up)</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
@@ -186,7 +175,7 @@
                 <!-- Cost Summary -->
                 <div class="border-t border-slate-800 pt-4 space-y-2 text-xs">
                     <div class="flex items-center justify-between text-slate-400">
-                        <span>{{ $type === 'subscription' ? 'Biaya Langganan:' : 'Harga Top Up:' }}</span>
+                        <span>{{ $type === 'subscription' ? 'Nominal Patungan:' : 'Harga Top Up:' }}</span>
                         <span class="font-mono text-white" x-text="'Rp ' + formatRupiah(currentPrice)"></span>
                     </div>
                     <div class="flex items-center justify-between text-slate-400">

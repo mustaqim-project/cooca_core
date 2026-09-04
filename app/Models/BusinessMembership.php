@@ -21,6 +21,7 @@ class BusinessMembership extends Pivot
         'business_id',
         'user_id',
         'role',
+        'role_id',
     ];
 
     /**
@@ -41,5 +42,34 @@ class BusinessMembership extends Pivot
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
+    }
+
+    public function customRole(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->role === 'owner') {
+            return true;
+        }
+
+        if ($this->customRole) {
+            return $this->customRole->permissions()->where('permissions.slug', $permission)->exists();
+        }
+
+        if ($this->role) {
+            $role = Role::where('slug', $this->role)
+                ->where(function ($query) {
+                    $query->where('business_id', $this->business_id)->orWhereNull('business_id');
+                })
+                ->orderByRaw('business_id IS NULL')
+                ->first();
+
+            return $role?->permissions()->where('permissions.slug', $permission)->exists() ?? false;
+        }
+
+        return false;
     }
 }

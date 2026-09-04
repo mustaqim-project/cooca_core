@@ -18,7 +18,7 @@ final class AdminPaymentAccountController extends Controller
     /**
      * Display a listing of platform payment & bank accounts.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         // If empty, populate with default accounts
         if (PaymentAccount::count() === 0) {
@@ -27,11 +27,30 @@ final class AdminPaymentAccountController extends Controller
             }
         }
 
-        $accounts = PaymentAccount::ordered()->get();
-        $activeCount = $accounts->where('is_active', true)->count();
-        $qrisCount = $accounts->where('type', PaymentAccount::TYPE_QRIS)->count();
+        $search = trim((string) $request->query('search', ''));
+        $type = (string) $request->query('type', '');
 
-        return view('admin.payment_accounts.index', compact('accounts', 'activeCount', 'qrisCount'));
+        $query = PaymentAccount::query();
+        if (in_array($type, [PaymentAccount::TYPE_BANK_TRANSFER, PaymentAccount::TYPE_QRIS, PaymentAccount::TYPE_E_WALLET], true)) {
+            $query->where('type', $type);
+        }
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('bank_name', 'like', "%{$search}%")
+                    ->orWhere('bank_code', 'like', "%{$search}%")
+                    ->orWhere('account_name', 'like', "%{$search}%")
+                    ->orWhere('account_number', 'like', "%{$search}%");
+            });
+        }
+
+        $accounts = $query->ordered()->get();
+
+        // Global KPIs (independent of active filter)
+        $totalCount = PaymentAccount::count();
+        $activeCount = PaymentAccount::where('is_active', true)->count();
+        $qrisCount = PaymentAccount::whereIn('type', [PaymentAccount::TYPE_QRIS, PaymentAccount::TYPE_E_WALLET])->count();
+
+        return view('admin.payment_accounts.index', compact('accounts', 'totalCount', 'activeCount', 'qrisCount', 'search', 'type'));
     }
 
     /**

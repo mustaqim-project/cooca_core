@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Domain\Report\SalesReportService;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Expense;
@@ -20,6 +21,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly SalesReportService $salesReport = new SalesReportService
+    ) {}
+
     /**
      * Comprehensive mobile dashboard summary.
      */
@@ -28,9 +33,28 @@ final class DashboardController extends Controller
         $business = Context::requireBusiness();
         $user = $request->user();
 
+        $periodKey = (string) $request->get('period', 'today');
+        [$reportStart, $reportEnd] = match ($periodKey) {
+            'week' => [now()->startOfWeek(), now()->endOfWeek()],
+            'month' => [now()->startOfMonth(), now()->endOfMonth()],
+            'year' => [now()->startOfYear(), now()->endOfYear()],
+            default => [now()->startOfDay(), now()->endOfDay()],
+        };
+
         $today = now()->toDateString();
         $monthStart = now()->startOfMonth()->toDateString();
         $monthEnd = now()->endOfMonth()->toDateString();
+
+        // Sales report from transaction snapshots for requested period
+        $salesReport = $this->salesReport->summary($business->id, $reportStart, $reportEnd);
+        $salesSummary = $salesReport['summary'];
+
+        // Operating expenses in the requested period
+        $expensesPeriod = (float) Expense::where('business_id', $business->id)
+            ->whereBetween('expense_date', [$reportStart->toDateString(), $reportEnd->toDateString()])
+            ->sum('amount');
+
+        $netProfit = $salesSummary['total_gross_profit'] - $expensesPeriod;
 
         // ── POS Today ────────────────────────────────────────────
         $posToday = PosOrder::where('business_id', $business->id)
@@ -152,6 +176,28 @@ final class DashboardController extends Controller
             ],
             'revenue_trend' => $revenueTrend,
             'top_products' => $topProducts,
+            'pl' => [
+                'total_revenue' => $salesSummary['total_sales'],
+                'total_cogs' => $salesSummary['total_modal'],
+                'gross_profit' => $salesSummary['total_gross_profit'],
+                'operating_expenses' => $expensesPeriod,
+                'net_profit' => round($netProfit, 2),
+                'margin_percentage' => $salesSummary['margin_percentage'],
+                'source' => 'transaction_snapshot',
+            ],
+            'summary' => [
+                'total_sales' => $salesSummary['total_sales'],
+                'total_orders' => $salesSummary['total_orders'],
+                'total_quantity' => $salesSummary['total_quantity'],
+                'total_hpp' => $salesSummary['total_modal'],
+                'total_gross_profit' => $salesSummary['total_gross_profit'],
+                'average_selling_price' => $salesSummary['average_selling_price'],
+                'average_cost_price' => $salesSummary['average_cost_price'],
+                'margin_percentage' => $salesSummary['margin_percentage'],
+                'total_expenses' => $expensesPeriod,
+                'net_profit' => round($netProfit, 2),
+                'period' => $periodKey,
+            ],
             'generated_at' => now()->toIso8601String(),
         ], Response::HTTP_OK);
     }

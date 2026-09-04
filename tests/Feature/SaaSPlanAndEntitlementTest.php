@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Domain\Billing\EntitlementService;
+use App\Models\Admin;
 use App\Models\Business;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -12,6 +13,7 @@ use App\Models\Unit;
 use App\Models\User;
 use App\Support\Context;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -125,16 +127,30 @@ class SaaSPlanAndEntitlementTest extends TestCase
         $sub = $this->entitlementService->upgradeToCore($this->business, 'monthly');
 
         $this->assertTrue($sub->isCorePlan());
-        $this->assertEquals(10_000_000, $sub->ai_tokens_remaining);
+        $this->assertEquals(0, $sub->ai_tokens_monthly_allowance);
         $this->assertTrue($this->entitlementService->canCreateProduct($this->business));
+
+        // AI requires top up
+        $this->assertFalse($this->entitlementService->canAccessAi($this->business));
+
+        $admin = Admin::create([
+            'name' => 'Super Admin',
+            'email' => 'admin@cooca.id',
+            'password' => 'secret123',
+            'role' => 'super_admin',
+            'is_active' => true,
+        ]);
+
+        $topup = $this->entitlementService->createTokenTopupOrder($this->business, $this->user);
+        $this->entitlementService->submitPaymentProof($topup, UploadedFile::fake()->image('proof.png'));
+        $this->entitlementService->approvePayment($topup, $admin);
+
         $this->assertTrue($this->entitlementService->canAccessAi($this->business));
 
         // Deduct AI tokens
         $deducted = $this->entitlementService->deductAiTokens($this->business, 2500, 'sales_query', $this->user);
         $this->assertTrue($deducted);
 
-        $sub->refresh();
-        $this->assertEquals(10_000_000 - 2500, $sub->ai_tokens_remaining);
         $this->assertDatabaseHas('ai_token_usages', [
             'business_id' => $this->business->id,
             'total_tokens' => 2500,

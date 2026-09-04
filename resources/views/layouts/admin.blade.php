@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Admin Console — Cooca Core' }}</title>
+    <title>{{ $title ?? 'Admin Console — Cooca UMKM' }}</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -69,7 +69,7 @@
             background-color: var(--bg);
             color: var(--text);
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-image: 
+            background-image:
                 radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
             background-attachment: fixed;
@@ -88,12 +88,18 @@
             color: #ffffff;
             box-shadow: 0 4px 20px -4px rgba(99, 102, 241, 0.3);
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
+
+    @stack('styles')
 </head>
 <body class="min-h-screen text-slate-100 antialiased" x-data="{ sidebarOpen: false }">
 
     <!-- Mobile Sidebar Backdrop -->
-    <div x-show="sidebarOpen" 
+    <div x-show="sidebarOpen"
          @click="sidebarOpen = false"
          class="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm lg:hidden"
          x-transition:enter="transition-opacity ease-linear duration-300"
@@ -105,9 +111,9 @@
          style="display: none;"></div>
 
     <!-- Admin Sidebar -->
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
            class="fixed top-0 bottom-0 left-0 z-50 w-64 glass-card border-r border-slate-800 transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col justify-between">
-        
+
         <div class="p-5 space-y-6">
             <!-- Brand Logo -->
             <div class="flex items-center justify-between">
@@ -129,28 +135,36 @@
             <nav class="space-y-1.5 pt-2 text-xs font-semibold">
                 <div class="px-3 pb-1 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Sistem Utama</div>
 
-                <a href="{{ route('admin.dashboard') }}" 
+                <a href="{{ route('admin.dashboard') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.dashboard') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                     <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-400"></i>
                     <span>Dashboard Statistik</span>
                 </a>
 
-                <a href="{{ route('admin.businesses.index') }}" 
+                <a href="{{ route('admin.businesses.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.businesses.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                     <i data-lucide="building-2" class="w-4 h-4 text-blue-400"></i>
                     <span>Kelola Bisnis (Tenant)</span>
                 </a>
 
-                <a href="{{ route('admin.users.index') }}" 
+                <a href="{{ route('admin.users.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.users.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                     <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
                     <span>Kelola Pengguna</span>
                 </a>
 
+                <a href="{{ route('admin.feedback.bugs.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.feedback.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <i data-lucide="messages-square" class="w-4 h-4 text-cyan-400"></i>
+                    <span>Bug & Request Fitur</span>
+                </a>
+
+                <div class="px-3 pt-4 pb-1 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Billing & Langganan</div>
+
                 @php
                     $pendingSubscriptionsCount = \App\Models\SubscriptionPayment::where('status', 'awaiting_approval')->count();
                 @endphp
-                <a href="{{ route('admin.subscriptions.index') }}" 
+                <a href="{{ route('admin.subscriptions.index') }}"
                    class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.subscriptions.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                     <div class="flex items-center gap-3">
                         <i data-lucide="receipt" class="w-4 h-4 text-emerald-400"></i>
@@ -163,30 +177,36 @@
                     @endif
                 </a>
 
-                <a href="{{ route('admin.ai-tokens.index') }}" 
+                <a href="{{ route('admin.ai-tokens.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.ai-tokens.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                     <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
                     <span>Monitoring Token AI</span>
                 </a>
 
-                <a href="{{ route('admin.feedback.bugs.index') }}" 
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.feedback.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                    <i data-lucide="messages-square" class="w-4 h-4 text-cyan-400"></i>
-                    <span>Bug & Request Fitur</span>
-                </a>
+                <div class="px-3 pt-4 pb-1 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Konfigurasi & CMS</div>
 
-                <div class="px-3 pt-4 pb-1 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Konfigurasi</div>
-
-                <a href="{{ route('admin.payment-accounts.index') }}" 
+                <a href="{{ route('admin.payment-accounts.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.payment-accounts.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                     <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
                     <span>CMS Rekening & Bayar</span>
                 </a>
 
-                <a href="{{ route('admin.settings.index') }}" 
+                <a href="{{ route('admin.billing-packages.index', 'subscription') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.billing-packages.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <i data-lucide="layers-3" class="w-4 h-4 text-cyan-400"></i>
+                    <span>CMS Paket & Harga</span>
+                </a>
+
+                <a href="{{ route('admin.settings.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.settings.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                     <i data-lucide="sliders" class="w-4 h-4 text-amber-400"></i>
-                    <span>Harga Paket & Sistem</span>
+                    <span>Sistem & Integrasi</span>
+                </a>
+
+                <a href="{{ route('admin.smtp.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.smtp.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <i data-lucide="mail-cog" class="w-4 h-4 text-cyan-400"></i>
+                    <span>CMS SMTP Email</span>
                 </a>
             </nav>
         </div>
@@ -224,7 +244,7 @@
                 </button>
                 <div>
                     <h1 class="text-sm font-bold text-white tracking-tight">{{ $headerTitle ?? 'Admin Console' }}</h1>
-                    <p class="text-[11px] text-slate-400 hidden sm:block">{{ $headerSubtitle ?? 'Pusat Manajemen Sistem Cooca Core (cooca.id)' }}</p>
+                    <p class="text-[11px] text-slate-400 hidden sm:block">{{ $headerSubtitle ?? 'Pusat Manajemen Sistem Cooca UMKM (cooca.id)' }}</p>
                 </div>
             </div>
 

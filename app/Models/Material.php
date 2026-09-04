@@ -100,4 +100,28 @@ class Material extends Model
     {
         return $this->hasOne(MaterialPrice::class)->latestOfMany('effective_date');
     }
+
+    /**
+     * @return HasMany<InventoryStock, $this>
+     */
+    public function stocks(): HasMany
+    {
+        return $this->hasMany(InventoryStock::class);
+    }
+
+    /**
+     * @return HasMany<StockMovement, $this>
+     */
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    /**
+     * Total stock across all locations.
+     */
+    public function getTotalStockAttribute(): float
+    {
+        return (float) $this->stocks()->sum('quantity');
+    }
 }

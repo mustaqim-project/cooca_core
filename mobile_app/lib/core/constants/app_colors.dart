@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Cooca Core Mobile — Design Tokens
+/// Cooca UMKM Mobile — Design Tokens
 /// Identik dengan web: bg-slate-950, emerald brand, Plus Jakarta Sans
 class AppColors {
   AppColors._();

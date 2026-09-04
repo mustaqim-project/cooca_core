@@ -241,6 +241,25 @@
                         <option value="unpaid">Unpaid (Resmi Menunggu Bayar)</option>
                     </select>
                 </div>
+
+                <!-- Gudang / Lokasi Pengeluaran Barang -->
+                @if($locations->isNotEmpty())
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">
+                        <i data-lucide="warehouse" class="inline w-3.5 h-3.5 text-emerald-400 mr-1"></i>
+                        Gudang Asal Barang
+                    </label>
+                    <select name="location_id" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+                        <option value="">-- Otomatis (Gudang Utama) --</option>
+                        @foreach($locations as $loc)
+                            <option value="{{ $loc->id }}" {{ $loc->is_primary ? 'selected' : '' }}>
+                                {{ $loc->name }} {{ $loc->type ? "({$loc->type})" : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-slate-500 mt-0.5 text-[10px]">Stok barang akan dipotong dari gudang/outlet yang dipilih saat faktur dikonfirmasi.</p>
+                </div>
+                @endif
             </div>
         </div>
 

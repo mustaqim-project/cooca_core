@@ -15,6 +15,7 @@ class StockOpnameItem extends Model
 
     protected $fillable = [
         'stock_opname_id',
+        'material_id',
         'product_id',
         'system_quantity',
         'physical_quantity',
@@ -44,6 +45,14 @@ class StockOpnameItem extends Model
     public function opname(): BelongsTo
     {
         return $this->belongsTo(StockOpname::class, 'stock_opname_id');
+    }
+
+    /**
+     * @return BelongsTo<Material, $this>
+     */
+    public function material(): BelongsTo
+    {
+        return $this->belongsTo(Material::class);
     }
 
     /**

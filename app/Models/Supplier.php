@@ -45,4 +45,14 @@ class Supplier extends Model
     {
         return $this->hasMany(Material::class);
     }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(SupplierInvoice::class);
+    }
+
+    public function goodsReceipts(): HasMany
+    {
+        return $this->hasMany(GoodsReceipt::class);
+    }
 }

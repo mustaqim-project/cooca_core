@@ -13,7 +13,7 @@
 
 ### 1.1 Dual-Domain Architectural Separation
 
-Cooca Core memisahkan secara tegas antara **Platform Domain** (manajemen SaaS multi-tenant, billing, lisensi) dan **Tenant Domain** (sistem operasional bisnis UMKM).
+Cooca UMKM memisahkan secara tegas antara **Platform Domain** (manajemen SaaS multi-tenant, billing, lisensi) dan **Tenant Domain** (sistem operasional bisnis UMKM).
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -338,7 +338,7 @@ final class CheckResourceEntitlementMiddleware
                 return response()->json([
                     'success' => false,
                     'code' => 'RESOURCE_LIMIT_EXCEEDED',
-                    'message' => "Batas kuota {$resourceType} untuk paket Anda telah tercapai. Tingkatkan ke Cooca Core untuk kuota tanpa batas.",
+                    'message' => "Batas kuota {$resourceType} untuk paket Anda telah tercapai. Tingkatkan ke Cooca UMKM untuk kuota tanpa batas.",
                     'upgrade_url' => route('settings.billing.upgrade'),
                 ], 403);
             }

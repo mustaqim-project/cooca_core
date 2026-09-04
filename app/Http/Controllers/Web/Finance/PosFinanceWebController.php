@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\Finance;
 
 use App\Domain\Accounting\AutoJournalService;
+use App\Domain\Finance\CashLedgerService;
 use App\Http\Controllers\Controller;
 use App\Models\ChartOfAccount;
 use App\Models\Expense;
@@ -18,7 +19,8 @@ use Illuminate\View\View;
 final class PosFinanceWebController extends Controller
 {
     public function __construct(
-        private readonly AutoJournalService $journalService = new AutoJournalService
+        private readonly AutoJournalService $journalService = new AutoJournalService,
+        private readonly CashLedgerService $cashLedgerService = new CashLedgerService
     ) {}
 
     /**
@@ -117,6 +119,7 @@ final class PosFinanceWebController extends Controller
 
         // Auto-journal
         $this->journalService->recordExpenseJournal($expense, $user);
+        $this->cashLedgerService->recordOutflow($business, (float) $expense->amount, 'expense', $expense->id, "Pengeluaran #{$expense->expense_number}", $expense->payment_method, $user->id);
 
         return redirect()->back()->with('success', "Biaya operasional #{$expenseNumber} berhasil dicatat.");
     }

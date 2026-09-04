@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\V1\Crm\CrmLoyaltyController;
 use App\Http\Controllers\Api\V1\Crm\CustomerController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\Finance\FinanceController;
+use App\Http\Controllers\Api\V1\Finance\CashLedgerController;
+use App\Http\Controllers\Api\V1\Finance\PaymentSettlementController;
 use App\Http\Controllers\Api\V1\Inventory\InventoryController;
 use App\Http\Controllers\Api\V1\Inventory\StockOpnameController;
 use App\Http\Controllers\Api\V1\Inventory\StockTransferController;
@@ -23,6 +25,8 @@ use App\Http\Controllers\Api\V1\Pos\PosTerminalController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\Purchasing\GoodsReceiptController;
 use App\Http\Controllers\Api\V1\Purchasing\PurchaseOrderController;
+use App\Http\Controllers\Api\V1\Purchasing\PurchaseReportController;
+use App\Http\Controllers\Api\V1\Purchasing\SupplierInvoiceController;
 use App\Http\Controllers\Api\V1\Sales\InvoiceController;
 use App\Http\Controllers\Api\V1\Sales\QuotationController;
 use App\Http\Controllers\Api\V1\Sales\SalesOrderController;
@@ -328,6 +332,17 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/reports/hpp-per-product', [ReportController::class, 'hppPerProduct']);
             Route::get('/reports/cost-breakdown', [ReportController::class, 'costBreakdown']);
 
+            // Sales Reports berbasis SNAPSHOT transaksi
+            Route::get('/reports/sales-summary', [PosReportController::class, 'salesSummary']);
+            Route::get('/reports/sales-average-prices', [PosReportController::class, 'averagePrices']);
+
+            // Purchase Reports berbasis SNAPSHOT PO
+            Route::get('/reports/purchase-summary', [PurchaseReportController::class, 'summary']);
+            Route::get('/reports/purchase-history', [PurchaseReportController::class, 'history']);
+            Route::get('/reports/purchase-period', [PurchaseReportController::class, 'period']);
+            Route::get('/reports/purchase-supplier', [PurchaseReportController::class, 'supplier']);
+            Route::get('/reports/purchase-product', [PurchaseReportController::class, 'product']);
+
             // Audit Logs (Restricted to Owner and Admin)
             Route::get('/audit-logs', [AuditLogController::class, 'index'])
                 ->middleware('require.role:owner,admin');
@@ -343,6 +358,8 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/profile', [ProfileController::class, 'show']);
             Route::put('/profile', [ProfileController::class, 'update']);
             Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
+            Route::get('/auth/verification-status', [AuthController::class, 'verificationStatus']);
+            Route::post('/auth/verification-notification', [AuthController::class, 'resendVerification']);
             Route::post('/profile/logout', [ProfileController::class, 'logout']);
             Route::post('/profile/logout-all', [ProfileController::class, 'logoutAllDevices']);
             Route::get('/profile/businesses/{business}', [ProfileController::class, 'businessProfile']);
@@ -374,6 +391,7 @@ Route::prefix('v1')->group(function (): void {
 
                 // Reports
                 Route::get('/reports/sales-summary', [PosReportController::class, 'salesSummary']);
+                Route::get('/reports/average-prices', [PosReportController::class, 'averagePrices']);
                 Route::get('/reports/payment-breakdown', [PosReportController::class, 'paymentBreakdown']);
                 Route::get('/reports/top-products', [PosReportController::class, 'topProducts']);
                 Route::get('/reports/hourly-heatmap', [PosReportController::class, 'hourlyHeatmap']);
@@ -417,6 +435,36 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/goods-receipts', [GoodsReceiptController::class, 'store']);
                 Route::get('/goods-receipts/{goodsReceipt}', [GoodsReceiptController::class, 'show']);
                 Route::post('/stock-in', [GoodsReceiptController::class, 'instantStockIn']);
+                Route::get('/supplier-invoices', [SupplierInvoiceController::class, 'index']);
+                Route::get('/supplier-invoices/{supplierInvoice}', [SupplierInvoiceController::class, 'show']);
+                Route::post('/supplier-invoices/{supplierInvoice}/payments', [SupplierInvoiceController::class, 'recordPayment']);
+                Route::get('/returns', [\App\Http\Controllers\Api\V1\Purchasing\PurchaseReturnController::class, 'index']);
+                Route::post('/returns', [\App\Http\Controllers\Api\V1\Purchasing\PurchaseReturnController::class, 'store']);
+                Route::post('/returns/{return}/approve', [\App\Http\Controllers\Api\V1\Purchasing\PurchaseReturnController::class, 'approve']);
+                Route::post('/returns/{return}/complete', [\App\Http\Controllers\Api\V1\Purchasing\PurchaseReturnController::class, 'complete']);
+
+                // Purchase Reports (snapshot harga beli PO)
+                Route::prefix('reports')->group(function (): void {
+                    Route::get('/summary', [PurchaseReportController::class, 'summary']);
+                    Route::get('/history', [PurchaseReportController::class, 'history']);
+                    Route::get('/period', [PurchaseReportController::class, 'period']);
+                    Route::get('/supplier', [PurchaseReportController::class, 'supplier']);
+                    Route::get('/product', [PurchaseReportController::class, 'product']);
+                });
+            });
+
+            // Cash & bank ledger for the active business.
+            Route::prefix('finance/cash-ledger')->group(function (): void {
+                Route::get('/accounts', [CashLedgerController::class, 'accounts']);
+                Route::get('/transactions', [CashLedgerController::class, 'transactions']);
+                Route::post('/inflows', [CashLedgerController::class, 'inflow']);
+                Route::post('/outflows', [CashLedgerController::class, 'outflow']);
+                Route::post('/transfers', [CashLedgerController::class, 'transfer']);
+            });
+            Route::prefix('finance/settlements')->group(function (): void {
+                Route::get('/', [PaymentSettlementController::class, 'index']);
+                Route::post('/reconcile', [PaymentSettlementController::class, 'reconcile']);
+                Route::get('/{settlement}', [PaymentSettlementController::class, 'show']);
             });
 
             // ──────────────────────────────────────────────────────────────────
@@ -440,6 +488,10 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
                 Route::post('/invoices/{invoice}/payments', [InvoiceController::class, 'recordPayment']);
                 Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy']);
+                Route::get('/returns', [\App\Http\Controllers\Api\V1\Sales\SalesReturnController::class, 'index']);
+                Route::post('/returns', [\App\Http\Controllers\Api\V1\Sales\SalesReturnController::class, 'store']);
+                Route::post('/returns/{return}/approve', [\App\Http\Controllers\Api\V1\Sales\SalesReturnController::class, 'approve']);
+                Route::post('/returns/{return}/complete', [\App\Http\Controllers\Api\V1\Sales\SalesReturnController::class, 'complete']);
             });
 
             // ──────────────────────────────────────────────────────────────────

@@ -24,6 +24,8 @@ class PurchaseOrderItem extends Model
         'invoiced_quantity',
         'unit_id',
         'unit_price',
+        'purchase_price_snapshot',
+        'supplier_name_snapshot',
         'cost_price_snapshot',
         'subtotal',
         'notes',
@@ -38,6 +40,7 @@ class PurchaseOrderItem extends Model
             'quantity' => 'float',
             'invoiced_quantity' => 'float',
             'unit_price' => 'float',
+            'purchase_price_snapshot' => 'float',
             'cost_price_snapshot' => 'float',
             'subtotal' => 'float',
         ];
@@ -47,6 +50,21 @@ class PurchaseOrderItem extends Model
     {
         static::saving(function (PurchaseOrderItem $item): void {
             $item->subtotal = $item->quantity * $item->unit_price;
+
+            // Snapshot harga beli diisi SEKALI saja ketika item pertama kali dibuat.
+            // Setelah tersimpan, snapshot tidak akan pernah diperbarui walau unit_price diubah.
+            if (! $item->exists && $item->purchase_price_snapshot === null) {
+                $item->purchase_price_snapshot = $item->unit_price;
+            }
+
+            // Snapshot nama supplier diisi pada saat pembuatan agar histori tidak berubah
+            // ketika nama supplier pada master data diperbarui.
+            if (! $item->exists && empty($item->supplier_name_snapshot) && $item->purchase_order_id) {
+                $supplierName = $item->purchaseOrder?->supplier?->name;
+                if ($supplierName) {
+                    $item->supplier_name_snapshot = $supplierName;
+                }
+            }
         });
 
         static::saved(function (PurchaseOrderItem $item): void {

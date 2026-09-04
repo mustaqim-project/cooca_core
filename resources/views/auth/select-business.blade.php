@@ -1,4 +1,4 @@
-@extends('layouts.guest', ['title' => 'Pilih Bisnis — Cooca Core'])
+@extends('layouts.guest', ['title' => 'Pilih Bisnis — Cooca UMKM'])
 
 @section('content')
 <div class="sm:mx-auto sm:w-full sm:max-w-lg px-4" x-data="{ showCreateModal: false }">
@@ -26,7 +26,7 @@
             <form method="POST" action="{{ route('businesses.switch') }}">
                 @csrf
                 <input type="hidden" name="business_id" value="{{ $biz->id }}">
-                <button type="submit" 
+                <button type="submit"
                         class="w-full p-4 rounded-xl bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 text-left flex items-center justify-between transition-all group">
                     <div class="flex items-center gap-3.5">
                         <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">

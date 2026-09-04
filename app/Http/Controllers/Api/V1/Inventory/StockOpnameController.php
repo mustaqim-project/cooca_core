@@ -66,7 +66,8 @@ final class StockOpnameController extends Controller
             'opname_date' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'string', 'exists:products,id'],
+            'items.*.material_id' => ['nullable', 'string', 'exists:materials,id'],
+            'items.*.product_id' => ['nullable', 'string', 'exists:products,id'],
             'items.*.physical_quantity' => ['required', 'numeric', 'min:0'],
         ]);
 
@@ -83,19 +84,38 @@ final class StockOpnameController extends Controller
         ]);
 
         foreach ($validated['items'] as $itemData) {
-            $stock = InventoryStock::where('business_id', $business->id)
-                ->where('location_id', $validated['location_id'])
-                ->where('product_id', $itemData['product_id'])
-                ->first();
+            $materialId = $itemData['material_id'] ?? null;
+            $productId = $itemData['product_id'] ?? null;
+
+            if (!$materialId && !$productId) {
+                continue;
+            }
+
+            $stockQuery = InventoryStock::where('business_id', $business->id)
+                ->where('location_id', $validated['location_id']);
+
+            if ($materialId) {
+                $stockQuery->where('material_id', $materialId);
+            } else {
+                $stockQuery->where('product_id', $productId);
+            }
+
+            $stock = $stockQuery->first();
 
             $sysQty = $stock ? (float) $stock->quantity : 0.0;
             $physQty = (float) $itemData['physical_quantity'];
             $diff = $physQty - $sysQty;
             $unitCost = (float) ($stock?->last_cost ?? 0.0);
 
+            if ($unitCost <= 0 && $materialId) {
+                $mat = \App\Models\Material::withoutGlobalScopes()->where('business_id', $business->id)->with('latestPrice')->find($materialId);
+                $unitCost = (float) ($mat?->latestPrice?->purchase_price ?? 0.0);
+            }
+
             StockOpnameItem::create([
                 'stock_opname_id' => $opname->id,
-                'product_id' => $itemData['product_id'],
+                'material_id' => $materialId,
+                'product_id' => $productId,
                 'system_quantity' => $sysQty,
                 'physical_quantity' => $physQty,
                 'difference_quantity' => $diff,
@@ -104,7 +124,7 @@ final class StockOpnameController extends Controller
             ]);
         }
 
-        $opname->load(['location', 'conductor', 'items.product.outputUnit']);
+        $opname->load(['location', 'conductor', 'items.material.unit', 'items.product.outputUnit']);
 
         return response()->json([
             'message' => "Stock Opname #{$opnameNumber} berhasil disimpan.",

@@ -73,8 +73,10 @@
                         @foreach($purchaseOrder->items as $idx => $item)
                         <tr>
                             <td class="py-3 px-3 font-sans font-medium text-white">
-                                {{ $item->product ? $item->product->name : $item->item_name }}
-                                <input type="hidden" name="items[{{ $idx }}][product_id]" value="{{ $item->product_id }}">
+                                {{ $item->product ? $item->product->name : ($item->material ? $item->material->name : $item->item_name) }}
+                                <input type="hidden" name="items[{{ $idx }}][product_id]" value="{{ $item->product_id ?? '' }}">
+                                <input type="hidden" name="items[{{ $idx }}][material_id]" value="{{ $item->material_id ?? '' }}">
+                                <input type="hidden" name="items[{{ $idx }}][item_name]" value="{{ $item->item_name ?? ($item->product ? $item->product->name : ($item->material ? $item->material->name : '')) }}">
                             </td>
                             <td class="py-3 px-3 text-right text-slate-400">
                                 {{ (float) $item->quantity }}

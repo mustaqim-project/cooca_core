@@ -17,10 +17,12 @@ class InventoryStock extends Model
     protected $fillable = [
         'business_id',
         'location_id',
+        'material_id',
         'product_id',
         'quantity',
         'reserved_quantity',
         'last_cost',
+        'avg_purchase_cost',
     ];
 
     /**
@@ -32,6 +34,7 @@ class InventoryStock extends Model
             'quantity' => 'float',
             'reserved_quantity' => 'float',
             'last_cost' => 'float',
+            'avg_purchase_cost' => 'float',
         ];
     }
 
@@ -46,6 +49,14 @@ class InventoryStock extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
+    }
+
+    /**
+     * @return BelongsTo<Material, $this>
+     */
+    public function material(): BelongsTo
+    {
+        return $this->belongsTo(Material::class);
     }
 
     /**

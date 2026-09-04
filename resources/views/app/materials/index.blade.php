@@ -54,11 +54,20 @@
             </select>
         </form>
 
-        <button @click="showAddModal = true" 
-                class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Tambah Bahan Baku</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('import.index', ['tab' => 'materials']) }}" 
+               class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+               title="Import data bahan baku massal dari file Excel / CSV">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-400"></i>
+                <span>Import Excel</span>
+            </a>
+
+            <button @click="showAddModal = true" 
+                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Tambah Bahan Baku</span>
+            </button>
+        </div>
     </div>
 
     <!-- Materials Table Card -->

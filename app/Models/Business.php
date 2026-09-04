@@ -45,6 +45,7 @@ class Business extends Model
         'currency',
         'rounding_strategy',
         'currency_precision',
+        'allow_negative_stock',
         'is_active',
         'suspended_reason',
         'suspended_at',
@@ -65,6 +66,7 @@ class Business extends Model
     protected function casts(): array
     {
         return [
+            'allow_negative_stock' => 'boolean',
             'is_active' => 'boolean',
             'suspended_at' => 'datetime',
             'currency_precision' => 'integer',
@@ -109,7 +111,7 @@ class Business extends Model
     {
         return $this->belongsToMany(User::class, 'business_users', 'business_id', 'user_id')
             ->using(BusinessMembership::class)
-            ->withPivot(['id', 'role'])
+            ->withPivot(['id', 'role', 'role_id'])
             ->withTimestamps();
     }
 
@@ -141,6 +143,11 @@ class Business extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function materials(): HasMany
+    {
+        return $this->hasMany(Material::class);
     }
 
     public function bomHeaders(): \Illuminate\Database\Eloquent\Relations\HasManyThrough

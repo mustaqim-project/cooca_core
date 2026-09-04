@@ -17,6 +17,7 @@ use App\Http\Controllers\Web\ProfitabilityWebController;
 use App\Http\Controllers\Web\ReportWebController;
 use App\Http\Controllers\Web\SettingWebController;
 use App\Http\Controllers\Web\SimulationWebController;
+use App\Http\Controllers\Web\Warehouse\WarehouseWebController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -62,10 +63,20 @@ Route::middleware('guest:web')->group(function (): void {
 Route::middleware('auth:web')->group(function (): void {
     Route::post('/logout', [AuthWebController::class, 'logout'])->name('logout');
 
+    Route::get('/email/verify', [\App\Http\Controllers\Web\EmailVerificationWebController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Web\EmailVerificationWebController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+    Route::post('/email/verification-notification', [\App\Http\Controllers\Web\EmailVerificationWebController::class, 'resend'])
+        ->middleware('throttle:6,1')->name('verification.send');
+
     // User Profile & Password Management
     Route::get('/profile', [\App\Http\Controllers\Web\ProfileWebController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [\App\Http\Controllers\Web\ProfileWebController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/password', [\App\Http\Controllers\Web\ProfileWebController::class, 'updatePassword'])->name('profile.password');
+
+    // Complete Profile Onboarding
+    Route::get('/complete-profile', [AuthWebController::class, 'showCompleteProfile'])->name('profile.complete');
+    Route::post('/complete-profile', [AuthWebController::class, 'updateCompleteProfile'])->name('profile.complete.save');
 
     // Tenant Switcher & Creation
     Route::get('/select-business', [AuthWebController::class, 'selectBusiness'])->name('businesses.select');
@@ -79,7 +90,7 @@ Route::middleware('auth:web')->group(function (): void {
     Route::post('/onboarding/restart', [\App\Http\Controllers\Web\OnboardingWebController::class, 'restart'])->name('onboarding.restart');
 
     // Tenant Protected Web Panel
-    Route::middleware('business.active')->group(function (): void {
+    Route::middleware(['business.active', 'profile.complete'])->group(function (): void {
         // Executive Dashboard & Zero-Navigation Quick Actions
         Route::get('/dashboard', [DashboardWebController::class, 'index'])->name('dashboard');
         Route::get('/dashboard/quick-stats', [DashboardWebController::class, 'quickStats'])->name('dashboard.quick-stats');
@@ -88,23 +99,23 @@ Route::middleware('auth:web')->group(function (): void {
         Route::post('/dashboard/quick-material', [DashboardWebController::class, 'quickMaterial'])->name('dashboard.quick-material');
 
         // Interactive Live HPP Calculator
-        Route::get('/calculator', [CalculatorWebController::class, 'index'])->name('calculator.index');
+        Route::get('/calculator', [CalculatorWebController::class, 'index'])->middleware('require.permission:costing.view_margin')->name('calculator.index');
         Route::get('/calculator/calculate/{costModel}', [CalculatorWebController::class, 'calculate'])->name('calculator.calculate');
         Route::post('/calculator/save', [CalculatorWebController::class, 'saveResult'])->name('calculator.save');
         Route::post('/calculator/apply-to-product', [CalculatorWebController::class, 'applyToProduct'])->name('calculator.apply-to-product');
         Route::post('/calculator/quick-create-product', [CalculatorWebController::class, 'quickCreateProduct'])->name('calculator.quick-create-product');
-        Route::get('/calculator/export-excel', [CalculatorWebController::class, 'exportExcel'])->name('calculator.export-excel');
+        Route::get('/calculator/export-excel', [CalculatorWebController::class, 'exportExcel'])->middleware('entitlement:export')->name('calculator.export-excel');
 
         // Materials & Pricing Management
         Route::get('/materials', [MaterialWebController::class, 'index'])->name('materials.index');
-        Route::post('/materials', [MaterialWebController::class, 'store'])->name('materials.store');
+        Route::post('/materials', [MaterialWebController::class, 'store'])->middleware('entitlement:material')->name('materials.store');
         Route::put('/materials/{material}', [MaterialWebController::class, 'update'])->name('materials.update');
         Route::post('/materials/{material}/prices', [MaterialWebController::class, 'storePrice'])->name('materials.store-price');
         Route::delete('/materials/{material}', [MaterialWebController::class, 'destroy'])->name('materials.destroy');
 
         // Supplier & Material Category Master Data (CMS)
         Route::get('/suppliers', [\App\Http\Controllers\Web\SupplierWebController::class, 'index'])->name('suppliers.index');
-        Route::post('/suppliers', [\App\Http\Controllers\Web\SupplierWebController::class, 'store'])->name('suppliers.store');
+        Route::post('/suppliers', [\App\Http\Controllers\Web\SupplierWebController::class, 'store'])->middleware('entitlement:supplier')->name('suppliers.store');
         Route::put('/suppliers/{supplier}', [\App\Http\Controllers\Web\SupplierWebController::class, 'update'])->name('suppliers.update');
         Route::delete('/suppliers/{supplier}', [\App\Http\Controllers\Web\SupplierWebController::class, 'destroy'])->name('suppliers.destroy');
         Route::post('/material-categories', [\App\Http\Controllers\Web\MaterialCategoryWebController::class, 'store'])->name('material-categories.store');
@@ -120,6 +131,21 @@ Route::middleware('auth:web')->group(function (): void {
         Route::delete('/bom-items/{bomItem}', [ProductWebController::class, 'removeBomItem'])->name('bom.items.destroy');
         Route::delete('/products/{product}', [ProductWebController::class, 'destroy'])->name('products.destroy');
 
+        // Mass Excel / CSV Import (Materials, Products & Recipes) - Entitlement Pro / Patungan / Core
+        Route::get('/import', [\App\Http\Controllers\Web\ImportWebController::class, 'index'])->name('import.index');
+        Route::get('/import/materials/template', [\App\Http\Controllers\Web\ImportWebController::class, 'downloadMaterialTemplate'])->name('import.materials.template');
+        Route::post('/import/materials/preview', [\App\Http\Controllers\Web\ImportWebController::class, 'previewMaterials'])->middleware('entitlement:import')->name('import.materials.preview');
+        Route::post('/import/materials/execute', [\App\Http\Controllers\Web\ImportWebController::class, 'executeMaterials'])->middleware('entitlement:import')->name('import.materials.execute');
+        Route::get('/import/products/template', [\App\Http\Controllers\Web\ImportWebController::class, 'downloadProductTemplate'])->name('import.products.template');
+        Route::post('/import/products/preview', [\App\Http\Controllers\Web\ImportWebController::class, 'previewProducts'])->middleware('entitlement:import')->name('import.products.preview');
+        Route::post('/import/products/execute', [\App\Http\Controllers\Web\ImportWebController::class, 'executeProducts'])->middleware('entitlement:import')->name('import.products.execute');
+        Route::get('/import/recipes/template', [\App\Http\Controllers\Web\ImportWebController::class, 'downloadRecipeTemplate'])->name('import.recipes.template');
+        Route::post('/import/recipes/preview', [\App\Http\Controllers\Web\ImportWebController::class, 'previewRecipes'])->middleware('entitlement:import')->name('import.recipes.preview');
+        Route::post('/import/recipes/execute', [\App\Http\Controllers\Web\ImportWebController::class, 'executeRecipes'])->middleware('entitlement:import')->name('import.recipes.execute');
+        Route::get('/import/inventory/template', [\App\Http\Controllers\Web\ImportWebController::class, 'downloadInventoryTemplate'])->name('import.inventory.template');
+        Route::post('/import/inventory/preview', [\App\Http\Controllers\Web\ImportWebController::class, 'previewInventory'])->middleware('entitlement:import')->name('import.inventory.preview');
+        Route::post('/import/inventory/execute', [\App\Http\Controllers\Web\ImportWebController::class, 'executeInventory'])->middleware('entitlement:import')->name('import.inventory.execute');
+
         // Product Categories & Units Master Data (CMS)
         Route::post('/product-categories', [\App\Http\Controllers\Web\ProductCategoryWebController::class, 'store'])->name('product-categories.store');
         Route::put('/product-categories/{category}', [\App\Http\Controllers\Web\ProductCategoryWebController::class, 'update'])->name('product-categories.update');
@@ -129,12 +155,15 @@ Route::middleware('auth:web')->group(function (): void {
         Route::delete('/units/{unit}', [\App\Http\Controllers\Web\UnitWebController::class, 'destroy'])->name('units.destroy');
 
         // Customers Management (Commercial CRM)
-        Route::resource('customers', \App\Http\Controllers\Web\CustomerWebController::class)->except(['create', 'show', 'edit']);
+        Route::get('/customers', [\App\Http\Controllers\Web\CustomerWebController::class, 'index'])->name('customers.index');
+        Route::post('/customers', [\App\Http\Controllers\Web\CustomerWebController::class, 'store'])->middleware('entitlement:customer')->name('customers.store');
+        Route::put('/customers/{customer}', [\App\Http\Controllers\Web\CustomerWebController::class, 'update'])->name('customers.update');
+        Route::delete('/customers/{customer}', [\App\Http\Controllers\Web\CustomerWebController::class, 'destroy'])->name('customers.destroy');
 
         // Purchase Orders (PO) Lifecycle & Management
         Route::get('/purchase-orders', [\App\Http\Controllers\Web\PurchaseOrderWebController::class, 'index'])->name('purchase-orders.index');
         Route::get('/purchase-orders/create', [\App\Http\Controllers\Web\PurchaseOrderWebController::class, 'create'])->name('purchase-orders.create');
-        Route::post('/purchase-orders', [\App\Http\Controllers\Web\PurchaseOrderWebController::class, 'store'])->name('purchase-orders.store');
+        Route::post('/purchase-orders', [\App\Http\Controllers\Web\PurchaseOrderWebController::class, 'store'])->middleware('entitlement:po')->name('purchase-orders.store');
         Route::get('/purchase-orders/{purchaseOrder}', [\App\Http\Controllers\Web\PurchaseOrderWebController::class, 'show'])->name('purchase-orders.show');
         Route::get('/purchase-orders/{purchaseOrder}/print', [\App\Http\Controllers\Web\PurchaseOrderWebController::class, 'print'])->name('purchase-orders.print');
         Route::post('/purchase-orders/{purchaseOrder}/confirm', [\App\Http\Controllers\Web\PurchaseOrderWebController::class, 'confirm'])->name('purchase-orders.confirm');
@@ -146,6 +175,9 @@ Route::middleware('auth:web')->group(function (): void {
         Route::get('/purchasing/receipts/{purchaseOrder}/create', [\App\Http\Controllers\Web\Purchasing\GoodsReceiptWebController::class, 'create'])->name('purchasing.receipts.create');
         Route::post('/purchasing/receipts/{purchaseOrder}', [\App\Http\Controllers\Web\Purchasing\GoodsReceiptWebController::class, 'store'])->name('purchasing.receipts.store');
         Route::post('/purchasing/instant-stock-in', [\App\Http\Controllers\Web\Purchasing\GoodsReceiptWebController::class, 'instantStockIn'])->name('purchasing.instant-stock-in');
+        Route::get('/purchasing/bills', [\App\Http\Controllers\Web\Purchasing\SupplierInvoiceWebController::class, 'index'])->name('purchasing.bills.index');
+        Route::get('/purchasing/bills/{invoice}', [\App\Http\Controllers\Web\Purchasing\SupplierInvoiceWebController::class, 'show'])->name('purchasing.bills.show');
+        Route::post('/purchasing/bills/{invoice}/payments', [\App\Http\Controllers\Web\Purchasing\SupplierInvoiceWebController::class, 'recordPayment'])->name('purchasing.bills.payments.store');
 
         // Sales Pipeline: Quotations (Surat Penawaran Harga)
         Route::get('/sales/quotations', [\App\Http\Controllers\Web\Sales\QuotationWebController::class, 'index'])->name('sales.quotations.index');
@@ -156,18 +188,36 @@ Route::middleware('auth:web')->group(function (): void {
 
         // Sales Pipeline: Sales Orders (Pesanan Penjualan)
         Route::get('/sales/orders', [\App\Http\Controllers\Web\Sales\SalesOrderWebController::class, 'index'])->name('sales.orders.index');
+        Route::get('/sales/orders/create', [\App\Http\Controllers\Web\Sales\SalesOrderWebController::class, 'create'])->name('sales.orders.create');
+        Route::post('/sales/orders', [\App\Http\Controllers\Web\Sales\SalesOrderWebController::class, 'store'])->name('sales.orders.store');
         Route::get('/sales/orders/{salesOrder}', [\App\Http\Controllers\Web\Sales\SalesOrderWebController::class, 'show'])->name('sales.orders.show');
         Route::post('/sales/orders/{salesOrder}/generate-invoice', [\App\Http\Controllers\Web\Sales\SalesOrderWebController::class, 'generateInvoice'])->name('sales.orders.generate-invoice');
 
         // Invoices Management & Generator (Commerce Billing)
-        Route::get('/invoices/export-excel', [\App\Http\Controllers\Web\InvoiceWebController::class, 'exportExcel'])->name('invoices.export-excel');
+        Route::get('/invoices/export-excel', [\App\Http\Controllers\Web\InvoiceWebController::class, 'exportExcel'])->middleware('entitlement:export')->name('invoices.export-excel');
         Route::get('/invoices', [\App\Http\Controllers\Web\InvoiceWebController::class, 'index'])->name('invoices.index');
         Route::get('/invoices/create', [\App\Http\Controllers\Web\InvoiceWebController::class, 'create'])->name('invoices.create');
         Route::post('/invoices', [\App\Http\Controllers\Web\InvoiceWebController::class, 'store'])->middleware('entitlement:invoice')->name('invoices.store');
         Route::get('/invoices/{invoice}', [\App\Http\Controllers\Web\InvoiceWebController::class, 'show'])->name('invoices.show');
         Route::get('/invoices/{invoice}/print', [\App\Http\Controllers\Web\InvoiceWebController::class, 'print'])->name('invoices.print');
         Route::post('/invoices/{invoice}/payments', [\App\Http\Controllers\Web\InvoiceWebController::class, 'recordPayment'])->name('invoices.payments.store');
+        Route::post('/invoices/{invoice}/confirm', [\App\Http\Controllers\Web\InvoiceWebController::class, 'confirm'])->name('invoices.confirm');
+        Route::post('/invoices/{invoice}/void', [\App\Http\Controllers\Web\InvoiceWebController::class, 'void'])->name('invoices.void');
         Route::delete('/invoices/{invoice}', [\App\Http\Controllers\Web\InvoiceWebController::class, 'destroy'])->name('invoices.destroy');
+
+        Route::get('/sales/returns', [\App\Http\Controllers\Web\SalesReturnWebController::class, 'index'])->name('sales.returns.index');
+        Route::get('/sales/returns/create', [\App\Http\Controllers\Web\SalesReturnWebController::class, 'create'])->name('sales.returns.create');
+        Route::post('/sales/returns', [\App\Http\Controllers\Web\SalesReturnWebController::class, 'store'])->name('sales.returns.store');
+        Route::get('/sales/returns/{return}', [\App\Http\Controllers\Web\SalesReturnWebController::class, 'show'])->name('sales.returns.show');
+        Route::post('/sales/returns/{return}/approve', [\App\Http\Controllers\Web\SalesReturnWebController::class, 'approve'])->name('sales.returns.approve');
+        Route::post('/sales/returns/{return}/complete', [\App\Http\Controllers\Web\SalesReturnWebController::class, 'complete'])->name('sales.returns.complete');
+
+        Route::get('/purchasing/returns', [\App\Http\Controllers\Web\PurchaseReturnWebController::class, 'index'])->name('purchase.returns.index');
+        Route::get('/purchasing/returns/create', [\App\Http\Controllers\Web\PurchaseReturnWebController::class, 'create'])->name('purchase.returns.create');
+        Route::post('/purchasing/returns', [\App\Http\Controllers\Web\PurchaseReturnWebController::class, 'store'])->name('purchase.returns.store');
+        Route::get('/purchasing/returns/{return}', [\App\Http\Controllers\Web\PurchaseReturnWebController::class, 'show'])->name('purchase.returns.show');
+        Route::post('/purchasing/returns/{return}/approve', [\App\Http\Controllers\Web\PurchaseReturnWebController::class, 'approve'])->name('purchase.returns.approve');
+        Route::post('/purchasing/returns/{return}/complete', [\App\Http\Controllers\Web\PurchaseReturnWebController::class, 'complete'])->name('purchase.returns.complete');
 
         // Labor Rates & Machine Costs
         Route::get('/labor-machines', [LaborMachineWebController::class, 'index'])->name('labor-machines.index');
@@ -187,15 +237,20 @@ Route::middleware('auth:web')->group(function (): void {
         Route::post('/profitability/bep', [ProfitabilityWebController::class, 'calculateBep'])->name('profitability.bep');
 
         // Reports & Analytics Suite
-        Route::get('/reports', [ReportWebController::class, 'index'])->name('reports.index');
-        Route::get('/reports/export-excel', [ReportWebController::class, 'exportExcel'])->name('reports.export-excel');
+        Route::get('/reports', [ReportWebController::class, 'index'])->middleware('require.permission:reports.view')->name('reports.index');
+        Route::get('/reports/export-excel', [ReportWebController::class, 'exportExcel'])->middleware(['require.permission:reports.export', 'entitlement:export'])->name('reports.export-excel');
 
         // Business Settings & Templates
-        Route::get('/settings', [SettingWebController::class, 'index'])->name('settings.index');
-        Route::put('/settings', [SettingWebController::class, 'update'])->name('settings.update');
+        Route::get('/settings', [SettingWebController::class, 'index'])->middleware('require.permission:settings.view')->name('settings.index');
+        Route::put('/settings', [SettingWebController::class, 'update'])->middleware('require.permission:settings.edit')->name('settings.update');
         Route::post('/settings/apply-template', [SettingWebController::class, 'applyTemplate'])->name('settings.apply-template');
-        Route::post('/settings/members', [SettingWebController::class, 'storeMember'])->name('settings.members.store');
-        Route::delete('/settings/members/{member}', [SettingWebController::class, 'destroyMember'])->name('settings.members.destroy');
+        Route::post('/settings/members', [SettingWebController::class, 'storeMember'])->middleware(['require.permission:users.manage', 'entitlement:member'])->name('settings.members.store');
+        Route::put('/settings/members/{member}/role', [SettingWebController::class, 'updateMemberRole'])->middleware(['require.permission:users.manage'])->name('settings.members.role');
+        Route::delete('/settings/members/{member}', [SettingWebController::class, 'destroyMember'])->middleware(['require.permission:users.manage'])->name('settings.members.destroy');
+        Route::get('/settings/roles', [\App\Http\Controllers\Web\RoleWebController::class, 'index'])->middleware('require.permission:roles.view')->name('settings.roles.index');
+        Route::post('/settings/roles', [\App\Http\Controllers\Web\RoleWebController::class, 'store'])->middleware('require.permission:roles.manage')->name('settings.roles.store');
+        Route::put('/settings/roles/{role}', [\App\Http\Controllers\Web\RoleWebController::class, 'update'])->middleware('require.permission:roles.manage')->name('settings.roles.update');
+        Route::delete('/settings/roles/{role}', [\App\Http\Controllers\Web\RoleWebController::class, 'destroy'])->middleware('require.permission:roles.manage')->name('settings.roles.destroy');
 
         Route::middleware('require.role:owner')->group(function (): void {
             Route::get('/feedback/bugs', [\App\Http\Controllers\Web\FeedbackWebController::class, 'bugs'])->name('feedback.bugs.index');
@@ -206,10 +261,18 @@ Route::middleware('auth:web')->group(function (): void {
             Route::get('/feedback/features/create', [\App\Http\Controllers\Web\FeedbackWebController::class, 'createFeature'])->name('feedback.features.create');
             Route::post('/feedback/features', [\App\Http\Controllers\Web\FeedbackWebController::class, 'storeFeature'])->name('feedback.features.store');
             Route::get('/feedback/features/{featureRequest}', [\App\Http\Controllers\Web\FeedbackWebController::class, 'showFeature'])->name('feedback.features.show');
+
+            // Owner Community: posts, likes & comments
+            Route::get('/community', [\App\Http\Controllers\Web\CommunityWebController::class, 'index'])->name('community.index');
+            Route::post('/community', [\App\Http\Controllers\Web\CommunityWebController::class, 'store'])->name('community.store');
+            Route::post('/community/{post}/like', [\App\Http\Controllers\Web\CommunityWebController::class, 'toggleLike'])->name('community.like');
+            Route::post('/community/{post}/comment', [\App\Http\Controllers\Web\CommunityWebController::class, 'comment'])->name('community.comment');
+            Route::delete('/community/{post}', [\App\Http\Controllers\Web\CommunityWebController::class, 'destroy'])->name('community.destroy');
         });
 
         // SaaS Plan & Resource Quota Limits
-        Route::get('/billing/limits', [\App\Http\Controllers\Web\Billing\BillingAndLimitWebController::class, 'index'])->name('billing.limits');
+        Route::get('/patungan', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.patungan');
+        Route::get('/billing/limits', [\App\Http\Controllers\Web\Billing\BillingAndLimitWebController::class, 'index'])->middleware('require.permission:billing.view')->name('billing.limits');
         Route::post('/billing/upgrade', [\App\Http\Controllers\Web\Billing\BillingAndLimitWebController::class, 'upgrade'])->name('billing.upgrade');
         Route::get('/billing/checkout', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.checkout');
         Route::post('/billing/order', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'store'])->name('billing.order.store');
@@ -222,10 +285,10 @@ Route::middleware('auth:web')->group(function (): void {
         | POS (Point of Sale) & Cashier Terminal Routes
         |--------------------------------------------------------------------------
         */
-        Route::get('/pos', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'index'])->name('pos.terminal');
-        Route::get('/pos/search-products', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'searchProducts'])->name('pos.search-products');
-        Route::post('/pos/checkout', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'checkout'])->name('pos.checkout');
-        Route::post('/pos/hold', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'holdOrder'])->name('pos.hold');
+        Route::get('/pos', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'index'])->middleware('require.permission:pos.terminal')->name('pos.terminal');
+        Route::get('/pos/search-products', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'searchProducts'])->middleware('require.permission:pos.terminal')->name('pos.search-products');
+        Route::post('/pos/checkout', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'checkout'])->middleware(['require.permission:pos.terminal', 'entitlement:pos'])->name('pos.checkout');
+        Route::post('/pos/hold', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'holdOrder'])->middleware('require.permission:pos.terminal')->name('pos.hold');
         Route::get('/pos/held-orders', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'getHeldOrders'])->name('pos.held-orders');
         Route::post('/pos/resume/{order}', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'resumeOrder'])->name('pos.resume');
         Route::get('/pos/receipt/{order}', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'printReceipt'])->name('pos.receipt');
@@ -246,26 +309,37 @@ Route::middleware('auth:web')->group(function (): void {
 
         // POS Reports & Dashboard
         Route::get('/pos/reports', [\App\Http\Controllers\Web\Pos\PosReportWebController::class, 'index'])->name('pos.reports.index');
-        Route::get('/pos/reports/export-excel', [\App\Http\Controllers\Web\Pos\PosReportWebController::class, 'exportExcel'])->name('pos.reports.export-excel');
+        Route::get('/pos/reports/export-excel', [\App\Http\Controllers\Web\Pos\PosReportWebController::class, 'exportExcel'])->middleware('entitlement:export')->name('pos.reports.export-excel');
 
         // AI POS & Predictive Analytics
         Route::get('/pos/ai', [\App\Http\Controllers\Web\Ai\PosAiWebController::class, 'index'])->name('pos.ai.index');
-        Route::post('/pos/ai/ask', [\App\Http\Controllers\Web\Ai\PosAiWebController::class, 'ask'])->name('pos.ai.ask');
-        Route::post('/pos/ai/execute-action', [\App\Http\Controllers\Web\Ai\PosAiWebController::class, 'executeAction'])->name('pos.ai.execute-action');
+        Route::post('/pos/ai/ask', [\App\Http\Controllers\Web\Ai\PosAiWebController::class, 'ask'])->middleware('entitlement:ai')->name('pos.ai.ask');
+        Route::post('/pos/ai/execute-action', [\App\Http\Controllers\Web\Ai\PosAiWebController::class, 'executeAction'])->middleware('entitlement:ai')->name('pos.ai.execute-action');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Warehouse Management Hub (Gudang & Lokasi)
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/warehouse', [WarehouseWebController::class, 'index'])->middleware('require.permission:inventory.view')->name('warehouse.index');
+        Route::post('/warehouse', [WarehouseWebController::class, 'store'])->middleware(['require.permission:inventory.manage', 'entitlement:warehouse'])->name('warehouse.store');
+        Route::get('/warehouse/{location}', [WarehouseWebController::class, 'show'])->middleware('require.permission:inventory.view')->name('warehouse.show');
+        Route::put('/warehouse/{location}', [WarehouseWebController::class, 'update'])->middleware('require.permission:inventory.manage')->name('warehouse.update');
+        Route::delete('/warehouse/{location}', [WarehouseWebController::class, 'destroy'])->middleware('require.permission:inventory.manage')->name('warehouse.destroy');
 
         /*
         |--------------------------------------------------------------------------
         | Inventory & Multi-Warehouse Routes
         |--------------------------------------------------------------------------
         */
-        Route::get('/inventory/stocks', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'stocks'])->name('inventory.stocks');
-        Route::post('/inventory/stocks/adjust', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'quickAdjust'])->name('inventory.stocks.adjust');
+        Route::get('/inventory/stocks', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'stocks'])->middleware('require.permission:inventory.view')->name('inventory.stocks');
+        Route::post('/inventory/stocks/adjust', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'quickAdjust'])->middleware('require.permission:inventory.manage')->name('inventory.stocks.adjust');
         Route::get('/inventory/movements', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'movements'])->name('inventory.movements');
         Route::get('/inventory/opnames', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'opnames'])->name('inventory.opnames.index');
-        Route::post('/inventory/opnames', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'storeOpname'])->name('inventory.opnames.store');
+        Route::post('/inventory/opnames', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'storeOpname'])->middleware('require.permission:inventory.manage')->name('inventory.opnames.store');
         Route::post('/inventory/opnames/{opname}/reconcile', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'reconcileOpname'])->name('inventory.opnames.reconcile');
         Route::get('/inventory/transfers', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'transfers'])->name('inventory.transfers.index');
-        Route::post('/inventory/transfers', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'storeTransfer'])->name('inventory.transfers.store');
+        Route::post('/inventory/transfers', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'storeTransfer'])->middleware('require.permission:inventory.manage')->name('inventory.transfers.store');
         Route::post('/inventory/transfers/{transfer}/receive', [\App\Http\Controllers\Web\Inventory\InventoryWebController::class, 'receiveTransfer'])->name('inventory.transfers.receive');
 
         /*
@@ -286,8 +360,15 @@ Route::middleware('auth:web')->group(function (): void {
         |--------------------------------------------------------------------------
         */
         Route::get('/finance/journals', [\App\Http\Controllers\Web\Finance\PosFinanceWebController::class, 'journals'])->name('finance.journals.index');
-        Route::get('/finance/expenses', [\App\Http\Controllers\Web\Finance\PosFinanceWebController::class, 'expenses'])->name('finance.expenses.index');
-        Route::post('/finance/expenses', [\App\Http\Controllers\Web\Finance\PosFinanceWebController::class, 'storeExpense'])->name('finance.expenses.store');
+        Route::get('/finance/expenses', [\App\Http\Controllers\Web\Finance\PosFinanceWebController::class, 'expenses'])->middleware('require.permission:expenses.view')->name('finance.expenses.index');
+        Route::post('/finance/expenses', [\App\Http\Controllers\Web\Finance\PosFinanceWebController::class, 'storeExpense'])->middleware('require.permission:expenses.manage')->name('finance.expenses.store');
+        Route::get('/finance/cash-bank', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'index'])->name('finance.cash-bank.index');
+        Route::get('/finance/cash-bank/ledger', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'ledger'])->name('finance.cash-bank.ledger');
+        Route::post('/finance/cash-bank/inflow', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'storeInflow'])->name('finance.cash-bank.inflow');
+        Route::post('/finance/cash-bank/outflow', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'storeOutflow'])->name('finance.cash-bank.outflow');
+        Route::post('/finance/cash-bank/transfer', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'transfer'])->name('finance.cash-bank.transfer');
+        Route::get('/finance/receivables', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'receivables'])->name('finance.receivables');
+        Route::get('/finance/payables', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'payables'])->name('finance.payables');
     });
 });
 
@@ -301,11 +382,18 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::middleware('guest:admin')->group(function (): void {
         Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
+        Route::get('/forgot-password', [\App\Http\Controllers\Admin\AdminPasswordResetController::class, 'showForgot'])->name('password.request');
+        Route::post('/forgot-password', [\App\Http\Controllers\Admin\AdminPasswordResetController::class, 'sendResetLink'])->name('password.email');
+        Route::get('/reset-password/{token}', [\App\Http\Controllers\Admin\AdminPasswordResetController::class, 'showReset'])->name('password.reset');
+        Route::post('/reset-password', [\App\Http\Controllers\Admin\AdminPasswordResetController::class, 'reset'])->name('password.update');
     });
 
     // Authenticated Admin
     Route::middleware('auth:admin')->group(function (): void {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+        Route::get('/profile', [\App\Http\Controllers\Admin\AdminProfileController::class, 'index'])->name('profile.index');
+        Route::put('/profile', [\App\Http\Controllers\Admin\AdminProfileController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/profile/password', [\App\Http\Controllers\Admin\AdminProfileController::class, 'updatePassword'])->name('profile.password');
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
@@ -326,6 +414,16 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         // Google API & System Settings
         Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/billing', [AdminSettingController::class, 'updateBilling'])->name('settings.billing');
+        Route::get('/smtp', [\App\Http\Controllers\Admin\AdminSmtpController::class, 'index'])->name('smtp.index');
+        Route::post('/smtp', [\App\Http\Controllers\Admin\AdminSmtpController::class, 'update'])->name('smtp.update');
+        Route::post('/smtp/test', [\App\Http\Controllers\Admin\AdminSmtpController::class, 'test'])->name('smtp.test');
+
+        // Separate billing package catalogs
+        Route::get('/billing-packages/{type}', [\App\Http\Controllers\Admin\AdminBillingPackageController::class, 'index'])->name('billing-packages.index');
+        Route::post('/billing-packages', [\App\Http\Controllers\Admin\AdminBillingPackageController::class, 'store'])->name('billing-packages.store');
+        Route::put('/billing-packages/{billingPackage}', [\App\Http\Controllers\Admin\AdminBillingPackageController::class, 'update'])->name('billing-packages.update');
+        Route::post('/billing-packages/{billingPackage}/toggle', [\App\Http\Controllers\Admin\AdminBillingPackageController::class, 'toggle'])->name('billing-packages.toggle');
 
         // SaaS Subscription Management & Payment Approval
         Route::get('/subscriptions', [\App\Http\Controllers\Admin\AdminSubscriptionController::class, 'index'])->name('subscriptions.index');

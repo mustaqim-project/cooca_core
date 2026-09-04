@@ -35,10 +35,15 @@ final class SettingWebController extends Controller
         $customUnits = \App\Models\Unit::where('business_id', $business->id)->latest()->get();
         $systemUnits = \App\Models\Unit::whereNull('business_id')->orderBy('name')->get();
         $canAddMember = app(\App\Domain\Billing\EntitlementService::class)->canAddMember($business);
+        $roles = \App\Models\Role::whereNull('business_id')
+            ->orWhere('business_id', $business->id)
+            ->orderBy('business_id')
+            ->orderBy('name')
+            ->get();
 
         return view('app.settings.index', compact(
             'business', 'templates', 'currencies', 'locations', 'members',
-            'suppliers', 'materialCategories', 'productCategories', 'customUnits', 'systemUnits', 'canAddMember'
+            'suppliers', 'materialCategories', 'productCategories', 'customUnits', 'systemUnits', 'canAddMember', 'roles'
         ));
     }
 
@@ -129,18 +134,35 @@ final class SettingWebController extends Controller
     public function storeMember(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
+        abort_unless(Context::hasPermission('users.manage'), 403, 'Anda tidak memiliki izin mengelola anggota tim.');
         $entitlement = app(\App\Domain\Billing\EntitlementService::class);
 
         if (! $entitlement->canAddMember($business)) {
-            return back()->with('error', 'Paket Free Plan dibatasi untuk 1 pengguna (Solo Owner). Silakan upgrade ke Cooca Core untuk menambahkan karyawan tanpa batas.');
+            return back()->with('error', 'Paket Free Plan dibatasi untuk 1 pengguna (Solo Owner). Silakan upgrade ke Cooca UMKM untuk menambahkan karyawan tanpa batas.');
+        }
+
+        if (! $request->filled('role_id')) {
+            $roleSlug = $request->input('role', 'staff');
+            $roleObj = \App\Models\Role::where('slug', $roleSlug)->first()
+                ?? \App\Models\Role::firstOrCreate(
+                    ['slug' => $roleSlug, 'business_id' => $business->id],
+                    ['name' => ucfirst((string) $roleSlug)]
+                );
+            $request->merge(['role_id' => $roleObj->id]);
         }
 
         $validated = $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email'],
             'password' => ['nullable', 'string', 'min:6'],
-            'role' => ['required', 'string', 'in:owner,admin,cashier,staff,inventory'],
+            'role_id' => ['required', 'uuid', 'exists:roles,id'],
         ]);
+
+        $selectedRole = \App\Models\Role::where('id', $validated['role_id'])
+            ->where(function ($query) use ($business): void {
+                $query->whereNull('business_id')->orWhere('business_id', $business->id);
+            })
+            ->firstOrFail();
 
         $user = \App\Models\User::where('email', $validated['email'])->first();
 
@@ -160,7 +182,8 @@ final class SettingWebController extends Controller
 
         $business->users()->attach($user->id, [
             'id' => (string) \Illuminate\Support\Str::uuid(),
-            'role' => $validated['role'],
+            'role' => $selectedRole->slug,
+            'role_id' => $selectedRole->id,
         ]);
 
         // If user doesn't have an active business context set, link this business
@@ -168,7 +191,7 @@ final class SettingWebController extends Controller
             $user->update(['active_business_id' => $business->id]);
         }
 
-        return back()->with('success', "Karyawan {$user->name} ({$validated['email']}) berhasil ditambahkan dengan role " . strtoupper($validated['role']) . ". Karyawan dapat langsung login di /login dengan email & password yang didaftarkan.");
+        return back()->with('success', "Karyawan {$user->name} ({$validated['email']}) berhasil ditambahkan dengan role " . strtoupper($selectedRole->name ?? $selectedRole->slug) . ". Karyawan dapat langsung login di /login dengan email & password yang didaftarkan.");
     }
 
     /**
@@ -177,22 +200,29 @@ final class SettingWebController extends Controller
     public function updateMemberRole(Request $request, \App\Models\BusinessMembership $member): RedirectResponse
     {
         $business = Context::requireBusiness();
+        abort_unless(Context::hasPermission('users.manage'), 403, 'Anda tidak memiliki izin mengelola anggota tim.');
 
         if ($member->business_id !== $business->id) {
             abort(403);
         }
 
         $validated = $request->validate([
-            'role' => ['required', 'string', 'in:owner,admin,cashier,staff,inventory'],
+            'role_id' => ['required', 'uuid', 'exists:roles,id'],
         ]);
 
-        if ($member->role === 'owner' && $validated['role'] !== 'owner' && $business->memberships()->where('role', 'owner')->count() <= 1) {
+        $selectedRole = \App\Models\Role::where('id', $validated['role_id'])
+            ->where(function ($query) use ($business): void {
+                $query->whereNull('business_id')->orWhere('business_id', $business->id);
+            })
+            ->firstOrFail();
+
+        if ($member->role === 'owner' && $selectedRole->slug !== 'owner' && $business->memberships()->where('role', 'owner')->count() <= 1) {
             return back()->with('error', 'Tidak dapat mengubah role satu-satunya Owner bisnis.');
         }
 
-        $member->update(['role' => $validated['role']]);
+        $member->update(['role' => $selectedRole->slug, 'role_id' => $selectedRole->id]);
 
-        return back()->with('success', "Role akses untuk anggota tim berhasil diubah menjadi " . strtoupper($validated['role']) . ".");
+        return back()->with('success', "Role akses untuk anggota tim berhasil diubah menjadi " . strtoupper($selectedRole->name ?? $selectedRole->slug) . ".");
     }
 
     /**
@@ -201,6 +231,7 @@ final class SettingWebController extends Controller
     public function destroyMember(\App\Models\BusinessMembership $member): RedirectResponse
     {
         $business = Context::requireBusiness();
+        abort_unless(Context::hasPermission('users.manage'), 403, 'Anda tidak memiliki izin mengelola anggota tim.');
 
         if ($member->business_id !== $business->id) {
             abort(403);

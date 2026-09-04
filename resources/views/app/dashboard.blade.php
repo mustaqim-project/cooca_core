@@ -62,7 +62,7 @@
                     @endif
                 </div>
                 <h2 class="text-xl lg:text-2xl font-black text-white tracking-tight">
-                    Selamat Datang di Cooca Core, {{ auth()->user()->name ?? 'Owner' }}!
+                    Selamat Datang di Cooca UMKM, {{ auth()->user()->name ?? 'Owner' }}!
                 </h2>
                 <p class="text-xs text-slate-400">
                     Berikut adalah ringkasan performa bisnis Anda untuk outlet <strong>{{ $business->name }}</strong> per
@@ -72,29 +72,37 @@
 
             <!-- Quick Action Buttons Hub -->
             <div class="flex flex-wrap items-center gap-2.5 z-10">
+                @if(\App\Support\Context::hasPermission('pos.terminal'))
                 <a href="{{ route('pos.terminal') }}"
                     class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all">
                     <i data-lucide="calculator" class="w-4 h-4"></i>
                     <span>Terminal Kasir POS</span>
                 </a>
+                @endif
 
+                @if(\App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::hasPermission('expenses.view'))
                 <button type="button" @click="$dispatch('open-quick-expense')"
                     class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-rose-500/40 text-white font-bold text-xs flex items-center gap-2 transition-all">
                     <i data-lucide="receipt" class="w-4 h-4 text-rose-400"></i>
                     <span>+ Catat Beban</span>
                 </button>
+                @endif
 
+                @if(\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::hasPermission('purchasing.manage'))
                 <button type="button" @click="$dispatch('open-quick-stockin')"
                     class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500/40 text-white font-bold text-xs flex items-center gap-2 transition-all">
                     <i data-lucide="package-plus" class="w-4 h-4 text-emerald-400"></i>
                     <span>+ Beli Stok</span>
                 </button>
+                @endif
 
+                @if(\App\Support\Context::hasPermission('invoices.create'))
                 <a href="{{ route('invoices.create') }}"
                     class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-blue-500/40 text-white font-bold text-xs flex items-center gap-2 transition-all">
                     <i data-lucide="receipt" class="w-4 h-4 text-blue-400"></i>
                     <span>Buat Faktur</span>
                 </a>
+                @endif
             </div>
         </div>
 
@@ -563,16 +571,19 @@
                 </div>
 
                 <div class="space-y-2.5">
+                    @if(\App\Support\Context::hasPermission('materials.view'))
                     <a href="{{ route('materials.index') }}"
                         class="p-3 rounded-2xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/40 flex items-center justify-between text-xs font-semibold text-white transition-all group">
                         <div class="flex items-center gap-3">
                             <i data-lucide="boxes" class="w-4 h-4 text-emerald-400"></i>
-                            <span>Bahan Baku & Riwayat Harga</span>
+                            <span>Bahan Baku &amp; Riwayat Harga</span>
                         </div>
                         <i data-lucide="arrow-right"
                             class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors"></i>
                     </a>
+                    @endif
 
+                    @if(\App\Support\Context::hasPermission('costing.view_margin'))
                     <a href="{{ route('simulator.index') }}"
                         class="p-3 rounded-2xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-blue-500/40 flex items-center justify-between text-xs font-semibold text-white transition-all group">
                         <div class="flex items-center gap-3">
@@ -587,21 +598,24 @@
                         class="p-3 rounded-2xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/40 flex items-center justify-between text-xs font-semibold text-white transition-all group">
                         <div class="flex items-center gap-3">
                             <i data-lucide="pie-chart" class="w-4 h-4 text-purple-400"></i>
-                            <span>Kalkulator BEP & Titik Impas</span>
+                            <span>Kalkulator BEP &amp; Titik Impas</span>
                         </div>
                         <i data-lucide="arrow-right"
                             class="w-4 h-4 text-slate-500 group-hover:text-purple-400 transition-colors"></i>
                     </a>
+                    @endif
 
+                    @if(\App\Support\Context::hasPermission('reports.view'))
                     <a href="{{ route('reports.index') }}"
                         class="p-3 rounded-2xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 flex items-center justify-between text-xs font-semibold text-white transition-all group">
                         <div class="flex items-center gap-3">
                             <i data-lucide="file-spreadsheet" class="w-4 h-4 text-amber-400"></i>
-                            <span>Laporan Laba & HPP Produk</span>
+                            <span>Laporan Laba &amp; HPP Produk</span>
                         </div>
                         <i data-lucide="arrow-right"
                             class="w-4 h-4 text-slate-500 group-hover:text-amber-400 transition-colors"></i>
                     </a>
+                    @endif
                 </div>
             </div>
         </div>

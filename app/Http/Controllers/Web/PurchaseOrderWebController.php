@@ -137,6 +137,15 @@ final class PurchaseOrderWebController extends Controller
             'items.*.notes' => ['nullable', 'string'],
         ]);
 
+        $entitlement = app(\App\Domain\Billing\EntitlementService::class);
+        $sub = $entitlement->getSubscription($business);
+        if (! $sub->isCorePlan()) {
+            $allowed = $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_PO, \App\Domain\Billing\EntitlementService::FREE_PO_MONTHLY_LIMIT);
+            if (! $allowed) {
+                return redirect()->route('billing.limits')->with('error', 'Batas kuota Purchase Order bulanan (maks. 10 PO/bulan untuk Free Plan) telah tercapai. Tingkatkan ke Cooca UMKM untuk akses tanpa batas.');
+            }
+        }
+
         $po = $this->poService->createPurchaseOrder($business, $validated, $validated['items']);
 
         return redirect()->route('purchase-orders.show', $po->id)->with('success', "Pesanan {$po->po_number} berhasil dibuat.");
@@ -203,16 +212,24 @@ final class PurchaseOrderWebController extends Controller
     }
 
     /**
-     * Delete a purchase order.
+     * Delete a purchase order (Only allowed for draft orders; confirmed/final orders must be cancelled).
      */
     public function destroy(PurchaseOrder $purchaseOrder): RedirectResponse
     {
-        if ($purchaseOrder->invoices()->exists()) {
-            return back()->with('error', 'Pesanan ini sudah terhubung dengan faktur aktif dan tidak dapat dihapus.');
+        $business = Context::requireBusiness();
+        abort_unless($purchaseOrder->business_id === $business->id, 403);
+
+        if ($purchaseOrder->status !== PurchaseOrder::STATUS_DRAFT) {
+            return back()->with('error', "Pesanan dengan status [{$purchaseOrder->status}] tidak dapat dihapus untuk menjaga integritas riwayat bisnis. Silakan gunakan tombol Batalkan Pesanan.");
         }
 
+        if ($purchaseOrder->invoices()->exists()) {
+            return back()->with('error', 'Pesanan ini sudah terhubung dengan faktur dan tidak dapat dihapus.');
+        }
+
+        $poNumber = $purchaseOrder->po_number;
         $purchaseOrder->delete();
 
-        return redirect()->route('purchase-orders.index')->with('success', 'Pesanan berhasil dihapus.');
+        return redirect()->route('purchase-orders.index')->with('success', "Draf Pesanan {$poNumber} berhasil dihapus.");
     }
 }

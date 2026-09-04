@@ -11,9 +11,7 @@
     qrPreview: null,
     previewQr(event) {
         const file = event.target.files[0];
-        if (file) {
-            this.qrPreview = URL.createObjectURL(file);
-        }
+        if (file) this.qrPreview = URL.createObjectURL(file);
     }
 }">
 
@@ -26,169 +24,180 @@
     </div>
 
     <!-- Edit Form Card -->
-    <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6 border border-slate-800">
-        <form method="POST" action="{{ route('admin.payment-accounts.update', $paymentAccount) }}" enctype="multipart/form-data" class="space-y-6 text-xs">
-            @csrf
-            @method('PUT')
+    <form method="POST" action="{{ route('admin.payment-accounts.update', $paymentAccount) }}" enctype="multipart/form-data"
+          class="glass-card p-6 sm:p-8 rounded-3xl space-y-6 border border-slate-800 text-xs">
+        @csrf
+        @method('PUT')
 
-            <!-- Section 1: Basic Information -->
-            <div class="space-y-4">
-                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-                    <i data-lucide="landmark" class="w-4 h-4 text-emerald-400"></i>
-                    <h3 class="text-sm font-bold text-white">Informasi Bank / Rekening</h3>
-                </div>
+        <!-- Section 1: Basic Information -->
+        <div class="space-y-4">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="landmark" class="w-4 h-4 text-emerald-400"></i>
+                <h3 class="text-sm font-bold text-white">Informasi Bank / Rekening</h3>
+            </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Bank Code -->
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Kode Bank / Identifier <span class="text-rose-400">*</span></label>
-                        <input type="text" name="bank_code" value="{{ old('bank_code', $paymentAccount->bank_code) }}" required
-                               class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono text-xs uppercase">
-                        <p class="text-[11px] text-slate-500 mt-1">Kode unik sistem (huruf kecil tanpa spasi).</p>
-                    </div>
-
-                    <!-- Type -->
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Tipe Pembayaran <span class="text-rose-400">*</span></label>
-                        <select name="type" x-model="type" required
-                                class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white text-xs">
-                            <option value="bank_transfer" {{ old('type', $paymentAccount->type) === 'bank_transfer' ? 'selected' : '' }}>Transfer Bank Manual</option>
-                            <option value="qris" {{ old('type', $paymentAccount->type) === 'qris' ? 'selected' : '' }}>QRIS (Scan Barcode / e-Wallet)</option>
-                            <option value="e_wallet" {{ old('type', $paymentAccount->type) === 'e_wallet' ? 'selected' : '' }}>e-Wallet (GoPay, OVO, ShopeePay, DANA)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Bank Name -->
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Nama Bank / Label Saluran <span class="text-rose-400">*</span></label>
-                        <input type="text" name="bank_name" value="{{ old('bank_name', $paymentAccount->bank_name) }}" required
-                               class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white text-xs">
-                    </div>
-
-                    <!-- Account Name (A/N) -->
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Atas Nama Rekening (A/N) <span class="text-rose-400">*</span></label>
-                        <input type="text" name="account_name" value="{{ old('account_name', $paymentAccount->account_name) }}" required
-                               class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white text-xs">
-                    </div>
-                </div>
-
-                <!-- Account Number -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1.5">Nomor Rekening / ID Merchant <span class="text-rose-400">*</span></label>
-                    <input type="text" name="account_number" value="{{ old('account_number', $paymentAccount->account_number) }}" required
-                           class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono text-xs">
+                    <label class="block font-semibold text-slate-300 mb-1.5">Kode Bank / Identifier <span class="text-rose-400">*</span></label>
+                    <input type="text" name="bank_code" value="{{ old('bank_code', $paymentAccount->bank_code) }}" required
+                           class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white font-mono text-xs uppercase">
+                    <p class="text-[11px] text-slate-500 mt-1">Kode unik sistem (huruf kecil tanpa spasi).</p>
                 </div>
 
-                <!-- Instructions -->
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1.5">Petunjuk / Panduan Transfer</label>
-                    <textarea name="instructions" rows="3"
-                              class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white text-xs leading-relaxed">{{ old('instructions', $paymentAccount->instructions) }}</textarea>
-                    <p class="text-[11px] text-slate-500 mt-1">Petunjuk cara pembayaran yang tampil kepada pengguna pada halaman instruksi bayar.</p>
+                    <label class="block font-semibold text-slate-300 mb-1.5">Tipe Pembayaran <span class="text-rose-400">*</span></label>
+                    <select name="type" x-model="type" required
+                            class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white text-xs">
+                        <option value="bank_transfer" {{ old('type', $paymentAccount->type) === 'bank_transfer' ? 'selected' : '' }}>Transfer Bank Manual</option>
+                        <option value="qris" {{ old('type', $paymentAccount->type) === 'qris' ? 'selected' : '' }}>QRIS (Scan Barcode / e-Wallet)</option>
+                        <option value="e_wallet" {{ old('type', $paymentAccount->type) === 'e_wallet' ? 'selected' : '' }}>e-Wallet (GoPay, OVO, ShopeePay, DANA)</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Section 2: QRIS Image Upload -->
-            <div class="space-y-4 pt-4 border-t border-slate-800">
-                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-                    <i data-lucide="qr-code" class="w-4 h-4 text-teal-400"></i>
-                    <h3 class="text-sm font-bold text-white">Upload / Ganti Gambar QR Code QRIS</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1.5">Nama Bank / Label Saluran <span class="text-rose-400">*</span></label>
+                    <input type="text" name="bank_name" value="{{ old('bank_name', $paymentAccount->bank_name) }}" required
+                           class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white text-xs">
                 </div>
-
-                @if($paymentAccount->qr_image_path)
-                <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl flex items-center gap-4">
-                    <img src="{{ $paymentAccount->qr_image_url }}" alt="QRIS Sekarang" class="w-20 h-20 object-contain rounded-xl bg-white p-1 shrink-0">
-                    <div class="space-y-1 text-xs">
-                        <span class="font-bold text-white block">Gambar QRIS Saat Ini Aktif</span>
-                        <p class="text-slate-400">Unggah file gambar baru di bawah jika ingin mengganti kode QRIS ini.</p>
-                    </div>
-                </div>
-                @endif
 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1.5">File Gambar QRIS Baru (PNG / JPG / WEBP)</label>
-                    <input type="file" name="qr_image" accept="image/*" @change="previewQr($event)"
-                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-400 cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1">Kosongkan jika tidak ingin mengubah gambar QRIS saat ini.</p>
-                </div>
-
-                <!-- Live Preview of new QR Image -->
-                <div x-show="qrPreview" x-cloak class="p-3 bg-slate-950 border border-slate-800 rounded-2xl max-w-xs text-center space-y-2">
-                    <span class="text-[11px] font-bold text-slate-400 block">Preview QR Code Baru:</span>
-                    <img :src="qrPreview" alt="QRIS Preview Baru" class="max-h-48 mx-auto object-contain rounded-xl bg-white p-2">
+                    <label class="block font-semibold text-slate-300 mb-1.5">Atas Nama Rekening (A/N) <span class="text-rose-400">*</span></label>
+                    <input type="text" name="account_name" value="{{ old('account_name', $paymentAccount->account_name) }}" required
+                           class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white text-xs">
                 </div>
             </div>
 
-            <!-- Section 3: Visual Style & Sorting -->
-            <div class="space-y-4 pt-4 border-t border-slate-800">
-                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-                    <i data-lucide="palette" class="w-4 h-4 text-purple-400"></i>
-                    <h3 class="text-sm font-bold text-white">Tampilan & Urutan</h3>
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1.5">Nomor Rekening / ID Merchant <span class="text-rose-400">*</span></label>
+                <input type="text" name="account_number" value="{{ old('account_number', $paymentAccount->account_number) }}" required
+                       :placeholder="type === 'qris' ? 'Contoh: NMID: ID1020304050' : type === 'e_wallet' ? 'Contoh: 0812-XXXX-XXXX' : 'Contoh: 8735-0812-999'"
+                       class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white font-mono text-xs">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1.5">Petunjuk / Panduan Transfer</label>
+                <textarea name="instructions" rows="3" placeholder="Contoh: Transfer tepat hingga 3 digit terakhir ke rekening BCA resmi Cooca."
+                          class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white text-xs leading-relaxed">{{ old('instructions', $paymentAccount->instructions) }}</textarea>
+                <p class="text-[11px] text-slate-500 mt-1">Petunjuk cara pembayaran yang tampil kepada pengguna pada halaman instruksi bayar.</p>
+            </div>
+        </div>
+<!-- Section 2: QRIS Image Upload -->
+        <div class="space-y-4 pt-4 border-t border-slate-800">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="qr-code" class="w-4 h-4 text-teal-400"></i>
+                <h3 class="text-sm font-bold text-white">Gambar QR Code QRIS</h3>
+            </div>
+
+            @if($paymentAccount->qr_image_path)
+            <div class="flex items-center gap-4 p-3 rounded-2xl bg-slate-950 border border-slate-800">
+                <img src="{{ $paymentAccount->qr_image_url }}" alt="QRIS saat ini" class="w-24 h-24 rounded-xl bg-white p-1.5 object-contain border border-slate-700">
+                <div>
+                    <div class="font-bold text-white text-xs">QRIS Terpasang Saat Ini</div>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Unggah gambar baru di bawah untuk menggantinya.</p>
+                    <a href="{{ $paymentAccount->qr_image_url }}" target="_blank" class="text-[11px] text-indigo-400 hover:underline inline-flex items-center gap-1 font-bold mt-1">
+                        <i data-lucide="external-link" class="w-3 h-3"></i> Lihat ukuran penuh
+                    </a>
+                </div>
+            </div>
+            @endif
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1.5">Ganti File Gambar QRIS (PNG / JPG / WEBP)</label>
+                <input type="file" name="qr_image" accept="image/*" @change="previewQr($event)"
+                       class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-400 cursor-pointer">
+                <p class="text-[11px] text-slate-500 mt-1">Kosongkan jika tidak ingin mengubah gambar QRIS.</p>
+            </div>
+
+            <div x-show="qrPreview" x-cloak class="p-3 bg-slate-950 border border-slate-800 rounded-2xl max-w-xs text-center space-y-2">
+                <span class="text-[11px] font-bold text-slate-400 block">Preview QR Code Baru:</span>
+                <img :src="qrPreview" alt="QRIS Preview" class="max-h-48 mx-auto object-contain rounded-xl bg-white p-2">
+            </div>
+        </div>
+
+        <!-- Section 3: Visual Style & Sorting -->
+        <div class="space-y-4 pt-4 border-t border-slate-800">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="palette" class="w-4 h-4 text-purple-400"></i>
+                <h3 class="text-sm font-bold text-white">Tampilan & Urutan</h3>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1.5">Icon Lucide</label>
+                    <select name="icon" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white text-xs">
+                        <option value="credit-card" {{ old('icon', $paymentAccount->icon) === 'credit-card' ? 'selected' : '' }}>credit-card</option>
+                        <option value="qr-code" {{ old('icon', $paymentAccount->icon) === 'qr-code' ? 'selected' : '' }}>qr-code</option>
+                        <option value="wallet" {{ old('icon', $paymentAccount->icon) === 'wallet' ? 'selected' : '' }}>wallet</option>
+                        <option value="landmark" {{ old('icon', $paymentAccount->icon) === 'landmark' ? 'selected' : '' }}>landmark</option>
+                        <option value="building-2" {{ old('icon', $paymentAccount->icon) === 'building-2' ? 'selected' : '' }}>building-2</option>
+                    </select>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <!-- Icon -->
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Icon Lucide</label>
-                        <select name="icon" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white text-xs">
-                            <option value="credit-card" {{ old('icon', $paymentAccount->icon) === 'credit-card' ? 'selected' : '' }}>credit-card</option>
-                            <option value="qr-code" {{ old('icon', $paymentAccount->icon) === 'qr-code' ? 'selected' : '' }}>qr-code</option>
-                            <option value="wallet" {{ old('icon', $paymentAccount->icon) === 'wallet' ? 'selected' : '' }}>wallet</option>
-                            <option value="landmark" {{ old('icon', $paymentAccount->icon) === 'landmark' ? 'selected' : '' }}>landmark</option>
-                            <option value="building-2" {{ old('icon', $paymentAccount->icon) === 'building-2' ? 'selected' : '' }}>building-2</option>
-                        </select>
-                    </div>
-
-                    <!-- Color -->
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Warna Aksen</label>
-                        <select name="color" x-model="color" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white text-xs">
-                            <option value="blue" {{ old('color', $paymentAccount->color) === 'blue' ? 'selected' : '' }}>Biru (BCA / Mandiri)</option>
-                            <option value="amber" {{ old('color', $paymentAccount->color) === 'amber' ? 'selected' : '' }}>Amber / Emas (Mandiri)</option>
-                            <option value="cyan" {{ old('color', $paymentAccount->color) === 'cyan' ? 'selected' : '' }}>Cyan (BRI)</option>
-                            <option value="emerald" {{ old('color', $paymentAccount->color) === 'emerald' ? 'selected' : '' }}>Emerald (QRIS)</option>
-                            <option value="purple" {{ old('color', $paymentAccount->color) === 'purple' ? 'selected' : '' }}>Ungu (e-Wallet)</option>
-                            <option value="indigo" {{ old('color', $paymentAccount->color) === 'indigo' ? 'selected' : '' }}>Indigo (Umum)</option>
-                        </select>
-                    </div>
-
-                    <!-- Sort Order -->
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1.5">Nomor Urutan Tampil</label>
-                        <input type="number" name="sort_order" value="{{ old('sort_order', $paymentAccount->sort_order) }}" min="0" max="999"
-                               class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono text-xs">
-                    </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1.5">Warna Aksen</label>
+                    <select name="color" x-model="color" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white text-xs">
+                        <option value="blue">Biru (BCA / Mandiri)</option>
+                        <option value="amber">Amber / Emas (Mandiri)</option>
+                        <option value="cyan">Cyan (BRI)</option>
+                        <option value="emerald">Emerald (QRIS)</option>
+                        <option value="purple">Ungu (e-Wallet)</option>
+                        <option value="indigo">Indigo (Umum)</option>
+                    </select>
                 </div>
 
-                <!-- Active Toggle -->
-                <div class="pt-2">
-                    <label class="flex items-center gap-3 cursor-pointer p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-colors">
-                        <input type="checkbox" name="is_active" value="1" {{ old('is_active', $paymentAccount->is_active ? '1' : '0') == '1' ? 'checked' : '' }}
-                               class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-600 focus:ring-emerald-500/20">
-                        <div>
-                            <div class="font-bold text-white">Aktifkan Metode Pembayaran Ini</div>
-                            <div class="text-[11px] text-slate-400">Tampilkan rekening ini sebagai opsi checkout bagi tenant.</div>
-                        </div>
-                    </label>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1.5">Nomor Urutan Tampil</label>
+                    <input type="number" name="sort_order" value="{{ old('sort_order', $paymentAccount->sort_order) }}" min="0" max="999"
+                           class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white font-mono text-xs">
                 </div>
             </div>
 
-            <!-- Submit Buttons -->
-            <div class="pt-4 flex items-center justify-end gap-3">
-                <a href="{{ route('admin.payment-accounts.index') }}" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
-                    Batal
-                </a>
-                <button type="submit" 
-                        class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
-                    <i data-lucide="save" class="w-4 h-4"></i>
-                    <span>Simpan Perubahan</span>
+            <div class="pt-2">
+                <label class="flex items-center gap-3 cursor-pointer p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-colors">
+                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', $paymentAccount->is_active ? '1' : '0') == '1' ? 'checked' : '' }}
+                           class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-600 focus:ring-emerald-500/20">
+                    <div>
+                        <div class="font-bold text-white">Aktifkan Metode Pembayaran Ini</div>
+                        <div class="text-[11px] text-slate-400">Tampilkan rekening ini sebagai opsi checkout bagi tenant.</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+<!-- Submit Buttons -->
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+            <a href="{{ route('admin.payment-accounts.index') }}" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                Batal
+            </a>
+            <button type="submit"
+                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>Simpan Perubahan</span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Danger Zone -->
+    <div class="glass-card p-5 rounded-2xl border border-rose-500/30 bg-rose-950/10">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div>
+                <div class="font-bold text-rose-300 text-sm flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                    Zona Berbahaya
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Hapus rekening ini secara permanen dari seluruh opsi pembayaran tenant.</p>
+            </div>
+            <form method="POST" action="{{ route('admin.payment-accounts.destroy', $paymentAccount) }}"
+                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus rekening {{ $paymentAccount->bank_name }}?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition inline-flex items-center gap-2">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    Hapus Rekening Ini
                 </button>
-            </div>
-
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 @endsection

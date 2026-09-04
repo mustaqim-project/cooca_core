@@ -78,6 +78,9 @@ class SubscriptionPayment extends Model
         'business_id',
         'user_id',
         'payment_type',
+        'billing_package_id',
+        'package_name',
+        'package_duration_days',
         'order_number',
         'plan_code',
         'cycle',
@@ -111,6 +114,7 @@ class SubscriptionPayment extends Model
             'total_payable' => 'float',
             'topup_quantity' => 'integer',
             'topup_storage_bytes' => 'integer',
+            'package_duration_days' => 'integer',
             'proof_uploaded_at' => 'datetime',
             'approved_at' => 'datetime',
             'rejected_at' => 'datetime',
@@ -123,6 +127,11 @@ class SubscriptionPayment extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
+    }
+
+    public function billingPackage(): BelongsTo
+    {
+        return $this->belongsTo(BillingPackage::class, 'billing_package_id');
     }
 
     /**

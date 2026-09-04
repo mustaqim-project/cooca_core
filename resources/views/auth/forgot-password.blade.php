@@ -1,4 +1,4 @@
-@extends('layouts.guest', ['title' => 'Lupa Kata Sandi — Cooca Core'])
+@extends('layouts.guest', ['title' => 'Lupa Kata Sandi — Cooca UMKM'])
 
 @section('content')
 <div class="sm:mx-auto sm:w-full sm:max-w-md px-4">
@@ -13,7 +13,7 @@
 
     <!-- Card -->
     <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/60 relative overflow-hidden">
-        
+
         @if (session('status'))
             <div class="mb-5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
                 <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>

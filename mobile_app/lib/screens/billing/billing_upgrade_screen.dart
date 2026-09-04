@@ -129,7 +129,7 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
 
             // 2. CORE Card (Hero)
             _buildPlanCard(
-              title: 'Cooca Core Plan',
+              title: 'Cooca UMKM Plan',
               price: _cycle == 'monthly' ? 'Rp 129.000 / bln' : 'Rp 1.290.000 / thn',
               subtitle: _cycle == 'annual' ? 'Setara 10 bulan (Gratis 2 bulan)' : 'Akses penuh tanpa batas',
               features: [

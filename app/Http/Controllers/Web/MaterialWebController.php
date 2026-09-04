@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web;
 
+use App\Domain\Calculation\HppPropagationService;
 use App\Domain\Material\MaterialCostService;
 use App\Http\Controllers\Controller;
 use App\Models\Material;
@@ -14,6 +15,7 @@ use App\Models\Unit;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class MaterialWebController extends Controller
@@ -63,7 +65,10 @@ final class MaterialWebController extends Controller
             'material_category_id' => ['nullable', 'exists:material_categories,id'],
             'supplier_id' => ['nullable', 'exists:suppliers,id'],
             'unit_id' => ['required', 'exists:units,id'],
-            'sku' => ['nullable', 'string', 'max:100'],
+            'sku' => [
+                'nullable', 'string', 'max:100',
+                Rule::unique('materials', 'code')->where(fn ($query) => $query->where('business_id', $business->id)),
+            ],
             'yield_percentage' => ['required', 'numeric', 'gte:1', 'lte:500'],
             'waste_percentage' => ['required', 'numeric', 'gte:0', 'lte:100'],
             'allow_yield_over_100' => ['nullable', 'boolean'],
@@ -116,12 +121,20 @@ final class MaterialWebController extends Controller
      */
     public function update(Request $request, Material $material): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($material->business_id === $business->id, 403);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'category_id' => ['nullable', 'exists:material_categories,id'],
             'supplier_id' => ['nullable', 'exists:suppliers,id'],
             'unit_id' => ['required', 'exists:units,id'],
-            'sku' => ['nullable', 'string', 'max:100'],
+            'sku' => [
+                'nullable', 'string', 'max:100',
+                Rule::unique('materials', 'code')
+                    ->ignore($material->id)
+                    ->where(fn ($query) => $query->where('business_id', $business->id)),
+            ],
         ]);
 
         $material->update([
@@ -177,6 +190,9 @@ final class MaterialWebController extends Controller
         $price->update([
             'effective_cost' => $this->costService->calculateEffectiveAcquisitionCost($price),
         ]);
+
+        // Propagasikan perubahan harga material ke HPP seluruh produk terkait (BOM).
+        app(HppPropagationService::class)->refreshForMaterial($material->id);
 
         return redirect()->route('materials.index')->with('success', 'Harga bahan berhasil diperbarui.');
     }

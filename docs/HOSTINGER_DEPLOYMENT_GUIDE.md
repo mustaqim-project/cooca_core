@@ -1,6 +1,6 @@
 # PANDUAN DEPLOYMENT HOSTINGER — COOCA CORE (app.cooca.id)
 
-Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy backend web **Cooca Core** ke hosting **Hostinger** (domain `http://app.cooca.id` / `https://app.cooca.id`) dan menghubungkan **Aplikasi Mobile (Flutter)** ke server production.
+Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy backend web **Cooca UMKM** ke hosting **Hostinger** (domain `http://app.cooca.id` / `https://app.cooca.id`) dan menghubungkan **Aplikasi Mobile (Flutter)** ke server production.
 
 ---
 
@@ -62,7 +62,7 @@ Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy ba
    ```
 3. Sesuaikan isi `.env` server:
    ```ini
-   APP_NAME="Cooca Core"
+   APP_NAME="Cooca UMKM"
    APP_ENV=production
    APP_DEBUG=false
    APP_URL=https://app.cooca.id
@@ -93,7 +93,7 @@ Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy ba
 
 ## 4. Konfigurasi Aplikasi Mobile (Flutter)
 
-Aplikasi Mobile Cooca Core telah dikonfigurasi secara default menggunakan endpoint production:
+Aplikasi Mobile Cooca UMKM telah dikonfigurasi secara default menggunakan endpoint production:
 - **Default Base URL:** `https://app.cooca.id/api/v1` (pada [api_endpoints.dart](file:///c:/laragon/www/cooca_core/mobile_app/lib/core/constants/api_endpoints.dart)).
 
 ### Opsi Mengubah Server di Aplikasi:

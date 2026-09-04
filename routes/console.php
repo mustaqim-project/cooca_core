@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Schedule daily check for monthly AI token resets
 Schedule::command('cooca:reset-ai-tokens')->dailyAt('00:05');
+
+// Schedule daily check for SaaS subscription expirations and H-7, H-3, H-1 reminders
+Schedule::command('cooca:process-subscriptions')->dailyAt('00:01');

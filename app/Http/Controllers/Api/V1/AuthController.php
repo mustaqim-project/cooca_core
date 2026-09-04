@@ -11,6 +11,8 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
+use App\Domain\Mail\DynamicMailConfig;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -29,6 +31,9 @@ final class AuthController extends Controller
             'email' => $validated['email'],
             'password' => $validated['password'],
         ]);
+
+        DynamicMailConfig::bootstrap();
+        event(new Registered($user));
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -91,5 +96,30 @@ final class AuthController extends Controller
         return response()->json([
             'message' => 'Logged out successfully.',
         ], Response::HTTP_OK);
+    }
+
+    public function verificationStatus(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'email' => $user->email,
+            'verified' => $user->hasVerifiedEmail(),
+            'verified_at' => $user->email_verified_at?->toIso8601String(),
+        ], Response::HTTP_OK);
+    }
+
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email sudah terverifikasi.'], Response::HTTP_OK);
+        }
+
+        DynamicMailConfig::bootstrap();
+        $user->sendEmailVerificationNotification();
+
+        return response()->json(['message' => 'Tautan verifikasi telah dikirim ulang.'], Response::HTTP_OK);
     }
 }

@@ -16,6 +16,7 @@ use App\Models\Unit;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class ProductWebController extends Controller
@@ -44,7 +45,20 @@ final class ProductWebController extends Controller
         $categories = ProductCategory::where('business_id', $business->id)->get();
         $units = Unit::available()->orderBy('name')->get();
 
-        return view('app.products.index', compact('business', 'products', 'categories', 'units'));
+        // Optional preselect for edit modal (?edit=<id>) — used when arriving from calculator.
+        $editProductId = $request->get('edit');
+        $editProduct = null;
+        if ($editProductId) {
+            $editProduct = Product::with(['category', 'outputUnit'])
+                ->where('id', $editProductId)
+                ->where('business_id', $business->id)
+                ->first();
+            if (! $editProduct) {
+                $editProductId = null;
+            }
+        }
+
+        return view('app.products.index', compact('business', 'products', 'categories', 'units', 'editProductId', 'editProduct'));
     }
 
     /**
@@ -59,7 +73,13 @@ final class ProductWebController extends Controller
             'category_id' => ['nullable', 'exists:product_categories,id'],
             'product_category_id' => ['nullable', 'exists:product_categories,id'],
             'output_unit_id' => ['required', 'exists:units,id'],
-            'sku' => ['nullable', 'string', 'max:100'],
+            'sku' => [
+                'nullable', 'string', 'max:100',
+                Rule::unique('products', 'code')->where(fn ($query) => $query->where('business_id', $business->id)),
+            ],
+            'selling_price' => ['nullable', 'numeric', 'gte:0'],
+            'base_cost' => ['nullable', 'numeric', 'gte:0'],
+            'min_stock' => ['nullable', 'numeric', 'gte:0'],
             'business_type_hint' => ['nullable', 'string'],
             'costing_method' => ['required', 'string', 'in:simple,per_unit,recipe_bom,job,process,abc,service,retail,custom'],
         ]);
@@ -72,6 +92,9 @@ final class ProductWebController extends Controller
             'code' => $validated['sku'] ?? null,
             'name' => $validated['name'],
             'business_type_hint' => $validated['business_type_hint'] ?? 'general',
+            'selling_price' => (float) ($validated['selling_price'] ?? 0),
+            'base_cost' => (float) ($validated['base_cost'] ?? 0),
+            'min_stock' => (float) ($validated['min_stock'] ?? 0),
         ]);
 
         // Auto create primary CostModel
@@ -95,7 +118,12 @@ final class ProductWebController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'category_id' => ['nullable', 'exists:product_categories,id'],
             'output_unit_id' => ['required', 'exists:units,id'],
-            'sku' => ['nullable', 'string', 'max:100'],
+            'sku' => [
+                'nullable', 'string', 'max:100',
+                Rule::unique('products', 'code')
+                    ->ignore($product->id)
+                    ->where(fn ($query) => $query->where('business_id', $product->business_id)),
+            ],
             'base_cost' => ['nullable', 'numeric', 'gte:0'],
             'selling_price' => ['nullable', 'numeric', 'gte:0'],
             'min_stock' => ['nullable', 'numeric', 'gte:0'],

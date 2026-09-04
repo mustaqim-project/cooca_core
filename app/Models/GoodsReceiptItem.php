@@ -16,6 +16,8 @@ class GoodsReceiptItem extends Model
     protected $fillable = [
         'goods_receipt_id',
         'product_id',
+        'material_id',
+        'item_name',
         'quantity',
         'unit_cost',
         'batch_number',
@@ -43,5 +45,10 @@ class GoodsReceiptItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function material(): BelongsTo
+    {
+        return $this->belongsTo(Material::class);
     }
 }

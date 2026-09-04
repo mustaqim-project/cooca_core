@@ -44,6 +44,11 @@ final class BusinessSubscription extends Model
         'ai_tokens_remaining' => 'integer',
     ];
 
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
     public function isCorePlan(): bool
     {
         return in_array($this->plan_code, [self::PLAN_CORE_MONTHLY, self::PLAN_CORE_ANNUAL], true)

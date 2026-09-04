@@ -76,6 +76,7 @@ final class InvoiceWebController extends Controller
         $customers = Customer::where('is_active', true)->orderBy('name')->get();
         $products = Product::where('is_active', true)->with('outputUnit')->orderBy('name')->get();
         $units = Unit::all();
+        $locations = \App\Models\Location::where('is_active', true)->orderBy('name')->get();
 
         // Available confirmed POs that can be converted
         $availablePurchaseOrders = PurchaseOrder::where('po_type', PurchaseOrder::TYPE_CUSTOMER)
@@ -101,6 +102,7 @@ final class InvoiceWebController extends Controller
             'customers',
             'products',
             'units',
+            'locations',
             'availablePurchaseOrders',
             'selectedPo',
             'prefillProduct',
@@ -119,6 +121,7 @@ final class InvoiceWebController extends Controller
 
         $validated = $request->validate([
             'customer_id' => ['required', 'exists:customers,id'],
+            'location_id' => ['nullable', 'exists:locations,id'],
             'purchase_order_id' => ['nullable', 'exists:purchase_orders,id'],
             'invoice_number' => ['nullable', 'string', 'max:100'],
             'invoice_date' => ['required', 'date'],
@@ -283,16 +286,66 @@ final class InvoiceWebController extends Controller
     }
 
     /**
-     * Delete an invoice (only if draft or void).
+     * Delete an invoice (Only allowed for draft invoices; issued/active invoices must be voided/cancelled).
      */
     public function destroy(Invoice $invoice): RedirectResponse
     {
-        if ($invoice->payments()->exists()) {
-            return back()->with('error', 'Faktur yang telah menerima pembayaran tidak dapat dihapus.');
+        $business = Context::requireBusiness();
+        abort_unless($invoice->business_id === $business->id, 403);
+
+        if ($invoice->status !== Invoice::STATUS_DRAFT) {
+            return back()->with('error', "Faktur dengan status [{$invoice->status}] tidak dapat dihapus untuk menjaga keabsahan pembukuan bisnis. Gunakan opsi Pembatalan / Void.");
         }
 
+        if ($invoice->payments()->exists()) {
+            return back()->with('error', 'Faktur yang telah memiliki riwayat pembayaran tidak dapat dihapus.');
+        }
+
+        $invNumber = $invoice->invoice_number;
         $invoice->delete();
 
-        return redirect()->route('invoices.index')->with('success', 'Faktur berhasil dihapus.');
+        return redirect()->route('invoices.index')->with('success', "Draf Faktur {$invNumber} berhasil dihapus.");
+    }
+
+    /**
+     * Confirm and release an invoice: Deduct inventory stock and generate auto-journal.
+     */
+    public function confirm(Request $request, Invoice $invoice): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($invoice->business_id === $business->id, 403);
+
+        $locationId = $request->get('location_id');
+
+        try {
+            $this->invoiceService->confirmAndRelease($invoice, $locationId);
+
+            return back()->with('success', "Faktur {$invoice->invoice_number} berhasil dikonfirmasi & dirilis. Stok barang otomatis terpotong dan jurnal piutang telah tercatat.");
+        } catch (\App\Domain\Inventory\Exceptions\InsufficientStockException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            return back()->with('error', "Gagal merilis faktur: {$e->getMessage()}");
+        }
+    }
+
+    /**
+     * Void an invoice: Restores deducted stock and marks invoice as void.
+     */
+    public function void(Request $request, Invoice $invoice): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($invoice->business_id === $business->id, 403);
+
+        $reason = $request->validate([
+            'reason' => ['nullable', 'string', 'max:255'],
+        ])['reason'] ?? null;
+
+        try {
+            $this->invoiceService->voidInvoice($invoice, $reason);
+
+            return back()->with('success', "Faktur {$invoice->invoice_number} telah dibatalkan (VOID) dan stok barang telah dikembalikan.");
+        } catch (\Throwable $e) {
+            return back()->with('error', "Gagal membatalkan faktur: {$e->getMessage()}");
+        }
     }
 }

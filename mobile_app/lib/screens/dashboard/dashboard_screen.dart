@@ -59,7 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  auth.activeBusiness?.name ?? 'Cooca Core',
+                  auth.activeBusiness?.name ?? 'Cooca UMKM',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,

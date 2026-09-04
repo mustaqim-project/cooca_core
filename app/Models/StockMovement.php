@@ -30,11 +30,18 @@ class StockMovement extends Model
 
     public const TYPE_GOODS_ISSUE = 'goods_issue';
 
+    public const TYPE_INVOICE_SALE = 'invoice_sale';
+
+    public const TYPE_INVOICE_RETURN = 'invoice_return';
+
+    public const TYPE_PURCHASE_RETURN = 'purchase_return';
+
     public const TYPE_INITIAL = 'initial';
 
     protected $fillable = [
         'business_id',
         'location_id',
+        'material_id',
         'product_id',
         'movement_type',
         'reference_id',
@@ -69,6 +76,14 @@ class StockMovement extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
+    }
+
+    /**
+     * @return BelongsTo<Material, $this>
+     */
+    public function material(): BelongsTo
+    {
+        return $this->belongsTo(Material::class);
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Pos;
 
+use App\Domain\Commerce\SalesReturnService;
 use App\Domain\Pos\PosOrderService;
 use App\Http\Controllers\Controller;
 use App\Models\PosOrder;
@@ -16,7 +17,8 @@ use Illuminate\View\View;
 final class PosOrderWebController extends Controller
 {
     public function __construct(
-        private readonly PosOrderService $orderService = new PosOrderService
+        private readonly PosOrderService $orderService = new PosOrderService,
+        private readonly SalesReturnService $salesReturnService = new SalesReturnService
     ) {}
 
     /**
@@ -97,10 +99,31 @@ final class PosOrderWebController extends Controller
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:255'],
             'restore_stock' => ['nullable', 'boolean'],
+            'items' => ['nullable', 'array', 'min:1'],
+            'items.*.pos_order_item_id' => ['required_with:items', 'exists:pos_order_items,id'],
+            'items.*.quantity' => ['required_with:items', 'numeric', 'gt:0'],
         ]);
 
+        if (! empty($validated['items'])) {
+            try {
+                $return = $this->salesReturnService->createFromPosOrder($order, $validated['items'], ['reason' => $validated['reason'], 'created_by' => $user->id]);
+                $return = $this->salesReturnService->approve($return, $user->id);
+                $this->salesReturnService->complete($return, $user->id);
+            } catch (\InvalidArgumentException $exception) {
+                return back()->withErrors(['refund' => $exception->getMessage()]);
+            }
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => "Refund parsial #{$order->order_number} berhasil.", 'order' => $order->fresh(['items', 'salesReturns']), 'return' => $return]);
+            }
+            return back()->with('success', "Refund parsial #{$order->order_number} berhasil!");
+        }
+
         $restoreStock = (bool) ($validated['restore_stock'] ?? true);
-        $refunded = $this->orderService->refundOrder($order, $user, $validated['reason'], $restoreStock);
+        try {
+            $refunded = $this->orderService->refundOrder($order, $user, $validated['reason'], $restoreStock);
+        } catch (\InvalidArgumentException $exception) {
+            return back()->withErrors(['refund' => $exception->getMessage()]);
+        }
 
         if ($request->wantsJson()) {
             return response()->json([

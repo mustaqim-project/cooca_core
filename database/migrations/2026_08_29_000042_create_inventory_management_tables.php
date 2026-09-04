@@ -31,13 +31,15 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('business_id')->constrained('businesses')->cascadeOnDelete();
             $table->foreignUuid('location_id')->constrained('locations')->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignUuid('material_id')->nullable()->constrained('materials')->cascadeOnDelete();
+            $table->foreignUuid('product_id')->nullable()->constrained('products')->cascadeOnDelete();
             $table->decimal('quantity', 15, 4)->default(0.0000);
             $table->decimal('reserved_quantity', 15, 4)->default(0.0000);
             $table->decimal('last_cost', 15, 2)->default(0.00);
             $table->timestamps();
 
-            $table->unique(['business_id', 'location_id', 'product_id'], 'inv_biz_loc_prod_unique');
+            $table->index(['business_id', 'location_id', 'material_id']);
+            $table->index(['business_id', 'location_id', 'product_id']);
             $table->index(['business_id', 'product_id']);
         });
 
@@ -46,7 +48,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('business_id')->constrained('businesses')->cascadeOnDelete();
             $table->foreignUuid('location_id')->constrained('locations')->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignUuid('material_id')->nullable()->constrained('materials')->cascadeOnDelete();
+            $table->foreignUuid('product_id')->nullable()->constrained('products')->cascadeOnDelete();
             $table->string('movement_type', 30); // pos_sale, pos_refund, opname, adjustment, transfer_in, transfer_out, goods_receipt, goods_issue, initial
             $table->string('reference_id', 64)->nullable();
             $table->string('reference_number', 100)->nullable();
@@ -88,7 +91,8 @@ return new class extends Migration
         Schema::create('stock_adjustment_items', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->foreignUuid('stock_adjustment_id')->constrained('stock_adjustments')->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignUuid('material_id')->nullable()->constrained('materials')->cascadeOnDelete();
+            $table->foreignUuid('product_id')->nullable()->constrained('products')->cascadeOnDelete();
             $table->decimal('system_quantity', 15, 4)->default(0.0000);
             $table->decimal('adjusted_quantity', 15, 4)->default(0.0000);
             $table->decimal('difference_quantity', 15, 4)->default(0.0000);
@@ -119,7 +123,8 @@ return new class extends Migration
         Schema::create('stock_opname_items', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->foreignUuid('stock_opname_id')->constrained('stock_opnames')->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignUuid('material_id')->nullable()->constrained('materials')->cascadeOnDelete();
+            $table->foreignUuid('product_id')->nullable()->constrained('products')->cascadeOnDelete();
             $table->decimal('system_quantity', 15, 4)->default(0.0000);
             $table->decimal('physical_quantity', 15, 4)->default(0.0000);
             $table->decimal('difference_quantity', 15, 4)->default(0.0000);
@@ -153,7 +158,8 @@ return new class extends Migration
         Schema::create('stock_transfer_items', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->foreignUuid('stock_transfer_id')->constrained('stock_transfers')->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignUuid('material_id')->nullable()->constrained('materials')->cascadeOnDelete();
+            $table->foreignUuid('product_id')->nullable()->constrained('products')->cascadeOnDelete();
             $table->decimal('quantity', 15, 4)->default(1.0000);
             $table->decimal('unit_cost', 15, 2)->default(0.00);
             $table->decimal('total_cost', 15, 2)->default(0.00);
@@ -181,7 +187,9 @@ return new class extends Migration
         Schema::create('goods_receipt_items', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->foreignUuid('goods_receipt_id')->constrained('goods_receipts')->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignUuid('material_id')->nullable()->constrained('materials')->cascadeOnDelete();
+            $table->foreignUuid('product_id')->nullable()->constrained('products')->cascadeOnDelete();
+            $table->string('item_name', 255)->nullable();
             $table->decimal('quantity', 15, 4)->default(1.0000);
             $table->decimal('unit_cost', 15, 2)->default(0.00);
             $table->string('batch_number', 100)->nullable();

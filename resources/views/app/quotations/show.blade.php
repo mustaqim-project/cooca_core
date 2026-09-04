@@ -138,7 +138,7 @@
                 <p class="font-bold text-white">Catatan Tambahan:</p>
                 <p class="whitespace-pre-line">{{ $quotation->notes }}</p>
                 @endif
-                <p class="text-[11px] text-slate-500 mt-2">Diterbitkan secara digital oleh Cooca Core (cooca.id).</p>
+                <p class="text-[11px] text-slate-500 mt-2">Diterbitkan secara digital oleh Cooca UMKM (cooca.id).</p>
             </div>
 
             <div class="w-full sm:w-72 space-y-2 text-xs">

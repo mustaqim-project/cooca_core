@@ -1,7 +1,7 @@
 @extends('layouts.admin', [
     'title' => 'Langganan & Pembayaran — Admin Console',
     'headerTitle' => 'Kelola Langganan & Pembayaran',
-    'headerSubtitle' => 'Verifikasi bukti transfer, persetujuan aktivasi paket Cooca Core, dan monitoring omzet SaaS'
+    'headerSubtitle' => 'Verifikasi bukti transfer, persetujuan aktivasi paket Cooca UMKM, dan monitoring omzet SaaS'
 ])
 
 @section('content')

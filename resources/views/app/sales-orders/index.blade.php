@@ -7,14 +7,20 @@
         <div>
             <div class="flex items-center gap-2">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                    SALES PIPELINE & FULFILLMENT
+                    SALES PIPELINE &amp; FULFILLMENT
                 </span>
                 <span class="text-xs text-slate-400 font-mono">Pesanan Terkonfirmasi</span>
             </div>
             <h1 class="text-2xl font-black text-white tracking-tight mt-1">Pesanan Penjualan (Sales Orders)</h1>
             <p class="text-xs text-slate-400 mt-0.5">Kelola pesanan pelanggan terkonfirmasi, alokasi stok, dan terbitkan faktur penagihan (Invoice).</p>
         </div>
+        <a href="{{ route('sales.orders.create') }}"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black shadow-lg shadow-cyan-500/20 transition whitespace-nowrap">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Buat Sales Order</span>
+        </a>
     </div>
+
 
     <!-- Filter Bar -->
     <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-col sm:flex-row gap-3 items-center justify-between">

@@ -32,6 +32,13 @@
                 </div>
             </div>
 
+            <a href="{{ route('import.index', ['tab' => 'recipes']) }}" 
+               class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all"
+               title="Import formula resep dari file Excel / CSV">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-blue-400"></i>
+                <span>Import Resep Excel</span>
+            </a>
+
             <button @click="showAddItemModal = true" 
                     class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all">
                 <i data-lucide="plus" class="w-4 h-4"></i>

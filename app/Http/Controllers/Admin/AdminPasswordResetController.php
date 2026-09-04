@@ -61,7 +61,7 @@ final class AdminPasswordResetController extends Controller
 
         try {
             DynamicMailConfig::bootstrap();
-            $appName = SystemSetting::get('app_name', 'Cooca Core');
+            $appName = SystemSetting::get('app_name', 'Cooca UMKM');
 
             Mail::raw(
                 "Halo {$admin->name},\n\nKami menerima permintaan untuk mereset kata sandi akun Administrator Anda pada sistem {$appName}.\n\nSilakan klik tautan di bawah ini untuk mengatur ulang kata sandi Anda:\n{$resetUrl}\n\nTautan ini akan kedaluwarsa dalam 60 menit.\nJika Anda tidak meminta pengaturan ulang kata sandi, abaikan email ini.\n\nSalam,\nTim Keamanan {$appName}",

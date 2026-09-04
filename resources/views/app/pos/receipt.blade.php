@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Struk #{{ $order->order_number }} — {{ $business->name }}</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -76,7 +76,7 @@
 
     <!-- Thermal Paper Receipt -->
     <div class="thermal-receipt text-black">
-        
+
         <!-- Header / Merchant Info -->
         <div class="text-center pb-2 border-b border-dashed border-gray-400">
             <div class="font-bold text-base tracking-tight uppercase">{{ $business->name }}</div>
@@ -218,7 +218,7 @@
         <!-- Footer Message -->
         <div class="pt-3 text-center text-[10px] text-gray-600 space-y-0.5">
             <div>{{ $business->pos_receipt_footer_note ?? 'Terima Kasih Atas Kunjungan Anda!' }}</div>
-            <div class="text-[8px] text-gray-400">Powered by Cooca Core (cooca.id)</div>
+            <div class="text-[8px] text-gray-400">Powered by Cooca UMKM (cooca.id)</div>
         </div>
     </div>
 

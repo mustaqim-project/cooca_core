@@ -62,7 +62,7 @@ final class MemberController extends Controller
                 'max_users' => $isCore ? null : 1,
                 'is_core' => $isCore,
                 'can_add_more' => $canAddMore,
-                'plan_name' => $isCore ? 'Cooca Core' : 'Free Plan',
+                'plan_name' => $isCore ? 'Cooca UMKM' : 'Free Plan',
             ],
         ], Response::HTTP_OK);
     }
@@ -77,7 +77,7 @@ final class MemberController extends Controller
             return response()->json([
                 'success' => false,
                 'error_code' => 'RESOURCE_LIMIT_EXCEEDED',
-                'message' => 'Paket Free Plan dibatasi untuk 1 pengguna (Solo Owner). Silakan upgrade ke Cooca Core untuk menambahkan karyawan tanpa batas.',
+                'message' => 'Paket Free Plan dibatasi untuk 1 pengguna (Solo Owner). Silakan upgrade ke Cooca UMKM untuk menambahkan karyawan tanpa batas.',
                 'upgrade_url' => '/billing/limits',
             ], Response::HTTP_FORBIDDEN);
         }

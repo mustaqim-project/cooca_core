@@ -35,7 +35,7 @@
             </form>
             @endif
 
-            @if($purchaseOrder->po_type === 'supplier' && $purchaseOrder->status !== 'completed' && $purchaseOrder->status !== 'cancelled')
+            @if($purchaseOrder->po_type === 'supplier' && in_array($purchaseOrder->status, ['confirmed', 'partially_invoiced'], true))
             <a href="{{ route('purchasing.receipts.create', $purchaseOrder->id) }}" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black shadow-lg shadow-amber-500/20 flex items-center gap-1.5 transition-all">
                 <i data-lucide="package-check" class="w-4 h-4"></i>
                 <span>Terima Barang Fisik</span>

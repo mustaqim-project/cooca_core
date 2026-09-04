@@ -10,7 +10,7 @@
 
 ## 1. Ringkasan Eksekutif Hasil Audit
 
-Audit komparatif menyeluruh telah dilakukan terhadap seluruh codebase aplikasi `calculator-hpp` (yang kini telah bertransformasi menjadi **Cooca Core — cooca.id**) dengan membandingkannya terhadap spesifikasi pada **Product Requirements Document (PRD)** dan **Functional Specification Document (FSD)** versi 2.1.
+Audit komparatif menyeluruh telah dilakukan terhadap seluruh codebase aplikasi `calculator-hpp` (yang kini telah bertransformasi menjadi **Cooca UMKM — cooca.id**) dengan membandingkannya terhadap spesifikasi pada **Product Requirements Document (PRD)** dan **Functional Specification Document (FSD)** versi 2.1.
 
 ### Skor Kesiapan Sistem Global
 | Area / Domain Sistem | Tingkat Kesiapan (Compliance) | Status |

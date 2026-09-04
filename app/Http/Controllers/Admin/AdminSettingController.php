@@ -24,8 +24,8 @@ final class AdminSettingController extends Controller
         $appName = SystemSetting::get('app_name', config('app.name', 'Universal HPP Calculator'));
 
         // Subscription Pricing Settings
-        $subscriptionPriceMonthly = SystemSetting::get('subscription_price_monthly', '129000');
-        $subscriptionPriceAnnual = SystemSetting::get('subscription_price_annual', '1290000');
+        $subscriptionPriceMonthly = SystemSetting::get('subscription_price_monthly', '25000');
+        $subscriptionPriceAnnual = SystemSetting::get('subscription_price_annual', '250000');
         $subscriptionAiTokensMonthly = SystemSetting::get('subscription_ai_tokens_monthly', '10000000');
         $subscriptionAnnualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
         $aiTokenTopupPrice = SystemSetting::get('ai_token_topup_price', '50000');
@@ -98,5 +98,36 @@ final class AdminSettingController extends Controller
         }
 
         return redirect()->route('admin.settings.index')->with('success', 'Konfigurasi Google API, Harga Langganan, dan Sistem berhasil disimpan.');
+    }
+
+    /**
+     * Update billing catalog default pricing (kept under CMS Paket & Harga).
+     */
+    public function updateBilling(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'subscription_price_monthly' => ['nullable', 'numeric', 'min:0'],
+            'subscription_price_annual' => ['nullable', 'numeric', 'min:0'],
+            'subscription_ai_tokens_monthly' => ['nullable', 'integer', 'min:0'],
+            'subscription_annual_discount_badge' => ['nullable', 'string', 'max:64'],
+            'ai_token_topup_price' => ['nullable', 'numeric', 'min:0'],
+            'ai_token_topup_amount' => ['nullable', 'integer', 'min:1'],
+            'owner_storage_limit_gb' => ['nullable', 'integer', 'min:1'],
+            'storage_topup_price' => ['nullable', 'numeric', 'min:0'],
+            'storage_topup_gb' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        foreach ([
+            'subscription_price_monthly', 'subscription_price_annual',
+            'subscription_ai_tokens_monthly', 'subscription_annual_discount_badge',
+            'ai_token_topup_price', 'ai_token_topup_amount',
+            'owner_storage_limit_gb', 'storage_topup_price', 'storage_topup_gb',
+        ] as $setting) {
+            if (isset($validated[$setting])) {
+                SystemSetting::set($setting, (string) $validated[$setting], 'billing');
+            }
+        }
+
+        return back()->with('success', 'Harga & kuota default billing Cooca UMKM berhasil diperbarui.');
     }
 }

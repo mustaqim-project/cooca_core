@@ -4,15 +4,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cooca Core — Business Operating System untuk UMKM</title>
-    <meta name="description" content="Cooca Core: HPP presisi, AI Assistant, POS, inventori real-time, akuntansi otomatis — gratis selamanya untuk UMKM Indonesia.">
+    <title>Cooca UMKM — Business Operating System untuk UMKM</title>
+    <meta name="description" content="Cooca UMKM: HPP presisi, AI Assistant, POS, inventori real-time, akuntansi otomatis — gratis selamanya untuk UMKM Indonesia.">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="COOCA.ID">
     <meta property="og:locale" content="id_ID">
     <meta property="og:url" content="https://cooca.id">
-    <meta property="og:title" content="Cooca Core — Business Operating System untuk UMKM">
+    <meta property="og:title" content="Cooca UMKM — Business Operating System untuk UMKM">
     <meta property="og:description" content="HPP presisi, AI Assistant, POS, inventori real-time, akuntansi otomatis — gratis selamanya.">
     <meta property="og:image" content="https://cooca.id/assets/image/cooca.png">
     <meta property="og:image:secure_url" content="https://cooca.id/assets/image/cooca.png">
@@ -214,7 +214,7 @@
             <a href="{{ route('landing') }}" class="flex items-center gap-3 group shrink-0">
                 <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="COOCA.ID" class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105">
                 <div class="border-l border-white/10 pl-3 hidden xs:block">
-                    <span class="font-extrabold text-sm sm:text-base tracking-tight text-white block leading-tight">Cooca Core</span>
+                    <span class="font-extrabold text-sm sm:text-base tracking-tight text-white block leading-tight">Cooca UMKM</span>
                     <span class="text-[8px] sm:text-[10px] uppercase font-bold text-emerald-400 tracking-[0.15em]">Business Operating System</span>
                 </div>
             </a>
@@ -281,7 +281,7 @@
                     </h1>
 
                     <p class="text-sm sm:text-base text-slate-400 max-w-xl leading-relaxed font-medium mx-auto lg:mx-0">
-                        <strong class="text-white">Cooca Core</strong> — Sistem operasi bisnis all-in-one: <span class="text-cyan-400 font-semibold">HPP presisi</span>, <span class="text-indigo-400 font-semibold">AI Assistant</span>, <span class="text-emerald-400 font-semibold">POS</span>, inventori real-time, dan akuntansi otomatis. <strong class="text-white">100% gratis</strong> untuk UMKM.
+                        <strong class="text-white">Cooca UMKM</strong> — Sistem operasi bisnis all-in-one: <span class="text-cyan-400 font-semibold">HPP presisi</span>, <span class="text-indigo-400 font-semibold">AI Assistant</span>, <span class="text-emerald-400 font-semibold">POS</span>, inventori real-time, dan akuntansi otomatis. <strong class="text-white">100% gratis</strong> untuk UMKM.
                     </p>
 
                     <!-- CTAs dengan route -->
@@ -393,7 +393,7 @@
             <div class="text-center space-y-3 max-w-2xl mx-auto">
                 <span class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Modul Terintegrasi</span>
                 <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Semua yang Anda Butuhkan dalam Satu Platform</h2>
-                <p class="text-sm text-slate-400">Dari kalkulasi biaya hingga laporan keuangan — Cooca Core menyatukan seluruh operasi bisnis Anda.</p>
+                <p class="text-sm text-slate-400">Dari kalkulasi biaya hingga laporan keuangan — Cooca UMKM menyatukan seluruh operasi bisnis Anda.</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -644,7 +644,7 @@
                     </div>
 
                     <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-4">Mulai Kelola Bisnis Anda Hari Ini</h2>
-                    <p class="text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">Tanpa biaya langganan, tanpa batasan pengguna, tanpa trik. Cooca Core hadir untuk membantu UMKM Indonesia tumbuh.</p>
+                    <p class="text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">Tanpa biaya langganan, tanpa batasan pengguna, tanpa trik. Cooca UMKM hadir untuk membantu UMKM Indonesia tumbuh.</p>
 
                     <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-md mx-auto">
                         <a href="{{ route('register') }}" class="w-full sm:w-auto glow-btn px-8 py-3.5 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30">
@@ -666,13 +666,13 @@
         <div class="text-center space-y-2">
             <span class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">FAQ</span>
             <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Pertanyaan yang Sering Diajukan</h2>
-            <p class="text-sm text-slate-400">Semua jawaban tentang Cooca Core, gratis, dan keamanan data.</p>
+            <p class="text-sm text-slate-400">Semua jawaban tentang Cooca UMKM, gratis, dan keamanan data.</p>
         </div>
 
         <div class="space-y-3 text-sm" x-data="{ open: null }">
             <div class="glass-card rounded-2xl overflow-hidden border-slate-800/60">
                 <button @click="open = open === 1 ? null : 1" class="w-full p-4 sm:p-5 text-left font-bold text-white flex items-center justify-between gap-3 hover:bg-slate-900/30 transition-colors">
-                    <span>Apakah Cooca Core benar-benar gratis?</span>
+                    <span>Apakah Cooca UMKM benar-benar gratis?</span>
                     <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300" :class="open === 1 ? 'rotate-180' : ''"></i>
                 </button>
                 <div x-show="open === 1" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-4 sm:p-5 pt-0 text-slate-400 leading-relaxed border-t border-slate-800/60">
@@ -696,7 +696,7 @@
                     <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300" :class="open === 3 ? 'rotate-180' : ''"></i>
                 </button>
                 <div x-show="open === 3" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-4 sm:p-5 pt-0 text-slate-400 leading-relaxed border-t border-slate-800/60">
-                    Sangat cocok. Cooca Core mendukung resep/recipe BOM, konversi satuan otomatis, yield factor, dan penghitungan biaya tenaga kerja & mesin — ideal untuk F&B, konveksi, skincare, dan manufaktur lainnya.
+                    Sangat cocok. Cooca UMKM mendukung resep/recipe BOM, konversi satuan otomatis, yield factor, dan penghitungan biaya tenaga kerja & mesin — ideal untuk F&B, konveksi, skincare, dan manufaktur lainnya.
                 </div>
             </div>
 

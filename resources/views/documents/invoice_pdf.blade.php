@@ -141,7 +141,7 @@
 
         <div class="footer">
             Terima kasih atas kerja sama dan kepercayaan Anda.<br>
-            Dibuat secara otomatis melalui <strong>Cooca Core</strong> — cooca.id
+            Dibuat secara otomatis melalui <strong>Cooca UMKM</strong> — cooca.id
         </div>
     </div>
 </body>

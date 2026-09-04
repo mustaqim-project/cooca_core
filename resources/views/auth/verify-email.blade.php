@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Email Anda — Cooca Core</title>
+    <title>Verifikasi Email Anda — Cooca UMKM</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,12 +47,12 @@
                 </div>
             </div>
             <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Verifikasi Email Anda</h2>
-            <p class="text-xs text-slate-400">Terima kasih telah mendaftar di Cooca Core!</p>
+            <p class="text-xs text-slate-400">Terima kasih telah mendaftar di Cooca UMKM!</p>
         </div>
 
         <!-- Card Content -->
         <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-5">
-            
+
             <p class="text-xs text-slate-300 leading-relaxed">
                 Sebelum memulai, silakan periksa kotak masuk (atau folder spam) pada email <strong class="text-white font-mono">{{ auth()->user()->email }}</strong> dan klik tautan verifikasi yang kami kirimkan.
             </p>

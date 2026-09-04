@@ -32,13 +32,23 @@ final class CalculatorWebController extends Controller
     /**
      * Show live HPP calculator page.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $business = Context::requireBusiness();
 
         $products = Product::with(['costModels.labors.laborRate', 'costModels.machines.machine', 'costModels.bomHeaders.items.material.prices', 'outputUnit'])
             ->latest()
             ->get();
+
+        // Optional URL preselect: /calculator?product_id=...&tab=advanced
+        $selectedProductId = $request->get('product_id');
+        if ($selectedProductId && !$products->contains('id', $selectedProductId)) {
+            $selectedProductId = null;
+        }
+        $tab = $request->get('tab', 'quick');
+        if (!in_array($tab, ['quick', 'advanced'], true)) {
+            $tab = 'quick';
+        }
 
         $materials = Material::with(['unit', 'prices', 'supplier'])
             ->get();
@@ -54,7 +64,7 @@ final class CalculatorWebController extends Controller
             ->limit(10)
             ->get();
 
-        return view('app.calculator', compact('business', 'products', 'materials', 'units', 'fees', 'pricingRules', 'recentRuns'));
+        return view('app.calculator', compact('business', 'products', 'materials', 'units', 'fees', 'pricingRules', 'recentRuns', 'selectedProductId', 'tab'));
     }
 
     /**

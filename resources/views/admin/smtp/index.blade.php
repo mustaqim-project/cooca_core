@@ -21,7 +21,7 @@
             </span>
         </div>
         <p class="text-xs text-slate-300 leading-relaxed">
-            Semua email yang dikirimkan oleh Cooca Core (seperti <strong>Verifikasi Email Register</strong>, <strong>Reset Password User/Admin</strong>, dan <strong>Bukti Tagihan Langganan</strong>) akan otomatis dikirim menggunakan konfigurasi server SMTP di bawah ini. Pengaturan langsung tersimpan di database dan berlaku instan.
+            Semua email yang dikirimkan oleh Cooca UMKM (seperti <strong>Verifikasi Email Register</strong>, <strong>Reset Password User/Admin</strong>, dan <strong>Bukti Tagihan Langganan</strong>) akan otomatis dikirim menggunakan konfigurasi server SMTP di bawah ini. Pengaturan langsung tersimpan di database dan berlaku instan.
         </p>
 
         <!-- Quick Presets Info Chips -->
@@ -130,7 +130,7 @@
                         <div>
                             <label class="block font-semibold text-slate-300 mb-1.5">Nama Pengirim (From Name) <span class="text-rose-400">*</span></label>
                             <input type="text" name="mail_from_name" value="{{ old('mail_from_name', $mailFromName) }}" required
-                                   placeholder="Cooca Core Platform"
+                                   placeholder="Cooca UMKM Platform"
                                    class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white text-xs">
                         </div>
                     </div>

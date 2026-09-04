@@ -48,6 +48,16 @@ class AiActionConfirmationTest extends TestCase
         $this->user->update(['active_business_id' => $this->business->id]);
         Context::setBusiness($this->business);
 
+        \App\Models\BusinessSubscription::create([
+            'business_id' => $this->business->id,
+            'plan_code'   => \App\Models\BusinessSubscription::PLAN_CORE_MONTHLY,
+            'status'      => \App\Models\BusinessSubscription::STATUS_ACTIVE,
+            'starts_at'   => now(),
+            'ends_at'     => now()->addMonth(),
+            'ai_tokens_monthly_allowance' => 1000,
+            'ai_tokens_remaining'         => 1000,
+        ]);
+
         $this->customer = Customer::create([
             'business_id' => $this->business->id,
             'name' => 'Budi Santoso',

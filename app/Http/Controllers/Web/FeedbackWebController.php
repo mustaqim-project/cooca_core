@@ -29,6 +29,8 @@ final class FeedbackWebController extends Controller
     public function storeBug(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
+        $user = $request->user();
+        abort_unless($user !== null, 403);
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:180'],
             'category' => ['required', 'in:' . implode(',', BugReport::CATEGORIES)],
@@ -40,11 +42,20 @@ final class FeedbackWebController extends Controller
             'environment' => ['nullable', 'string', 'max:255'],
             'attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf,txt,log', 'max:5120'],
         ]);
-        if ($request->hasFile('attachment')) $validated['attachment_path'] = $request->file('attachment')->store('feedback/bugs', 'public');
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $storageQuota = app(\App\Domain\Storage\OwnerStorageQuotaService::class);
+            if (! $storageQuota->canUpload($user, (int) $file->getSize())) {
+                return back()->withInput()->withErrors(['attachment' => 'Kuota storage Anda tidak mencukupi untuk mengunggah lampiran ini.']);
+            }
+            $validated['attachment_path'] = $file->store('feedback/bugs', 'public');
+        }
         $validated['business_id'] = $business->id;
-        $validated['reporter_id'] = auth()->id();
+        $validated['reporter_id'] = $user->getAuthIdentifier();
+        $validated['status'] = 'open';
+        $validated['progress_percent'] = 0;
         $report = BugReport::create($validated);
-        $report->updates()->create(['user_id' => auth()->id(), 'status' => $report->status, 'progress_percent' => 0, 'comment' => 'Laporan bug dibuat.']);
+        $report->updates()->create(['user_id' => $user->getAuthIdentifier(), 'status' => $report->status, 'progress_percent' => 0, 'comment' => 'Laporan bug dibuat.']);
         return redirect()->route('feedback.bugs.show', $report)->with('success', 'Laporan bug berhasil dikirim.');
     }
 
@@ -71,6 +82,8 @@ final class FeedbackWebController extends Controller
     public function storeFeature(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
+        $user = $request->user();
+        abort_unless($user !== null, 403);
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:180'],
             'category' => ['required', 'in:' . implode(',', FeatureRequest::CATEGORIES)],
@@ -81,9 +94,11 @@ final class FeedbackWebController extends Controller
             'priority' => ['required', 'in:low,normal,high'],
         ]);
         $validated['business_id'] = $business->id;
-        $validated['requester_id'] = auth()->id();
+        $validated['requester_id'] = $user->getAuthIdentifier();
+        $validated['status'] = 'submitted';
+        $validated['progress_percent'] = 0;
         $feature = FeatureRequest::create($validated);
-        $feature->updates()->create(['user_id' => auth()->id(), 'status' => $feature->status, 'progress_percent' => 0, 'comment' => 'Request fitur dibuat.']);
+        $feature->updates()->create(['user_id' => $user->getAuthIdentifier(), 'status' => $feature->status, 'progress_percent' => 0, 'comment' => 'Request fitur dibuat.']);
         return redirect()->route('feedback.features.show', $feature)->with('success', 'Request fitur berhasil dikirim.');
     }
 

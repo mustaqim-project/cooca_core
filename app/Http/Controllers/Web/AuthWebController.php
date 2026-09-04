@@ -89,6 +89,7 @@ final class AuthWebController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
+            'phone' => ['nullable', 'string', 'max:50'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'business_name' => ['required', 'string', 'max:255'],
             'template_code' => ['nullable', 'string', 'exists:business_type_templates,code'],
@@ -99,11 +100,13 @@ final class AuthWebController extends Controller
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                'phone' => $validated['phone'] ?? null,
                 'password' => Hash::make($validated['password']),
             ]);
 
             $business = Business::create([
                 'name' => $validated['business_name'],
+                'phone' => $validated['phone'] ?? null,
                 'currency' => 'IDR',
                 'currency_precision' => 0,
                 'rounding_strategy' => Business::ROUNDING_ROUND_100,
@@ -165,6 +168,11 @@ final class AuthWebController extends Controller
         /** @var User $user */
         $user = Auth::guard('web')->user();
 
+        $entitlement = app(\App\Domain\Billing\EntitlementService::class);
+        if (! $entitlement->canCreateBusiness($user)) {
+            return redirect()->route('billing.limits')->with('error', 'Paket Free dibatasi untuk 1 bisnis per akun. Silakan tingkatkan ke paket Cooca UMKM untuk mengelola banyak cabang/bisnis.');
+        }
+
         $business = DB::transaction(function () use ($user, $validated, $templateService): Business {
             $business = Business::create([
                 'name' => $validated['name'],
@@ -219,6 +227,48 @@ final class AuthWebController extends Controller
         session(['active_business_id' => $validated['business_id']]);
 
         return redirect()->route('dashboard')->with('success', 'Berhasil beralih bisnis.');
+    }
+
+    /**
+     * Show profile completion form for onboarding owners.
+     */
+    public function showCompleteProfile(): View|RedirectResponse
+    {
+        /** @var User $user */
+        $user = Auth::guard('web')->user();
+        $business = Context::hasBusiness() ? Context::business() : $user->businesses()->first();
+
+        return view('auth.complete-profile', compact('user', 'business'));
+    }
+
+    /**
+     * Update and save completed profile details (Name, Phone, Business Name).
+     */
+    public function updateCompleteProfile(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:50'],
+            'business_name' => ['required', 'string', 'max:255'],
+        ]);
+
+        /** @var User $user */
+        $user = Auth::guard('web')->user();
+
+        $user->update([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+        ]);
+
+        $business = Context::hasBusiness() ? Context::business() : $user->businesses()->first();
+        if ($business) {
+            $business->update([
+                'name' => $validated['business_name'],
+                'phone' => $validated['phone'],
+            ]);
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Profil dan identitas bisnis Anda berhasil diperbarui.');
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Pos;
 
+use App\Domain\Report\SalesReportService;
 use App\Http\Controllers\Controller;
 use App\Models\PosOrder;
 use App\Models\PosOrderItem;
@@ -17,6 +18,10 @@ use Illuminate\View\View;
 
 final class PosReportWebController extends Controller
 {
+    public function __construct(
+        private readonly SalesReportService $salesReport = new SalesReportService
+    ) {}
+
     /**
      * Display POS Analytics Dashboard.
      */
@@ -41,6 +46,17 @@ final class PosReportWebController extends Controller
         $ordersCount = (clone $rangeOrders)->count();
         $averageOrderValue = $ordersCount > 0 ? $totalRevenue / $ordersCount : 0.0;
         $grossMarginPercent = $totalRevenue > 0 ? ($totalGrossProfit / $totalRevenue) * 100 : 0.0;
+
+        // ── Snapshot average prices (weighted average dari detail transaksi) ──
+        $snapshotReport = $this->salesReport->summary($business->id, $startDate, $endDate);
+        $averageSellingPrice = (float) $snapshotReport['summary']['average_selling_price'];
+        $averageCostPrice = (float) $snapshotReport['summary']['average_cost_price'];
+        $snapshotTotalQty = (float) $snapshotReport['summary']['total_quantity'];
+        $snapshotTotalSales = (float) $snapshotReport['summary']['total_sales'];
+        $snapshotTotalModal = (float) $snapshotReport['summary']['total_modal'];
+        $snapshotGrossProfit = (float) $snapshotReport['summary']['total_gross_profit'];
+        $snapshotMarginPercent = (float) $snapshotReport['summary']['margin_percentage'];
+        $productAveragePrices = $snapshotReport['by_product'];
 
         // Today's summary
         $todayRevenue = (float) (clone $baseOrdersQuery)->whereDate('order_date', Carbon::today())->sum('total_amount');
@@ -105,7 +121,15 @@ final class PosReportWebController extends Controller
             'hourlyData',
             'paymentMethods',
             'topProducts',
-            'cashierPerformance'
+            'cashierPerformance',
+            'averageSellingPrice',
+            'averageCostPrice',
+            'snapshotTotalQty',
+            'snapshotTotalSales',
+            'snapshotTotalModal',
+            'snapshotGrossProfit',
+            'snapshotMarginPercent',
+            'productAveragePrices'
         ));
     }
 

@@ -21,6 +21,10 @@
             <p class="text-sm text-slate-400 mt-1">Pantau stok produk di seluruh cabang/outlet & gudang secara real-time dengan sistem kartu stok.</p>
         </div>
         <div class="flex items-center gap-2">
+            <a href="{{ route('import.index', ['tab' => 'inventory']) }}" class="px-3.5 py-2.5 rounded-xl bg-violet-500/15 hover:bg-violet-500/25 text-violet-300 border border-violet-500/30 text-xs font-bold transition flex items-center gap-1.5">
+                <i data-lucide="upload-cloud" class="w-4 h-4 text-violet-400"></i>
+                <span>Import Stok</span>
+            </a>
             <a href="{{ route('inventory.movements') }}" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1.5">
                 <i data-lucide="history" class="w-4 h-4 text-emerald-400"></i>
                 <span>Kartu Stok</span>

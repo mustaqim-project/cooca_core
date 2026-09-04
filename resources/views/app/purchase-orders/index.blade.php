@@ -187,6 +187,13 @@
                                 </form>
                                 @endif
 
+                                @if($po->po_type === 'supplier' && $po->status === 'confirmed')
+                                <a href="{{ route('purchasing.receipts.create', $po->id) }}" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 font-semibold text-[11px] flex items-center gap-1 transition-colors" title="Terima Barang Masuk ke Gudang">
+                                    <i data-lucide="package-check" class="w-3.5 h-3.5"></i>
+                                    <span>Terima Gudang</span>
+                                </a>
+                                @endif
+
                                 @if($po->status === 'draft')
                                 <form method="POST" action="{{ route('purchase-orders.destroy', $po->id) }}" onsubmit="return confirm('Hapus draf PO {{ $po->po_number }}?')">
                                     @csrf

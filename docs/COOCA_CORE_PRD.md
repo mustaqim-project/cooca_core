@@ -13,13 +13,13 @@
 ## 1. Executive Summary & Vision
 
 ### 1.1 Product Definition
-**Cooca Core** adalah *Business Operating System (BOS)* berbasis Cloud/SaaS terpadu yang dirancang khusus untuk membebaskan pelaku **Usaha Mikro, Kecil, dan Menengah (UMKM)** dari kerumitan administrasi manual (pencatatan buku kas kertas, spreadsheet terpisah, aplikasi kasir terisolasi, dan ketidaktahuan atas biaya modal sebenarnya).
+**Cooca UMKM** adalah *Business Operating System (BOS)* berbasis Cloud/SaaS terpadu yang dirancang khusus untuk membebaskan pelaku **Usaha Mikro, Kecil, dan Menengah (UMKM)** dari kerumitan administrasi manual (pencatatan buku kas kertas, spreadsheet terpisah, aplikasi kasir terisolasi, dan ketidaktahuan atas biaya modal sebenarnya).
 
-Cooca Core dirancang fleksibel untuk melayani dua profil operasional UMKM yang sangat berbeda:
+Cooca UMKM dirancang fleksibel untuk melayani dua profil operasional UMKM yang sangat berbeda:
 1. **Solo-Owner Mode (Operasional Mandiri 1 Orang):** Pengusaha mandiri yang memproduksi, melayani pelanggan, dan mengelola keuangan sendirian tanpa staf. Sistem memberikan alur kerja instan tanpa birokrasi, tanpa approval berbelit, dan serba otomatis.
 2. **Team / Delegated Mode (Operasional dengan Karyawan):** Bisnis yang telah berkembang dan memiliki karyawan (kasir, staf gudang, bagian dapur/produksi, admin keuangan). Sistem memberikan pembatasan hak akses (*least privilege*), perlindungan kerahasiaan resep/margin modal dari kasir, pelacakan shift laci kasir, dan persetujuan supervisor.
 
-Cooca Core menghubungkan seluruh rantai operasional bisnis ke dalam satu siklus tertutup (*closed-loop business system*):
+Cooca UMKM menghubungkan seluruh rantai operasional bisnis ke dalam satu siklus tertutup (*closed-loop business system*):
 ```
 [Produk & Bahan Baku] 
        ↓
@@ -47,7 +47,7 @@ Cooca Core menghubungkan seluruh rantai operasional bisnis ke dalam satu siklus 
 ### 1.2 Core Positioning & Mantra
 - **Tagline:** *"Know your cost. Run your business. Understand your money."*
 - **Product Motto:** *"Run your business from one core system."*
-- **Product Differentiator:** Cooca Core **bukan ERP korporat yang rumit**, **bukan software akuntansi yang menakutkan dengan istilah teknis**, dan **bukan sekadar software kasir (POS) minim fungsi**. Cooca Core menempatkan **Kalkulasi Biaya Pokok Penjualan (HPP)** berbasis Bill of Materials (BOM) riil sebagai fondasi otomatis yang menggerakkan persediaan, transaksi penjualan, pembukuan jurnal, hingga rekomendasi AI.
+- **Product Differentiator:** Cooca UMKM **bukan ERP korporat yang rumit**, **bukan software akuntansi yang menakutkan dengan istilah teknis**, dan **bukan sekadar software kasir (POS) minim fungsi**. Cooca UMKM menempatkan **Kalkulasi Biaya Pokok Penjualan (HPP)** berbasis Bill of Materials (BOM) riil sebagai fondasi otomatis yang menggerakkan persediaan, transaksi penjualan, pembukuan jurnal, hingga rekomendasi AI.
 
 ---
 
@@ -89,7 +89,7 @@ Cooca Core menghubungkan seluruh rantai operasional bisnis ke dalam satu siklus 
 ### 3.1 Mode 1: Solo UMKM Owner (Solo-preneur)
 - **Karakteristik:** Bisnis dijalankan sendiri oleh pemilik (misal: *baker rumahan*, *kedai kopi mandiri*, *konveksi rumahan*, *toko online artisan*).
 - **Kebutuhan Utama:** Kecepatan, kemudahan, dan ketiadaan birokrasi. Pemilik tidak ingin terbebani alur approval bertingkat atau keharusan memasukkan PIN otorisasi saat ada koreksi di kasir.
-- **Perilaku Sistem Cooca Core:**
+- **Perilaku Sistem Cooca UMKM:**
   - *Instant Purchasing:* Tombol *"Beli & Tambah ke Stok"* langsung menambah inventori tanpa harus membuat PO terpisah lalu membuat formulir penerimaan barang.
   - *Instant Cashier:* Terminal POS dapat langsung dipakai tanpa keharusan input saldo modal awal shift laci kas jika pemilik tidak menginginkannya.
   - *Direct Price Adjustment:* Ubah harga atau diskon kasir langsung tanpa memerlukan approval supervisor.
@@ -97,7 +97,7 @@ Cooca Core menghubungkan seluruh rantai operasional bisnis ke dalam satu siklus 
 ### 3.2 Mode 2: Growing UMKM (Owner + Tim Karyawan)
 - **Karakteristik:** Bisnis telah berkembang dan memiliki 1 hingga puluhan staf (kasir toko, barista, tukang potong konveksi, staf gudang, admin invoice, staf keuangan).
 - **Kebutuhan Utama:** Keamanan data, pencegahan kecurangan (*fraud prevention*), pembagian tugas (*separation of duties*), dan rekonsiliasi uang fisik kasir.
-- **Perilaku Sistem Cooca Core:**
+- **Perilaku Sistem Cooca UMKM:**
   - *Role Protection:* Kasir hanya dapat melihat antarmuka kasir POS dan riwayat pesanannya sendiri; kasir **dilarang keras melihat biaya modal HPP riil dan margin keuntungan toko**.
   - *Cash Drawer Reconciliation:* Kasir wajib melakukan buka shift (input modal kas awal) dan tutup shift (penghitungan uang fisik laci kas) saat pergantian giliran kerja.
   - *Supervisor Authorization:* Pembatalan transaksi (*void*), pengembalian dana (*refund*), atau diskon manual di atas batas wajar wajib diverifikasi dengan PIN Pemilik/Supervisor.

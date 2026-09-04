@@ -58,18 +58,14 @@ final class PosTerminalWebController extends Controller
         // 3. Product Categories
         $categories = ProductCategory::where('business_id', $business->id)->get();
 
-        // 4. Products with Selling Price and Stock
+        // 4. Products with Selling Price and Effective Stock (Material Master)
         $products = Product::where('business_id', $business->id)
             ->where('is_active', true)
-            ->with(['category', 'outputUnit', 'stocks' => function ($q) use ($selectedLocationId) {
-                if ($selectedLocationId) {
-                    $q->where('location_id', $selectedLocationId);
-                }
-            }])
+            ->with(['category', 'outputUnit', 'costModels.latestResult'])
             ->get()
-            ->map(function ($p) {
-                $locStock = $p->stocks->first();
-                $p->current_stock = $locStock ? (float) $locStock->quantity : 0.0;
+            ->map(function ($p) use ($selectedLocationId) {
+                // Effective stock dihitung dari Material master stock (via BOM/direct material).
+                $p->current_stock = $p->calculateEffectiveStock($selectedLocationId);
                 return $p;
             });
 
@@ -185,6 +181,14 @@ final class PosTerminalWebController extends Controller
 
         $activeShift = $this->shiftService->getActiveShift($business, $user, $validated['location_id'] ?? null);
 
+        // Transaksi POS hanya boleh dilakukan setelah shift kasir dibuka.
+        if ($activeShift === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Shift kasir belum dibuka. Buka shift terlebih dahulu sebelum melakukan transaksi POS.',
+            ], 403);
+        }
+
         try {
             $order = $this->orderService->checkout(
                 business: $business,
@@ -251,6 +255,14 @@ final class PosTerminalWebController extends Controller
         ]);
 
         $activeShift = $this->shiftService->getActiveShift($business, $user, $validated['location_id'] ?? null);
+
+        // Menahan (hold) keranjang juga hanya diperbolehkan dalam shift kasir yang terbuka.
+        if ($activeShift === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Shift kasir belum dibuka. Buka shift terlebih dahulu sebelum menahan keranjang.',
+            ], 403);
+        }
 
         try {
             $held = $this->orderService->holdOrder(

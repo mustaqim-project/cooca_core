@@ -20,6 +20,7 @@ use Laravel\Sanctum\HasApiTokens;
 #[Fillable([
     'name',
     'email',
+    'phone',
     'password',
     'active_business_id',
     'onboarding_completed',
@@ -61,7 +62,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Business::class, 'business_users', 'user_id', 'business_id')
             ->using(BusinessMembership::class)
-            ->withPivot(['id', 'role'])
+            ->withPivot(['id', 'role', 'role_id'])
             ->withTimestamps();
     }
 

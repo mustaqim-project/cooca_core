@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat Kata Sandi Baru Admin — Cooca Core Platform</title>
+    <title>Buat Kata Sandi Baru Admin — Cooca UMKM Platform</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,7 +52,7 @@
 
         <!-- Form Card -->
         <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-5">
-            
+
             @if($errors->any())
                 <div class="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
                     <i data-lucide="alert-circle" class="w-4 h-4 text-red-400 shrink-0"></i>

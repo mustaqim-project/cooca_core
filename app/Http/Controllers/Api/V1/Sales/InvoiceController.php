@@ -148,7 +148,12 @@ final class InvoiceController extends Controller
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $payment = $this->invoiceService->recordPayment($invoice, $validated, $user);
+        $payment = $this->invoiceService->recordPayment(
+            $invoice,
+            (float) $validated['amount'],
+            $validated['payment_method'],
+            array_merge($validated, ['created_by' => $user?->id])
+        );
 
         return response()->json([
             'message' => 'Pembayaran berhasil dicatat.',
