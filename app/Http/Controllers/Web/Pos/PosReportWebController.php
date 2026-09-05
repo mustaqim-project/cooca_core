@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web\Pos;
 
 use App\Domain\Report\SalesReportService;
 use App\Http\Controllers\Controller;
+use App\Models\Business;
 use App\Models\PosOrder;
 use App\Models\PosOrderItem;
 use App\Models\PosOrderPayment;
@@ -191,7 +192,8 @@ final class PosReportWebController extends Controller
             fclose($file);
         }, 200, $headers);
     }
-/**
+
+    /**
      * Menulis seluruh bagian laporan detail ke dalam file CSV.
      *
      * @param resource $file
@@ -201,7 +203,7 @@ final class PosReportWebController extends Controller
     {
         $orders = $orders->values();
 
-        // ── KPI periode (angka sama dengan ringkasan halaman) ──
+        // KPI periode (angka sama dengan ringkasan halaman)
         $totalRevenue         = (float) $orders->sum('total_amount');
         $totalSubtotal        = (float) $orders->sum('subtotal');
         $totalDiscount        = (float) $orders->sum('discount_amount');
@@ -218,7 +220,7 @@ final class PosReportWebController extends Controller
 
         $periodLabel = $startDate->format('d/m/Y') . ' s/d ' . $endDate->format('d/m/Y');
 
-        fputcsv($file, ['LAPORAN PENJUALAN KASIR POS — DETAIL TRANSAKSI, ITEM & PEMBAYARAN']);
+        fputcsv($file, ['LAPORAN PENJUALAN KASIR POS - DETAIL TRANSAKSI, ITEM & PEMBAYARAN']);
         fputcsv($file, ['Bisnis', $business->name]);
         fputcsv($file, ['Periode', $periodLabel]);
         fputcsv($file, ['Tanggal Cetak', date('d/m/Y H:i:s')]);
@@ -239,7 +241,7 @@ final class PosReportWebController extends Controller
         fputcsv($file, ['Total Laba Kotor', round($totalGrossProfit, 2)]);
         fputcsv($file, ['Margin Laba Kotor (%)', round($grossMarginPercent, 2) . '%']);
         fputcsv($file, []);
-// ── 1. Rincian Transaksi per Order ──
+        // 1. Rincian Transaksi per Order
         fputcsv($file, ['--- 1. RINCIAN TRANSAKSI (PER ORDER) ---']);
         fputcsv($file, [
             'No. Order', 'Tanggal', 'Jam', 'Outlet', 'Kasir', 'Pelanggan', 'Tipe Pelanggan', 'Tipe Order',
@@ -288,7 +290,7 @@ final class PosReportWebController extends Controller
         fputcsv($file, ['TOTAL TRANSAKSI', $ordersCount]);
         fputcsv($file, []);
 
-        // ── 2. Detail Item per Transaksi ──
+        // 2. Detail Item per Transaksi
         fputcsv($file, ['--- 2. DETAIL ITEM PER TRANSAKSI ---']);
         fputcsv($file, [
             'No. Order', 'Tanggal', 'Outlet', 'Kasir', 'Pelanggan', 'Kode Produk / SKU', 'Nama Produk',
@@ -319,7 +321,7 @@ final class PosReportWebController extends Controller
             }
         }
         fputcsv($file, []);
-// ── 3. Rincian Pembayaran per Metode ──
+        // 3. Rincian Pembayaran per Metode
         fputcsv($file, ['--- 3. RINCIAN PEMBAYARAN (PER METODE) ---']);
         fputcsv($file, ['No. Order', 'Tanggal', 'Metode Pembayaran', 'Nominal', 'Fee', 'Net', 'Status', 'No. Referensi', 'Keterangan']);
         foreach ($orders as $o) {
@@ -341,7 +343,7 @@ final class PosReportWebController extends Controller
         }
         fputcsv($file, []);
 
-        // ── 4. Ringkasan Metode Pembayaran ──
+        // 4. Ringkasan Metode Pembayaran
         $paymentsFlat = $orders->flatMap(fn ($o) => $o->payments)->values();
 
         fputcsv($file, ['--- 4. RINGKASAN METODE PEMBAYARAN ---']);
@@ -364,7 +366,7 @@ final class PosReportWebController extends Controller
         ]);
         fputcsv($file, []);
 
-        // ── 5. Ringkasan Penjualan per Produk ──
+        // 5. Ringkasan Penjualan per Produk
         $itemsFlat = $orders->flatMap(fn ($o) => $o->items)->values();
         $productTotals = $itemsFlat->groupBy(fn ($it) => $it->product_id ?: ($it->product_code ?: $it->product_name));
 
@@ -398,7 +400,8 @@ final class PosReportWebController extends Controller
         fputcsv($file, []);
         fputcsv($file, ['--- AKHIR LAPORAN ---']);
     }
-/**
+
+    /**
      * Format label tipe diskon POS ('percentage' => Persentase, 'fixed' => Nominal).
      */
     private function discountTypeLabel(?string $type): string
@@ -437,5 +440,4 @@ final class PosReportWebController extends Controller
 
         return $formatted === '' ? '0' : $formatted;
     }
-}
 }
