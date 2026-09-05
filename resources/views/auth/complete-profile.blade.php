@@ -11,7 +11,6 @@
             </a>
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-2">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                <span>Langkah Terakhir</span>
             </div>
             <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Lengkapi Data Profil Bisnis</h2>
             <p class="mt-2 text-sm text-slate-400">Mohon lengkapi nama, nomor WhatsApp/HP, dan nama usaha Anda untuk verifikasi & notifikasi invoice.</p>
