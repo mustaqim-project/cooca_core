@@ -236,6 +236,12 @@
                         <span class="pl-3">Pajak PPN Faktur Invoice</span>
                         <span class="font-mono text-white">{{ $business->currency_symbol }} {{ number_format($incomeStatement['revenues']['invoice_tax'], 0, ',', '.') }}</span>
                     </div>
+                    @if(!empty($incomeStatement['revenues']['pos_service_fee']) && $incomeStatement['revenues']['pos_service_fee'] > 0)
+                    <div class="flex justify-between py-1 text-slate-300">
+                        <span class="pl-3">Biaya Layanan (Service Charge) Kasir POS</span>
+                        <span class="font-mono text-white">{{ $business->currency_symbol }} {{ number_format($incomeStatement['revenues']['pos_service_fee'], 0, ',', '.') }}</span>
+                    </div>
+                    @endif
                     <div class="flex justify-between pt-2 border-t border-slate-800/80 font-bold text-white bg-slate-900/50 p-2 rounded-xl">
                         <span>TOTAL PAJAK DIPUNGUT</span>
                         <span class="font-mono text-yellow-400 text-sm">{{ $business->currency_symbol }} {{ number_format($incomeStatement['revenues']['total_tax'], 0, ',', '.') }}</span>

@@ -10,7 +10,7 @@
             <p class="text-sm text-slate-400 mt-1">Analisis performa penjualan kasir terintegrasi HPP (Cost of Goods Sold), laba kotor, jam ramai, dan metode bayar.</p>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('pos.reports.export-excel', ['start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString()]) }}" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition flex items-center gap-2">
+            <a id="btnPosExportExcel" href="{{ route('pos.reports.export-excel', ['start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString()]) }}" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition flex items-center gap-2">
                 <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
                 <span>Ekspor Excel / CSV</span>
             </a>
@@ -26,9 +26,9 @@
         <form method="GET" action="{{ route('pos.reports.index') }}" class="flex flex-wrap items-center gap-3 text-xs">
             <div class="flex items-center gap-2">
                 <span class="text-slate-400 font-semibold">Rentang Tanggal:</span>
-                <input type="date" name="start_date" value="{{ $startDate->toDateString() }}" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-white">
+                <input type="date" id="posStartDate" name="start_date" value="{{ $startDate->toDateString() }}" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-white">
                 <span class="text-slate-500">s/d</span>
-                <input type="date" name="end_date" value="{{ $endDate->toDateString() }}" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-white">
+                <input type="date" id="posEndDate" name="end_date" value="{{ $endDate->toDateString() }}" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-white">
             </div>
             <button type="submit" class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition">
                 Terapkan Filter
@@ -39,7 +39,7 @@
     <!-- KPI Summary Grid -->
     <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <div class="glass-card rounded-2xl p-4 border border-slate-800">
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Penjualan Kotor</div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Penjualan (Grand Total)</div>
             <div class="text-2xl font-black text-white font-mono mt-1">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
             <div class="text-[11px] text-emerald-400 mt-1">Hari Ini: Rp {{ number_format($todayRevenue, 0, ',', '.') }}</div>
         </div>
@@ -64,14 +64,14 @@
 
         <div class="glass-card rounded-2xl p-4 border border-slate-800">
             <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Diskon</div>
-            <div class="text-2xl font-black text-rose-300 font-mono mt-1">Rp {{ number_format($totalDiscount, 0, ',', '.') }}</div>
-            <div class="text-[11px] text-slate-500 mt-1">Diskon transaksi tercatat</div>
+            <div class="text-2xl font-black text-rose-300 font-mono mt-1">Rp {{ number_format($totalDiscount + ($totalVoucherDiscount ?? 0) + ($totalPointsDiscount ?? 0), 0, ',', '.') }}</div>
+            <div class="text-[11px] text-slate-500 mt-1">Order: Rp {{ number_format($totalDiscount, 0, ',', '.') }} | Voucher: Rp {{ number_format($totalVoucherDiscount ?? 0, 0, ',', '.') }}</div>
         </div>
 
         <div class="glass-card rounded-2xl p-4 border border-slate-800">
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pajak</div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pajak / PPN</div>
             <div class="text-2xl font-black text-amber-300 font-mono mt-1">Rp {{ number_format($totalTax, 0, ',', '.') }}</div>
-            <div class="text-[11px] text-slate-500 mt-1">Pajak aktif pada transaksi</div>
+            <div class="text-[11px] text-slate-500 mt-1">Service Fee: Rp {{ number_format($totalServiceCharge ?? 0, 0, ',', '.') }} | Rounding: Rp {{ number_format($totalRounding ?? 0, 0, ',', '.') }}</div>
         </div>
     </div>
 
@@ -315,6 +315,26 @@
                     }
                 }
             });
+        }
+
+        // 3. Keep Export Link synced with date inputs
+        const startInput = document.getElementById('posStartDate');
+        const endInput = document.getElementById('posEndDate');
+        const exportBtn = document.getElementById('btnPosExportExcel');
+        function syncExportUrl() {
+            if (!exportBtn || !startInput || !endInput) return;
+            try {
+                const url = new URL(exportBtn.href, window.location.origin);
+                url.searchParams.set('start_date', startInput.value);
+                url.searchParams.set('end_date', endInput.value);
+                exportBtn.href = url.pathname + url.search;
+            } catch (e) {
+                // Ignore url parse failure
+            }
+        }
+        if (startInput && endInput) {
+            startInput.addEventListener('change', syncExportUrl);
+            endInput.addEventListener('change', syncExportUrl);
         }
     });
 </script>

@@ -36,6 +36,9 @@ final class ReportWebController extends Controller
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = Carbon::parse($request->query('start_date'));
             $endDate   = Carbon::parse($request->query('end_date'));
+            if ($startDate->gt($endDate)) {
+                [$startDate, $endDate] = [$endDate, $startDate];
+            }
             $preset    = 'custom';
         } else {
             switch ($preset) {
@@ -104,6 +107,10 @@ final class ReportWebController extends Controller
         $startDate = $request->filled('start_date') ? Carbon::parse($request->query('start_date')) : Carbon::today()->startOfMonth();
         $endDate   = $request->filled('end_date') ? Carbon::parse($request->query('end_date')) : Carbon::today()->endOfMonth();
 
+        if ($startDate->gt($endDate)) {
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
+
         $filename = 'Laporan_' . Str::studly($type) . '_' . Str::slug($business->name) . '_' . date('Ymd_His') . '.csv';
 
         $headers = [
@@ -156,6 +163,9 @@ final class ReportWebController extends Controller
         fputcsv($file, ['PAJAK YANG DIPUNGUT (PPN / TAX)', '']);
         fputcsv($file, ['  Pajak PPN Transaksi Kasir POS', round($data['revenues']['pos_tax'])]);
         fputcsv($file, ['  Pajak PPN Faktur Invoice', round($data['revenues']['invoice_tax'])]);
+        if (! empty($data['revenues']['pos_service_fee']) && $data['revenues']['pos_service_fee'] > 0) {
+            fputcsv($file, ['  Biaya Layanan (Service Charge) POS', round($data['revenues']['pos_service_fee'])]);
+        }
         fputcsv($file, ['TOTAL PAJAK DIPUNGUT', round($data['revenues']['total_tax'])]);
         fputcsv($file, []);
 

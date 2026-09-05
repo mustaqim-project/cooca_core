@@ -47,6 +47,7 @@ final class MobileApiEndpointsTest extends TestCase
             'name' => 'Cooca Coffee Mobile',
             'currency' => 'IDR',
             'is_active' => true,
+            'allow_negative_stock' => true,
         ]);
 
         $this->business->users()->attach($this->user->id, [

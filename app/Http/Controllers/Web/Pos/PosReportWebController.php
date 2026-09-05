@@ -33,8 +33,12 @@ final class PosReportWebController extends Controller
         $startDate = $request->filled('start_date') ? Carbon::parse($request->get('start_date')) : Carbon::today()->subDays(29);
         $endDate = $request->filled('end_date') ? Carbon::parse($request->get('end_date')) : Carbon::today();
 
+        if ($startDate->gt($endDate)) {
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
+
         $baseOrdersQuery = PosOrder::where('business_id', $business->id)
-            ->where('status', PosOrder::STATUS_COMPLETED);
+            ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND]);
 
         // Filtered range
         $rangeOrders = (clone $baseOrdersQuery)
@@ -42,8 +46,13 @@ final class PosReportWebController extends Controller
 
         // Key KPI metrics
         $totalRevenue = (float) (clone $rangeOrders)->sum('total_amount');
+        $totalSubtotal = (float) (clone $rangeOrders)->sum('subtotal');
         $totalDiscount = (float) (clone $rangeOrders)->sum('discount_amount');
+        $totalVoucherDiscount = (float) (clone $rangeOrders)->sum('voucher_discount_amount');
+        $totalPointsDiscount = (float) (clone $rangeOrders)->sum('points_discount_amount');
         $totalTax = (float) (clone $rangeOrders)->sum('tax_amount');
+        $totalServiceCharge = (float) (clone $rangeOrders)->sum('service_charge_amount');
+        $totalRounding = (float) (clone $rangeOrders)->sum('rounding_amount');
         $totalHpp = (float) (clone $rangeOrders)->sum('total_hpp_cost');
         $totalGrossProfit = (float) (clone $rangeOrders)->sum('total_gross_profit');
         $ordersCount = (clone $rangeOrders)->count();
@@ -73,8 +82,12 @@ final class PosReportWebController extends Controller
             ->get();
 
         // 2. Peak Hours Analysis (Hourly Sales)
+        $hourExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "CAST(strftime('%H', created_at) AS INTEGER)"
+            : 'HOUR(created_at)';
+
         $hourlyData = (clone $rangeOrders)
-            ->selectRaw('HOUR(created_at) as order_hour, COUNT(*) as orders_count, SUM(total_amount) as total_sales')
+            ->selectRaw("{$hourExpression} as order_hour, COUNT(*) as orders_count, SUM(total_amount) as total_sales")
             ->groupBy('order_hour')
             ->orderBy('order_hour')
             ->get();
@@ -82,7 +95,7 @@ final class PosReportWebController extends Controller
         // 3. Payment Method Breakdown
         $paymentMethods = PosOrderPayment::whereHas('order', function ($q) use ($business, $startDate, $endDate) {
             $q->where('business_id', $business->id)
-                ->where('status', PosOrder::STATUS_COMPLETED)
+                ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
                 ->whereBetween('order_date', [$startDate->toDateString(), $endDate->toDateString()]);
         })
             ->selectRaw('payment_method, SUM(amount) as total_amount, COUNT(*) as tx_count')
@@ -92,7 +105,7 @@ final class PosReportWebController extends Controller
         // 4. Top 5 Selling Products
         $topProducts = PosOrderItem::whereHas('order', function ($q) use ($business, $startDate, $endDate) {
             $q->where('business_id', $business->id)
-                ->where('status', PosOrder::STATUS_COMPLETED)
+                ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
                 ->whereBetween('order_date', [$startDate->toDateString(), $endDate->toDateString()]);
         })
             ->selectRaw('product_name, SUM(quantity) as total_qty, SUM(total_price) as total_revenue, SUM(total_hpp) as total_cost')
@@ -113,8 +126,13 @@ final class PosReportWebController extends Controller
             'startDate',
             'endDate',
             'totalRevenue',
+            'totalSubtotal',
             'totalDiscount',
+            'totalVoucherDiscount',
+            'totalPointsDiscount',
             'totalTax',
+            'totalServiceCharge',
+            'totalRounding',
             'totalHpp',
             'totalGrossProfit',
             'grossMarginPercent',
@@ -166,9 +184,9 @@ final class PosReportWebController extends Controller
         }
 
         $orders = PosOrder::where('business_id', $business->id)
-            ->where('status', PosOrder::STATUS_COMPLETED)
+            ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
             ->whereBetween('order_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->with(['customer', 'user', 'location', 'payments', 'items'])
+            ->with(['customer', 'user', 'location', 'payments', 'items.product'])
             ->orderBy('order_date')
             ->orderBy('created_at')
             ->get();
@@ -245,7 +263,7 @@ final class PosReportWebController extends Controller
         fputcsv($file, ['--- 1. RINCIAN TRANSAKSI (PER ORDER) ---']);
         fputcsv($file, [
             'No. Order', 'Tanggal', 'Jam', 'Outlet', 'Kasir', 'Pelanggan', 'Tipe Pelanggan', 'Tipe Order',
-            'Meja / Referensi', 'Jumlah Item', 'Subtotal', 'Tipe Diskon', 'Nilai Diskon', 'Diskon',
+            'Meja / Referensi', 'Jumlah Item', 'Subtotal', 'Tipe Diskon', 'Nilai Diskon', 'Diskon Order',
             'Kode Voucher', 'Diskon Voucher', 'Diskon Poin', 'Pajak (%)', 'Pajak',
             'Service Charge (%)', 'Service Charge', 'Pembulatan', 'Total Bayar', 'Dibayar', 'Kembalian',
             'HPP / Modal', 'Laba Kotor', 'Margin (%)', 'Metode Pembayaran', 'Status',
@@ -253,6 +271,8 @@ final class PosReportWebController extends Controller
         foreach ($orders as $o) {
             $payMethods = $o->payments->map(fn ($p) => $this->paymentMethodLabel($p->payment_method) . ': ' . number_format((float) $p->amount, 2, ',', '.'))->implode(' | ');
             $margin = $o->total_amount > 0 ? round(($o->total_gross_profit / $o->total_amount) * 100, 2) : 0;
+            $custName = $o->customer?->name ?: ($o->customer_name_guest ?: 'Umum');
+            $custType = $o->customer ? 'Member' : 'Guest / Umum';
 
             fputcsv($file, [
                 $o->order_number,
@@ -260,13 +280,13 @@ final class PosReportWebController extends Controller
                 $o->created_at?->format('H:i:s') ?? '-',
                 $o->location->name ?? '-',
                 $o->user->name ?? '-',
-                $o->customer->name ?? $o->customer_name_guest ?? 'Umum',
-                $o->customer ? 'Member' : 'Guest / Umum',
+                $custName,
+                $custType,
                 strtoupper(str_replace('_', ' ', (string) $o->order_type)),
                 $o->table_or_reference ?? '-',
                 (int) round($o->items->sum('quantity')),
                 round((float) $o->subtotal, 2),
-                $this->discountTypeLabel($o->discount_type),
+                $this->discountTypeLabel($o->discount_type, (float) $o->discount_value, (float) $o->discount_amount),
                 round((float) $o->discount_value, 2),
                 round((float) $o->discount_amount, 2),
                 $o->voucher_code ?: ($o->voucher_discount_amount > 0 ? 'Voucher' : '-'),
@@ -297,17 +317,19 @@ final class PosReportWebController extends Controller
             'Qty', 'Harga Satuan', 'Diskon Item', 'Subtotal Item', 'Total Item', 'HPP / Unit', 'Total HPP Item', 'Laba Item',
         ]);
         foreach ($orders as $o) {
+            $custName = $o->customer?->name ?: ($o->customer_name_guest ?: 'Umum');
             foreach ($o->items as $it) {
                 $totalHppItem = (float) $it->total_hpp > 0 ? (float) $it->total_hpp : ((float) $it->quantity * (float) $it->unit_cost_hpp);
                 $profitItem = (float) $it->total_price - $totalHppItem;
+                $sku = $it->product_code ?: ($it->product?->code ?: ($it->product?->sku ?: '-'));
 
                 fputcsv($file, [
                     $o->order_number,
                     $o->order_date?->format('Y-m-d') ?? $o->created_at?->format('Y-m-d') ?? '-',
                     $o->location->name ?? '-',
                     $o->user->name ?? '-',
-                    $o->customer->name ?? $o->customer_name_guest ?? 'Umum',
-                    $it->product_code ?? '-',
+                    $custName,
+                    $sku,
                     $it->product_name,
                     $this->formatQty($it->quantity),
                     round((float) $it->unit_price, 2),
@@ -373,6 +395,8 @@ final class PosReportWebController extends Controller
         fputcsv($file, ['--- 5. RINGKASAN PENJUALAN PER PRODUK ---']);
         fputcsv($file, ['Kode Produk / SKU', 'Nama Produk', 'Qty Terjual', 'Total Penjualan', 'Total HPP', 'Laba Kotor', 'Margin (%)']);
         foreach ($productTotals as $productItems) {
+            $firstItem = $productItems->first();
+            $sku = $firstItem->product_code ?: ($firstItem->product?->code ?: ($firstItem->product?->sku ?: '-'));
             $qty = (float) $productItems->sum('quantity');
             $sales = (float) $productItems->sum('total_price');
             $hpp = (float) $productItems->sum(fn ($it) => (float) $it->total_hpp > 0 ? (float) $it->total_hpp : ((float) $it->quantity * (float) $it->unit_cost_hpp));
@@ -380,8 +404,8 @@ final class PosReportWebController extends Controller
             $margin = $sales > 0 ? ($profit / $sales) * 100 : 0.0;
 
             fputcsv($file, [
-                $productItems->first()->product_code ?? '-',
-                $productItems->first()->product_name,
+                $sku,
+                $firstItem->product_name,
                 $this->formatQty($qty),
                 round($sales, 2),
                 round($hpp, 2),
@@ -389,13 +413,19 @@ final class PosReportWebController extends Controller
                 round($margin, 2) . '%',
             ]);
         }
+
+        $itemsTotalSales = (float) $itemsFlat->sum('total_price');
+        $itemsTotalHpp = (float) $itemsFlat->sum(fn ($it) => (float) $it->total_hpp > 0 ? (float) $it->total_hpp : ((float) $it->quantity * (float) $it->unit_cost_hpp));
+        $itemsTotalProfit = $itemsTotalSales - $itemsTotalHpp;
+        $itemsTotalMargin = $itemsTotalSales > 0 ? round(($itemsTotalProfit / $itemsTotalSales) * 100, 2) : 0.0;
+
         fputcsv($file, [
             'TOTAL KESELURUHAN', '',
             $this->formatQty((float) $itemsFlat->sum('quantity')),
-            round((float) $itemsFlat->sum('total_price'), 2),
-            round((float) $itemsFlat->sum(fn ($it) => (float) $it->total_hpp > 0 ? (float) $it->total_hpp : ((float) $it->quantity * (float) $it->unit_cost_hpp)), 2),
-            round((float) $itemsFlat->sum(fn ($it) => (float) $it->total_price - ((float) $it->total_hpp > 0 ? (float) $it->total_hpp : ((float) $it->quantity * (float) $it->unit_cost_hpp))), 2),
-            round($grossMarginPercent, 2) . '%',
+            round($itemsTotalSales, 2),
+            round($itemsTotalHpp, 2),
+            round($itemsTotalProfit, 2),
+            $itemsTotalMargin . '%',
         ]);
         fputcsv($file, []);
         fputcsv($file, ['--- AKHIR LAPORAN ---']);
@@ -404,8 +434,11 @@ final class PosReportWebController extends Controller
     /**
      * Format label tipe diskon POS ('percentage' => Persentase, 'fixed' => Nominal).
      */
-    private function discountTypeLabel(?string $type): string
+    private function discountTypeLabel(?string $type, float $discountValue = 0.0, float $discountAmount = 0.0): string
     {
+        if ($discountValue <= 0 && $discountAmount <= 0) {
+            return 'Tanpa Diskon';
+        }
         return match (strtolower((string) $type)) {
             'percentage' => 'Persentase (%)',
             'fixed' => 'Nominal',

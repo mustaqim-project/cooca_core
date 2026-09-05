@@ -161,8 +161,6 @@ final class SnapshotPriceReportingTest extends TestCase
         $response = $this->withHeaders($this->authHeaders())
             ->getJson('/api/v1/pos/reports/sales-summary?start_date=' . $date . '&end_date=' . $date);
 
-        fwrite(STDERR, "\nDEBUG RAW ORDER_DATE: " . json_encode(\Illuminate\Support\Facades\DB::table('pos_orders')->value('order_date')) . "\n");
-        fwrite(STDERR, "\nDEBUG POS SUMMARY: " . json_encode($response->json()) . "\n");
 
         $response->assertOk();
         $response->assertJsonPath('summary.average_selling_price', 100000);
@@ -199,6 +197,7 @@ final class SnapshotPriceReportingTest extends TestCase
             ->assertCreated();
 
         $invoice = Invoice::where('business_id', $this->business->id)->firstOrFail();
+        app(\App\Domain\Commerce\InvoiceService::class)->confirmAndRelease($invoice, $this->location->id);
         $item = $invoice->items()->firstOrFail();
 
         $this->assertEquals(100000, (float) $item->unit_price);
