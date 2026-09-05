@@ -153,6 +153,11 @@ final class ReportWebController extends Controller
         fputcsv($file, ['  Retur Penjualan (Pengurang)', round($data['revenues']['sales_returns'])]);
         fputcsv($file, ['TOTAL PENDAPATAN BERSIH', round($data['revenues']['net_sales'])]);
         fputcsv($file, []);
+        fputcsv($file, ['PAJAK YANG DIPUNGUT (PPN / TAX)', '']);
+        fputcsv($file, ['  Pajak PPN Transaksi Kasir POS', round($data['revenues']['pos_tax'])]);
+        fputcsv($file, ['  Pajak PPN Faktur Invoice', round($data['revenues']['invoice_tax'])]);
+        fputcsv($file, ['TOTAL PAJAK DIPUNGUT', round($data['revenues']['total_tax'])]);
+        fputcsv($file, []);
 
         fputcsv($file, ['HARGA POKOK PENJUALAN (HPP / COGS)', '']);
         fputcsv($file, ['  HPP Penjualan Kasir POS', round($data['cogs']['pos_cogs'])]);

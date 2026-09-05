@@ -129,6 +129,7 @@ final class FinancialReportService
                 'invoice_discounts'   => $invoiceDiscounts,
                 'invoice_net_sales'   => $invoiceNetRevenue,
                 'invoice_tax'         => $invoiceTax,
+                'total_tax'           => $posTax + $invoiceTax,
                 'total_gross_sales'   => $totalGrossSales,
                 'total_discounts'     => $totalDiscounts,
                 'sales_returns'       => $totalReturnsAmount,
