@@ -12,7 +12,7 @@
     ],
     discountType: 'percentage',
     discountValue: 0,
-    taxPercentage: 0,
+    taxPercentage: {{ $business->pos_enable_tax ? (float) $business->pos_tax_percent : 0 }},
 
     products: {{ Js::from($products) }},
     materials: {{ Js::from($materials) }},
@@ -108,12 +108,12 @@
 
                 <!-- PO Type Switcher -->
                 <div class="inline-flex p-1 rounded-xl bg-slate-900 border border-slate-800 self-start sm:self-auto">
-                    <button type="button" @click="poType = 'customer'" 
+                    <button type="button" @click="poType = 'customer'"
                             :class="poType === 'customer' ? 'bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:text-white'"
                             class="px-3.5 py-1.5 rounded-lg text-xs transition-all">
                         PO Pelanggan (Penjualan)
                     </button>
-                    <button type="button" @click="poType = 'supplier'" 
+                    <button type="button" @click="poType = 'supplier'"
                             :class="poType === 'supplier' ? 'bg-blue-600 text-white font-bold shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:text-white'"
                             class="px-3.5 py-1.5 rounded-lg text-xs transition-all">
                         PO Vendor (Pengadaan)
@@ -204,7 +204,7 @@
                             <tr class="hover:bg-slate-800/20">
                                 <td class="py-2 px-3">
                                     <div x-show="poType === 'customer'">
-                                        <select :name="'items[' + index + '][product_id]'" x-model="item.product_id" @change="onProductChange(index)" 
+                                        <select :name="'items[' + index + '][product_id]'" x-model="item.product_id" @change="onProductChange(index)"
                                                 class="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-lg text-xs text-white">
                                             <option value="">-- Pilih dari Katalog Produk --</option>
                                             <template x-for="prod in products" :key="prod.id">
@@ -213,7 +213,7 @@
                                         </select>
                                     </div>
                                     <div x-show="poType === 'supplier'">
-                                        <select :name="'items[' + index + '][material_id]'" x-model="item.material_id" @change="onMaterialChange(index)" 
+                                        <select :name="'items[' + index + '][material_id]'" x-model="item.material_id" @change="onMaterialChange(index)"
                                                 class="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 focus:border-blue-500 rounded-lg text-xs text-white">
                                             <option value="">-- Pilih Bahan Baku --</option>
                                             <template x-for="mat in materials" :key="mat.id">

@@ -215,6 +215,41 @@ final class PosTerminalFeatureTest extends TestCase
         $this->assertGreaterThan(0, $journal->total_debit);
     }
 
+    public function test_pos_checkout_records_percentage_discount_and_configured_tax(): void
+    {
+        $this->actingAs($this->user);
+
+        $this->postJson(route('pos.shifts.open'), [
+            'location_id' => $this->location->id,
+            'opening_cash' => 100000,
+        ]);
+
+        $response = $this->postJson(route('pos.checkout'), [
+            'location_id' => $this->location->id,
+            'discount_type' => 'percentage',
+            'discount_value' => 10,
+            'items' => [[
+                'product_id' => $this->product->id,
+                'product_name' => $this->product->name,
+                'quantity' => 2,
+                'unit_price' => 35000,
+            ]],
+            'payments' => [[
+                'payment_method' => 'cash',
+                'amount' => 70000,
+            ]],
+        ]);
+
+        $response->assertOk()->assertJsonPath('order.total_amount', 69300);
+
+        $order = PosOrder::latest()->firstOrFail();
+        $this->assertSame('percentage', $order->discount_type);
+        $this->assertEquals(10, $order->discount_value);
+        $this->assertEquals(7000, $order->discount_amount);
+        $this->assertEquals(10, $order->tax_percentage);
+        $this->assertEquals(6300, $order->tax_amount);
+    }
+
     public function test_pos_order_can_be_voided_and_stock_is_restored(): void
     {
         $this->actingAs($this->user);

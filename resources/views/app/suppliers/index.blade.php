@@ -9,7 +9,7 @@
     showAddModal: false,
     showEditModal: false,
     editSupplier: { id: '', name: '', contact_person: '', phone: '', email: '', address: '', notes: '' },
-    
+
     openEditModal(sup) {
         this.editSupplier = { ...sup };
         this.showEditModal = true;
@@ -22,8 +22,8 @@
         <form method="GET" action="{{ route('suppliers.index') }}" class="flex-1 flex items-center gap-3">
             <div class="relative flex-1 max-w-md">
                 <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                <input type="text" name="search" value="{{ request('search') }}" 
-                       placeholder="Cari nama pemasok, kontak, atau email..." 
+                <input type="text" name="search" value="{{ request('search') }}"
+                       placeholder="Cari nama pemasok, kontak, atau email..."
                        class="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-xs text-white">
             </div>
             @if(request('search'))
@@ -36,11 +36,13 @@
                 <i data-lucide="boxes" class="w-4 h-4 text-slate-400"></i>
                 <span>Katalog Bahan</span>
             </a>
-            <button @click="showAddModal = true" 
-                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tambah Pemasok</span>
-            </button>
+            @if(\App\Support\Context::hasPermission('master_data.suppliers.manage'))
+                <button @click="showAddModal = true"
+                        class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Tambah Pemasok</span>
+                </button>
+            @endif
         </div>
     </div>
 
@@ -101,6 +103,7 @@
                         </td>
                         <td class="py-3 px-4 text-right">
                             <div class="flex items-center justify-end gap-1.5">
+                                @if(\App\Support\Context::hasPermission('master_data.suppliers.manage'))
                                 <button @click="openEditModal({
                                     id: '{{ $supplier->id }}',
                                     name: '{{ addslashes($supplier->name) }}',
@@ -119,6 +122,7 @@
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

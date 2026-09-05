@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1\Inventory;
 
 use App\Domain\Inventory\StockService;
 use App\Http\Controllers\Controller;
+use App\Models\Material;
 use App\Models\Product;
 use App\Models\StockTransfer;
 use App\Models\StockTransferItem;
@@ -71,7 +72,8 @@ final class StockTransferController extends Controller
             'transfer_date' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'string', 'exists:products,id'],
+            'items.*.product_id' => ['nullable', 'string', 'exists:products,id', 'required_without:items.*.material_id'],
+            'items.*.material_id' => ['nullable', 'string', 'exists:materials,id', 'required_without:items.*.product_id'],
             'items.*.quantity' => ['required', 'numeric', 'min:0.0001'],
         ]);
 
@@ -90,13 +92,15 @@ final class StockTransferController extends Controller
         ]);
 
         foreach ($validated['items'] as $itemData) {
-            $product = Product::find($itemData['product_id']);
-            $cost = $product ? (float) $product->base_cost : 0.0;
+            $product = ! empty($itemData['product_id']) ? Product::find($itemData['product_id']) : null;
+            $material = ! empty($itemData['material_id']) ? Material::find($itemData['material_id']) : null;
+            $cost = $product ? (float) $product->base_cost : (float) ($material?->effective_cost ?? 0.0);
             $qty = (float) $itemData['quantity'];
 
             StockTransferItem::create([
                 'stock_transfer_id' => $transfer->id,
-                'product_id' => $itemData['product_id'],
+                'product_id' => $itemData['product_id'] ?? null,
+                'material_id' => $itemData['material_id'] ?? null,
                 'quantity' => $qty,
                 'unit_cost' => $cost,
                 'total_cost' => $qty * $cost,

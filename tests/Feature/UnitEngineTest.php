@@ -6,6 +6,9 @@ namespace Tests\Feature;
 
 use App\Domain\Material\UnitConversionService;
 use App\Models\Business;
+use App\Models\Material;
+use App\Models\MaterialUnitConversion;
+use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\UnitConversion;
 use App\Models\User;
@@ -126,6 +129,61 @@ final class UnitEngineTest extends TestCase
         // Convert 2 sak -> kg
         $kgResult = $this->conversionService->convert(2.0, $sak, $kg);
         $this->assertEqualsWithDelta(100.0, $kgResult, 0.0001);
+    }
+
+    public function test_material_specific_conversion_for_packaging_units_is_supported(): void
+    {
+        $business = Business::create(['name' => 'Batik Kecil']);
+        $user = User::create(['name' => 'Owner', 'email' => 'packaging@example.com', 'password' => 'password123']);
+        $business->users()->attach($user->id, ['id' => (string) Str::uuid(), 'role' => 'owner']);
+        Context::setBusiness($business);
+
+        $box = Unit::create([
+            'business_id' => $business->id,
+            'code' => 'box',
+            'name' => 'Kotak',
+            'category' => Unit::CATEGORY_CUSTOM,
+            'default_precision' => 0,
+        ]);
+
+        $pcs = Unit::create([
+            'business_id' => $business->id,
+            'code' => 'pcs',
+            'name' => 'Pieces',
+            'category' => Unit::CATEGORY_QUANTITY,
+            'is_base' => true,
+            'default_precision' => 0,
+        ]);
+
+        $supplier = Supplier::create([
+            'business_id' => $business->id,
+            'name' => 'Supplier Packaging',
+            'slug' => 'supplier-packaging',
+        ]);
+
+        $material = Material::create([
+            'business_id' => $business->id,
+            'category_id' => null,
+            'unit_id' => $box->id,
+            'supplier_id' => $supplier->id,
+            'code' => 'MAT-001',
+            'name' => 'Telur',
+            'slug' => 'telur',
+        ]);
+
+        MaterialUnitConversion::create([
+            'business_id' => $business->id,
+            'material_id' => $material->id,
+            'supplier_id' => $supplier->id,
+            'from_unit_id' => $box->id,
+            'to_unit_id' => $pcs->id,
+            'factor' => 12.0,
+            'is_default' => true,
+            'effective_from' => now()->toDateString(),
+        ]);
+
+        $result = $this->conversionService->convert(3.0, $box, $pcs, $material->id, $supplier->id);
+        $this->assertEqualsWithDelta(36.0, $result, 0.0001);
     }
 
     public function test_cross_category_conversion_without_bridge_is_rejected(): void

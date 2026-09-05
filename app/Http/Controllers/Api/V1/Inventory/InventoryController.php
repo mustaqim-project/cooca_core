@@ -85,7 +85,8 @@ final class InventoryController extends Controller
 
         $validated = $request->validate([
             'location_id' => ['required', 'string', 'exists:locations,id'],
-            'product_id' => ['required', 'string', 'exists:products,id'],
+            'product_id' => ['nullable', 'string', 'exists:products,id', 'required_without:material_id'],
+            'material_id' => ['nullable', 'string', 'exists:materials,id', 'required_without:product_id'],
             'new_quantity' => ['nullable', 'numeric', 'min:0'],
             'type' => ['nullable', 'string', 'in:in,out,set'],
             'quantity' => ['nullable', 'numeric', 'min:0'],
@@ -97,7 +98,9 @@ final class InventoryController extends Controller
         $stock = $this->stockService->getOrCreateStock(
             $business->id,
             $validated['location_id'],
-            $validated['product_id']
+            $validated['product_id'] ?? null,
+            false,
+            $validated['material_id'] ?? null
         );
 
         $quantity = (float) ($validated['quantity'] ?? 0);
@@ -115,12 +118,13 @@ final class InventoryController extends Controller
             $this->stockService->recordMovement(
                 businessId: $business->id,
                 locationId: $validated['location_id'],
-                productId: $validated['product_id'],
+                productId: $validated['product_id'] ?? null,
                 movementType: StockMovement::TYPE_ADJUSTMENT,
                 quantityChange: $diff,
                 unitCost: $unitCost,
                 notes: $validated['notes'] ?? $validated['reason'] ?? 'Penyesuaian stok via mobile API',
-                userId: $user->id
+                userId: $user->id,
+                materialId: $validated['material_id'] ?? null
             );
         }
 

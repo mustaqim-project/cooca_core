@@ -98,7 +98,9 @@ class Material extends Model
      */
     public function latestPrice(): HasOne
     {
-        return $this->hasOne(MaterialPrice::class)->latestOfMany('effective_date');
+        return $this->hasOne(MaterialPrice::class)
+            ->orderByDesc('effective_date')
+            ->orderByDesc('sequence');
     }
 
     /**

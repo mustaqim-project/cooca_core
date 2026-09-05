@@ -17,6 +17,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\StockOpname;
 use App\Models\Unit;
+use App\Models\UnitConversion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -315,6 +316,80 @@ class MaterialMasterStockBusinessRulesTest extends TestCase
             orderNumber: 'TRX-FAIL',
             userId: $this->user->id
         );
+    }
+
+    public function test_bom_sale_converts_recipe_grams_to_material_stock_kilograms(): void
+    {
+        $unitKg = Unit::create([
+            'business_id' => $this->business->id,
+            'code' => 'kg',
+            'name' => 'Kilogram',
+            'category' => 'weight',
+        ]);
+        UnitConversion::create([
+            'business_id' => $this->business->id,
+            'from_unit_id' => $this->unitGram->id,
+            'to_unit_id' => $unitKg->id,
+            'factor' => 0.001,
+        ]);
+
+        $material = Material::create([
+            'business_id' => $this->business->id,
+            'name' => 'Biji Kopi per Kg',
+            'code' => 'MAT-KG-01',
+            'unit_id' => $unitKg->id,
+        ]);
+        $this->stockService->recordMovement(
+            businessId: $this->business->id,
+            locationId: $this->location->id,
+            movementType: StockMovement::TYPE_INITIAL,
+            quantityChange: 1,
+            unitCost: 100000,
+            userId: $this->user->id,
+            materialId: $material->id
+        );
+
+        $product = Product::create([
+            'business_id' => $this->business->id,
+            'name' => 'Kopi Gram',
+            'code' => 'KOP-GRAM',
+            'output_unit_id' => $this->unitPcs->id,
+            'is_active' => true,
+        ]);
+        $costModel = $product->costModels()->create([
+            'business_id' => $this->business->id,
+            'name' => 'BOM Kopi Gram',
+            'method' => CostModel::METHOD_RECIPE_BOM,
+            'is_active' => true,
+        ]);
+        $bomHeader = $costModel->bomHeaders()->create([
+            'type' => BomHeader::TYPE_RECIPE,
+            'name' => 'Resep Kopi Gram',
+            'level' => 1,
+        ]);
+        $bomHeader->items()->create([
+            'material_id' => $material->id,
+            'quantity' => 18,
+            'unit_id' => $this->unitGram->id,
+            'waste_percentage' => 0,
+            'is_mandatory' => true,
+        ]);
+
+        $this->stockService->deductForProductSale(
+            businessId: $this->business->id,
+            locationId: $this->location->id,
+            product: $product,
+            productQuantity: 10,
+            unitCost: 5000,
+            orderId: 'pos-trx-unit-conversion',
+            orderNumber: 'TRX-UNIT-CONVERSION',
+            userId: $this->user->id
+        );
+
+        $stock = InventoryStock::where('material_id', $material->id)
+            ->where('location_id', $this->location->id)
+            ->firstOrFail();
+        $this->assertEquals(0.82, (float) $stock->quantity);
     }
 
     /**

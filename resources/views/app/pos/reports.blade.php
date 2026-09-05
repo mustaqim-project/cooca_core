@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="space-y-6">
-    
+
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -37,7 +37,7 @@
     </div>
 
     <!-- KPI Summary Grid -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <div class="glass-card rounded-2xl p-4 border border-slate-800">
             <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Penjualan Kotor</div>
             <div class="text-2xl font-black text-white font-mono mt-1">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
@@ -60,6 +60,18 @@
             <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Transaksi & Nilai Rata-rata</div>
             <div class="text-2xl font-black text-cyan-400 font-mono mt-1">{{ number_format($ordersCount, 0, ',', '.') }} Order</div>
             <div class="text-[11px] text-slate-400 mt-1">AOV: Rp {{ number_format($averageOrderValue, 0, ',', '.') }}</div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 border border-slate-800">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Diskon</div>
+            <div class="text-2xl font-black text-rose-300 font-mono mt-1">Rp {{ number_format($totalDiscount, 0, ',', '.') }}</div>
+            <div class="text-[11px] text-slate-500 mt-1">Diskon transaksi tercatat</div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 border border-slate-800">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pajak</div>
+            <div class="text-2xl font-black text-amber-300 font-mono mt-1">Rp {{ number_format($totalTax, 0, ',', '.') }}</div>
+            <div class="text-[11px] text-slate-500 mt-1">Pajak aktif pada transaksi</div>
         </div>
     </div>
 

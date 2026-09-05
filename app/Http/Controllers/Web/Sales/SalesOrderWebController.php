@@ -86,6 +86,7 @@ final class SalesOrderWebController extends Controller
             'shipping_address'        => ['nullable', 'string', 'max:500'],
             'quotation_id'            => ['nullable', 'exists:quotations,id'],
             'discount_amount'         => ['nullable', 'numeric', 'min:0'],
+            'tax_percentage'         => ['nullable', 'numeric', 'min:0', 'max:100'],
             'tax_amount'              => ['nullable', 'numeric', 'min:0'],
             'notes'                   => ['nullable', 'string', 'max:1000'],
             'items'                   => ['required', 'array', 'min:1'],

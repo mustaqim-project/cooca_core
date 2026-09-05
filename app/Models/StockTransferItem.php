@@ -16,6 +16,7 @@ class StockTransferItem extends Model
     protected $fillable = [
         'stock_transfer_id',
         'product_id',
+        'material_id',
         'quantity',
         'unit_cost',
         'total_cost',
@@ -48,5 +49,10 @@ class StockTransferItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function material(): BelongsTo
+    {
+        return $this->belongsTo(Material::class);
     }
 }

@@ -9,13 +9,6 @@
 
     <!-- Tab Selector -->
     <div class="flex items-center gap-2 border-b border-slate-800 pb-3 text-xs font-semibold overflow-x-auto">
-        <button type="button" @click="activeTab = 'masterdata'"
-                :class="activeTab === 'masterdata' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-900 text-slate-400 hover:text-white'"
-                class="px-4 py-2 rounded-xl transition-all flex items-center gap-2 shrink-0">
-            <i data-lucide="database" class="w-4 h-4"></i>
-            <span>Master Data (CMS)</span>
-        </button>
-
         <button type="button" @click="activeTab = 'templates'"
                 :class="activeTab === 'templates' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-900 text-slate-400 hover:text-white'"
                 class="px-4 py-2 rounded-xl transition-all flex items-center gap-2 shrink-0">
@@ -30,15 +23,10 @@
             <span>Profil & Pembulatan</span>
         </button>
 
-        <button type="button" @click="activeTab = 'members'"
-                :class="activeTab === 'members' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-900 text-slate-400 hover:text-white'"
-                class="px-4 py-2 rounded-xl transition-all flex items-center gap-2 shrink-0">
-            <i data-lucide="users" class="w-4 h-4"></i>
-            <span>Anggota Tim & Hak Akses</span>
-        </button>
     </div>
 
     <!-- Tab 0: Master Data CMS (Suppliers, Units, Categories) -->
+    @if(false)
     <div x-show="activeTab === 'masterdata'" class="space-y-8" style="display: none;">
 
         <!-- Grid 1: Suppliers & Custom Units -->
@@ -177,11 +165,12 @@
                             <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
                                 <th class="py-2.5 px-4 font-semibold">Simbol & Nama</th>
                                 <th class="py-2.5 px-4 font-semibold">Tipe / Kategori</th>
+                                <th class="py-2.5 px-4 font-semibold">Sumber</th>
                                 <th class="py-2.5 px-4 font-semibold text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800/60">
-                            @forelse($customUnits as $u)
+                            @forelse($availableUnits as $u)
                             <tr class="hover:bg-slate-900/40">
                                 <td class="py-2.5 px-4 font-bold text-white">
                                     <span class="font-mono text-emerald-400">{{ $u->code }}</span> — {{ $u->name }}
@@ -189,23 +178,112 @@
                                 <td class="py-2.5 px-4 text-slate-300 capitalize text-[11px]">
                                     {{ $u->category }}
                                 </td>
+                                <td class="py-2.5 px-4 text-[11px]">
+                                    @if($u->business_id === null)
+                                        <span class="text-sky-400">Sistem</span>
+                                    @else
+                                        <span class="text-emerald-400">Bisnis ini</span>
+                                    @endif
+                                </td>
                                 <td class="py-2.5 px-4 text-right">
-                                    <form method="POST" action="{{ route('units.destroy', $u->id) }}" onsubmit="return confirm('Hapus satuan kustom ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1 text-slate-500 hover:text-red-400 rounded transition-colors">
-                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                        </button>
-                                    </form>
+                                    @if($u->business_id !== null)
+                                        <form method="POST" action="{{ route('units.destroy', $u->id) }}" onsubmit="return confirm('Hapus satuan kustom ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-1 text-slate-500 hover:text-red-400 rounded transition-colors">
+                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-slate-600">-</span>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="3" class="py-6 text-center text-slate-500">Belum ada satuan kustom (20 satuan standar sistem aktif).</td>
+                                <td colspan="4" class="py-6 text-center text-slate-500">Belum ada satuan yang tersedia.</td>
                             </tr>
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <div class="border-t border-slate-800 mt-4 pt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h4 class="text-xs font-bold text-white">Daftar Konversi Satuan Bisnis</h4>
+                            <p class="text-[10px] text-slate-400">Bisnis owner membuat satuan sendiri lalu mendaftarkan faktor konversinya di sini.</p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ route('unit-conversions.store') }}" class="mb-4 grid grid-cols-1 md:grid-cols-5 gap-2.5 text-xs">
+                        @csrf
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-1">Dari</label>
+                            <select name="from_unit_id" required class="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white">
+                                <option value="">Pilih satuan</option>
+                                @foreach(\App\Models\Unit::where(function ($query) use ($business) { $query->whereNull('business_id')->orWhere('business_id', $business->id); })->orderBy('name')->get() as $unit)
+                                    <option value="{{ $unit->id }}">{{ $unit->code }} — {{ $unit->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-1">Ke</label>
+                            <select name="to_unit_id" required class="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white">
+                                <option value="">Pilih satuan</option>
+                                @foreach(\App\Models\Unit::where(function ($query) use ($business) { $query->whereNull('business_id')->orWhere('business_id', $business->id); })->orderBy('name')->get() as $unit)
+                                    <option value="{{ $unit->id }}">{{ $unit->code }} — {{ $unit->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-1">Faktor</label>
+                            <input type="number" step="0.000001" min="0.000001" name="factor" required placeholder="1.000000" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white">
+                        </div>
+                        <div class="md:col-span-2 flex items-end justify-end">
+                            <button type="submit" class="w-full md:w-auto px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Simpan Konversi</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
+                                    <th class="py-2.5 px-4 font-semibold">Dari</th>
+                                    <th class="py-2.5 px-4 font-semibold">Ke</th>
+                                    <th class="py-2.5 px-4 font-semibold">Faktor</th>
+                                    <th class="py-2.5 px-4 font-semibold">Keterangan</th>
+                                    <th class="py-2.5 px-4 font-semibold text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60">
+                                @forelse($unitConversions as $conversion)
+                                    <tr class="hover:bg-slate-900/40">
+                                        <td class="py-2.5 px-4 font-mono text-emerald-400">{{ $conversion->fromUnit?->code ?? '-' }}</td>
+                                        <td class="py-2.5 px-4 font-mono text-emerald-400">{{ $conversion->toUnit?->code ?? '-' }}</td>
+                                        <td class="py-2.5 px-4 font-mono text-white">{{ number_format($conversion->factor, 4) }}</td>
+                                        <td class="py-2.5 px-4 text-slate-300">{{ $conversion->fromUnit?->name ?? '-' }} ke {{ $conversion->toUnit?->name ?? '-' }}</td>
+                                        <td class="py-2.5 px-4 text-right">
+                                            <form method="POST" action="{{ route('unit-conversions.destroy', $conversion->id) }}" onsubmit="return confirm('Hapus konversi satuan ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-1 text-slate-500 hover:text-red-400 rounded transition-colors">
+                                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="py-6 text-center text-slate-500">Belum ada konversi satuan untuk bisnis ini. Buat satuan kustom lalu isi faktor konversi.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -353,6 +431,7 @@
         </div>
 
     </div>
+    @endif
 
     <!-- Tab 1: 20 Industry Templates (§35) -->
     <div x-show="activeTab === 'templates'" class="space-y-6">
@@ -483,6 +562,26 @@
                               class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">{{ $business->address }}</textarea>
                 </div>
 
+                <!-- Pengaturan Pajak POS -->
+                <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
+                    <div>
+                        <label class="block font-bold text-emerald-400 uppercase tracking-wider text-[11px]">Pajak Penjualan POS</label>
+                        <p class="text-[11px] text-slate-400 mt-1">Aktifkan jika transaksi kasir perlu menghitung pajak. Nilai ini otomatis tersimpan pada transaksi dan laporan.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                        <label class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-200 cursor-pointer">
+                            <input type="hidden" name="pos_enable_tax" value="0">
+                            <input type="checkbox" name="pos_enable_tax" value="1" {{ $business->pos_enable_tax ? 'checked' : '' }} class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                            <span>Gunakan pajak pada POS</span>
+                        </label>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Persentase Pajak (%)</label>
+                            <input type="number" name="pos_tax_percent" value="{{ $business->pos_tax_percent }}" min="0" max="100" step="0.01"
+                                   class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Informasi Rekening Bank (Ditampilkan pada Faktur) -->
                 <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
                     <label class="block font-bold text-emerald-400 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
@@ -548,6 +647,7 @@
     </div>
 
     <!-- Tab 3: Team Members & Roles -->
+    @if(false)
     <div x-show="activeTab === 'members'" class="space-y-6" style="display: none;">
 
         <!-- Add Member Form or Plan Upgrade Card -->
@@ -770,5 +870,6 @@
         </div>
 
     </div>
+    @endif
 </div>
 @endsection

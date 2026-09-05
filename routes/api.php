@@ -48,6 +48,7 @@ use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\MachineController;
 use App\Http\Controllers\Api\V1\MaterialCategoryController;
 use App\Http\Controllers\Api\V1\MaterialController;
+use App\Http\Controllers\Api\V1\MaterialUnitConversionController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\OverheadController;
 use App\Http\Controllers\Api\V1\PricingController;
@@ -161,6 +162,10 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/unit-conversions', [UnitConversionController::class, 'index']);
             Route::post('/unit-conversions', [UnitConversionController::class, 'store']);
             Route::delete('/unit-conversions/{unitConversion}', [UnitConversionController::class, 'destroy']);
+
+            Route::get('/material-unit-conversions', [MaterialUnitConversionController::class, 'index']);
+            Route::post('/material-unit-conversions', [MaterialUnitConversionController::class, 'store']);
+            Route::delete('/material-unit-conversions/{materialUnitConversion}', [MaterialUnitConversionController::class, 'destroy']);
 
             // Multi-Location & Multi-Currency per Business
             Route::get('/locations', [LocationController::class, 'index']);
@@ -403,19 +408,19 @@ Route::prefix('v1')->group(function (): void {
             Route::prefix('inventory')->group(function (): void {
                 Route::get('/stocks', [InventoryController::class, 'stocks']);
                 Route::get('/stocks/{product}/movements', [InventoryController::class, 'movements']);
-                Route::post('/adjustments', [InventoryController::class, 'adjust']);
+                Route::post('/adjustments', [InventoryController::class, 'adjust'])->middleware('require.permission:inventory.manage');
 
                 // Stock Opname (Physical Count)
                 Route::get('/opnames', [StockOpnameController::class, 'index']);
                 Route::post('/opnames', [StockOpnameController::class, 'store']);
                 Route::get('/opnames/{stockOpname}', [StockOpnameController::class, 'show']);
-                Route::post('/opnames/{stockOpname}/reconcile', [StockOpnameController::class, 'reconcile']);
+                Route::post('/opnames/{stockOpname}/reconcile', [StockOpnameController::class, 'reconcile'])->middleware('require.permission:inventory.manage');
 
                 // Stock Transfers (Inter-Location)
                 Route::get('/transfers', [StockTransferController::class, 'index']);
                 Route::post('/transfers', [StockTransferController::class, 'store']);
                 Route::get('/transfers/{stockTransfer}', [StockTransferController::class, 'show']);
-                Route::post('/transfers/{stockTransfer}/receive', [StockTransferController::class, 'receive']);
+                Route::post('/transfers/{stockTransfer}/receive', [StockTransferController::class, 'receive'])->middleware('require.permission:inventory.manage');
             });
 
             // ──────────────────────────────────────────────────────────────────
@@ -427,14 +432,14 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/purchase-orders', [PurchaseOrderController::class, 'store']);
                 Route::get('/purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'show']);
                 Route::put('/purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'update']);
-                Route::post('/purchase-orders/{purchaseOrder}/confirm', [PurchaseOrderController::class, 'confirm']);
-                Route::post('/purchase-orders/{purchaseOrder}/cancel', [PurchaseOrderController::class, 'cancel']);
+                Route::post('/purchase-orders/{purchaseOrder}/confirm', [PurchaseOrderController::class, 'confirm'])->middleware('require.permission:purchasing.manage');
+                Route::post('/purchase-orders/{purchaseOrder}/cancel', [PurchaseOrderController::class, 'cancel'])->middleware('require.permission:purchasing.manage');
 
                 // Goods Receipts
                 Route::get('/goods-receipts', [GoodsReceiptController::class, 'index']);
-                Route::post('/goods-receipts', [GoodsReceiptController::class, 'store']);
+                Route::post('/goods-receipts', [GoodsReceiptController::class, 'store'])->middleware('require.permission:receiving.manage');
                 Route::get('/goods-receipts/{goodsReceipt}', [GoodsReceiptController::class, 'show']);
-                Route::post('/stock-in', [GoodsReceiptController::class, 'instantStockIn']);
+                Route::post('/stock-in', [GoodsReceiptController::class, 'instantStockIn'])->middleware('require.permission:receiving.manage');
                 Route::get('/supplier-invoices', [SupplierInvoiceController::class, 'index']);
                 Route::get('/supplier-invoices/{supplierInvoice}', [SupplierInvoiceController::class, 'show']);
                 Route::post('/supplier-invoices/{supplierInvoice}/payments', [SupplierInvoiceController::class, 'recordPayment']);
@@ -486,7 +491,7 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('/invoices', [InvoiceController::class, 'index']);
                 Route::post('/invoices', [InvoiceController::class, 'store']);
                 Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
-                Route::post('/invoices/{invoice}/payments', [InvoiceController::class, 'recordPayment']);
+                Route::post('/invoices/{invoice}/payments', [InvoiceController::class, 'recordPayment'])->middleware('require.permission:invoices.record_payment');
                 Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy']);
                 Route::get('/returns', [\App\Http\Controllers\Api\V1\Sales\SalesReturnController::class, 'index']);
                 Route::post('/returns', [\App\Http\Controllers\Api\V1\Sales\SalesReturnController::class, 'store']);

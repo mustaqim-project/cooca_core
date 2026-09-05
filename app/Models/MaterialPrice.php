@@ -10,6 +10,7 @@ use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class MaterialPrice extends Model
 {
@@ -18,6 +19,7 @@ class MaterialPrice extends Model
     protected $fillable = [
         'business_id',
         'material_id',
+        'sequence',
         'supplier_id',
         'currency_id',
         'purchase_price',
@@ -46,7 +48,21 @@ class MaterialPrice extends Model
             'yield_percentage' => 'float',
             'waste_percentage' => 'float',
             'effective_date' => 'date',
+            'sequence' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (MaterialPrice $price): void {
+            if ($price->sequence !== null && $price->sequence > 0) {
+                return;
+            }
+
+            $price->sequence = (int) DB::table('material_prices')
+                ->where('material_id', $price->material_id)
+                ->max('sequence') + 1;
+        });
     }
 
     /**

@@ -15,6 +15,7 @@ use App\Models\InvoicePayment;
 use App\Models\Location;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
+use App\Support\Context;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -63,8 +64,6 @@ final class InvoiceService
                 : $invoiceDate->copy()->addDays($termsDays);
 
             $locationId = $attributes['location_id'] ?? Location::where('business_id', $business->id)->where('is_primary', true)->value('id') ?? Location::where('business_id', $business->id)->value('id');
-            $status = $attributes['status'] ?? Invoice::STATUS_DRAFT;
-
             /** @var Invoice $invoice */
             $invoice = Invoice::create([
                 'business_id' => $business->id,
@@ -74,7 +73,7 @@ final class InvoiceService
                 'invoice_number' => $invoiceNumber,
                 'invoice_date' => $invoiceDate->toDateString(),
                 'due_date' => $dueDate->toDateString(),
-                'status' => $status,
+                'status' => Invoice::STATUS_DRAFT,
                 'discount_type' => $attributes['discount_type'] ?? 'fixed',
                 'discount_value' => (float) ($attributes['discount_value'] ?? 0.0),
                 'tax_percentage' => (float) ($attributes['tax_percentage'] ?? 0.0),
@@ -109,11 +108,6 @@ final class InvoiceService
             }
 
             $invoice->recalculateTotals();
-
-            // If created with active status (not draft), automatically deduct stock and post journal
-            if ($status !== Invoice::STATUS_DRAFT && $status !== Invoice::STATUS_VOID) {
-                $this->processStockAndJournalForReleasedInvoice($invoice);
-            }
 
             return $invoice->fresh(['items', 'customer', 'location']);
         });
@@ -205,7 +199,7 @@ final class InvoiceService
                             unitCost: (float) $item->unit_hpp,
                             invoiceId: $invoice->id,
                             invoiceNumber: $invoice->invoice_number,
-                            userId: auth()->id()
+                            userId: Context::user()?->id
                         );
                     }
                 }

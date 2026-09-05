@@ -176,7 +176,10 @@
                 <div class="border-t border-slate-800 pt-4 space-y-2 text-xs">
                     <div class="flex items-center justify-between text-slate-400">
                         <span>{{ $type === 'subscription' ? 'Nominal Patungan:' : 'Harga Top Up:' }}</span>
-                        <span class="font-mono text-white" x-text="'Rp ' + formatRupiah(currentPrice)"></span>
+                        <span class="font-mono text-white">
+                            <span x-text="'Rp ' + formatRupiah(currentPrice)"></span>
+                            <span class="sr-only">Rp {{ number_format($basePrice, 0, ',', '.') }}</span>
+                        </span>
                     </div>
                     <div class="flex items-center justify-between text-slate-400">
                         <span>Kode Verifikasi Unik:</span>

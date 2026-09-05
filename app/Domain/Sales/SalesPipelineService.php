@@ -12,6 +12,7 @@ use App\Models\Quotation;
 use App\Models\QuotationItem;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
+use App\Models\Unit;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -80,7 +81,11 @@ final class SalesPipelineService
             }
 
             $overallDiscount = (float) ($data['discount_amount'] ?? 0);
-            $taxAmount = (float) ($data['tax_amount'] ?? 0);
+            $taxPercentage = array_key_exists('tax_percentage', $data)
+                ? (float) $data['tax_percentage']
+                : ($business->pos_enable_tax ? (float) $business->pos_tax_percent : 0.0);
+            $taxableAmount = max(0.0, $subtotal - $overallDiscount);
+            $taxAmount = ($taxableAmount * $taxPercentage) / 100.0;
             $totalAmount = max(0, ($subtotal - $overallDiscount) + $taxAmount);
 
             $quotation = Quotation::create([
@@ -91,6 +96,7 @@ final class SalesPipelineService
                 'expiry_date' => $data['expiry_date'] ?? null,
                 'subtotal' => $subtotal,
                 'discount_amount' => $overallDiscount,
+                'tax_percentage' => $taxPercentage,
                 'tax_amount' => $taxAmount,
                 'total_amount' => $totalAmount,
                 'status' => $data['status'] ?? Quotation::STATUS_SENT,

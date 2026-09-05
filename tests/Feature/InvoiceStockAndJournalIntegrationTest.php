@@ -242,14 +242,14 @@ class InvoiceStockAndJournalIntegrationTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // Test 5: Invoice langsung aktif (bukan draft) → stok LANGSUNG dipotong saat create
+    // Test 5: Invoice create selalu non-posting; release menjadi mutation boundary
     // -------------------------------------------------------------------------
 
-    public function test_invoice_created_as_sent_immediately_deducts_stock(): void
+    public function test_invoice_created_with_sent_status_remains_draft_until_release(): void
     {
         $this->seedStock(40);
 
-        $this->invoiceService->createFromProducts(
+        $invoice = $this->invoiceService->createFromProducts(
             business: $this->business,
             customer: $this->customer,
             itemsData: [[
@@ -266,11 +266,18 @@ class InvoiceStockAndJournalIntegrationTest extends TestCase
             ]
         );
 
+        $this->assertEquals(Invoice::STATUS_DRAFT, $invoice->status);
         $qty = InventoryStock::where('product_id', $this->product->id)
             ->where('location_id', $this->location->id)
             ->value('quantity');
 
-        $this->assertEquals(30, (float) $qty, 'Non-draft invoice should immediately deduct stock on creation');
+        $this->assertEquals(40, (float) $qty, 'Invoice creation must not deduct stock');
+
+        $this->invoiceService->confirmAndRelease($invoice, $this->location->id);
+
+        $this->assertEquals(30, (float) InventoryStock::where('product_id', $this->product->id)
+            ->where('location_id', $this->location->id)
+            ->value('quantity'));
     }
 
     // -------------------------------------------------------------------------

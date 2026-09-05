@@ -35,7 +35,7 @@ final class OnboardingWebController extends Controller
     public function updateStep(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'step' => ['required', 'integer', 'min:1', 'max:50'],
+            'step' => ['required', 'integer', 'min:1', 'max:100'],
         ]);
 
         /** @var User $user */
@@ -63,6 +63,7 @@ final class OnboardingWebController extends Controller
             'onboarding_completed' => true,
             'onboarding_completed_at' => now(),
             'onboarding_current_step' => 1,
+            'onboarding_version' => 3,
         ]);
 
         if ($request->wantsJson() || $request->ajax()) {
@@ -87,6 +88,7 @@ final class OnboardingWebController extends Controller
             'onboarding_completed' => false,
             'onboarding_completed_at' => null,
             'onboarding_current_step' => 1,
+            'onboarding_version' => 3,
         ]);
 
         if ($request->wantsJson() || $request->ajax()) {

@@ -9,8 +9,11 @@ use App\Models\Business;
 use App\Models\BusinessMembership;
 use App\Models\BusinessSubscription;
 use App\Models\Material;
+use App\Models\MaterialCategory;
+use App\Models\Location;
 use App\Models\Product;
 use App\Models\Role;
+use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\User;
 use App\Support\Context;
@@ -18,6 +21,7 @@ use Database\Seeders\RbacSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\TestCase;
 
 final class ProductAndRecipeImportTest extends TestCase
@@ -58,6 +62,21 @@ final class ProductAndRecipeImportTest extends TestCase
         Unit::firstOrCreate(['code' => 'cup'], ['name' => 'Cup', 'category' => 'quantity', 'is_base' => false]);
         Unit::firstOrCreate(['code' => 'gram'], ['name' => 'Gram', 'category' => 'weight', 'is_base' => false]);
         Unit::firstOrCreate(['code' => 'ml'], ['name' => 'Mililiter', 'category' => 'volume', 'is_base' => false]);
+
+        foreach (['Dairy', 'Pemanis', 'Lainnya'] as $name) {
+            MaterialCategory::create([
+                'business_id' => $this->business->id,
+                'name' => $name,
+                'slug' => Str::slug($name),
+            ]);
+        }
+        foreach (['PT Susu Enak', 'UD Gula Manis', 'Supplier A'] as $name) {
+            Supplier::create([
+                'business_id' => $this->business->id,
+                'name' => $name,
+                'slug' => Str::slug($name),
+            ]);
+        }
     }
 
     private function activateCoreSubscription(): void
@@ -87,6 +106,29 @@ final class ProductAndRecipeImportTest extends TestCase
         $matXlsx->assertStatus(200);
         $this->assertStringContainsString('spreadsheetml.sheet', (string) $matXlsx->headers->get('Content-Type'));
 
+        $path = tempnam(sys_get_temp_dir(), 'cooca-material-template-');
+        file_put_contents($path, $matXlsx->streamedContent());
+        $workbook = IOFactory::load($path);
+        unlink($path);
+        $this->assertSame(['Template Bahan Baku', 'MASTER_CATEGORY', 'MASTER_UOM', 'MASTER_SUPPLIER'], $workbook->getSheetNames());
+        $this->assertSame('hidden', $workbook->getSheetByName('MASTER_CATEGORY')->getSheetState());
+        $this->assertSame('Dairy', $workbook->getSheetByName('MASTER_CATEGORY')->getCell('C2')->getValue());
+        $this->assertSame([
+            'Nama Bahan Baku *', 'Kode / SKU', 'Kategori Bahan *', 'Satuan Dasar *',
+            'Harga Beli Standar', 'Nama Pemasok / Supplier', 'Deskripsi / Catatan',
+        ], $workbook->getSheetByName('Template Bahan Baku')->rangeToArray('A1:G1')[0]);
+        $this->assertStringNotContainsString('category_id', strtolower(implode(',', $workbook->getSheetByName('Template Bahan Baku')->rangeToArray('A1:G1')[0])));
+        $this->assertCount(1, $workbook->getSheetByName('Template Bahan Baku')->getTableCollection());
+        $tableCollection = $workbook->getSheetByName('Template Bahan Baku')->getTableCollection();
+        $materialTable = $tableCollection->getIterator()->current();
+        $this->assertSame('A1:G1001', $materialTable->getRange());
+        $this->assertTrue($materialTable->getStyle()->getShowRowStripes());
+        $this->assertCount(3, $workbook->getSheetByName('Template Bahan Baku')->getDataValidationCollection());
+        $this->assertStringContainsString('CategoryNames', $workbook->getSheetByName('Template Bahan Baku')->getDataValidation('C2')->getFormula1());
+        $this->assertStringContainsString('UomNames', $workbook->getSheetByName('Template Bahan Baku')->getDataValidation('D2')->getFormula1());
+        $this->assertStringContainsString('SupplierNames', $workbook->getSheetByName('Template Bahan Baku')->getDataValidation('F2')->getFormula1());
+        $this->assertTrue($workbook->getSheetByName('Template Bahan Baku')->getDataValidation('C2')->getShowDropDown());
+
         $matCsv = $this->actingAs($this->owner)->get(route('import.materials.template', ['format' => 'csv']));
         $matCsv->assertStatus(200);
         $this->assertStringContainsString('text/csv', (string) $matCsv->headers->get('Content-Type'));
@@ -96,6 +138,20 @@ final class ProductAndRecipeImportTest extends TestCase
         $responseXlsx->assertStatus(200);
         $this->assertStringContainsString('spreadsheetml.sheet', (string) $responseXlsx->headers->get('Content-Type'));
 
+        $productPath = tempnam(sys_get_temp_dir(), 'cooca-product-template-');
+        file_put_contents($productPath, $responseXlsx->streamedContent());
+        $productWorkbook = IOFactory::load($productPath);
+        unlink($productPath);
+        $productSheet = $productWorkbook->getSheetByName('Template Produk');
+        $this->assertSame('A1:I1001', $productSheet->getTableCollection()->getIterator()->current()->getRange());
+        $this->assertTrue($productSheet->getTableCollection()->getIterator()->current()->getStyle()->getShowRowStripes());
+        $this->assertSame('hidden', $productWorkbook->getSheetByName('MASTER_PRODUCT_CATEGORY')->getSheetState());
+        $this->assertSame('hidden', $productWorkbook->getSheetByName('MASTER_UOM')->getSheetState());
+        $this->assertStringContainsString('ProductCategoryNames', $productSheet->getDataValidation('C2')->getFormula1());
+        $this->assertStringContainsString('ProductUomNames', $productSheet->getDataValidation('D2')->getFormula1());
+        $this->assertTrue($productSheet->getDataValidation('C2')->getShowDropDown());
+        $this->assertTrue($productSheet->getDataValidation('D2')->getShowDropDown());
+
         // Product CSV template
         $responseCsv = $this->actingAs($this->owner)->get(route('import.products.template', ['format' => 'csv']));
         $responseCsv->assertStatus(200);
@@ -104,10 +160,99 @@ final class ProductAndRecipeImportTest extends TestCase
         // Recipe Excel template
         $recipeXlsx = $this->actingAs($this->owner)->get(route('import.recipes.template', ['format' => 'xlsx']));
         $recipeXlsx->assertStatus(200);
+        $recipePath = tempnam(sys_get_temp_dir(), 'cooca-recipe-template-');
+        file_put_contents($recipePath, $recipeXlsx->streamedContent());
+        $recipeWorkbook = IOFactory::load($recipePath);
+        unlink($recipePath);
+        $recipeSheet = $recipeWorkbook->getSheetByName('Template Resep BOM');
+        $recipeTable = $recipeSheet->getTableCollection()->getIterator()->current();
+        $this->assertSame('A1:F1001', $recipeTable->getRange());
+        $this->assertTrue($recipeTable->getStyle()->getShowRowStripes());
+        $this->assertSame('hidden', $recipeWorkbook->getSheetByName('MASTER_PRODUCT')->getSheetState());
+        $this->assertSame('hidden', $recipeWorkbook->getSheetByName('MASTER_MATERIAL')->getSheetState());
+        $this->assertSame('hidden', $recipeWorkbook->getSheetByName('MASTER_UOM')->getSheetState());
+        $this->assertStringContainsString('RecipeProductNames', $recipeSheet->getDataValidation('A2')->getFormula1());
+        $this->assertStringContainsString('RecipeMaterialNames', $recipeSheet->getDataValidation('B2')->getFormula1());
+        $this->assertStringContainsString('RecipeUomNames', $recipeSheet->getDataValidation('D2')->getFormula1());
 
         // Recipe CSV template
         $recipeCsv = $this->actingAs($this->owner)->get(route('import.recipes.template', ['format' => 'csv']));
         $recipeCsv->assertStatus(200);
+
+        // Inventory Excel template
+        $inventoryXlsx = $this->actingAs($this->owner)->get(route('import.inventory.template', ['format' => 'xlsx']));
+        $inventoryXlsx->assertStatus(200);
+        $inventoryPath = tempnam(sys_get_temp_dir(), 'cooca-inventory-template-');
+        file_put_contents($inventoryPath, $inventoryXlsx->streamedContent());
+        $inventoryWorkbook = IOFactory::load($inventoryPath);
+        unlink($inventoryPath);
+        $inventorySheet = $inventoryWorkbook->getSheetByName('Template Stok Awal');
+        $inventoryTable = $inventorySheet->getTableCollection()->getIterator()->current();
+        $this->assertSame('A1:G1001', $inventoryTable->getRange());
+        $this->assertTrue($inventoryTable->getStyle()->getShowRowStripes());
+        $this->assertStringContainsString('InventoryLocationNames', $inventorySheet->getDataValidation('C2')->getFormula1());
+        $this->assertStringContainsString('InventoryUomNames', $inventorySheet->getDataValidation('E2')->getFormula1());
+        $this->assertSame('hidden', $inventoryWorkbook->getSheetByName('MASTER_LOCATION')->getSheetState());
+        $this->assertSame('hidden', $inventoryWorkbook->getSheetByName('MASTER_UOM')->getSheetState());
+    }
+
+    public function test_material_preview_rejects_unknown_master_labels(): void
+    {
+        $this->activateCoreSubscription();
+        $csvContent = implode("\n", [
+            'Nama Bahan Baku,Kode / SKU,Kategori Bahan,Satuan Dasar,Harga Beli Standar,Nama Pemasok / Supplier,Deskripsi / Catatan',
+            'Bahan Invalid,MAT-INVALID,Dairy,kilo,100,Unknown Supplier,Invalid master values',
+        ]);
+
+        $response = $this->actingAs($this->owner)->postJson(route('import.materials.preview'), [
+            'file' => UploadedFile::fake()->createWithContent('invalid-material.csv', $csvContent),
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.error_count', 1)
+            ->assertJsonPath('data.rows.0.status', 'error');
+        $response->assertJsonFragment(['Satuan "kilo" tidak ditemukan pada Master UOM. Silakan pilih satuan yang tersedia atau tambahkan UOM terlebih dahulu.']);
+        $response->assertJsonFragment(['Supplier "Unknown Supplier" tidak ditemukan pada Master Supplier. Silakan buat Supplier terlebih dahulu.']);
+    }
+
+    public function test_inventory_template_contains_all_materials_and_location_dropdown(): void
+    {
+        $unit = Unit::where('code', 'gram')->firstOrFail();
+        Material::create([
+            'business_id' => $this->business->id,
+            'name' => 'Biji Kopi',
+            'slug' => 'biji-kopi',
+            'code' => 'MAT-KOPI',
+            'unit_id' => $unit->id,
+        ]);
+        Material::create([
+            'business_id' => $this->business->id,
+            'name' => 'Susu Segar',
+            'slug' => 'susu-segar',
+            'code' => 'MAT-SUSU',
+            'unit_id' => $unit->id,
+        ]);
+        Location::create([
+            'business_id' => $this->business->id,
+            'name' => 'Gudang Utama',
+            'slug' => 'gudang-utama',
+            'code' => 'GDG-01',
+            'type' => 'warehouse',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->owner)->get(route('import.inventory.template', ['format' => 'xlsx']));
+        $path = tempnam(sys_get_temp_dir(), 'cooca-inventory-template-');
+        file_put_contents($path, $response->streamedContent());
+        $workbook = IOFactory::load($path);
+        unlink($path);
+
+        $sheet = $workbook->getSheetByName('Template Stok Awal');
+        $rows = $sheet->rangeToArray('A2:G3');
+        $this->assertSame(['Biji Kopi', 'MAT-KOPI'], [$rows[0][0], $rows[0][1]]);
+        $this->assertSame(['Susu Segar', 'MAT-SUSU'], [$rows[1][0], $rows[1][1]]);
+        $this->assertNull($rows[0][3]);
+        $this->assertStringContainsString('InventoryLocationNames', $sheet->getDataValidation('C2')->getFormula1());
     }
 
     public function test_pro_user_can_preview_and_execute_material_import(): void
@@ -170,7 +315,29 @@ final class ProductAndRecipeImportTest extends TestCase
             'business_id' => $this->business->id,
             'name' => 'Gula Cair Fruktosa',
             'code' => 'MAT-GUL-01',
+            'category_id' => MaterialCategory::where('business_id', $this->business->id)->where('name', 'Pemanis')->value('id'),
+            'unit_id' => Unit::where('code', 'ml')->value('id'),
+            'supplier_id' => Supplier::where('business_id', $this->business->id)->where('name', 'UD Gula Manis')->value('id'),
         ]);
+    }
+
+    public function test_new_master_data_appears_in_next_material_template(): void
+    {
+        MaterialCategory::create([
+            'business_id' => $this->business->id,
+            'name' => 'Kategori Baru',
+            'slug' => 'kategori-baru',
+        ]);
+
+        $response = $this->actingAs($this->owner)->get(route('import.materials.template', ['format' => 'xlsx']));
+        $path = tempnam(sys_get_temp_dir(), 'cooca-material-template-');
+        file_put_contents($path, $response->streamedContent());
+        $workbook = IOFactory::load($path);
+        unlink($path);
+
+        $categorySheet = $workbook->getSheetByName('MASTER_CATEGORY');
+        $categoryNames = array_column($categorySheet->toArray(), 2);
+        $this->assertContains('Kategori Baru', $categoryNames);
     }
 
     public function test_free_tier_cannot_preview_or_execute_import_due_to_entitlement(): void

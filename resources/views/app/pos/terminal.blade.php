@@ -571,6 +571,11 @@
                                 @endforeach
                             </select>
                         </div>
+                        <button type="button" @click="openCustomerModal()"
+                                class="shrink-0 w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 transition flex items-center justify-center"
+                                title="Tambah pelanggan cepat" aria-label="Tambah pelanggan cepat">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        </button>
                         <select x-model="orderType" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none cursor-pointer">
                             <option value="takeaway">Bungkus</option>
                             <option value="dine_in">Makan di Tempat</option>
@@ -636,6 +641,21 @@
                         <div class="flex justify-between text-slate-400">
                             <span>Subtotal</span>
                             <span class="font-mono font-medium text-slate-200" x-text="formatRupiah(subtotal)"></span>
+                        </div>
+
+                        <!-- Order Discount: percentage or fixed nominal -->
+                        <div class="flex items-center gap-2 pt-1">
+                            <select x-model="discountType" class="w-28 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-[11px] text-slate-200 focus:outline-none focus:border-emerald-500">
+                                <option value="fixed">Diskon Rp</option>
+                                <option value="percentage">Diskon %</option>
+                            </select>
+                            <input type="number" x-model.number="discountValue" min="0" :max="discountType === 'percentage' ? 100 : subtotal" step="any"
+                                   :placeholder="discountType === 'percentage' ? 'Contoh: 10' : 'Contoh: 10000'"
+                                   class="min-w-0 flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div x-show="orderDiscountAmount > 0" class="flex justify-between text-rose-300">
+                            <span>Diskon Transaksi</span>
+                            <span class="font-mono" x-text="'-' + formatRupiah(orderDiscountAmount)"></span>
                         </div>
 
                         <!-- Voucher / Promo Code -->
@@ -714,6 +734,47 @@
             <i data-lucide="credit-card" class="w-4 h-4"></i>
             <span>Bayar</span>
         </button>
+    </div>
+
+    <!-- MODAL: Quick Customer -->
+    <div x-show="showCustomerModal" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+         @keydown.escape.window="showCustomerModal = false">
+        <div class="pos-modal-panel w-full max-w-sm glass-panel rounded-2xl border border-slate-700 p-5 space-y-4"
+             @click.outside="showCustomerModal = false">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div>
+                    <h3 class="font-extrabold text-base text-white">Tambah Pelanggan Cepat</h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Simpan nama dan nomor HP tanpa meninggalkan kasir.</p>
+                </div>
+                <button type="button" @click="showCustomerModal = false" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form @submit.prevent="createQuickCustomer" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Nama Pelanggan *</label>
+                    <input x-ref="quickCustomerName" type="text" x-model="newCustomer.name" required maxlength="255"
+                           placeholder="Contoh: Budi Santoso"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Nomor HP *</label>
+                    <input type="tel" x-model="newCustomer.phone" required maxlength="50" inputmode="tel"
+                           placeholder="08xxxxxxxxxx"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <p x-show="customerFormError" x-text="customerFormError" class="text-xs text-rose-300"></p>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                    <button type="button" @click="showCustomerModal = false" class="px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-semibold text-xs hover:bg-slate-800">Batal</button>
+                    <button type="submit" :disabled="isCreatingCustomer"
+                            class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs disabled:opacity-50">
+                        <span x-text="isCreatingCustomer ? 'Menyimpan...' : 'Simpan Pelanggan'"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- MODAL 1: Payment Modal (Split Payment Ready!) -->
@@ -986,6 +1047,8 @@
                 orderType: 'takeaway',
                 voucherCode: '',
                 voucherDiscount: 0,
+                discountType: 'fixed',
+                discountValue: 0,
                 redeemPoints: false,
                 pointsDiscount: 0,
 
@@ -996,6 +1059,7 @@
                 showCloseShiftModal: false,
                 showHeldOrdersModal: false,
                 showCashMovementModal: false,
+                showCustomerModal: false,
                 mobileCartOpen: false,
 
                 // Payment state
@@ -1016,6 +1080,9 @@
                 cashMovementType: 'cash_in',
                 cashMovementAmount: 50000,
                 cashMovementReason: '',
+                newCustomer: { name: '', phone: '' },
+                customerFormError: '',
+                isCreatingCustomer: false,
 
                 initPos() {
                     this.filteredProducts = this.allProducts;
@@ -1099,6 +1166,8 @@
                 clearCart() {
                     if (confirm('Kosongkan semua item di keranjang?')) {
                         this.cart = [];
+                        this.discountValue = 0;
+                        this.discountType = 'fixed';
                         this.voucherDiscount = 0;
                         this.pointsDiscount = 0;
                         this.redeemPoints = false;
@@ -1109,9 +1178,16 @@
                     return this.cart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
                 },
 
+                get orderDiscountAmount() {
+                    const value = Math.max(0, Number(this.discountValue || 0));
+                    return this.discountType === 'percentage'
+                        ? Math.min(this.subtotal, (this.subtotal * Math.min(100, value)) / 100)
+                        : Math.min(this.subtotal, value);
+                },
+
                 get taxAmount() {
                     @if($business->pos_enable_tax)
-                        return (this.subtotal - this.voucherDiscount - this.pointsDiscount) * ({{ (float) $business->pos_tax_percent }} / 100);
+                        return Math.max(0, this.subtotal - this.orderDiscountAmount - this.voucherDiscount - this.pointsDiscount) * ({{ (float) $business->pos_tax_percent }} / 100);
                     @else
                         return 0;
                     @endif
@@ -1119,14 +1195,14 @@
 
                 get serviceChargeAmount() {
                     @if($business->pos_enable_service_charge)
-                        return (this.subtotal - this.voucherDiscount - this.pointsDiscount) * ({{ (float) $business->pos_service_charge_percent }} / 100);
+                        return Math.max(0, this.subtotal - this.orderDiscountAmount - this.voucherDiscount - this.pointsDiscount) * ({{ (float) $business->pos_service_charge_percent }} / 100);
                     @else
                         return 0;
                     @endif
                 },
 
                 get grandTotal() {
-                    const raw = this.subtotal - this.voucherDiscount - this.pointsDiscount + this.taxAmount + this.serviceChargeAmount;
+                    const raw = this.subtotal - this.orderDiscountAmount - this.voucherDiscount - this.pointsDiscount + this.taxAmount + this.serviceChargeAmount;
                     return Math.max(0, Math.round(raw));
                 },
 
@@ -1138,6 +1214,49 @@
                     this.activeCustomer = this.customers.find(c => c.id === this.selectedCustomerId) || null;
                     this.redeemPoints = false;
                     this.pointsDiscount = 0;
+                },
+
+                openCustomerModal() {
+                    this.customerFormError = '';
+                    this.newCustomer = { name: '', phone: '' };
+                    this.showCustomerModal = true;
+                    this.$nextTick(() => this.$refs.quickCustomerName?.focus());
+                },
+
+                async createQuickCustomer() {
+                    this.customerFormError = '';
+                    this.isCreatingCustomer = true;
+
+                    try {
+                        const response = await fetch('{{ route('customers.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify(this.newCustomer)
+                        });
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            const validationMessage = data.errors
+                                ? Object.values(data.errors).flat()[0]
+                                : data.message;
+                            throw new Error(validationMessage || 'Pelanggan gagal disimpan.');
+                        }
+
+                        this.customers.push(data.customer);
+                        this.selectedCustomerId = data.customer.id;
+                        this.onCustomerSelected();
+                        this.showCustomerModal = false;
+                        this.newCustomer = { name: '', phone: '' };
+                    } catch (error) {
+                        this.customerFormError = error.message || 'Pelanggan gagal disimpan.';
+                    } finally {
+                        this.isCreatingCustomer = false;
+                    }
                 },
 
                 togglePointsRedemption() {
@@ -1198,6 +1317,8 @@
                         ],
                         customer_id: this.selectedCustomerId || null,
                         order_type: this.orderType,
+                        discount_type: this.discountType,
+                        discount_value: Number(this.discountValue || 0),
                         voucher_code: this.voucherCode || null,
                         points_to_redeem: this.redeemPoints ? Math.round(this.pointsDiscount / 100) : 0,
                         location_id: this.selectedLocationId
@@ -1224,6 +1345,8 @@
                             this.cart = [];
                             this.voucherCode = '';
                             this.voucherDiscount = 0;
+                            this.discountValue = 0;
+                            this.discountType = 'fixed';
                             this.pointsDiscount = 0;
                             this.redeemPoints = false;
                         } else {

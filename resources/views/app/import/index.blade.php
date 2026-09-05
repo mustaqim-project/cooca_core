@@ -8,7 +8,7 @@
     <div class="max-w-7xl mx-auto space-y-6" x-data="{
         activeTab: '{{ session('active_tab', $activeTab) }}',
         canImport: {{ $canImport ? 'true' : 'false' }},
-    
+
         // Material Import State
         materialFile: null,
         materialFileName: '',
@@ -17,7 +17,7 @@
         materialFilter: 'all',
         materialDuplicateStrategy: 'skip',
         materialExecuting: false,
-    
+
         // Product Import State
         productFile: null,
         productFileName: '',
@@ -26,7 +26,7 @@
         productFilter: 'all',
         productDuplicateStrategy: 'skip',
         productExecuting: false,
-    
+
         // Recipe Import State
         recipeFile: null,
         recipeFileName: '',
@@ -35,7 +35,7 @@
         recipeFilter: 'all',
         recipeDuplicateStrategy: 'skip',
         recipeExecuting: false,
-    
+
         // Inventory Import State
         inventoryFile: null,
         inventoryFileName: '',
@@ -44,7 +44,7 @@
         inventoryFilter: 'all',
         inventoryDuplicateStrategy: 'skip',
         inventoryExecuting: false,
-    
+
         // Material Methods
         handleMaterialFileSelect(event) {
             const file = event.target.files[0];
@@ -54,16 +54,16 @@
                 this.uploadAndPreviewMaterial();
             }
         },
-    
+
         uploadAndPreviewMaterial() {
             if (!this.canImport) return;
             if (!this.materialFile) return;
-    
+
             this.materialLoading = true;
             const formData = new FormData();
             formData.append('file', this.materialFile);
             formData.append('_token', '{{ csrf_token() }}');
-    
+
             fetch('{{ route('import.materials.preview') }}', {
                     method: 'POST',
                     body: formData,
@@ -91,17 +91,17 @@
                     alert(err.message || 'Terjadi kesalahan saat mengunggah file.');
                 });
         },
-    
+
         executeMaterialImport() {
             if (!this.materialPreview || !this.materialPreview.rows || this.materialPreview.rows.length === 0) {
                 alert('Tidak ada data bahan baku yang siap diimport.');
                 return;
             }
-    
+
             if (!confirm('Apakah Anda yakin ingin memproses import bahan baku ini ke database bisnis?')) {
                 return;
             }
-    
+
             this.materialExecuting = true;
             fetch('{{ route('import.materials.execute') }}', {
                     method: 'POST',
@@ -130,7 +130,7 @@
                     alert('Terjadi kesalahan saat mengeksekusi import bahan baku.');
                 });
         },
-    
+
         // Product Methods
         handleProductFileSelect(event) {
             const file = event.target.files[0];
@@ -140,16 +140,16 @@
                 this.uploadAndPreviewProduct();
             }
         },
-    
+
         uploadAndPreviewProduct() {
             if (!this.canImport) return;
             if (!this.productFile) return;
-    
+
             this.productLoading = true;
             const formData = new FormData();
             formData.append('file', this.productFile);
             formData.append('_token', '{{ csrf_token() }}');
-    
+
             fetch('{{ route('import.products.preview') }}', {
                     method: 'POST',
                     body: formData,
@@ -177,17 +177,17 @@
                     alert(err.message || 'Terjadi kesalahan saat mengunggah file.');
                 });
         },
-    
+
         executeProductImport() {
             if (!this.productPreview || !this.productPreview.rows || this.productPreview.rows.length === 0) {
                 alert('Tidak ada data yang siap diimport.');
                 return;
             }
-    
+
             if (!confirm('Apakah Anda yakin ingin memproses import produk ini ke database bisnis?')) {
                 return;
             }
-    
+
             this.productExecuting = true;
             fetch('{{ route('import.products.execute') }}', {
                     method: 'POST',
@@ -216,7 +216,7 @@
                     alert('Terjadi kesalahan saat mengeksekusi import.');
                 });
         },
-    
+
         // Recipe Methods
         handleRecipeFileSelect(event) {
             const file = event.target.files[0];
@@ -226,16 +226,16 @@
                 this.uploadAndPreviewRecipe();
             }
         },
-    
+
         uploadAndPreviewRecipe() {
             if (!this.canImport) return;
             if (!this.recipeFile) return;
-    
+
             this.recipeLoading = true;
             const formData = new FormData();
             formData.append('file', this.recipeFile);
             formData.append('_token', '{{ csrf_token() }}');
-    
+
             fetch('{{ route('import.recipes.preview') }}', {
                     method: 'POST',
                     body: formData,
@@ -263,17 +263,17 @@
                     alert(err.message || 'Terjadi kesalahan saat mengunggah file.');
                 });
         },
-    
+
         executeRecipeImport() {
             if (!this.recipePreview || !this.recipePreview.rows || this.recipePreview.rows.length === 0) {
                 alert('Tidak ada data resep yang siap diimport.');
                 return;
             }
-    
+
             if (!confirm('Apakah Anda yakin ingin memproses import resep / BOM ini ke database bisnis?')) {
                 return;
             }
-    
+
             this.recipeExecuting = true;
             fetch('{{ route('import.recipes.execute') }}', {
                     method: 'POST',
@@ -302,7 +302,7 @@
                     alert('Terjadi kesalahan saat mengeksekusi import resep.');
                 });
         },
-    
+
         // Inventory Methods
         handleInventoryFileSelect(event) {
             const file = event.target.files[0];
@@ -312,16 +312,16 @@
                 this.uploadAndPreviewInventory();
             }
         },
-    
+
         uploadAndPreviewInventory() {
             if (!this.canImport) return;
             if (!this.inventoryFile) return;
-    
+
             this.inventoryLoading = true;
             const formData = new FormData();
             formData.append('file', this.inventoryFile);
             formData.append('_token', '{{ csrf_token() }}');
-    
+
             fetch('{{ route('import.inventory.preview') }}', {
                     method: 'POST',
                     body: formData,
@@ -349,17 +349,17 @@
                     alert(err.message || 'Terjadi kesalahan saat mengunggah file.');
                 });
         },
-    
+
         executeInventoryImport() {
             if (!this.inventoryPreview || !this.inventoryPreview.rows || this.inventoryPreview.rows.length === 0) {
                 alert('Tidak ada data saldo stok yang siap diimport.');
                 return;
             }
-    
+
             if (!confirm('Apakah Anda yakin ingin mencatat saldo stok ini ke dalam sistem inventori? Proses ini TIDAK dapat diurungkan.')) {
                 return;
             }
-    
+
             this.inventoryExecuting = true;
             fetch('{{ route('import.inventory.execute') }}', {
                     method: 'POST',
@@ -764,7 +764,7 @@
                             Batal
                         </button>
 
-                        <button type="button" @click="executeMaterialImport()" :disabled="materialExecuting"
+                        <button type="button" @click="executeMaterialImport()" :disabled="materialExecuting || (materialPreview && materialPreview.error_count > 0)"
                             class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
                             <template x-if="materialExecuting">
                                 <div

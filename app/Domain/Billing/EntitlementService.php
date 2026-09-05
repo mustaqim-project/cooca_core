@@ -60,6 +60,11 @@ final class EntitlementService
      */
     public function getMonthlyPrice(): float
     {
+        $setting = SystemSetting::get('subscription_price_monthly');
+        if ($setting !== null && is_numeric($setting)) {
+            return (float) $setting;
+        }
+
         $pkgPrice = BillingPackage::where('type', BillingPackage::TYPE_SUBSCRIPTION)
             ->where('is_active', true)
             ->where(function ($q) {
@@ -73,9 +78,7 @@ final class EntitlementService
             return (float) $pkgPrice;
         }
 
-        $val = SystemSetting::get('subscription_price_monthly');
-
-        return $val !== null && is_numeric($val) ? (float) $val : self::DEFAULT_MONTHLY_PRICE;
+        return self::DEFAULT_MONTHLY_PRICE;
     }
 
     /**
@@ -83,6 +86,11 @@ final class EntitlementService
      */
     public function getAnnualPrice(): float
     {
+        $setting = SystemSetting::get('subscription_price_annual');
+        if ($setting !== null && is_numeric($setting)) {
+            return (float) $setting;
+        }
+
         $pkgPrice = BillingPackage::where('type', BillingPackage::TYPE_SUBSCRIPTION)
             ->where('is_active', true)
             ->where(function ($q) {
@@ -96,9 +104,7 @@ final class EntitlementService
             return (float) $pkgPrice;
         }
 
-        $val = SystemSetting::get('subscription_price_annual');
-
-        return $val !== null && is_numeric($val) ? (float) $val : self::DEFAULT_ANNUAL_PRICE;
+        return self::DEFAULT_ANNUAL_PRICE;
     }
 
     /**
@@ -106,7 +112,9 @@ final class EntitlementService
      */
     public function getCoreMonthlyAiTokens(): int
     {
-        return 0;
+        $value = SystemSetting::get('subscription_ai_tokens_monthly');
+
+        return $value !== null && is_numeric($value) ? (int) $value : self::DEFAULT_CORE_AI_MONTHLY_TOKENS;
     }
 
     /**

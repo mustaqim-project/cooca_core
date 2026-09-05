@@ -12,6 +12,7 @@ use App\Models\Location;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 final class SettingWebController extends Controller
@@ -27,13 +28,18 @@ final class SettingWebController extends Controller
 
         $templates = BusinessTypeTemplate::all();
         $currencies = Currency::all();
-        $locations = Location::latest()->get();
+        $locations = Location::where('business_id', $business->id)->latest()->get();
         $members = $business->memberships()->with('user')->get();
         $suppliers = \App\Models\Supplier::where('business_id', $business->id)->latest()->get();
         $materialCategories = \App\Models\MaterialCategory::where('business_id', $business->id)->latest()->get();
         $productCategories = \App\Models\ProductCategory::where('business_id', $business->id)->latest()->get();
         $customUnits = \App\Models\Unit::where('business_id', $business->id)->latest()->get();
         $systemUnits = \App\Models\Unit::whereNull('business_id')->orderBy('name')->get();
+        $availableUnits = $systemUnits->concat($customUnits);
+        $unitConversions = \App\Models\UnitConversion::where('business_id', $business->id)
+            ->with(['fromUnit', 'toUnit'])
+            ->latest()->get();
+
         $canAddMember = app(\App\Domain\Billing\EntitlementService::class)->canAddMember($business);
         $roles = \App\Models\Role::whereNull('business_id')
             ->orWhere('business_id', $business->id)
@@ -43,7 +49,8 @@ final class SettingWebController extends Controller
 
         return view('app.settings.index', compact(
             'business', 'templates', 'currencies', 'locations', 'members',
-            'suppliers', 'materialCategories', 'productCategories', 'customUnits', 'systemUnits', 'canAddMember', 'roles'
+            'suppliers', 'materialCategories', 'productCategories', 'customUnits', 'systemUnits', 'availableUnits',
+            'unitConversions', 'canAddMember', 'roles'
         ));
     }
 
@@ -62,6 +69,8 @@ final class SettingWebController extends Controller
             'email' => ['nullable', 'email', 'max:150'],
             'address' => ['nullable', 'string', 'max:500'],
             'tax_identification_number' => ['nullable', 'string', 'max:50'],
+            'pos_enable_tax' => ['nullable', 'boolean'],
+            'pos_tax_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'bank_name' => ['nullable', 'string', 'max:100'],
             'bank_account_number' => ['nullable', 'string', 'max:100'],
             'bank_account_holder' => ['nullable', 'string', 'max:150'],
@@ -76,6 +85,8 @@ final class SettingWebController extends Controller
             'email' => $validated['email'] ?? null,
             'address' => $validated['address'] ?? null,
             'tax_identification_number' => $validated['tax_identification_number'] ?? null,
+            'pos_enable_tax' => $request->boolean('pos_enable_tax'),
+            'pos_tax_percent' => (float) ($validated['pos_tax_percent'] ?? $business->pos_tax_percent ?? 0),
             'bank_name' => $validated['bank_name'] ?? null,
             'bank_account_number' => $validated['bank_account_number'] ?? null,
             'bank_account_holder' => $validated['bank_account_holder'] ?? null,

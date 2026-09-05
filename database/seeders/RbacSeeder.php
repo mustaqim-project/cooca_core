@@ -90,6 +90,16 @@ final class RbacSeeder extends Seeder
             'settings.view'               => ['Lihat Pengaturan Bisnis',                'settings',    'Melihat halaman pengaturan bisnis.'],
             'settings.edit'               => ['Edit Pengaturan Bisnis',                 'settings',    'Mengubah identitas, logo, cabang, dan konfigurasi umum bisnis.'],
 
+            // ─── Master Data CMS ─────────────────────────────────────
+            'master_data.suppliers.view'             => ['Lihat Supplier',           'master_data', 'Melihat daftar supplier bisnis.'],
+            'master_data.suppliers.manage'           => ['Kelola Supplier',          'master_data', 'Menambah, mengubah, dan menghapus supplier bisnis.'],
+            'master_data.material_categories.view'   => ['Lihat Kategori Bahan',     'master_data', 'Melihat kategori bahan baku bisnis.'],
+            'master_data.material_categories.manage' => ['Kelola Kategori Bahan',    'master_data', 'Menambah, mengubah, dan menghapus kategori bahan baku.'],
+            'master_data.product_categories.view'    => ['Lihat Kategori Produk',    'master_data', 'Melihat kategori produk bisnis.'],
+            'master_data.product_categories.manage'  => ['Kelola Kategori Produk',   'master_data', 'Menambah, mengubah, dan menghapus kategori produk.'],
+            'master_data.units.view'                 => ['Lihat Satuan Ukur',        'master_data', 'Melihat satuan sistem dan satuan bisnis.'],
+            'master_data.units.manage'               => ['Kelola Satuan Ukur',       'master_data', 'Menambah, mengubah, menghapus, dan mengatur konversi satuan.'],
+
             // ─── User / Member Management ─────────────────────────────
             'users.view'                  => ['Lihat Anggota Tim',                      'members',     'Melihat daftar anggota tim bisnis.'],
             'users.manage'                => ['Kelola Anggota & Undang Karyawan',       'members',     'Mengundang, edit role, dan hapus karyawan dari workspace.'],
@@ -150,6 +160,10 @@ final class RbacSeeder extends Seeder
             'accounting.view',
             'reports.view', 'reports.financial', 'reports.export', 'reports.costing',
             'settings.view',
+            'master_data.suppliers.view', 'master_data.suppliers.manage',
+            'master_data.material_categories.view', 'master_data.material_categories.manage',
+            'master_data.product_categories.view', 'master_data.product_categories.manage',
+            'master_data.units.view', 'master_data.units.manage',
             'users.view',
             'labor_machines.view', 'labor_machines.manage',
             'ai.access',

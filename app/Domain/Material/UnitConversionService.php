@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Material;
 
+use App\Models\MaterialUnitConversion;
 use App\Models\Unit;
 use App\Models\UnitConversion;
+use App\Support\Context;
 use InvalidArgumentException;
 use SplQueue;
 
@@ -16,7 +18,7 @@ final class UnitConversionService
      *
      * @throws InvalidArgumentException
      */
-    public function convert(float $qty, Unit|string $from, Unit|string $to): float
+    public function convert(float $qty, Unit|string $from, Unit|string $to, ?string $materialId = null, ?string $supplierId = null): float
     {
         $fromUnit = $this->resolveUnit($from);
         $toUnit = $this->resolveUnit($to);
@@ -24,6 +26,11 @@ final class UnitConversionService
         // Identical unit
         if ($fromUnit->id === $toUnit->id) {
             return $qty;
+        }
+
+        $materialSpecificFactor = $this->resolveMaterialSpecificFactor($fromUnit, $toUnit, $materialId, $supplierId);
+        if ($materialSpecificFactor !== null) {
+            return $qty * $materialSpecificFactor;
         }
 
         // Fetch all available conversions (system default + current business)
@@ -109,5 +116,45 @@ final class UnitConversionService
         }
 
         return $resolved;
+    }
+
+    /**
+     * Resolve a material/supplier-specific conversion prior to falling back to the global graph.
+     */
+    private function resolveMaterialSpecificFactor(Unit $fromUnit, Unit $toUnit, ?string $materialId = null, ?string $supplierId = null): ?float
+    {
+        if ($materialId === null) {
+            return null;
+        }
+
+        $businessId = Context::hasBusiness() ? Context::business()?->id : null;
+
+        $query = MaterialUnitConversion::query()
+            ->where('material_id', $materialId)
+            ->where('from_unit_id', $fromUnit->id)
+            ->where('to_unit_id', $toUnit->id);
+
+        if ($businessId !== null) {
+            $query->where('business_id', $businessId);
+        }
+
+        if ($supplierId !== null) {
+            $query->where(function ($subQuery) use ($supplierId): void {
+                $subQuery->where('supplier_id', $supplierId)
+                    ->orWhereNull('supplier_id');
+            });
+        }
+
+        $row = $query
+            ->orderByRaw('supplier_id IS NULL')
+            ->orderByDesc('is_default')
+            ->orderByDesc('effective_from')
+            ->first();
+
+        if ($row === null) {
+            return null;
+        }
+
+        return (float) $row->factor;
     }
 }

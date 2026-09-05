@@ -61,7 +61,7 @@ final class PosTerminalWebController extends Controller
         // 4. Products with Selling Price and Effective Stock (Material Master)
         $products = Product::where('business_id', $business->id)
             ->where('is_active', true)
-            ->with(['category', 'outputUnit', 'costModels.latestResult'])
+            ->with(['category', 'outputUnit', 'costModels.costingRuns.result'])
             ->get()
             ->map(function ($p) use ($selectedLocationId) {
                 // Effective stock dihitung dari Material master stock (via BOM/direct material).

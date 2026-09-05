@@ -226,13 +226,14 @@
                             class="w-32 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-right font-mono text-white focus:outline-none focus:border-rose-500">
                     </div>
                     <div class="flex justify-between items-center gap-2 text-slate-400">
-                        <span>Pajak PPN (Rp):</span>
-                        <input type="number" name="tax_amount"
-                            x-model.number="taxAmount"
+                        <span>Pajak (%):</span>
+                        <input type="number" name="tax_percentage"
+                            x-model.number="taxPercentage"
                             @input="calculateTotals()"
-                            min="0"
+                            min="0" max="100" step="0.01"
                             class="w-32 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-right font-mono text-white focus:outline-none focus:border-emerald-500">
                     </div>
+                    <input type="hidden" name="tax_amount" :value="taxAmount">
                     <div class="pt-2 border-t border-slate-800 flex justify-between text-base font-black text-white">
                         <span>Total Pesanan:</span>
                         <span class="font-mono text-cyan-400 text-lg" x-text="'Rp ' + grandTotal.toLocaleString('id-ID')"></span>
@@ -289,6 +290,7 @@
             ],
             subtotal: 0,
             discountAmount: 0,
+            taxPercentage: {{ $business->pos_enable_tax ? (float) $business->pos_tax_percent : 0 }},
             taxAmount: 0,
             grandTotal: 0,
 
@@ -314,7 +316,7 @@
                 // Auto-fill customer
                 this.customerId = String(q.customer_id);
 
-                // Auto-fill discount & tax
+                // Auto-fill discount and preserve quotation tax as a percentage when possible.
                 this.discountAmount = q.discount || 0;
                 this.taxAmount = q.tax || 0;
 
@@ -374,7 +376,9 @@
                 this.subtotal = this.items.reduce((sum, it) => {
                     return sum + Math.max(0, ((it.quantity || 0) * (it.unit_price || 0)) - (it.discount_amount || 0));
                 }, 0);
-                this.grandTotal = Math.max(0, (this.subtotal - (this.discountAmount || 0)) + (this.taxAmount || 0));
+                const taxableAmount = Math.max(0, this.subtotal - (this.discountAmount || 0));
+                this.taxAmount = taxableAmount * (Math.max(0, Number(this.taxPercentage || 0)) / 100);
+                this.grandTotal = Math.max(0, taxableAmount + this.taxAmount);
             }
         };
     }

@@ -165,6 +165,12 @@
                     <span class="font-mono font-bold">- Rp {{ number_format($salesOrder->discount_amount, 0, ',', '.') }}</span>
                 </div>
                 @endif
+                @if($salesOrder->tax_amount > 0)
+                <div class="flex justify-between text-amber-300">
+                    <span>Pajak ({{ number_format($salesOrder->tax_percentage, 2) }}%):</span>
+                    <span class="font-mono font-bold">+ Rp {{ number_format($salesOrder->tax_amount, 0, ',', '.') }}</span>
+                </div>
+                @endif
                 <div class="pt-2 border-t border-slate-800 flex justify-between text-base font-black text-white">
                     <span>Total Pesanan:</span>
                     <span class="font-mono text-cyan-400">Rp {{ number_format($salesOrder->total_amount, 0, ',', '.') }}</span>

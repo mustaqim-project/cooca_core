@@ -180,9 +180,14 @@
 <body class="h-full bg-slate-950 text-slate-100 antialiased" x-data="{
     sidebarOpen: false,
     comingSoonOpen: false,
-    comingSoonFeature: { title: '', icon: '', desc: '', color: 'purple' },
+    comingSoonFeature: { title: '', icon: 'sparkles', desc: '', color: 'purple' },
     openComingSoon(feature) {
-        this.comingSoonFeature = feature;
+        this.comingSoonFeature = {
+            title: feature?.title || 'Fitur Baru',
+            icon: feature?.icon || 'sparkles',
+            desc: feature?.desc || '',
+            color: feature?.color || 'purple'
+        };
         this.comingSoonOpen = true;
     },
     init() {
@@ -207,7 +212,7 @@
             <!-- Brand Logo -->
             <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800 shrink-0">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                    <div
+                    <div id="tour-active-business"
                         class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                         <i data-lucide="boxes" class="w-5 h-5 text-white"></i>
                     </div>
@@ -250,7 +255,7 @@
                                 <div class="text-sm font-bold text-white truncate">{{ $activeBiz->name }}</div>
                             </div>
                         </div>
-                        <a href="{{ route('businesses.select') }}" title="Ganti Bisnis"
+                        <a href="{{ route('businesses.select') }}" id="tour-switch-business" title="Ganti Bisnis"
                             class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
                             <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
                         </a>
@@ -274,8 +279,12 @@
                 $isPurchasingRoute =
                     request()->routeIs('purchasing.*') ||
                     request()->routeIs('purchase-orders.*') ||
-                    request()->routeIs('purchase.returns.*') ||
-                    request()->routeIs('suppliers.*');
+                    request()->routeIs('purchase.returns.*');
+                $isMasterDataRoute =
+                    request()->routeIs('suppliers.*') ||
+                    request()->routeIs('material-categories.*') ||
+                    request()->routeIs('product-categories.*') ||
+                    request()->routeIs('units.*');
                 $isInventoryRoute =
                     request()->routeIs('products.*') ||
                     request()->routeIs('materials.*') ||
@@ -323,16 +332,18 @@
                     \App\Support\Context::hasPermission('roles.view') ||
                     \App\Support\Context::hasPermission('billing.view') ||
                     \App\Support\Context::isOwner();
-                $canAccessBusiness =
-                    \App\Support\Context::isOwner() ||
-                    \App\Support\Context::hasPermission('inventory.view') ||
-                    \App\Support\Context::hasPermission('inventory.manage');
+                $canAccessMasterData =
+                    \App\Support\Context::hasPermission('master_data.suppliers.view') ||
+                    \App\Support\Context::hasPermission('master_data.material_categories.view') ||
+                    \App\Support\Context::hasPermission('master_data.product_categories.view') ||
+                    \App\Support\Context::hasPermission('master_data.units.view');
             @endphp
 
             <nav class="flex-1 overflow-y-auto px-3.5 py-3 space-y-2.5 min-h-0 overscroll-contain text-xs"
                 x-data="{
                     salesOpen: {{ $isSalesRoute ? 'true' : 'false' }},
                     purchasingOpen: {{ $isPurchasingRoute ? 'true' : 'false' }},
+                    masterDataOpen: {{ $isMasterDataRoute ? 'true' : 'false' }},
                     inventoryOpen: {{ $isInventoryRoute ? 'true' : 'false' }},
                     costingOpen: {{ $isCostingRoute ? 'true' : 'false' }},
                     financeOpen: {{ $isFinanceRoute ? 'true' : 'false' }},
@@ -348,7 +359,7 @@
                     </a>
 
                     @if (\App\Support\Context::hasPermission('ai.access'))
-                        <a href="#" @click.prevent="openComingSoon({ title: 'AI Assistant', icon: 'bot', desc: 'Fitur AI Cockpit untuk analisis penjualan, prediksi tren, dan asisten pintar kasir POS berbasis Gemini AI.', color: 'purple' })"
+                        <a href="#" id="tour-nav-ai" @click.prevent="openComingSoon({ title: 'AI Assistant', icon: 'bot', desc: 'Fitur AI Cockpit untuk analisis penjualan, prediksi tren, dan asisten pintar kasir POS berbasis Gemini AI.', color: 'purple' })"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all {{ request()->routeIs('pos.ai.*') ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30 shadow-sm' : 'text-slate-300 hover:bg-slate-900/80 hover:text-white' }}">
                             <i data-lucide="bot" class="w-4 h-4 text-purple-400"></i>
                             <span>AI Assistant</span>
@@ -357,7 +368,7 @@
                     @endif
 
                     @if (\App\Support\Context::isOwner())
-                        <a href="#" @click.prevent="openComingSoon({ title: 'Komunitas Owner', icon: 'users', desc: 'Forum diskusi eksklusif khusus para owner UMKM Cooca — berbagi tips, trik, dan strategi bisnis bersama.', color: 'amber' })"
+                        <a href="#" id="tour-nav-community" @click.prevent="openComingSoon({ title: 'Komunitas Owner', icon: 'users', desc: 'Forum diskusi eksklusif khusus para owner UMKM Cooca — berbagi tips, trik, dan strategi bisnis bersama.', color: 'amber' })"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all {{ request()->routeIs('community.*') ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm' : 'text-slate-300 hover:bg-slate-900/80 hover:text-white' }}">
                             <i data-lucide="users" class="w-4 h-4 text-amber-400"></i>
                             <span>Komunitas Owner</span>
@@ -369,7 +380,7 @@
                 <!-- 2. PENJUALAN (COLLAPSIBLE) -->
                 @if ($canAccessSales)
                     <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
-                        <button type="button" @click="salesOpen = !salesOpen"
+                        <button type="button" id="tour-group-sales" data-tour-group="sales" @click="salesOpen = !salesOpen"
                             class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-300 hover:text-white hover:bg-slate-900/50 transition">
                             <div class="flex items-center gap-2.5">
                                 <i data-lucide="shopping-cart" class="w-4 h-4 text-teal-400"></i>
@@ -383,7 +394,7 @@
                         <div x-show="salesOpen" x-transition.opacity
                             class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-900">
                             @if (\App\Support\Context::hasPermission('pos.terminal'))
-                                <a href="{{ route('pos.terminal') }}"
+                                <a href="{{ route('pos.terminal') }}" id="tour-nav-pos-terminal"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('pos.terminal') ? 'bg-teal-500/15 text-teal-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="calculator" class="w-3.5 h-3.5 text-teal-400"></i>
                                     <span>Terminal Kasir POS</span>
@@ -391,7 +402,7 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('invoices.view'))
-                                <a href="{{ route('invoices.index') }}"
+                                <a href="{{ route('invoices.index') }}" id="tour-nav-invoices"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('invoices.*') ? 'bg-emerald-500/15 text-emerald-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="receipt" class="w-3.5 h-3.5 text-emerald-400"></i>
                                     <span>Faktur &amp; Piutang</span>
@@ -399,7 +410,7 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.reports'))
-                                <a href="{{ route('pos.orders.index') }}"
+                                <a href="{{ route('pos.orders.index') }}" id="tour-nav-pos-orders"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('pos.orders.*') || request()->routeIs('pos.shifts.*') ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-slate-400"></i>
                                     <span>Riwayat Transaksi &amp; Shift</span>
@@ -407,7 +418,7 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('customers.view'))
-                                <a href="{{ route('customers.index') }}"
+                                <a href="{{ route('customers.index') }}" id="tour-nav-customers"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('customers.*') || request()->routeIs('crm.*') ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="users" class="w-3.5 h-3.5 text-indigo-400"></i>
                                     <span>Pelanggan &amp; CRM</span>
@@ -415,13 +426,13 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('sales.view'))
-                                <a href="{{ route('sales.orders.index') }}"
+                                <a href="{{ route('sales.orders.index') }}" id="tour-nav-sales-orders"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('sales.*') ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="check-square" class="w-3.5 h-3.5 text-cyan-400"></i>
                                     <span>Pesanan &amp; Penawaran</span>
                                 </a>
 
-                                <a href="{{ route('sales.returns.index') }}"
+                                <a href="{{ route('sales.returns.index') }}" id="tour-nav-sales-returns"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('sales.returns.*') ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="undo-2" class="w-3.5 h-3.5 text-rose-400"></i>
                                     <span>Retur Penjualan</span>
@@ -431,26 +442,52 @@
                     </div>
                 @endif
 
-                <!-- 3. BISNIS -->
-                @if ($canAccessBusiness)
+                <!-- 4. MASTER DATA CMS (COLLAPSIBLE) -->
+                @if ($canAccessMasterData)
                     <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
-                        <div class="flex items-center gap-2.5 px-3 py-2.5 text-slate-300">
-                            <i data-lucide="building-2" class="w-4 h-4 text-cyan-400"></i>
-                            <span class="text-xs font-semibold">Bisnis</span>
-                        </div>
-                        <div class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-900">
-                            @if (\App\Support\Context::isOwner())
-                                <a href="{{ route('businesses.select') }}"
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('businesses.*') ? 'bg-cyan-500/15 text-cyan-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
-                                    <i data-lucide="briefcase-business" class="w-3.5 h-3.5 text-cyan-400"></i>
-                                    <span>Profil &amp; Bisnis Aktif</span>
+                        <button type="button" id="tour-group-master-data" data-tour-group="master-data" @click="masterDataOpen = !masterDataOpen"
+                            class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-300 hover:text-white hover:bg-slate-900/50 transition"
+                            :class="masterDataOpen ? 'bg-emerald-500/10 text-white' : ''">
+                            <div class="flex items-center gap-2.5">
+                                <i data-lucide="database" class="w-4 h-4 text-emerald-400"></i>
+                                <span class="text-xs">Master Data</span>
+                            </div>
+                            <i data-lucide="chevron-down"
+                                class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200"
+                                :class="masterDataOpen ? 'rotate-180 text-emerald-400' : ''"></i>
+                        </button>
+
+                        <div :class="masterDataOpen ? '' : 'hidden'"
+                            class="px-2 pb-2 pt-1 space-y-0.5 border-t border-slate-900">
+                            @if (\App\Support\Context::hasPermission('master_data.suppliers.view'))
+                                <a href="{{ route('suppliers.index') }}" id="tour-nav-suppliers"
+                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('suppliers.*') ? 'bg-emerald-500/15 text-emerald-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                                    <i data-lucide="truck" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <span>Supplier</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('inventory.view') || \App\Support\Context::hasPermission('inventory.manage'))
-                                <a href="{{ route('warehouse.index') }}"
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('warehouse.*') ? 'bg-cyan-500/15 text-cyan-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
-                                    <i data-lucide="warehouse" class="w-3.5 h-3.5 text-cyan-400"></i>
-                                    <span>Gudang &amp; Lokasi</span>
+
+                            @if (\App\Support\Context::hasPermission('master_data.material_categories.view'))
+                                <a href="{{ route('material-categories.index') }}" id="tour-nav-material-categories"
+                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('material-categories.*') ? 'bg-emerald-500/15 text-emerald-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                                    <i data-lucide="layers" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <span>Kategori Bahan</span>
+                                </a>
+                            @endif
+
+                            @if (\App\Support\Context::hasPermission('master_data.product_categories.view'))
+                                <a href="{{ route('product-categories.index') }}" id="tour-nav-product-categories"
+                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('product-categories.*') ? 'bg-emerald-500/15 text-emerald-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                                    <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <span>Kategori Produk</span>
+                                </a>
+                            @endif
+
+                            @if (\App\Support\Context::hasPermission('master_data.units.view'))
+                                <a href="{{ route('units.index') }}" id="tour-nav-units"
+                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('units.*') ? 'bg-emerald-500/15 text-emerald-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                                    <i data-lucide="scale" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <span>Satuan &amp; Konversi</span>
                                 </a>
                             @endif
                         </div>
@@ -460,7 +497,7 @@
                 <!-- 4. PEMBELIAN (COLLAPSIBLE) -->
                 @if ($canAccessPurchasing)
                     <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
-                        <button type="button" @click="purchasingOpen = !purchasingOpen"
+                        <button type="button" id="tour-group-purchasing" data-tour-group="purchasing" @click="purchasingOpen = !purchasingOpen"
                             class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-300 hover:text-white hover:bg-slate-900/50 transition">
                             <div class="flex items-center gap-2.5">
                                 <i data-lucide="truck" class="w-4 h-4 text-amber-400"></i>
@@ -474,25 +511,19 @@
                         <div x-show="purchasingOpen" x-transition.opacity
                             class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-900">
                             @if (\App\Support\Context::hasPermission('purchasing.view'))
-                                <a href="{{ route('suppliers.index') }}"
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('suppliers.*') ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
-                                    <i data-lucide="users-2" class="w-3.5 h-3.5 text-amber-400"></i>
-                                    <span>Pemasok &amp; Supplier</span>
-                                </a>
-
-                                <a href="{{ route('purchase-orders.index') }}"
+                                <a href="{{ route('purchase-orders.index') }}" id="tour-nav-purchase-orders"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('purchase-orders.*') ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="file-text" class="w-3.5 h-3.5 text-amber-400"></i>
                                     <span>Purchase Order (PO)</span>
                                 </a>
 
-                                <a href="{{ route('purchasing.bills.index') }}"
+                                <a href="{{ route('purchasing.bills.index') }}" id="tour-nav-purchasing-bills"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('purchasing.bills.*') ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="receipt" class="w-3.5 h-3.5 text-amber-400"></i>
                                     <span>Tagihan &amp; Hutang Supplier</span>
                                 </a>
 
-                                <a href="{{ route('purchase.returns.index') }}"
+                                <a href="{{ route('purchase.returns.index') }}" id="tour-nav-purchase-returns"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('purchase.returns.*') ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="corner-up-left" class="w-3.5 h-3.5 text-rose-400"></i>
                                     <span>Retur Pembelian</span>
@@ -505,7 +536,7 @@
                 <!-- 5. PERSEDIAAN (COLLAPSIBLE) -->
                 @if ($canAccessInventory)
                     <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
-                        <button type="button" @click="inventoryOpen = !inventoryOpen"
+                        <button type="button" id="tour-group-inventory" data-tour-group="inventory" @click="inventoryOpen = !inventoryOpen"
                             class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-300 hover:text-white hover:bg-slate-900/50 transition">
                             <div class="flex items-center gap-2.5">
                                 <i data-lucide="package" class="w-4 h-4 text-emerald-400"></i>
@@ -518,6 +549,14 @@
 
                         <div x-show="inventoryOpen" x-transition.opacity
                             class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-900">
+                            @if (\App\Support\Context::hasPermission('inventory.view') || \App\Support\Context::hasPermission('inventory.manage'))
+                                <a href="{{ route('warehouse.index') }}" id="tour-nav-warehouse"
+                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('warehouse.*') ? 'bg-cyan-500/15 text-cyan-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                                    <i data-lucide="warehouse" class="w-3.5 h-3.5 text-cyan-400"></i>
+                                    <span>Gudang &amp; Lokasi</span>
+                                </a>
+                            @endif
+
                             @if (\App\Support\Context::hasPermission('products.view'))
                                 <a href="{{ route('products.index') }}" id="tour-nav-products"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('products.*') ? 'bg-emerald-500/15 text-emerald-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
@@ -535,13 +574,13 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('inventory.view'))
-                                <a href="{{ route('inventory.stocks') }}"
+                                <a href="{{ route('inventory.stocks') }}" id="tour-nav-inventory-stocks"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('inventory.stocks') ? 'bg-cyan-500/15 text-cyan-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i>
                                     <span>Stok Real-Time</span>
                                 </a>
 
-                                <a href="{{ route('inventory.movements') }}"
+                                <a href="{{ route('inventory.movements') }}" id="tour-nav-inventory-movements"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('inventory.movements') ? 'bg-cyan-500/15 text-cyan-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-cyan-400"></i>
                                     <span>Mutasi Stok (Kartu Stok)</span>
@@ -549,13 +588,13 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('inventory.manage'))
-                                <a href="{{ route('inventory.transfers.index') }}"
+                                <a href="{{ route('inventory.transfers.index') }}" id="tour-nav-inventory-transfers"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('inventory.transfers.*') ? 'bg-cyan-500/15 text-cyan-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="repeat" class="w-3.5 h-3.5 text-cyan-400"></i>
                                     <span>Transfer Stok Gudang</span>
                                 </a>
 
-                                <a href="{{ route('inventory.opnames.index') }}"
+                                <a href="{{ route('inventory.opnames.index') }}" id="tour-nav-inventory-opnames"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('inventory.opnames.*') ? 'bg-cyan-500/15 text-cyan-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-cyan-400"></i>
                                     <span>Stock Opname Fisik</span>
@@ -568,7 +607,7 @@
                 <!-- 6. HPP & PRODUKSI (COLLAPSIBLE) -->
                 @if ($canAccessCosting)
                     <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
-                        <button type="button" @click="costingOpen = !costingOpen"
+                        <button type="button" id="tour-group-costing" data-tour-group="costing" @click="costingOpen = !costingOpen"
                             class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-300 hover:text-white hover:bg-slate-900/50 transition">
                             <div class="flex items-center gap-2.5">
                                 <i data-lucide="calculator" class="w-4 h-4 text-emerald-400"></i>
@@ -623,7 +662,7 @@
                 <!-- 7. KEUANGAN (COLLAPSIBLE) -->
                 @if ($canAccessFinance)
                     <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
-                        <button type="button" @click="financeOpen = !financeOpen"
+                        <button type="button" id="tour-group-finance" data-tour-group="finance" @click="financeOpen = !financeOpen"
                             class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-300 hover:text-white hover:bg-slate-900/50 transition">
                             <div class="flex items-center gap-2.5">
                                 <i data-lucide="landmark" class="w-4 h-4 text-amber-400"></i>
@@ -637,13 +676,13 @@
                         <div x-show="financeOpen" x-transition.opacity
                             class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-900">
                             @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('expenses.view'))
-                                <a href="{{ route('finance.cash-bank.index') }}"
+                                <a href="{{ route('finance.cash-bank.index') }}" id="tour-nav-cash-bank"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.cash-bank.index') ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="landmark" class="w-3.5 h-3.5 text-amber-400"></i>
                                     <span>Kas &amp; Rekening Bank</span>
                                 </a>
 
-                                <a href="{{ route('finance.cash-bank.ledger') }}"
+                                <a href="{{ route('finance.cash-bank.ledger') }}" id="tour-nav-cash-ledger"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.cash-bank.ledger') ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="book" class="w-3.5 h-3.5 text-amber-400"></i>
                                     <span>Buku Kas &amp; Ledger</span>
@@ -651,7 +690,7 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('expenses.view'))
-                                <a href="{{ route('finance.expenses.index') }}"
+                                <a href="{{ route('finance.expenses.index') }}" id="tour-nav-expenses"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.expenses.*') ? 'bg-rose-500/15 text-rose-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="wallet" class="w-3.5 h-3.5 text-rose-400"></i>
                                     <span>Beban Operasional</span>
@@ -659,7 +698,7 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('invoices.view'))
-                                <a href="{{ route('finance.receivables') }}"
+                                <a href="{{ route('finance.receivables') }}" id="tour-nav-receivables"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.receivables') ? 'bg-cyan-500/15 text-cyan-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 text-cyan-400"></i>
                                     <span>Piutang Usaha (AR Aging)</span>
@@ -667,7 +706,7 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('purchasing.view'))
-                                <a href="{{ route('finance.payables') }}"
+                                <a href="{{ route('finance.payables') }}" id="tour-nav-payables"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.payables') ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-amber-400"></i>
                                     <span>Hutang Usaha (AP Aging)</span>
@@ -675,7 +714,7 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('accounting.view'))
-                                <a href="{{ route('finance.journals.index') }}"
+                                <a href="{{ route('finance.journals.index') }}" id="tour-nav-journals"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.journals.*') ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="book-open" class="w-3.5 h-3.5 text-slate-400"></i>
                                     <span>Jurnal Akuntansi Otomatis</span>
@@ -688,7 +727,7 @@
                 <!-- 8. LAPORAN & ANALITIK (COLLAPSIBLE) -->
                 @if ($canAccessReports)
                     <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
-                        <button type="button" @click="reportsOpen = !reportsOpen"
+                        <button type="button" id="tour-group-reports" data-tour-group="reports" @click="reportsOpen = !reportsOpen"
                             class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-300 hover:text-white hover:bg-slate-900/50 transition">
                             <div class="flex items-center gap-2.5">
                                 <i data-lucide="bar-chart-3" class="w-4 h-4 text-amber-400"></i>
@@ -710,7 +749,7 @@
                             @endif
 
                             @if (\App\Support\Context::hasPermission('pos.reports'))
-                                <a href="{{ route('pos.reports.index') }}"
+                                <a href="{{ route('pos.reports.index') }}" id="tour-nav-pos-reports"
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('pos.reports.*') ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="file-pie-chart" class="w-3.5 h-3.5 text-teal-400"></i>
                                     <span>Laporan Kasir POS</span>
@@ -732,7 +771,7 @@
                         @endif
 
                         @if (\App\Support\Context::isOwner() || \App\Support\Context::hasPermission('roles.view'))
-                            <a href="{{ route('settings.roles.index') }}"
+                            <a href="{{ route('settings.roles.index') }}" id="tour-nav-roles"
                                 class="flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all {{ request()->routeIs('settings.roles.*') ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-900 hover:text-white' }}">
                                 <i data-lucide="shield-check" class="w-4 h-4 text-cyan-400"></i>
                                 <span>Kontrol Akses &amp; Role</span>
@@ -740,7 +779,7 @@
                         @endif
 
                         @if (\App\Support\Context::hasPermission('billing.view'))
-                            <a href="{{ route('billing.limits') }}"
+                            <a href="{{ route('billing.limits') }}" id="tour-nav-billing"
                                 class="flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all {{ request()->routeIs('billing.*') ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30' : 'text-slate-300 hover:bg-slate-900 hover:text-white' }}">
                                 <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
                                 <span>Paket &amp; Kuota</span>
@@ -752,7 +791,7 @@
                         @endif
 
                         @if (\App\Support\Context::isOwner())
-                            <a href="{{ route('feedback.bugs.index') }}"
+                            <a href="{{ route('feedback.bugs.index') }}" id="tour-nav-feedback"
                                 class="flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all {{ request()->routeIs('feedback.*') ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-900 hover:text-white' }}">
                                 <i data-lucide="life-buoy" class="w-4 h-4 text-cyan-400"></i>
                                 <span>Dukungan Produk</span>
@@ -1167,7 +1206,7 @@
                 stockInForm: { material_id: '', product_id: '', quantity: 1, unit_cost: '', supplier_name: '', notes: '' },
                 materialForm: { name: '', cost_per_unit: '', unit_id: '', category_id: '', sku: '' },
                 isSubmitting: false,
-            
+
                 init() {
                     window.addEventListener('cooca-toast', (e) => {
                         this.addToast(e.detail.message, e.detail.type || 'success');
@@ -1177,7 +1216,7 @@
                     window.addEventListener('open-quick-material', () => { this.showMaterialModal = true; });
                     window.addEventListener('open-mobile-actions', () => { this.showMobileActionSheet = true; });
                 },
-            
+
                 addToast(msg, type = 'success') {
                     const id = Date.now();
                     this.toastList.push({ id, msg, type });
@@ -1185,7 +1224,7 @@
                         this.toastList = this.toastList.filter(t => t.id !== id);
                     }, 4000);
                 },
-            
+
                 async submitQuickExpense() {
                     if (!this.expenseForm.name || !this.expenseForm.amount) return;
                     this.isSubmitting = true;
@@ -1214,7 +1253,7 @@
                         this.isSubmitting = false;
                     }
                 },
-            
+
                 async submitQuickStockIn() {
                     if (!this.stockInForm.quantity || !this.stockInForm.unit_cost) return;
                     this.isSubmitting = true;
@@ -1243,7 +1282,7 @@
                         this.isSubmitting = false;
                     }
                 },
-            
+
                 async submitQuickMaterial() {
                     if (!this.materialForm.name || !this.materialForm.cost_per_unit) return;
                     this.isSubmitting = true;
@@ -1767,13 +1806,9 @@
                     </div>
                     <!-- Progress bar -->
                     <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-1000"
+                            <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r from-emerald-400 to-teal-400"
                              :style="'width:' + progress + '%'"
-                             :class="{
-                                 'bg-gradient-to-r from-purple-500 to-indigo-500': $root.comingSoonFeature.color === 'purple',
-                                 'bg-gradient-to-r from-amber-400 to-orange-400':  $root.comingSoonFeature.color === 'amber',
-                                 'bg-gradient-to-r from-emerald-400 to-teal-400':  $root.comingSoonFeature.color === 'emerald'
-                             }"></div>
+                                ></div>
                     </div>
                     <p class="text-center text-[10px] text-slate-600" x-text="launchDate"></p>
                 </div>

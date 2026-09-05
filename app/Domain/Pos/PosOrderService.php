@@ -124,7 +124,11 @@ final class PosOrderService
                 if ($product) {
                     $unitHpp = (float) $product->base_cost;
                     if ($unitHpp <= 0 && $product->activeCostModel) {
-                        $unitHpp = (float) ($product->activeCostModel->latestResult?->total_cost ?? 0.0);
+                        $costModel = $product->activeCostModel;
+                        $latestRun = $costModel->relationLoaded('costingRuns')
+                            ? $costModel->costingRuns->sortByDesc('created_at')->first()
+                            : $costModel->costingRuns()->with('result')->latest()->first();
+                        $unitHpp = (float) ($latestRun?->result?->hpp_per_unit ?? 0.0);
                     }
                 }
 

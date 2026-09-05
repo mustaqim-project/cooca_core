@@ -27,7 +27,7 @@
         <form method="GET" action="{{ route('sales.orders.index') }}" class="flex-1 flex flex-wrap gap-2 w-full">
             <div class="relative flex-1 min-w-[200px]">
                 <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nomor SO atau nama pelanggan..." 
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nomor SO atau nama pelanggan..."
                        class="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
             </div>
             <select name="status" onchange="this.form.submit()" class="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
@@ -49,6 +49,7 @@
                         <th class="py-3 px-4">Pelanggan</th>
                         <th class="py-3 px-4">Tanggal Pesanan</th>
                         <th class="py-3 px-4">Estimasi Kirim</th>
+                        <th class="py-3 px-4 text-right">Pajak</th>
                         <th class="py-3 px-4 text-right">Nilai Pesanan</th>
                         <th class="py-3 px-4 text-center">Status Pemenuhan</th>
                         <th class="py-3 px-4 text-center">Aksi</th>
@@ -71,6 +72,10 @@
                         <td class="py-3.5 px-4 text-slate-400">
                             {{ $so->expected_delivery_date ? $so->expected_delivery_date->format('d M Y') : '-' }}
                         </td>
+                        <td class="py-3.5 px-4 text-right text-amber-300">
+                            Rp {{ number_format($so->tax_amount, 0, ',', '.') }}
+                            <span class="block text-[10px] text-slate-500">{{ number_format($so->tax_percentage, 2) }}%</span>
+                        </td>
                         <td class="py-3.5 px-4 text-right font-bold text-white text-sm">
                             Rp {{ number_format($so->total_amount, 0, ',', '.') }}
                         </td>
@@ -91,7 +96,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="py-8 text-center text-slate-500 font-sans">Belum ada pesanan penjualan (Sales Order).</td>
+                        <td colspan="8" class="py-8 text-center text-slate-500 font-sans">Belum ada pesanan penjualan (Sales Order).</td>
                     </tr>
                     @endforelse
                 </tbody>

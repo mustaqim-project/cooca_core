@@ -41,6 +41,11 @@ final class SubscriptionCheckoutWebController extends Controller
         $topupPrice = $type === 'ai_token' ? $this->entitlementService->getTokenTopupPrice() : $this->entitlementService->getStorageTopupPrice();
         $topupQuantity = $type === 'ai_token' ? $this->entitlementService->getTokenTopupAmount() : $this->entitlementService->getStorageTopupBytes();
         $packages = $this->entitlementService->activePackages($type);
+        if ($type === 'subscription'
+            && (SystemSetting::get('subscription_price_monthly') !== null
+                || SystemSetting::get('subscription_price_annual') !== null)) {
+            $packages = $packages->filter(static fn (BillingPackage $package): bool => false)->values();
+        }
         $packagesData = $packages->map(fn (BillingPackage $package): array => [
             'id' => $package->id,
             'name' => $package->name,
@@ -102,7 +107,9 @@ final class SubscriptionCheckoutWebController extends Controller
             : null;
 
         // If subscription order without explicit package_id, resolve from BillingPackage catalog
-        if (!$package && $orderType === 'subscription') {
+        if (!$package && $orderType === 'subscription'
+            && SystemSetting::get('subscription_price_monthly') === null
+            && SystemSetting::get('subscription_price_annual') === null) {
             $cycle = $validated['cycle'] ?? 'monthly';
             $package = $cycle === 'annual'
                 ? BillingPackage::active()->where('type', BillingPackage::TYPE_SUBSCRIPTION)->where(fn ($q) => $q->where('code', 'core-annual')->orWhere('duration_days', '>=', 360))->orderBy('sort_order')->first()

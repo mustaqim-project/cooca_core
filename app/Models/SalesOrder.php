@@ -29,6 +29,7 @@ final class SalesOrder extends Model
         'expected_delivery_date',
         'subtotal',
         'discount_amount',
+        'tax_percentage',
         'tax_amount',
         'total_amount',
         'status',
@@ -41,6 +42,7 @@ final class SalesOrder extends Model
         'expected_delivery_date' => 'date',
         'subtotal' => 'decimal:2',
         'discount_amount' => 'decimal:2',
+        'tax_percentage' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
     ];

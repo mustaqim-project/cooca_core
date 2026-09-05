@@ -247,6 +247,15 @@ final class ImportWebController extends Controller
             return back()->withErrors(['rows' => 'Tidak ada data bahan baku yang valid untuk diimport.']);
         }
 
+        if (collect($rows)->contains(fn ($row): bool => ($row['status'] ?? 'valid') === 'error')) {
+            $message = 'Import dibatalkan karena masih ada error kritis pada preview bahan baku.';
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+
+            return back()->withErrors(['rows' => $message]);
+        }
+
         $result = $this->importService->executeMaterialImport($business, $rows, $validated['duplicate_strategy']);
 
         $message = "Import Bahan Baku Selesai: {$result['imported']} bahan baku baru berhasil ditambahkan";

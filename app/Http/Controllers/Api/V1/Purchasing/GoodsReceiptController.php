@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\Purchasing;
 
 use App\Domain\Inventory\StockService;
+use App\Domain\Purchasing\GoodsReceiptService;
 use App\Domain\Purchasing\SupplierInvoiceService;
 use App\Http\Controllers\Controller;
 use App\Models\GoodsReceipt;
@@ -22,6 +23,7 @@ final class GoodsReceiptController extends Controller
 {
     public function __construct(
         private readonly StockService $stockService = new StockService,
+        private readonly GoodsReceiptService $goodsReceiptService = new GoodsReceiptService,
         private readonly SupplierInvoiceService $supplierInvoiceService = new SupplierInvoiceService
     ) {}
 
@@ -47,101 +49,33 @@ final class GoodsReceiptController extends Controller
     /**
      * Store Goods Receipt from Purchase Order.
      */
-    public function store(Request $request, PurchaseOrder $purchaseOrder): JsonResponse
+    public function store(Request $request, ?PurchaseOrder $purchaseOrder = null): JsonResponse
     {
         $business = Context::requireBusiness();
-        if ($purchaseOrder->business_id !== $business->id) {
-            return response()->json(['message' => 'Pesanan pembelian tidak ditemukan.'], Response::HTTP_NOT_FOUND);
-        }
-
         $user = $request->user();
 
         $validated = $request->validate([
             'location_id' => ['required', 'exists:locations,id'],
+            'purchase_order_id' => ['required', 'exists:purchase_orders,id'],
             'receipt_number' => ['nullable', 'string', 'max:64'],
             'receipt_date' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'exists:products,id'],
+            'items.*.product_id' => ['nullable', 'exists:products,id'],
+            'items.*.material_id' => ['nullable', 'exists:materials,id'],
+            'items.*.item_name' => ['nullable', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'numeric', 'min:0'],
             'items.*.unit_cost' => ['required', 'numeric', 'min:0'],
             'items.*.batch_number' => ['nullable', 'string', 'max:64'],
             'items.*.expiry_date' => ['nullable', 'date'],
         ]);
 
-        $goodsReceipt = DB::transaction(function () use ($business, $purchaseOrder, $validated, $user) {
-            $purchaseOrder = PurchaseOrder::with('items')->lockForUpdate()->findOrFail($purchaseOrder->id);
-            $receivedByProduct = GoodsReceiptItem::query()
-                ->whereHas('goodsReceipt', fn ($query) => $query->where('purchase_order_id', $purchaseOrder->id)->where('status', 'completed'))
-                ->selectRaw('product_id, SUM(quantity) as quantity')
-                ->groupBy('product_id')
-                ->pluck('quantity', 'product_id');
-            foreach ($validated['items'] as $item) {
-                $source = $purchaseOrder->items->firstWhere('product_id', $item['product_id']);
-                $quantity = (float) $item['quantity'];
-                if (! $source && $quantity > 0) {
-                    throw ValidationException::withMessages(['items' => 'Produk penerimaan tidak terdapat pada Purchase Order.']);
-                }
-                if ($source && $quantity > (float) $source->quantity - (float) ($receivedByProduct[$source->product_id] ?? 0) + 0.00005) {
-                    throw ValidationException::withMessages(['items' => "Quantity penerimaan melebihi sisa PO untuk {$source->item_name}."]);
-                }
-            }
-            $receiptNumber = $validated['receipt_number'] ?? ('GR-' . date('Ym') . '-' . rand(1000, 9999));
+        $purchaseOrder ??= PurchaseOrder::findOrFail($validated['purchase_order_id']);
+        if ($purchaseOrder->business_id !== $business->id) {
+            return response()->json(['message' => 'Pesanan pembelian tidak ditemukan.'], Response::HTTP_NOT_FOUND);
+        }
 
-            $gr = GoodsReceipt::create([
-                'business_id' => $business->id,
-                'location_id' => $validated['location_id'],
-                'supplier_id' => $purchaseOrder->supplier_id,
-                'purchase_order_id' => $purchaseOrder->id,
-                'receipt_number' => $receiptNumber,
-                'receipt_date' => $validated['receipt_date'],
-                'status' => 'completed',
-                'notes' => $validated['notes'] ?? null,
-                'received_by' => $user->id,
-            ]);
-
-            foreach ($validated['items'] as $item) {
-                $qty = (float) $item['quantity'];
-                if ($qty <= 0) {
-                    continue;
-                }
-                $cost = (float) $item['unit_cost'];
-
-                GoodsReceiptItem::create([
-                    'goods_receipt_id' => $gr->id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $qty,
-                    'unit_cost' => $cost,
-                    'batch_number' => $item['batch_number'] ?? null,
-                    'expiry_date' => $item['expiry_date'] ?? null,
-                ]);
-
-                // Record stock movement & update inventory stock
-                $this->stockService->recordMovement(
-                    businessId: $business->id,
-                    locationId: $validated['location_id'],
-                    productId: $item['product_id'],
-                    movementType: StockMovement::TYPE_GOODS_RECEIPT,
-                    quantityChange: $qty,
-                    unitCost: $cost,
-                    referenceId: $gr->id,
-                    referenceNumber: $receiptNumber,
-                    batchNumber: $item['batch_number'] ?? null,
-                    expiryDate: $item['expiry_date'] ?? null,
-                    notes: "Penerimaan PO {$purchaseOrder->po_number}",
-                    userId: $user->id
-                );
-            }
-
-            // Update Purchase Order status
-            $currentByProduct = collect($validated['items'])->groupBy('product_id')->map(fn ($rows) => (float) $rows->sum('quantity'));
-            $fullyReceived = $purchaseOrder->items->every(fn ($item) => (float) ($receivedByProduct[$item->product_id] ?? 0) + (float) ($currentByProduct[$item->product_id] ?? 0) >= (float) $item->quantity - 0.00005);
-            $purchaseOrder->update(['status' => $fullyReceived ? PurchaseOrder::STATUS_COMPLETED : PurchaseOrder::STATUS_PARTIALLY_INVOICED]);
-
-            $this->supplierInvoiceService->createFromGoodsReceipt($gr);
-
-            return $gr;
-        });
+        $goodsReceipt = $this->goodsReceiptService->receive($purchaseOrder, $validated, $user?->id);
 
         return response()->json([
             'message' => 'Penerimaan barang fisik berhasil dicatat dan stok gudang telah diperbarui.',

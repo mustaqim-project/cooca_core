@@ -12,21 +12,27 @@ use App\Models\CostModel;
 use App\Models\InventoryStock;
 use App\Models\Location;
 use App\Models\Material;
+use App\Models\MaterialCategory;
+use App\Models\MaterialPrice;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\Supplier;
 use App\Models\StockMovement;
 use App\Models\Unit;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\DefinedName;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Table;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Worksheet\Table\TableStyle;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DataImportService
@@ -45,6 +51,13 @@ final class DataImportService
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Produk');
+        $business = \App\Support\Context::requireBusiness();
+        $categories = ProductCategory::withoutGlobalScopes()
+            ->where('business_id', $business->id)
+            ->whereNull('deleted_at')
+            ->orderBy('name')
+            ->get();
+        $units = Unit::available()->orderBy('name')->get();
 
         $headers = [
             'A1' => 'Nama Produk *',
@@ -109,6 +122,53 @@ final class DataImportService
             $rowIdx++;
         }
 
+        $productTable = new Table('A1:I1001', 'ProductImportTable');
+        $productTable->setStyle(
+            (new TableStyle(TableStyle::TABLE_STYLE_MEDIUM4))->setShowRowStripes(true)
+        );
+        $sheet->addTable($productTable);
+
+        $masterDefinitions = [
+            ['MASTER_PRODUCT_CATEGORY', 'ProductCategoryNames', $categories],
+            ['MASTER_UOM', 'ProductUomNames', $units],
+        ];
+        foreach ($masterDefinitions as [$title, $rangeName, $masters]) {
+            $masterSheet = $spreadsheet->createSheet();
+            $masterSheet->setTitle($title);
+            foreach (['ID', 'Code', 'Name'] as $column => $header) {
+                $masterSheet->setCellValue(Coordinate::stringFromColumnIndex($column + 1) . '1', $header);
+            }
+            foreach ($masters as $index => $master) {
+                $masterRow = $index + 2;
+                $code = $master->code ?: $master->slug;
+                $masterSheet->setCellValueExplicit("A{$masterRow}", (string) $master->id, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                $masterSheet->setCellValue("B{$masterRow}", $code);
+                $masterSheet->setCellValue("C{$masterRow}", $master->name);
+            }
+            $masterSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_HIDDEN);
+            $spreadsheet->addDefinedName(DefinedName::createInstance(
+                $rangeName,
+                null,
+                "='{$title}'!\$C\$2:INDEX('{$title}'!\$C:\$C,MAX(2,COUNTA('{$title}'!\$C:\$C)))"
+            ));
+        }
+
+        foreach ([['C', 'ProductCategoryNames', 'Kategori'], ['D', 'ProductUomNames', 'Satuan Output']] as [$column, $rangeName, $label]) {
+            $validation = new \PhpOffice\PhpSpreadsheet\Cell\DataValidation();
+            $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_STOP);
+            $validation->setAllowBlank($column === 'C');
+            $validation->setShowDropDown(true);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage(true);
+            $validation->setPromptTitle("Pilih {$label} dari Master Sistem");
+            $validation->setPrompt('Gunakan dropdown. Pilihan diambil dari master sistem saat template dibuat.');
+            $validation->setErrorTitle('Nilai master tidak valid');
+            $validation->setError("Pilih {$label} yang tersedia pada master sistem.");
+            $validation->setFormula1("={$rangeName}");
+            $sheet->setDataValidation("{$column}2:{$column}1001", $validation);
+        }
+
         // Auto-fit columns
         foreach (range('A', 'I') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
@@ -139,6 +199,10 @@ final class DataImportService
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Resep BOM');
+        $business = \App\Support\Context::requireBusiness();
+        $products = Product::withoutGlobalScopes()->where('business_id', $business->id)->orderBy('name')->get();
+        $materials = Material::withoutGlobalScopes()->where('business_id', $business->id)->whereNull('deleted_at')->orderBy('name')->get();
+        $units = Unit::available()->orderBy('name')->get();
 
         $headers = [
             'A1' => 'Nama / SKU Produk Jadi *',
@@ -201,6 +265,55 @@ final class DataImportService
             $rowIdx++;
         }
 
+        $recipeTable = new Table('A1:F1001', 'RecipeImportTable');
+        $recipeTable->setStyle(
+            (new TableStyle(TableStyle::TABLE_STYLE_MEDIUM4))->setShowRowStripes(true)
+        );
+        $sheet->addTable($recipeTable);
+
+        $masterDefinitions = [
+            ['MASTER_PRODUCT', 'RecipeProductNames', $products],
+            ['MASTER_MATERIAL', 'RecipeMaterialNames', $materials],
+            ['MASTER_UOM', 'RecipeUomNames', $units],
+        ];
+        foreach ($masterDefinitions as [$title, $rangeName, $masters]) {
+            $masterSheet = $spreadsheet->createSheet();
+            $masterSheet->setTitle($title);
+            foreach (['ID', 'Code', 'Name'] as $column => $header) {
+                $masterSheet->setCellValue(Coordinate::stringFromColumnIndex($column + 1) . '1', $header);
+            }
+
+            foreach ($masters as $index => $master) {
+                $masterRow = $index + 2;
+                $code = $master->code ?: $master->slug;
+                $masterSheet->setCellValueExplicit("A{$masterRow}", (string) $master->id, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                $masterSheet->setCellValue("B{$masterRow}", $code);
+                $masterSheet->setCellValue("C{$masterRow}", $master->name);
+            }
+
+            $masterSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_HIDDEN);
+            $spreadsheet->addDefinedName(DefinedName::createInstance(
+                $rangeName,
+                null,
+                "='{$title}'!\$C\$2:INDEX('{$title}'!\$C:\$C,MAX(2,COUNTA('{$title}'!\$C:\$C)))"
+            ));
+        }
+
+        foreach ([['A', 'RecipeProductNames', 'Produk Jadi'], ['B', 'RecipeMaterialNames', 'Bahan Baku'], ['D', 'RecipeUomNames', 'Satuan Bahan']] as [$column, $rangeName, $label]) {
+            $validation = new \PhpOffice\PhpSpreadsheet\Cell\DataValidation();
+            $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_STOP);
+            $validation->setShowDropDown(true);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage(true);
+            $validation->setPromptTitle("Pilih {$label} dari Master Sistem");
+            $validation->setPrompt('Gunakan dropdown. Pilihan diambil dari master sistem saat template dibuat.');
+            $validation->setErrorTitle('Nilai master tidak valid');
+            $validation->setError("Pilih {$label} yang tersedia pada master sistem.");
+            $validation->setFormula1("={$rangeName}");
+            $sheet->setDataValidation("{$column}2:{$column}1001", $validation);
+        }
+
         foreach (range('A', 'F') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
@@ -231,10 +344,17 @@ final class DataImportService
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Bahan Baku');
 
+        $business = \App\Support\Context::requireBusiness();
+        $categories = MaterialCategory::withoutGlobalScopes()
+            ->where('business_id', $business->id)->whereNull('deleted_at')->orderBy('name')->get();
+        $units = Unit::available()->orderBy('name')->get();
+        $suppliers = Supplier::withoutGlobalScopes()
+            ->where('business_id', $business->id)->whereNull('deleted_at')->orderBy('name')->get();
+
         $headers = [
             'A1' => 'Nama Bahan Baku *',
             'B1' => 'Kode / SKU',
-            'C1' => 'Kategori Bahan',
+            'C1' => 'Kategori Bahan *',
             'D1' => 'Satuan Dasar *',
             'E1' => 'Harga Beli Standar',
             'F1' => 'Nama Pemasok / Supplier',
@@ -270,11 +390,11 @@ final class DataImportService
         $sheet->getRowDimension(1)->setRowHeight(28);
 
         $sampleData = [
-            ['Biji Kopi Robusta Blend', 'MAT-KOP-01', 'Biji Kopi & Bubuk', 'gram', 150, 'CV Kopi Nusantara', 'Roast medium-dark untuk espresso'],
-            ['Susu UHT Full Cream', 'MAT-DRY-01', 'Dairy & Susu', 'ml', 20, 'PT Sumber Segar Dairy', 'Kemasan karton 1000ml plain'],
-            ['Gula Aren Cair Organik', 'MAT-SWT-01', 'Pemanis & Sirup', 'ml', 35, 'UD Manis Aren Alami', 'Briket gula aren cair murni'],
-            ['Cup Plastik 14oz + Tutup', 'MAT-PKG-01', 'Kemasan & Packaging', 'pcs', 650, 'Toko Plastik Maju', 'Cup inject tebal food grade'],
-            ['Tepung Terigu Cakra Kembar', 'MAT-FLR-01', 'Tepung & Gandum', 'gram', 14, 'Distributor Sembako Jaya', 'Protein tinggi untuk roti pastry'],
+            [
+                'Contoh Bahan Baku', 'MAT-CONTOH-01', $categories->first()?->name ?? '',
+                $units->first()?->code ?? '', 150, $suppliers->first()?->name ?? '',
+                'Ganti contoh ini dengan bahan baku Anda.',
+            ],
         ];
 
         $rowIdx = 2;
@@ -289,6 +409,55 @@ final class DataImportService
                 $colIdx++;
             }
             $rowIdx++;
+        }
+
+        $materialTable = new Table('A1:G1001', 'MaterialImportTable');
+        $materialTable->setStyle(
+            (new TableStyle(TableStyle::TABLE_STYLE_MEDIUM4))->setShowRowStripes(true)
+        );
+        $sheet->addTable($materialTable);
+
+        $masterDefinitions = [
+            ['MASTER_CATEGORY', 'CategoryNames', $categories],
+            ['MASTER_UOM', 'UomNames', $units],
+            ['MASTER_SUPPLIER', 'SupplierNames', $suppliers],
+        ];
+
+        foreach ($masterDefinitions as [$title, $rangeName, $masters]) {
+            $masterSheet = $spreadsheet->createSheet();
+            $masterSheet->setTitle($title);
+            foreach (['ID', 'Code', 'Name'] as $column => $header) {
+                $masterSheet->setCellValue(Coordinate::stringFromColumnIndex($column + 1) . '1', $header);
+            }
+
+            $masterRow = 2;
+            foreach ($masters as $master) {
+                $code = $master->code ?: $master->slug;
+                $masterSheet->setCellValueExplicit("A{$masterRow}", (string) $master->id, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                $masterSheet->setCellValue("B{$masterRow}", $code);
+                $masterSheet->setCellValue("C{$masterRow}", $master->name);
+                $masterRow++;
+            }
+
+            $masterSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_HIDDEN);
+            $formula = "='{$title}'!\$C\$2:INDEX('{$title}'!\$C:\$C,MAX(2,COUNTA('{$title}'!\$C:\$C)))";
+            $spreadsheet->addDefinedName(DefinedName::createInstance($rangeName, null, $formula));
+        }
+
+        foreach ([['C', 'CategoryNames'], ['D', 'UomNames'], ['F', 'SupplierNames']] as [$column, $rangeName]) {
+            $validation = new \PhpOffice\PhpSpreadsheet\Cell\DataValidation();
+            $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_STOP);
+            $validation->setAllowBlank($column === 'F');
+            $validation->setShowDropDown(true);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage(true);
+            $validation->setPromptTitle('Pilih dari Master Sistem');
+            $validation->setPrompt('Gunakan dropdown ini. Pilihan diambil dari master sistem saat template dibuat.');
+            $validation->setErrorTitle('Nilai master tidak valid');
+            $validation->setError('Pilih nilai dari dropdown master yang tersedia.');
+            $validation->setFormula1("={$rangeName}");
+            $sheet->setDataValidation("{$column}2:{$column}1001", $validation);
         }
 
         foreach (range('A', 'G') as $col) {
@@ -320,6 +489,27 @@ final class DataImportService
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Stok Awal');
+        $business = \App\Support\Context::requireBusiness();
+        $materials = Material::withoutGlobalScopes()
+            ->where('business_id', $business->id)
+            ->whereNull('deleted_at')
+            ->with('unit')
+            ->orderBy('name')
+            ->get();
+        $materialPrices = MaterialPrice::withoutGlobalScopes()
+            ->where('business_id', $business->id)
+            ->whereIn('material_id', $materials->pluck('id'))
+            ->orderByDesc('effective_date')
+            ->orderByDesc('created_at')
+            ->get()
+            ->groupBy('material_id')
+            ->map(fn ($prices) => $prices->first());
+        $locations = Location::withoutGlobalScopes()
+            ->where('business_id', $business->id)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+        $units = Unit::available()->orderBy('name')->get();
 
         $headers = [
             'A1' => 'Nama Bahan Baku *',
@@ -359,12 +549,15 @@ final class DataImportService
         $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
         $sheet->getRowDimension(1)->setRowHeight(28);
 
-        $sampleData = [
-            ['Biji Kopi Robusta Blend', 'MAT-KOP-01', 'Gudang Bahan Baku', 10000, 'gram', 150, 'Stok awal gudang'],
-            ['Susu UHT Full Cream', 'MAT-DRY-01', 'Gudang Bahan Baku', 24, 'pcs', 18000, 'Stok awal bahan'],
-            ['Cup Plastik 14oz + Tutup', 'MAT-PKG-01', 'Outlet Utama', 500, 'pcs', 650, 'Stok awal packaging'],
-            ['Sirup Gula Aren', 'MAT-SWT-01', 'Outlet Utama', 10, 'liter', 35000, 'Saldo awal operasional'],
-        ];
+        $sampleData = $materials->map(fn (Material $material): array => [
+            $material->name,
+            $material->code,
+            '',
+            null,
+            $material->unit?->code,
+            $materialPrices->get($material->id)?->purchase_price,
+            '',
+        ])->all();
 
         $rowIdx = 2;
         foreach ($sampleData as $row) {
@@ -378,6 +571,54 @@ final class DataImportService
                 $colIdx++;
             }
             $rowIdx++;
+        }
+
+        $inventoryTable = new Table('A1:G1001', 'InventoryImportTable');
+        $inventoryTable->setStyle(
+            (new TableStyle(TableStyle::TABLE_STYLE_MEDIUM4))->setShowRowStripes(true)
+        );
+        $sheet->addTable($inventoryTable);
+
+        $masterDefinitions = [
+            ['MASTER_LOCATION', 'InventoryLocationNames', $locations],
+            ['MASTER_UOM', 'InventoryUomNames', $units],
+        ];
+        foreach ($masterDefinitions as [$title, $rangeName, $masters]) {
+            $masterSheet = $spreadsheet->createSheet();
+            $masterSheet->setTitle($title);
+            foreach (['ID', 'Code', 'Name'] as $column => $header) {
+                $masterSheet->setCellValue(Coordinate::stringFromColumnIndex($column + 1) . '1', $header);
+            }
+
+            foreach ($masters as $index => $master) {
+                $masterRow = $index + 2;
+                $code = $master->code ?: $master->slug;
+                $masterSheet->setCellValueExplicit("A{$masterRow}", (string) $master->id, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                $masterSheet->setCellValue("B{$masterRow}", $code);
+                $masterSheet->setCellValue("C{$masterRow}", $master->name);
+            }
+
+            $masterSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_HIDDEN);
+            $spreadsheet->addDefinedName(DefinedName::createInstance(
+                $rangeName,
+                null,
+                "='{$title}'!\$C\$2:INDEX('{$title}'!\$C:\$C,MAX(2,COUNTA('{$title}'!\$C:\$C)))"
+            ));
+        }
+
+        foreach ([['C', 'InventoryLocationNames', 'Lokasi / Outlet / Gudang'], ['E', 'InventoryUomNames', 'Satuan']] as [$column, $rangeName, $label]) {
+            $validation = new \PhpOffice\PhpSpreadsheet\Cell\DataValidation();
+            $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_STOP);
+            $validation->setShowDropDown(true);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage(true);
+            $validation->setPromptTitle("Pilih {$label} dari Master Sistem");
+            $validation->setPrompt('Gunakan dropdown. Pilihan diambil dari master sistem saat template dibuat.');
+            $validation->setErrorTitle('Nilai master tidak valid');
+            $validation->setError("Pilih {$label} yang tersedia pada master sistem.");
+            $validation->setFormula1("={$rangeName}");
+            $sheet->setDataValidation("{$column}2:{$column}1001", $validation);
         }
 
         foreach (range('A', 'G') as $col) {
@@ -432,12 +673,28 @@ final class DataImportService
         $dbNames = $existingMaterials->pluck('name')->map(fn ($n) => strtolower(trim((string) $n)))->flip()->all();
         $dbSkus = $existingMaterials->pluck('code')->filter()->map(fn ($s) => strtolower(trim((string) $s)))->flip()->all();
 
-        // Available units
+        $categories = MaterialCategory::withoutGlobalScopes()
+            ->where('business_id', $business->id)->whereNull('deleted_at')->get();
+        $categoryMap = [];
+        foreach ($categories as $categoryMaster) {
+            $categoryMap[strtolower(trim($categoryMaster->name))] = $categoryMaster;
+            $categoryMap[strtolower(trim($categoryMaster->slug))] = $categoryMaster;
+        }
+
+        $suppliers = Supplier::withoutGlobalScopes()
+            ->where('business_id', $business->id)->whereNull('deleted_at')->get();
+        $supplierMap = [];
+        foreach ($suppliers as $supplierMaster) {
+            $supplierMap[strtolower(trim($supplierMaster->name))] = $supplierMaster;
+            $supplierMap[strtolower(trim($supplierMaster->slug))] = $supplierMaster;
+        }
+
+        // Available units: code is the stable identifier, name is the label.
         $units = Unit::available()->get();
         $unitMap = [];
         foreach ($units as $u) {
-            $unitMap[strtolower($u->code)] = $u;
-            $unitMap[strtolower($u->name)] = $u;
+            $unitMap[strtolower(trim($u->code))] = $u;
+            $unitMap[strtolower(trim($u->name))] = $u;
         }
 
         $parsedRows = [];
@@ -465,13 +722,27 @@ final class DataImportService
                 $errors[] = 'Nama bahan baku tidak boleh kosong.';
             }
 
-            if ($unitStr === '') {
-                $unitStr = 'pcs';
+            if (strlen($sku) > 50) {
+                $errors[] = 'Kode/SKU tidak boleh lebih dari 50 karakter.';
             }
 
-            $resolvedUnit = $unitMap[strtolower($unitStr)] ?? $unitMap['pcs'] ?? null;
-            if (!$resolvedUnit) {
-                $resolvedUnit = Unit::firstOrCreate(['code' => 'pcs'], ['name' => 'Pcs', 'category' => 'quantity']);
+            $resolvedCategory = $categoryMap[strtolower($category)] ?? null;
+            if ($category === '') {
+                $errors[] = 'Kategori bahan wajib diisi.';
+            } elseif (!$resolvedCategory) {
+                $errors[] = "Kategori bahan \"{$category}\" tidak ditemukan pada Master Kategori Bahan.";
+            }
+
+            $resolvedUnit = $unitStr !== '' ? ($unitMap[strtolower($unitStr)] ?? null) : null;
+            if ($unitStr === '') {
+                $errors[] = 'Satuan dasar wajib diisi.';
+            } elseif (!$resolvedUnit) {
+                $errors[] = "Satuan \"{$unitStr}\" tidak ditemukan pada Master UOM. Silakan pilih satuan yang tersedia atau tambahkan UOM terlebih dahulu.";
+            }
+
+            $resolvedSupplier = $supplierName !== '' ? ($supplierMap[strtolower($supplierName)] ?? null) : null;
+            if ($supplierName !== '' && !$resolvedSupplier) {
+                $errors[] = "Supplier \"{$supplierName}\" tidak ditemukan pada Master Supplier. Silakan buat Supplier terlebih dahulu.";
             }
 
             if ($purchasePrice < 0) {
@@ -524,10 +795,15 @@ final class DataImportService
                 'name' => $name,
                 'sku' => $sku,
                 'category' => $category,
-                'unit' => $resolvedUnit->code ?? 'pcs',
+                'category_id' => $resolvedCategory?->id,
+                'category_code' => $resolvedCategory?->slug,
+                'unit' => $resolvedUnit?->code ?? $unitStr,
                 'unit_id' => $resolvedUnit->id ?? null,
+                'unit_code' => $resolvedUnit?->code,
                 'purchase_price' => $purchasePrice,
                 'supplier_name' => $supplierName,
+                'supplier_id' => $resolvedSupplier?->id,
+                'supplier_code' => $resolvedSupplier?->slug,
                 'description' => $description,
                 'status' => $status,
                 'status_reason' => $statusReason,
@@ -558,9 +834,6 @@ final class DataImportService
         $skipped = 0;
 
         DB::transaction(function () use ($business, $rows, $duplicateStrategy, &$imported, &$updated, &$skipped): void {
-            $categoryCache = [];
-            $supplierCache = [];
-
             foreach ($rows as $row) {
                 $status = $row['status'] ?? 'valid';
                 if ($status === 'error') {
@@ -576,43 +849,62 @@ final class DataImportService
 
                 $sku = !empty($row['sku']) ? trim((string) $row['sku']) : null;
                 $categoryName = trim((string) ($row['category'] ?? ''));
+                $categoryCode = trim((string) ($row['category_code'] ?? ''));
                 $supplierName = trim((string) ($row['supplier_name'] ?? ''));
-                $unitId = $row['unit_id'] ?? null;
+                $supplierCode = trim((string) ($row['supplier_code'] ?? ''));
+                $unitCode = trim((string) ($row['unit_code'] ?? $row['unit'] ?? ''));
                 $purchasePrice = (float) ($row['purchase_price'] ?? 0);
                 $description = trim((string) ($row['description'] ?? ''));
 
-                // Resolve MaterialCategory
-                $categoryId = null;
-                if ($categoryName !== '') {
-                    $catKey = strtolower($categoryName);
-                    if (!isset($categoryCache[$catKey])) {
-                        $cat = \App\Models\MaterialCategory::withoutGlobalScopes()->firstOrCreate(
-                            ['business_id' => $business->id, 'name' => $categoryName],
-                            ['slug' => Str::slug($categoryName)]
-                        );
-                        $categoryCache[$catKey] = $cat->id;
-                    }
-                    $categoryId = $categoryCache[$catKey];
+                // Resolve only against existing tenant master data.
+                $category = MaterialCategory::withoutGlobalScopes()
+                    ->where('business_id', $business->id)->whereNull('deleted_at')
+                    ->where(function ($query) use ($row, $categoryCode, $categoryName): void {
+                        if (!empty($row['category_id'])) {
+                            $query->where('id', $row['category_id']);
+                        } else {
+                            $query->where('slug', $categoryCode ?: Str::slug($categoryName))
+                                ->orWhereRaw('LOWER(name) = ?', [strtolower($categoryName)]);
+                        }
+                    })->first();
+                if (!$category) {
+                    $skipped++;
+                    continue;
                 }
+                $categoryId = $category->id;
 
-                // Resolve Supplier
                 $supplierId = null;
                 if ($supplierName !== '') {
-                    $supKey = strtolower($supplierName);
-                    if (!isset($supplierCache[$supKey])) {
-                        $sup = \App\Models\Supplier::withoutGlobalScopes()->firstOrCreate(
-                            ['business_id' => $business->id, 'name' => $supplierName],
-                            ['slug' => Str::slug($supplierName)]
-                        );
-                        $supplierCache[$supKey] = $sup->id;
+                    $supplier = Supplier::withoutGlobalScopes()
+                        ->where('business_id', $business->id)->whereNull('deleted_at')
+                        ->where(function ($query) use ($row, $supplierCode, $supplierName): void {
+                            if (!empty($row['supplier_id'])) {
+                                $query->where('id', $row['supplier_id']);
+                            } else {
+                                $query->where('slug', $supplierCode ?: Str::slug($supplierName))
+                                    ->orWhereRaw('LOWER(name) = ?', [strtolower($supplierName)]);
+                            }
+                        })->first();
+                    if (!$supplier) {
+                        $skipped++;
+                        continue;
                     }
-                    $supplierId = $supplierCache[$supKey];
+                    $supplierId = $supplier->id;
                 }
 
-                if (!$unitId) {
-                    $defaultUnit = Unit::where('code', 'pcs')->first() ?? Unit::first();
-                    $unitId = $defaultUnit?->id;
+                $unit = Unit::available()->where(function ($query) use ($row, $unitCode): void {
+                    if (!empty($row['unit_id'])) {
+                        $query->where('id', $row['unit_id']);
+                    } else {
+                        $query->where('code', $unitCode)
+                            ->orWhereRaw('LOWER(name) = ?', [strtolower($unitCode)]);
+                    }
+                })->first();
+                if (!$unit) {
+                    $skipped++;
+                    continue;
                 }
+                $unitId = $unit->id;
 
                 $existing = Material::withoutGlobalScopes()->where('business_id', $business->id)
                     ->where(function ($q) use ($name, $sku): void {
@@ -838,7 +1130,7 @@ final class DataImportService
                 'sku' => $sku,
                 'category' => $category,
                 'unit' => $resolvedUnit->code ?? 'pcs',
-                'unit_id' => $resolvedUnit->id ?? null,
+                'unit_id' => $resolvedUnit?->id,
                 'selling_price' => $sellingPrice,
                 'base_cost' => $baseCost,
                 'min_stock' => $minStock,
@@ -1318,7 +1610,15 @@ final class DataImportService
         $defaultLocation = $locations->first();
 
         // Preload Materials in business - Strict Master Data Requirement (Rule 01, 04, 07)
-        $materials = Material::withoutGlobalScopes()->where('business_id', $business->id)->with('unit', 'latestPrice')->get();
+        $materials = Material::withoutGlobalScopes()->where('business_id', $business->id)->with('unit')->get();
+        $materialPrices = MaterialPrice::withoutGlobalScopes()
+            ->where('business_id', $business->id)
+            ->whereIn('material_id', $materials->pluck('id'))
+            ->orderByDesc('effective_date')
+            ->orderByDesc('created_at')
+            ->get()
+            ->groupBy('material_id')
+            ->map(fn ($prices) => $prices->first());
         $materialBySku = [];
         $materialByName = [];
         foreach ($materials as $m) {
@@ -1402,9 +1702,9 @@ final class DataImportService
             }
 
             // 4. Resolve Unit
-            $resolvedUnit = $unitMap[strtolower($unitStr)] 
-                ?? $resolvedMaterial?->unit 
-                ?? $unitMap['pcs'] 
+            $resolvedUnit = $unitMap[strtolower($unitStr)]
+                ?? $resolvedMaterial?->unit
+                ?? $unitMap['pcs']
                 ?? null;
 
             if (!$resolvedUnit) {
@@ -1460,7 +1760,7 @@ final class DataImportService
 
             $displayName = $resolvedMaterial?->name ?? ($itemIdent ?: $sku);
             $displaySku = $resolvedMaterial?->code ?? $sku;
-            $resolvedCost = $unitCost > 0 ? $unitCost : (float) ($resolvedMaterial?->latestPrice?->purchase_price ?? 0);
+            $resolvedCost = $unitCost > 0 ? $unitCost : (float) ($materialPrices->get($resolvedMaterial?->id)?->purchase_price ?? 0);
 
             $parsedRows[] = [
                 'row_number' => $rowNumber,
@@ -1551,8 +1851,8 @@ final class DataImportService
                     continue;
                 }
 
-                $movementType = ($isDuplicate && $duplicateStrategy === 'adjust') 
-                    ? StockMovement::TYPE_ADJUSTMENT 
+                $movementType = ($isDuplicate && $duplicateStrategy === 'adjust')
+                    ? StockMovement::TYPE_ADJUSTMENT
                     : StockMovement::TYPE_INITIAL;
 
                 // Mutate stock via existing atomic StockService on Master Material

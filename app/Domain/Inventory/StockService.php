@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Inventory;
 
 use App\Domain\Inventory\Exceptions\InsufficientStockException;
+use App\Domain\Material\UnitConversionService;
 use App\Models\Business;
 use App\Models\InventoryStock;
 use App\Models\Location;
@@ -19,6 +20,10 @@ use InvalidArgumentException;
 
 final class StockService
 {
+    public function __construct(
+        private readonly UnitConversionService $unitConversionService = new UnitConversionService()
+    ) {}
+
     /**
      * Get or create stock record for a material (or legacy product) at a specific location with optional row-level pessimistic locking.
      * Follows Rule 01 & 21: Material is the Master Stock and Single Source of Truth.
@@ -209,8 +214,13 @@ final class StockService
         string $movementType = StockMovement::TYPE_POS_SALE,
         ?string $notes = null
     ): array {
-        $productModel = is_string($product) ? Product::find($product) : $product;
+        $productModel = is_string($product)
+            ? Product::withoutGlobalScopes()->find($product)
+            : $product;
         if (! $productModel) {
+            return [];
+        }
+        if ($productModel->business_id !== $businessId) {
             return [];
         }
 
@@ -221,6 +231,11 @@ final class StockService
             foreach ($deductions as $d) {
                 $matId = $d['material_id'];
                 $matQty = (float) $d['quantity'];
+                $materialUnit = $d['material']?->unit;
+                $bomUnit = $d['unit_id'] ? ($d['unit'] ?? $d['unit_id']) : $materialUnit;
+                if ($materialUnit && $bomUnit) {
+                    $matQty = $this->unitConversionService->convert($matQty, $bomUnit, $materialUnit);
+                }
 
                 $movements[] = $this->recordMovement(
                     businessId: $businessId,
@@ -239,21 +254,19 @@ final class StockService
             return $movements;
         }
 
-        // Fallback for legacy items without linked materials
-        if ($productModel->stocks()->where('location_id', $locationId)->exists()) {
-            $movements[] = $this->recordMovement(
-                businessId: $businessId,
-                locationId: $locationId,
-                productId: $productModel->id,
-                movementType: $movementType,
-                quantityChange: -abs($productQuantity),
-                unitCost: $unitCost,
-                referenceId: $orderId,
-                referenceNumber: $orderNumber,
-                notes: $notes ?? "Penjualan Produk {$productModel->name} #{$orderNumber}",
-                userId: $userId
-            );
-        }
+        // Legacy product stock still uses the centralized stock gate.
+        $movements[] = $this->recordMovement(
+            businessId: $businessId,
+            locationId: $locationId,
+            productId: $productModel->id,
+            movementType: $movementType,
+            quantityChange: -abs($productQuantity),
+            unitCost: $unitCost,
+            referenceId: $orderId,
+            referenceNumber: $orderNumber,
+            notes: $notes ?? "Penjualan Produk {$productModel->name} #{$orderNumber}",
+            userId: $userId
+        );
 
         return $movements;
     }
@@ -459,6 +472,13 @@ final class StockService
     public function reconcileStockOpname(StockOpname $opname, User $reconciler): void
     {
         DB::transaction(function () use ($opname, $reconciler) {
+            $opname = StockOpname::with('items')->lockForUpdate()->findOrFail($opname->id);
+            if ($opname->status === StockOpname::STATUS_RECONCILED) {
+                return;
+            }
+            if ($opname->status !== StockOpname::STATUS_IN_PROGRESS) {
+                throw new InvalidArgumentException('Stock opname belum siap direkonsiliasi.');
+            }
             foreach ($opname->items as $item) {
                 $diff = (float) $item->difference_quantity;
                 if ($diff != 0.0) {
@@ -492,6 +512,15 @@ final class StockService
     public function completeStockTransfer(StockTransfer $transfer, User $receiver): void
     {
         DB::transaction(function () use ($transfer, $receiver) {
+            $transfer = StockTransfer::with(['items', 'sourceLocation', 'destinationLocation'])
+                ->lockForUpdate()
+                ->findOrFail($transfer->id);
+            if ($transfer->status === StockTransfer::STATUS_RECEIVED) {
+                return;
+            }
+            if (! in_array($transfer->status, [StockTransfer::STATUS_PENDING, StockTransfer::STATUS_IN_TRANSIT], true)) {
+                throw new InvalidArgumentException('Transfer stok tidak dapat diterima pada status saat ini.');
+            }
             foreach ($transfer->items as $item) {
                 $qty = (float) $item->quantity;
                 $cost = (float) $item->unit_cost;

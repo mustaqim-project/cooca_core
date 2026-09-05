@@ -1,5 +1,5 @@
 /**
- * Universal HPP Calculator — Product Tour Engine (Multi-Device & High-Precision Mobile Support)
+ * Cooca UMKM — Product Tour Engine (Multi-Device & High-Precision Mobile Support)
  * Supports dynamic industry selection during onboarding, direct HPP simulation guide,
  * and high-precision target coordinate tracking with auto-drawer open/close.
  */
@@ -9,7 +9,7 @@ class GuidedProductTour {
         this.currentStepIndex = 0;
         this.isActive = false;
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        
+
         this.overlay = null;
         this.spotlight = null;
         this.popover = null;
@@ -23,7 +23,7 @@ class GuidedProductTour {
             { code: 'fnb_cloud_kitchen', name: 'Cloud Kitchen & Delivery', category: 'F&B', desc: 'Bahan porsi, premium packaging, fee delivery' },
             { code: 'fnb_catering', name: 'Catering & Prasmanan', category: 'F&B', desc: 'Paket buffet/box porsi besar, koki harian' },
             { code: 'fnb_frozen_food', name: 'Frozen Food Manufacturing', category: 'F&B', desc: 'Olahan beku, blast freezer, kemasan vacuum' },
-            
+
             // Manufaktur & Kerajinan
             { code: 'mfg_garment', name: 'Konveksi & Garment', category: 'Manufaktur', desc: 'Kain meter/kg, kancing, zipper, ongkos jahit CMT' },
             { code: 'mfg_precision', name: 'Pabrik Plastik & Metal Presisi', category: 'Manufaktur', desc: 'Injeksi molding, stamping CNC, mold tooling' },
@@ -64,8 +64,11 @@ class GuidedProductTour {
             });
             if (res.ok) {
                 const data = await res.json();
-                if (!data.completed) {
-                    this.currentStepIndex = Math.max(0, (data.current_step || 1) - 1);
+                const tourVersion = window.TOUR_VERSION || 1;
+                if (!data.completed || (data.version || 1) < tourVersion) {
+                    this.currentStepIndex = (data.version || 1) < tourVersion
+                        ? 0
+                        : Math.max(0, (data.current_step || 1) - 1);
                     if (this.currentStepIndex >= this.steps.length) {
                         this.currentStepIndex = 0;
                     }
@@ -106,28 +109,18 @@ class GuidedProductTour {
     createDOM() {
         if (document.getElementById('tour-backdrop')) return;
 
-        // 1. Backdrop Overlay SVG for smooth punch-hole spotlight
+        // 1. Transparent interaction layer; the spotlight ring provides the dimmed area.
         const backdrop = document.createElement('div');
         backdrop.id = 'tour-backdrop';
-        backdrop.className = 'fixed inset-0 z-[9990] pointer-events-auto transition-opacity duration-300';
-        backdrop.innerHTML = `
-            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <mask id="tour-spotlight-mask">
-                        <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                        <rect id="tour-spotlight-rect" x="0" y="0" width="0" height="0" rx="14" fill="black" />
-                    </mask>
-                </defs>
-                <rect x="0" y="0" width="100%" height="100%" fill="rgba(2, 6, 23, 0.82)" mask="url(#tour-spotlight-mask)" />
-            </svg>
-        `;
+        backdrop.className = 'fixed inset-0 z-[9990] pointer-events-auto transition-opacity duration-200';
         document.body.appendChild(backdrop);
         this.overlay = backdrop;
 
         // 2. Spotlight Border Pulse Ring
         const ring = document.createElement('div');
         ring.id = 'tour-spotlight-ring';
-        ring.className = 'fixed z-[9992] pointer-events-none rounded-2xl border-2 border-emerald-400 shadow-[0_0_30px_rgba(52,211,153,0.45)] transition-all duration-300 ease-out hidden';
+        ring.className = 'fixed z-[9992] pointer-events-none rounded-2xl border-2 border-emerald-400 transition-all duration-200 ease-out hidden';
+        ring.style.boxShadow = '0 0 0 100vmax rgba(2, 6, 23, 0.82), 0 0 30px rgba(52, 211, 153, 0.45)';
         document.body.appendChild(ring);
         this.spotlight = ring;
 
@@ -157,16 +150,22 @@ class GuidedProductTour {
         const totalSteps = this.steps.length;
         const currentStepNum = this.currentStepIndex + 1;
         const isMobile = window.innerWidth < 1024;
+        const isSidebarTarget = step.target && (
+            step.target.startsWith('#tour-nav-') ||
+            step.target.startsWith('#tour-group-') ||
+            step.target === '#tour-active-business' ||
+            step.target === '#tour-switch-business'
+        );
 
         // On mobile, if step targets a sidebar navigation item, automatically open mobile drawer
-        if (step.target && step.target.startsWith('#tour-nav-') && isMobile) {
+        if (isSidebarTarget && isMobile) {
             window.dispatchEvent(new CustomEvent('tour-open-sidebar'));
         } else if (isMobile) {
             window.dispatchEvent(new CustomEvent('tour-close-sidebar'));
         }
 
         // Delay to allow mobile layout & sidebar drawer transition
-        const drawerDelay = isMobile && step.target && step.target.startsWith('#tour-nav-') ? 280 : 60;
+        const drawerDelay = isMobile && isSidebarTarget ? 280 : 60;
 
         setTimeout(() => {
             let targetEl = null;
@@ -178,11 +177,24 @@ class GuidedProductTour {
                     this.renderCurrentStep();
                     return;
                 }
+
+                // Open the sidebar accordion only when it is actually closed.
+                const groupPanel = targetEl.closest('[x-show], [class~="hidden"]');
+                const groupButton = groupPanel?.previousElementSibling;
+                const panelStyle = groupPanel ? window.getComputedStyle(groupPanel) : null;
+                const panelIsClosed = groupPanel && (
+                    panelStyle?.display === 'none' ||
+                    groupPanel.getBoundingClientRect().height === 0
+                );
+
+                if (panelIsClosed && groupButton?.tagName === 'BUTTON') {
+                    groupButton.click();
+                }
             }
 
-            // High Precision Scroll into View
+            // Scroll first, then measure after the browser has laid out the open menu.
             if (targetEl) {
-                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                targetEl.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
             }
 
             // Build Progress Dots
@@ -197,14 +209,14 @@ class GuidedProductTour {
                 interactiveContentHtml = `
                     <div class="mt-3 space-y-2.5">
                         <div class="relative">
-                            <input type="text" id="tour-industry-search" placeholder="Cari industri (cth: cafe, garment, laundry, retail)..." 
+                            <input type="text" id="tour-industry-search" placeholder="Cari industri (cth: cafe, garment, laundry, retail)..."
                                    class="w-full pl-8 pr-3 py-1.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
                             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
                         </div>
 
                         <div id="tour-industry-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1">
                             ${this.industryTemplates.map(tpl => `
-                                <button type="button" 
+                                <button type="button"
                                         data-industry="${tpl.code}"
                                         data-name="${tpl.name.toLowerCase()}"
                                         data-desc="${tpl.desc.toLowerCase()}"
@@ -277,7 +289,7 @@ class GuidedProductTour {
                             ${isLast ? `
                                 <button id="tour-btn-finish" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-bold shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-1.5">
                                     <i data-lucide="calculator" class="w-4 h-4"></i>
-                                    <span>${step.actionUrl ? 'Buka Kalkulator HPP' : 'Selesai & Mulai'}</span>
+                                    <span>${step.actionUrl ? 'Buka Dashboard Cooca UMKM' : 'Selesai & Mulai'}</span>
                                 </button>
                             ` : `
                                 <button id="tour-btn-next" class="px-3.5 sm:px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-1.5">
@@ -337,12 +349,29 @@ class GuidedProductTour {
                 }
             });
 
-            // Precise Spotlight positioning update
-            this.updateSpotlightAndPopoverPosition();
+            // Precise Spotlight positioning update after Alpine and sidebar layout settle.
+            this.updateSpotlightWhenReady(step, 0);
 
             // Persist step
             this.saveStepProgress(currentStepNum);
         }, drawerDelay);
+    }
+
+    updateSpotlightWhenReady(step, attempt = 0) {
+        if (!this.isActive || !this.popover) return;
+
+        const targetEl = step.target ? document.querySelector(step.target) : null;
+        const rect = targetEl?.getBoundingClientRect();
+        const hasLayout = rect && rect.width > 0 && rect.height > 0;
+
+        if (targetEl && !hasLayout && attempt < 20) {
+            requestAnimationFrame(() => this.updateSpotlightWhenReady(step, attempt + 1));
+            return;
+        }
+
+        if (targetEl && !hasLayout) return;
+
+        this.updateSpotlightAndPopoverPosition();
     }
 
     async selectIndustryTemplate(code) {
@@ -370,7 +399,7 @@ class GuidedProductTour {
             if (statusEl) {
                 statusEl.innerHTML = '✓ Template industri berhasil diterapkan ke bisnis Anda!';
             }
-            
+
             // Re-render button highlights
             const btns = this.popover.querySelectorAll('.tour-industry-btn');
             btns.forEach(b => {
@@ -391,23 +420,18 @@ class GuidedProductTour {
 
         const step = this.steps[this.currentStepIndex];
         const targetEl = step.target ? document.querySelector(step.target) : null;
-        const spotlightRect = document.getElementById('tour-spotlight-rect');
 
-        if (targetEl && spotlightRect && this.spotlight) {
+        if (targetEl && this.spotlight) {
             const rect = targetEl.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) return;
             const padding = 8;
             const x = Math.max(0, rect.left - padding);
             const y = Math.max(0, rect.top - padding);
             const width = rect.width + (padding * 2);
             const height = rect.height + (padding * 2);
 
-            // Update SVG punch hole
-            spotlightRect.setAttribute('x', x);
-            spotlightRect.setAttribute('y', y);
-            spotlightRect.setAttribute('width', width);
-            spotlightRect.setAttribute('height', height);
-
             // Update Ring
+            this.overlay.style.background = 'transparent';
             this.spotlight.style.left = `${x}px`;
             this.spotlight.style.top = `${y}px`;
             this.spotlight.style.width = `${width}px`;
@@ -418,10 +442,7 @@ class GuidedProductTour {
             this.positionPopover(rect, step.placement || 'bottom');
         } else if (this.popover) {
             // Modal Center Placement
-            if (spotlightRect) {
-                spotlightRect.setAttribute('width', '0');
-                spotlightRect.setAttribute('height', '0');
-            }
+            this.overlay.style.background = 'rgba(2, 6, 23, 0.82)';
             if (this.spotlight) {
                 this.spotlight.classList.add('hidden');
             }
@@ -447,7 +468,7 @@ class GuidedProductTour {
         // Mobile & Tablet Screen Calculation (< 1024px)
         if (screenWidth < 1024) {
             left = (screenWidth - popoverWidth) / 2;
-            
+
             // Check vertical space
             const spaceBelow = screenHeight - targetRect.bottom;
             const spaceAbove = targetRect.top;

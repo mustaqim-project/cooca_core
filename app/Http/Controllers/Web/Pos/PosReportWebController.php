@@ -12,9 +12,9 @@ use App\Models\PosOrderPayment;
 use App\Support\Context;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class PosReportWebController extends Controller
 {
@@ -41,6 +41,8 @@ final class PosReportWebController extends Controller
 
         // Key KPI metrics
         $totalRevenue = (float) (clone $rangeOrders)->sum('total_amount');
+        $totalDiscount = (float) (clone $rangeOrders)->sum('discount_amount');
+        $totalTax = (float) (clone $rangeOrders)->sum('tax_amount');
         $totalHpp = (float) (clone $rangeOrders)->sum('total_hpp_cost');
         $totalGrossProfit = (float) (clone $rangeOrders)->sum('total_gross_profit');
         $ordersCount = (clone $rangeOrders)->count();
@@ -110,6 +112,8 @@ final class PosReportWebController extends Controller
             'startDate',
             'endDate',
             'totalRevenue',
+            'totalDiscount',
+            'totalTax',
             'totalHpp',
             'totalGrossProfit',
             'grossMarginPercent',
@@ -136,7 +140,7 @@ final class PosReportWebController extends Controller
     /**
      * Export POS Sales to Excel-compatible CSV.
      */
-    public function exportExcel(Request $request): Response
+    public function exportExcel(Request $request): StreamedResponse
     {
         $business = Context::requireBusiness();
 
