@@ -31,7 +31,7 @@
     <!-- Structured Data JSON-LD -->
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "Cooca UMKM",
         "applicationCategory": "BusinessApplication",

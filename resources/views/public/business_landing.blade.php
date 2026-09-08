@@ -55,6 +55,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        [x-cloak] { display: none !important; }
         :root {
             --primary: {{ $landingPage->theme_color ?: '#10B981' }};
         }
@@ -88,7 +89,7 @@
     {{-- JSON-LD LocalBusiness Schema for Google Search --}}
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "LocalBusiness",
         "name": "{{ $business->name }}",
         "description": "{{ $landingPage->subheadline }}",
@@ -103,8 +104,34 @@
     </script>
 </head>
 
-<body class="{{ $landingPage->dark_mode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900' }} antialiased selection:bg-brand-primary selection:text-white"
-    x-data="{ mobileMenuOpen: false, waChatOpen: false }">
+@php
+    $sectionVisibility = array_merge([
+        'hero' => true,
+        'about' => true,
+        'products' => true,
+        'services' => true,
+        'gallery' => true,
+        'testimonials' => true,
+        'faq' => true,
+        'contact' => true,
+    ], $landingPage->section_visibility ?? []);
+    $services = collect($landingPage->custom_services ?? [])->map(fn (array $service): array => [
+        ...$service,
+        'description' => $service['description'] ?? $service['desc'] ?? '',
+    ]);
+    $testimonials = collect($landingPage->testimonials ?? [])->map(fn (array $testimonial): array => [
+        ...$testimonial,
+        'quote' => $testimonial['quote'] ?? $testimonial['comment'] ?? '',
+    ]);
+    $faqs = collect($landingPage->faqs ?? [])->map(fn (array $faq): array => [
+        ...$faq,
+        'question' => $faq['question'] ?? $faq['q'] ?? '',
+        'answer' => $faq['answer'] ?? $faq['a'] ?? '',
+    ]);
+@endphp
+
+<body class="{{ $landingPage->dark_mode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900' }} antialiased selection:bg-brand-primary selection:text-white pb-20 md:pb-0"
+    x-data="{ mobileMenuOpen: false, waChatOpen: false, activeModal: null, activeItem: null, activeSection: 'hero' }">
 
     {{-- ========================================================================= --}}
     {{-- TOPBAR / NAVBAR --}}
@@ -131,15 +158,21 @@
 
             {{-- Navigation Links (Desktop) --}}
             <nav class="hidden md:flex items-center gap-6 text-xs font-semibold {{ $landingPage->dark_mode ? 'text-slate-300' : 'text-slate-600' }}">
-                <a href="#layanan" class="hover:text-brand-primary transition">Layanan &amp; Menu</a>
-                <a href="#tentang" class="hover:text-brand-primary transition">Tentang Kami</a>
-                @if(!empty($landingPage->gallery_images))
+                @if($sectionVisibility['services'])
+                    <a href="#layanan" class="hover:text-brand-primary transition">Layanan &amp; Menu</a>
+                @endif
+                @if($sectionVisibility['about'])
+                    <a href="#tentang" class="hover:text-brand-primary transition">Tentang Kami</a>
+                @endif
+                @if($sectionVisibility['gallery'] && !empty($landingPage->gallery_images))
                     <a href="#galeri" class="hover:text-brand-primary transition">Galeri</a>
                 @endif
-                @if(!empty($landingPage->faqs))
+                @if($sectionVisibility['faq'] && $faqs->isNotEmpty())
                     <a href="#faq" class="hover:text-brand-primary transition">Tanya Jawab</a>
                 @endif
-                <a href="#lokasi" class="hover:text-brand-primary transition">Lokasi &amp; Kontak</a>
+                @if($sectionVisibility['contact'])
+                    <a href="#lokasi" class="hover:text-brand-primary transition">Lokasi &amp; Kontak</a>
+                @endif
             </nav>
 
             {{-- CTA WhatsApp Navbar Button --}}
@@ -160,9 +193,9 @@
 
         {{-- Mobile Menu Dropdown --}}
         <div x-show="mobileMenuOpen" x-transition.opacity class="md:hidden border-t {{ $landingPage->dark_mode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200' }} px-4 py-4 space-y-2 text-xs font-bold" style="display: none;">
-            <a href="#layanan" @click="mobileMenuOpen = false" class="block py-2">Layanan &amp; Produk</a>
-            <a href="#tentang" @click="mobileMenuOpen = false" class="block py-2">Tentang Kami</a>
-            <a href="#lokasi" @click="mobileMenuOpen = false" class="block py-2">Lokasi &amp; Kontak</a>
+            @if($sectionVisibility['services'])<a href="#layanan" @click="mobileMenuOpen = false" class="block py-2">Layanan &amp; Produk</a>@endif
+            @if($sectionVisibility['about'])<a href="#tentang" @click="mobileMenuOpen = false" class="block py-2">Tentang Kami</a>@endif
+            @if($sectionVisibility['contact'])<a href="#lokasi" @click="mobileMenuOpen = false" class="block py-2">Lokasi &amp; Kontak</a>@endif
             <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank" class="w-full mt-2 py-2.5 rounded-xl bg-brand-primary text-white text-center font-bold block">
                 Chat via WhatsApp
             </a>
@@ -172,12 +205,14 @@
     {{-- ========================================================================= --}}
     {{-- HERO SECTION --}}
     {{-- ========================================================================= --}}
-    <section id="hero" class="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24">
+    @if($sectionVisibility['hero'])
+    <section id="hero" data-section="hero" class="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24">
         {{-- Background Glow --}}
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-72 bg-brand-primary opacity-15 blur-[100px] pointer-events-none rounded-full"></div>
 
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center relative z-10 space-y-6">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
+            <div class="text-center lg:text-left space-y-6">
             {{-- Announcement Badge --}}
             @if($landingPage->announcement_badge)
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-brand-primary/10 border border-brand-primary/30 text-brand-primary shadow-sm animate-pulse">
@@ -186,19 +221,19 @@
             @endif
 
             {{-- Headline --}}
-            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight max-w-3xl mx-auto">
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight max-w-3xl lg:max-w-none">
                 {{ $landingPage->headline ?: "Selamat Datang di {$business->name}" }}
             </h1>
 
             {{-- Subheadline --}}
             @if($landingPage->subheadline)
-                <p class="text-sm sm:text-lg {{ $landingPage->dark_mode ? 'text-slate-300' : 'text-slate-600' }} max-w-2xl mx-auto leading-relaxed">
+                <p class="text-sm sm:text-lg {{ $landingPage->dark_mode ? 'text-slate-300' : 'text-slate-600' }} max-w-2xl leading-relaxed">
                     {{ $landingPage->subheadline }}
                 </p>
             @endif
 
             {{-- Action Buttons --}}
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <div class="flex flex-col sm:flex-row items-center lg:justify-start gap-3 pt-2">
                 <a href="{{ $landingPage->cta_primary_url ?: $landingPage->getWhatsAppUrl() }}" target="_blank" rel="noopener"
                     class="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-brand-primary text-white font-extrabold text-sm shadow-xl glow-brand hover:opacity-95 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
@@ -213,23 +248,28 @@
                     </a>
                 @endif
             </div>
+            </div>
 
             {{-- Hero Media Banner (Optional) --}}
-            @if($landingPage->hero_image_url)
-                <div class="pt-6 max-w-3xl mx-auto">
-                    <div class="rounded-3xl overflow-hidden shadow-2xl border {{ $landingPage->dark_mode ? 'border-slate-800' : 'border-slate-200' }}">
-                        <img src="{{ $landingPage->hero_image_url }}" alt="{{ $business->name }}" class="w-full h-auto max-h-96 object-cover">
+            <div class="pt-6 lg:pt-0">
+                    <div class="rounded-3xl overflow-hidden shadow-2xl border {{ $landingPage->dark_mode ? 'border-slate-800' : 'border-slate-200' }} aspect-[4/3] {{ $landingPage->dark_mode ? 'bg-slate-800' : 'bg-slate-200' }}">
+                        @if($landingPage->hero_image_url)
+                            <img src="{{ $landingPage->hero_image_url }}" alt="{{ $business->name }}" class="w-full h-full object-cover" fetchpriority="high" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="hidden w-full h-full items-center justify-center text-brand-primary"><i data-lucide="store" class="w-16 h-16"></i></div>
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-brand-primary"><i data-lucide="store" class="w-16 h-16"></i></div>
+                        @endif
                     </div>
-                </div>
-            @endif
+            </div>
 
         </div>
     </section>
+    @endif
 
     {{-- ========================================================================= --}}
     {{-- VALUE PROPOSITIONS (4 PILAR KEUNGGULAN) --}}
     {{-- ========================================================================= --}}
-    @if(!empty($landingPage->values))
+    @if($sectionVisibility['about'] && !empty($landingPage->values))
         <section class="py-12 border-y {{ $landingPage->dark_mode ? 'bg-slate-900/40 border-slate-800/80' : 'bg-white border-slate-200/80' }}">
             <div class="max-w-6xl mx-auto px-4 sm:px-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -252,7 +292,8 @@
     {{-- ========================================================================= --}}
     {{-- LAYANAN & PRODUK SHOWCASE --}}
     {{-- ========================================================================= --}}
-    <section id="layanan" class="py-16 sm:py-24">
+    @if($sectionVisibility['services'] || ($sectionVisibility['products'] && $landingPage->show_pos_products))
+    <section id="layanan" data-section="services" class="py-16 sm:py-24">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
 
             {{-- Section Title --}}
@@ -267,10 +308,13 @@
             </div>
 
             {{-- Custom Services Cards --}}
-            @if(!empty($landingPage->custom_services))
+            @if($sectionVisibility['services'] && $services->isNotEmpty())
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($landingPage->custom_services as $svc)
-                        <div class="rounded-3xl glass-card p-6 flex flex-col justify-between space-y-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border">
+                    @foreach($services->take(3) as $serviceIndex => $svc)
+                        <button type="button" @click="activeItem = {{ Js::from($svc->toArray()) }}; activeModal = 'service'" class="text-left rounded-3xl glass-card p-6 flex flex-col justify-between space-y-4 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-300 transform hover:-translate-y-1 border">
+                            @if(!empty($svc['image_url']))
+                                <img src="{{ $svc['image_url'] }}" alt="{{ $svc['title'] ?? 'Layanan' }}" loading="lazy" class="w-full h-36 rounded-2xl object-cover">
+                            @endif
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between gap-2">
                                     <h3 class="font-extrabold text-base {{ $landingPage->dark_mode ? 'text-white' : 'text-slate-900' }}">{{ $svc['title'] ?? '' }}</h3>
@@ -281,7 +325,7 @@
                                     @endif
                                 </div>
                                 <p class="text-xs {{ $landingPage->dark_mode ? 'text-slate-400' : 'text-slate-500' }} leading-relaxed">
-                                    {{ $svc['desc'] ?? '' }}
+                                    {{ $svc['description'] ?? '' }}
                                 </p>
                             </div>
 
@@ -289,19 +333,22 @@
                                 <div class="font-mono font-black text-sm text-brand-primary">
                                     {{ $svc['price'] ?? 'Hubungi Kami' }}
                                 </div>
-                                <a href="{{ $landingPage->getWhatsAppUrl($svc['title'] ?? 'Layanan') }}" target="_blank" rel="noopener"
+                                <span
                                     class="px-3.5 py-1.5 rounded-xl bg-brand-primary/15 hover:bg-brand-primary text-brand-primary hover:text-white font-bold text-xs transition flex items-center gap-1.5">
-                                    <span>Pesan via WA</span>
+                                    <span>Lihat Detail</span>
                                     <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
+                                </span>
                             </div>
-                        </div>
+                        </button>
                     @endforeach
                 </div>
+                @if($services->count() > 3)
+                    <button type="button" @click="activeModal = 'all-services'" class="mx-auto block px-5 py-2.5 rounded-xl bg-brand-primary text-white text-xs font-bold">Lihat Semua Layanan</button>
+                @endif
             @endif
 
             {{-- Live POS Products (Integrated from Cashier Database) --}}
-            @if($landingPage->show_pos_products && $posProducts->isNotEmpty())
+            @if($sectionVisibility['products'] && $landingPage->show_pos_products && $posProducts->isNotEmpty())
                 <div class="pt-8 space-y-6">
                     <div class="flex items-center justify-between">
                         <div>
@@ -311,12 +358,12 @@
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        @foreach($posProducts as $prod)
-                            <div class="rounded-2xl glass-card p-4 flex flex-col justify-between space-y-3 hover:shadow-lg transition">
+                        @foreach($posProducts->take(4) as $prod)
+                            <button type="button" @click="activeItem = {{ Js::from(['name' => $prod->name, 'description' => $prod->description, 'price' => $prod->selling_price, 'image_url' => $prod->image_url, 'category' => $prod->category?->name]) }}; activeModal = 'product'" class="text-left rounded-2xl glass-card p-4 flex flex-col justify-between space-y-3 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
                                 <div>
                                     <div class="w-full h-32 rounded-xl {{ $landingPage->dark_mode ? 'bg-slate-800' : 'bg-slate-100' }} flex items-center justify-center mb-2 overflow-hidden">
                                         @if($prod->image_url)
-                                            <img src="{{ $prod->image_url }}" alt="{{ $prod->name }}" class="w-full h-full object-cover">
+                                            <img src="{{ $prod->image_url }}" alt="{{ $prod->name }}" loading="lazy" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><i data-lucide="package" class="hidden w-8 h-8 text-slate-400"></i>
                                         @else
                                             <i data-lucide="package" class="w-8 h-8 text-slate-400"></i>
                                         @endif
@@ -325,24 +372,48 @@
                                 </div>
                                 <div class="pt-2 border-t {{ $landingPage->dark_mode ? 'border-slate-800' : 'border-slate-100' }} flex items-center justify-between">
                                     <span class="font-mono font-bold text-xs text-brand-primary">Rp {{ number_format($prod->selling_price, 0, ',', '.') }}</span>
-                                    <a href="{{ $landingPage->getWhatsAppUrl($prod->name) }}" target="_blank"
+                                    <span
                                         class="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white transition">
                                         <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
-                                    </a>
+                                    </span>
                                 </div>
-                            </div>
+                            </button>
                         @endforeach
                     </div>
+                    @if($posProducts->count() > 4)
+                        <button type="button" @click="activeModal = 'all-products'" class="mx-auto block px-5 py-2.5 rounded-xl bg-brand-primary text-white text-xs font-bold">Lihat Semua Produk</button>
+                    @endif
                 </div>
             @endif
 
         </div>
     </section>
+    @endif
+
+    @if($sectionVisibility['gallery'] && !empty($landingPage->gallery_images))
+        <section id="galeri" data-section="gallery" class="py-16 sm:py-24">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+                <div class="text-center space-y-2">
+                    <span class="text-xs font-extrabold uppercase tracking-widest text-brand-primary">Galeri</span>
+                    <h2 class="text-2xl sm:text-4xl font-black tracking-tight">Sekilas Tentang Kami</h2>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    @foreach($landingPage->gallery_images as $image)
+                        @php $galleryUrl = is_array($image) ? ($image['url'] ?? '') : $image; @endphp
+                        @if($galleryUrl)
+                            <img src="{{ $galleryUrl }}" alt="Galeri {{ $business->name }}" loading="lazy" class="w-full aspect-square object-cover rounded-2xl border {{ $landingPage->dark_mode ? 'border-slate-800' : 'border-slate-200' }}" onerror="this.style.display='none';">
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- ========================================================================= --}}
     {{-- TENTANG KAMI & JAM OPERASIONAL --}}
     {{-- ========================================================================= --}}
-    <section id="tentang" class="py-16 {{ $landingPage->dark_mode ? 'bg-slate-900/60' : 'bg-slate-100/60' }}">
+    @if($sectionVisibility['about'])
+    <section id="tentang" data-section="about" class="py-16 {{ $landingPage->dark_mode ? 'bg-slate-900/60' : 'bg-slate-100/60' }}">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
@@ -413,11 +484,12 @@
             </div>
         </div>
     </section>
+    @endif
 
     {{-- ========================================================================= --}}
     {{-- TESTIMONI PELANGGAN --}}
     {{-- ========================================================================= --}}
-    @if(!empty($landingPage->testimonials))
+    @if($sectionVisibility['testimonials'] && $testimonials->isNotEmpty())
         <section class="py-16 sm:py-24">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
                 <div class="text-center max-w-xl mx-auto space-y-2">
@@ -426,7 +498,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($landingPage->testimonials as $testi)
+                    @foreach($testimonials as $testi)
                         <div class="rounded-3xl glass-card p-6 flex flex-col justify-between space-y-4 border">
                             {{-- Star Rating --}}
                             <div class="flex items-center gap-1 text-amber-400">
@@ -451,7 +523,7 @@
     {{-- ========================================================================= --}}
     {{-- FAQ ACCORDION --}}
     {{-- ========================================================================= --}}
-    @if(!empty($landingPage->faqs))
+    @if($sectionVisibility['faq'] && $faqs->isNotEmpty())
         <section id="faq" class="py-16 {{ $landingPage->dark_mode ? 'bg-slate-900/40' : 'bg-slate-100/60' }}">
             <div class="max-w-3xl mx-auto px-4 sm:px-6 space-y-8" x-data="{ openFaq: null }">
                 <div class="text-center space-y-2">
@@ -460,7 +532,7 @@
                 </div>
 
                 <div class="space-y-3">
-                    @foreach($landingPage->faqs as $index => $faq)
+                    @foreach($faqs as $index => $faq)
                         <div class="rounded-2xl glass-card overflow-hidden border">
                             <button @click="openFaq = (openFaq === {{ $index }} ? null : {{ $index }})"
                                 class="w-full px-5 py-4 text-left flex items-center justify-between gap-4 font-bold text-xs sm:text-sm">
@@ -481,7 +553,8 @@
     {{-- ========================================================================= --}}
     {{-- LOKASI, PETA & KONTAK --}}
     {{-- ========================================================================= --}}
-    <section id="lokasi" class="py-16 sm:py-24">
+    @if($sectionVisibility['contact'])
+    <section id="lokasi" data-section="contact" class="py-16 sm:py-24">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
             <div class="text-center max-w-xl mx-auto space-y-2">
                 <span class="text-xs font-extrabold uppercase tracking-widest text-brand-primary">Kunjungi Kami</span>
@@ -557,8 +630,51 @@
             </div>
         </div>
     </section>
+    @endif
 
     {{-- ========================================================================= --}}
+    {{-- Shared catalog/detail modal architecture --}}
+    <div x-show="activeModal" x-cloak @keydown.escape.window="activeModal = null" @click.self="activeModal = null" class="fixed inset-0 z-[70] bg-slate-950/80 backdrop-blur-sm p-4 flex items-center justify-center" role="dialog" aria-modal="true">
+        <div class="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-slate-900 border border-slate-700 shadow-2xl p-5 sm:p-7">
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <h2 class="text-lg font-black text-slate-900 dark:text-white" x-text="activeModal === 'service' ? 'Detail Layanan' : activeModal === 'product' ? 'Detail Produk' : activeModal === 'all-services' ? 'Semua Layanan' : 'Semua Produk'"></h2>
+                <button type="button" @click="activeModal = null" class="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white" aria-label="Tutup dialog"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div x-show="activeModal === 'service' || activeModal === 'product'" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="aspect-[4/3] rounded-2xl bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center">
+                    <template x-if="activeItem && activeItem.image_url"><img :src="activeItem.image_url" :alt="activeItem.name || activeItem.title" class="w-full h-full object-cover" onerror="this.style.display='none';"></template>
+                    <i x-show="!activeItem || !activeItem.image_url" data-lucide="package" class="w-12 h-12 text-slate-400"></i>
+                </div>
+                <div class="space-y-4">
+                    <div><p class="text-xs text-brand-primary font-bold uppercase" x-text="activeItem?.category || (activeModal === 'service' ? 'Layanan' : 'Produk')"></p><h3 class="text-2xl font-black text-slate-900 dark:text-white mt-1" x-text="activeItem?.title || activeItem?.name"></h3></div>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap" x-text="activeItem?.description || 'Informasi detail belum tersedia.'"></p>
+                    <p class="text-lg font-black text-brand-primary" x-text="activeItem?.price || 'Hubungi kami'"></p>
+                    <a :href="activeItem ? '{{ $landingPage->getWhatsAppUrl() }}' + '&text=' + encodeURIComponent('Saya tertarik dengan ' + (activeItem.title || activeItem.name)) : '#'" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-primary text-white text-xs font-bold">Hubungi via WhatsApp <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+                </div>
+            </div>
+            <div x-show="activeModal === 'all-services'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                @foreach($services as $svc)
+                    <button type="button" @click="activeItem = {{ Js::from($svc->toArray()) }}; activeModal = 'service'" class="text-left p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"><h3 class="font-bold text-sm text-slate-900 dark:text-white">{{ $svc['title'] ?? 'Layanan' }}</h3><p class="text-xs text-slate-500 mt-1">{{ $svc['description'] ?? '' }}</p></button>
+                @endforeach
+            </div>
+            <div x-show="activeModal === 'all-products'" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                @foreach($posProducts as $prod)
+                    <button type="button" @click="activeItem = {{ Js::from(['name' => $prod->name, 'description' => $prod->description, 'price' => $prod->selling_price, 'image_url' => $prod->image_url, 'category' => $prod->category?->name]) }}; activeModal = 'product'" class="text-left p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"><h3 class="font-bold text-sm text-slate-900 dark:text-white">{{ $prod->name }}</h3><p class="text-xs text-brand-primary mt-1">Rp {{ number_format((float) $prod->selling_price, 0, ',', '.') }}</p></button>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    {{-- Mobile section navigation --}}
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur border-t border-slate-200 dark:border-slate-800 px-2 pt-2 pb-[calc(.5rem+env(safe-area-inset-bottom))]" aria-label="Navigasi halaman">
+        <div class="grid grid-cols-4 gap-1">
+            @if($sectionVisibility['hero'])<a href="#hero" class="text-center text-[10px] font-bold text-slate-500 py-1.5" :class="activeSection === 'hero' ? 'text-brand-primary' : ''"><i data-lucide="home" class="w-4 h-4 mx-auto mb-0.5"></i>Home</a>@endif
+            @if($sectionVisibility['about'])<a href="#tentang" class="text-center text-[10px] font-bold text-slate-500 py-1.5" :class="activeSection === 'about' ? 'text-brand-primary' : ''"><i data-lucide="book-open" class="w-4 h-4 mx-auto mb-0.5"></i>About</a>@endif
+            @if($sectionVisibility['products'] || $sectionVisibility['services'])<a href="#layanan" class="text-center text-[10px] font-bold text-slate-500 py-1.5" :class="activeSection === 'services' ? 'text-brand-primary' : ''"><i data-lucide="package" class="w-4 h-4 mx-auto mb-0.5"></i>Katalog</a>@endif
+            @if($sectionVisibility['contact'])<a href="#lokasi" class="text-center text-[10px] font-bold text-slate-500 py-1.5" :class="activeSection === 'contact' ? 'text-brand-primary' : ''"><i data-lucide="map-pin" class="w-4 h-4 mx-auto mb-0.5"></i>Kontak</a>@endif
+        </div>
+    </nav>
+
     {{-- FOOTER --}}
     {{-- ========================================================================= --}}
     <footer class="py-8 border-t {{ $landingPage->dark_mode ? 'bg-slate-950 border-slate-800/80 text-slate-500' : 'bg-white border-slate-200 text-slate-400' }} text-xs text-center">

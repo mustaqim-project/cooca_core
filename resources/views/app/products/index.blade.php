@@ -10,6 +10,15 @@
     showEditModal: {{ $editProduct ? 'true' : 'false' }},
     showAddCategoryModal: false,
     showAddUnitModal: false,
+    showProductScannerPermission: false,
+    showProductScanner: false,
+    productScannerStarting: false,
+    productScannerError: '',
+    productScannerStream: null,
+    productScannerDetector: null,
+    productScannerFrameId: null,
+    productScannerBusy: false,
+    productScannerTarget: 'add',
     editProduct: {!! $editProduct ? json_encode([
         'id' => $editProduct->id,
         'slug' => $editProduct->slug,
@@ -26,6 +35,85 @@
     openEditModal(p) {
         this.editProduct = { ...p };
         this.showEditModal = true;
+    },
+    requestProductScanner(target) {
+        this.productScannerTarget = target;
+        if (localStorage.getItem('cooca-product-camera-permission-intro-seen') === '1') {
+            this.openProductScanner();
+            return;
+        }
+        this.showProductScannerPermission = true;
+    },
+    async confirmProductScannerAccess() {
+        localStorage.setItem('cooca-product-camera-permission-intro-seen', '1');
+        this.showProductScannerPermission = false;
+        await this.openProductScanner();
+    },
+    async openProductScanner() {
+        this.showProductScanner = true;
+        this.productScannerError = '';
+        await this.$nextTick();
+        if (!('BarcodeDetector' in window)) {
+            this.productScannerError = 'Browser ini belum mendukung scan barcode kamera. Gunakan Chrome/Android terbaru atau input barcode manual.';
+            return;
+        }
+        try {
+            const supported = await BarcodeDetector.getSupportedFormats();
+            const formats = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'codabar', 'itf'].filter(format => supported.includes(format));
+            this.productScannerDetector = new BarcodeDetector({ formats });
+            this.productScannerStarting = true;
+            this.productScannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+            this.$refs.productBarcodeVideo.srcObject = this.productScannerStream;
+            await this.$refs.productBarcodeVideo.play();
+            this.productScannerStarting = false;
+            this.scanProductBarcodeFrame();
+        } catch (error) {
+            this.productScannerStarting = false;
+            this.productScannerError = this.productScannerMessage(error);
+        }
+    },
+    async scanProductBarcodeFrame() {
+        if (!this.showProductScanner || !this.productScannerDetector || !this.$refs.productBarcodeVideo) return;
+        if (!this.productScannerBusy && this.$refs.productBarcodeVideo.readyState >= 2) {
+            this.productScannerBusy = true;
+            try {
+                const results = await this.productScannerDetector.detect(this.$refs.productBarcodeVideo);
+                const value = results.find(result => result.rawValue)?.rawValue;
+                if (value) {
+                    this.setProductBarcode(value);
+                    return;
+                }
+            } catch (error) {
+                this.productScannerError = 'Barcode belum terbaca. Posisikan barcode di dalam kotak.';
+            } finally {
+                this.productScannerBusy = false;
+            }
+        }
+        this.productScannerFrameId = requestAnimationFrame(() => this.scanProductBarcodeFrame());
+    },
+    setProductBarcode(value) {
+        if (this.productScannerTarget === 'edit') {
+            this.editProduct.sku = value;
+        } else if (this.$refs.newProductBarcode) {
+            this.$refs.newProductBarcode.value = value;
+        }
+        this.closeProductScanner();
+    },
+    closeProductScanner() {
+        this.showProductScanner = false;
+        if (this.productScannerFrameId) cancelAnimationFrame(this.productScannerFrameId);
+        this.productScannerFrameId = null;
+        this.productScannerBusy = false;
+        if (this.productScannerStream) this.productScannerStream.getTracks().forEach(track => track.stop());
+        this.productScannerStream = null;
+        if (this.$refs.productBarcodeVideo) this.$refs.productBarcodeVideo.srcObject = null;
+    },
+    productScannerMessage(error) {
+        if (error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') return 'Akses kamera ditolak. Izinkan kamera di browser lalu coba lagi.';
+        if (error?.name === 'NotFoundError') return 'Kamera tidak ditemukan pada perangkat ini.';
+        if (error?.name === 'NotReadableError') return 'Kamera sedang digunakan aplikasi lain.';
+        if (window.isSecureContext === false) return 'Scanner kamera memerlukan HTTPS atau localhost.';
+        return 'Kamera tidak dapat dibuka. Periksa izin kamera lalu coba lagi.';
     }
 }">
 
@@ -34,8 +122,8 @@
         <form method="GET" action="{{ route('products.index') }}" class="flex-1 flex items-center gap-3">
             <div class="relative flex-1 max-w-md">
                 <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                <input type="text" name="search" value="{{ request('search') }}" 
-                       placeholder="Cari produk atau SKU..." 
+                <input type="text" name="search" value="{{ request('search') }}"
+                       placeholder="Cari produk, SKU, atau barcode..."
                        class="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-xs text-white">
             </div>
 
@@ -49,14 +137,14 @@
         </form>
 
         <div class="flex items-center gap-2">
-            <a href="{{ route('import.index', ['tab' => 'products']) }}" 
+            <a href="{{ route('import.index', ['tab' => 'products']) }}"
                class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
                title="Import data produk massal dari file Excel / CSV">
                 <i data-lucide="file-spreadsheet" class="w-4 h-4 text-teal-400"></i>
                 <span>Import Excel</span>
             </a>
 
-            <button @click="showAddModal = true" 
+            <button @click="showAddModal = true"
                     class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Tambah Produk Baru</span>
@@ -70,7 +158,7 @@
             <table class="w-full text-left text-xs">
                 <thead>
                     <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
-                        <th class="py-3.5 px-4 font-semibold">Nama Produk & SKU</th>
+                        <th class="py-3.5 px-4 font-semibold">Nama Produk & Barcode</th>
                         <th class="py-3.5 px-4 font-semibold">Kategori</th>
                         <th class="py-3.5 px-4 font-semibold">Satuan Output</th>
                         <th class="py-3.5 px-4 font-semibold text-right">HPP Standar / Aktif</th>
@@ -118,14 +206,14 @@
                         </td>
                         <td class="py-3.5 px-4 text-right">
                             <div class="flex items-center justify-end gap-1.5">
-                                <a href="{{ route('products.bom', $prod->slug) }}" 
+                                <a href="{{ route('products.bom', $prod->slug) }}"
                                    class="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold text-xs transition-colors flex items-center gap-1">
                                     <i data-lucide="git-fork" class="w-3.5 h-3.5"></i>
                                     <span>BOM</span>
                                 </a>
 
-                                <a href="{{ route('calculator.index', ['product_id' => $prod->id, 'tab' => 'advanced']) }}" 
-                                   class="px-2.5 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 font-semibold text-xs transition-colors flex items-center gap-1" 
+                                <a href="{{ route('calculator.index', ['product_id' => $prod->id, 'tab' => 'advanced']) }}"
+                                   class="px-2.5 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 font-semibold text-xs transition-colors flex items-center gap-1"
                                    title="Hitung HPP & tetapkan harga jual di Kalkulator">
                                     <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
                                     <span>Kalkulasi HPP</span>
@@ -185,7 +273,7 @@
 
             <form method="POST" action="{{ route('products.store') }}" class="space-y-3.5 text-xs">
                 @csrf
-                
+
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">Nama Produk *</label>
                     <input type="text" name="name" required placeholder="Contoh: Roti Tawar Gandum / Kopi Latte"
@@ -236,9 +324,15 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">SKU Produk (Opsional)</label>
-                    <input type="text" name="sku" placeholder="PRD-001"
-                           class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+                      <label class="block font-semibold text-slate-300 mb-1">Barcode / SKU (Opsional)</label>
+                    <div class="flex gap-2">
+                        <input type="text" name="sku" x-ref="newProductBarcode" inputmode="numeric" autocomplete="off" placeholder="8991234567890 atau PRD-001"
+                               class="min-w-0 flex-1 px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+                        <button type="button" @click="requestProductScanner('add')" class="shrink-0 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950" title="Scan barcode dengan kamera" aria-label="Scan barcode dengan kamera">
+                            <i data-lucide="scan-barcode" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                      <p class="text-[10px] text-slate-500 mt-1">Isi dengan nomor barcode produk agar dapat dipindai di POS.</p>
                 </div>
 
                 <div class="pt-2 flex justify-end gap-2">
@@ -352,8 +446,14 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Kode SKU</label>
-                        <input type="text" name="sku" x-model="editProduct.sku" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                        <label class="block font-semibold text-slate-300 mb-1">Barcode / SKU</label>
+                        <div class="flex gap-2">
+                            <input type="text" name="sku" x-model="editProduct.sku" inputmode="numeric" autocomplete="off" placeholder="8991234567890 atau PRD-001" class="min-w-0 flex-1 px-3.5 py-2 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                            <button type="button" @click="requestProductScanner('edit')" class="shrink-0 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950" title="Scan barcode dengan kamera" aria-label="Scan barcode dengan kamera">
+                                <i data-lucide="scan-barcode" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1">Nomor ini digunakan scanner barcode di POS.</p>
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Kategori</label>
@@ -413,6 +513,53 @@
                     <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-lg shadow-emerald-500/20">Simpan Perubahan</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal izin kamera pertama kali -->
+    <div x-show="showProductScannerPermission" x-cloak class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+        <div class="glass-card max-w-md w-full p-6 rounded-2xl space-y-4 border border-slate-700">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                    <i data-lucide="camera" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-white">Izinkan Akses Kamera?</h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">Kamera hanya digunakan untuk membaca barcode produk saat Anda memilih Scan Barcode. Kamera berhenti setelah scanner ditutup.</p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button type="button" @click="showProductScannerPermission = false" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs">Batal</button>
+                <button type="button" @click="confirmProductScannerAccess()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs">Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal scanner barcode produk -->
+    <div x-show="showProductScanner" x-cloak @keydown.escape.window="closeProductScanner()" @click.self="closeProductScanner()" class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+        <div class="glass-card max-w-lg w-full p-4 sm:p-6 rounded-2xl space-y-4 border border-slate-700">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <h3 class="text-base font-bold text-white">Scan Barcode Produk</h3>
+                    <p class="text-xs text-slate-400 mt-1">Arahkan kamera ke barcode sampai terbaca.</p>
+                </div>
+                <button type="button" @click="closeProductScanner()" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800" title="Tutup scanner" aria-label="Tutup scanner">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="relative aspect-video overflow-hidden rounded-2xl bg-slate-950 border border-slate-800">
+                <video x-ref="productBarcodeVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+                    <div class="w-[72%] h-[42%] rounded-xl border-2 border-emerald-400 shadow-[0_0_0_9999px_rgba(2,6,23,.38)]"></div>
+                </div>
+                <div x-show="productScannerStarting" class="absolute inset-0 flex items-center justify-center bg-slate-950/70 text-xs text-slate-300">
+                    <span class="flex items-center gap-2"><i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i> Menyiapkan kamera...</span>
+                </div>
+            </div>
+            <div x-show="productScannerError" class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300" x-text="productScannerError"></div>
+            <div class="flex justify-end pt-2 border-t border-slate-800">
+                <button type="button" @click="closeProductScanner()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-semibold text-xs">Tutup</button>
+            </div>
         </div>
     </div>
 </div>

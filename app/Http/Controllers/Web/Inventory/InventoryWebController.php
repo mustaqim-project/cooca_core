@@ -18,10 +18,13 @@ use App\Models\StockOpnameItem;
 use App\Models\StockTransfer;
 use App\Models\StockTransferItem;
 use App\Support\Context;
+use App\Support\DocumentNumberGenerator;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 final class InventoryWebController extends Controller
@@ -174,7 +177,7 @@ final class InventoryWebController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'location_id' => ['required', 'string'],
+            'location_id' => ['required', 'string', 'exists:locations,id'],
             'opname_date' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
@@ -183,58 +186,98 @@ final class InventoryWebController extends Controller
             'items.*.physical_quantity' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $opnameNumber = 'OPN-' . date('Ymd') . '-' . rand(100, 999);
+        $items = collect($validated['items'])->values();
+        $validItems = $items->filter(function (array $item, int $index): bool {
+            $hasMaterial = filled($item['material_id'] ?? null);
+            $hasProduct = filled($item['product_id'] ?? null);
 
-        $opname = StockOpname::create([
-            'business_id' => $business->id,
-            'location_id' => $validated['location_id'],
-            'opname_number' => $opnameNumber,
-            'opname_date' => $validated['opname_date'],
-            'status' => StockOpname::STATUS_IN_PROGRESS,
-            'notes' => $validated['notes'] ?? null,
-            'conducted_by' => $user->id,
-        ]);
-
-        foreach ($validated['items'] as $itemData) {
-            $materialId = $itemData['material_id'] ?? null;
-            $productId = $itemData['product_id'] ?? null;
-
-            if (!$materialId && !$productId) {
-                continue;
+            if ($hasMaterial === $hasProduct) {
+                throw ValidationException::withMessages([
+                    "items.{$index}" => 'Pilih tepat satu bahan baku atau produk pada setiap baris.',
+                ]);
             }
 
-            $stockQuery = InventoryStock::where('business_id', $business->id)
-                ->where('location_id', $validated['location_id']);
+            return true;
+        });
 
-            if ($materialId) {
-                $stockQuery->where('material_id', $materialId);
-            } else {
-                $stockQuery->where('product_id', $productId);
-            }
-
-            $stock = $stockQuery->first();
-
-            $sysQty = $stock ? (float) $stock->quantity : 0.0;
-            $physQty = (float) $itemData['physical_quantity'];
-            $diff = $physQty - $sysQty;
-            $unitCost = (float) ($stock?->last_cost ?? 0.0);
-
-            if ($unitCost <= 0 && $materialId) {
-                $mat = Material::withoutGlobalScopes()->where('business_id', $business->id)->with('latestPrice')->find($materialId);
-                $unitCost = (float) ($mat?->latestPrice?->purchase_price ?? 0.0);
-            }
-
-            StockOpnameItem::create([
-                'stock_opname_id' => $opname->id,
-                'material_id' => $materialId,
-                'product_id' => $productId,
-                'system_quantity' => $sysQty,
-                'physical_quantity' => $physQty,
-                'difference_quantity' => $diff,
-                'unit_cost' => $unitCost,
-                'total_difference_cost' => $diff * $unitCost,
+        if ($validItems->isEmpty()) {
+            throw ValidationException::withMessages([
+                'items' => 'Tambahkan minimal satu bahan baku atau produk untuk opname.',
             ]);
         }
+
+        $locationExists = Location::where('business_id', $business->id)
+            ->whereKey($validated['location_id'])
+            ->exists();
+        if (! $locationExists) {
+            throw ValidationException::withMessages(['location_id' => 'Lokasi tidak ditemukan pada bisnis aktif.']);
+        }
+
+        $opnameNumber = DB::transaction(function () use ($business, $user, $validated, $validItems): string {
+            $opnameNumber = DocumentNumberGenerator::generateStockOpnameNumber($business->id);
+            $seenItems = [];
+            $opname = StockOpname::create([
+                'business_id' => $business->id,
+                'location_id' => $validated['location_id'],
+                'opname_number' => $opnameNumber,
+                'opname_date' => $validated['opname_date'],
+                'status' => StockOpname::STATUS_IN_PROGRESS,
+                'notes' => $validated['notes'] ?? null,
+                'conducted_by' => $user->id,
+            ]);
+
+            foreach ($validItems as $itemData) {
+                $materialId = $itemData['material_id'] ?? null;
+                $productId = $itemData['product_id'] ?? null;
+
+                $masterExists = $materialId
+                    ? Material::withoutGlobalScopes()->where('business_id', $business->id)->whereKey($materialId)->exists()
+                    : Product::withoutGlobalScopes()->where('business_id', $business->id)->whereKey($productId)->exists();
+                if (! $masterExists) {
+                    throw ValidationException::withMessages(['items' => 'Salah satu item tidak ditemukan pada bisnis aktif.']);
+                }
+
+                $itemKey = ($materialId ? 'material:' . $materialId : 'product:' . $productId);
+                if (isset($seenItems[$itemKey])) {
+                    throw ValidationException::withMessages(['items' => 'Item yang sama hanya boleh dicatat satu kali dalam satu opname.']);
+                }
+                $seenItems[$itemKey] = true;
+
+                $product = $productId
+                    ? Product::withoutGlobalScopes()->where('business_id', $business->id)->find($productId)
+                    : null;
+                $stockMaterialId = $materialId ?: $product?->direct_material_id;
+                $stockQuery = InventoryStock::withoutGlobalScopes()
+                    ->where('business_id', $business->id)
+                    ->where('location_id', $validated['location_id']);
+                $stock = $stockQuery
+                    ->when($stockMaterialId, fn ($query) => $query->where('material_id', $stockMaterialId))
+                    ->when(! $stockMaterialId, fn ($query) => $query->where('product_id', $productId))
+                    ->first();
+
+                $sysQty = (float) ($stock?->quantity ?? 0.0);
+                $physQty = (float) $itemData['physical_quantity'];
+                $diff = $physQty - $sysQty;
+                $unitCost = (float) ($stock?->last_cost ?? 0.0);
+
+                if ($unitCost <= 0 && $materialId) {
+                    $mat = Material::withoutGlobalScopes()->where('business_id', $business->id)->with('latestPrice')->find($materialId);
+                    $unitCost = (float) ($mat?->latestPrice?->purchase_price ?? 0.0);
+                }
+
+                $opname->items()->create([
+                    'material_id' => $materialId,
+                    'product_id' => $productId,
+                    'system_quantity' => $sysQty,
+                    'physical_quantity' => $physQty,
+                    'difference_quantity' => $diff,
+                    'unit_cost' => $unitCost,
+                    'total_difference_cost' => $diff * $unitCost,
+                ]);
+            }
+
+            return $opnameNumber;
+        });
 
         return redirect()->back()->with('success', "Stock Opname #{$opnameNumber} berhasil disimpan.");
     }
@@ -244,6 +287,9 @@ final class InventoryWebController extends Controller
      */
     public function reconcileOpname(StockOpname $opname): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($opname->business_id === $business->id, 404);
+
         $user = auth()->user();
         $this->stockService->reconcileStockOpname($opname, $user);
 

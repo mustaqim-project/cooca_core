@@ -40,6 +40,7 @@ class BusinessLandingPage extends Model
         'services_subtitle',
         'custom_services',
         'gallery_images',
+        'section_visibility',
         'testimonials',
         'faqs',
         'google_maps_embed_url',
@@ -66,6 +67,7 @@ class BusinessLandingPage extends Model
         'gallery_images'     => 'array',
         'testimonials'       => 'array',
         'faqs'               => 'array',
+        'section_visibility' => 'array',
     ];
 
     public function business(): BelongsTo

@@ -368,6 +368,40 @@ final class PosTerminalFeatureTest extends TestCase
         $this->assertEquals(47, $stock->quantity);
     }
 
+    public function test_stock_opname_rejects_invalid_rows_and_accepts_product_counts(): void
+    {
+        $this->actingAs($this->user);
+
+        $invalidResponse = $this->from(route('inventory.opnames.index'))
+            ->post(route('inventory.opnames.store'), [
+                'location_id' => $this->location->id,
+                'opname_date' => now()->toDateString(),
+                'items' => [
+                    ['material_id' => '', 'product_id' => '', 'physical_quantity' => 10],
+                ],
+            ]);
+
+        $invalidResponse->assertRedirect(route('inventory.opnames.index'));
+        $invalidResponse->assertSessionHasErrors('items.0');
+        $this->assertDatabaseMissing('stock_opnames', ['business_id' => $this->business->id]);
+
+        $response = $this->post(route('inventory.opnames.store'), [
+            'location_id' => $this->location->id,
+            'opname_date' => now()->toDateString(),
+            'items' => [
+                ['product_id' => $this->product->id, 'physical_quantity' => 48],
+            ],
+        ]);
+
+        $response->assertRedirect();
+        $opname = \App\Models\StockOpname::latest()->firstOrFail();
+        $item = $opname->items()->firstOrFail();
+
+        $this->assertSame($this->product->id, $item->product_id);
+        $this->assertEquals(50.0, (float) $item->system_quantity);
+        $this->assertEquals(-2.0, (float) $item->difference_quantity);
+    }
+
     public function test_voucher_and_loyalty_point_redemption_on_checkout(): void
     {
         $this->actingAs($this->user);

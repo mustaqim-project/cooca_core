@@ -28,6 +28,7 @@ class Product extends Model
         'name',
         'slug',
         'description',
+        'image_path',
         'base_cost',
         'selling_price',
         'min_stock',
@@ -46,6 +47,11 @@ class Product extends Model
             'min_stock' => 'float',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image_path ? asset('storage/' . ltrim($this->image_path, '/')) : null;
     }
 
     /**

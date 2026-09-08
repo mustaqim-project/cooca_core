@@ -17,9 +17,10 @@
                     <div>
                         <div class="flex items-center gap-2">
                             <h1 class="text-xl font-black text-white tracking-tight">Website & Landing Page Bisnis</h1>
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold {{ $landingPage->is_published ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700' }}">
-                                <span class="w-2 h-2 rounded-full {{ $landingPage->is_published ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500' }}"></span>
-                                {{ $landingPage->is_published ? 'Publik Aktif' : 'Draft / Disembunyikan' }}
+                            <span :class="isPublished ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'"
+                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                <span :class="isPublished ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'" class="w-2 h-2 rounded-full"></span>
+                                <span x-text="isPublished ? 'Publik Aktif' : 'Draft / Disembunyikan'"></span>
                             </span>
                         </div>
                         <p class="text-xs md:text-sm text-slate-400 mt-0.5">Kelola halaman profil, katalog produk, dan kontak online bisnis Anda untuk 20+ sektor industri.</p>
@@ -35,14 +36,18 @@
                     <span>Pilih Template Industri (20)</span>
                 </button>
 
-                <form action="{{ route('landing-page.toggle-publish') }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit"
-                        class="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition-all {{ $landingPage->is_published ? 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border-rose-500/30' : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30' }}">
-                        <i data-lucide="{{ $landingPage->is_published ? 'eye-off' : 'eye' }}" class="w-4 h-4"></i>
-                        <span>{{ $landingPage->is_published ? 'Nonaktifkan Publik' : 'Terbitkan Sekarang' }}</span>
-                    </button>
-                </form>
+                <button type="button" @click="togglePublish()" :disabled="saving"
+                    :class="isPublished ? 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border-rose-500/30' : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30'"
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition-all disabled:opacity-50">
+                    <i :data-lucide="isPublished ? 'eye-off' : 'eye'" class="w-4 h-4"></i>
+                    <span x-text="isPublished ? 'Nonaktifkan Publik' : 'Terbitkan Sekarang'"></span>
+                </button>
+
+                <button type="button" @click="openPreview()" :disabled="saving"
+                    class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-2 transition-all">
+                    <i data-lucide="monitor-play" class="w-4 h-4 text-emerald-400"></i>
+                    <span x-text="saving ? 'Menyiapkan Preview...' : 'Preview Live'"></span>
+                </button>
 
                 <a href="{{ $publicUrl }}" target="_blank"
                     class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
@@ -83,7 +88,7 @@
     @endif
 
     <!-- MAIN FORM -->
-    <form action="{{ route('landing-page.update') }}" method="POST" id="landingPageForm" @submit="prepareSubmission">
+    <form action="{{ route('landing-page.update') }}" method="POST" id="landingPageForm" @submit.prevent="saveAll">
         @csrf
         @method('PUT')
 
@@ -130,11 +135,12 @@
 
                     <div class="pt-3 mt-1 border-t border-slate-800 space-y-2">
                         <button type="submit"
-                            class="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
-                            <i data-lucide="save" class="w-4 h-4"></i>
-                            <span>Simpan Semua Perubahan</span>
+                            :disabled="saving"
+                            class="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">
+                            <i :data-lucide="saving ? 'loader-circle' : 'save'" :class="saving ? 'animate-spin' : ''" class="w-4 h-4"></i>
+                            <span x-text="saving ? 'Menyimpan...' : 'Simpan Semua Perubahan'"></span>
                         </button>
-                        <p class="text-[10px] text-slate-500 text-center">Perubahan tersimpan tidak otomatis dipublikasikan.</p>
+                        <p class="text-[10px] text-center" :class="saveError ? 'text-rose-400' : 'text-slate-500'" x-text="saveError || saveMessage || 'Perubahan tersimpan tidak otomatis dipublikasikan.'"></p>
                     </div>
                 </div>
             </div>
@@ -629,6 +635,86 @@
         </div>
     </form>
 
+    <!-- LIVE LANDING PAGE PREVIEW -->
+    <div x-show="showPreview" x-transition.opacity class="fixed inset-0 z-[60] bg-slate-950/90 backdrop-blur-sm p-3 sm:p-6" style="display: none;">
+        <div class="h-full max-w-6xl mx-auto bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="shrink-0 px-4 sm:px-6 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="monitor-play" class="w-4 h-4 text-emerald-400"></i>
+                    <span class="text-xs font-bold text-white">Preview Live</span>
+                    <span class="text-[10px] text-slate-500">Perubahan tampil otomatis</span>
+                </div>
+                <button type="button" @click="showPreview = false" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800" title="Tutup preview" aria-label="Tutup preview">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <iframe :src="previewUrl" title="Preview halaman publik bisnis" class="w-full h-full border-0 bg-white"></iframe>
+            <div x-show="false" class="flex-1 overflow-y-auto" :style="`--preview-color: ${form.theme_color || '#10B981'}`">
+                <section class="relative overflow-hidden px-6 py-16 sm:px-14 sm:py-24 text-white" :style="`background: linear-gradient(135deg, ${form.theme_color || '#10B981'}, #0f172a 72%)`">
+                    <div class="relative z-10 max-w-3xl">
+                        <div x-show="form.announcement_badge" class="inline-flex px-3 py-1 rounded-full bg-white/15 border border-white/20 text-xs font-bold mb-5" x-text="form.announcement_badge"></div>
+                        <h1 class="text-3xl sm:text-5xl font-black leading-tight" x-text="form.headline || 'Headline bisnis Anda'"></h1>
+                        <p class="mt-4 max-w-2xl text-sm sm:text-base text-white/80 leading-relaxed" x-text="form.subheadline || 'Deskripsi bisnis Anda akan tampil di sini.'"></p>
+                        <div class="mt-7 flex flex-wrap gap-3">
+                            <span class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-white" x-text="form.cta_primary_text || 'Hubungi Kami'"></span>
+                            <span class="px-4 py-2.5 rounded-xl text-xs font-bold border border-white/30" x-text="form.cta_secondary_text || 'Lihat Katalog'"></span>
+                        </div>
+                    </div>
+                    <div x-show="form.hero_image_url" class="absolute inset-y-0 right-0 w-2/5 opacity-40 bg-cover bg-center" :style="`background-image: url('${form.hero_image_url}')`"></div>
+                </section>
+
+                <section class="px-6 py-10 sm:px-14 bg-slate-50">
+                    <div class="max-w-5xl mx-auto">
+                        <div class="text-center max-w-2xl mx-auto">
+                            <h2 class="text-2xl font-black text-slate-900" x-text="form.about_title || 'Tentang Bisnis Kami'"></h2>
+                            <p class="mt-3 text-sm text-slate-600 leading-relaxed" x-text="form.about_story || 'Cerita bisnis Anda akan tampil di sini.'"></p>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-8">
+                            <template x-for="(value, index) in values.slice(0, 4)" :key="index">
+                                <div class="p-4 bg-white border border-slate-200 rounded-xl">
+                                    <div class="text-xs font-black" :style="`color: ${form.theme_color || '#10B981'}`" x-text="'0' + (index + 1)"></div>
+                                    <h3 class="mt-2 text-sm font-bold text-slate-900" x-text="value.title || 'Keunggulan bisnis'"></h3>
+                                    <p class="mt-1 text-xs text-slate-500" x-text="value.description || ''"></p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="px-6 py-10 sm:px-14 bg-white">
+                    <div class="max-w-5xl mx-auto">
+                        <div class="flex items-end justify-between gap-3 mb-5">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-widest" :style="`color: ${form.theme_color || '#10B981'}`">Katalog</p>
+                                <h2 class="text-2xl font-black text-slate-900">Layanan & Produk</h2>
+                            </div>
+                            <span class="text-xs text-slate-500" x-text="services.length + ' item'" ></span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <template x-for="(service, index) in services.slice(0, 6)" :key="index">
+                                <div class="p-5 border border-slate-200 rounded-xl">
+                                    <span x-show="service.badge" class="text-[10px] font-bold uppercase" :style="`color: ${form.theme_color || '#10B981'}`" x-text="service.badge"></span>
+                                    <h3 class="mt-1 text-sm font-bold text-slate-900" x-text="service.title || 'Nama layanan'"></h3>
+                                    <p class="mt-2 text-xs text-slate-500" x-text="service.description || 'Deskripsi layanan akan tampil di sini.'"></p>
+                                    <p class="mt-4 text-sm font-black" :style="`color: ${form.theme_color || '#10B981'}`" x-text="service.price || 'Hubungi kami'"></p>
+                                </div>
+                            </template>
+                        </div>
+                        <div x-show="services.length === 0" class="py-10 text-center text-sm text-slate-400">Belum ada layanan di katalog.</div>
+                    </div>
+                </section>
+
+                <footer class="px-6 py-8 sm:px-14 text-white" :style="`background: ${form.theme_color || '#10B981'}`">
+                    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between gap-4 text-xs">
+                        <div><div class="font-black text-base">{{ $business->name }}</div><div class="mt-1 text-white/75" x-text="form.custom_address || 'Alamat bisnis'" ></div></div>
+                        <div class="text-left sm:text-right"><div x-text="form.whatsapp_number || 'WhatsApp belum diatur'"></div><div class="mt-1 text-white/75" x-text="form.custom_email || 'Email belum diatur'"></div></div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
     <!-- ============================================================ -->
     <!-- MODAL: 20 INDUSTRY PRESETS SELECTOR -->
     <!-- ============================================================ -->
@@ -662,7 +748,7 @@
                         <h4 class="text-xs font-bold text-white group-hover:text-emerald-300 transition leading-tight mb-1">{{ $ind['name'] }}</h4>
                         <p class="text-[10px] text-slate-500 leading-relaxed flex-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $ind['description'] }}</p>
                         <div class="mt-3 pt-2.5 border-t border-slate-800">
-                            <button type="button" @click="applyPreset('{{ $ind['id'] }}')"
+                            <button type="button" @click="applyPreset('{{ $ind['id'] }}', $event.currentTarget)"
                                 class="w-full py-2 rounded-xl bg-slate-800 hover:bg-emerald-500 text-slate-300 hover:text-slate-950 text-[11px] font-extrabold transition-all flex items-center justify-center gap-1.5">
                                 <i data-lucide="zap" class="w-3 h-3"></i>
                                 <span>Terapkan</span>
@@ -689,7 +775,13 @@ function landingPageEditor() {
     return {
         activeTab: 'hero',
         showPresetModal: false,
+        showPreview: false,
+        previewUrl: @json($publicUrl),
         copied: false,
+        saving: false,
+        saveMessage: '',
+        saveError: '',
+        isPublished: @json((bool) $landingPage->is_published),
 
         tabs: [
             { id: 'hero', label: '1. Hero & Branding', icon: 'sparkles' },
@@ -733,15 +825,7 @@ function landingPageEditor() {
         services: @json($landingPage->custom_services ?? []),
         faqs: @json($landingPage->faqs ?? []),
         testimonials: @json($landingPage->testimonials ?? []),
-        operationalHours: @json($landingPage->operational_hours ?? [
-            ['day' => 'Senin', 'hours' => '08:00 - 17:00 WIB', 'is_open' => true],
-            ['day' => 'Selasa', 'hours' => '08:00 - 17:00 WIB', 'is_open' => true],
-            ['day' => 'Rabu', 'hours' => '08:00 - 17:00 WIB', 'is_open' => true],
-            ['day' => 'Kamis', 'hours' => '08:00 - 17:00 WIB', 'is_open' => true],
-            ['day' => 'Jumat', 'hours' => '08:00 - 17:00 WIB', 'is_open' => true],
-            ['day' => 'Sabtu', 'hours' => '08:00 - 15:00 WIB', 'is_open' => true],
-            ['day' => 'Minggu', 'hours' => 'Tutup', 'is_open' => false],
-        ]),
+        operationalHours: @json($landingPage->operational_hours ?? []),
 
         init() {
             if (!this.values || this.values.length === 0) {
@@ -750,6 +834,17 @@ function landingPageEditor() {
                     { title: 'Pelayanan Cepat', description: 'Responsif dan tepat waktu untuk setiap kebutuhan pelanggan.' },
                     { title: 'Harga Transparan', description: 'Biaya jelas tanpa ada pungutan tersembunyi.' },
                     { title: 'Konsultasi Gratis', description: 'Dapatkan rekomendasi terbaik dari tim ahli kami.' }
+                ];
+            }
+            if (!this.operationalHours || this.operationalHours.length === 0) {
+                this.operationalHours = [
+                    { day: 'Senin', hours: '08:00 - 17:00 WIB', is_open: true },
+                    { day: 'Selasa', hours: '08:00 - 17:00 WIB', is_open: true },
+                    { day: 'Rabu', hours: '08:00 - 17:00 WIB', is_open: true },
+                    { day: 'Kamis', hours: '08:00 - 17:00 WIB', is_open: true },
+                    { day: 'Jumat', hours: '08:00 - 17:00 WIB', is_open: true },
+                    { day: 'Sabtu', hours: '08:00 - 15:00 WIB', is_open: true },
+                    { day: 'Minggu', hours: 'Tutup', is_open: false },
                 ];
             }
             this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
@@ -783,10 +878,10 @@ function landingPageEditor() {
             });
         },
 
-        applyPreset(presetKey) {
+        applyPreset(presetKey, button) {
             if (!confirm('Terapkan template industri ini? Konten draft Anda akan diperbarui sesuai industri yang dipilih.')) return;
 
-            const btn = event.target;
+            const btn = button;
             btn.textContent = 'Memuat...';
             btn.disabled = true;
 
@@ -795,7 +890,11 @@ function landingPageEditor() {
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ preset: presetKey })
             })
-            .then(res => res.json())
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Gagal memuat preset.');
+                return data;
+            })
             .then(data => {
                 if (data.preset) {
                     const p = data.preset;
@@ -816,15 +915,78 @@ function landingPageEditor() {
                     this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
                 }
             })
-            .catch(() => alert('Gagal menerapkan preset. Silakan coba kembali.'))
+            .catch(error => alert(error.message || 'Gagal menerapkan preset. Silakan coba kembali.'))
             .finally(() => {
                 btn.textContent = 'Terapkan';
                 btn.disabled = false;
             });
         },
 
-        prepareSubmission() {
-            return true;
+        async openPreview() {
+            const saved = await this.saveAll();
+            if (!saved) return;
+
+            this.previewUrl = @json($publicUrl) + '?preview=' + Date.now();
+            this.showPreview = true;
+        },
+
+        async saveAll() {
+            if (this.saving) return;
+            this.saving = true;
+            this.saveMessage = '';
+            this.saveError = '';
+
+            try {
+                const response = await fetch('{{ route('landing-page.update') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: new FormData(document.getElementById('landingPageForm'))
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    const messages = data.errors ? Object.values(data.errors).flat() : [];
+                    throw new Error(messages[0] || data.message || 'Perubahan gagal disimpan.');
+                }
+                this.saveMessage = data.message || 'Perubahan berhasil disimpan.';
+                setTimeout(() => { this.saveMessage = ''; }, 4000);
+                return true;
+            } catch (error) {
+                this.saveError = error.message || 'Perubahan gagal disimpan.';
+                return false;
+            } finally {
+                this.saving = false;
+                this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+            }
+        },
+
+        async togglePublish() {
+            if (this.saving) return;
+            this.saving = true;
+            this.saveError = '';
+            try {
+                const response = await fetch('{{ route('landing-page.toggle-publish') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Status publikasi gagal diubah.');
+                this.isPublished = Boolean(data.is_published);
+                this.saveMessage = data.message || 'Status publikasi diperbarui.';
+                setTimeout(() => { this.saveMessage = ''; }, 4000);
+            } catch (error) {
+                this.saveError = error.message || 'Status publikasi gagal diubah.';
+            } finally {
+                this.saving = false;
+                this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+            }
         }
     };
 }

@@ -77,7 +77,7 @@ class BusinessLandingPageWebController extends Controller
     /**
      * Update the landing page CMS content.
      */
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request): RedirectResponse|JsonResponse
     {
         $business    = Context::requireBusiness();
         $landingPage = BusinessLandingPage::firstOrNew(['business_id' => $business->id]);
@@ -101,6 +101,7 @@ class BusinessLandingPageWebController extends Controller
             'google_maps_embed'             => 'nullable|string|max:2000',
             'meta_title'                    => 'nullable|string|max:120',
             'meta_description'              => 'nullable|string|max:320',
+            'section_visibility_json'       => 'nullable|string',
             'values_json'                   => 'nullable|string',
             'operational_hours_json'        => 'nullable|string',
             'custom_services_json'          => 'nullable|string',
@@ -113,8 +114,8 @@ class BusinessLandingPageWebController extends Controller
         $landingPage->fill([
             'industry_preset'          => $request->input('industry_preset'),
             'theme_color'              => $request->input('theme_color', '#10B981'),
-            'is_dark_theme'            => $request->boolean('is_dark_theme'),
-            'show_products'            => $request->boolean('show_products'),
+            'dark_mode'                => $request->boolean('dark_mode'),
+            'show_pos_products'        => $request->boolean('show_pos_products'),
             'headline'                 => $request->input('headline'),
             'subheadline'              => $request->input('subheadline'),
             'announcement_badge'       => $request->input('announcement_badge'),
@@ -125,10 +126,9 @@ class BusinessLandingPageWebController extends Controller
             'about_title'              => $request->input('about_title'),
             'about_story'              => $request->input('about_story'),
             'whatsapp_number'          => $request->input('whatsapp_number'),
-            'whatsapp_default_message' => $request->input('whatsapp_default_message'),
-            'custom_email'             => $request->input('custom_email'),
+            'whatsapp_welcome_message' => $request->input('whatsapp_welcome_message'),
             'custom_address'           => $request->input('custom_address'),
-            'google_maps_embed'        => $request->input('google_maps_embed'),
+            'google_maps_embed_url'    => $request->input('google_maps_embed_url'),
             'meta_title'               => $request->input('meta_title'),
             'meta_description'         => $request->input('meta_description'),
             'values'                   => json_decode($request->input('values_json', '[]'), true) ?: [],
@@ -136,13 +136,24 @@ class BusinessLandingPageWebController extends Controller
             'custom_services'          => json_decode($request->input('custom_services_json', '[]'), true) ?: [],
             'testimonials'             => json_decode($request->input('testimonials_json', '[]'), true) ?: [],
             'faqs'                     => json_decode($request->input('faqs_json', '[]'), true) ?: [],
+            'section_visibility'       => json_decode($request->input('section_visibility_json', '{}'), true) ?: [],
             'stats'                    => $request->input('stats', []),
             'social_links'             => $request->input('social_links', []),
         ]);
 
         $landingPage->save();
 
-        return back()->with('success', 'Halaman website bisnis berhasil disimpan dan diperbarui! 🚀');
+        $message = 'Halaman website bisnis berhasil disimpan dan diperbarui!';
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'landing_page' => $landingPage->fresh(),
+            ]);
+        }
+
+        return back()->with('success', $message);
     }
 
     /**
@@ -165,7 +176,7 @@ class BusinessLandingPageWebController extends Controller
     /**
      * Toggle published status (form POST — returns redirect with flash).
      */
-    public function togglePublish(): RedirectResponse
+    public function togglePublish(Request $request): RedirectResponse|JsonResponse
     {
         $business    = Context::requireBusiness();
         $landingPage = BusinessLandingPage::firstOrCreate(['business_id' => $business->id]);
@@ -176,6 +187,14 @@ class BusinessLandingPageWebController extends Controller
         $msg = $landingPage->is_published
             ? '🌐 Website bisnis Anda sekarang LIVE dan dapat diakses publik!'
             : '🔒 Website bisnis diarsipkan (tersembunyi dari publik).';
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'is_published' => $landingPage->is_published,
+                'message' => $msg,
+            ]);
+        }
 
         return back()->with('success', $msg);
     }

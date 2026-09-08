@@ -472,7 +472,12 @@
                                x-model="searchQuery"
                                @keydown.enter="handleBarcodeOrSearch()"
                                placeholder="Cari nama produk atau Scan Barcode (Tekan Enter)..."
-                               class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-11 pr-10 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50">
+                               class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-11 pr-24 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50">
+                        <button type="button" @click="requestBarcodeScannerAccess()"
+                                class="absolute right-9 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-500/15 hover:text-emerald-300 transition"
+                                title="Scan barcode dengan kamera" aria-label="Scan barcode dengan kamera">
+                            <i data-lucide="scan-barcode" class="w-4 h-4"></i>
+                        </button>
                         <button x-show="searchQuery" @click="searchQuery = ''; filterProducts()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
@@ -1034,6 +1039,68 @@
         </div>
     </div>
 
+    <!-- MODAL: Camera Permission -->
+    <div x-show="showScannerPermission" x-cloak class="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+        <div class="pos-modal-panel w-full max-w-md glass-panel rounded-2xl border border-slate-700 p-6 space-y-4">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                    <i data-lucide="camera" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-lg text-white">Izinkan Akses Kamera?</h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">Kamera hanya digunakan saat Anda memilih Scan Barcode. Browser akan meminta izin kamera dan kamera berhenti setelah scanner ditutup.</p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button type="button" @click="showScannerPermission = false" class="px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-semibold text-xs">Batal</button>
+                <button type="button" @click="confirmBarcodeScannerAccess()" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs">Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Camera Barcode Scanner -->
+    <div x-show="showBarcodeScanner" x-cloak @keydown.escape.window="closeBarcodeScanner()"
+         class="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4"
+         @click.self="closeBarcodeScanner()">
+        <div class="pos-modal-panel w-full max-w-lg glass-panel rounded-2xl border border-slate-700 p-4 sm:p-6 space-y-4">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <h3 class="font-extrabold text-lg text-white">Scan Barcode Produk</h3>
+                    <p class="text-xs text-slate-400 mt-1">Arahkan kamera ke barcode sampai produk terdeteksi.</p>
+                </div>
+                <button type="button" @click="closeBarcodeScanner()" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800" title="Tutup scanner" aria-label="Tutup scanner">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="relative aspect-video overflow-hidden rounded-2xl bg-slate-950 border border-slate-800">
+                <video x-ref="barcodeVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+                    <div class="w-[72%] h-[42%] rounded-xl border-2 border-emerald-400 shadow-[0_0_0_9999px_rgba(2,6,23,.38)]"></div>
+                </div>
+                <div x-show="scannerStarting" class="absolute inset-0 flex items-center justify-center bg-slate-950/70 text-xs text-slate-300">
+                    <span class="flex items-center gap-2"><i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i> Menyiapkan kamera...</span>
+                </div>
+            </div>
+
+            <div x-show="scannerError" class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300" x-text="scannerError"></div>
+
+            <div x-show="scannerDevices.length > 1" class="space-y-1">
+                <label class="block text-[10px] text-slate-400 font-bold uppercase">Kamera</label>
+                <select x-model="selectedScannerDeviceId" @change="startBarcodeScanner()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <template x-for="device in scannerDevices" :key="device.deviceId">
+                        <option :value="device.deviceId" x-text="device.label || 'Kamera ' + (scannerDevices.indexOf(device) + 1)"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
+                <span class="text-[11px] text-slate-500">Scanner USB/Bluetooth tetap bisa digunakan melalui kolom pencarian.</span>
+                <button type="button" @click="closeBarcodeScanner()" class="shrink-0 px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white font-semibold text-xs">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Alpine.js POS State Engine -->
     <script>
         function posApp() {
@@ -1068,6 +1135,16 @@
                 showHeldOrdersModal: false,
                 showCashMovementModal: false,
                 showCustomerModal: false,
+                showScannerPermission: false,
+                showBarcodeScanner: false,
+                scannerStarting: false,
+                scannerError: '',
+                scannerDevices: [],
+                selectedScannerDeviceId: '',
+                scannerStream: null,
+                scannerDetector: null,
+                scannerFrameId: null,
+                scannerBusy: false,
                 mobileCartOpen: false,
 
                 // Payment state
@@ -1135,6 +1212,129 @@
                         return;
                     }
                     this.filterProducts();
+                },
+
+                requestBarcodeScannerAccess() {
+                    if (localStorage.getItem('cooca-camera-permission-intro-seen') === '1') {
+                        this.openBarcodeScanner();
+                        return;
+                    }
+                    this.showScannerPermission = true;
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                },
+
+                confirmBarcodeScannerAccess() {
+                    localStorage.setItem('cooca-camera-permission-intro-seen', '1');
+                    this.showScannerPermission = false;
+                    this.openBarcodeScanner();
+                },
+
+                async openBarcodeScanner() {
+                    this.showBarcodeScanner = true;
+                    this.scannerError = '';
+                    await this.$nextTick();
+
+                    if (!('BarcodeDetector' in window)) {
+                        this.scannerError = 'Browser ini belum mendukung scan barcode kamera. Gunakan Chrome/Android terbaru atau scanner USB/Bluetooth.';
+                        return;
+                    }
+
+                    try {
+                        const supportedFormats = await BarcodeDetector.getSupportedFormats();
+                        const formats = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'codabar', 'itf'].filter(format => supportedFormats.includes(format));
+                        this.scannerDetector = new BarcodeDetector({ formats });
+                        await this.loadScannerDevices();
+                        await this.startBarcodeScanner();
+                    } catch (error) {
+                        this.scannerError = this.scannerMessage(error);
+                    }
+                },
+
+                async loadScannerDevices() {
+                    if (!navigator.mediaDevices?.enumerateDevices) return;
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    this.scannerDevices = devices.filter(device => device.kind === 'videoinput');
+                    if (!this.selectedScannerDeviceId && this.scannerDevices.length > 0) {
+                        this.selectedScannerDeviceId = this.scannerDevices.find(device => /back|rear|environment/i.test(device.label))?.deviceId || this.scannerDevices[0].deviceId;
+                    }
+                },
+
+                async startBarcodeScanner() {
+                    this.stopBarcodeScanner();
+                    this.scannerError = '';
+                    this.scannerStarting = true;
+
+                    try {
+                        const videoConstraints = this.selectedScannerDeviceId
+                            ? { deviceId: { exact: this.selectedScannerDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
+                            : { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } };
+                        this.scannerStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
+                        this.$refs.barcodeVideo.srcObject = this.scannerStream;
+                        await this.$refs.barcodeVideo.play();
+                        await this.loadScannerDevices();
+                        this.scannerStarting = false;
+                        this.scanBarcodeFrame();
+                    } catch (error) {
+                        this.scannerStarting = false;
+                        this.scannerError = this.scannerMessage(error);
+                    }
+                },
+
+                async scanBarcodeFrame() {
+                    if (!this.showBarcodeScanner || !this.scannerDetector || !this.$refs.barcodeVideo) return;
+                    if (!this.scannerBusy && this.$refs.barcodeVideo.readyState >= 2) {
+                        this.scannerBusy = true;
+                        try {
+                            const results = await this.scannerDetector.detect(this.$refs.barcodeVideo);
+                            const barcode = results.find(result => result.rawValue)?.rawValue;
+                            if (barcode) {
+                                this.handleScannedBarcode(barcode);
+                                return;
+                            }
+                        } catch (error) {
+                            this.scannerError = 'Barcode belum terbaca. Posisikan barcode di dalam kotak.';
+                        } finally {
+                            this.scannerBusy = false;
+                        }
+                    }
+                    this.scannerFrameId = requestAnimationFrame(() => this.scanBarcodeFrame());
+                },
+
+                handleScannedBarcode(value) {
+                    const normalized = String(value).trim().toLowerCase();
+                    const product = this.allProducts.find(item => item.code && item.code.trim().toLowerCase() === normalized);
+                    if (!product) {
+                        this.scannerError = 'Barcode ' + value + ' belum terdaftar sebagai produk.';
+                        return;
+                    }
+                    this.addToCart(product);
+                    this.searchQuery = '';
+                    this.filterProducts();
+                    this.closeBarcodeScanner();
+                },
+
+                closeBarcodeScanner() {
+                    this.showBarcodeScanner = false;
+                    this.stopBarcodeScanner();
+                },
+
+                stopBarcodeScanner() {
+                    if (this.scannerFrameId) cancelAnimationFrame(this.scannerFrameId);
+                    this.scannerFrameId = null;
+                    this.scannerBusy = false;
+                    if (this.scannerStream) this.scannerStream.getTracks().forEach(track => track.stop());
+                    this.scannerStream = null;
+                    if (this.$refs.barcodeVideo) this.$refs.barcodeVideo.srcObject = null;
+                },
+
+                scannerMessage(error) {
+                    if (error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') return 'Akses kamera ditolak. Izinkan kamera di browser lalu coba lagi.';
+                    if (error?.name === 'NotFoundError') return 'Kamera tidak ditemukan pada perangkat ini.';
+                    if (error?.name === 'NotReadableError') return 'Kamera sedang digunakan aplikasi lain.';
+                    if (window.isSecureContext === false) return 'Scanner kamera memerlukan HTTPS atau localhost.';
+                    return 'Kamera tidak dapat dibuka. Periksa izin kamera lalu coba lagi.';
                 },
 
                 addToCart(product) {

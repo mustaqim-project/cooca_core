@@ -74,4 +74,19 @@ class DocumentNumberGenerator
         $nextSeq = str_pad((string)($count + 1), 5, '0', STR_PAD_LEFT);
         return "{$prefix}-{$year}-{$nextSeq}";
     }
+
+    /**
+     * Generate a readable stock opname number per business and year.
+     */
+    public static function generateStockOpnameNumber(string $businessId, string $prefix = 'OPN'): string
+    {
+        $year = Carbon::now()->format('Y');
+        $count = StockOpname::where('business_id', $businessId)
+            ->whereYear('created_at', $year)
+            ->count();
+
+        $nextSeq = str_pad((string) ($count + 1), 5, '0', STR_PAD_LEFT);
+
+        return "{$prefix}-{$year}-{$nextSeq}";
+    }
 }

@@ -49,6 +49,11 @@ class PublicBusinessLandingController extends Controller
             ]);
         }
 
+        $isAuthorizedPreview = request()->boolean('preview')
+            && request()->user()?->active_business_id === $business->id;
+
+        abort_unless($landingPage->is_published || $isAuthorizedPreview, 404);
+
         // Active POS products if enabled
         $posProducts = collect();
         if ($landingPage->show_pos_products) {
