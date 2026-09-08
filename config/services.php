@@ -37,4 +37,9 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
 
+    'wa_server' => [
+        'url' => env('WA_SERVER_URL', 'http://127.0.0.1:3000'),
+        'token' => env('WA_WORKER_TOKEN', 'secret-worker-token'),
+    ],
+
 ];

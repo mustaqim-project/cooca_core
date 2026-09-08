@@ -189,7 +189,28 @@
                     <span>Monitoring Token AI</span>
                 </a>
 
+                <a href="{{ route('admin.whatsapp.index') }}"
+                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.whatsapp.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
+                        <span>WhatsApp Center</span>
+                    </div>
+                    <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#25D366]/20 text-[#25D366]">Bot</span>
+                </a>
+
                 <div class="px-3 pt-4 pb-1 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Konfigurasi & CMS</div>
+
+                <a href="{{ route('admin.posts.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.posts.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
+                    <span>CMS Artikel & Edukasi</span>
+                </a>
+
+                <a href="{{ route('admin.leads.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.leads.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <i data-lucide="download-cloud" class="w-4 h-4 text-emerald-400"></i>
+                    <span>CMS Unduhan & Leads</span>
+                </a>
 
                 <a href="{{ route('admin.payment-accounts.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.payment-accounts.*') ? 'nav-item-active' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">

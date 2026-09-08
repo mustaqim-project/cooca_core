@@ -17,17 +17,70 @@ use App\Http\Controllers\Web\ProfitabilityWebController;
 use App\Http\Controllers\Web\ReportWebController;
 use App\Http\Controllers\Web\SettingWebController;
 use App\Http\Controllers\Web\SimulationWebController;
+use App\Http\Controllers\Admin\AdminLeadController;
+use App\Http\Controllers\Admin\AdminPostController;
+use App\Http\Controllers\Web\PublicBlogController;
+use App\Http\Controllers\Web\PublicCalculatorController;
+use App\Http\Controllers\Web\PublicContactController;
+use App\Http\Controllers\Web\PublicSolutionController;
+use App\Http\Controllers\Web\PublicTemplateController;
 use App\Http\Controllers\Web\Warehouse\WarehouseWebController;
+use App\Http\Controllers\Web\WhatsApp\WhatsAppWebController;
+use App\Http\Controllers\Web\WhatsApp\WhatsAppBroadcastWebController;
+use App\Http\Controllers\Web\BusinessLandingPageWebController;
+use App\Http\Controllers\Web\PublicBusinessLandingController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Public Landing Page
+| Public Landing Page & Multipage Ecosystem
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
     return view('landing');
 })->name('landing');
+
+// 1. Tools / Kalkulator Bisnis
+Route::prefix('kalkulator')->name('kalkulator.')->group(function (): void {
+    Route::get('/', [PublicCalculatorController::class, 'index'])->name('index');
+    Route::get('/hpp', [PublicCalculatorController::class, 'hpp'])->name('hpp');
+    Route::get('/bep', [PublicCalculatorController::class, 'bep'])->name('bep');
+    Route::get('/harga-jual', [PublicCalculatorController::class, 'hargaJual'])->name('harga-jual');
+    Route::get('/laba-bersih', [PublicCalculatorController::class, 'labaBersih'])->name('laba-bersih');
+    Route::get('/gaji-karyawan', [PublicCalculatorController::class, 'gajiKaryawan'])->name('gaji-karyawan');
+    Route::get('/pph-final', [PublicCalculatorController::class, 'pphFinal'])->name('pph-final');
+    Route::get('/omzet-harian', [PublicCalculatorController::class, 'omzetHarian'])->name('omzet-harian');
+    Route::get('/simulasi-what-if', [PublicCalculatorController::class, 'simulasiWhatIf'])->name('simulasi-what-if');
+});
+
+// Alias direct slug URLs for SEO convenience
+Route::get('/kalkulator-hpp', [PublicCalculatorController::class, 'hpp']);
+Route::get('/kalkulator-bep', [PublicCalculatorController::class, 'bep']);
+Route::get('/kalkulator-harga-jual', [PublicCalculatorController::class, 'hargaJual']);
+Route::get('/kalkulator-laba-bersih', [PublicCalculatorController::class, 'labaBersih']);
+Route::get('/kalkulator-gaji-karyawan', [PublicCalculatorController::class, 'gajiKaryawan']);
+Route::get('/kalkulator-pph-final', [PublicCalculatorController::class, 'pphFinal']);
+Route::get('/kalkulator-omzet-harian', [PublicCalculatorController::class, 'omzetHarian']);
+Route::get('/simulasi-what-if', [PublicCalculatorController::class, 'simulasiWhatIf']);
+
+// 2. Template / Resource Downloads (Lead Capture)
+Route::get('/template-pembukuan-gratis', [PublicTemplateController::class, 'index'])->name('template.index');
+Route::get('/template/{slug}', [PublicTemplateController::class, 'show'])->name('template.show');
+Route::post('/template/{slug}/download', [PublicTemplateController::class, 'captureLead'])->name('template.download');
+
+// 3. Solusi per Vertikal Niche UMKM
+Route::get('/solusi/{slug}', [PublicSolutionController::class, 'show'])->name('solusi.show');
+
+// 4. Blog & Edukasi Bisnis
+Route::get('/blog', [PublicBlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [PublicBlogController::class, 'show'])->name('blog.show');
+
+// 5. Halaman Kontak
+Route::get('/kontak', [PublicContactController::class, 'show'])->name('contact');
+Route::post('/kontak', [PublicContactController::class, 'submit'])->name('contact.submit');
+
+// 6. Public Business Single-Page Landing Pages
+Route::get('/b/{slug}', [PublicBusinessLandingController::class, 'show'])->name('public.business.landing');
 
 /*
 |--------------------------------------------------------------------------
@@ -376,6 +429,42 @@ Route::middleware('auth:web')->group(function (): void {
         Route::post('/finance/cash-bank/transfer', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'transfer'])->name('finance.cash-bank.transfer');
         Route::get('/finance/receivables', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'receivables'])->name('finance.receivables');
         Route::get('/finance/payables', [\App\Http\Controllers\Web\Finance\CashLedgerWebController::class, 'payables'])->name('finance.payables');
+
+        /*
+        |--------------------------------------------------------------------------
+        | WhatsApp Gateway Routes
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('whatsapp')->name('whatsapp.')->group(function (): void {
+            Route::get('/', [WhatsAppWebController::class, 'index'])->name('index');
+            Route::get('/qr', [WhatsAppWebController::class, 'getQr'])->name('qr');
+            Route::get('/status', [WhatsAppWebController::class, 'checkStatus'])->name('status');
+            Route::post('/start', [WhatsAppWebController::class, 'startSession'])->name('start');
+            Route::post('/disconnect', [WhatsAppWebController::class, 'disconnect'])->name('disconnect');
+            Route::post('/settings', [WhatsAppWebController::class, 'updateSettings'])->name('settings');
+            Route::post('/test', [WhatsAppWebController::class, 'testSend'])->name('test');
+            Route::post('/orders/{order}/receipt', [WhatsAppWebController::class, 'sendOrderReceipt'])->name('orders.receipt');
+            Route::get('/logs', [WhatsAppWebController::class, 'logs'])->name('logs.index');
+
+            // Broadcast Promosi
+            Route::get('/broadcast', [WhatsAppBroadcastWebController::class, 'index'])->name('broadcast.index');
+            Route::get('/broadcast/create', [WhatsAppBroadcastWebController::class, 'create'])->name('broadcast.create');
+            Route::post('/broadcast', [WhatsAppBroadcastWebController::class, 'store'])->name('broadcast.store');
+            Route::get('/broadcast/{campaign}', [WhatsAppBroadcastWebController::class, 'show'])->name('broadcast.show');
+            Route::get('/broadcast/estimate', [WhatsAppBroadcastWebController::class, 'estimateRecipients'])->name('broadcast.estimate');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Business Landing Page & Mini Website CMS
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('landing-page')->name('landing-page.')->group(function (): void {
+            Route::get('/', [BusinessLandingPageWebController::class, 'edit'])->name('edit');
+            Route::put('/', [BusinessLandingPageWebController::class, 'update'])->name('update');
+            Route::post('/preset', [BusinessLandingPageWebController::class, 'applyPreset'])->name('preset');
+            Route::post('/toggle-publish', [BusinessLandingPageWebController::class, 'togglePublish'])->name('toggle-publish');
+        });
     });
 });
 
@@ -453,5 +542,33 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/payment-accounts/{paymentAccount}', [\App\Http\Controllers\Admin\AdminPaymentAccountController::class, 'update'])->name('payment-accounts.update');
         Route::delete('/payment-accounts/{paymentAccount}', [\App\Http\Controllers\Admin\AdminPaymentAccountController::class, 'destroy'])->name('payment-accounts.destroy');
         Route::post('/payment-accounts/{paymentAccount}/toggle-status', [\App\Http\Controllers\Admin\AdminPaymentAccountController::class, 'toggleStatus'])->name('payment-accounts.toggle-status');
+
+        // CMS Artikel & Edukasi
+        Route::get('/posts', [AdminPostController::class, 'index'])->name('posts.index');
+        Route::get('/posts/create', [AdminPostController::class, 'create'])->name('posts.create');
+        Route::post('/posts', [AdminPostController::class, 'store'])->name('posts.store');
+        Route::get('/posts/{post}/edit', [AdminPostController::class, 'edit'])->name('posts.edit');
+        Route::put('/posts/{post}', [AdminPostController::class, 'update'])->name('posts.update');
+        Route::delete('/posts/{post}', [AdminPostController::class, 'destroy'])->name('posts.destroy');
+        Route::post('/posts/{post}/toggle', [AdminPostController::class, 'toggleStatus'])->name('posts.toggle-status');
+
+        // CMS Unduhan & Leads
+        Route::get('/leads', [AdminLeadController::class, 'index'])->name('leads.index');
+        Route::get('/leads/export', [AdminLeadController::class, 'export'])->name('leads.export');
+
+        // WhatsApp Admin Center (Pengingat Langganan H-7, H-3, H-1, Hari H & Blast Bisnis Owner)
+        Route::prefix('whatsapp')->name('whatsapp.')->group(function (): void {
+            Route::get('/', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'index'])->name('index');
+            Route::get('/qr', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'getQr'])->name('qr');
+            Route::get('/status', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'checkStatus'])->name('status');
+            Route::post('/start', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'startSession'])->name('start');
+            Route::post('/disconnect', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'disconnect'])->name('disconnect');
+            Route::post('/test', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'testSend'])->name('test');
+            Route::post('/reminders/{subscription}/send', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'sendSingleReminder'])->name('reminders.send');
+            Route::post('/reminders/send-all', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'sendAllReminders'])->name('reminders.send-all');
+            Route::post('/reminders/templates', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'updateTemplates'])->name('reminders.templates');
+            Route::post('/blasts', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'storeBlast'])->name('blasts.store');
+            Route::get('/blasts/{blast}', [\App\Http\Controllers\Admin\AdminWhatsAppController::class, 'showBlast'])->name('blasts.show');
+        });
     });
 });

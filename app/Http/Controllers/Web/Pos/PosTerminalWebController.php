@@ -216,6 +216,18 @@ final class PosTerminalWebController extends Controller
 
             $whatsappUrl = $this->loyaltyService->generateWhatsAppReceiptUrl($order);
 
+            // Auto-send WhatsApp receipt via connected Bot if enabled
+            $botSent = false;
+            try {
+                $waSession = \App\Models\WhatsAppSession::where('business_id', $business->id)->first();
+                if ($waSession && $waSession->status === 'connected' && $waSession->auto_send_receipt) {
+                    $gateway = app(\App\Domain\WhatsApp\WhatsAppGatewayService::class);
+                    $botSent = $gateway->sendReceipt($order);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[POS WhatsApp Auto-Receipt] ' . $e->getMessage());
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Transaksi kasir berhasil diselesaikan.',
@@ -230,6 +242,7 @@ final class PosTerminalWebController extends Controller
                     'points_earned' => $order->points_earned,
                 ],
                 'whatsapp_url' => $whatsappUrl,
+                'whatsapp_bot_sent' => $botSent,
                 'receipt_url' => route('pos.receipt', $order->id),
             ]);
         } catch (Throwable $e) {

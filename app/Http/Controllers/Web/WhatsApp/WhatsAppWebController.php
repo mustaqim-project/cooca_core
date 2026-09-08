@@ -1,0 +1,185 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Web\WhatsApp;
+
+use App\Domain\WhatsApp\WhatsAppGatewayService;
+use App\Http\Controllers\Controller;
+use App\Models\PosOrder;
+use App\Models\WhatsAppMessageLog;
+use App\Models\WhatsAppSession;
+use App\Support\Context;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class WhatsAppWebController extends Controller
+{
+    public function __construct(protected WhatsAppGatewayService $gateway) {}
+
+    /**
+     * Main WhatsApp Gateway integration page.
+     */
+    public function index(): View
+    {
+        $business  = Context::requireBusiness();
+        $waSession = WhatsAppSession::where('business_id', $business->id)->first();
+
+        // Auto-start session if none exists yet
+        if (! $waSession) {
+            try {
+                $this->gateway->startSession($business);
+                $waSession = WhatsAppSession::where('business_id', $business->id)->first();
+            } catch (\Throwable) {
+                // wa-server might not be running — show disconnected state
+            }
+        }
+
+        return view('app.whatsapp.index', compact('business', 'waSession'));
+    }
+
+    /**
+     * AJAX: Poll QR code data URL + live status from wa-server.
+     */
+    public function getQr(): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        $data = $this->gateway->getQrCode($business);
+
+        return response()->json($data);
+    }
+
+    /**
+     * AJAX: Check & sync current session status.
+     */
+    public function checkStatus(): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        $data      = $this->gateway->getStatus($business);
+        $waSession = WhatsAppSession::where('business_id', $business->id)->first();
+
+        return response()->json([
+            'status'      => $waSession?->status ?? 'disconnected',
+            'phone'       => $waSession?->phone_number,
+            'device_name' => $waSession?->device_name,
+            'live'        => $data,
+        ]);
+    }
+
+    /**
+     * Start / reconnect session (used by "Mulai Scan" button).
+     */
+    public function startSession(): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        try {
+            $result = $this->gateway->startSession($business);
+            return response()->json(['success' => true, 'result' => $result]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Disconnect from WhatsApp.
+     */
+    public function disconnect(): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $this->gateway->disconnect($business);
+
+        return response()->json(['success' => true, 'message' => 'Session WhatsApp berhasil diputus.']);
+    }
+
+    /**
+     * Save WhatsApp gateway settings (auto-send receipt, footer note).
+     */
+    public function updateSettings(Request $request): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+
+        $validated = $request->validate([
+            'auto_send_receipt' => 'boolean',
+            'receipt_template'  => 'nullable|string|max:1000',
+        ]);
+
+        WhatsAppSession::updateOrCreate(
+            ['business_id' => $business->id],
+            [
+                'session_id'        => $this->gateway->sessionId($business),
+                'auto_send_receipt' => $validated['auto_send_receipt'] ?? false,
+                'receipt_template'  => $validated['receipt_template'] ?? null,
+            ]
+        );
+
+        return back()->with('success', 'Pengaturan WhatsApp Gateway berhasil disimpan.');
+    }
+
+    /**
+     * Send a test message to the business owner's phone.
+     */
+    public function testSend(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        $validated = $request->validate([
+            'phone'   => 'required|string|min:8|max:20',
+            'message' => 'required|string|min:1|max:1000',
+        ]);
+
+        $result = $this->gateway->sendMessage($business, $validated['phone'], $validated['message']);
+
+        WhatsAppMessageLog::create([
+            'business_id'    => $business->id,
+            'type'           => 'test',
+            'recipient_phone' => $validated['phone'],
+            'recipient_name' => 'Test Send',
+            'message'        => $validated['message'],
+            'status'         => ($result['success'] ?? false) ? 'sent' : 'failed',
+            'error_message'  => $result['error'] ?? null,
+        ]);
+
+        return response()->json($result);
+    }
+
+    /**
+     * AJAX: Send a POS order receipt via the business's WA bot.
+     * Called from the POS success modal / receipt page.
+     */
+    public function sendOrderReceipt(Request $request, PosOrder $order): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        // Ensure order belongs to this business
+        if ($order->business_id !== $business->id) {
+            abort(403);
+        }
+
+        $phone  = $request->input('phone') ?: $order->customer?->phone;
+        $ok     = $this->gateway->sendReceipt($order, $phone);
+
+        return response()->json([
+            'success' => $ok,
+            'message' => $ok ? 'Struk berhasil dikirim via WhatsApp! ✅' : 'Gagal mengirim struk. Pastikan WhatsApp terhubung.',
+        ]);
+    }
+
+    /**
+     * Log history page.
+     */
+    public function logs(): View
+    {
+        $business = Context::requireBusiness();
+
+        $logs = WhatsAppMessageLog::where('business_id', $business->id)
+            ->latest()
+            ->paginate(30);
+
+        return view('app.whatsapp.logs', compact('business', 'logs'));
+    }
+}

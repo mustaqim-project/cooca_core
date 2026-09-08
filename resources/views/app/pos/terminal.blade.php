@@ -893,13 +893,21 @@
 
             <!-- Action Buttons: Print Thermal & WhatsApp -->
             <div class="space-y-2 pt-2">
+                <!-- Bot WhatsApp Direct Send -->
+                <button type="button" @click="sendWhatsAppBotReceipt()" :disabled="sendingWaBot"
+                    class="w-full py-3 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#22c55e] hover:to-[#0f7a6a] text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-[#25D366]/25 disabled:opacity-50">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
+                    <span x-text="sendingWaBot ? 'Mengirim Struk ke WA...' : (waBotSent ? '✓ Struk Terkirim ke WhatsApp' : 'Kirim Bot WhatsApp (Otomatis)')"></span>
+                </button>
+                <div x-show="waBotFeedback" class="text-[11px] font-semibold py-1 px-2 rounded-lg" :class="waBotFeedbackSuccess ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'" x-text="waBotFeedback"></div>
+
                 <a :href="lastReceiptUrl" target="_blank" class="w-full py-3 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition">
                     <i data-lucide="printer" class="w-4 h-4 text-emerald-400"></i>
                     <span>Cetak Struk Thermal (58mm/80mm)</span>
                 </a>
-                <a :href="lastWhatsAppUrl" target="_blank" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-600/20">
-                    <i data-lucide="send" class="w-4 h-4"></i>
-                    <span>Kirim Struk via WhatsApp</span>
+                <a :href="lastWhatsAppUrl" target="_blank" class="w-full py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-medium text-xs flex items-center justify-center gap-2 transition">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span>Kirim Manual via WhatsApp Web / App</span>
                 </a>
                 <button @click="resetForNewOrder()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">
                     Transaksi Baru
@@ -1069,6 +1077,10 @@
                 lastCompletedOrder: null,
                 lastReceiptUrl: '#',
                 lastWhatsAppUrl: '#',
+                sendingWaBot: false,
+                waBotSent: false,
+                waBotFeedback: '',
+                waBotFeedbackSuccess: false,
 
                 // Shift state
                 shiftOpeningCash: 100000,
@@ -1340,6 +1352,9 @@
                             this.lastCompletedOrder = data.order;
                             this.lastReceiptUrl = data.receipt_url;
                             this.lastWhatsAppUrl = data.whatsapp_url;
+                            this.waBotSent = data.whatsapp_bot_sent || false;
+                            this.waBotFeedback = this.waBotSent ? '✓ Struk otomatis terkirim ke WhatsApp!' : '';
+                            this.waBotFeedbackSuccess = this.waBotSent;
                             this.showPaymentModal = false;
                             this.showSuccessModal = true;
                             this.cart = [];
@@ -1365,6 +1380,41 @@
                 resetForNewOrder() {
                     this.showSuccessModal = false;
                     this.lastCompletedOrder = null;
+                    this.waBotSent = false;
+                    this.waBotFeedback = '';
+                },
+
+                sendWhatsAppBotReceipt() {
+                    if (!this.lastCompletedOrder) return;
+                    this.sendingWaBot = true;
+                    this.waBotFeedback = '';
+                    const customer = this.customers.find(c => c.id === this.selectedCustomerId);
+                    fetch("{{ url('/whatsapp/orders') }}/" + this.lastCompletedOrder.id + "/receipt", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            phone: customer ? customer.phone : ''
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.waBotFeedback = data.message;
+                        this.waBotFeedbackSuccess = data.success;
+                        if (data.success) {
+                            this.waBotSent = true;
+                        }
+                    })
+                    .catch(() => {
+                        this.waBotFeedback = 'Gagal menghubungi server WhatsApp';
+                        this.waBotFeedbackSuccess = false;
+                    })
+                    .finally(() => {
+                        this.sendingWaBot = false;
+                    });
                 },
 
                 promptHoldCart() {

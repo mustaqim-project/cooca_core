@@ -130,6 +130,11 @@ class Business extends Model
         return $this->hasOne(BusinessSubscription::class)->latestOfMany();
     }
 
+    public function landingPage(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BusinessLandingPage::class);
+    }
+
     public function subscriptions(): HasMany
     {
         return $this->hasMany(BusinessSubscription::class);
