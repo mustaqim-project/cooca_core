@@ -10,7 +10,7 @@ Panduan teknis lengkap untuk meng-hosting microservice **WhatsApp Gateway (`wa-s
 ┌────────────────────────────────────────────────────────┐
 │                   HOSTINGER / CLOUD                    │
 │   COOCA Core Web Application (Laravel 12 + MySQL)      │
-│   Domain: https://app.cooca.id                         │
+│   Domain: https://umkm.cooca.id                        │
 └────────────────────────┬───────────────────────────────┘
                          │ 
                          │ HTTP API Request (JSON + Token)
@@ -119,7 +119,7 @@ WA_SERVER_PORT=3000
 WA_WORKER_TOKEN=gcp_wa_super_secret_token_cooca_2026
 
 # URL domain aplikasi COOCA Anda di Hostinger
-LARAVEL_API_URL=https://app.cooca.id
+LARAVEL_API_URL=https://umkm.cooca.id
 ```
 Simpan (`Ctrl + O`, `Enter`, `Ctrl + X`), lalu restart service PM2:
 ```bash
@@ -149,7 +149,7 @@ php artisan config:clear
 ## 8. Verifikasi Koneksi & Scan QR WhatsApp
 
 1. Buka aplikasi web COOCA Anda di browser:
-   `https://app.cooca.id/admin/whatsapp` atau menu **WhatsApp Gateway** bisnis.
+   `https://umkm.cooca.id/admin/whatsapp` atau menu **WhatsApp Gateway** bisnis.
 2. Klik tombol **Hubungkan WhatsApp** / **Mulai Sesi**.
 3. Sistem akan memanggil API GCP VPS dan menampilkan **QR Code WhatsApp**.
 4. Buka aplikasi WhatsApp di HP Anda:

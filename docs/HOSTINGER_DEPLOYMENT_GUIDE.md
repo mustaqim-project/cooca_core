@@ -1,6 +1,6 @@
-# PANDUAN DEPLOYMENT HOSTINGER — COOCA CORE (app.cooca.id)
+# PANDUAN DEPLOYMENT HOSTINGER — COOCA CORE (umkm.cooca.id)
 
-Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy backend web **Cooca UMKM** ke hosting **Hostinger** (domain `http://app.cooca.id` / `https://app.cooca.id`) dan menghubungkan **Aplikasi Mobile (Flutter)** ke server production.
+Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy backend web **Cooca UMKM** ke hosting **Hostinger** (domain `http://umkm.cooca.id` / `https://umkm.cooca.id`) dan menghubungkan **Aplikasi Mobile (Flutter)** ke server production.
 
 ---
 
@@ -8,11 +8,11 @@ Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy ba
 
 1. Masuk ke **Hostinger hPanel** $\rightarrow$ Pilih Menu **Domains / Subdomains**.
 2. Buat Subdomain baru:
-   - **Subdomain Name:** `app`
+   - **Subdomain Name:** `umkm`
    - **Domain:** `cooca.id`
    - **Custom folder for subdomain:** Centang opsi ini, lalu arahkan folder root ke:
-     `public_html/app.cooca.id` (atau default `public_html/app`)
-3. Pastikan **SSL Certificate (Let's Encrypt / Hostinger SSL)** telah diaktifkan untuk `app.cooca.id` agar mendukung protokol aman `https://app.cooca.id`.
+     `public_html/umkm.cooca.id` (atau default `public_html/umkm`)
+3. Pastikan **SSL Certificate (Let's Encrypt / Hostinger SSL)** telah diaktifkan untuk `umkm.cooca.id` agar mendukung protokol aman `https://umkm.cooca.id`.
 
 ---
 
@@ -22,7 +22,7 @@ Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy ba
 1. Aktifkan akses **SSH** di hPanel $\rightarrow$ **Advanced** $\rightarrow$ **SSH Access**.
 2. Hubungkan terminal SSH Anda:
    ```bash
-   ssh -p 65002 u123456789@app.cooca.id
+   ssh -p 65002 u123456789@umkm.cooca.id
    ```
 3. Clone repository atau upload project ke folder root subdomain:
    ```bash
@@ -65,8 +65,8 @@ Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy ba
    APP_NAME="Cooca UMKM"
    APP_ENV=production
    APP_DEBUG=false
-   APP_URL=https://app.cooca.id
-   ASSET_URL=https://app.cooca.id
+   APP_URL=https://umkm.cooca.id
+   ASSET_URL=https://umkm.cooca.id
 
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
@@ -94,11 +94,11 @@ Dokumen ini berisi panduan teknis langkah demi langkah untuk melakukan deploy ba
 ## 4. Konfigurasi Aplikasi Mobile (Flutter)
 
 Aplikasi Mobile Cooca UMKM telah dikonfigurasi secara default menggunakan endpoint production:
-- **Default Base URL:** `https://app.cooca.id/api/v1` (pada [api_endpoints.dart](file:///c:/laragon/www/cooca_core/mobile_app/lib/core/constants/api_endpoints.dart)).
+- **Default Base URL:** `https://umkm.cooca.id/api/v1` (pada [api_endpoints.dart](file:///c:/laragon/www/cooca_core/mobile_app/lib/core/constants/api_endpoints.dart)).
 
 ### Opsi Mengubah Server di Aplikasi:
 Pengguna dapat membuka menu:
-**Menu & Pengaturan** $\rightarrow$ **Pengaturan Server & Koneksi** $\rightarrow$ Klik chip preset **☁️ Production (app.cooca.id)** atau masukkan URL server custom kapan saja.
+**Menu & Pengaturan** $\rightarrow$ **Pengaturan Server & Koneksi** $\rightarrow$ Klik chip preset **☁️ Production (umkm.cooca.id)** atau masukkan URL server custom kapan saja.
 
 ### Membangun File APK / Release Production:
 Jalankan perintah berikut di folder `mobile_app`:
@@ -129,10 +129,10 @@ WA_WORKER_TOKEN=cooca_secret_worker_token_production
 1. Masuk ke **Environment Variables** service `cooca-wa-server` di Render:
    - `NODE_ENV` = `production`
    - `WA_WORKER_TOKEN` = `cooca_secret_worker_token_production` (sama persis dengan di Hostinger)
-   - `LARAVEL_API_URL` = `https://app.cooca.id` (URL Hostinger Anda)
+   - `LARAVEL_API_URL` = `https://umkm.cooca.id` (URL Hostinger Anda)
 2. Pastikan Health Check Path di Render diatur ke `/health`.
 3. Setelah deploy Render aktif, jalankan clear config di Hostinger:
    ```bash
    php artisan config:clear
    ```
-4. Buka menu **WhatsApp** di dashboard web `https://app.cooca.id/app/whatsapp` untuk scan QR Code dan mengaktifkan notifikasi kasir, struk POS, dan pesan blast otomatis.
+4. Buka menu **WhatsApp** di dashboard web `https://umkm.cooca.id/app/whatsapp` untuk scan QR Code dan mengaktifkan notifikasi kasir, struk POS, dan pesan blast otomatis.

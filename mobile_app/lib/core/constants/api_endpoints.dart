@@ -1,6 +1,6 @@
 class ApiEndpoints {
   // Base URL (Production Hostinger default, configurable in App Settings)
-  static String defaultBaseUrl = 'https://app.cooca.id/api/v1';
+  static String defaultBaseUrl = 'https://umkm.cooca.id/api/v1';
 
   // ── Auth & Profile ───────────────────────────────────────────
   static const String login           = '/auth/login';
