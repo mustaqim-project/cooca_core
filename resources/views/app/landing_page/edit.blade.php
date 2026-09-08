@@ -98,6 +98,7 @@
         <input type="hidden" name="faqs_json" :value="JSON.stringify(faqs)">
         <input type="hidden" name="testimonials_json" :value="JSON.stringify(testimonials)">
         <input type="hidden" name="operational_hours_json" :value="JSON.stringify(operationalHours)">
+        <input type="hidden" name="section_visibility_json" :value="JSON.stringify(sectionVisibility)">
         <input type="hidden" name="industry_preset" x-model="form.industry_preset">
         <input type="hidden" name="theme_color" x-model="form.theme_color">
         <input type="hidden" name="announcement_badge" x-model="form.announcement_badge">
@@ -189,9 +190,24 @@
                                 <div class="text-[11px] text-slate-400 mt-0.5">Latar gelap premium dengan glassmorphism & efek cahaya tema.</div>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" name="is_dark_theme" value="1" {{ $landingPage->is_dark_theme ? 'checked' : '' }} class="sr-only peer">
+                                <input type="checkbox" name="dark_mode" value="1" {{ $landingPage->dark_mode ? 'checked' : '' }} class="sr-only peer">
                                 <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                             </label>
+                        </div>
+
+                        <div class="border-t border-slate-800 pt-4 space-y-3">
+                            <div>
+                                <div class="text-xs font-bold text-white">Section Halaman Publik</div>
+                                <p class="text-[11px] text-slate-400 mt-1">Nonaktifkan section yang tidak diperlukan; section yang nonaktif tidak dirender atau muncul di navigasi.</p>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <template x-for="section in sectionOptions" :key="section.key">
+                                    <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                                        <input type="checkbox" x-model="sectionVisibility[section.key]" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                                        <span x-text="section.label"></span>
+                                    </label>
+                                </template>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -332,7 +348,7 @@
                                     <div class="text-[11px] text-slate-400 mt-1">Produk aktif dari POS ditampilkan otomatis dengan tombol pesan via WhatsApp 1-klik.</div>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="show_products" value="1" {{ $landingPage->show_products ? 'checked' : '' }} class="sr-only peer">
+                                    <input type="checkbox" name="show_pos_products" value="1" {{ $landingPage->show_pos_products ? 'checked' : '' }} class="sr-only peer">
                                     <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                                 </label>
                             </div>
@@ -381,23 +397,23 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-xl space-y-2">
                                     <label class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Stat 1</label>
-                                    <input type="text" name="stats[clients]" value="{{ $landingPage->stats['clients'] ?? '5.000+' }}" placeholder="5.000+"
+                                    <input type="text" name="stats[clients]" value="{{ data_get($landingPage->values, 'stats.clients', '5.000+') }}" placeholder="5.000+"
                                         class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-base font-black text-emerald-400 focus:outline-none text-center">
-                                    <input type="text" name="stats[clients_label]" value="{{ $landingPage->stats['clients_label'] ?? 'Pelanggan Puas' }}" placeholder="Pelanggan Puas"
+                                    <input type="text" name="stats[clients_label]" value="Pelanggan Puas" placeholder="Pelanggan Puas"
                                         class="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-400 focus:outline-none text-center">
                                 </div>
                                 <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-xl space-y-2">
                                     <label class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Stat 2</label>
-                                    <input type="text" name="stats[experience]" value="{{ $landingPage->stats['experience'] ?? '8+ Tahun' }}" placeholder="8+ Tahun"
+                                    <input type="text" name="stats[experience]" value="8+ Tahun" placeholder="8+ Tahun"
                                         class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-base font-black text-teal-400 focus:outline-none text-center">
-                                    <input type="text" name="stats[experience_label]" value="{{ $landingPage->stats['experience_label'] ?? 'Pengalaman Profesional' }}" placeholder="Pengalaman"
+                                    <input type="text" name="stats[experience_label]" value="Pengalaman Profesional" placeholder="Pengalaman"
                                         class="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-400 focus:outline-none text-center">
                                 </div>
                                 <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-xl space-y-2">
                                     <label class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Stat 3</label>
-                                    <input type="text" name="stats[rating]" value="{{ $landingPage->stats['rating'] ?? '4.9 / 5.0' }}" placeholder="4.9 / 5.0"
+                                    <input type="text" name="stats[rating]" value="4.9 / 5.0" placeholder="4.9 / 5.0"
                                         class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-base font-black text-amber-400 focus:outline-none text-center">
-                                    <input type="text" name="stats[rating_label]" value="{{ $landingPage->stats['rating_label'] ?? 'Rating Kepuasan Ulasan' }}" placeholder="Rating Ulasan"
+                                    <input type="text" name="stats[rating_label]" value="Rating Kepuasan Ulasan" placeholder="Rating Ulasan"
                                         class="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-400 focus:outline-none text-center">
                                 </div>
                             </div>
