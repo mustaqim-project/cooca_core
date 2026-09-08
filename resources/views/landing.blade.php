@@ -4,16 +4,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cooca UMKM — Business Operating System untuk UMKM</title>
-    <meta name="description" content="Cooca UMKM: HPP presisi, AI Assistant, POS, inventori real-time, akuntansi otomatis — gratis selamanya untuk UMKM Indonesia.">
+    <title>Software Kasir & ERP Gratis untuk UMKM Indonesia | COOCA UMKM</title>
+    <meta name="description" content="COOCA UMKM: Software kasir, POS, HPP, inventori & AI Assistant 100% GRATIS selamanya. Digunakan 10.000+ UMKM Indonesia. Daftar gratis sekarang, tanpa kartu kredit.">
+    <meta name="keywords" content="software kasir gratis, erp umkm gratis, aplikasi toko gratis, pos gratis indonesia, software akuntansi gratis umkm, manajemen inventori gratis, ai assistant bisnis umkm, cooca umkm">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="COOCA.ID">
     <meta property="og:locale" content="id_ID">
-    <meta property="og:url" content="https://cooca.id">
-    <meta property="og:title" content="Cooca UMKM — Business Operating System untuk UMKM">
-    <meta property="og:description" content="HPP presisi, AI Assistant, POS, inventori real-time, akuntansi otomatis — gratis selamanya.">
+    <meta property="og:url" content="https://umkm.cooca.id">
+    <meta property="og:title" content="Software Kasir & ERP Gratis untuk UMKM Indonesia | COOCA UMKM">
+    <meta property="og:description" content="HPP presisi, AI Assistant, POS, inventori real-time, akuntansi otomatis — 100% gratis selamanya untuk UMKM Indonesia.">
     <meta property="og:image" content="https://cooca.id/assets/image/cooca.png">
     <meta property="og:image:secure_url" content="https://cooca.id/assets/image/cooca.png">
     <meta property="og:image:width" content="1200">
@@ -22,6 +23,34 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="https://cooca.id/assets/image/1785229034_favicon.png">
     <link rel="alternate icon" type="image/png" href="https://cooca.id/favicon.png">
+
+    <!-- SEO Canonical & Robots -->
+    <link rel="canonical" href="https://umkm.cooca.id">
+    <meta name="robots" content="index, follow">
+
+    <!-- Structured Data JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Cooca UMKM",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web, Cloud-based",
+        "description": "Business Operating System gratis selamanya untuk UMKM Indonesia: HPP presisi, AI Assistant, POS kasir, dan inventori.",
+        "url": "https://umkm.cooca.id",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "IDR",
+            "availability": "https://schema.org/InStock"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "COOCA.ID",
+            "url": "https://cooca.id"
+        }
+    }
+    </script>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -220,10 +249,11 @@
             </a>
 
             <nav class="hidden lg:flex items-center gap-6 xl:gap-8 text-xs font-semibold text-slate-400">
-                <a href="#calculator" class="hover:text-white transition-colors">Kalkulator HPP</a>
-                <a href="#modul" class="hover:text-white transition-colors">Modul</a>
-                <a href="#bento" class="hover:text-white transition-colors">Fitur Unggulan</a>
-                <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+                <a href="{{ route('kalkulator.index') }}" class="hover:text-white transition-colors">8 Kalkulator Bisnis</a>
+                <a href="{{ route('template.index') }}" class="hover:text-white transition-colors">Template Excel</a>
+                <a href="{{ route('blog.index') }}" class="hover:text-white transition-colors">Blog &amp; Edukasi</a>
+                <a href="#tiga-pilar" class="hover:text-white transition-colors">3 Pilar Utama</a>
+                <a href="{{ route('contact') }}" class="hover:text-white transition-colors">Kontak</a>
             </nav>
 
             <!-- Actions dengan route login & register -->
@@ -242,10 +272,10 @@
 
         <!-- Mobile menu dengan route -->
         <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2" class="lg:hidden p-5 bg-slate-950/98 backdrop-blur-2xl border-b border-slate-800/80 space-y-2 text-sm font-semibold" style="display: none;">
-            <a href="#calculator" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">Kalkulator HPP</a>
-            <a href="#modul" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">Modul Bisnis</a>
-            <a href="#bento" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">Fitur Unggulan</a>
-            <a href="#faq" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">FAQ</a>
+            <a href="{{ route('kalkulator.index') }}" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">8 Kalkulator Bisnis</a>
+            <a href="{{ route('template.index') }}" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">Template Pembukuan Excel</a>
+            <a href="{{ route('blog.index') }}" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">Blog &amp; Edukasi UMKM</a>
+            <a href="{{ route('contact') }}" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">Hubungi Kami</a>
             <div class="pt-4 border-t border-slate-800/80 grid grid-cols-2 gap-2 mt-2">
                 <a href="{{ route('login') }}" class="py-3 rounded-xl bg-slate-900/80 border border-slate-800 text-center text-white font-semibold">Masuk</a>
                 <a href="{{ route('register') }}" class="py-3 rounded-xl glow-btn text-center text-white font-bold shadow-lg shadow-indigo-500/20">Daftar</a>
@@ -276,8 +306,8 @@
                     </div>
 
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
-                        <span class="block">Kelola Bisnis</span>
-                        <span class="text-gradient-accent">Lebih Cerdas &amp; Profit</span>
+                        <span class="block">Kelola Bisnis UMKM</span>
+                        <span class="text-gradient-accent">100% Gratis Selamanya</span>
                     </h1>
 
                     <p class="text-sm sm:text-base text-slate-400 max-w-xl leading-relaxed font-medium mx-auto lg:mx-0">
@@ -287,7 +317,7 @@
                     <!-- CTAs dengan route -->
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
                         <a href="{{ route('register') }}" class="w-full sm:w-auto glow-btn px-8 py-3.5 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30">
-                            <span>Mulai Sekarang — Gratis</span>
+                            <span>Mulai Sekarang - Gratis</span>
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                         <a href="{{ route('auth.google') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl glass-card hover:bg-slate-800/60 text-white font-semibold text-sm flex items-center justify-center gap-2.5 border-slate-700/50 transition-all">
@@ -298,7 +328,7 @@
 
                     <!-- Trust signals -->
                     <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-[11px] font-semibold text-slate-500 pt-1">
-                        <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Tanpa kartu kredit</span>
+                        <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Gratis selamanya</span>
                         <span class="flex items-center gap-1.5"><i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Setup 2 menit</span>
                         <span class="flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5 text-indigo-400"></i> Data privat & aman</span>
                     </div>
@@ -386,6 +416,97 @@
         </div>
     </section>
 
+    <!-- ═══ SHOWCASE 3 PILAR UTAMA COOCA UMKM ═══ -->
+    <section id="tiga-pilar" class="py-16 md:py-24 border-t border-slate-800/60 bg-gradient-to-b from-slate-950 via-slate-900/40 to-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div class="text-center space-y-3 max-w-2xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold text-xs">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                    <span>Solusi Terpadu 100% Gratis</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">3 Pilar Kekuatan Cooca UMKM</h2>
+                <p class="text-sm text-slate-400">Dirancang khusus untuk memberdayakan pelaku usaha mikro &amp; kecil agar dapat beroperasi secara profesional tanpa biaya lisensi.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Pilar 1: Kasir & POS Gratis -->
+                <div class="glass-card p-8 rounded-3xl space-y-5 border-emerald-500/30 hover:border-emerald-500/50 transition-all flex flex-col justify-between group">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+                            <i data-lucide="shopping-cart" class="w-7 h-7"></i>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Pilar 1 • Kasir Kilat</span>
+                        <h3 class="text-xl font-bold text-white leading-snug">Kasir &amp; POS Digital 100% Gratis</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Cetak struk kasir Bluetooth, terima pembayaran QRIS, kelola pesanan meja, dan catat bon hutang pelanggan via WhatsApp tanpa batasan jumlah transaksi.
+                        </p>
+                        <div class="space-y-2 pt-2 text-xs text-slate-300">
+                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>Bisa via HP Android &amp; Tablet</span></div>
+                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>Mendukung Scan Barcode Kamera</span></div>
+                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>Cetak Struk Thermal &amp; Nota WA</span></div>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-800">
+                        <a href="{{ route('register') }}" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5">
+                            <span>Buka Terminal Kasir Gratis</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pilar 2: Pembukuan & Laba Rugi Otomatis -->
+                <div class="glass-card p-8 rounded-3xl space-y-5 border-indigo-500/30 hover:border-indigo-500/50 transition-all flex flex-col justify-between group">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform">
+                            <i data-lucide="book-open-check" class="w-7 h-7"></i>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400 block">Pilar 2 • Laporan Finansial</span>
+                        <h3 class="text-xl font-bold text-white leading-snug">Pembukuan &amp; Laba Rugi Otomatis</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Lupakan stres mencatat buku kas manual atau rumus Excel yang rusak. Setiap penjualan dan belanja otomatis terangkum menjadi laporan laba rugi real-time.
+                        </p>
+                        <div class="space-y-2 pt-2 text-xs text-slate-300">
+                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>Buku Kas Masuk &amp; Keluar Harian</span></div>
+                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>Kartu Stok &amp; Restock Alert</span></div>
+                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>Laporan Laba Kotor vs Laba Bersih</span></div>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <a href="{{ route('template.index') }}" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5">
+                            <span>Unduh Template Excel Gratis</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pilar 3: Kalkulator Bisnis & AI Assistant -->
+                <div class="glass-card p-8 rounded-3xl space-y-5 border-cyan-500/30 hover:border-cyan-500/50 transition-all flex flex-col justify-between group">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition-transform">
+                            <i data-lucide="sparkles" class="w-7 h-7"></i>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block">Pilar 3 • Intelijensi Bisnis</span>
+                        <h3 class="text-xl font-bold text-white leading-snug">Kalkulator Bisnis &amp; Asisten AI</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Kalkulasi HPP 3-pilar presisi, hitung titik impas BEP, simulasi kenaikan harga bahan baku, dan dapatkan insight bisnis cerdas melalui asisten percakapan AI.
+                        </p>
+                        <div class="space-y-2 pt-2 text-xs text-slate-300">
+                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-400"></i><span>8 Alat Kalkulator Bisnis Terpadu</span></div>
+                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-400"></i><span>Simulasi Sensitivitas Biaya What-If</span></div>
+                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-400"></i><span>Tanya Jawab Strategi dengan AI</span></div>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-800">
+                        <a href="{{ route('kalkulator.index') }}" class="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5">
+                            <span>Buka 8 Kalkulator Online</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ═══ MODUL BISNIS ═══ -->
     <section id="modul" class="py-12 md:py-20 border-t border-slate-800/60 bg-slate-950/40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -398,12 +519,13 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-                <div class="glass-card p-6 rounded-3xl space-y-3 border-blue-500/20 hover:border-blue-500/40 transition-all">
-                    <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <div class="glass-card p-6 rounded-3xl space-y-3 border-cyan-500/30 bg-cyan-950/10 hover:border-cyan-500/50 transition-all relative overflow-hidden">
+                    <div class="w-11 h-11 rounded-xl bg-cyan-500/15 flex items-center justify-center text-cyan-400">
+                        <i data-lucide="bot" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">Dashboard</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Lihat gambaran utuh bisnis Anda: omzet, laba, stok, piutang, dan KPI penting dalam satu layar.</p>
+                    <div class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold uppercase tracking-wider">USP #1 Cooca</div>
+                    <h3 class="text-base font-bold text-white">AI Assistant</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Tanya jawab bisnis langsung dengan AI: analisis tren, rekomendasi harga, dan deteksi anomali penjualan otomatis.</p>
                 </div>
 
                 <div class="glass-card p-6 rounded-3xl space-y-3 border-purple-500/20 hover:border-purple-500/40 transition-all">
@@ -414,12 +536,12 @@
                     <p class="text-xs text-slate-400 leading-relaxed">Hitung biaya pokok produksi dengan presisi tinggi. Dukung 3 pilar biaya: material, tenaga kerja, dan overhead.</p>
                 </div>
 
-                <div class="glass-card p-6 rounded-3xl space-y-3 border-cyan-500/20 hover:border-cyan-500/40 transition-all">
-                    <div class="w-11 h-11 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
-                        <i data-lucide="bot" class="w-5 h-5"></i>
+                <div class="glass-card p-6 rounded-3xl space-y-3 border-blue-500/20 hover:border-blue-500/40 transition-all">
+                    <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">AI Assistant</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Tanya jawab bisnis dengan AI: analisis tren, rekomendasi harga, dan deteksi anomali secara otomatis.</p>
+                    <h3 class="text-base font-bold text-white">Dashboard</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Lihat gambaran utuh bisnis Anda: omzet, laba, stok, piutang, dan KPI penting dalam satu layar.</p>
                 </div>
 
                 <div class="glass-card p-6 rounded-3xl space-y-3 border-emerald-500/20 hover:border-emerald-500/40 transition-all">
@@ -722,6 +844,32 @@
         </div>
     </section>
 
+    <!-- ═══ MIGRATION PATH KE PREMIUM ═══ -->
+    <section class="py-14 bg-gradient-to-b from-slate-950 to-[#030712] border-t border-indigo-500/20 relative overflow-hidden">
+        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+                <i data-lucide="trending-up" class="w-4 h-4 text-indigo-400"></i>
+                <span>Bisnis Anda Berkembang &amp; Butuh Multi-Cabang?</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                Upgrade ke <span class="text-gradient-accent">COOCA.ID Premium</span>
+            </h2>
+            <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                Tingkatkan skala bisnis Anda dengan modul ERP spesifik industri: Bengkel otomotif, Klinik &amp; Rekam Medis, Restoran multi-meja, dan Retail multi-cabang.
+            </p>
+            <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="https://cooca.id/products" target="_blank" rel="noopener noreferrer" class="glow-btn px-8 py-3.5 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30 w-full sm:w-auto">
+                    <span>Lihat Solusi ERP Premium</span>
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                </a>
+                <a href="{{ route('register') }}" class="px-6 py-3.5 rounded-2xl glass-card hover:bg-slate-800/60 text-white font-semibold text-sm flex items-center justify-center gap-2 border-slate-700/50 transition-all w-full sm:w-auto">
+                    <span>Mulai Sekarang - Gratis di UMKM</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- ═══ FOOTER ═══ -->
     <footer class="border-t border-white/[0.06] bg-[#030712] py-12 sm:py-16 text-xs text-slate-400" role="contentinfo">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -739,32 +887,37 @@
                 </div>
 
                 <div class="space-y-3">
-                    <p class="font-bold text-white uppercase text-[11px] tracking-wider">Navigasi</p>
+                    <p class="font-bold text-white uppercase text-[11px] tracking-wider">Kalkulator Bisnis</p>
                     <nav class="flex flex-col space-y-2 text-[12px]">
-                        <a href="#" class="hover:text-white transition-colors">Beranda</a>
-                        <a href="#" class="hover:text-white transition-colors">Tentang</a>
-                        <a href="#" class="hover:text-white transition-colors">Produk ERP</a>
-                        <a href="#" class="hover:text-white transition-colors">Kontak</a>
+                        <a href="{{ route('kalkulator.hpp') }}" class="hover:text-white transition-colors">Kalkulator HPP</a>
+                        <a href="{{ route('kalkulator.bep') }}" class="hover:text-white transition-colors">Kalkulator BEP</a>
+                        <a href="{{ route('kalkulator.harga-jual') }}" class="hover:text-white transition-colors">Kalkulator Harga Jual</a>
+                        <a href="{{ route('kalkulator.laba-bersih') }}" class="hover:text-white transition-colors">Kalkulator Laba Bersih</a>
+                        <a href="{{ route('kalkulator.index') }}" class="text-indigo-400 hover:underline">Semua 8 Kalkulator →</a>
                     </nav>
                 </div>
 
                 <div class="space-y-3">
-                    <p class="font-bold text-white uppercase text-[11px] tracking-wider">Layanan</p>
+                    <p class="font-bold text-white uppercase text-[11px] tracking-wider">Solusi Vertikal</p>
                     <nav class="flex flex-col space-y-2 text-[12px]">
-                        <a href="#" class="hover:text-white transition-colors">POS Restoran</a>
-                        <a href="#" class="hover:text-white transition-colors">Klinik ERP</a>
-                        <a href="#" class="hover:text-white transition-colors">Bengkel ERP</a>
-                        <a href="#" class="hover:text-white transition-colors">Retail POS</a>
+                        <a href="{{ route('solusi.show', 'kasir-warung') }}" class="hover:text-white transition-colors">Kasir Warung &amp; Sembako</a>
+                        <a href="{{ route('solusi.show', 'kasir-cafe-kecil') }}" class="hover:text-white transition-colors">Kasir Kafe &amp; Kedai Kopi</a>
+                        <a href="{{ route('solusi.show', 'kasir-laundry') }}" class="hover:text-white transition-colors">Kasir Laundry</a>
+                        <a href="{{ route('solusi.show', 'kasir-bengkel-kecil') }}" class="hover:text-white transition-colors">Kasir Bengkel Motor</a>
+                        <a href="{{ route('template.index') }}" class="text-emerald-400 hover:underline">Template Excel Gratis →</a>
                     </nav>
                 </div>
 
                 <div class="space-y-3">
-                    <p class="font-bold text-white uppercase text-[11px] tracking-wider">Sumber Daya</p>
+                    <p class="font-bold text-white uppercase text-[11px] tracking-wider">Edukasi &amp; Enterprise</p>
                     <nav class="flex flex-col space-y-2 text-[12px]">
-                        <a href="#" class="hover:text-white transition-colors">Blog</a>
-                        <a href="#" class="hover:text-white transition-colors">FAQ</a>
-                        <a href="#" class="hover:text-white transition-colors">Syarat & Ketentuan</a>
-                        <a href="#" class="hover:text-white transition-colors">Kebijakan Privasi</a>
+                        <a href="{{ route('blog.index') }}" class="hover:text-white transition-colors">Blog &amp; Panduan UMKM</a>
+                        <a href="{{ route('contact') }}" class="hover:text-white transition-colors">Kontak Kami</a>
+                        <a href="https://cooca.id" target="_blank" rel="noopener" class="text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
+                            <span>Butuh Multi-Cabang? COOCA.ID</span>
+                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                        <a href="https://cooca.id/products" target="_blank" rel="noopener" class="hover:text-white transition-colors">Katalog ERP Enterprise</a>
                     </nav>
                 </div>
 
@@ -773,8 +926,8 @@
                         <p class="font-bold text-white uppercase text-[11px] tracking-wider">Kontak</p>
                         <div class="space-y-1.5 text-[12px] mt-2">
                             <span class="block text-slate-400">Jakarta Selatan, DKI Jakarta</span>
-                            <a href="#" class="block hover:text-white transition-colors">6282337499577</a>
-                            <a href="#" class="block hover:text-white transition-colors">hello@cooca.id</a>
+                            <a href="https://wa.me/6282337499577" target="_blank" rel="noopener noreferrer" class="block hover:text-white transition-colors">0823 3749 9577</a>
+                            <a href="mailto:support@cooca.id" class="block hover:text-white transition-colors">support@cooca.id</a>
                         </div>
                     </div>
                     <div>
