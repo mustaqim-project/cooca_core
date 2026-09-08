@@ -14,6 +14,9 @@
 /storage/*.key
 oauth-*.json
 *.pem
+cloudflared.exe
+config.yml
+*.exe
 
 # --- PHP & Composer ---
 /vendor/
@@ -37,13 +40,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # --- WhatsApp Gateway (wa-server) ---
-# Sangat penting: Auth keys & token sesi WA tidak boleh di-commit!
-wa-server/node_modules/
-wa-server/.baileys_auth/
-wa-server/.wwebjs_auth/
-wa-server/.wwebjs_cache/
-wa-server/.env
-wa-server/*.log
+# Microservice mandiri (memiliki Git repository sendiri untuk deploy ke Render.com/VPS)
+/wa-server/
 .baileys_auth/
 whatsapp-web.js/
 

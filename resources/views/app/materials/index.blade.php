@@ -127,7 +127,7 @@
                                         class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors" title="Edit Spesifikasi Bahan">
                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 </button>
-                                <form method="POST" action="{{ route('materials.destroy', $mat->slug) }}" onsubmit="return confirm('Hapus bahan ini?')">
+                                <form method="POST" action="{{ route('materials.destroy', $mat->slug) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus bahan baku ini?', 'Hapus Bahan?', 'danger')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1 text-slate-500 hover:text-red-400 rounded transition-colors">

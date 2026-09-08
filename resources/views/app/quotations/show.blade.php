@@ -24,7 +24,7 @@
         <div class="flex flex-wrap items-center gap-2">
             <!-- 1-Click Convert to Sales Order Button -->
             @if(!$quotation->salesOrder && $quotation->status !== 'rejected')
-            <form action="{{ route('sales.quotations.convert', $quotation) }}" method="POST" onsubmit="return confirm('Konversi surat penawaran ini menjadi Pesanan Penjualan (Sales Order)?')">
+            <form action="{{ route('sales.quotations.convert', $quotation) }}" method="POST" onsubmit="return AppAlert.confirmSubmit(event, this, 'Konversi surat penawaran ini menjadi Pesanan Penjualan (Sales Order)?', 'Ubah Menjadi Sales Order?', 'info')">
                 @csrf
                 <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
                     <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>

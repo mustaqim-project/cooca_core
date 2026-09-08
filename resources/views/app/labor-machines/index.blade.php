@@ -65,7 +65,7 @@
                                 {{ $business->currency_symbol }} {{ number_format((float)$hourly, 0, ',', '.') }}/jam
                             </td>
                             <td class="py-3.5 px-4 text-right">
-                                <form method="POST" action="{{ route('labor-rates.destroy', $lr->id) }}" onsubmit="return confirm('Hapus tarif tenaga kerja ini?')">
+                                <form method="POST" action="{{ route('labor-rates.destroy', $lr->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus tarif tenaga kerja ini?', 'Hapus Tarif?', 'danger')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1.5 text-slate-500 hover:text-red-400 rounded transition-colors">
@@ -145,7 +145,7 @@
                                 {{ $business->currency_symbol }} {{ number_format((float)$totalHourly, 0, ',', '.') }}/jam
                             </td>
                             <td class="py-3.5 px-4 text-right">
-                                <form method="POST" action="{{ route('machines.destroy', $m->id) }}" onsubmit="return confirm('Hapus mesin/peralatan ini?')">
+                                <form method="POST" action="{{ route('machines.destroy', $m->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus mesin/peralatan ini?', 'Hapus Mesin/Peralatan?', 'danger')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1.5 text-slate-500 hover:text-red-400 rounded transition-colors">

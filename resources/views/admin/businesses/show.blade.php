@@ -16,7 +16,7 @@
 
         <div class="flex items-center gap-3">
             <form method="POST" action="{{ route('admin.businesses.toggle-status', $business->id) }}"
-                  onsubmit="return confirm('Apakah Anda yakin ingin mengubah status aktif bisnis ini?')">
+                  onsubmit="return AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin mengubah status aktif bisnis ini?', 'Ubah Status Bisnis?', 'warning')">
                 @csrf
                 @if($business->is_active)
                     <button type="submit" 

@@ -533,8 +533,15 @@ class GuidedProductTour {
         }
     }
 
-    promptSkip() {
-        if (confirm('Lewati panduan pengenalan sistem ini? Anda tetap dapat mengaksesnya kembali kapan saja melalui menu pengaturan atau profil.')) {
+    async promptSkip() {
+        const confirmed = await (window.AppAlert ? window.AppAlert.confirm({
+            title: 'Lewati Panduan?',
+            message: 'Lewati panduan pengenalan sistem ini? Anda tetap dapat mengaksesnya kembali kapan saja melalui menu pengaturan atau profil.',
+            type: 'info',
+            confirmText: 'Ya, Lewati',
+            cancelText: 'Lanjutkan Panduan'
+        }) : Promise.resolve(true));
+        if (confirmed) {
             this.finish();
         }
     }

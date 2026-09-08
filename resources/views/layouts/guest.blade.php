@@ -46,6 +46,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- AppAlert (Centralized Alert & Confirm System) -->
+    <script src="{{ asset('js/app-alert.js') }}"></script>
+
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .glass-card {
@@ -69,6 +72,18 @@
 
     <script>
         lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            @if (session('success'))
+                AppAlert.success(@json(session('success')));
+            @endif
+            @if (session('error'))
+                AppAlert.error(@json(session('error')));
+            @endif
+            @if (session('warning'))
+                AppAlert.warning(@json(session('warning')));
+            @endif
+        });
     </script>
 </body>
 </html>

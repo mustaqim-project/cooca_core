@@ -152,7 +152,7 @@
                                     Detail
                                 </a>
                                 <form method="POST" action="{{ route('admin.businesses.toggle-status', $biz->id) }}"
-                                      onsubmit="return confirm('Apakah Anda yakin ingin mengubah status aktif bisnis {{ $biz->name }}?')">
+                                      onsubmit="return AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin mengubah status aktif bisnis {{ addslashes($biz->name) }}?', 'Ubah Status Bisnis?', 'warning')">
                                     @csrf
                                     <button type="submit"
                                             class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition {{ $biz->is_active ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30' }}">

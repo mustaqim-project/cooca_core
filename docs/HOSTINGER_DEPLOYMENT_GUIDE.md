@@ -109,3 +109,30 @@ flutter pub get
 flutter build apk --release
 ```
 File APK siap instalasi akan berada di: `mobile_app/build/app/outputs/flutter-apk/app-release.apk`.
+
+---
+
+## 5. Integrasi WhatsApp Gateway (Render.com)
+
+Aplikasi COOCA di Hostinger terhubung secara seamless dengan microservice WhatsApp (`wa-server`) yang di-deploy di **Render.com**.
+
+### Konfigurasi di `.env` Hostinger:
+```env
+# URL publik Web Service Render Anda (HTTPS tanpa trailing slash)
+WA_SERVER_URL=https://cooca-wa-server.onrender.com
+
+# Token autentikasi aman (wajib sama dengan Environment Variables di Render)
+WA_WORKER_TOKEN=cooca_secret_worker_token_production
+```
+
+### Konfigurasi di Dashboard Render.com:
+1. Masuk ke **Environment Variables** service `cooca-wa-server` di Render:
+   - `NODE_ENV` = `production`
+   - `WA_WORKER_TOKEN` = `cooca_secret_worker_token_production` (sama persis dengan di Hostinger)
+   - `LARAVEL_API_URL` = `https://app.cooca.id` (URL Hostinger Anda)
+2. Pastikan Health Check Path di Render diatur ke `/health`.
+3. Setelah deploy Render aktif, jalankan clear config di Hostinger:
+   ```bash
+   php artisan config:clear
+   ```
+4. Buka menu **WhatsApp** di dashboard web `https://app.cooca.id/app/whatsapp` untuk scan QR Code dan mengaktifkan notifikasi kasir, struk POS, dan pesan blast otomatis.

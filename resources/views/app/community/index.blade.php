@@ -113,7 +113,7 @@
                 </div>
                 @if((string) $post->owner_id === (string) auth()->id())
                 <form method="POST" action="{{ route('community.destroy', $post) }}"
-                      onsubmit="return confirm('Hapus postingan ini?')">
+                      onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus postingan komunitas ini?', 'Hapus Postingan?', 'danger')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Hapus Postingan">

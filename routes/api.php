@@ -66,7 +66,14 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
 
+// WhatsApp Gateway Incoming Webhook (from Render.com Node.js Baileys)
+Route::post('/wa/webhook', [\App\Http\Controllers\Api\V1\WhatsAppWebhookController::class, 'handle']);
+Route::post('/wa/admin-webhook', [\App\Http\Controllers\Api\V1\WhatsAppWebhookController::class, 'handle']);
+
 Route::prefix('v1')->group(function (): void {
+    Route::post('/wa/webhook', [\App\Http\Controllers\Api\V1\WhatsAppWebhookController::class, 'handle']);
+    Route::post('/wa/admin-webhook', [\App\Http\Controllers\Api\V1\WhatsAppWebhookController::class, 'handle']);
+
     // Health Check & API Docs
     Route::get('/health', function (): JsonResponse {
         return response()->json([

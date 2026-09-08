@@ -88,7 +88,7 @@
                         </td>
                         <td class="py-3.5 px-4 text-right">
                             @if($tr->status !== 'received')
-                                <form action="{{ route('inventory.transfers.receive', $tr->id) }}" method="POST" class="inline" onsubmit="return confirm('Konfirmasi bahwa barang transfer ini sudah sampai dan diterima di lokasi tujuan?')">
+                                <form action="{{ route('inventory.transfers.receive', $tr->id) }}" method="POST" class="inline" onsubmit="return AppAlert.confirmSubmit(event, this, 'Konfirmasi bahwa barang transfer ini sudah sampai dan diterima di lokasi tujuan?', 'Konfirmasi Penerimaan Transfer?', 'info')">
                                     @csrf
                                     <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition">
                                         Konfirmasi Terima

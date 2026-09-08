@@ -429,6 +429,9 @@
             }
         });
     </script>
+    <!-- AppAlert (Centralized Alert & Confirm System) -->
+    <script src="{{ asset('js/app-alert.js') }}"></script>
+
     @stack('scripts')
 </body>
 </html>

@@ -14,6 +14,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Unit;
 use App\Support\Context;
+use App\Domain\Storage\OwnerStorageQuotaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -42,6 +43,10 @@ final class ProductWebController extends Controller
             });
         }
 
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
         $products = $query->paginate(15)->withQueryString();
         $categories = ProductCategory::where('business_id', $business->id)->get();
         $units = Unit::available()->orderBy('name')->get();
@@ -63,11 +68,44 @@ final class ProductWebController extends Controller
     }
 
     /**
+     * Toggle POS product image visibility.
+     */
+    public function togglePosImageVisibility(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        $request->validate([
+            'show_images' => ['nullable', 'boolean'],
+        ]);
+
+        $newValue = $request->has('show_images')
+            ? $request->boolean('show_images')
+            : ! (bool) $business->pos_show_product_images;
+
+        $business->update([
+            'pos_show_product_images' => $newValue,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $business->pos_show_product_images
+                ? 'Gambar produk kini DITAMPILKAN pada terminal POS.'
+                : 'Gambar produk kini DISEMBUNYIKAN pada terminal POS.',
+            'pos_show_product_images' => (bool) $business->pos_show_product_images,
+        ]);
+    }
+
+    /**
      * Store a new product and auto-create default CostModel.
      */
     public function store(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
+
+        $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
+        if ($owner && $request->hasFile('image') && ! app(OwnerStorageQuotaService::class)->canUpload($owner, (int) $request->file('image')->getSize())) {
+            return back()->withErrors(['image' => 'Kuota penyimpanan owner tidak mencukupi untuk gambar produk.'])->withInput();
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -82,6 +120,7 @@ final class ProductWebController extends Controller
             'base_cost' => ['nullable', 'numeric', 'gte:0'],
             'min_stock' => ['nullable', 'numeric', 'gte:0'],
             'business_type_hint' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:2000'],
             'costing_method' => ['required', 'string', 'in:simple,per_unit,recipe_bom,job,process,abc,service,retail,custom'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
         ]);
@@ -93,6 +132,7 @@ final class ProductWebController extends Controller
             'output_unit_id' => $validated['output_unit_id'],
             'code' => $validated['sku'] ?? null,
             'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
             'business_type_hint' => $validated['business_type_hint'] ?? 'general',
             'selling_price' => (float) ($validated['selling_price'] ?? 0),
             'base_cost' => (float) ($validated['base_cost'] ?? 0),
@@ -100,7 +140,7 @@ final class ProductWebController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $product->update(['image_path' => $request->file('image')->store('products/' . $business->id, 'public')]);
+            $product->update(['image_path' => $request->file('image')->store('businesses/' . $business->id . '/products', 'public')]);
         }
 
         // Auto create primary CostModel
@@ -122,6 +162,11 @@ final class ProductWebController extends Controller
     {
         $business = Context::requireBusiness();
         abort_unless($product->business_id === $business->id, 404);
+
+        $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
+        if ($owner && $request->hasFile('image') && ! app(OwnerStorageQuotaService::class)->canUpload($owner, (int) $request->file('image')->getSize())) {
+            return back()->withErrors(['image' => 'Kuota penyimpanan owner tidak mencukupi untuk gambar produk.'])->withInput();
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -159,7 +204,7 @@ final class ProductWebController extends Controller
             $product->update(['image_path' => null]);
         } elseif ($request->hasFile('image')) {
             $oldImagePath = $product->image_path;
-            $newImagePath = $request->file('image')->store('products/' . $business->id, 'public');
+            $newImagePath = $request->file('image')->store('businesses/' . $business->id . '/products', 'public');
             $product->update(['image_path' => $newImagePath]);
             if ($oldImagePath) {
                 Storage::disk('public')->delete($oldImagePath);

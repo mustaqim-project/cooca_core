@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             BusinessTemplateSeeder::class,
             AdminSeeder::class,
             UserSeeder::class,
+            RestoranNusantaraLandingSeeder::class,
             CommerceSeeder::class,
         ]);
     }

@@ -94,7 +94,7 @@
                         </td>
                         <td class="py-3.5 px-4 text-right">
                             @if($op->status !== 'reconciled')
-                                <form action="{{ route('inventory.opnames.reconcile', $op->id) }}" method="POST" class="inline" onsubmit="return confirm('Terapkan selisih fisik opname ini ke saldo stok sistem?')">
+                                <form action="{{ route('inventory.opnames.reconcile', $op->id) }}" method="POST" class="inline" onsubmit="return AppAlert.confirmSubmit(event, this, 'Terapkan selisih fisik opname ini ke saldo stok sistem?', 'Rekonsiliasi Stok Opname?', 'warning')">
                                     @csrf
                                     <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition">
                                         Rekonsiliasi Stok

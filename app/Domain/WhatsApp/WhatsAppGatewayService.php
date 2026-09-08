@@ -34,23 +34,42 @@ class WhatsAppGatewayService
     }
 
     /**
+     * Create an authenticated HTTP client with resilient timeout for Render.com.
+     */
+    protected function client(int $timeout = 25)
+    {
+        return Http::timeout($timeout)
+            ->retry(2, 600, throw: false)
+            ->withHeaders([
+                'Authorization'  => 'Bearer ' . $this->token,
+                'x-worker-token' => $this->token,
+                'Accept'         => 'application/json',
+            ]);
+    }
+
+    /**
      * Start (or reconnect) a WhatsApp session for the given business.
      */
     public function startSession(Business $business): array
     {
         $sessionId = $this->sessionId($business);
 
-        $response = Http::timeout(10)->post("{$this->baseUrl}/api/sessions/start", [
-            'sessionId'  => $sessionId,
-            'webhookUrl' => url('/api/wa/webhook'),
-        ]);
+        try {
+            $response = $this->client(30)->post("{$this->baseUrl}/api/sessions/start", [
+                'sessionId'  => $sessionId,
+                'webhookUrl' => url('/api/wa/webhook'),
+            ]);
 
-        $waSession = WhatsAppSession::firstOrNew(['business_id' => $business->id]);
-        $waSession->session_id = $sessionId;
-        $waSession->status     = 'scan_qr';
-        $waSession->save();
+            $waSession = WhatsAppSession::firstOrNew(['business_id' => $business->id]);
+            $waSession->session_id = $sessionId;
+            $waSession->status     = 'scan_qr';
+            $waSession->save();
 
-        return $response->json() ?? [];
+            return $response->json() ?? [];
+        } catch (\Throwable $e) {
+            Log::error("[WA] startSession error ({$sessionId}): " . $e->getMessage());
+            return ['success' => false, 'status' => 'connecting', 'error' => $e->getMessage()];
+        }
     }
 
     /**
@@ -61,9 +80,7 @@ class WhatsAppGatewayService
         $sessionId = $this->sessionId($business);
 
         try {
-            $response = Http::timeout(8)->get("{$this->baseUrl}/api/sessions/{$sessionId}/qr", [
-                'Accept' => 'application/json',
-            ]);
+            $response = $this->client(15)->get("{$this->baseUrl}/api/sessions/{$sessionId}/qr");
         } catch (\Throwable $e) {
             return ['success' => false, 'status' => 'disconnected', 'qrDataUrl' => null, 'error' => $e->getMessage()];
         }
@@ -84,7 +101,7 @@ class WhatsAppGatewayService
         $sessionId = $this->sessionId($business);
 
         try {
-            $response = Http::timeout(8)->get("{$this->baseUrl}/api/sessions/{$sessionId}/status");
+            $response = $this->client(15)->get("{$this->baseUrl}/api/sessions/{$sessionId}/status");
             $data     = $response->json() ?? [];
         } catch (\Throwable $e) {
             return ['success' => false, 'status' => 'disconnected'];
@@ -103,7 +120,7 @@ class WhatsAppGatewayService
         $sessionId = $this->sessionId($business);
 
         try {
-            Http::timeout(10)->delete("{$this->baseUrl}/api/sessions/{$sessionId}");
+            $this->client(15)->delete("{$this->baseUrl}/api/sessions/{$sessionId}");
         } catch (\Throwable $e) {
             Log::warning("[WA] disconnect failed for {$sessionId}: " . $e->getMessage());
         }
@@ -135,7 +152,7 @@ class WhatsAppGatewayService
                 'message' => $message,
             ], $options);
 
-            $response = Http::timeout(20)->post("{$this->baseUrl}/send-message", $payload);
+            $response = $this->client(30)->post("{$this->baseUrl}/send-message", $payload);
 
             return $response->json() ?? [];
         } catch (\Throwable $e) {

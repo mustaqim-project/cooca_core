@@ -115,7 +115,7 @@
                                 })" class="p-1.5 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors" title="Edit Pemasok">
                                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                                 </button>
-                                <form method="POST" action="{{ route('suppliers.destroy', $supplier->id) }}" onsubmit="return confirm('Hapus pemasok {{ $supplier->name }}?')">
+                                <form method="POST" action="{{ route('suppliers.destroy', $supplier->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus pemasok {{ addslashes($supplier->name) }}?', 'Hapus Pemasok?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1.5 hover:bg-rose-500/20 rounded-lg text-slate-400 hover:text-rose-400 transition-colors" title="Hapus Pemasok">

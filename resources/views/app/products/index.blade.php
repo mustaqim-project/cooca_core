@@ -19,6 +19,112 @@
     productScannerFrameId: null,
     productScannerBusy: false,
     productScannerTarget: 'add',
+    posShowImages: {{ $business->pos_show_product_images ? 'true' : 'false' }},
+    posImageToggling: false,
+    newProductPreview: '',
+    editProductPreview: '',
+    async togglePosShowImages() {
+        if (this.posImageToggling) return;
+        this.posImageToggling = true;
+        const nextState = !this.posShowImages;
+        try {
+            const res = await fetch('{{ route('products.toggle-pos-images') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ show_images: nextState })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Gagal mengubah pengaturan POS.');
+            this.posShowImages = Boolean(data.pos_show_product_images);
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: data.message,
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+        } catch (e) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: e.message,
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        } finally {
+            this.posImageToggling = false;
+        }
+    },
+    handleNewProductImage(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'error', title: 'Format Tidak Didukung', text: 'Gunakan format JPG, PNG, atau WebP.', confirmButtonColor: '#ef4444' });
+            }
+            e.target.value = '';
+            this.newProductPreview = '';
+            return;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'error', title: 'Ukuran Terlalu Besar', text: 'Ukuran file maksimal 4 MB.', confirmButtonColor: '#ef4444' });
+            }
+            e.target.value = '';
+            this.newProductPreview = '';
+            return;
+        }
+        this.newProductPreview = URL.createObjectURL(file);
+    },
+    handleEditProductImage(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'error', title: 'Format Tidak Didukung', text: 'Gunakan format JPG, PNG, atau WebP.', confirmButtonColor: '#ef4444' });
+            }
+            e.target.value = '';
+            this.editProductPreview = '';
+            return;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'error', title: 'Ukuran Terlalu Besar', text: 'Ukuran file maksimal 4 MB.', confirmButtonColor: '#ef4444' });
+            }
+            e.target.value = '';
+            this.editProductPreview = '';
+            return;
+        }
+        this.editProductPreview = URL.createObjectURL(file);
+    },
+    confirmDeleteProduct(formEl) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: 'Data produk ini beserta model biayanya akan dihapus secara permanen.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formEl.submit();
+                }
+            });
+        } else {
+            formEl.submit();
+        }
+    },
     editProduct: {!! $editProduct ? json_encode([
         'id' => $editProduct->id,
         'slug' => $editProduct->slug,
@@ -31,9 +137,11 @@
         'min_stock' => (float) $editProduct->min_stock,
         'is_active' => (bool) $editProduct->is_active,
         'description' => $editProduct->description ?? '',
+        'image_url' => $editProduct->image_url,
     ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, is_active: true, description: '' }" !!},
     openEditModal(p) {
         this.editProduct = { ...p };
+        this.editProductPreview = '';
         this.showEditModal = true;
     },
     requestProductScanner(target) {
@@ -136,7 +244,16 @@
             </select>
         </form>
 
-        <div class="flex items-center gap-2">
+            <button type="button" @click="togglePosShowImages()" :disabled="posImageToggling"
+               class="px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all border disabled:opacity-50"
+               :class="posShowImages ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 shadow-sm' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'"
+               title="Klik untuk mengubah apakah gambar produk ditampilkan pada POS">
+                <i data-lucide="image" class="w-4 h-4" :class="posShowImages ? 'text-emerald-400' : 'text-slate-400'"></i>
+                <span class="hidden sm:inline">Gambar di POS:</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold transition-all"
+                      :class="posShowImages ? 'bg-emerald-500 text-slate-950 shadow' : 'bg-slate-700 text-slate-300'"
+                      x-text="posShowImages ? 'ON' : 'OFF'"></span>
+            </button>
             <a href="{{ route('import.index', ['tab' => 'products']) }}"
                class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
                title="Import data produk massal dari file Excel / CSV">
@@ -175,8 +292,20 @@
                     @endphp
                     <tr class="hover:bg-slate-900/40 transition-colors">
                         <td class="py-3.5 px-4 font-medium text-white">
-                            <div class="font-bold text-sm">{{ $prod->name }}</div>
-                            <div class="text-[10px] text-slate-400 font-mono">{{ $prod->code ?? $prod->sku ?? 'Tanpa SKU' }}</div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 overflow-hidden flex items-center justify-center shrink-0">
+                                    @if($prod->image_url)
+                                        <img src="{{ $prod->image_url }}" alt="{{ $prod->name }}" loading="lazy" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                                        <i data-lucide="package" class="hidden w-5 h-5 text-slate-500"></i>
+                                    @else
+                                        <i data-lucide="package" class="w-5 h-5 text-slate-500"></i>
+                                    @endif
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm">{{ $prod->name }}</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">{{ $prod->code ?? $prod->sku ?? 'Tanpa SKU' }}</div>
+                                </div>
+                            </div>
                         </td>
                         <td class="py-3.5 px-4 text-slate-300">
                             {{ $prod->category?->name ?? 'Umum' }}
@@ -230,12 +359,13 @@
                                     selling_price: {{ (float) $prod->selling_price }},
                                     min_stock: {{ (float) $prod->min_stock }},
                                     is_active: {{ $prod->is_active ? 'true' : 'false' }},
-                                    description: '{{ addslashes($prod->description ?? '') }}'
+                                    description: '{{ addslashes($prod->description ?? '') }}',
+                                    image_url: '{{ addslashes($prod->image_url ?? '') }}'
                                 })" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors" title="Edit Produk">
                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 </button>
 
-                                <form method="POST" action="{{ route('products.destroy', $prod->slug) }}" onsubmit="return confirm('Hapus produk ini beserta model biayanya?')">
+                                <form method="POST" action="{{ route('products.destroy', $prod->slug) }}" @submit.prevent="confirmDeleteProduct($el)">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1.5 text-slate-500 hover:text-red-400 rounded transition-colors" title="Hapus Produk">
@@ -336,8 +466,20 @@
                 </div>
 
                 <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Deskripsi Produk (Opsional)</label>
+                    <textarea name="description" rows="2" placeholder="Deskripsi ringkas atau komposisi produk..."
+                              class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white"></textarea>
+                </div>
+
+                <div>
                     <label class="block font-semibold text-slate-300 mb-1">Gambar Produk (Opsional)</label>
-                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
+                    <div x-show="newProductPreview" class="mb-2 w-20 h-20 rounded-xl overflow-hidden border border-emerald-500/40 bg-slate-900 relative">
+                        <img :src="newProductPreview" alt="Preview Gambar Baru" class="w-full h-full object-cover">
+                        <button type="button" @click="newProductPreview = ''; $refs.newProductImageInput.value = ''" class="absolute top-1 right-1 p-0.5 rounded-full bg-black/70 text-rose-400 hover:text-white" title="Hapus pilihan">
+                            <i data-lucide="x" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                    <input type="file" name="image" x-ref="newProductImageInput" @change="handleNewProductImage($event)" accept="image/jpeg,image/png,image/webp" class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
                     <p class="text-[10px] text-slate-500 mt-1">JPG, PNG, atau WebP maksimal 4 MB.</p>
                 </div>
 
@@ -511,8 +653,21 @@
 
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">Gambar Produk</label>
-                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
-                    <label class="mt-2 flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" name="remove_image" value="1" class="rounded bg-slate-900 border-slate-700 text-rose-500"> Hapus gambar saat ini</label>
+                    <div x-show="editProductPreview || editProduct.image_url" class="mb-2 flex items-center gap-3">
+                        <div class="w-20 h-20 rounded-xl overflow-hidden border border-slate-700 bg-slate-900 relative shrink-0">
+                            <img :src="editProductPreview || editProduct.image_url" :alt="editProduct.name" class="w-full h-full object-cover">
+                        </div>
+                        <div class="text-[11px] text-slate-400">
+                            <span x-show="editProductPreview" class="text-emerald-400 font-semibold block">Pratinjau gambar baru</span>
+                            <span x-show="!editProductPreview && editProduct.image_url" class="text-slate-400 block">Gambar saat ini</span>
+                            <span class="text-[10px] text-slate-500">Pilih file baru di bawah jika ingin mengganti.</span>
+                        </div>
+                    </div>
+                    <input type="file" name="image" @change="handleEditProductImage($event)" accept="image/jpeg,image/png,image/webp" class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
+                    <label x-show="editProduct.image_url" class="mt-2 flex items-center gap-2 text-xs text-slate-400 cursor-pointer">
+                        <input type="checkbox" name="remove_image" value="1" class="rounded bg-slate-900 border-slate-700 text-rose-500 focus:ring-rose-500">
+                        <span>Hapus gambar saat ini</span>
+                    </label>
                 </div>
 
                 <div class="flex items-center gap-2 pt-1">

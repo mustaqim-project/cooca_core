@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="/js/app-alert.js"></script>
     <style>
         :root {
             --bg: #030712;
@@ -954,7 +955,7 @@
                         <div class="cat-chip" style="border-radius:10px; text-align:left;">🥐 Cooca Bakery - Cabang 2</div>
                     </div>
                 </div>
-                <button class="checkout-btn" style="width:100%; justify-content:center; background:var(--danger);" onclick="alert('Berhasil Logout.')">
+                <button class="checkout-btn" style="width:100%; justify-content:center; background:var(--danger);" onclick="AppAlert.success('Berhasil Logout.')">
                     Keluar Akun
                 </button>
             </div>
@@ -1296,13 +1297,13 @@
                     const device = await navigator.bluetooth.requestDevice({
                         filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }]
                     });
-                    alert(`Terhubung ke printer Bluetooth: ${device.name}`);
+                    AppAlert.success(`Terhubung ke printer Bluetooth: ${device.name}`);
                 } catch (e) {
-                    alert('Gunakan pencetakan sistem thermal standar (Universal Print).');
+                    AppAlert.info('Gunakan pencetakan sistem thermal standar (Universal Print).');
                     window.print();
                 }
             } else {
-                alert('Printer thermal universal siap digunakan.');
+                AppAlert.info('Printer thermal universal siap digunakan.');
                 window.print();
             }
         }
@@ -1320,7 +1321,7 @@
             offlineQueue = [];
             localStorage.setItem('cooca_offline_orders', JSON.stringify([]));
             updateNetworkStatus();
-            alert('🟢 Semua transaksi offline berhasil disinkronisasi ke server cloud!');
+            AppAlert.success('🟢 Semua transaksi offline berhasil disinkronisasi ke server cloud!');
         }
 
         function resetCart() { cart = []; updateCartUI(); renderProducts(); }
@@ -1333,12 +1334,12 @@
             if (q) {
                 const found = allProducts.find(p => p.name.toLowerCase().includes(q.toLowerCase()) || p.barcode === q);
                 if (found) addToCart(found.id);
-                else alert("Produk tidak ditemukan.");
+                else AppAlert.warning("Produk tidak ditemukan.");
             }
         }
 
         function processUpgrade(plan, price) {
-            alert(`🎉 Memproses Upgrade ke Paket ${plan} (${formatRupiah(price)}/bulan)...\n\nMembuka pembayaran QRIS / Virtual Account.`);
+            AppAlert.info(`🎉 Memproses Upgrade ke Paket ${plan} (${formatRupiah(price)}/bulan)...\n\nMembuka pembayaran QRIS / Virtual Account.`);
             switchView('pos');
         }
 
@@ -1365,13 +1366,13 @@
         function quickStockAdjust() {
             const pName = prompt("Nama bahan / produk yang ingin disesuaikan:");
             const qty = prompt("Jumlah stok baru:");
-            if (pName && qty) alert(`Stok ${pName} berhasil diperbarui menjadi ${qty}!`);
+            if (pName && qty) AppAlert.success(`Stok ${pName} berhasil diperbarui menjadi ${qty}!`);
         }
 
         function addNewCustomer() {
             const name = prompt("Nama Pelanggan:");
             const phone = prompt("Nomor WhatsApp:");
-            if (name && phone) alert(`Member ${name} (${phone}) berhasil didaftarkan dengan saldo 50 Poin!`);
+            if (name && phone) AppAlert.success(`Member ${name} (${phone}) berhasil didaftarkan dengan saldo 50 Poin!`);
         }
 
         window.onload = initPos;

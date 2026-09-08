@@ -118,7 +118,7 @@
                                 <a href="{{ route('admin.posts.edit', $post) }}" class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-indigo-500 transition-colors">
                                     <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                                 </a>
-                                <form action="{{ route('admin.posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Hapus artikel ini secara permanen?')">
+                                <form action="{{ route('admin.posts.destroy', $post) }}" method="POST" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus artikel ini secara permanen?', 'Hapus Artikel?', 'danger')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-rose-400 hover:bg-rose-950/40 transition-colors">

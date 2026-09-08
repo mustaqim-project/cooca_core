@@ -229,7 +229,7 @@
                             <span>Edit Permission</span>
                         </button>
 
-                        <form method="POST" action="{{ route('settings.roles.destroy', $role) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus role custom ini?')">
+                        <form method="POST" action="{{ route('settings.roles.destroy', $role) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin menghapus role custom ini?', 'Hapus Role?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition" title="Hapus Role">
@@ -351,7 +351,7 @@
                                             <span>Ubah Role</span>
                                         </button>
 
-                                        <form method="POST" action="{{ route('settings.members.destroy', $member->id) }}" onsubmit="return confirm('Keluarkan anggota ini dari bisnis?')" class="inline-block">
+                                        <form method="POST" action="{{ route('settings.members.destroy', $member->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Keluarkan anggota ini dari bisnis?', 'Keluarkan Anggota?')" class="inline-block">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition" title="Keluarkan Anggota">

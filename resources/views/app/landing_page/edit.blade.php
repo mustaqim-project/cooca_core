@@ -3,10 +3,10 @@
 @section('title', 'Website & Landing Page Bisnis — Cooca')
 
 @section('content')
-<div x-data="landingPageEditor()" class="space-y-6 max-w-7xl mx-auto pb-20">
+<div x-data="landingPageEditor()" class="space-y-4 sm:space-y-6 max-w-7xl mx-auto px-0 sm:px-2 pb-20">
 
     <!-- TOP BAR / HEADER -->
-    <div class="glass-card rounded-2xl p-5 md:p-6 border border-slate-800 relative overflow-hidden">
+    <div class="glass-card rounded-2xl p-4 sm:p-5 md:p-6 border border-slate-800 relative overflow-hidden">
         <div class="absolute -right-12 -top-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
             <div>
@@ -16,7 +16,7 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="text-xl font-black text-white tracking-tight">Website & Landing Page Bisnis</h1>
+                            <h1 class="text-lg sm:text-xl font-black text-white tracking-tight leading-tight">Website & Landing Page Bisnis</h1>
                             <span :class="isPublished ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'"
                                 class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold">
                                 <span :class="isPublished ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'" class="w-2 h-2 rounded-full"></span>
@@ -29,28 +29,28 @@
             </div>
 
             <!-- ACTION BUTTONS -->
-            <div class="flex flex-wrap items-center gap-2.5">
+            <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
                 <button type="button" @click="showPresetModal = true"
-                    class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-2 transition-all shadow-sm">
+                    class="w-full sm:w-auto justify-center px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-2 transition-all shadow-sm">
                     <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
                     <span>Pilih Template Industri (20)</span>
                 </button>
 
                 <button type="button" @click="togglePublish()" :disabled="saving"
                     :class="isPublished ? 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border-rose-500/30' : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30'"
-                    class="px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition-all disabled:opacity-50">
+                    class="w-full sm:w-auto justify-center px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition-all disabled:opacity-50">
                     <i :data-lucide="isPublished ? 'eye-off' : 'eye'" class="w-4 h-4"></i>
                     <span x-text="isPublished ? 'Nonaktifkan Publik' : 'Terbitkan Sekarang'"></span>
                 </button>
 
                 <button type="button" @click="openPreview()" :disabled="saving"
-                    class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-2 transition-all">
+                    class="w-full sm:w-auto justify-center px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-2 transition-all">
                     <i data-lucide="monitor-play" class="w-4 h-4 text-emerald-400"></i>
                     <span x-text="saving ? 'Menyiapkan Preview...' : 'Preview Live'"></span>
                 </button>
 
                 <a href="{{ $publicUrl }}" target="_blank"
-                    class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
+                    class="w-full sm:w-auto justify-center px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
                     <span>Lihat Halaman Publik</span>
                     <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                 </a>
@@ -59,13 +59,13 @@
 
         <!-- PUBLIC URL BANNER -->
         <div class="mt-4 pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div class="flex items-center gap-2 overflow-hidden">
+            <div class="flex items-center gap-2 min-w-0 overflow-hidden">
                 <span class="text-slate-400 shrink-0 font-medium">Link Publik Anda:</span>
                 <a href="{{ $publicUrl }}" target="_blank" class="text-emerald-400 hover:underline font-mono truncate max-w-md">
                     {{ $publicUrl }}
                 </a>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
                 <button type="button" @click="copyLink('{{ $publicUrl }}')"
                     class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition">
                     <i data-lucide="copy" class="w-3.5 h-3.5"></i>
@@ -88,53 +88,40 @@
     @endif
 
     <!-- MAIN FORM -->
-    <form action="{{ route('landing-page.update') }}" method="POST" id="landingPageForm" @submit.prevent="saveAll">
+    <form action="{{ route('landing-page.update') }}" method="POST" id="landingPageForm" enctype="multipart/form-data" @submit.prevent="saveAll">
         @csrf
         @method('PUT')
 
-        <!-- Hidden JSON inputs synced via Alpine -->
+        <!-- Hidden JSON & Preset inputs synced via Alpine -->
         <input type="hidden" name="values_json" :value="JSON.stringify(values)">
         <input type="hidden" name="custom_services_json" :value="JSON.stringify(services)">
         <input type="hidden" name="faqs_json" :value="JSON.stringify(faqs)">
         <input type="hidden" name="testimonials_json" :value="JSON.stringify(testimonials)">
         <input type="hidden" name="operational_hours_json" :value="JSON.stringify(operationalHours)">
+        <input type="hidden" name="gallery_images_json" :value="JSON.stringify(galleryItems)">
         <input type="hidden" name="section_visibility_json" :value="JSON.stringify(sectionVisibility)">
-        <input type="hidden" name="industry_preset" x-model="form.industry_preset">
-        <input type="hidden" name="theme_color" x-model="form.theme_color">
-        <input type="hidden" name="announcement_badge" x-model="form.announcement_badge">
-        <input type="hidden" name="headline" x-model="form.headline">
-        <input type="hidden" name="subheadline" x-model="form.subheadline">
-        <input type="hidden" name="cta_primary_text" x-model="form.cta_primary_text">
-        <input type="hidden" name="cta_secondary_text" x-model="form.cta_secondary_text">
-        <input type="hidden" name="hero_image_url" x-model="form.hero_image_url">
-        <input type="hidden" name="logo_url" x-model="form.logo_url">
-        <input type="hidden" name="about_title" x-model="form.about_title">
-        <input type="hidden" name="about_story" x-model="form.about_story">
-        <input type="hidden" name="whatsapp_number" x-model="form.whatsapp_number">
-        <input type="hidden" name="whatsapp_welcome_message" x-model="form.whatsapp_welcome_message">
-        <input type="hidden" name="custom_email" x-model="form.custom_email">
-        <input type="hidden" name="custom_address" x-model="form.custom_address">
-        <input type="hidden" name="google_maps_embed_url" x-model="form.google_maps_embed_url">
-        <input type="hidden" name="meta_title" x-model="form.meta_title">
-        <input type="hidden" name="meta_description" x-model="form.meta_description">
+        <input type="hidden" name="industry_preset" :value="form.industry_preset">
+        <input type="hidden" name="theme_color" :value="form.theme_color">
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
 
             <!-- SIDEBAR TABS NAVIGATION -->
             <div class="lg:col-span-3 space-y-2">
-                <div class="glass-card rounded-2xl p-3 border border-slate-800 space-y-1 sticky top-6">
+                <div class="glass-card rounded-2xl p-2 sm:p-3 border border-slate-800 lg:sticky lg:top-6">
                     <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-2 pb-1">Editor Bagian</p>
 
+                    <div class="flex lg:block gap-1 overflow-x-auto pb-1 lg:pb-0 snap-x snap-mandatory">
                     <template x-for="tab in tabs" :key="tab.id">
                         <button type="button" @click="activeTab = tab.id"
-                            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left"
+                            class="w-auto lg:w-full shrink-0 snap-start flex items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left whitespace-nowrap"
                             :class="activeTab === tab.id ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm' : 'text-slate-400 hover:bg-slate-900 hover:text-white'">
                             <i :data-lucide="tab.icon" class="w-4 h-4" :class="activeTab === tab.id ? 'text-emerald-400' : 'text-slate-500'"></i>
                             <span x-text="tab.label"></span>
                         </button>
                     </template>
+                    </div>
 
-                    <div class="pt-3 mt-1 border-t border-slate-800 space-y-2">
+                    <div class="pt-3 mt-2 border-t border-slate-800 space-y-2">
                         <button type="submit"
                             :disabled="saving"
                             class="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">
@@ -150,11 +137,11 @@
             <div class="lg:col-span-9 space-y-6">
 
                 <!-- ============================================================ -->
-                <!-- TAB 1: HERO & BRANDING -->
+                <!-- TAB 1: GENERAL -->
                 <!-- ============================================================ -->
-                <div x-show="activeTab === 'hero'" class="space-y-5">
-                    <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-5">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div x-show="['general', 'hero', 'about'].includes(activeTab)" class="space-y-5">
+                    <div class="glass-card rounded-2xl p-4 sm:p-6 border border-slate-800 space-y-5">
+                        <div x-show="activeTab === 'general'" class="flex items-center justify-between border-b border-slate-800 pb-4">
                             <div>
                                 <h2 class="text-base font-bold text-white">🎨 Identitas & Warna Tema</h2>
                                 <p class="text-xs text-slate-400 mt-0.5">Tentukan tampilan visual utama halaman bisnis Anda.</p>
@@ -165,7 +152,7 @@
                         </div>
 
                         <!-- THEME COLOR PICKER -->
-                        <div>
+                        <div x-show="activeTab === 'general'">
                             <label class="block text-xs font-semibold text-slate-300 mb-2">Warna Utama Tema Halaman</label>
                             <div class="flex flex-wrap items-center gap-3">
                                 <template x-for="color in themePresets" :key="color.hex">
@@ -184,7 +171,7 @@
                         </div>
 
                         <!-- DARK THEME TOGGLE -->
-                        <div class="flex items-center justify-between p-4 bg-slate-900/60 rounded-xl border border-slate-800">
+                        <div x-show="activeTab === 'general'" class="flex items-center justify-between p-4 bg-slate-900/60 rounded-xl border border-slate-800">
                             <div>
                                 <div class="text-xs font-bold text-white">Tampilan Elegan Gelap (Dark Mode)</div>
                                 <div class="text-[11px] text-slate-400 mt-0.5">Latar gelap premium dengan glassmorphism & efek cahaya tema.</div>
@@ -195,76 +182,108 @@
                             </label>
                         </div>
 
-                        <div class="border-t border-slate-800 pt-4 space-y-3">
-                            <div>
-                                <div class="text-xs font-bold text-white">Section Halaman Publik</div>
-                                <p class="text-[11px] text-slate-400 mt-1">Nonaktifkan section yang tidak diperlukan; section yang nonaktif tidak dirender atau muncul di navigasi.</p>
-                            </div>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                <template x-for="section in sectionOptions" :key="section.key">
-                                    <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
-                                        <input type="checkbox" x-model="sectionVisibility[section.key]" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
-                                        <span x-text="section.label"></span>
-                                    </label>
-                                </template>
-                            </div>
+                        <div x-show="activeTab === 'hero'" class="space-y-5">
+                        <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800">
+                            <label class="flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
+                                <input type="checkbox" x-model="sectionVisibility.hero" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                                <span>Tampilkan section Hero</span>
+                            </label>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Badge Pengumuman Singkat</label>
-                                <input type="text" x-model="form.announcement_badge" placeholder="🔥 Solusi Terpercaya Sejak 2018"
+                                <input type="text" name="announcement_badge" x-model="form.announcement_badge" placeholder="🔥 Solusi Terpercaya Sejak 2018"
                                     class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 focus:outline-none transition">
                                 <p class="text-[10px] text-slate-500 mt-1">Muncul di atas headline utama sebagai magnet perhatian pertama.</p>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-slate-300 mb-1">URL Logo Bisnis</label>
-                                <input type="url" x-model="form.logo_url" placeholder="https://contoh.com/logo.png"
-                                    class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
-                                <p class="text-[10px] text-slate-500 mt-1">Kosongkan = memakai inisial nama bisnis otomatis.</p>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Upload Logo Bisnis</label>
+                                <div x-show="previews.logo || form.logo_url" class="mb-2 flex items-center gap-3">
+                                    <img :src="previews.logo || form.logo_url" alt="Logo Preview" class="w-14 h-14 rounded-xl object-contain bg-slate-950 border border-slate-700 p-1">
+                                    <span class="text-[10px] text-emerald-400 font-semibold" x-text="previews.logo ? 'Preview file baru dipilih' : 'Logo tersimpan'"></span>
+                                </div>
+                                <input type="file" name="logo_image" accept="image/jpeg,image/png,image/webp"
+                                    @change="handleImagePreview($event, 'logo')"
+                                    class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
+                                <label class="mt-2 flex items-center gap-2 text-[10px] text-slate-400"><input type="checkbox" name="remove_logo_image" value="1" class="rounded bg-slate-900 border-slate-700 text-rose-500"> Hapus logo tersimpan</label>
+                                <p class="text-[10px] text-slate-500 mt-1">JPG, PNG, atau WebP maksimal 4 MB. Logo lama tetap digunakan jika tidak memilih file baru.</p>
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Headline Utama (Judul Besar) <span class="text-rose-400">*</span></label>
-                            <input type="text" x-model="form.headline" required placeholder="Bengkel Motor Terlengkap & Terpercaya di Jakarta"
+                            <input type="text" name="headline" x-model="form.headline" placeholder="Bengkel Motor Terlengkap & Terpercaya di Jakarta"
                                 class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-sm font-semibold text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Subheadline / Deskripsi Pengantar</label>
-                            <textarea x-model="form.subheadline" rows="3" placeholder="Jelaskan keunikan dan keunggulan utama bisnis Anda untuk calon pelanggan..."
+                            <textarea name="subheadline" x-model="form.subheadline" rows="3" placeholder="Jelaskan keunikan dan keunggulan utama bisnis Anda untuk calon pelanggan..."
                                 class="w-full px-3.5 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition resize-none"></textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Teks Tombol Utama (Order/Pesan)</label>
-                                <input type="text" x-model="form.cta_primary_text" placeholder="Pesan via WhatsApp Sekarang"
+                                <input type="text" name="cta_primary_text" x-model="form.cta_primary_text" placeholder="Pesan via WhatsApp Sekarang"
+                                    class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">URL Tombol Utama</label>
+                                <input type="text" name="cta_primary_url" x-model="form.cta_primary_url" placeholder="Kosongkan untuk WhatsApp"
                                     class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Teks Tombol Sekunder (Katalog)</label>
-                                <input type="text" x-model="form.cta_secondary_text" placeholder="Lihat Daftar Layanan & Harga"
+                                <input type="text" name="cta_secondary_text" x-model="form.cta_secondary_text" placeholder="Lihat Daftar Layanan & Harga"
+                                    class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">URL Tombol Sekunder</label>
+                                <input type="text" name="cta_secondary_url" x-model="form.cta_secondary_url" placeholder="#layanan atau URL tujuan"
                                     class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">URL Gambar Hero Banner (Opsional)</label>
-                            <input type="url" x-model="form.hero_image_url" placeholder="https://images.unsplash.com/..."
-                                class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
-                            <p class="text-[10px] text-slate-500 mt-1">Kosongkan = pakai ilustrasi abstrak otomatis dengan animasi partikel premium.</p>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Upload Gambar Hero (Opsional)</label>
+                            <div x-show="previews.hero || form.hero_image_url" class="mb-2 flex items-center gap-3">
+                                <img :src="previews.hero || form.hero_image_url" alt="Hero Preview" class="w-32 h-20 rounded-xl object-cover border border-slate-700">
+                                <span class="text-[10px] text-emerald-400 font-semibold" x-text="previews.hero ? 'Preview file baru dipilih' : 'Hero tersimpan'"></span>
+                            </div>
+                            <input type="file" name="hero_image" accept="image/jpeg,image/png,image/webp"
+                                @change="handleImagePreview($event, 'hero')"
+                                class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
+                            <label class="mt-2 flex items-center gap-2 text-[10px] text-slate-400"><input type="checkbox" name="remove_hero_image" value="1" class="rounded bg-slate-900 border-slate-700 text-rose-500"> Hapus hero tersimpan</label>
+                            <p class="text-[10px] text-slate-500 mt-1">Maks. 4MB. Format JPG, PNG, atau WebP. Gambar baru otomatis menggantikan hero lama saat disimpan.</p>
+                        </div>
+
                         </div>
                     </div>
 
                     <!-- 4 VALUE PILLARS -->
-                    <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+                    <div x-show="activeTab === 'about'" class="glass-card rounded-2xl p-4 sm:p-6 border border-slate-800 space-y-4">
+                        <label class="flex items-center gap-2 p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer">
+                            <input type="checkbox" x-model="sectionVisibility.about" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                            <span>Tampilkan section Tentang</span>
+                        </label>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Upload Gambar About (Opsional)</label>
+                            <div x-show="previews.about || form.about_image_url" class="mb-2 flex items-center gap-3">
+                                <img :src="previews.about || form.about_image_url" alt="About Preview" class="w-32 h-20 rounded-xl object-cover border border-slate-700">
+                                <span class="text-[10px] text-emerald-400 font-semibold" x-text="previews.about ? 'Preview file baru dipilih' : 'Gambar tersimpan'"></span>
+                            </div>
+                            <input type="file" name="about_image" accept="image/jpeg,image/png,image/webp"
+                                @change="handleImagePreview($event, 'about')"
+                                class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
+                            <label class="mt-2 flex items-center gap-2 text-[10px] text-slate-400"><input type="checkbox" name="remove_about_image" value="1" class="rounded bg-slate-900 border-slate-700 text-rose-500"> Hapus gambar about tersimpan</label>
+                            <p class="text-[10px] text-slate-500 mt-1">Gambar profil bisnis untuk section Tentang Kami. Maks. 4MB.</p>
+                        </div>
                         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                             <div>
                                 <h2 class="text-base font-bold text-white">🏆 4 Pilar Keunggulan Bisnis</h2>
-                                <p class="text-xs text-slate-400 mt-0.5">Alasan kuat mengapa pelanggan harus memilih Anda.</p>
+                                <p class="text-xs text-slate-400 mt-0.5">Alasan kuat mengapa pelanggan harus memilih Anda (ikon dapat dikonfigurasi).</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -274,6 +293,21 @@
                                         <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xs shrink-0" x-text="index + 1"></div>
                                         <input type="text" x-model="val.title" placeholder="Judul Keunggulan"
                                             class="flex-1 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs font-bold text-white focus:border-emerald-500 focus:outline-none">
+                                        <select x-model="val.icon" class="px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-emerald-400 font-semibold focus:border-emerald-500 focus:outline-none">
+                                            <option value="shield-check">🛡️ Shield</option>
+                                            <option value="zap">⚡ Zap</option>
+                                            <option value="award">🏆 Award</option>
+                                            <option value="star">⭐ Star</option>
+                                            <option value="clock">🕐 Clock</option>
+                                            <option value="heart">❤️ Heart</option>
+                                            <option value="truck">🚚 Truck</option>
+                                            <option value="thumbs-up">👍 Thumbs Up</option>
+                                            <option value="check-circle">✅ Check</option>
+                                            <option value="gem">💎 Gem</option>
+                                            <option value="badge-check">🎖️ Badge</option>
+                                            <option value="tag">🏷️ Tag</option>
+                                            <option value="sparkles">✨ Sparkles</option>
+                                        </select>
                                     </div>
                                     <textarea x-model="val.description" rows="2" placeholder="Uraian singkat..."
                                         class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-300 focus:border-emerald-500 focus:outline-none resize-none"></textarea>
@@ -286,9 +320,19 @@
                 <!-- ============================================================ -->
                 <!-- TAB 2: LAYANAN & PRODUK -->
                 <!-- ============================================================ -->
-                <div x-show="activeTab === 'services'" class="space-y-5">
-                    <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-5">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                <div x-show="['products', 'services'].includes(activeTab)" class="space-y-5">
+                    <div class="glass-card rounded-2xl p-4 sm:p-6 border border-slate-800 space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-slate-900/60 rounded-xl border border-slate-800">
+                            <label x-show="activeTab === 'products'" class="flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
+                                <input type="checkbox" x-model="sectionVisibility.products" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                                <span>Tampilkan section Produk</span>
+                            </label>
+                            <label x-show="activeTab === 'services'" class="flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
+                                <input type="checkbox" x-model="sectionVisibility.services" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                                <span>Tampilkan section Layanan</span>
+                            </label>
+                        </div>
+                        <div x-show="activeTab === 'services'" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
                             <div>
                                 <h2 class="text-base font-bold text-white">📦 Katalog Layanan & Paket Produk</h2>
                                 <p class="text-xs text-slate-400 mt-0.5">Tampilkan jasa, menu, atau paket bisnis dengan harga dan deskripsi yang menarik.</p>
@@ -300,7 +344,14 @@
                             </button>
                         </div>
 
-                        <div class="space-y-3">
+                        <div x-show="activeTab === 'services'" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <input type="text" name="services_title" x-model="form.services_title" placeholder="Judul layanan dan produk"
+                                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                            <input type="text" name="services_subtitle" x-model="form.services_subtitle" placeholder="Deskripsi singkat katalog"
+                                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-300 placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                        </div>
+
+                        <div x-show="activeTab === 'services'" class="space-y-3">
                             <template x-for="(service, sIdx) in services" :key="sIdx">
                                 <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-xl space-y-3">
                                     <div class="flex items-center gap-3">
@@ -311,7 +362,7 @@
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <input type="text" x-model="service.price" placeholder="Rp 150.000"
-                                                class="w-36 px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs font-semibold text-emerald-400 focus:border-emerald-500 focus:outline-none text-right">
+                                                class="w-full sm:w-36 px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs font-semibold text-emerald-400 focus:border-emerald-500 focus:outline-none text-right">
                                             <button type="button" @click="removeService(sIdx)"
                                                 class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-rose-500/10 transition">
                                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -328,6 +379,17 @@
                                                 class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-amber-400 focus:border-emerald-500 focus:outline-none">
                                         </div>
                                     </div>
+                                    <div>
+                                        <label class="block text-[10px] text-slate-400 mb-1">Gambar Layanan</label>
+                                        <div x-show="service.preview_url || service.image_url" class="mb-2 flex items-center gap-2">
+                                            <img :src="service.preview_url || service.image_url" alt="Preview Layanan" class="w-16 h-12 rounded-lg object-cover border border-slate-700">
+                                            <span class="text-[10px] text-emerald-400 font-semibold" x-text="service.preview_url ? 'Preview dipilih' : 'Gambar tersimpan'"></span>
+                                        </div>
+                                        <input type="file" :name="'service_images[' + sIdx + ']'" accept="image/jpeg,image/png,image/webp"
+                                            @change="handleServiceImagePreview($event, sIdx)"
+                                            class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
+                                        <label class="mt-2 flex items-center gap-2 text-[10px] text-slate-400"><input type="checkbox" :name="'remove_service_images[' + sIdx + ']'" value="1" class="rounded bg-slate-900 border-slate-700 text-rose-500"> Hapus gambar layanan</label>
+                                    </div>
                                 </div>
                             </template>
 
@@ -338,7 +400,7 @@
                         </div>
 
                         <!-- POS PRODUCTS INTEGRATION -->
-                        <div class="mt-2 p-4 bg-slate-900/60 rounded-xl border border-emerald-900/40 space-y-3">
+                        <div x-show="activeTab === 'products'" class="mt-2 p-4 bg-slate-900/60 rounded-xl border border-emerald-900/40 space-y-3">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <div class="text-xs font-bold text-white flex items-center gap-2">
@@ -370,9 +432,221 @@
                 </div>
 
                 <!-- ============================================================ -->
+                <!-- TAB 6: GALERI -->
+                <!-- ============================================================ -->
+                <div x-show="activeTab === 'gallery'" class="space-y-5">
+                    <div class="glass-card rounded-2xl p-4 sm:p-6 border border-slate-800 space-y-6">
+
+                        <!-- Section Visibility Banner -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-900/60 rounded-xl border border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                                    <i data-lucide="images" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-white">Tampilkan Section Galeri di Website</div>
+                                    <div class="text-[11px] text-slate-400">Section galeri akan tampil di landing page jika opsi ini aktif dan ada minimal 1 foto.</div>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" x-model="sectionVisibility.gallery" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+
+                        <!-- Section Header -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-base font-bold text-white">🖼️ Galeri &amp; Suasana Bisnis</h2>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                                        x-text="(galleryItems.length + newGalleryUploads.length) + ' / 20 Foto'"></span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">Tampilkan suasana tempat, hasil karya, foto produk, dan kegiatan bisnis dalam grid 4 kolom modern dengan efek hover zoom dan caption.</p>
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button type="button" @click="showAddUrlModal = true"
+                                    class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+                                    <i data-lucide="link" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <span>Tambah via URL</span>
+                                </button>
+                                <button type="button" @click="clearAllGallery()" x-show="galleryItems.length > 0 || newGalleryUploads.length > 0"
+                                    class="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center gap-1.5 transition">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    <span>Kosongkan</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Gallery Title & Subtitle -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Bagian Galeri</label>
+                                <input type="text" name="gallery_title" x-model="form.gallery_title" maxlength="120" placeholder="Galeri & Suasana Toko"
+                                    class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
+                                <p class="text-[10px] text-slate-500 mt-1">Muncul sebagai tajuk utama di atas baris foto galeri.</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi / Subtitle Galeri</label>
+                                <textarea name="gallery_subtitle" x-model="form.gallery_subtitle" maxlength="500" rows="2" placeholder="Dokumentasi aktivitas, produk unggulan, dan kehangatan pelayanan kami."
+                                    class="w-full px-3.5 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-300 placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Upload Dropzone -->
+                        <div class="p-6 border-2 border-dashed border-slate-700 hover:border-emerald-500/60 bg-slate-900/40 rounded-2xl text-center transition-all group relative">
+                            <input type="file" multiple accept="image/jpeg,image/png,image/webp"
+                                @change="handleGalleryFiles($event)"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="flex flex-col items-center justify-center space-y-2 pointer-events-none">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                                </div>
+                                <div class="text-xs font-bold text-white">
+                                    <span class="text-emerald-400 underline decoration-emerald-400/30 underline-offset-4">Klik untuk memilih foto</span> atau seret file ke sini
+                                </div>
+                                <p class="text-[11px] text-slate-400 max-w-md">
+                                    Mendukung format JPG, PNG, atau WebP (maks. 4 MB per foto). Foto yang diunggah akan otomatis disesuaikan dengan rasio aspek persegi (*aspect-square*) dan standar tampilan website.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Modal Tambah via URL -->
+                        <div x-show="showAddUrlModal" x-cloak class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+                            <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-4" @click.outside="showAddUrlModal = false">
+                                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                                    <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                                        <i data-lucide="link" class="w-4 h-4 text-emerald-400"></i>
+                                        Tambah Foto via URL
+                                    </h3>
+                                    <button type="button" @click="showAddUrlModal = false" class="text-slate-400 hover:text-white p-1">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-300 mb-1">URL Gambar <span class="text-rose-400">*</span></label>
+                                        <input type="text" x-model="newUrlInput" placeholder="https://example.com/foto.jpg atau /storage/..."
+                                            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-300 mb-1">Caption Foto (Opsional)</label>
+                                        <input type="text" x-model="newCaptionInput" placeholder="Contoh: Suasana Ruang Makan Tradisional"
+                                            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                                    <button type="button" @click="showAddUrlModal = false" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:bg-slate-800 transition">Batal</button>
+                                    <button type="button" @click="addGalleryByUrl()" :disabled="!newUrlInput.trim()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold disabled:opacity-50 transition">Tambahkan</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gallery Cards Grid -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="text-xs font-bold text-slate-300">Daftar Foto Galeri Aktif &amp; Preview:</div>
+                                <div class="text-[11px] text-slate-400" x-show="galleryItems.length + newGalleryUploads.length > 0">
+                                    Arahkan kursor ke foto untuk melihat preview overlay caption seperti pada landing page.
+                                </div>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div x-show="galleryItems.length === 0 && newGalleryUploads.length === 0" class="p-12 text-center bg-slate-900/30 rounded-2xl border border-dashed border-slate-800 space-y-3">
+                                <div class="w-12 h-12 rounded-2xl bg-slate-800 text-slate-500 flex items-center justify-center mx-auto">
+                                    <i data-lucide="image-off" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-300">Belum ada foto di galeri</div>
+                                    <p class="text-[11px] text-slate-500 mt-1">Unggah beberapa foto atau gunakan template industri untuk menampilkan galeri menarik pada landing page bisnis Anda.</p>
+                                </div>
+                            </div>
+
+                            <!-- Grid of Photos -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" x-show="galleryItems.length > 0 || newGalleryUploads.length > 0">
+
+                                <!-- Existing Saved Photos -->
+                                <template x-for="(item, idx) in galleryItems" :key="'saved-' + idx">
+                                    <div class="glass-card rounded-2xl p-2.5 border border-slate-800/90 bg-slate-900/80 space-y-2.5 flex flex-col justify-between group shadow-md hover:border-emerald-500/40 transition-all">
+                                        <!-- Photo Container with Hover Overlay -->
+                                        <div class="aspect-square rounded-xl overflow-hidden bg-slate-950 border border-slate-800 relative group/img flex items-center justify-center">
+                                            <img :src="item.url" :alt="item.caption || 'Galeri Foto'" class="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500" x-on:error="$event.target.style.display = 'none'; $event.target.nextElementSibling.classList.remove('hidden')">
+                                            <i data-lucide="image" class="w-8 h-8 text-slate-700 hidden"></i>
+
+                                            <!-- Top Badges & Controls -->
+                                            <div class="absolute top-2 inset-x-2 flex items-center justify-between pointer-events-none">
+                                                <span class="px-2 py-0.5 rounded-md bg-slate-950/80 text-[10px] font-mono font-bold text-emerald-400 border border-slate-700 backdrop-blur" x-text="'#' + (idx + 1)"></span>
+                                                <div class="flex items-center gap-1 pointer-events-auto">
+                                                    <button type="button" @click="moveGalleryItem(idx, -1)" :disabled="idx === 0" title="Geser ke kiri" class="w-6 h-6 rounded-md bg-slate-950/80 hover:bg-slate-800 text-slate-300 flex items-center justify-center border border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition">
+                                                        <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                    <button type="button" @click="moveGalleryItem(idx, 1)" :disabled="idx === galleryItems.length - 1" title="Geser ke kanan" class="w-6 h-6 rounded-md bg-slate-950/80 hover:bg-slate-800 text-slate-300 flex items-center justify-center border border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition">
+                                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                    <button type="button" @click="removeGalleryItem(idx)" title="Hapus foto ini" class="w-6 h-6 rounded-md bg-rose-500/80 hover:bg-rose-500 text-white flex items-center justify-center shadow transition">
+                                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Public Landing Page Hover Caption Preview -->
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-end p-3 pointer-events-none">
+                                                <p class="text-white text-[11px] font-semibold leading-snug drop-shadow" x-text="item.caption || '(Tanpa caption)'"></p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Caption Input -->
+                                        <div>
+                                            <label class="block text-[10px] font-semibold text-slate-400 mb-1">Caption Foto</label>
+                                            <input type="text" x-model="item.caption" placeholder="Tulis caption foto..."
+                                                class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition">
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Staged New Uploads -->
+                                <template x-for="(nItem, nIdx) in newGalleryUploads" :key="'new-' + nIdx">
+                                    <div class="glass-card rounded-2xl p-2.5 border border-emerald-500/40 bg-slate-900/90 space-y-2.5 flex flex-col justify-between group shadow-md shadow-emerald-500/5 transition-all">
+                                        <!-- Photo Container -->
+                                        <div class="aspect-square rounded-xl overflow-hidden bg-slate-950 border border-emerald-500/30 relative group/img flex items-center justify-center">
+                                            <img :src="nItem.preview" :alt="nItem.caption || 'Foto Baru'" class="w-full h-full object-cover">
+
+                                            <!-- Top Badges & Controls -->
+                                            <div class="absolute top-2 inset-x-2 flex items-center justify-between pointer-events-none">
+                                                <span class="px-2 py-0.5 rounded-md bg-emerald-500 text-[10px] font-bold text-slate-950 shadow">Foto Baru</span>
+                                                <div class="flex items-center gap-1 pointer-events-auto">
+                                                    <button type="button" @click="removeNewUpload(nIdx)" title="Batal upload foto ini" class="w-6 h-6 rounded-md bg-rose-500/80 hover:bg-rose-500 text-white flex items-center justify-center shadow transition">
+                                                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Hover Caption Preview -->
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-end p-3 pointer-events-none">
+                                                <p class="text-white text-[11px] font-semibold leading-snug drop-shadow" x-text="nItem.caption || '(Tanpa caption)'"></p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Caption Input -->
+                                        <div>
+                                            <label class="block text-[10px] font-semibold text-emerald-400 mb-1">Caption Foto Baru</label>
+                                            <input type="text" x-model="nItem.caption" placeholder="Tulis caption foto..."
+                                                class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition">
+                                        </div>
+                                    </div>
+                                </template>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ============================================================ -->
                 <!-- TAB 3: PROFIL, STORY & JAM BUKA -->
                 <!-- ============================================================ -->
-                <div x-show="activeTab === 'story'" class="space-y-5">
+                <div x-show="activeTab === 'about'" class="space-y-5">
                     <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-5">
                         <div class="border-b border-slate-800 pb-4">
                             <h2 class="text-base font-bold text-white">📖 Profil & Cerita Bisnis</h2>
@@ -421,7 +695,7 @@
                     </div>
 
                     <!-- OPERATIONAL HOURS -->
-                    <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+                    <div class="glass-card rounded-2xl p-4 sm:p-6 border border-slate-800 space-y-4">
                         <div class="border-b border-slate-800 pb-4">
                             <h2 class="text-base font-bold text-white">🕐 Jadwal & Jam Operasional</h2>
                             <p class="text-xs text-slate-400 mt-0.5">Atur jam kerja agar pelanggan tahu waktu terbaik untuk berkunjung.</p>
@@ -429,7 +703,7 @@
                         <div class="space-y-2">
                             <template x-for="(day, dIdx) in operationalHours" :key="dIdx">
                                 <div class="flex items-center gap-3 p-3 bg-slate-900/70 border border-slate-800 rounded-xl">
-                                    <div class="w-24 text-xs font-bold text-white shrink-0" x-text="day.day"></div>
+                                    <div class="w-20 sm:w-24 text-xs font-bold text-white shrink-0" x-text="day.day"></div>
                                     <input type="text" x-model="day.hours" :disabled="!day.is_open" placeholder="08:00 - 17:00 WIB"
                                         :class="day.is_open ? 'text-slate-200 border-slate-800' : 'text-slate-600 border-slate-900 bg-slate-950/50 italic'"
                                         class="flex-1 px-3 py-1.5 bg-slate-950 border rounded-lg text-xs focus:border-emerald-500 focus:outline-none transition">
@@ -448,6 +722,10 @@
                 <!-- ============================================================ -->
                 <div x-show="activeTab === 'contact'" class="space-y-5">
                     <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-5">
+                        <label class="flex items-center gap-2 p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer">
+                            <input type="checkbox" x-model="sectionVisibility.contact" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                            <span>Tampilkan section Kontak</span>
+                        </label>
                         <div class="border-b border-slate-800 pb-4">
                             <h2 class="text-base font-bold text-white">📞 WhatsApp, Kontak & Lokasi</h2>
                             <p class="text-xs text-slate-400 mt-0.5">Hubungkan pelanggan langsung ke WhatsApp, email, dan peta lokasi fisik bisnis.</p>
@@ -459,32 +737,34 @@
                                     <span class="text-[#25D366]">Nomor WhatsApp Bisnis</span>
                                     <span class="text-slate-500 font-normal ml-1">(Format: 628xxx)</span>
                                 </label>
-                                <input type="text" x-model="form.whatsapp_number" placeholder="6281234567890"
+                                <input type="text" name="custom_phone" x-model="form.custom_phone" placeholder="Nomor telepon publik (opsional)"
+                                    class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none font-mono transition mb-3">
+                                <input type="text" name="whatsapp_number" x-model="form.whatsapp_number" placeholder="6281234567890"
                                     class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-[#25D366] focus:outline-none font-mono transition">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Email Resmi (Opsional)</label>
-                                <input type="email" x-model="form.custom_email" placeholder="kontak@bisnisanda.com"
+                                <input type="email" name="custom_email" x-model="form.custom_email" placeholder="kontak@bisnisanda.com"
                                     class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Pesan Sambutan Otomatis WhatsApp</label>
-                            <textarea x-model="form.whatsapp_welcome_message" rows="2" placeholder="Halo, saya melihat halaman Anda dan ingin bertanya lebih lanjut..."
+                            <textarea name="whatsapp_welcome_message" x-model="form.whatsapp_welcome_message" rows="2" placeholder="Halo, saya melihat halaman Anda dan ingin bertanya lebih lanjut..."
                                 class="w-full px-3.5 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none resize-none transition"></textarea>
                             <p class="text-[10px] text-slate-500 mt-1">Teks ini otomatis terisi di chat WA pembeli saat mengklik tombol WhatsApp.</p>
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Alamat Fisik Toko / Kantor</label>
-                            <textarea x-model="form.custom_address" rows="2" placeholder="Jl. Sudirman No. 123, Kelurahan, Kecamatan, Kota, Kode Pos"
+                            <textarea name="custom_address" x-model="form.custom_address" rows="2" placeholder="Jl. Sudirman No. 123, Kelurahan, Kecamatan, Kota, Kode Pos"
                                 class="w-full px-3.5 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none resize-none transition"></textarea>
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Google Maps Embed URL</label>
-                            <input type="text" x-model="form.google_maps_embed_url" placeholder="https://www.google.com/maps/embed?pb=..."
+                            <input type="text" name="google_maps_embed_url" x-model="form.google_maps_embed_url" placeholder="https://www.google.com/maps/embed?pb=..."
                                 class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none font-mono transition">
                             <p class="text-[10px] text-slate-500 mt-1">Google Maps → Share → Embed a map → salin URL di dalam <code class="text-emerald-400">src="..."</code></p>
                         </div>
@@ -513,12 +793,77 @@
                 </div>
 
                 <!-- ============================================================ -->
+                <!-- TAB 7: FOOTER -->
+                <!-- ============================================================ -->
+                <div x-show="activeTab === 'footer'" class="space-y-5">
+                    <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-5">
+                        <label class="flex items-center gap-2 p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer">
+                            <input type="checkbox" x-model="sectionVisibility.footer" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                            <span>Tampilkan section Footer</span>
+                        </label>
+                        <div class="border-t border-slate-800 pt-4 space-y-3">
+                            <div>
+                                <div class="text-xs font-bold text-white">Grid Footer</div>
+                                <p class="text-[11px] text-slate-400 mt-1">Pilih grid yang ingin ditampilkan. Grid aktif akan otomatis membagi lebar footer secara rata.</p>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <label class="flex items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                                    <input type="checkbox" x-model="sectionVisibility.footer_brand" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                                    <span>Grid Brand & Sosial</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                                    <input type="checkbox" x-model="sectionVisibility.footer_navigation" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                                    <span>Grid Navigasi</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                                    <input type="checkbox" x-model="sectionVisibility.footer_services" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                                    <span>Grid Layanan</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                                    <input type="checkbox" x-model="sectionVisibility.footer_contact" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                                    <span>Grid Kontak</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="border-b border-slate-800 pb-4">
+                            <h2 class="text-base font-bold text-white">Footer</h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Atur semua konten footer yang tampil pada halaman publik.</p>
+                        </div>
+                        <textarea name="footer_description" x-model="form.footer_description" maxlength="1000" rows="3" placeholder="Deskripsi singkat bisnis untuk footer"
+                            class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-300 placeholder-slate-500 focus:border-emerald-500 focus:outline-none resize-none"></textarea>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <input type="text" name="footer_navigation_title" x-model="form.footer_navigation_title" maxlength="80" placeholder="Judul navigasi"
+                                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                            <input type="text" name="footer_services_title" x-model="form.footer_services_title" maxlength="80" placeholder="Judul layanan"
+                                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                            <input type="text" name="footer_contact_title" x-model="form.footer_contact_title" maxlength="80" placeholder="Judul kontak"
+                                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                            <input type="text" name="footer_cta_text" x-model="form.footer_cta_text" maxlength="100" placeholder="Teks tombol footer"
+                                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                        </div>
+                        <input type="text" name="footer_copyright" x-model="form.footer_copyright" maxlength="255" placeholder="Copyright footer"
+                            class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- ============================================================ -->
                 <!-- TAB 5: ULASAN & FAQ -->
                 <!-- ============================================================ -->
-                <div x-show="activeTab === 'social_proof'" class="space-y-5">
+                <div x-show="['testimonials', 'faq'].includes(activeTab)" class="space-y-5">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-slate-900/60 rounded-xl border border-slate-800">
+                        <label x-show="activeTab === 'testimonials'" class="flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
+                            <input type="checkbox" x-model="sectionVisibility.testimonials" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                            <span>Tampilkan section Ulasan</span>
+                        </label>
+                        <label x-show="activeTab === 'faq'" class="flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
+                            <input type="checkbox" x-model="sectionVisibility.faq" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                            <span>Tampilkan section FAQ</span>
+                        </label>
+                    </div>
 
                     <!-- TESTIMONIALS -->
-                    <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+                    <div x-show="activeTab === 'testimonials'" class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                             <div>
                                 <h2 class="text-base font-bold text-white">⭐ Testimonial Pelanggan</h2>
@@ -556,7 +901,7 @@
                     </div>
 
                     <!-- FAQs -->
-                    <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+                    <div x-show="activeTab === 'faq'" class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                             <div>
                                 <h2 class="text-base font-bold text-white">❓ Tanya Jawab Populer (FAQ)</h2>
@@ -607,7 +952,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Halaman (Meta Title)</label>
-                            <input type="text" x-model="form.meta_title" placeholder="Bengkel Motor Jaya — Servis & Sparepart Terpercaya Jakarta Selatan"
+                            <input type="text" name="meta_title" x-model="form.meta_title" placeholder="Bengkel Motor Jaya — Servis & Sparepart Terpercaya Jakarta Selatan"
                                 class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
                             <div class="flex justify-between text-[10px] text-slate-500 mt-1">
                                 <span>Ideal: 50–60 karakter</span>
@@ -617,12 +962,31 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Google (Meta Description)</label>
-                            <textarea x-model="form.meta_description" rows="3" placeholder="Deskripsi ringkas bisnis Anda yang muncul di bawah judul di hasil pencarian Google..."
+                            <textarea name="meta_description" x-model="form.meta_description" rows="3" placeholder="Deskripsi ringkas bisnis Anda yang muncul di bawah judul di hasil pencarian Google..."
                                 class="w-full px-3.5 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none resize-none transition"></textarea>
                             <div class="flex justify-between text-[10px] text-slate-500 mt-1">
                                 <span>Ideal: 120–160 karakter</span>
                                 <span :class="(form.meta_description || '').length > 160 ? 'text-rose-400' : 'text-slate-500'" x-text="(form.meta_description || '').length + ' / 160'"></span>
                             </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Kata Kunci SEO</label>
+                            <input type="text" name="meta_keywords" x-model="form.meta_keywords" maxlength="500" placeholder="restoran jakarta, makanan nusantara, nasi goreng, reservasi restoran"
+                                class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none transition">
+                            <p class="text-[10px] text-slate-500 mt-1">Pisahkan kata kunci dengan koma. Gunakan istilah yang benar-benar relevan dengan bisnis.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Upload Gambar Social Share (Open Graph)</label>
+                            <div x-show="previews.og || form.og_image_url" class="mb-2 flex items-center gap-3">
+                                <img :src="previews.og || form.og_image_url" alt="OG Preview" class="w-32 h-16 rounded-xl object-cover border border-slate-700">
+                                <span class="text-[10px] text-emerald-400 font-semibold" x-text="previews.og ? 'Preview file baru dipilih' : 'Gambar OG tersimpan'"></span>
+                            </div>
+                            <input type="file" name="og_image" accept="image/jpeg,image/png,image/webp"
+                                @change="handleImagePreview($event, 'og')"
+                                class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
+                            <label class="mt-2 flex items-center gap-2 text-[10px] text-slate-400"><input type="checkbox" name="remove_og_image" value="1" class="rounded bg-slate-900 border-slate-700 text-rose-500"> Hapus gambar OG tersimpan</label>
                         </div>
 
                         <!-- LIVE GOOGLE PREVIEW -->
@@ -666,8 +1030,8 @@
             </div>
 
             <iframe :src="previewUrl" title="Preview halaman publik bisnis" class="w-full h-full border-0 bg-white"></iframe>
-            <div x-show="false" class="flex-1 overflow-y-auto" :style="`--preview-color: ${form.theme_color || '#10B981'}`">
-                <section class="relative overflow-hidden px-6 py-16 sm:px-14 sm:py-24 text-white" :style="`background: linear-gradient(135deg, ${form.theme_color || '#10B981'}, #0f172a 72%)`">
+            <div x-show="false" class="flex-1 overflow-y-auto" :style="`--preview-color: ${form.theme_color || 'transparent'}`">
+                <section class="relative overflow-hidden px-6 py-16 sm:px-14 sm:py-24 text-white" :style="`background: linear-gradient(135deg, ${form.theme_color || 'transparent'}, #0f172a 72%)`">
                     <div class="relative z-10 max-w-3xl">
                         <div x-show="form.announcement_badge" class="inline-flex px-3 py-1 rounded-full bg-white/15 border border-white/20 text-xs font-bold mb-5" x-text="form.announcement_badge"></div>
                         <h1 class="text-3xl sm:text-5xl font-black leading-tight" x-text="form.headline || 'Headline bisnis Anda'"></h1>
@@ -689,7 +1053,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-8">
                             <template x-for="(value, index) in values.slice(0, 4)" :key="index">
                                 <div class="p-4 bg-white border border-slate-200 rounded-xl">
-                                    <div class="text-xs font-black" :style="`color: ${form.theme_color || '#10B981'}`" x-text="'0' + (index + 1)"></div>
+                                    <div class="text-xs font-black" :style="`color: ${form.theme_color || 'transparent'}`" x-text="'0' + (index + 1)"></div>
                                     <h3 class="mt-2 text-sm font-bold text-slate-900" x-text="value.title || 'Keunggulan bisnis'"></h3>
                                     <p class="mt-1 text-xs text-slate-500" x-text="value.description || ''"></p>
                                 </div>
@@ -702,7 +1066,7 @@
                     <div class="max-w-5xl mx-auto">
                         <div class="flex items-end justify-between gap-3 mb-5">
                             <div>
-                                <p class="text-[10px] font-bold uppercase tracking-widest" :style="`color: ${form.theme_color || '#10B981'}`">Katalog</p>
+                                <p class="text-[10px] font-bold uppercase tracking-widest" :style="`color: ${form.theme_color || 'transparent'}`">Katalog</p>
                                 <h2 class="text-2xl font-black text-slate-900">Layanan & Produk</h2>
                             </div>
                             <span class="text-xs text-slate-500" x-text="services.length + ' item'" ></span>
@@ -710,10 +1074,10 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <template x-for="(service, index) in services.slice(0, 6)" :key="index">
                                 <div class="p-5 border border-slate-200 rounded-xl">
-                                    <span x-show="service.badge" class="text-[10px] font-bold uppercase" :style="`color: ${form.theme_color || '#10B981'}`" x-text="service.badge"></span>
+                                    <span x-show="service.badge" class="text-[10px] font-bold uppercase" :style="`color: ${form.theme_color || 'transparent'}`" x-text="service.badge"></span>
                                     <h3 class="mt-1 text-sm font-bold text-slate-900" x-text="service.title || 'Nama layanan'"></h3>
                                     <p class="mt-2 text-xs text-slate-500" x-text="service.description || 'Deskripsi layanan akan tampil di sini.'"></p>
-                                    <p class="mt-4 text-sm font-black" :style="`color: ${form.theme_color || '#10B981'}`" x-text="service.price || 'Hubungi kami'"></p>
+                                    <p class="mt-4 text-sm font-black" :style="`color: ${form.theme_color || 'transparent'}`" x-text="service.price || 'Hubungi kami'"></p>
                                 </div>
                             </template>
                         </div>
@@ -721,7 +1085,7 @@
                     </div>
                 </section>
 
-                <footer class="px-6 py-8 sm:px-14 text-white" :style="`background: ${form.theme_color || '#10B981'}`">
+                <footer class="px-6 py-8 sm:px-14 text-white" :style="`background: ${form.theme_color || 'transparent'}`">
                     <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between gap-4 text-xs">
                         <div><div class="font-black text-base">{{ $business->name }}</div><div class="mt-1 text-white/75" x-text="form.custom_address || 'Alamat bisnis'" ></div></div>
                         <div class="text-left sm:text-right"><div x-text="form.whatsapp_number || 'WhatsApp belum diatur'"></div><div class="mt-1 text-white/75" x-text="form.custom_email || 'Email belum diatur'"></div></div>
@@ -786,26 +1150,50 @@
 
 </div>
 
+@php
+    $sectionVisibilityDefaults = array_merge([
+        'hero' => false,
+        'about' => false,
+        'products' => false,
+        'services' => false,
+        'gallery' => false,
+        'testimonials' => false,
+        'faq' => false,
+        'contact' => false,
+        'footer' => false,
+        'footer_brand' => false,
+        'footer_navigation' => false,
+        'footer_services' => false,
+        'footer_contact' => false,
+    ], $landingPage->section_visibility ?? []);
+@endphp
+
 <script>
 function landingPageEditor() {
     return {
-        activeTab: 'hero',
+        activeTab: 'general',
         showPresetModal: false,
         showPreview: false,
         previewUrl: @json($publicUrl),
         copied: false,
         saving: false,
+        galleryFileCount: 0,
         saveMessage: '',
         saveError: '',
         isPublished: @json((bool) $landingPage->is_published),
 
         tabs: [
-            { id: 'hero', label: '1. Hero & Branding', icon: 'sparkles' },
-            { id: 'services', label: '2. Layanan & Produk', icon: 'package' },
-            { id: 'story', label: '3. Profil & Jam Buka', icon: 'book-open' },
-            { id: 'contact', label: '4. Kontak & Peta', icon: 'phone-call' },
-            { id: 'social_proof', label: '5. Ulasan & FAQ', icon: 'message-square' },
-            { id: 'seo', label: '6. SEO Google', icon: 'search' },
+            { id: 'general', label: '1. General', icon: 'settings-2' },
+            { id: 'hero', label: '2. Hero', icon: 'sparkles' },
+            { id: 'about', label: '3. Tentang', icon: 'book-open' },
+            { id: 'products', label: '4. Produk', icon: 'shopping-bag' },
+            { id: 'services', label: '5. Layanan', icon: 'package' },
+            { id: 'gallery', label: '6. Galeri', icon: 'images' },
+            { id: 'testimonials', label: '7. Ulasan', icon: 'star' },
+            { id: 'faq', label: '8. FAQ', icon: 'help-circle' },
+            { id: 'contact', label: '9. Kontak', icon: 'phone-call' },
+            { id: 'footer', label: '10. Footer', icon: 'panels-top-left' },
+            { id: 'seo', label: '11. SEO', icon: 'search' },
         ],
 
         themePresets: [
@@ -816,38 +1204,69 @@ function landingPageEditor() {
             { hex: '#64748B', label: 'Slate' },
         ],
 
-        sectionOptions: [
-            { key: 'hero', label: 'Hero' }, { key: 'about', label: 'Tentang' },
-            { key: 'products', label: 'Produk' }, { key: 'services', label: 'Layanan' },
-            { key: 'gallery', label: 'Galeri' }, { key: 'testimonials', label: 'Ulasan' },
-            { key: 'faq', label: 'FAQ' }, { key: 'contact', label: 'Kontak' },
-        ],
-
-        sectionVisibility: @json(array_merge([
-            'hero' => true, 'about' => true, 'products' => true, 'services' => true,
-            'gallery' => true, 'testimonials' => true, 'faq' => true, 'contact' => true,
-        ], $landingPage->section_visibility ?? [])),
+        sectionVisibility: @json($sectionVisibilityDefaults),
 
         form: {
-            industry_preset: @json($landingPage->industry_preset ?? 'retail'),
-            theme_color: @json($landingPage->theme_color ?? '#10B981'),
+            industry_preset: @json($landingPage->industry_preset),
+            theme_color: @json($landingPage->theme_color),
             announcement_badge: @json($landingPage->announcement_badge ?? ''),
             headline: @json($landingPage->headline ?? ''),
             subheadline: @json($landingPage->subheadline ?? ''),
             cta_primary_text: @json($landingPage->cta_primary_text ?? ''),
+            cta_primary_url: @json($landingPage->cta_primary_url ?? ''),
             cta_secondary_text: @json($landingPage->cta_secondary_text ?? ''),
+            cta_secondary_url: @json($landingPage->cta_secondary_url ?? ''),
             hero_image_url: @json($landingPage->hero_image_url ?? ''),
             logo_url: @json($landingPage->logo_url ?? ''),
             about_title: @json($landingPage->about_title ?? ''),
             about_story: @json($landingPage->about_story ?? ''),
+            services_title: @json($landingPage->services_title ?? ''),
+            services_subtitle: @json($landingPage->services_subtitle ?? ''),
             whatsapp_number: @json($landingPage->whatsapp_number ?? ''),
+            custom_phone: @json($landingPage->custom_phone ?? ''),
             whatsapp_welcome_message: @json($landingPage->whatsapp_welcome_message ?? ''),
             custom_email: @json($landingPage->custom_email ?? ''),
             custom_address: @json($landingPage->custom_address ?? ''),
             google_maps_embed_url: @json($landingPage->google_maps_embed_url ?? ''),
+            gallery_title: @json($landingPage->gallery_title ?? ''),
+            gallery_subtitle: @json($landingPage->gallery_subtitle ?? ''),
             meta_title: @json($landingPage->meta_title ?? ''),
             meta_description: @json($landingPage->meta_description ?? ''),
+            meta_keywords: @json($landingPage->meta_keywords ?? ''),
+            footer_description: @json($landingPage->footer_description ?? ''),
+            footer_navigation_title: @json($landingPage->footer_navigation_title ?? ''),
+            footer_services_title: @json($landingPage->footer_services_title ?? ''),
+            footer_contact_title: @json($landingPage->footer_contact_title ?? ''),
+            footer_cta_text: @json($landingPage->footer_cta_text ?? ''),
+            footer_copyright: @json($landingPage->footer_copyright ?? ''),
         },
+
+        previews: {
+            logo: '',
+            hero: '',
+            about: '',
+            og: ''
+        },
+
+        @php
+            $initialGallery = collect($landingPage->gallery_images ?? [])->map(function ($img) {
+                if (is_array($img)) {
+                    return [
+                        'url' => (string) ($img['url'] ?? ''),
+                        'caption' => (string) ($img['caption'] ?? ''),
+                    ];
+                }
+                return [
+                    'url' => (string) $img,
+                    'caption' => '',
+                ];
+            })->filter(fn ($item) => filled($item['url']))->values();
+        @endphp
+        galleryItems: {!! json_encode($initialGallery, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!},
+        newGalleryUploads: [],
+        showAddUrlModal: false,
+        newUrlInput: '',
+        newCaptionInput: '',
 
         values: @json($landingPage->values ?? []),
         services: @json($landingPage->custom_services ?? []),
@@ -858,10 +1277,10 @@ function landingPageEditor() {
         init() {
             if (!this.values || this.values.length === 0) {
                 this.values = [
-                    { title: 'Kualitas Terjamin', description: 'Standar mutu dan pengerjaan terbaik dengan garansi kepuasan.' },
-                    { title: 'Pelayanan Cepat', description: 'Responsif dan tepat waktu untuk setiap kebutuhan pelanggan.' },
-                    { title: 'Harga Transparan', description: 'Biaya jelas tanpa ada pungutan tersembunyi.' },
-                    { title: 'Konsultasi Gratis', description: 'Dapatkan rekomendasi terbaik dari tim ahli kami.' }
+                    { title: 'Kualitas Terjamin', description: 'Standar mutu dan pengerjaan terbaik dengan garansi kepuasan.', icon: 'shield-check' },
+                    { title: 'Pelayanan Cepat', description: 'Responsif dan tepat waktu untuk setiap kebutuhan pelanggan.', icon: 'zap' },
+                    { title: 'Harga Transparan', description: 'Biaya jelas tanpa ada pungutan tersembunyi.', icon: 'award' },
+                    { title: 'Konsultasi Gratis', description: 'Dapatkan rekomendasi terbaik dari tim ahli kami.', icon: 'star' }
                 ];
             }
             if (!this.operationalHours || this.operationalHours.length === 0) {
@@ -878,8 +1297,163 @@ function landingPageEditor() {
             this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
         },
 
+        handleImagePreview(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Format Tidak Didukung',
+                        text: 'Hanya format JPG, PNG, atau WebP yang diperbolehkan.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+                event.target.value = '';
+                return;
+            }
+            if (file.size > 4 * 1024 * 1024) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ukuran Terlalu Besar',
+                        text: 'Ukuran file gambar maksimal 4 MB.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+                event.target.value = '';
+                return;
+            }
+            this.previews[type] = URL.createObjectURL(file);
+        },
+
+        handleServiceImagePreview(event, sIdx) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Format Tidak Didukung',
+                        text: 'Hanya format JPG, PNG, atau WebP yang diperbolehkan.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+                event.target.value = '';
+                return;
+            }
+            if (file.size > 4 * 1024 * 1024) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ukuran Terlalu Besar',
+                        text: 'Ukuran file gambar maksimal 4 MB.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+                event.target.value = '';
+                return;
+            }
+            this.services[sIdx].preview_url = URL.createObjectURL(file);
+        },
+
+        handleGalleryFiles(event) {
+            const files = Array.from(event.target.files || []);
+            if (!files.length) return;
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            for (let file of files) {
+                if (!validTypes.includes(file.type)) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Format Tidak Didukung',
+                            text: `File "${file.name}" bukan format JPG, PNG, atau WebP.`,
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                    continue;
+                }
+                if (file.size > 4 * 1024 * 1024) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ukuran Terlalu Besar',
+                            text: `File "${file.name}" melebihi batas 4 MB.`,
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                    continue;
+                }
+                this.newGalleryUploads.push({
+                    file: file,
+                    preview: URL.createObjectURL(file),
+                    caption: ''
+                });
+            }
+            event.target.value = '';
+            this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+        },
+
+        addGalleryByUrl() {
+            const url = this.newUrlInput.trim();
+            if (!url) return;
+            this.galleryItems.push({
+                url: url,
+                caption: this.newCaptionInput.trim()
+            });
+            this.newUrlInput = '';
+            this.newCaptionInput = '';
+            this.showAddUrlModal = false;
+            this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+        },
+
+        removeGalleryItem(index) {
+            this.galleryItems.splice(index, 1);
+            this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+        },
+
+        removeNewUpload(index) {
+            this.newGalleryUploads.splice(index, 1);
+            this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+        },
+
+        moveGalleryItem(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= this.galleryItems.length) return;
+            const item = this.galleryItems.splice(index, 1)[0];
+            this.galleryItems.splice(targetIndex, 0, item);
+            this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+        },
+
+        clearAllGallery() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Kosongkan Semua Galeri?',
+                    text: 'Semua foto aktif dan antrean foto baru akan dihapus dari galeri.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Kosongkan',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.galleryItems = [];
+                        this.newGalleryUploads = [];
+                        this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+                    }
+                });
+            } else {
+                this.galleryItems = [];
+                this.newGalleryUploads = [];
+                this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+            }
+        },
+
         addService() {
-            this.services.push({ title: '', price: '', description: '', badge: '' });
+            this.services.push({ title: '', price: '', description: '', badge: '', preview_url: '' });
             this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
         },
 
@@ -902,16 +1476,47 @@ function landingPageEditor() {
         copyLink(url) {
             navigator.clipboard.writeText(url).then(() => {
                 this.copied = true;
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Link publik berhasil disalin!',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
                 setTimeout(() => { this.copied = false; }, 2500);
             });
         },
 
         applyPreset(presetKey, button) {
-            if (!confirm('Terapkan template industri ini? Konten draft Anda akan diperbarui sesuai industri yang dipilih.')) return;
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Terapkan Template Industri?',
+                    text: 'Konten draft Anda akan diperbarui sesuai template industri yang dipilih.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Terapkan',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#64748b'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.executeApplyPreset(presetKey, button);
+                    }
+                });
+            } else {
+                this.executeApplyPreset(presetKey, button);
+            }
+        },
 
+        executeApplyPreset(presetKey, button) {
             const btn = button;
-            btn.textContent = 'Memuat...';
-            btn.disabled = true;
+            if (btn) {
+                btn.textContent = 'Memuat...';
+                btn.disabled = true;
+            }
 
             fetch('{{ route("landing-page.preset") }}', {
                 method: 'POST',
@@ -940,13 +1545,33 @@ function landingPageEditor() {
                     if (p.faqs) this.faqs = p.faqs;
                     if (p.testimonials) this.testimonials = p.testimonials;
                     this.showPresetModal = false;
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Template industri berhasil diterapkan.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
                     this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
                 }
             })
-            .catch(error => alert(error.message || 'Gagal menerapkan preset. Silakan coba kembali.'))
+            .catch(error => {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: error.message || 'Gagal menerapkan preset. Silakan coba kembali.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            })
             .finally(() => {
-                btn.textContent = 'Terapkan';
-                btn.disabled = false;
+                if (btn) {
+                    btn.textContent = 'Terapkan';
+                    btn.disabled = false;
+                }
             });
         },
 
@@ -965,6 +1590,20 @@ function landingPageEditor() {
             this.saveError = '';
 
             try {
+                const formEl = document.getElementById('landingPageForm');
+                const formData = new FormData(formEl);
+
+                // Sinkronkan galleryItems JSON dan unggahan foto baru beserta captionnya
+                formData.set('gallery_images_json', JSON.stringify(this.galleryItems));
+                formData.delete('gallery_images[]');
+                formData.delete('new_gallery_captions[]');
+                this.newGalleryUploads.forEach((item) => {
+                    if (item.file) {
+                        formData.append('gallery_images[]', item.file);
+                        formData.append('new_gallery_captions[]', item.caption || '');
+                    }
+                });
+
                 const response = await fetch('{{ route('landing-page.update') }}', {
                     method: 'POST',
                     headers: {
@@ -972,15 +1611,53 @@ function landingPageEditor() {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: new FormData(document.getElementById('landingPageForm'))
+                    body: formData
                 });
                 const data = await response.json();
                 if (!response.ok) {
                     const messages = data.errors ? Object.values(data.errors).flat() : [];
-                    throw new Error(messages[0] || data.message || 'Perubahan gagal disimpan.');
+                    const errorMsg = messages[0] || data.message || 'Perubahan gagal disimpan.';
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Periksa kembali data!',
+                            text: errorMsg,
+                            confirmButtonColor: '#f59e0b'
+                        });
+                    }
+                    throw new Error(errorMsg);
                 }
                 this.saveMessage = data.message || 'Perubahan berhasil disimpan.';
-                setTimeout(() => { this.saveMessage = ''; }, 4000);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message || 'Landing page berhasil diperbarui.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+                if (data.landing_page) {
+                    if (data.landing_page.hero_image_url) this.form.hero_image_url = data.landing_page.hero_image_url;
+                    if (data.landing_page.logo_url) this.form.logo_url = data.landing_page.logo_url;
+                    if (data.landing_page.about_image_url) this.form.about_image_url = data.landing_page.about_image_url;
+                    if (data.landing_page.og_image_url) this.form.og_image_url = data.landing_page.og_image_url;
+                    if (data.landing_page.gallery_images) {
+                        this.galleryItems = (data.landing_page.gallery_images || []).map(img => {
+                            if (typeof img === 'object' && img !== null) {
+                                return {
+                                    url: img.url || '',
+                                    caption: img.caption || ''
+                                };
+                            }
+                            return {
+                                url: String(img),
+                                caption: ''
+                            };
+                        }).filter(item => item.url);
+                        this.newGalleryUploads = [];
+                    }
+                }
                 return true;
             } catch (error) {
                 this.saveError = error.message || 'Perubahan gagal disimpan.';
@@ -1008,9 +1685,25 @@ function landingPageEditor() {
                 if (!response.ok) throw new Error(data.message || 'Status publikasi gagal diubah.');
                 this.isPublished = Boolean(data.is_published);
                 this.saveMessage = data.message || 'Status publikasi diperbarui.';
-                setTimeout(() => { this.saveMessage = ''; }, 4000);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message || 'Status publikasi diperbarui.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
             } catch (error) {
                 this.saveError = error.message || 'Status publikasi gagal diubah.';
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: error.message || 'Status publikasi gagal diubah.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
             } finally {
                 this.saving = false;
                 this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });

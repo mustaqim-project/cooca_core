@@ -107,7 +107,7 @@
 
     saveQuickProduct() {
         if (!this.quickName.trim()) {
-            alert('Silakan masukkan nama produk terlebih dahulu.');
+            AppAlert.warning('Silakan masukkan nama produk terlebih dahulu.');
             return;
         }
         this.quickSaveLoading = true;

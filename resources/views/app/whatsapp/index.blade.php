@@ -289,7 +289,14 @@ function waGateway() {
         },
 
         async disconnectWa() {
-            if (!confirm('Yakin ingin memutus koneksi WhatsApp?')) return;
+            const confirmed = await AppAlert.confirm({
+                title: 'Putus Koneksi WhatsApp?',
+                message: 'Yakin ingin memutus koneksi WhatsApp bisnis Anda? Sesi QR harus dihubungkan ulang nanti.',
+                type: 'danger',
+                confirmText: 'Ya, Putuskan',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) return;
             this.isLoading = true;
             try {
                 await fetch('{{ route('whatsapp.disconnect') }}', {

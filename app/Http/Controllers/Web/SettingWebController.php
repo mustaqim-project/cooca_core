@@ -70,6 +70,7 @@ final class SettingWebController extends Controller
             'address' => ['nullable', 'string', 'max:500'],
             'tax_identification_number' => ['nullable', 'string', 'max:50'],
             'pos_enable_tax' => ['nullable', 'boolean'],
+            'pos_show_product_images' => ['nullable', 'boolean'],
             'pos_tax_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'bank_name' => ['nullable', 'string', 'max:100'],
             'bank_account_number' => ['nullable', 'string', 'max:100'],
@@ -86,6 +87,7 @@ final class SettingWebController extends Controller
             'address' => $validated['address'] ?? null,
             'tax_identification_number' => $validated['tax_identification_number'] ?? null,
             'pos_enable_tax' => $request->boolean('pos_enable_tax'),
+            'pos_show_product_images' => $request->boolean('pos_show_product_images'),
             'pos_tax_percent' => (float) ($validated['pos_tax_percent'] ?? $business->pos_tax_percent ?? 0),
             'bank_name' => $validated['bank_name'] ?? null,
             'bank_account_number' => $validated['bank_account_number'] ?? null,
@@ -111,7 +113,7 @@ final class SettingWebController extends Controller
             if ($business->logo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($business->logo_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($business->logo_path);
             }
-            $path = $request->file('logo')->store('business_logos', 'public');
+            $path = $request->file('logo')->store('businesses/' . $business->id . '/logo', 'public');
             $updateData['logo_path'] = $path;
         }
 

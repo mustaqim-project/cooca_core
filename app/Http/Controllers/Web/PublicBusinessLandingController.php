@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web;
 
-use App\Domain\LandingPage\IndustryPresets;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\BusinessLandingPage;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -25,49 +25,46 @@ class PublicBusinessLandingController extends Controller
 
         $landingPage = BusinessLandingPage::where('business_id', $business->id)->first();
 
-        // If no customized landing page yet, create a default one from preset
-        if (! $landingPage) {
-            $preset = IndustryPresets::get('retail', $business->name);
-            $landingPage = new BusinessLandingPage([
-                'business_id'        => $business->id,
-                'is_published'       => true,
-                'industry_preset'    => 'retail',
-                'theme_color'        => '#10B981',
-                'headline'           => "Selamat Datang di {$business->name}",
-                'subheadline'        => $business->description ?: $preset['subheadline'],
-                'announcement_badge' => $preset['announcement_badge'],
-                'cta_primary_text'   => $preset['cta_primary_text'],
-                'cta_secondary_text' => $preset['cta_secondary_text'],
-                'about_title'        => $preset['about_title'],
-                'about_story'        => $preset['about_story'],
-                'values'             => $preset['values'],
-                'custom_services'    => $preset['services'],
-                'faqs'               => $preset['faqs'],
-                'testimonials'       => $preset['testimonials'],
-                'whatsapp_number'    => $business->phone,
-                'custom_address'     => $business->address,
-            ]);
-        }
+        abort_unless($landingPage, 404);
 
         $isAuthorizedPreview = request()->boolean('preview')
             && request()->user()?->active_business_id === $business->id;
 
         abort_unless($landingPage->is_published || $isAuthorizedPreview, 404);
 
-        // Active POS products if enabled
+        // Active POS products if enabled. The public page needs the full catalog
+        // for its client-side category filter, while the showcase remains limited.
         $posProducts = collect();
+        $productCategories = collect();
         if ($landingPage->show_pos_products) {
             $posProducts = Product::where('business_id', $business->id)
                 ->where('is_active', true)
+                ->with('category')
                 ->orderBy('name')
-                ->take(12)
+                ->get();
+
+            $productCategories = ProductCategory::where('business_id', $business->id)
+                ->whereHas('products', fn ($query) => $query->where('is_active', true))
+                ->orderBy('name')
                 ->get();
         }
+
+        $productPayload = $posProducts->map(fn (Product $product): array => [
+            'id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'price' => (float) $product->selling_price,
+            'image_url' => $product->image_url,
+            'category_id' => $product->category_id,
+            'category' => $product->category?->name,
+        ])->values();
 
         return view('public.business_landing', compact(
             'business',
             'landingPage',
-            'posProducts'
+            'posProducts',
+            'productCategories',
+            'productPayload'
         ));
     }
 }

@@ -189,7 +189,7 @@
                 <p class="text-[11px] text-slate-500 mt-0.5">Hapus rekening ini secara permanen dari seluruh opsi pembayaran tenant.</p>
             </div>
             <form method="POST" action="{{ route('admin.payment-accounts.destroy', $paymentAccount) }}"
-                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus rekening {{ $paymentAccount->bank_name }}?')">
+                  onsubmit="return AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin menghapus rekening {{ addslashes($paymentAccount->bank_name) }}?', 'Hapus Rekening?', 'danger')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition inline-flex items-center gap-2">

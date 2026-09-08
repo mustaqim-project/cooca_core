@@ -609,10 +609,10 @@
                             if (typeof lucide !== 'undefined') lucide.createIcons();
                         });
                     } else {
-                        alert(data.message || 'Gagal menganalisis pertanyaan.');
+                        AppAlert.error(data.message || 'Gagal menganalisis pertanyaan.');
                     }
                 } catch (e) {
-                    alert('Gagal menghubungi AI Engine.');
+                    AppAlert.error('Gagal menghubungi AI Engine.');
                 } finally {
                     this.isAsking = false;
                 }
@@ -638,15 +638,17 @@
 
                     const data = await res.json();
                     if (data.success) {
-                        alert(data.message);
+                        AppAlert.success(data.message);
                         if (data.data && data.data.redirect_url) {
-                            window.location.href = data.data.redirect_url;
+                            setTimeout(() => {
+                                window.location.href = data.data.redirect_url;
+                            }, 1000);
                         }
                     } else {
-                        alert(data.message || 'Gagal mengeksekusi aksi.');
+                        AppAlert.error(data.message || 'Gagal mengeksekusi aksi.');
                     }
                 } catch (e) {
-                    alert('Gagal mengeksekusi aksi AI.');
+                    AppAlert.error('Gagal mengeksekusi aksi AI.');
                 } finally {
                     this.isExecutingAction = false;
                 }

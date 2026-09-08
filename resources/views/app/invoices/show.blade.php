@@ -17,7 +17,7 @@
         <div class="flex items-center gap-2 flex-wrap">
             {{-- Tombol Konfirmasi & Rilis Faktur (hanya tampil saat draft) --}}
             @if($invoice->status === 'draft')
-            <form method="POST" action="{{ route('invoices.confirm', $invoice->id) }}" onsubmit="return confirm('Konfirmasi dan rilis faktur ini? Stok barang akan dipotong dari gudang yang dipilih.')">
+            <form method="POST" action="{{ route('invoices.confirm', $invoice->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Konfirmasi dan rilis faktur ini? Stok barang akan dipotong dari gudang yang dipilih.', 'Konfirmasi Faktur?', 'warning')">
                 @csrf
                 <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition-all">
                     <i data-lucide="send" class="w-4 h-4"></i>
@@ -46,7 +46,7 @@
 
             {{-- Tombol Void (hanya tampil saat bukan draft/void dan belum ada pembayaran) --}}
             @if(!in_array($invoice->status, ['draft','void']) && $invoice->paid_amount == 0)
-            <form method="POST" action="{{ route('invoices.void', $invoice->id) }}" onsubmit="return confirm('Batalkan (void) faktur ini? Stok yang sudah dipotong akan dikembalikan ke gudang.')">
+            <form method="POST" action="{{ route('invoices.void', $invoice->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Batalkan (void) faktur ini? Stok yang sudah dipotong akan dikembalikan ke gudang.', 'Void Faktur?', 'danger')">
                 @csrf
                 <button type="submit" class="px-3.5 py-2 rounded-xl bg-rose-900/50 hover:bg-rose-700/60 text-rose-400 text-xs font-semibold border border-rose-800/60 flex items-center gap-1.5 transition-colors">
                     <i data-lucide="ban" class="w-4 h-4"></i>

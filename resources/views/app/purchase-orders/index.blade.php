@@ -195,7 +195,7 @@
                                 @endif
 
                                 @if($po->status === 'draft')
-                                <form method="POST" action="{{ route('purchase-orders.destroy', $po->id) }}" onsubmit="return confirm('Hapus draf PO {{ $po->po_number }}?')">
+                                <form method="POST" action="{{ route('purchase-orders.destroy', $po->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus draf PO {{ addslashes($po->po_number) }}?', 'Hapus Draf PO?', 'danger')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1.5 hover:bg-rose-500/20 rounded-lg text-slate-400 hover:text-rose-400 transition-colors" title="Hapus Draft">

@@ -124,7 +124,7 @@
                                 })" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors" title="Edit Pelanggan">
                                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                                 </button>
-                                <form method="POST" action="{{ route('customers.destroy', $customer->slug) }}" onsubmit="return confirm('Hapus data pelanggan {{ $customer->name }}?')">
+                                <form method="POST" action="{{ route('customers.destroy', $customer->slug) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus data pelanggan {{ addslashes($customer->name) }}?', 'Hapus Pelanggan?', 'danger')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1.5 hover:bg-rose-500/20 rounded-lg text-slate-400 hover:text-rose-400 transition-colors" title="Hapus Pelanggan">

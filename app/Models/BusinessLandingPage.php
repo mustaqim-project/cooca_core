@@ -41,6 +41,8 @@ class BusinessLandingPage extends Model
         'services_subtitle',
         'custom_services',
         'gallery_images',
+        'gallery_title',
+        'gallery_subtitle',
         'section_visibility',
         'testimonials',
         'faqs',
@@ -59,6 +61,12 @@ class BusinessLandingPage extends Model
         'meta_description',
         'meta_keywords',
         'og_image_url',
+        'footer_description',
+        'footer_navigation_title',
+        'footer_services_title',
+        'footer_contact_title',
+        'footer_cta_text',
+        'footer_copyright',
     ];
 
     protected $casts = [
@@ -96,14 +104,12 @@ class BusinessLandingPage extends Model
             $phone = '62' . substr($phone, 1);
         }
 
-        $bizName = $this->business->name;
-        $msg     = $this->whatsapp_welcome_message
-            ?: "Halo {$bizName}, saya tertarik untuk memesan / berkonsultasi mengenai produk dan layanan Anda.";
+        $msg = $this->whatsapp_welcome_message;
 
         if ($serviceName) {
-            $msg = "Halo {$bizName}, saya ingin memesan / menanyakan mengenai: *{$serviceName}*. Apakah masih tersedia?";
+            $msg = "Halo {$this->business->name}, saya ingin memesan / menanyakan mengenai: *{$serviceName}*. Apakah masih tersedia?";
         }
 
-        return "https://wa.me/{$phone}?text=" . rawurlencode($msg);
+        return $msg ? "https://wa.me/{$phone}?text=" . rawurlencode($msg) : "https://wa.me/{$phone}";
     }
 }

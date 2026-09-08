@@ -44,6 +44,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- AppAlert (Centralized Alert & Confirm System) -->
+    <script src="{{ asset('js/app-alert.js') }}"></script>
+
     <style>
         html, body { overflow-x: hidden; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -504,25 +507,41 @@
                 <div class="pos-products flex-1 overflow-y-auto pr-1">
                     <div class="pos-product-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                         <template x-for="product in filteredProducts" :key="product.id">
-                               <div @click="addToCart(product)"
-                                   class="pos-product-card glass-card rounded-2xl p-3.5 cursor-pointer hover:border-emerald-500/40 hover:bg-slate-800/80 transition-all flex flex-col justify-between group active:scale-95">
-                                <div>
-                                    <div class="flex items-start justify-between gap-2 mb-2">
-                                        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-slate-950 transition">
-                                            <i data-lucide="package" class="w-4 h-4"></i>
+                            <div @click="addToCart(product)"
+                                 class="pos-product-card glass-card rounded-2xl p-3 cursor-pointer hover:border-emerald-500/40 hover:bg-slate-800/80 transition-all flex flex-col justify-between group active:scale-[0.98]">
+                                @if($posShowProductImages)
+                                    <div>
+                                        <div class="relative w-full h-28 rounded-xl bg-slate-900 border border-slate-800/80 mb-2 overflow-hidden flex items-center justify-center group-hover:border-emerald-500/30 transition">
+                                            <template x-if="product.image_url">
+                                                <img :src="product.image_url" :alt="product.name" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            </template>
+                                            <div class="w-full h-full flex items-center justify-center text-slate-600 bg-slate-900">
+                                                <i data-lucide="package" class="w-6 h-6 stroke-1"></i>
+                                            </div>
+                                            <span class="absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded shadow backdrop-blur-md"
+                                                  :class="product.current_stock > 0 ? 'bg-slate-950/80 text-emerald-300 border border-emerald-500/30' : 'bg-rose-950/80 text-rose-300 border border-rose-500/30'"
+                                                  x-text="'Stok: ' + product.current_stock">
+                                            </span>
                                         </div>
-                                        <span :class="product.current_stock > 0 ? 'bg-slate-800 text-slate-300 border border-slate-700' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'"
-                                              class="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                                              x-text="'Stok: ' + product.current_stock">
-                                        </span>
+                                        <h4 class="font-bold text-xs sm:text-sm text-white line-clamp-2 leading-tight group-hover:text-emerald-300 transition" x-text="product.name"></h4>
+                                        <div class="product-code text-[10px] text-slate-400 font-mono mt-0.5" x-text="product.code || '-'"></div>
                                     </div>
-                                    <h4 class="font-bold text-sm text-white line-clamp-2 leading-tight group-hover:text-emerald-300 transition" x-text="product.name"></h4>
-                                    <div class="product-code text-[11px] text-slate-400 font-mono mt-1" x-text="product.code || '-'"></div>
-                                </div>
-                                <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between">
-                                    <span class="font-extrabold text-sm text-emerald-400 font-mono" x-text="formatRupiah(product.selling_price)"></span>
-                                    <div class="w-6 h-6 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-slate-950 transition">
-                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                @else
+                                    <div>
+                                        <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                                            <span class="product-code text-[10px] text-slate-400 font-mono truncate" x-text="product.code || '-'"></span>
+                                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0"
+                                                  :class="product.current_stock > 0 ? 'bg-slate-800 text-slate-300 border border-slate-700' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'"
+                                                  x-text="'Stok: ' + product.current_stock">
+                                            </span>
+                                        </div>
+                                        <h4 class="font-bold text-xs sm:text-sm text-white line-clamp-2 leading-snug group-hover:text-emerald-300 transition" x-text="product.name"></h4>
+                                    </div>
+                                @endif
+                                <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                                    <span class="font-extrabold text-xs sm:text-sm text-emerald-400 font-mono" x-text="formatRupiah(product.selling_price)"></span>
+                                    <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-slate-950 transition">
+                                        <i data-lucide="plus" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
                                     </div>
                                 </div>
                             </div>
@@ -1375,8 +1394,15 @@
                     });
                 },
 
-                clearCart() {
-                    if (confirm('Kosongkan semua item di keranjang?')) {
+                async clearCart() {
+                    const confirmed = await AppAlert.confirm({
+                        title: 'Kosongkan Keranjang?',
+                        message: 'Semua item pesanan yang dipilih akan dihapus dari keranjang transaksi.',
+                        type: 'danger',
+                        confirmText: 'Ya, Kosongkan',
+                        cancelText: 'Batal'
+                    });
+                    if (confirmed) {
                         this.cart = [];
                         this.discountValue = 0;
                         this.discountType = 'fixed';
@@ -1486,7 +1512,7 @@
                 applyVoucher() {
                     if (!this.voucherCode.trim()) return;
                     // Simple AJAX or client validation
-                    alert("Voucher " + this.voucherCode + " diterapkan!");
+                    AppAlert.success("Voucher " + this.voucherCode + " diterapkan!");
                     this.voucherDiscount = Math.min(this.subtotal * 0.1, 50000); // sample 10% voucher
                 },
 
@@ -1511,12 +1537,12 @@
                 async submitCheckout() {
                     if (!this.activeShift) {
                         this.showOpenShiftModal = true;
-                        alert('Shift kasir belum dibuka. Silakan buka shift terlebih dahulu.');
+                        AppAlert.warning('Shift kasir belum dibuka. Silakan buka shift terlebih dahulu.');
                         return;
                     }
 
                     if (this.currentTenderAmount < this.grandTotal) {
-                        alert('Nominal pembayaran kurang.');
+                        AppAlert.warning('Nominal pembayaran kurang.');
                         return;
                     }
 
@@ -1565,10 +1591,10 @@
                             this.pointsDiscount = 0;
                             this.redeemPoints = false;
                         } else {
-                            alert('Gagal: ' + data.message);
+                            AppAlert.error('Gagal: ' + (data.message || 'Terjadi kesalahan.'));
                         }
                     } catch (e) {
-                        alert('Terjadi kesalahan jaringan.');
+                        AppAlert.error('Terjadi kesalahan jaringan.');
                     } finally {
                         this.isProcessing = false;
                         this.$nextTick(() => {
@@ -1637,11 +1663,11 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            alert(data.message);
+                            AppAlert.success(data.message);
                             this.cart = [];
                             this.refreshHeldOrders();
                         } else {
-                            alert(data.message);
+                            AppAlert.error(data.message);
                         }
                     });
                 },
@@ -1670,9 +1696,9 @@
                             this.cart = data.items;
                             this.showHeldOrdersModal = false;
                             this.refreshHeldOrders();
-                            alert(data.message);
+                            AppAlert.success(data.message);
                         } else {
-                            alert(data.message);
+                            AppAlert.error(data.message);
                         }
                     });
                 },
@@ -1696,7 +1722,7 @@
                         if (data.success) {
                             this.activeShift = data.shift;
                             this.showOpenShiftModal = false;
-                            alert(data.message);
+                            AppAlert.success(data.message);
                         }
                     });
                 },
@@ -1730,7 +1756,7 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            alert(data.message);
+                            AppAlert.success(data.message);
                             this.activeShift = null;
                             this.showCloseShiftModal = false;
                         }
@@ -1739,7 +1765,7 @@
 
                 submitCashMovement() {
                     if (!this.activeShift) {
-                        alert('Silakan buka shift kasir terlebih dahulu.');
+                        AppAlert.warning('Silakan buka shift kasir terlebih dahulu.');
                         return;
                     }
                     fetch("{{ url('/pos/shifts') }}/" + this.activeShift.id + "/cash-movement", {
@@ -1758,7 +1784,7 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            alert(data.message);
+                            AppAlert.success(data.message);
                             this.showCashMovementModal = false;
                             this.cashMovementReason = '';
                         }

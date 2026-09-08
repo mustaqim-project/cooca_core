@@ -26,7 +26,7 @@
         <div class="flex flex-wrap items-center gap-2">
             <!-- 1-Click Generate Invoice Button -->
             @if($salesOrder->status !== 'fulfilled')
-            <form action="{{ route('sales.orders.generate-invoice', $salesOrder) }}" method="POST" onsubmit="return confirm('Terbitkan Faktur Tagihan (Invoice) resmi dari pesanan penjualan ini?')">
+            <form action="{{ route('sales.orders.generate-invoice', $salesOrder) }}" method="POST" onsubmit="return AppAlert.confirmSubmit(event, this, 'Terbitkan Faktur Tagihan (Invoice) resmi dari pesanan penjualan ini?', 'Terbitkan Invoice?', 'info')">
                 @csrf
                 <button type="submit" class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 transition flex items-center gap-2">
                     <i data-lucide="receipt" class="w-4 h-4"></i>

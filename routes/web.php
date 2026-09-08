@@ -179,6 +179,7 @@ Route::middleware('auth:web')->group(function (): void {
         // Products & BOM Management
         Route::get('/products', [ProductWebController::class, 'index'])->name('products.index');
         Route::post('/products', [ProductWebController::class, 'store'])->middleware('entitlement:product')->name('products.store');
+        Route::post('/products/toggle-pos-images', [ProductWebController::class, 'togglePosImageVisibility'])->name('products.toggle-pos-images');
         Route::put('/products/{product}', [ProductWebController::class, 'update'])->name('products.update');
         Route::get('/products/{product}/bom', [ProductWebController::class, 'bom'])->name('products.bom');
         Route::post('/bom-headers/{bomHeader}/items', [ProductWebController::class, 'addBomItem'])->middleware('entitlement:recipe')->name('bom.items.store');

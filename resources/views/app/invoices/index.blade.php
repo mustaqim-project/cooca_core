@@ -167,7 +167,7 @@
                                 </a>
 
                                 @if($inv->status === 'draft' || $inv->status === 'void')
-                                <form method="POST" action="{{ route('invoices.destroy', $inv->id) }}" onsubmit="return confirm('Hapus faktur {{ $inv->invoice_number }}?')">
+                                <form method="POST" action="{{ route('invoices.destroy', $inv->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus faktur {{ addslashes($inv->invoice_number) }}?', 'Hapus Faktur?', 'danger')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1.5 hover:bg-rose-500/20 rounded-lg text-slate-400 hover:text-rose-400 transition-colors" title="Hapus Faktur">

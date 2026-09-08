@@ -67,6 +67,9 @@ final class PosTerminalWebController extends Controller
                 // Effective stock dihitung dari Material master stock (via BOM/direct material).
                 $p->current_stock = $p->calculateEffectiveStock($selectedLocationId);
                 return $p;
+            })
+            ->each(function ($p): void {
+                $p->setAttribute('image_url', $p->image_url);
             });
 
         // 5. Customers for CRM dropdown
@@ -92,6 +95,7 @@ final class PosTerminalWebController extends Controller
         $operatingMode = $operatingModeService->getOperatingModeProfile($business);
         $canBypassSupervisor = $operatingModeService->canBypassSupervisor($business, $user);
         $hideCostFromCashier = $operatingModeService->shouldHideCostFromCashier($business, $user);
+        $posShowProductImages = (bool) $business->pos_show_product_images;
 
         return view('app.pos.terminal', compact(
             'business',
@@ -106,7 +110,8 @@ final class PosTerminalWebController extends Controller
             'vouchers',
             'operatingMode',
             'canBypassSupervisor',
-            'hideCostFromCashier'
+            'hideCostFromCashier',
+            'posShowProductImages'
         ));
     }
 

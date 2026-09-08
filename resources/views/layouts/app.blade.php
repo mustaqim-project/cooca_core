@@ -50,6 +50,45 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- AppAlert (Centralized Alert & Confirm System) -->
+    <script src="{{ asset('js/app-alert.js') }}"></script>
+    <style>
+        .swal2-popup {
+            background: #0f172a !important;
+            border: 1px solid #334155 !important;
+            border-radius: 1.25rem !important;
+            color: #f8fafc !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+        }
+        .swal2-title {
+            color: #ffffff !important;
+            font-size: 1.15rem !important;
+            font-weight: 800 !important;
+        }
+        .swal2-html-container {
+            color: #94a3b8 !important;
+            font-size: 0.875rem !important;
+        }
+        .swal2-confirm {
+            background-color: #10b981 !important;
+            color: #020617 !important;
+            font-weight: 800 !important;
+            border-radius: 0.75rem !important;
+            padding: 0.625rem 1.25rem !important;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.25) !important;
+        }
+        .swal2-cancel {
+            background-color: #334155 !important;
+            color: #e2e8f0 !important;
+            font-weight: 700 !important;
+            border-radius: 0.75rem !important;
+            padding: 0.625rem 1.25rem !important;
+        }
+    </style>
+
     <style>
         html,
         body {
@@ -379,6 +418,56 @@
                     @endif
                 </div>
 
+                <!-- 3B. WEBSITE & LANDING PAGE (CMS & PUBLIC PAGE) -->
+                <div class="space-y-1">
+                    <a href="{{ route('landing-page.edit') }}" id="tour-nav-landing-page"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all {{ request()->routeIs('landing-page.*') ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-300 hover:bg-slate-900/80 hover:text-white' }}">
+                        <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Landing Page</span>
+                        <span class="ml-auto text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-black border border-emerald-500/30">Live CMS</span>
+                    </a>
+                </div>
+
+                                <!-- 3. WHATSAPP GATEWAY (BOT & PROMOSI) -->
+                <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
+                    <button type="button" @click="whatsappOpen = !whatsappOpen"
+                        class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-300 hover:text-white hover:bg-slate-900/50 transition"
+                        :class="whatsappOpen ? 'bg-emerald-500/10 text-white' : ''">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-4 h-4 rounded flex items-center justify-center text-[#25D366]">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z"/></svg>
+                            </div>
+                            <span class="text-xs">WhatsApp Gateway</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-[#25D366]/15 text-[#25D366] font-extrabold border border-[#25D366]/30">Scan WA</span>
+                            <i data-lucide="chevron-down"
+                                class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200"
+                                :class="whatsappOpen ? 'rotate-180 text-[#25D366]' : ''"></i>
+                        </div>
+                    </button>
+
+                    <div :class="whatsappOpen ? '' : 'hidden'"
+                        class="px-2 pb-2 pt-1 space-y-0.5 border-t border-slate-900">
+                        <a href="{{ route('whatsapp.index') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('whatsapp.index') ? 'bg-[#25D366]/15 text-[#25D366] font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                            <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#25D366]"></i>
+                            <span>Scan QR / Status</span>
+                        </a>
+                        <a href="{{ route('whatsapp.broadcast.index') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('whatsapp.broadcast.*') ? 'bg-[#25D366]/15 text-[#25D366] font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                            <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            <span>Blast Promosi</span>
+                        </a>
+                        <a href="{{ route('whatsapp.logs.index') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('whatsapp.logs.*') ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                            <i data-lucide="list" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <span>Log Pesan Struk</span>
+                        </a>
+                    </div>
+                </div>
+
+
                 <!-- 2. PENJUALAN (COLLAPSIBLE) -->
                 @if ($canAccessSales)
                     <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
@@ -444,54 +533,8 @@
                     </div>
                 @endif
 
-                <!-- 3. WHATSAPP GATEWAY (BOT & PROMOSI) -->
-                <div class="rounded-2xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
-                    <button type="button" @click="whatsappOpen = !whatsappOpen"
-                        class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-300 hover:text-white hover:bg-slate-900/50 transition"
-                        :class="whatsappOpen ? 'bg-emerald-500/10 text-white' : ''">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-4 h-4 rounded flex items-center justify-center text-[#25D366]">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z"/></svg>
-                            </div>
-                            <span class="text-xs">WhatsApp Gateway</span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-[#25D366]/15 text-[#25D366] font-extrabold border border-[#25D366]/30">Scan WA</span>
-                            <i data-lucide="chevron-down"
-                                class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200"
-                                :class="whatsappOpen ? 'rotate-180 text-[#25D366]' : ''"></i>
-                        </div>
-                    </button>
 
-                    <div :class="whatsappOpen ? '' : 'hidden'"
-                        class="px-2 pb-2 pt-1 space-y-0.5 border-t border-slate-900">
-                        <a href="{{ route('whatsapp.index') }}"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('whatsapp.index') ? 'bg-[#25D366]/15 text-[#25D366] font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
-                            <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#25D366]"></i>
-                            <span>Scan QR / Status</span>
-                        </a>
-                        <a href="{{ route('whatsapp.broadcast.index') }}"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('whatsapp.broadcast.*') ? 'bg-[#25D366]/15 text-[#25D366] font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
-                            <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-400"></i>
-                            <span>Blast Promosi</span>
-                        </a>
-                        <a href="{{ route('whatsapp.logs.index') }}"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('whatsapp.logs.*') ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
-                            <i data-lucide="list" class="w-3.5 h-3.5 text-slate-400"></i>
-                            <span>Log Pesan Struk</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 3B. WEBSITE & LANDING PAGE (CMS & PUBLIC PAGE) -->
-                <div class="space-y-1">
-                    <a href="{{ route('landing-page.edit') }}" id="tour-nav-landing-page"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all {{ request()->routeIs('landing-page.*') ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-300 hover:bg-slate-900/80 hover:text-white' }}">
-                        <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i>
-                        <span>Website &amp; Landing Page</span>
-                        <span class="ml-auto text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-black border border-emerald-500/30">Live CMS</span>
-                    </a>
-                </div>
+                
 
                 <!-- 4. MASTER DATA CMS (COLLAPSIBLE) -->
                 @if ($canAccessMasterData)
@@ -1976,6 +2019,24 @@
     <!-- Guided Product Tour Engine -->
     <script src="{{ asset('js/onboarding/tour-config.js') }}"></script>
     <script src="{{ asset('js/onboarding/product-tour.js') }}"></script>
+
+    <!-- AppAlert Session Flash Notifications -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if (session('success'))
+                AppAlert.success(@json(session('success')));
+            @endif
+            @if (session('error'))
+                AppAlert.error(@json(session('error')));
+            @endif
+            @if (session('warning'))
+                AppAlert.warning(@json(session('warning')));
+            @endif
+            @if (session('info'))
+                AppAlert.info(@json(session('info')));
+            @endif
+        });
+    </script>
 
     @stack('scripts')
 </body>

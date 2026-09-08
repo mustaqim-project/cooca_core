@@ -442,12 +442,12 @@
 
             validateForm(event) {
                 if (!this.hasSelectedSource()) {
-                    alert('Silakan pilih dokumen transaksi penjualan terlebih dahulu.');
+                    AppAlert.warning('Silakan pilih dokumen transaksi penjualan terlebih dahulu.');
                     event.preventDefault();
                     return false;
                 }
                 if (this.getSelectedCount() === 0) {
-                    alert('Pilih minimal 1 item dengan kuantitas lebih dari 0 untuk diretur.');
+                    AppAlert.warning('Pilih minimal 1 item dengan kuantitas lebih dari 0 untuk diretur.');
                     event.preventDefault();
                     return false;
                 }

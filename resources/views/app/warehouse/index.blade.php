@@ -212,7 +212,7 @@
                     </button>
                     @if(!$loc->is_primary)
                     <form action="{{ route('warehouse.destroy', $loc->id) }}" method="POST"
-                          onsubmit="return confirm('Hapus gudang {{ addslashes($loc->name) }}? Pastikan tidak ada stok aktif.')">
+                          onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus gudang {{ addslashes($loc->name) }}? Pastikan tidak ada stok aktif.', 'Hapus Gudang?')">
                         @csrf @method('DELETE')
                         <button type="submit" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>

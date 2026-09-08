@@ -158,7 +158,7 @@
                                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                                 </a>
                                 <form method="POST" action="{{ route('admin.payment-accounts.destroy', $account) }}"
-                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus rekening {{ $account->bank_name }}?')">
+                                      onsubmit="return AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin menghapus rekening {{ addslashes($account->bank_name) }}?', 'Hapus Rekening?', 'danger')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" title="Hapus Rekening"

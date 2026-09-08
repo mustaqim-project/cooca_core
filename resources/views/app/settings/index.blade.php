@@ -96,7 +96,7 @@
                                     {{ $sup->phone ?? $sup->contact_person ?? '-' }}
                                 </td>
                                 <td class="py-2.5 px-4 text-right">
-                                    <form method="POST" action="{{ route('suppliers.destroy', $sup->id) }}" onsubmit="return confirm('Hapus supplier ini?')">
+                                    <form method="POST" action="{{ route('suppliers.destroy', $sup->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus supplier ini?', 'Hapus Supplier?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1 text-slate-500 hover:text-red-400 rounded transition-colors">
@@ -187,7 +187,7 @@
                                 </td>
                                 <td class="py-2.5 px-4 text-right">
                                     @if($u->business_id !== null)
-                                        <form method="POST" action="{{ route('units.destroy', $u->id) }}" onsubmit="return confirm('Hapus satuan kustom ini?')">
+                                        <form method="POST" action="{{ route('units.destroy', $u->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus satuan kustom ini?', 'Hapus Satuan?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="p-1 text-slate-500 hover:text-red-400 rounded transition-colors">
@@ -267,7 +267,7 @@
                                         <td class="py-2.5 px-4 font-mono text-white">{{ number_format($conversion->factor, 4) }}</td>
                                         <td class="py-2.5 px-4 text-slate-300">{{ $conversion->fromUnit?->name ?? '-' }} ke {{ $conversion->toUnit?->name ?? '-' }}</td>
                                         <td class="py-2.5 px-4 text-right">
-                                            <form method="POST" action="{{ route('unit-conversions.destroy', $conversion->id) }}" onsubmit="return confirm('Hapus konversi satuan ini?')">
+                                            <form method="POST" action="{{ route('unit-conversions.destroy', $conversion->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus konversi satuan ini?', 'Hapus Konversi Satuan?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="p-1 text-slate-500 hover:text-red-400 rounded transition-colors">
@@ -341,7 +341,7 @@
                                 <td class="py-2.5 px-4 font-bold text-white">{{ $pCat->name }}</td>
                                 <td class="py-2.5 px-4 text-slate-300 text-[11px]">{{ $pCat->description ?? '-' }}</td>
                                 <td class="py-2.5 px-4 text-right">
-                                    <form method="POST" action="{{ route('product-categories.destroy', $pCat->id) }}" onsubmit="return confirm('Hapus kategori produk ini?')">
+                                    <form method="POST" action="{{ route('product-categories.destroy', $pCat->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus kategori produk ini?', 'Hapus Kategori Produk?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1 text-slate-500 hover:text-red-400 rounded transition-colors">
@@ -409,7 +409,7 @@
                                 <td class="py-2.5 px-4 font-bold text-white">{{ $mCat->name }}</td>
                                 <td class="py-2.5 px-4 text-slate-300 text-[11px]">{{ $mCat->description ?? '-' }}</td>
                                 <td class="py-2.5 px-4 text-right">
-                                    <form method="POST" action="{{ route('material-categories.destroy', $mCat->id) }}" onsubmit="return confirm('Hapus kategori bahan ini?')">
+                                    <form method="POST" action="{{ route('material-categories.destroy', $mCat->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus kategori bahan ini?', 'Hapus Kategori Bahan?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1 text-slate-500 hover:text-red-400 rounded transition-colors">
@@ -459,7 +459,7 @@
                         {{ count($tmpl->default_cost_components) }} Komponen
                     </div>
 
-                    <form method="POST" action="{{ route('settings.apply-template') }}" onsubmit="return confirm('Terapkan template {{ $tmpl->name }} ke bisnis Anda?')">
+                    <form method="POST" action="{{ route('settings.apply-template') }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Terapkan template {{ addslashes($tmpl->name) }} ke bisnis Anda?', 'Terapkan Template?', 'info')">
                         @csrf
                         <input type="hidden" name="template_code" value="{{ $tmpl->code }}">
                         <button type="submit" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold text-xs transition-colors flex items-center gap-1">
@@ -499,7 +499,7 @@
                 @method('PUT')
 
                 <!-- Logo Bisnis Section -->
-                <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
+                <div id="pos-product-images" class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
                     <label class="block font-bold text-white uppercase tracking-wider text-[11px]">Logo Resmi Usaha / Perusahaan</label>
                     <div class="flex flex-col sm:flex-row items-center gap-5">
                         <div class="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-700 bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
@@ -580,6 +580,16 @@
                                    class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
                         </div>
                     </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
+                    <label class="block font-bold text-emerald-400 uppercase tracking-wider text-[11px]">Tampilan Gambar Produk POS</label>
+                    <p class="text-[11px] text-slate-400">Atur apakah foto produk ditampilkan pada kartu katalog terminal POS.</p>
+                    <label class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-200 cursor-pointer">
+                        <input type="hidden" name="pos_show_product_images" value="0">
+                        <input type="checkbox" name="pos_show_product_images" value="1" {{ $business->pos_show_product_images ? 'checked' : '' }} class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500">
+                        <span>Tampilkan gambar produk pada POS</span>
+                    </label>
                 </div>
 
                 <!-- Informasi Rekening Bank (Ditampilkan pada Faktur) -->
@@ -784,7 +794,7 @@
                             <td class="py-3.5 px-4 text-right">
                                 @if($m->role !== 'owner' || $members->where('role', 'owner')->count() > 1)
                                 <form method="POST" action="{{ route('settings.members.destroy', $m->id) }}"
-                                      onsubmit="return confirm('Hapus anggota tim {{ $m->user?->name }} dari workspace ini?')"
+                                      onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus anggota tim {{ addslashes($m->user?->name ?? '') }} dari workspace ini?', 'Hapus Anggota Tim?')"
                                       class="inline">
                                     @csrf
                                     @method('DELETE')

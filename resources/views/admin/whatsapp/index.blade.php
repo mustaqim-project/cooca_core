@@ -105,7 +105,7 @@
                 <div class="text-[11px] text-slate-400 mt-0.5">Sudah Dikirim Hari Ini</div>
             </div>
             <div class="p-4 rounded-2xl glass-card flex flex-col justify-center items-center">
-                <form action="{{ route('admin.whatsapp.reminders.send-all') }}" method="POST" onsubmit="return confirm('Kirim notifikasi pengingat ke SEMUA bisnis owner yang jatuh tempo hari ini?')">
+                <form action="{{ route('admin.whatsapp.reminders.send-all') }}" method="POST" onsubmit="return AppAlert.confirmSubmit(event, this, 'Kirim notifikasi pengingat ke SEMUA bisnis owner yang jatuh tempo hari ini?', 'Kirim Pengingat Masal?', 'info')">
                     @csrf
                     <button type="submit" :disabled="status !== 'connected' || {{ $dueData['stats']['total_pending'] }} === 0"
                         class="px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#22c55e] hover:to-[#0f7a6a] text-white font-extrabold text-xs shadow-lg shadow-emerald-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5">
@@ -683,7 +683,14 @@ function adminWaCenter() {
         },
 
         async disconnectBot() {
-            if (!confirm('Putus koneksi WhatsApp Admin?')) return;
+            const confirmed = await AppAlert.confirm({
+                title: 'Putus Koneksi WhatsApp?',
+                message: 'Koneksi WhatsApp Admin akan diputus. Sesi QR harus dihubungkan ulang nanti.',
+                type: 'danger',
+                confirmText: 'Ya, Putuskan',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) return;
             try {
                 await fetch("{{ route('admin.whatsapp.disconnect') }}", {
                     method: 'POST',
@@ -691,11 +698,21 @@ function adminWaCenter() {
                 });
                 this.status = 'disconnected';
                 this.phone = '';
-            } catch (e) {}
+                AppAlert.success('Koneksi WhatsApp Admin berhasil diputus.');
+            } catch (e) {
+                AppAlert.error('Gagal memutus koneksi WhatsApp.');
+            }
         },
 
         async sendSingleReminder(subId, type) {
-            if (!confirm(`Kirim pengingat ${type} ke nomor owner bisnis ini sekarang?`)) return;
+            const confirmed = await AppAlert.confirm({
+                title: 'Kirim Pengingat Tagihan?',
+                message: `Kirim pengingat ${type} ke nomor owner bisnis ini sekarang via WhatsApp?`,
+                type: 'info',
+                confirmText: 'Ya, Kirim Sekarang',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) return;
             try {
                 const res = await fetch(`/admin/whatsapp/reminders/${subId}/send`, {
                     method: 'POST',
@@ -707,16 +724,27 @@ function adminWaCenter() {
                     body: JSON.stringify({ type: type })
                 });
                 const data = await res.json();
-                alert(data.message);
-                window.location.reload();
+                if (data.success) {
+                    AppAlert.success(data.message);
+                } else {
+                    AppAlert.error(data.message || 'Gagal mengirim pengingat.');
+                }
+                setTimeout(() => window.location.reload(), 1200);
             } catch (e) {
-                alert('Gagal mengirim pengingat.');
+                AppAlert.error('Gagal mengirim pengingat.');
             }
         },
 
         async submitBlast() {
             if (this.submitting) return;
-            if (!confirm('Yakin ingin mengirim pesan broadcast ini ke seluruh bisnis owner terpilih?')) return;
+            const confirmed = await AppAlert.confirm({
+                title: 'Kirim Pesan Broadcast?',
+                message: 'Yakin ingin mengirim pesan broadcast ini ke seluruh bisnis owner terpilih?',
+                type: 'info',
+                confirmText: 'Ya, Kirim Broadcast',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) return;
             this.submitting = true;
             document.getElementById('adminBlastForm').submit();
         },

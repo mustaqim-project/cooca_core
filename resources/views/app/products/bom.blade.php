@@ -99,7 +99,7 @@
                             {{ $business->currency_symbol }} {{ number_format((float)$itemSubtotal, 0, ',', '.') }}
                         </td>
                         <td class="py-3.5 px-4 text-right">
-                            <form method="POST" action="{{ route('bom.items.destroy', $item->id) }}" onsubmit="return confirm('Hapus komponen ini dari resep?')">
+                            <form method="POST" action="{{ route('bom.items.destroy', $item->id) }}" onsubmit="event.preventDefault(); if (typeof Swal !== 'undefined') { Swal.fire({ title: 'Apakah Anda yakin?', text: 'Komponen ini akan dihapus dari resep.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal', confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b' }).then(r => { if (r.isConfirmed) this.submit(); }); } else { this.submit(); }">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="p-1.5 text-slate-500 hover:text-red-400 rounded transition-colors">

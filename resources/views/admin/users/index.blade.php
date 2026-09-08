@@ -85,7 +85,7 @@
                             {{ $user->created_at?->format('d M Y, H:i') }}
                         </td>
                         <td class="py-3.5 px-4 text-right">
-                            <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna {{ $user->name }}?')">
+                            <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin menghapus pengguna {{ addslashes($user->name) }}?', 'Hapus Pengguna?', 'danger')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Hapus User">

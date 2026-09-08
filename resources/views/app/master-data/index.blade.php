@@ -80,7 +80,7 @@
                                         @if($type === 'units')
                                             <button type="button" title="Edit satuan" @click="openEditUnit(@js(['id' => $item->id, 'code' => $item->code, 'name' => $item->name, 'category' => $item->category]))" class="p-1.5 text-slate-400 hover:text-emerald-400"><i data-lucide="pencil" class="w-4 h-4"></i></button>
                                         @endif
-                                        <form method="POST" action="{{ route($type . '.destroy', $item->id) }}" onsubmit="return confirm('Hapus data ini?')">
+                                        <form method="POST" action="{{ route($type . '.destroy', $item->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus data ini?', 'Hapus Data?', 'danger')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" title="Hapus" class="p-1.5 text-slate-400 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -129,7 +129,7 @@
                         <thead><tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50"><th class="py-3.5 px-4">Dari</th><th class="py-3.5 px-4">Ke</th><th class="py-3.5 px-4">Faktor</th><th class="py-3.5 px-4 text-right">Aksi</th></tr></thead>
                         <tbody class="divide-y divide-slate-800/60">
                             @forelse($unitConversions as $conversion)
-                                <tr class="hover:bg-slate-800/30"><td class="py-3 px-4 font-semibold text-white">{{ $conversion->fromUnit?->code }} — {{ $conversion->fromUnit?->name }}</td><td class="py-3 px-4 font-semibold text-white">{{ $conversion->toUnit?->code }} — {{ $conversion->toUnit?->name }}</td><td class="py-3 px-4 font-mono text-emerald-400">{{ number_format((float) $conversion->factor, 6, '.', '') }}</td><td class="py-3 px-4 text-right"><form method="POST" action="{{ route('unit-conversions.destroy', $conversion->id) }}" onsubmit="return confirm('Hapus konversi ini?')">@csrf @method('DELETE')<button type="submit" title="Hapus" class="p-1.5 text-slate-400 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button></form></td></tr>
+                                <tr class="hover:bg-slate-800/30"><td class="py-3 px-4 font-semibold text-white">{{ $conversion->fromUnit?->code }} — {{ $conversion->fromUnit?->name }}</td><td class="py-3 px-4 font-semibold text-white">{{ $conversion->toUnit?->code }} — {{ $conversion->toUnit?->name }}</td><td class="py-3 px-4 font-mono text-emerald-400">{{ number_format((float) $conversion->factor, 6, '.', '') }}</td><td class="py-3 px-4 text-right"><form method="POST" action="{{ route('unit-conversions.destroy', $conversion->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus konversi ini?', 'Hapus Konversi?', 'danger')">@csrf @method('DELETE')<button type="submit" title="Hapus" class="p-1.5 text-slate-400 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button></form></td></tr>
                             @empty
                                 <tr><td colspan="4" class="py-12 text-center text-slate-500">Belum ada konversi satuan bisnis.</td></tr>
                             @endforelse

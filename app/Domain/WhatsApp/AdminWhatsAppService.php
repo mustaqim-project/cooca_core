@@ -32,6 +32,22 @@ class AdminWhatsAppService
     }
 
     /**
+     * Create authenticated client with resilient timeout.
+     */
+    protected function client(int $timeout = 25)
+    {
+        $token = config('services.wa_server.token', 'secret-worker-token');
+
+        return Http::timeout($timeout)
+            ->retry(2, 600, throw: false)
+            ->withHeaders([
+                'Authorization'  => 'Bearer ' . $token,
+                'x-worker-token' => $token,
+                'Accept'         => 'application/json',
+            ]);
+    }
+
+    /**
      * Start / trigger WhatsApp session for admin.
      */
     public function startSession(): array
@@ -40,7 +56,7 @@ class AdminWhatsAppService
         $baseUrl   = rtrim(config('services.wa_server.url', 'http://127.0.0.1:3000'), '/');
 
         try {
-            $response = Http::timeout(10)->post("{$baseUrl}/api/sessions/start", [
+            $response = $this->client(30)->post("{$baseUrl}/api/sessions/start", [
                 'sessionId'  => $sessionId,
                 'webhookUrl' => url('/api/wa/admin-webhook'),
             ]);
@@ -61,9 +77,7 @@ class AdminWhatsAppService
         $baseUrl   = rtrim(config('services.wa_server.url', 'http://127.0.0.1:3000'), '/');
 
         try {
-            $response = Http::timeout(8)->get("{$baseUrl}/api/sessions/{$sessionId}/qr", [
-                'Accept' => 'application/json',
-            ]);
+            $response = $this->client(15)->get("{$baseUrl}/api/sessions/{$sessionId}/qr");
             return $response->json() ?? [];
         } catch (\Throwable $e) {
             return ['success' => false, 'status' => 'disconnected', 'qrDataUrl' => null, 'error' => $e->getMessage()];
@@ -79,7 +93,7 @@ class AdminWhatsAppService
         $baseUrl   = rtrim(config('services.wa_server.url', 'http://127.0.0.1:3000'), '/');
 
         try {
-            $response = Http::timeout(8)->get("{$baseUrl}/api/sessions/{$sessionId}/status");
+            $response = $this->client(15)->get("{$baseUrl}/api/sessions/{$sessionId}/status");
             return $response->json() ?? ['status' => 'disconnected'];
         } catch (\Throwable) {
             return ['status' => 'disconnected'];
@@ -95,7 +109,7 @@ class AdminWhatsAppService
         $baseUrl   = rtrim(config('services.wa_server.url', 'http://127.0.0.1:3000'), '/');
 
         try {
-            Http::timeout(10)->delete("{$baseUrl}/api/sessions/{$sessionId}");
+            $this->client(15)->delete("{$baseUrl}/api/sessions/{$sessionId}");
         } catch (\Throwable $e) {
             Log::warning("[AdminWA] disconnect error: " . $e->getMessage());
         }

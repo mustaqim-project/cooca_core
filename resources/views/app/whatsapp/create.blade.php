@@ -229,7 +229,14 @@ function blastForm() {
 
         async submitBlast() {
             if (this.submitting) return;
-            if (!confirm(`Yakin ingin mengirim blast ke ${this.estimatedCount} pelanggan? Proses ini tidak dapat dibatalkan.`)) return;
+            const confirmed = await AppAlert.confirm({
+                title: 'Kirim WhatsApp Broadcast?',
+                message: `Yakin ingin mengirim broadcast ke ${this.estimatedCount} pelanggan? Proses ini tidak dapat dibatalkan.`,
+                type: 'info',
+                confirmText: 'Ya, Kirim Broadcast',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) return;
             this.submitting = true;
             document.getElementById('blastForm').submit();
         }

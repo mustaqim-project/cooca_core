@@ -83,22 +83,29 @@
                     if (res.success) {
                         this.materialPreview = res.data;
                     } else {
-                        alert(res.message || 'Gagal menganalisis file.');
+                        AppAlert.error(res.message || 'Gagal menganalisis file.');
                     }
                 })
                 .catch(err => {
                     this.materialLoading = false;
-                    alert(err.message || 'Terjadi kesalahan saat mengunggah file.');
+                    AppAlert.error(err.message || 'Terjadi kesalahan saat mengunggah file.');
                 });
         },
 
-        executeMaterialImport() {
+        async executeMaterialImport() {
             if (!this.materialPreview || !this.materialPreview.rows || this.materialPreview.rows.length === 0) {
-                alert('Tidak ada data bahan baku yang siap diimport.');
+                AppAlert.warning('Tidak ada data bahan baku yang siap diimport.');
                 return;
             }
 
-            if (!confirm('Apakah Anda yakin ingin memproses import bahan baku ini ke database bisnis?')) {
+            const confirmed = await AppAlert.confirm({
+                title: 'Import Bahan Baku?',
+                message: 'Apakah Anda yakin ingin memproses import bahan baku ini ke database bisnis?',
+                type: 'info',
+                confirmText: 'Ya, Proses Import',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) {
                 return;
             }
 
@@ -122,12 +129,12 @@
                     if (res.success) {
                         window.location.href = res.redirect_url || '{{ route('materials.index') }}';
                     } else {
-                        alert(res.message || 'Gagal mengimport bahan baku.');
+                        AppAlert.error(res.message || 'Gagal mengimport bahan baku.');
                     }
                 })
                 .catch(err => {
                     this.materialExecuting = false;
-                    alert('Terjadi kesalahan saat mengeksekusi import bahan baku.');
+                    AppAlert.error('Terjadi kesalahan saat mengeksekusi import bahan baku.');
                 });
         },
 
@@ -169,22 +176,29 @@
                     if (res.success) {
                         this.productPreview = res.data;
                     } else {
-                        alert(res.message || 'Gagal menganalisis file.');
+                        AppAlert.error(res.message || 'Gagal menganalisis file.');
                     }
                 })
                 .catch(err => {
                     this.productLoading = false;
-                    alert(err.message || 'Terjadi kesalahan saat mengunggah file.');
+                    AppAlert.error(err.message || 'Terjadi kesalahan saat mengunggah file.');
                 });
         },
 
-        executeProductImport() {
+        async executeProductImport() {
             if (!this.productPreview || !this.productPreview.rows || this.productPreview.rows.length === 0) {
-                alert('Tidak ada data yang siap diimport.');
+                AppAlert.warning('Tidak ada data yang siap diimport.');
                 return;
             }
 
-            if (!confirm('Apakah Anda yakin ingin memproses import produk ini ke database bisnis?')) {
+            const confirmed = await AppAlert.confirm({
+                title: 'Import Produk?',
+                message: 'Apakah Anda yakin ingin memproses import produk ini ke database bisnis?',
+                type: 'info',
+                confirmText: 'Ya, Proses Import',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) {
                 return;
             }
 
@@ -208,12 +222,12 @@
                     if (res.success) {
                         window.location.href = res.redirect_url || '{{ route('products.index') }}';
                     } else {
-                        alert(res.message || 'Gagal mengimport produk.');
+                        AppAlert.error(res.message || 'Gagal mengimport produk.');
                     }
                 })
                 .catch(err => {
                     this.productExecuting = false;
-                    alert('Terjadi kesalahan saat mengeksekusi import.');
+                    AppAlert.error('Terjadi kesalahan saat mengeksekusi import.');
                 });
         },
 
@@ -255,22 +269,29 @@
                     if (res.success) {
                         this.recipePreview = res.data;
                     } else {
-                        alert(res.message || 'Gagal menganalisis file.');
+                        AppAlert.error(res.message || 'Gagal menganalisis file.');
                     }
                 })
                 .catch(err => {
                     this.recipeLoading = false;
-                    alert(err.message || 'Terjadi kesalahan saat mengunggah file.');
+                    AppAlert.error(err.message || 'Terjadi kesalahan saat mengunggah file.');
                 });
         },
 
-        executeRecipeImport() {
+        async executeRecipeImport() {
             if (!this.recipePreview || !this.recipePreview.rows || this.recipePreview.rows.length === 0) {
-                alert('Tidak ada data resep yang siap diimport.');
+                AppAlert.warning('Tidak ada data resep yang siap diimport.');
                 return;
             }
 
-            if (!confirm('Apakah Anda yakin ingin memproses import resep / BOM ini ke database bisnis?')) {
+            const confirmed = await AppAlert.confirm({
+                title: 'Import Resep / BOM?',
+                message: 'Apakah Anda yakin ingin memproses import resep / BOM ini ke database bisnis?',
+                type: 'info',
+                confirmText: 'Ya, Proses Import',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) {
                 return;
             }
 
@@ -294,12 +315,12 @@
                     if (res.success) {
                         window.location.href = res.redirect_url || '{{ route('products.index') }}';
                     } else {
-                        alert(res.message || 'Gagal mengimport resep.');
+                        AppAlert.error(res.message || 'Gagal mengimport resep.');
                     }
                 })
                 .catch(err => {
                     this.recipeExecuting = false;
-                    alert('Terjadi kesalahan saat mengeksekusi import resep.');
+                    AppAlert.error('Terjadi kesalahan saat mengeksekusi import resep.');
                 });
         },
 
@@ -341,22 +362,29 @@
                     if (res.success) {
                         this.inventoryPreview = res.data;
                     } else {
-                        alert(res.message || 'Gagal menganalisis file saldo stok.');
+                        AppAlert.error(res.message || 'Gagal menganalisis file saldo stok.');
                     }
                 })
                 .catch(err => {
                     this.inventoryLoading = false;
-                    alert(err.message || 'Terjadi kesalahan saat mengunggah file.');
+                    AppAlert.error(err.message || 'Terjadi kesalahan saat mengunggah file.');
                 });
         },
 
-        executeInventoryImport() {
+        async executeInventoryImport() {
             if (!this.inventoryPreview || !this.inventoryPreview.rows || this.inventoryPreview.rows.length === 0) {
-                alert('Tidak ada data saldo stok yang siap diimport.');
+                AppAlert.warning('Tidak ada data saldo stok yang siap diimport.');
                 return;
             }
 
-            if (!confirm('Apakah Anda yakin ingin mencatat saldo stok ini ke dalam sistem inventori? Proses ini TIDAK dapat diurungkan.')) {
+            const confirmed = await AppAlert.confirm({
+                title: 'Catat Saldo Stok?',
+                message: 'Apakah Anda yakin ingin mencatat saldo stok ini ke dalam sistem inventori? Proses ini TIDAK dapat diurungkan.',
+                type: 'danger',
+                confirmText: 'Ya, Catat Saldo Stok',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) {
                 return;
             }
 
@@ -380,12 +408,12 @@
                     if (res.success) {
                         window.location.href = res.redirect_url || '{{ route('inventory.stocks') }}';
                     } else {
-                        alert(res.message || 'Gagal mengimport saldo stok.');
+                        AppAlert.error(res.message || 'Gagal mengimport saldo stok.');
                     }
                 })
                 .catch(err => {
                     this.inventoryExecuting = false;
-                    alert('Terjadi kesalahan saat mengeksekusi import saldo stok.');
+                    AppAlert.error('Terjadi kesalahan saat mengeksekusi import saldo stok.');
                 });
         }
     }">

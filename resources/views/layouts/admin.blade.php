@@ -46,6 +46,9 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- AppAlert (Centralized Alert & Confirm System) -->
+    <script src="{{ asset('js/app-alert.js') }}"></script>
+
     <style>
         :root, [data-theme="dark"] {
             --bg: #030712;
@@ -331,6 +334,19 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
+
+            @if (session('success'))
+                AppAlert.success(@json(session('success')));
+            @endif
+            @if (session('status'))
+                AppAlert.info(@json(session('status')));
+            @endif
+            @if (session('error'))
+                AppAlert.error(@json(session('error')));
+            @endif
+            @if (session('warning'))
+                AppAlert.warning(@json(session('warning')));
+            @endif
         });
     </script>
 </body>
