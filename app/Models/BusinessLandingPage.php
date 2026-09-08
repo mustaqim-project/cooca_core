@@ -26,6 +26,7 @@ class BusinessLandingPage extends Model
         'subheadline',
         'announcement_badge',
         'hero_image_url',
+        'logo_url',
         'cta_primary_text',
         'cta_primary_url',
         'cta_secondary_text',
@@ -43,8 +44,11 @@ class BusinessLandingPage extends Model
         'section_visibility',
         'testimonials',
         'faqs',
+        'stats',
+        'social_links',
         'google_maps_embed_url',
         'custom_phone',
+        'custom_email',
         'whatsapp_number',
         'whatsapp_welcome_message',
         'instagram_handle',
@@ -67,6 +71,8 @@ class BusinessLandingPage extends Model
         'gallery_images'     => 'array',
         'testimonials'       => 'array',
         'faqs'               => 'array',
+        'stats'              => 'array',
+        'social_links'       => 'array',
         'section_visibility' => 'array',
     ];
 

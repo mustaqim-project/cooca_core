@@ -141,8 +141,9 @@
 
             {{-- Brand / Logo --}}
             <a href="#hero" class="flex items-center gap-3 group">
-                @if($business->logo_url)
-                    <img src="{{ $business->logo_url }}" alt="{{ $business->name }}" class="w-9 h-9 rounded-xl object-contain shadow-sm group-hover:scale-105 transition-transform">
+                @if($landingPage->logo_url ?: $business->logo_url)
+                    <img src="{{ $landingPage->logo_url ?: $business->logo_url }}" alt="{{ $business->name }}" class="w-9 h-9 rounded-xl object-contain shadow-sm group-hover:scale-105 transition-transform" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="hidden w-9 h-9 rounded-xl bg-brand-primary text-white items-center justify-center font-black text-sm shadow-md">{{ strtoupper(substr($business->name, 0, 2)) }}</div>
                 @else
                     <div class="w-9 h-9 rounded-xl bg-brand-primary text-white flex items-center justify-center font-black text-sm shadow-md">
                         {{ strtoupper(substr($business->name, 0, 2)) }}
@@ -589,25 +590,32 @@
                     </div>
 
                     {{-- Social Media Icons --}}
-                    @if($landingPage->instagram_handle || $landingPage->tiktok_handle || $landingPage->facebook_url)
+                    @if($landingPage->instagram_handle || $landingPage->tiktok_handle || $landingPage->facebook_url || !empty($landingPage->social_links))
                         <div class="pt-4 border-t {{ $landingPage->dark_mode ? 'border-slate-800' : 'border-slate-200' }} flex items-center gap-3">
                             <span class="text-xs text-slate-500 font-semibold">Ikuti Kami:</span>
-                            @if($landingPage->instagram_handle)
-                                <a href="https://instagram.com/{{ ltrim($landingPage->instagram_handle, '@') }}" target="_blank" class="p-2 rounded-xl bg-slate-800/10 hover:bg-brand-primary hover:text-white transition">
+                            @if($landingPage->instagram_handle ?: data_get($landingPage->social_links, 'instagram'))
+                                        <a href="{{ str_starts_with((string) ($landingPage->instagram_handle ?: data_get($landingPage->social_links, 'instagram')), 'http') ? ($landingPage->instagram_handle ?: data_get($landingPage->social_links, 'instagram')) : 'https://instagram.com/' . ltrim((string) ($landingPage->instagram_handle ?: data_get($landingPage->social_links, 'instagram')), '@') }}" target="_blank" rel="noopener" aria-label="Instagram" class="p-2 rounded-xl bg-slate-800/10 hover:bg-brand-primary hover:text-white transition">
                                     <i data-lucide="instagram" class="w-4 h-4"></i>
                                 </a>
                             @endif
-                            @if($landingPage->tiktok_handle)
-                                <a href="https://tiktok.com/@{{ ltrim($landingPage->tiktok_handle, '@') }}" target="_blank" class="p-2 rounded-xl bg-slate-800/10 hover:bg-brand-primary hover:text-white transition">
+                            @if($landingPage->tiktok_handle ?: data_get($landingPage->social_links, 'tiktok'))
+                                <a href="{{ str_starts_with((string) ($landingPage->tiktok_handle ?: data_get($landingPage->social_links, 'tiktok')), 'http') ? ($landingPage->tiktok_handle ?: data_get($landingPage->social_links, 'tiktok')) : 'https://tiktok.com/@' . ltrim((string) ($landingPage->tiktok_handle ?: data_get($landingPage->social_links, 'tiktok')), '@') }}" target="_blank" rel="noopener" aria-label="TikTok" class="p-2 rounded-xl bg-slate-800/10 hover:bg-brand-primary hover:text-white transition">
                                     <i data-lucide="video" class="w-4 h-4"></i>
                                 </a>
                             @endif
-                            @if($landingPage->facebook_url)
-                                <a href="{{ $landingPage->facebook_url }}" target="_blank" class="p-2 rounded-xl bg-slate-800/10 hover:bg-brand-primary hover:text-white transition">
+                            @if($landingPage->facebook_url ?: data_get($landingPage->social_links, 'facebook'))
+                                <a href="{{ $landingPage->facebook_url ?: data_get($landingPage->social_links, 'facebook') }}" target="_blank" rel="noopener" aria-label="Facebook" class="p-2 rounded-xl bg-slate-800/10 hover:bg-brand-primary hover:text-white transition">
                                     <i data-lucide="facebook" class="w-4 h-4"></i>
                                 </a>
                             @endif
                         </div>
+
+                        @if($landingPage->custom_email ?: $business->email)
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0"><i data-lucide="mail" class="w-5 h-5"></i></div>
+                                <div><h3 class="font-bold text-sm">Email</h3><a href="mailto:{{ $landingPage->custom_email ?: $business->email }}" class="text-xs text-brand-primary mt-1 block">{{ $landingPage->custom_email ?: $business->email }}</a></div>
+                            </div>
+                        @endif
                     @endif
 
                     <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank"

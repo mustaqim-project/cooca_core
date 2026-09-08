@@ -111,10 +111,10 @@
         <input type="hidden" name="about_title" x-model="form.about_title">
         <input type="hidden" name="about_story" x-model="form.about_story">
         <input type="hidden" name="whatsapp_number" x-model="form.whatsapp_number">
-        <input type="hidden" name="whatsapp_default_message" x-model="form.whatsapp_default_message">
+        <input type="hidden" name="whatsapp_welcome_message" x-model="form.whatsapp_welcome_message">
         <input type="hidden" name="custom_email" x-model="form.custom_email">
         <input type="hidden" name="custom_address" x-model="form.custom_address">
-        <input type="hidden" name="google_maps_embed" x-model="form.google_maps_embed">
+        <input type="hidden" name="google_maps_embed_url" x-model="form.google_maps_embed_url">
         <input type="hidden" name="meta_title" x-model="form.meta_title">
         <input type="hidden" name="meta_description" x-model="form.meta_description">
 
@@ -471,7 +471,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Pesan Sambutan Otomatis WhatsApp</label>
-                            <textarea x-model="form.whatsapp_default_message" rows="2" placeholder="Halo, saya melihat halaman Anda dan ingin bertanya lebih lanjut..."
+                            <textarea x-model="form.whatsapp_welcome_message" rows="2" placeholder="Halo, saya melihat halaman Anda dan ingin bertanya lebih lanjut..."
                                 class="w-full px-3.5 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none resize-none transition"></textarea>
                             <p class="text-[10px] text-slate-500 mt-1">Teks ini otomatis terisi di chat WA pembeli saat mengklik tombol WhatsApp.</p>
                         </div>
@@ -484,7 +484,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Google Maps Embed URL</label>
-                            <input type="text" x-model="form.google_maps_embed" placeholder="https://www.google.com/maps/embed?pb=..."
+                            <input type="text" x-model="form.google_maps_embed_url" placeholder="https://www.google.com/maps/embed?pb=..."
                                 class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none font-mono transition">
                             <p class="text-[10px] text-slate-500 mt-1">Google Maps → Share → Embed a map → salin URL di dalam <code class="text-emerald-400">src="..."</code></p>
                         </div>
@@ -816,6 +816,18 @@ function landingPageEditor() {
             { hex: '#64748B', label: 'Slate' },
         ],
 
+        sectionOptions: [
+            { key: 'hero', label: 'Hero' }, { key: 'about', label: 'Tentang' },
+            { key: 'products', label: 'Produk' }, { key: 'services', label: 'Layanan' },
+            { key: 'gallery', label: 'Galeri' }, { key: 'testimonials', label: 'Ulasan' },
+            { key: 'faq', label: 'FAQ' }, { key: 'contact', label: 'Kontak' },
+        ],
+
+        sectionVisibility: @json(array_merge([
+            'hero' => true, 'about' => true, 'products' => true, 'services' => true,
+            'gallery' => true, 'testimonials' => true, 'faq' => true, 'contact' => true,
+        ], $landingPage->section_visibility ?? [])),
+
         form: {
             industry_preset: @json($landingPage->industry_preset ?? 'retail'),
             theme_color: @json($landingPage->theme_color ?? '#10B981'),
@@ -829,10 +841,10 @@ function landingPageEditor() {
             about_title: @json($landingPage->about_title ?? ''),
             about_story: @json($landingPage->about_story ?? ''),
             whatsapp_number: @json($landingPage->whatsapp_number ?? ''),
-            whatsapp_default_message: @json($landingPage->whatsapp_default_message ?? ''),
+            whatsapp_welcome_message: @json($landingPage->whatsapp_welcome_message ?? ''),
             custom_email: @json($landingPage->custom_email ?? ''),
             custom_address: @json($landingPage->custom_address ?? ''),
-            google_maps_embed: @json($landingPage->google_maps_embed ?? ''),
+            google_maps_embed_url: @json($landingPage->google_maps_embed_url ?? ''),
             meta_title: @json($landingPage->meta_title ?? ''),
             meta_description: @json($landingPage->meta_description ?? ''),
         },

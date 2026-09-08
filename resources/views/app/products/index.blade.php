@@ -271,7 +271,7 @@
                 <button @click="showAddModal = false" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
 
-            <form method="POST" action="{{ route('products.store') }}" class="space-y-3.5 text-xs">
+            <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data" class="space-y-3.5 text-xs">
                 @csrf
 
                 <div>
@@ -333,6 +333,12 @@
                         </button>
                     </div>
                       <p class="text-[10px] text-slate-500 mt-1">Isi dengan nomor barcode produk agar dapat dipindai di POS.</p>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Gambar Produk (Opsional)</label>
+                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
+                    <p class="text-[10px] text-slate-500 mt-1">JPG, PNG, atau WebP maksimal 4 MB.</p>
                 </div>
 
                 <div class="pt-2 flex justify-end gap-2">
@@ -435,7 +441,7 @@
                 </button>
             </div>
 
-            <form :action="'/products/' + editProduct.slug" method="POST" class="space-y-4 text-xs">
+            <form :action="'/products/' + editProduct.slug" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
                 @csrf
                 @method('PUT')
 
@@ -501,6 +507,12 @@
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">Deskripsi Produk</label>
                     <textarea name="description" rows="2" x-model="editProduct.description" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white"></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Gambar Produk</label>
+                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500/15 file:px-3 file:py-2 file:text-emerald-300">
+                    <label class="mt-2 flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" name="remove_image" value="1" class="rounded bg-slate-900 border-slate-700 text-rose-500"> Hapus gambar saat ini</label>
                 </div>
 
                 <div class="flex items-center gap-2 pt-1">

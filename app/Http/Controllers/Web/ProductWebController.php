@@ -16,6 +16,7 @@ use App\Models\Unit;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -37,7 +38,7 @@ final class ProductWebController extends Controller
             $search = (string) $request->get('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('sku', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%");
             });
         }
 
@@ -82,6 +83,7 @@ final class ProductWebController extends Controller
             'min_stock' => ['nullable', 'numeric', 'gte:0'],
             'business_type_hint' => ['nullable', 'string'],
             'costing_method' => ['required', 'string', 'in:simple,per_unit,recipe_bom,job,process,abc,service,retail,custom'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
         ]);
 
         /** @var Product $product */
@@ -96,6 +98,10 @@ final class ProductWebController extends Controller
             'base_cost' => (float) ($validated['base_cost'] ?? 0),
             'min_stock' => (float) ($validated['min_stock'] ?? 0),
         ]);
+
+        if ($request->hasFile('image')) {
+            $product->update(['image_path' => $request->file('image')->store('products/' . $business->id, 'public')]);
+        }
 
         // Auto create primary CostModel
         CostModel::create([
@@ -114,6 +120,9 @@ final class ProductWebController extends Controller
      */
     public function update(Request $request, Product $product): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($product->business_id === $business->id, 404);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'category_id' => ['nullable', 'exists:product_categories,id'],
@@ -129,6 +138,8 @@ final class ProductWebController extends Controller
             'min_stock' => ['nullable', 'numeric', 'gte:0'],
             'is_active' => ['nullable', 'boolean'],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
+            'remove_image' => ['nullable', 'boolean'],
         ]);
 
         $product->update([
@@ -142,6 +153,18 @@ final class ProductWebController extends Controller
             'is_active' => $request->has('is_active') ? (bool) $request->get('is_active') : $product->is_active,
             'description' => $validated['description'] ?? $product->description,
         ]);
+
+        if ($request->boolean('remove_image') && $product->image_path) {
+            Storage::disk('public')->delete($product->image_path);
+            $product->update(['image_path' => null]);
+        } elseif ($request->hasFile('image')) {
+            $oldImagePath = $product->image_path;
+            $newImagePath = $request->file('image')->store('products/' . $business->id, 'public');
+            $product->update(['image_path' => $newImagePath]);
+            if ($oldImagePath) {
+                Storage::disk('public')->delete($oldImagePath);
+            }
+        }
 
         return redirect()->route('products.index')->with('success', "Produk '{$product->name}' berhasil diperbarui.");
     }
