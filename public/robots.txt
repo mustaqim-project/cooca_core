@@ -67,4 +67,4 @@ Disallow: /webhook/
 Disallow: /broadcasting/
 
 # 5. Dynamic XML Sitemap Reference
-Sitemap: https://cooca.id/sitemap.xml
+Sitemap: https://umkm.cooca.id/sitemap.xml

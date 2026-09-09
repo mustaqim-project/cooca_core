@@ -20,9 +20,11 @@ class SitemapTest extends TestCase
         $this->assertStringContainsString('application/xml', (string) $response->headers->get('Content-Type'));
         $content = $response->getContent();
         $this->assertStringContainsString('<urlset', $content);
-        $this->assertStringContainsString('/kalkulator/hpp', $content);
-        $this->assertStringContainsString('/solusi/kasir-warung', $content);
-        $this->assertStringContainsString('/template-pembukuan-gratis', $content);
+        $this->assertStringContainsString('https://umkm.cooca.id/kalkulator/hpp', $content);
+        $this->assertStringContainsString('https://umkm.cooca.id/solusi/kasir-warung', $content);
+        $this->assertStringContainsString('https://umkm.cooca.id/template-pembukuan-gratis', $content);
+        $this->assertStringNotContainsString('127.0.0.1', $content);
+        $this->assertStringNotContainsString('localhost', $content);
     }
 
     public function test_html_sitemap_page_renders_successfully(): void
@@ -35,6 +37,7 @@ class SitemapTest extends TestCase
         $response->assertSee('Solusi Industri');
         $response->assertSee('INDEX, FOLLOW');
         $response->assertSee('NOINDEX, NOFOLLOW');
+        $response->assertSee('https://umkm.cooca.id/');
     }
 
     public function test_robots_txt_contains_strict_index_follow_and_noindex_rules(): void
@@ -51,7 +54,7 @@ class SitemapTest extends TestCase
         $this->assertStringContainsString('Disallow: /pos', $content);
         $this->assertStringContainsString('Disallow: /inventory', $content);
         $this->assertStringContainsString('Disallow: /login', $content);
-        $this->assertStringContainsString('Sitemap:', $content);
+        $this->assertStringContainsString('Sitemap: https://umkm.cooca.id/sitemap.xml', $content);
     }
 
     public function test_guest_and_app_layouts_enforce_noindex_nofollow(): void

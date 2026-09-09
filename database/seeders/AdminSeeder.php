@@ -29,7 +29,7 @@ class AdminSeeder extends Seeder
         SystemSetting::set('app_name', 'Cooca UMKM', 'general');
         SystemSetting::set('google_client_id', env('GOOGLE_CLIENT_ID', ''), 'google_api');
         SystemSetting::set('google_client_secret', env('GOOGLE_CLIENT_SECRET', ''), 'google_api', true);
-        SystemSetting::set('google_redirect_uri', env('GOOGLE_REDIRECT_URI', config('app.url').'/auth/google/callback'), 'google_api');
+        SystemSetting::set('google_redirect_uri', env('GOOGLE_REDIRECT_URI', rtrim(config('app.url', 'https://umkm.cooca.id'), '/').'/auth/google/callback'), 'google_api');
         SystemSetting::set('allow_google_login', '1', 'google_api');
     }
 }

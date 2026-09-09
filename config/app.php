@@ -52,7 +52,8 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'https://umkm.cooca.id'),
+    'canonical_url' => env('APP_CANONICAL_URL', 'https://umkm.cooca.id'),
 
     /*
     |--------------------------------------------------------------------------

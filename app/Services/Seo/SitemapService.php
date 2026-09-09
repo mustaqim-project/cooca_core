@@ -49,6 +49,27 @@ final class SitemapService
     ];
 
     /**
+     * Resolve the canonical production base URL for SEO indexing.
+     */
+    public function getBaseUrl(): string
+    {
+        // 1. Explicit canonical URL if configured
+        $canonical = config('app.canonical_url');
+        if (!empty($canonical)) {
+            return rtrim((string) $canonical, '/');
+        }
+
+        // 2. If app.url is explicitly production domain
+        $appUrl = (string) config('app.url', '');
+        if (!empty($appUrl) && !str_contains($appUrl, '127.0.0.1') && !str_contains($appUrl, 'localhost')) {
+            return rtrim($appUrl, '/');
+        }
+
+        // 3. Fallback to production URL
+        return 'https://umkm.cooca.id';
+    }
+
+    /**
      * Compile all public indexable URLs with metadata.
      *
      * @return array<int, array{
@@ -62,7 +83,7 @@ final class SitemapService
      */
     public function getPublicUrls(): array
     {
-        $baseUrl = rtrim((string) config('app.url', 'https://cooca.id'), '/');
+        $baseUrl = $this->getBaseUrl();
         $nowDate = Carbon::now()->toIso8601String();
         $urls = [];
 

@@ -3,211 +3,211 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
-        <loc>http://127.0.0.1:1986/</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kalkulator</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kalkulator</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/template-pembukuan-gratis</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/template-pembukuan-gratis</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/blog</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/blog</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kontak</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kontak</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/sitemap</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/sitemap</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kalkulator/hpp</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kalkulator/hpp</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kalkulator/bep</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kalkulator/bep</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kalkulator/harga-jual</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kalkulator/harga-jual</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kalkulator/laba-bersih</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kalkulator/laba-bersih</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kalkulator/gaji-karyawan</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kalkulator/gaji-karyawan</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kalkulator/pph-final</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kalkulator/pph-final</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kalkulator/omzet-harian</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kalkulator/omzet-harian</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/kalkulator/simulasi-what-if</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/kalkulator/simulasi-what-if</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/solusi/kasir-warung</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/solusi/kasir-warung</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/solusi/kasir-cafe-kecil</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/solusi/kasir-cafe-kecil</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/solusi/kasir-kios</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/solusi/kasir-kios</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/solusi/kasir-laundry</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/solusi/kasir-laundry</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/solusi/kasir-salon</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/solusi/kasir-salon</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/solusi/kasir-barbershop</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/solusi/kasir-barbershop</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/solusi/kasir-bengkel-kecil</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/solusi/kasir-bengkel-kecil</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/solusi/kasir-irt</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/solusi/kasir-irt</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/template/pembukuan-warung-excel</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/template/pembukuan-warung-excel</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/template/laporan-keuangan-sederhana</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/template/laporan-keuangan-sederhana</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/template/stok-opname-excel</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/template/stok-opname-excel</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/template/invoice-sederhana</loc>
-        <lastmod>2026-09-09T03:48:18+00:00</lastmod>
+        <loc>https://umkm.cooca.id/template/invoice-sederhana</loc>
+        <lastmod>2026-09-09T04:15:38+00:00</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/blog/peran-ai-assistant-membantu-umkm-mengambil-keputusan</loc>
+        <loc>https://umkm.cooca.id/blog/peran-ai-assistant-membantu-umkm-mengambil-keputusan</loc>
         <lastmod>2026-09-08T10:09:08+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/blog/panduan-pajak-umkm-cara-hitung-pph-final-setengah-persen</loc>
+        <loc>https://umkm.cooca.id/blog/panduan-pajak-umkm-cara-hitung-pph-final-setengah-persen</loc>
         <lastmod>2026-09-08T05:14:48+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/blog/cara-membuat-laporan-keuangan-sederhana-umkm</loc>
+        <loc>https://umkm.cooca.id/blog/cara-membuat-laporan-keuangan-sederhana-umkm</loc>
         <lastmod>2026-09-08T06:35:00+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/blog/cara-menghitung-bep-warung-toko-kelontong</loc>
+        <loc>https://umkm.cooca.id/blog/cara-menghitung-bep-warung-toko-kelontong</loc>
         <lastmod>2026-09-08T05:14:48+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/blog/cara-menghitung-hpp-makanan-minuman-umkm</loc>
+        <loc>https://umkm.cooca.id/blog/cara-menghitung-hpp-makanan-minuman-umkm</loc>
         <lastmod>2026-09-08T05:14:48+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/blog/apa-itu-food-cost-standar-persentase-ideal-fb-kafe</loc>
+        <loc>https://umkm.cooca.id/blog/apa-itu-food-cost-standar-persentase-ideal-fb-kafe</loc>
         <lastmod>2026-09-08T05:14:48+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/blog/5-alasan-mengapa-kasir-digital-pos-lebih-menguntungkan-dari-kertas</loc>
+        <loc>https://umkm.cooca.id/blog/5-alasan-mengapa-kasir-digital-pos-lebih-menguntungkan-dari-kertas</loc>
         <lastmod>2026-09-08T10:09:22+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/b/restoran-nusantara-rasa</loc>
+        <loc>https://umkm.cooca.id/b/restoran-nusantara-rasa</loc>
         <lastmod>2026-09-08T12:33:34+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>http://127.0.0.1:1986/b/kilau-bersih-laundry</loc>
+        <loc>https://umkm.cooca.id/b/kilau-bersih-laundry</loc>
         <lastmod>2026-09-09T02:05:43+00:00</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
