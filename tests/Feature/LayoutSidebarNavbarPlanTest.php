@@ -67,7 +67,9 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertSee('HPP & Produksi');
         $response->assertSee('Keuangan & Kas');
         $response->assertSee('Laporan & Analitik');
-        $response->assertSee('Pengaturan Toko & Tim');
+        $response->assertSee('Pengaturan Usaha');
+        $response->assertSee('Kontrol Akses & Role');
+        $response->assertSee('Paket & Kuota');
 
         // Check key sub-menus from Phases 1-5
         $response->assertSee('Retur Penjualan');
@@ -129,7 +131,7 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         // Cashier sees: POS, Faktur, Pelanggan, AI
         $response->assertSee('Kasir & Penjualan');
         $response->assertSee('Faktur & Piutang');
-        $response->assertSee('Pelanggan & CRM');
+        $response->assertSee('Pelanggan');
         $response->assertSee('AI Assistant');
 
         // Cashier MUST NOT see: HPP, Keuangan, Pembelian, Pengaturan
@@ -139,8 +141,9 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertDontSee('Kas & Rekening Bank');
         $response->assertDontSee('Buku Kas & Ledger');
         $response->assertDontSee('Pembelian & Vendor');
-        $response->assertDontSee('Pengaturan Toko & Tim');
+        $response->assertDontSee('Pengaturan Usaha');
         $response->assertDontSee('Kontrol Akses & Role');
+        $response->assertDontSee('Paket & Kuota');
     }
 
     public function test_sidebar_role_warehouse_only_sees_inventory_and_purchasing(): void
@@ -189,8 +192,9 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertDontSee('Buku Kas & Ledger');
         $response->assertDontSee('HPP & Produksi');
         $response->assertDontSee('Kalkulator HPP 3-Pilar');
-        $response->assertDontSee('Pengaturan Toko & Tim');
+        $response->assertDontSee('Pengaturan Usaha');
         $response->assertDontSee('Kontrol Akses & Role');
+        $response->assertDontSee('Paket & Kuota');
     }
 
     public function test_sidebar_role_finance_only_sees_finance_and_reports(): void
@@ -236,8 +240,9 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertDontSee('Riwayat Transaksi & Shift');
         $response->assertDontSee('Stock Opname Fisik');
         $response->assertDontSee('Transfer Stok Gudang');
-        $response->assertDontSee('Pengaturan Toko & Tim');
+        $response->assertDontSee('Pengaturan Usaha');
         $response->assertDontSee('Kontrol Akses & Role');
+        $response->assertDontSee('Paket & Kuota');
     }
 
     public function test_navbar_renders_free_plan_tracker_with_usage_progress(): void

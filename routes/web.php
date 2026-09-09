@@ -305,17 +305,28 @@ Route::middleware('auth:web')->group(function (): void {
         Route::get('/reports', [ReportWebController::class, 'index'])->middleware('require.permission:reports.view')->name('reports.index');
         Route::get('/reports/export-excel', [ReportWebController::class, 'exportExcel'])->middleware(['require.permission:reports.export', 'entitlement:export'])->name('reports.export-excel');
 
-        // Business Settings & Templates
+        // Business Settings (Profil Usaha, POS & Template Industri)
         Route::get('/settings', [SettingWebController::class, 'index'])->middleware('require.permission:settings.view')->name('settings.index');
         Route::put('/settings', [SettingWebController::class, 'update'])->middleware('require.permission:settings.edit')->name('settings.update');
         Route::post('/settings/apply-template', [SettingWebController::class, 'applyTemplate'])->name('settings.apply-template');
-        Route::post('/settings/members', [SettingWebController::class, 'storeMember'])->middleware(['require.permission:users.manage', 'entitlement:member'])->name('settings.members.store');
-        Route::put('/settings/members/{member}/role', [SettingWebController::class, 'updateMemberRole'])->middleware(['require.permission:users.manage'])->name('settings.members.role');
-        Route::delete('/settings/members/{member}', [SettingWebController::class, 'destroyMember'])->middleware(['require.permission:users.manage'])->name('settings.members.destroy');
+
+        // Dedicated Role & Access Control (RBAC) - Menu & Route Mandiri
+        Route::get('/roles', [\App\Http\Controllers\Web\RoleWebController::class, 'index'])->middleware('require.permission:roles.view')->name('roles.index');
+        Route::post('/roles', [\App\Http\Controllers\Web\RoleWebController::class, 'store'])->middleware('require.permission:roles.manage')->name('roles.store');
+        Route::put('/roles/{role}', [\App\Http\Controllers\Web\RoleWebController::class, 'update'])->middleware('require.permission:roles.manage')->name('roles.update');
+        Route::delete('/roles/{role}', [\App\Http\Controllers\Web\RoleWebController::class, 'destroy'])->middleware('require.permission:roles.manage')->name('roles.destroy');
+        Route::post('/roles/members', [SettingWebController::class, 'storeMember'])->middleware(['require.permission:users.manage', 'entitlement:member'])->name('roles.members.store');
+        Route::put('/roles/members/{member}/role', [SettingWebController::class, 'updateMemberRole'])->middleware(['require.permission:users.manage'])->name('roles.members.role');
+        Route::delete('/roles/members/{member}', [SettingWebController::class, 'destroyMember'])->middleware(['require.permission:users.manage'])->name('roles.members.destroy');
+
+        // Backward compatibility for legacy settings.roles.* and settings.members.* routes
         Route::get('/settings/roles', [\App\Http\Controllers\Web\RoleWebController::class, 'index'])->middleware('require.permission:roles.view')->name('settings.roles.index');
         Route::post('/settings/roles', [\App\Http\Controllers\Web\RoleWebController::class, 'store'])->middleware('require.permission:roles.manage')->name('settings.roles.store');
         Route::put('/settings/roles/{role}', [\App\Http\Controllers\Web\RoleWebController::class, 'update'])->middleware('require.permission:roles.manage')->name('settings.roles.update');
         Route::delete('/settings/roles/{role}', [\App\Http\Controllers\Web\RoleWebController::class, 'destroy'])->middleware('require.permission:roles.manage')->name('settings.roles.destroy');
+        Route::post('/settings/members', [SettingWebController::class, 'storeMember'])->middleware(['require.permission:users.manage', 'entitlement:member'])->name('settings.members.store');
+        Route::put('/settings/members/{member}/role', [SettingWebController::class, 'updateMemberRole'])->middleware(['require.permission:users.manage'])->name('settings.members.role');
+        Route::delete('/settings/members/{member}', [SettingWebController::class, 'destroyMember'])->middleware(['require.permission:users.manage'])->name('settings.members.destroy');
 
         Route::middleware('require.role:owner')->group(function (): void {
             Route::get('/feedback/bugs', [\App\Http\Controllers\Web\FeedbackWebController::class, 'bugs'])->name('feedback.bugs.index');
@@ -335,9 +346,10 @@ Route::middleware('auth:web')->group(function (): void {
             Route::delete('/community/{post}', [\App\Http\Controllers\Web\CommunityWebController::class, 'destroy'])->name('community.destroy');
         });
 
-        // SaaS Plan & Resource Quota Limits
-        Route::get('/patungan', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.patungan');
+        // Dedicated SaaS Billing, Plan & Resource Quota Limits - Menu & Route Mandiri
+        Route::get('/billing', [\App\Http\Controllers\Web\Billing\BillingAndLimitWebController::class, 'index'])->middleware('require.permission:billing.view')->name('billing');
         Route::get('/billing/limits', [\App\Http\Controllers\Web\Billing\BillingAndLimitWebController::class, 'index'])->middleware('require.permission:billing.view')->name('billing.limits');
+        Route::get('/patungan', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.patungan');
         Route::post('/billing/upgrade', [\App\Http\Controllers\Web\Billing\BillingAndLimitWebController::class, 'upgrade'])->name('billing.upgrade');
         Route::get('/billing/checkout', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.checkout');
         Route::post('/billing/order', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'store'])->name('billing.order.store');

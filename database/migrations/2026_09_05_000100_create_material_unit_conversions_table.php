@@ -30,7 +30,7 @@ return new class extends Migration
             $table->date('effective_until')->nullable();
             $table->timestamps();
 
-            $table->index(['business_id', 'material_id', 'supplier_id', 'from_unit_id', 'to_unit_id']);
+            $table->index(['business_id', 'material_id'], 'mat_unit_conv_biz_mat_idx');
             $table->unique(['business_id', 'material_id', 'supplier_id', 'from_unit_id', 'to_unit_id'], 'material_unit_conversions_unique');
         });
     }

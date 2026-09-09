@@ -47,11 +47,19 @@ final class OwnerStorageQuotaService
         return $this->getUsageBytes($owner) + max(0, $additionalBytes) <= $this->getLimitBytes($owner);
     }
 
-    public function getSummary(User $owner): array
+    public function getSummary(User $owner, bool $forceFresh = false): array
     {
+        $cacheKey = "owner_storage_summary_{$owner->id}";
+        if (! $forceFresh && ! app()->environment('testing')) {
+            $cached = \Illuminate\Support\Facades\Cache::get($cacheKey);
+            if ($cached !== null) {
+                return $cached;
+            }
+        }
+
         $used = $this->getUsageBytes($owner);
         $limit = $this->getLimitBytes($owner);
-        return [
+        $result = [
             'used_bytes' => $used,
             'limit_bytes' => $limit,
             'used_mb' => round($used / 1048576, 2),
@@ -59,6 +67,17 @@ final class OwnerStorageQuotaService
             'percentage' => $limit > 0 ? min(100, round($used / $limit * 100, 1)) : 0,
             'is_over_limit' => $used > $limit,
         ];
+
+        if (! app()->environment('testing')) {
+            \Illuminate\Support\Facades\Cache::put($cacheKey, $result, 300);
+        }
+
+        return $result;
+    }
+
+    public function clearSummaryCache(User $owner): void
+    {
+        \Illuminate\Support\Facades\Cache::forget("owner_storage_summary_{$owner->id}");
     }
 
     public function ownerForBusiness(Business $business): ?User

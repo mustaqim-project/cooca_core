@@ -1,124 +1,182 @@
-@extends('layouts.app')
-
-@section('title', 'Blast Promosi WhatsApp — ' . $business->name)
+@extends('layouts.app', [
+    'title' => 'Blast Promosi WhatsApp — ' . $business->name,
+    'headerTitle' => 'Blast Promosi WhatsApp',
+    'headerSubtitle' => 'Kirim promosi massal & notifikasi spesial ke pelanggan terdaftar'
+])
 
 @section('content')
-<div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
+<div class="space-y-6">
 
-    {{-- PAGE HEADER --}}
-    <div class="flex items-center justify-between gap-4 flex-wrap">
-        <div class="flex items-center gap-4">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#25D366] to-[#128C7E] flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
-            </div>
-            <div>
-                <h1 class="text-xl font-extrabold text-white">Blast Promosi WhatsApp</h1>
-                <p class="text-sm text-slate-400">Kirim pesan promosi massal ke pelanggan Anda</p>
-            </div>
+    <!-- Module Navigation Sub-Tabs & Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 w-full sm:w-auto overflow-x-auto text-xs font-bold">
+            <a href="{{ route('whatsapp.index') }}"
+                class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
+                <i data-lucide="smartphone" class="w-4 h-4"></i>
+                <span>Koneksi Gateway</span>
+            </a>
+            <a href="{{ route('whatsapp.broadcast.index') }}"
+                class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs border border-slate-200/60 dark:border-slate-800 flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="megaphone" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+                <span>Blast Promosi</span>
+            </a>
+            <a href="{{ route('whatsapp.logs.index') }}"
+                class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
+                <i data-lucide="history" class="w-4 h-4"></i>
+                <span>Log Pesan</span>
+            </a>
         </div>
+
         <a href="{{ route('whatsapp.broadcast.create') }}"
-            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#22c55e] text-white font-bold text-sm transition shadow-lg shadow-[#25D366]/20">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Buat Blast Baru
+            class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-98">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Buat Blast Promosi Baru</span>
         </a>
     </div>
 
-    @if(session('success'))
-        <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-medium flex items-center gap-2">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            {{ session('success') }}
+    <!-- STATS KPI GRID (4 METRICS) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 shadow-xs transition-colors">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Kampanye</span>
+                <div class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="text-2xl font-black font-mono text-slate-900 dark:text-white">
+                {{ number_format($stats['total_campaigns']) }}
+            </div>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Riwayat broadcast</div>
         </div>
-    @endif
 
-    {{-- STATS GRID --}}
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-center">
-            <div class="text-2xl font-extrabold text-white">{{ number_format($stats['total_campaigns']) }}</div>
-            <div class="text-xs text-slate-500 mt-0.5">Total Kampanye</div>
+        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 shadow-xs transition-colors">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pesan Terkirim</span>
+                <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">
+                {{ number_format($stats['total_sent']) }}
+            </div>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Berhasil masuk ke WA</div>
         </div>
-        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-center">
-            <div class="text-2xl font-extrabold text-[#25D366]">{{ number_format($stats['total_sent']) }}</div>
-            <div class="text-xs text-slate-500 mt-0.5">Pesan Terkirim</div>
+
+        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 shadow-xs transition-colors">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Target</span>
+                <div class="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                    <i data-lucide="users" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="text-2xl font-black font-mono text-slate-900 dark:text-white">
+                {{ number_format($stats['total_recipients']) }}
+            </div>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Penerima ditargetkan</div>
         </div>
-        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-center">
-            <div class="text-2xl font-extrabold text-slate-300">{{ number_format($stats['total_recipients']) }}</div>
-            <div class="text-xs text-slate-500 mt-0.5">Total Penerima</div>
-        </div>
-        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-center">
-            <div class="text-2xl font-extrabold text-emerald-400">{{ $stats['success_rate'] }}%</div>
-            <div class="text-xs text-slate-500 mt-0.5">Keberhasilan</div>
+
+        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 shadow-xs transition-colors">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Keberhasilan</span>
+                <div class="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="text-2xl font-black font-mono text-teal-600 dark:text-teal-400">
+                {{ $stats['success_rate'] }}%
+            </div>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Tingkat delivery sukses</div>
         </div>
     </div>
 
-    {{-- CAMPAIGNS TABLE --}}
-    <div class="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-800">
-            <h2 class="text-sm font-bold text-white">Riwayat Kampanye</h2>
+    <!-- CAMPAIGNS DATA TABLE -->
+    <div class="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs overflow-hidden transition-colors">
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div>
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">Riwayat Kampanye Broadcast</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Daftar semua pesan blast yang pernah dijadwalkan dan dikirim</p>
+            </div>
         </div>
 
         @if($campaigns->isEmpty())
-            <div class="text-center py-16 space-y-3">
-                <div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto">
-                    <svg class="w-7 h-7 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+            <div class="text-center py-16 px-4 space-y-3">
+                <div class="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center mx-auto border border-slate-200 dark:border-slate-700">
+                    <i data-lucide="megaphone-off" class="w-7 h-7"></i>
                 </div>
-                <p class="text-slate-400 font-semibold text-sm">Belum ada blast promosi</p>
-                <p class="text-slate-600 text-xs">Buat kampanye pertama Anda untuk mulai menjangkau pelanggan</p>
+                <div>
+                    <h3 class="text-slate-900 dark:text-white font-bold text-sm">Belum Ada Kampanye Blast Promosi</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-sm mx-auto">
+                        Buat pesan promosi massal pertama Anda untuk mengabarkan diskon atau info menu terbaru ke pelanggan setia.
+                    </p>
+                </div>
                 <a href="{{ route('whatsapp.broadcast.create') }}"
-                    class="inline-flex items-center gap-2 mt-3 px-5 py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] font-bold text-xs border border-[#25D366]/30 transition">
-                    Buat Blast Pertama
+                    class="inline-flex items-center gap-2 mt-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all active:scale-98">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Buat Blast Pertama Sekarang</span>
                 </a>
             </div>
         @else
-            <div class="table-responsive">
-                <table class="w-full text-xs min-w-[620px]">
+            <div class="table-responsive overflow-x-auto">
+                <table class="w-full text-left text-xs min-w-[640px]">
                     <thead>
-                        <tr class="border-b border-slate-800 text-slate-500 uppercase tracking-wide whitespace-nowrap">
-                            <th class="text-left px-5 py-3 font-semibold">Judul Kampanye</th>
-                            <th class="text-left px-3 py-3 font-semibold">Target</th>
-                            <th class="text-center px-3 py-3 font-semibold">Penerima</th>
-                            <th class="text-center px-3 py-3 font-semibold">Terkirim</th>
-                            <th class="text-center px-3 py-3 font-semibold">Status</th>
-                            <th class="text-left px-3 py-3 font-semibold">Tanggal</th>
-                            <th class="px-5 py-3"></th>
+                        <tr class="border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[11px]">
+                            <th class="px-6 py-3.5 font-semibold">Judul Kampanye</th>
+                            <th class="px-4 py-3.5 font-semibold">Target Audiens</th>
+                            <th class="px-4 py-3.5 font-semibold text-center">Penerima</th>
+                            <th class="px-4 py-3.5 font-semibold text-center">Terkirim</th>
+                            <th class="px-4 py-3.5 font-semibold text-center">Status</th>
+                            <th class="px-4 py-3.5 font-semibold">Waktu Kirim</th>
+                            <th class="px-6 py-3.5 text-right font-semibold">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800/60">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
                         @foreach($campaigns as $campaign)
-                            <tr class="hover:bg-slate-800/30 transition">
-                                <td class="px-5 py-3.5">
-                                    <div class="font-semibold text-white">{{ $campaign->title }}</div>
-                                    <div class="text-slate-500 truncate max-w-xs mt-0.5">{{ Str::limit($campaign->message, 60) }}</div>
+                            <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+                                <td class="px-6 py-3.5">
+                                    <div class="font-bold text-slate-900 dark:text-white">{{ $campaign->title }}</div>
+                                    <div class="text-slate-500 dark:text-slate-400 truncate max-w-xs mt-0.5 text-[11px]">
+                                        {{ Str::limit($campaign->message, 55) }}
+                                    </div>
                                 </td>
-                                <td class="px-3 py-3.5">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase
-                                        {{ $campaign->target_filter === 'all' ? 'bg-slate-700 text-slate-300' : 'bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20' }}">
-                                        {{ $campaign->target_filter === 'all' ? 'Semua' : ucfirst($campaign->target_filter) }}
+                                <td class="px-4 py-3.5">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase
+                                        {{ $campaign->target_filter === 'all' 
+                                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' 
+                                            : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20' }}">
+                                        {{ $campaign->target_filter === 'all' ? 'Semua Pelanggan' : ucfirst($campaign->target_filter) }}
                                     </span>
                                 </td>
-                                <td class="px-3 py-3.5 text-center text-slate-300 font-semibold">{{ number_format($campaign->total_recipients) }}</td>
-                                <td class="px-3 py-3.5 text-center">
-                                    <span class="text-emerald-400 font-bold">{{ number_format($campaign->total_sent) }}</span>
+                                <td class="px-4 py-3.5 text-center font-mono font-semibold text-slate-700 dark:text-slate-300">
+                                    {{ number_format($campaign->total_recipients) }}
+                                </td>
+                                <td class="px-4 py-3.5 text-center font-mono">
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ number_format($campaign->total_sent) }}</span>
                                     @if($campaign->total_failed > 0)
-                                        <span class="text-rose-400 font-semibold"> / {{ $campaign->total_failed }} ❌</span>
+                                        <span class="text-rose-600 dark:text-rose-400 font-semibold text-[11px]"> ({{ $campaign->total_failed }} gagal)</span>
                                     @endif
                                 </td>
-                                <td class="px-3 py-3.5 text-center">
+                                <td class="px-4 py-3.5 text-center">
                                     @php
                                         $statusBadge = match($campaign->status) {
-                                            'completed'  => ['bg-emerald-500/15 text-emerald-400 border-emerald-500/30', '✓ Selesai'],
-                                            'processing' => ['bg-amber-500/15 text-amber-400 border-amber-500/30', '⏳ Proses'],
-                                            'failed'     => ['bg-rose-500/15 text-rose-400 border-rose-500/30', '✗ Gagal'],
-                                            default      => ['bg-slate-700/50 text-slate-400 border-slate-700', 'Draft'],
+                                            'completed'  => ['bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20', 'Selesai'],
+                                            'processing' => ['bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20', 'Memproses'],
+                                            'failed'     => ['bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20', 'Gagal'],
+                                            default      => ['bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700', 'Draft'],
                                         };
                                     @endphp
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $statusBadge[0] }}">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border {{ $statusBadge[0] }}">
                                         {{ $statusBadge[1] }}
                                     </span>
                                 </td>
-                                <td class="px-3 py-3.5 text-slate-500">{{ $campaign->created_at->format('d/m/Y H:i') }}</td>
-                                <td class="px-5 py-3.5">
+                                <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 text-[11px] font-mono">
+                                    {{ $campaign->created_at->format('d/m/Y H:i') }}
+                                </td>
+                                <td class="px-6 py-3.5 text-right">
                                     <a href="{{ route('whatsapp.broadcast.show', $campaign) }}"
-                                        class="text-xs font-semibold text-slate-400 hover:text-white transition">Detail →</a>
+                                        class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline transition-colors">
+                                        <span>Detail</span>
+                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -126,7 +184,7 @@
                 </table>
             </div>
             @if($campaigns->hasPages())
-                <div class="px-5 py-4 border-t border-slate-800">
+                <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800">
                     {{ $campaigns->links() }}
                 </div>
             @endif

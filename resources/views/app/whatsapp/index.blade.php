@@ -1,223 +1,276 @@
-@extends('layouts.app')
-
-@section('title', 'WhatsApp Gateway — ' . $business->name)
+@extends('layouts.app', [
+    'title' => 'WhatsApp Gateway — ' . $business->name,
+    'headerTitle' => 'WhatsApp Gateway & Otomasi',
+    'headerSubtitle' => 'Hubungkan nomor WhatsApp bisnis Anda untuk kirim struk digital POS & blast promosi pelanggan'
+])
 
 @section('content')
-<div class="p-4 sm:p-6 max-w-4xl mx-auto space-y-6">
+<div class="space-y-6" x-data="waGateway()" x-init="init()">
 
-    {{-- PAGE HEADER --}}
-    <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#25D366] to-[#128C7E] flex items-center justify-center shadow-lg shadow-emerald-500/30">
-            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z"/></svg>
-        </div>
-        <div>
-            <h1 class="text-xl font-extrabold text-white">WhatsApp Gateway</h1>
-            <p class="text-sm text-slate-400">Hubungkan nomor WA bisnis Anda untuk kirim struk & promosi otomatis</p>
-        </div>
+    <!-- Module Navigation Sub-Tabs -->
+    <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 w-full sm:w-auto overflow-x-auto text-xs font-bold">
+        <a href="{{ route('whatsapp.index') }}"
+            class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs border border-slate-200/60 dark:border-slate-800 flex items-center gap-2 whitespace-nowrap">
+            <i data-lucide="smartphone" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+            <span>Koneksi Gateway</span>
+        </a>
+        <a href="{{ route('whatsapp.broadcast.index') }}"
+            class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
+            <i data-lucide="megaphone" class="w-4 h-4"></i>
+            <span>Blast Promosi</span>
+        </a>
+        <a href="{{ route('whatsapp.logs.index') }}"
+            class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
+            <i data-lucide="history" class="w-4 h-4"></i>
+            <span>Log Pesan</span>
+        </a>
+        <div class="border-l border-slate-200 dark:border-slate-800 h-5 my-auto mx-1 hidden sm:block"></div>
+        <a href="{{ route('pos.terminal') }}"
+            class="px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-1.5 whitespace-nowrap transition-colors">
+            <i data-lucide="calculator" class="w-4 h-4"></i>
+            <span>Terminal Kasir POS</span>
+        </a>
     </div>
 
-    {{-- SUCCESS / ERROR ALERTS --}}
-    @if(session('success'))
-        <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-medium flex items-center gap-2">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            {{ session('success') }}
-        </div>
-    @endif
+    <!-- Main Gateway Cockpit Grid (2 Columns on Desktop) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    <div x-data="waGateway()" x-init="init()" class="space-y-6">
+        <!-- ========================================== -->
+        <!-- LEFT COLUMN: GATEWAY CONNECTION & QR SCAN  -->
+        <!-- ========================================== -->
+        <div class="lg:col-span-7 space-y-6">
 
-        {{-- ===== QR / STATUS CARD ===== --}}
-        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm overflow-hidden">
-            {{-- Card Header --}}
-            <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-sm font-bold text-white">Status Koneksi</span>
-                </div>
-                <div>
-                    <span x-show="status === 'connected'"
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Terhubung
-                    </span>
-                    <span x-show="status === 'scan_qr'"
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Menunggu Scan
-                    </span>
-                    <span x-show="status === 'disconnected' || status === ''"
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-700/50 text-slate-400 border border-slate-700">
-                        <span class="w-2 h-2 rounded-full bg-slate-500"></span> Tidak Terhubung
-                    </span>
-                </div>
-            </div>
-
-            {{-- Card Body --}}
-            <div class="p-5">
-                {{-- CONNECTED STATE --}}
-                <div x-show="status === 'connected'" x-transition.opacity class="space-y-4">
-                    <div class="flex items-center gap-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                        <div class="w-14 h-14 rounded-xl bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center shrink-0">
-                            <svg class="w-8 h-8 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z"/></svg>
+            <div class="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-6 space-y-5 transition-colors">
+                
+                <!-- Card Header with Real-Time Status Badge -->
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                            <i data-lucide="qr-code" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <div class="text-xs text-slate-400 font-medium mb-0.5">Nomor WhatsApp Bisnis</div>
-                            <div class="text-lg font-extrabold text-white font-mono" x-text="phone ? '+' + phone : 'Sesi Aktif'"></div>
-                            <div class="text-xs text-slate-500" x-text="deviceName ? 'Perangkat: ' + deviceName : ''"></div>
+                            <h2 class="text-base font-bold text-slate-900 dark:text-white">Status Koneksi WhatsApp</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Sinkronisasi nomor HP bisnis ke sistem cloud Cooca</p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
+
+                    <div>
+                        <!-- Connected Badge -->
+                        <span x-show="status === 'connected'"
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Terhubung</span>
+                        </span>
+                        <!-- Scan QR Badge -->
+                        <span x-show="status === 'scan_qr'"
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            <span>Menunggu Scan</span>
+                        </span>
+                        <!-- Disconnected Badge -->
+                        <span x-show="status === 'disconnected' || status === ''"
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                            <span class="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500"></span>
+                            <span>Tidak Terhubung</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 1. CONNECTED STATE -->
+                <div x-show="status === 'connected'" x-transition.opacity class="space-y-4">
+                    <div class="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/70 to-teal-50/40 dark:from-emerald-950/20 dark:to-teal-950/10 border border-emerald-200/80 dark:border-emerald-500/30 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
+                            <i data-lucide="check-circle" class="w-7 h-7"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nomor WhatsApp Aktif</div>
+                            <div class="text-xl font-extrabold text-slate-900 dark:text-white font-mono" x-text="phone ? '+' + phone : 'Sesi Aktif Terhubung'"></div>
+                            <div class="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5 pt-0.5">
+                                <i data-lucide="smartphone" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <span x-text="deviceName ? 'Perangkat: ' + deviceName : 'WhatsApp Web Multi-Device'"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <a href="{{ route('whatsapp.broadcast.create') }}"
-                            class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] font-bold text-xs transition border border-[#25D366]/30">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
-                            Blast Promosi
+                            class="flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all active:scale-98">
+                            <i data-lucide="megaphone" class="w-4 h-4"></i>
+                            <span>Buat Blast Promosi</span>
                         </a>
                         <button @click="disconnectWa()"
-                            class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold text-xs transition border border-rose-500/20"
+                            class="flex items-center justify-center gap-2 py-3 rounded-xl bg-white hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-bold text-xs transition-all border border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-500/40 active:scale-98"
                             :disabled="isLoading">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                            Putus Koneksi
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span>Putus Koneksi Sesi</span>
                         </button>
                     </div>
                 </div>
 
-                {{-- SCAN QR STATE --}}
-                <div x-show="status === 'scan_qr'" x-transition.opacity class="text-center space-y-4">
-                    <div class="text-sm text-slate-400 font-medium">Scan kode QR ini dengan WhatsApp di HP Anda</div>
+                <!-- 2. SCAN QR CODE STATE -->
+                <div x-show="status === 'scan_qr'" x-transition.opacity class="text-center space-y-5 py-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Pindai Kode QR dengan WhatsApp</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Arahkan kamera WhatsApp HP Anda ke kode QR di bawah</p>
+                    </div>
 
-                    {{-- QR Box --}}
+                    <!-- Centered High-Contrast QR Code Card -->
                     <div class="flex justify-center">
                         <div class="relative inline-block">
-                            <div x-show="!qrDataUrl" class="w-52 h-52 rounded-2xl bg-slate-800 border border-slate-700 flex flex-col items-center justify-center gap-3">
-                                <div class="w-8 h-8 border-4 border-slate-600 border-t-[#25D366] rounded-full animate-spin"></div>
-                                <span class="text-xs text-slate-500">Memuat QR Code...</span>
+                            <!-- Loading Skeleton -->
+                            <div x-show="!qrDataUrl" class="w-56 h-56 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center gap-3">
+                                <div class="w-8 h-8 border-4 border-slate-300 dark:border-slate-600 border-t-emerald-500 rounded-full animate-spin"></div>
+                                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Menghasilkan QR Code...</span>
                             </div>
-                            <div x-show="qrDataUrl" class="bg-white p-3 rounded-2xl shadow-2xl inline-block">
+                            <!-- Actual QR Image -->
+                            <div x-show="qrDataUrl" class="bg-white p-4 rounded-3xl shadow-xl border border-slate-200/80 inline-block transition-transform hover:scale-102">
                                 <img :src="qrDataUrl" alt="WhatsApp QR Code" class="w-48 h-48 rounded-xl block">
                             </div>
                         </div>
                     </div>
 
-                    {{-- Steps --}}
-                    <div class="text-left bg-slate-950/50 border border-slate-800 rounded-xl p-4 space-y-2 text-xs text-slate-400">
-                        <p class="font-semibold text-slate-300 mb-2">Cara menghubungkan:</p>
-                        <p>1. Buka <strong class="text-white">WhatsApp</strong> di HP Anda</p>
-                        <p>2. Ketuk <strong class="text-white">⋮ Menu</strong> / <strong class="text-white">Pengaturan</strong> → <strong class="text-white">Perangkat Tertaut</strong></p>
-                        <p>3. Ketuk <strong class="text-white">Tautkan Perangkat</strong> dan arahkan kamera ke kode QR</p>
+                    <!-- Steps Guide -->
+                    <div class="text-left bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+                        <p class="font-bold text-slate-900 dark:text-slate-200 flex items-center gap-1.5">
+                            <i data-lucide="info" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+                            <span>Panduan Menghubungkan:</span>
+                        </p>
+                        <div class="flex items-start gap-2">
+                            <span class="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">1</span>
+                            <span>Buka aplikasi <strong>WhatsApp</strong> di HP Anda</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
+                            <span>Ketuk ikon <strong>⋮ Menu (Android)</strong> atau <strong>Pengaturan (iOS)</strong> &rarr; pilih <strong>Perangkat Tertaut</strong></span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
+                            <span>Ketuk <strong>Tautkan Perangkat</strong> dan arahkan kamera ke kode QR di atas</span>
+                        </div>
                     </div>
 
-                    <p class="text-[11px] text-emerald-400 font-semibold animate-pulse">⚡ Otomatis mendeteksi setelah scan...</p>
+                    <div class="flex items-center justify-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+                        <span>Sistem otomatis menyambung begitu QR berhasil dipindai...</span>
+                    </div>
                 </div>
 
-                {{-- DISCONNECTED STATE --}}
-                <div x-show="status === 'disconnected' || status === ''" x-transition.opacity class="text-center py-6 space-y-4">
-                    <div class="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto">
-                        <svg class="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                <!-- 3. DISCONNECTED STATE -->
+                <div x-show="status === 'disconnected' || status === ''" x-transition.opacity class="text-center py-8 space-y-4">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700">
+                        <i data-lucide="smartphone-nfc" class="w-8 h-8"></i>
                     </div>
                     <div>
-                        <p class="text-slate-300 font-semibold text-sm">WhatsApp Belum Terhubung</p>
-                        <p class="text-slate-500 text-xs mt-1">Klik tombol di bawah untuk mulai scan QR Code</p>
+                        <h3 class="text-slate-900 dark:text-white font-bold text-sm">WhatsApp Belum Terhubung</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-sm mx-auto">
+                            Mulai sesi baru untuk memindai kode QR dan mengaktifkan pengiriman struk digital & blast promosi.
+                        </p>
                     </div>
                     <button @click="startSession()"
-                        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#22c55e] text-white font-bold text-sm transition shadow-lg shadow-[#25D366]/25"
+                        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-md shadow-emerald-500/20 transition-all active:scale-98"
                         :disabled="isLoading">
-                        <svg x-show="isLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                        <svg x-show="!isLoading" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
-                        <span x-text="isLoading ? 'Menghubungkan...' : 'Mulai Scan QR Code'"></span>
+                        <i data-lucide="loader-2" x-show="isLoading" class="w-4 h-4 animate-spin"></i>
+                        <i data-lucide="qr-code" x-show="!isLoading" class="w-4 h-4"></i>
+                        <span x-text="isLoading ? 'Menghubungkan ke Server WA...' : 'Mulai Scan QR Code'"></span>
                     </button>
                 </div>
             </div>
+
         </div>
 
-        {{-- ===== SETTINGS CARD ===== --}}
-        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-800">
-                <h2 class="text-sm font-bold text-white">Pengaturan Struk Otomatis</h2>
-                <p class="text-xs text-slate-500 mt-0.5">Struk digital akan dikirim otomatis ke WhatsApp pelanggan setiap transaksi POS</p>
-            </div>
-            <div class="p-5">
-                <form action="{{ route('whatsapp.settings') }}" method="POST" class="space-y-4">
-                    @csrf
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800">
-                        <div>
-                            <p class="text-sm font-semibold text-white">Auto-Kirim Struk POS</p>
-                            <p class="text-xs text-slate-500 mt-0.5">Kirim otomatis saat kasir checkout (jika pelanggan punya nomor HP)</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="auto_send_receipt" value="1" class="sr-only peer"
-                                {{ ($waSession && $waSession->auto_send_receipt) ? 'checked' : '' }}>
-                            <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:bg-[#25D366] peer-focus:ring-2 peer-focus:ring-[#25D366]/50 transition-colors after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                        </label>
+        <!-- ========================================== -->
+        <!-- RIGHT COLUMN: SETTINGS & TEST SENDER       -->
+        <!-- ========================================== -->
+        <div class="lg:col-span-5 space-y-6">
+
+            <!-- 1. AUTO RECEIPT SETTINGS CARD -->
+            <div class="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-6 space-y-4 transition-colors">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div class="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-500/20">
+                        <i data-lucide="receipt" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Footer Struk Kustom (Opsional)</label>
-                        <textarea name="receipt_template" rows="2" placeholder="Terima kasih! Kunjungi kami lagi 😊"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[#25D366]/60 resize-none placeholder:text-slate-600">{{ $waSession?->receipt_template ?? '' }}</textarea>
+                        <h2 class="text-sm font-bold text-slate-900 dark:text-white">Pengaturan Struk Digital POS</h2>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Otomasi struk belanja ke WA pelanggan saat checkout</p>
                     </div>
+                </div>
+
+                <form action="{{ route('whatsapp.settings') }}" method="POST" class="space-y-4">
+                    @csrf
+                    
+                    <!-- Toggle Switch -->
+                    <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
+                        <div class="pr-2">
+                            <p class="text-xs font-bold text-slate-900 dark:text-white">Auto-Kirim Struk Checkout</p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Kirim struk otomatis jika data pelanggan memiliki nomor HP</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input type="checkbox" name="auto_send_receipt" value="1" class="sr-only peer"
+                                {{ ($waSession && $waSession->auto_send_receipt) ? 'checked' : '' }}>
+                            <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Receipt Footer Note -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                            Catatan Kaki Struk (Opsional)
+                        </label>
+                        <textarea name="receipt_template" rows="2" placeholder="Contoh: Terima kasih sudah berbelanja! Follow IG kami @tokoukm"
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none placeholder:text-slate-400 transition-colors">{{ $waSession?->receipt_template ?? '' }}</textarea>
+                    </div>
+
                     <button type="submit"
-                        class="w-full py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 font-bold text-xs transition border border-emerald-500/30">
-                        Simpan Pengaturan
+                        class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs transition-colors border border-slate-200 dark:border-slate-700">
+                        Simpan Pengaturan Struk
                     </button>
                 </form>
             </div>
-        </div>
 
-        {{-- ===== TEST SEND CARD ===== --}}
-        <div x-show="status === 'connected'" x-transition.opacity
-            class="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-800">
-                <h2 class="text-sm font-bold text-white">Uji Coba Kirim Pesan</h2>
-                <p class="text-xs text-slate-500 mt-0.5">Tes pengiriman pesan ke nomor HP manapun</p>
-            </div>
-            <div class="p-5 space-y-3">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Nomor Tujuan</label>
-                        <input x-model="testPhone" type="tel" placeholder="08xxxxxxxxxx"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-[#25D366]/60 placeholder:text-slate-600">
+            <!-- 2. TEST SEND CONSOLE -->
+            <div class="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-6 space-y-4 transition-colors">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
+                        <i data-lucide="send" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Pesan Tes</label>
+                        <h2 class="text-sm font-bold text-slate-900 dark:text-white">Uji Coba Kirim Pesan</h2>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Pastikan bot WhatsApp berfungsi lancar ke nomor tujuan</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nomor HP Tujuan</label>
+                        <input x-model="testPhone" type="tel" placeholder="08xxxxxxxxxx / 628xxxxxxxxxx"
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:outline-hidden focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 placeholder:text-slate-400 transition-colors">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Isi Pesan Tes</label>
                         <input x-model="testMessage" type="text" placeholder="Halo dari COOCA! 👋"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-[#25D366]/60 placeholder:text-slate-600">
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 placeholder:text-slate-400 transition-colors">
+                    </div>
+
+                    <button @click="sendTest()"
+                        class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-2 active:scale-98"
+                        :disabled="testLoading">
+                        <i data-lucide="loader-2" x-show="testLoading" class="w-3.5 h-3.5 animate-spin"></i>
+                        <i data-lucide="send" x-show="!testLoading" class="w-3.5 h-3.5"></i>
+                        <span x-text="testLoading ? 'Sedang Mengirim...' : 'Kirim Pesan Tes Sekarang'"></span>
+                    </button>
+
+                    <div x-show="testResult" x-text="testResult"
+                        class="p-2.5 rounded-xl text-xs text-center font-bold transition-all"
+                        :class="testOk ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20'">
                     </div>
                 </div>
-                <button @click="sendTest()"
-                    class="w-full py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] font-bold text-xs transition border border-[#25D366]/30 flex items-center justify-center gap-2"
-                    :disabled="testLoading">
-                    <svg x-show="testLoading" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                    <span x-text="testLoading ? 'Mengirim...' : '📤 Kirim Tes'"></span>
-                </button>
-                <div x-show="testResult" x-text="testResult"
-                    class="text-xs text-center font-semibold mt-1"
-                    :class="testOk ? 'text-emerald-400' : 'text-rose-400'">
-                </div>
             </div>
+
         </div>
 
-        {{-- ===== QUICK LINKS ===== --}}
-        <div class="grid grid-cols-3 gap-3">
-            <a href="{{ route('whatsapp.broadcast.index') }}"
-                class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-[#25D366]/40 hover:bg-[#25D366]/5 transition group text-center">
-                <div class="w-10 h-10 rounded-xl bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition">
-                    <svg class="w-5 h-5 text-[#25D366]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
-                </div>
-                <span class="text-xs font-semibold text-slate-300 group-hover:text-white transition">Blast Promosi</span>
-            </a>
-            <a href="{{ route('whatsapp.logs.index') }}"
-                class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-600 hover:bg-slate-800/50 transition group text-center">
-                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-slate-700 transition">
-                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                </div>
-                <span class="text-xs font-semibold text-slate-300 group-hover:text-white transition">Log Pesan</span>
-            </a>
-            <a href="{{ route('pos.terminal') }}"
-                class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-teal-500/40 hover:bg-teal-500/5 transition group text-center">
-                <div class="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center group-hover:bg-teal-500/20 transition">
-                    <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                </div>
-                <span class="text-xs font-semibold text-slate-300 group-hover:text-white transition">Terminal Kasir</span>
-            </a>
-        </div>
+    </div>
 
-    </div>{{-- end x-data --}}
 </div>
 @endsection
 
@@ -244,10 +297,14 @@ function waGateway() {
         },
 
         pollStatus() {
+            if (this.pollTimer) clearInterval(this.pollTimer);
             this.pollTimer = setInterval(async () => {
                 try {
                     const res = await fetch('{{ route('whatsapp.qr') }}', {
-                        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                        }
                     });
                     const data = await res.json();
 
@@ -255,8 +312,7 @@ function waGateway() {
                     if (raw === 'CONNECTED') {
                         this.status = 'connected';
                         clearInterval(this.pollTimer);
-                        // Refresh page to load full connected state
-                        setTimeout(() => window.location.reload(), 1200);
+                        setTimeout(() => window.location.reload(), 1000);
                     } else if (raw === 'SCAN_QR') {
                         this.status = 'scan_qr';
                         this.qrDataUrl = data.qrDataUrl || null;
@@ -275,7 +331,7 @@ function waGateway() {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
                     }
                 });
                 const data = await res.json();
@@ -291,9 +347,9 @@ function waGateway() {
         async disconnectWa() {
             const confirmed = await AppAlert.confirm({
                 title: 'Putus Koneksi WhatsApp?',
-                message: 'Yakin ingin memutus koneksi WhatsApp bisnis Anda? Sesi QR harus dihubungkan ulang nanti.',
+                message: 'Yakin ingin memutus koneksi WhatsApp bisnis Anda? Sesi QR harus dipindai ulang nanti.',
                 type: 'danger',
-                confirmText: 'Ya, Putuskan',
+                confirmText: 'Ya, Putuskan Sesi',
                 cancelText: 'Batal'
             });
             if (!confirmed) return;
@@ -304,12 +360,13 @@ function waGateway() {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
                     }
                 });
                 this.status = 'disconnected';
                 this.phone = '';
                 this.deviceName = '';
+                this.qrDataUrl = null;
             } catch (e) {} finally {
                 this.isLoading = false;
             }
@@ -317,7 +374,7 @@ function waGateway() {
 
         async sendTest() {
             if (!this.testPhone.trim() || !this.testMessage.trim()) {
-                this.testResult = '⚠️ Isi nomor dan pesan terlebih dahulu.';
+                this.testResult = '⚠️ Mohon isi nomor tujuan dan pesan terlebih dahulu.';
                 this.testOk = false;
                 return;
             }
@@ -329,15 +386,15 @@ function waGateway() {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
                     },
                     body: JSON.stringify({ phone: this.testPhone, message: this.testMessage })
                 });
                 const data = await res.json();
                 this.testOk = data.success ?? false;
-                this.testResult = this.testOk ? '✅ Pesan berhasil dikirim!' : ('❌ Gagal: ' + (data.error || 'Unknown error'));
+                this.testResult = this.testOk ? '✅ Pesan tes WhatsApp berhasil terkirim!' : ('❌ Gagal: ' + (data.error || 'Server error'));
             } catch (e) {
-                this.testResult = '❌ Error jaringan';
+                this.testResult = '❌ Kesalahan jaringan saat mengirim pesan.';
                 this.testOk = false;
             } finally {
                 this.testLoading = false;

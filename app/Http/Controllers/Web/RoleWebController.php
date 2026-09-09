@@ -18,20 +18,20 @@ final class RoleWebController extends Controller
     public function index(): View
     {
         $business = Context::requireBusiness();
-        $this->authorizeOwner();
+        $this->authorizeView();
         $roles = Role::with('permissions')
             ->where(function ($query) use ($business): void {
                 $query->whereNull('business_id')->orWhere('business_id', $business->id);
             })->orderBy('business_id')->orderBy('name')->get();
         $permissions = Permission::orderBy('category')->orderBy('name')->get()->groupBy('category');
         $members = $business->memberships()->with(['user', 'customRole'])->get();
-        return view('app.settings.roles', compact('business', 'roles', 'permissions', 'members'));
+        return view('app.roles.index', compact('business', 'roles', 'permissions', 'members'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
-        $this->authorizeOwner();
+        $this->authorizeManage();
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:500'],
@@ -55,7 +55,7 @@ final class RoleWebController extends Controller
     public function update(Request $request, Role $role): RedirectResponse
     {
         $business = Context::requireBusiness();
-        $this->authorizeOwner();
+        $this->authorizeManage();
         $this->assertCustomRole($role, $business->id);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
@@ -71,7 +71,7 @@ final class RoleWebController extends Controller
     public function destroy(Role $role): RedirectResponse
     {
         $business = Context::requireBusiness();
-        $this->authorizeOwner();
+        $this->authorizeManage();
         $this->assertCustomRole($role, $business->id);
         if ($role->memberships()->exists()) {
             return back()->withErrors(['role' => 'Role masih digunakan oleh anggota tim. Ubah role anggota terlebih dahulu.']);
@@ -80,9 +80,14 @@ final class RoleWebController extends Controller
         return back()->with('success', 'Role custom berhasil dihapus.');
     }
 
-    private function authorizeOwner(): void
+    private function authorizeView(): void
     {
-        abort_unless(Context::isOwner() && Context::hasPermission('roles.manage'), 403, 'Hanya Owner yang dapat mengatur role dan permission.');
+        abort_unless(Context::isOwner() || Context::hasPermission('roles.view'), 403, 'Anda tidak memiliki wewenang untuk melihat role dan hak akses.');
+    }
+
+    private function authorizeManage(): void
+    {
+        abort_unless(Context::isOwner() || Context::hasPermission('roles.manage'), 403, 'Hanya Owner atau pengguna dengan wewenang kelola role yang dapat mengatur role.');
     }
 
     private function assertCustomRole(Role $role, string $businessId): void

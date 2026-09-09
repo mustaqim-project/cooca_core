@@ -543,10 +543,26 @@ final class EntitlementService
     }
 
     /**
+     * Determine if a business is currently on the Core plan.
+     */
+    public function isCorePlan(Business $business): bool
+    {
+        return $this->getSubscription($business)->isCorePlan();
+    }
+
+    /**
      * Usage summary for dashboard and limits meter — all 12+ resources.
      */
-    public function getUsageSummary(Business $business): array
+    public function getUsageSummary(Business $business, bool $forceFresh = false): array
     {
+        $cacheKey = "entitlement_usage_summary_{$business->id}";
+        if (! $forceFresh && ! app()->environment('testing')) {
+            $cached = \Illuminate\Support\Facades\Cache::get($cacheKey);
+            if ($cached !== null) {
+                return $cached;
+            }
+        }
+
         $sub = $this->getSubscription($business);
         $isCore = $sub->isCorePlan();
         $monthlyPriceFormatted = number_format($this->getMonthlyPrice(), 0, ',', '.');
@@ -602,7 +618,7 @@ final class EntitlementService
             ];
         };
 
-        return [
+        $result = [
             'plan_code'  => $sub->plan_code,
             'plan_label' => $isCore
                 ? ($sub->plan_code === BusinessSubscription::PLAN_CORE_ANNUAL
@@ -638,6 +654,7 @@ final class EntitlementService
                 'remaining' => $aiRemaining,
                 'percent'   => $aiAllowance > 0 ? min(100, round(($aiUsed / $aiAllowance) * 100)) : 0,
                 'is_free'   => !$isCore && $aiAllowance === 0,
+                'is_unlimited' => false,
             ],
             'storage' => $storage,
 
@@ -645,6 +662,20 @@ final class EntitlementService
             'can_import' => $isCore,
             'can_export' => $isCore,
         ];
+
+        if (! app()->environment('testing')) {
+            \Illuminate\Support\Facades\Cache::put($cacheKey, $result, 60);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Clear usage cache for a business.
+     */
+    public function clearUsageCache(Business $business): void
+    {
+        \Illuminate\Support\Facades\Cache::forget("entitlement_usage_summary_{$business->id}");
     }
 
     /**

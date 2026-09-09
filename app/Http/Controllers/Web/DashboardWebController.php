@@ -377,17 +377,24 @@ final class DashboardWebController extends Controller
         }
         $avgMargin = count($margins) > 0 ? round(array_sum($margins) / count($margins), 1) : 0.0;
 
-        // 7. Last 7 Days Sales Trend
+        // 7. Last 7 Days Sales Trend (Single Aggregated Query)
         $sevenDaysTrend = [];
         $maxDaySales = 1000;
         $dayNamesIndo = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+        $sevenDaysAgo = Carbon::today()->subDays(6)->startOfDay();
+
+        $dailySales = PosOrder::where('business_id', $business->id)
+            ->where('status', PosOrder::STATUS_COMPLETED)
+            ->where('order_date', '>=', $sevenDaysAgo)
+            ->selectRaw('DATE(order_date) as order_dt, SUM(total_amount) as total_sales')
+            ->groupBy('order_dt')
+            ->pluck('total_sales', 'order_dt')
+            ->all();
 
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            $daySales = (float) PosOrder::where('business_id', $business->id)
-                ->where('status', PosOrder::STATUS_COMPLETED)
-                ->whereDate('order_date', $date)
-                ->sum('total_amount');
+            $dateKey = $date->toDateString();
+            $daySales = (float) ($dailySales[$dateKey] ?? 0);
 
             if ($daySales > $maxDaySales) {
                 $maxDaySales = $daySales;
@@ -420,7 +427,8 @@ final class DashboardWebController extends Controller
 
         $recentProducts = $products->take(5);
 
-        $recentCostingRuns = CostingRun::with(['costModel.product'])
+        $recentCostingRuns = CostingRun::whereHas('costModel', fn ($q) => $q->where('business_id', $business->id))
+            ->with(['costModel.product'])
             ->latest('created_at')
             ->take(5)
             ->get();

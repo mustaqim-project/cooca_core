@@ -13,6 +13,11 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
 
     <!-- html2pdf.js for Direct Client-Side PDF Download -->
     <script src="{{ asset('vendor/html2pdf.bundle.min.js') }}"></script>
@@ -25,8 +30,6 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0f172a;
-            color: #0f172a;
         }
 
         @page {
@@ -36,6 +39,7 @@
 
         .print-sheet {
             background-color: #ffffff !important;
+            color: #0f172a !important;
         }
 
         @media print {
@@ -99,7 +103,7 @@
     </style>
 </head>
 
-<body class="py-4 sm:py-8 px-3 sm:px-6">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-4 sm:py-8 px-3 sm:px-6 transition-colors">
 
     @php
         $badge = $payment->getStatusBadge();
@@ -112,20 +116,20 @@
     @endphp
 
     <!-- Floating Top Action Bar -->
-    <header class="no-print max-w-4xl mx-auto mb-6 bg-slate-900/95 text-white p-4 rounded-2xl shadow-2xl border border-slate-800 space-y-3 backdrop-blur-xl">
+    <header class="no-print max-w-4xl mx-auto mb-6 bg-white dark:bg-slate-900/95 text-slate-900 dark:text-white p-4 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 space-y-3 backdrop-blur-xl">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full {{ $isApproved ? 'bg-emerald-400' : ($payment->isRejected() ? 'bg-rose-400' : 'bg-amber-400') }}" aria-hidden="true"></span>
-                <span class="text-xs font-bold tracking-tight">Dokumen Faktur Resmi Cooca UMKM (A4 Siap Cetak)</span>
+                <span class="w-2.5 h-2.5 rounded-full {{ $isApproved ? 'bg-emerald-500' : ($payment->isRejected() ? 'bg-rose-500' : 'bg-amber-500') }}" aria-hidden="true"></span>
+                <span class="text-xs font-bold tracking-tight text-slate-800 dark:text-slate-200">Dokumen Faktur Resmi Cooca UMKM (A4 Siap Cetak)</span>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('billing.payment.show', $payment) }}"
-                    class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold transition-colors text-slate-200 border border-slate-700">
+                    class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold transition-colors text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 cursor-pointer">
                     Kembali
                 </a>
                 <button type="button" onclick="window.print()"
-                    class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-700">
+                    class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
@@ -135,7 +139,7 @@
                     <span>Cetak Printer</span>
                 </button>
                 <button id="btnDownloadPdf" type="button" onclick="downloadPDF()"
-                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all cursor-pointer">
+                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm shadow-emerald-600/20 flex items-center gap-2 transition-all cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -147,17 +151,17 @@
             </div>
         </div>
 
-        <div class="pt-2 border-t border-slate-800 flex items-center gap-2 text-[11px] text-slate-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24"
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <span>Klik <strong>"Download PDF Langsung"</strong> untuk mengunduh invoice <code>.pdf</code> resmi tanpa dialog printer browser, bebas watermark browser.</span>
+            <span>Klik <strong>"Download PDF Langsung"</strong> untuk mengunduh invoice <code>.pdf</code> resmi tanpa dialog printer browser, bebas watermark.</span>
         </div>
     </header>
 
     <!-- Outer responsive wrapper -->
-    <div class="max-w-4xl mx-auto overflow-x-auto shadow-2xl rounded-2xl">
+    <div class="max-w-4xl mx-auto overflow-x-auto shadow-xl rounded-2xl">
         <!-- Paper Sheet Container (Strict A4 Layout on Paper & Screen) -->
         <main class="print-sheet bg-white p-6 sm:p-10 md:p-12 text-slate-900 space-y-6 min-w-[620px] sm:min-w-0" aria-label="Faktur Tagihan Resmi">
 

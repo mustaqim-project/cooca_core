@@ -25,13 +25,15 @@ final class SimulationWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $products = Product::with(['costModels' => fn ($q) => $q->where('is_active', true)])
-            ->whereHas('costModels')
+        $products = Product::where('business_id', $business->id)
+            ->with(['costModels' => fn ($q) => $q->where('business_id', $business->id)->where('is_active', true)])
+            ->whereHas('costModels', fn ($q) => $q->where('business_id', $business->id))
             ->get();
 
         $selectedCostModel = null;
         if ($request->filled('cost_model_id')) {
-            $selectedCostModel = CostModel::with(['product', 'labors', 'machines', 'bomHeaders.items'])
+            $selectedCostModel = CostModel::where('business_id', $business->id)
+                ->with(['product', 'labors', 'machines', 'bomHeaders.items'])
                 ->find($request->get('cost_model_id'));
         } elseif ($products->isNotEmpty() && $products->first()->costModels->isNotEmpty()) {
             $selectedCostModel = $products->first()->costModels->first();

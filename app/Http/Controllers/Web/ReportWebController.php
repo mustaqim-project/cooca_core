@@ -103,8 +103,8 @@ final class ReportWebController extends Controller
     public function exportExcel(Request $request): StreamedResponse
     {
         $business = Context::requireBusiness();
-        $format = strtolower((string) $request->query('format', 'xlsx'));
         $type = (string) $request->query('type', 'comprehensive');
+        $format = strtolower((string) $request->query('format', $type === 'comprehensive' ? 'xlsx' : 'csv'));
 
         $startDate = $request->filled('start_date') ? Carbon::parse($request->query('start_date')) : Carbon::today()->startOfMonth();
         $endDate   = $request->filled('end_date') ? Carbon::parse($request->query('end_date')) : Carbon::today()->endOfMonth();
@@ -114,7 +114,7 @@ final class ReportWebController extends Controller
         }
 
         // Format XLSX: Export Workbook Komprehensif (Multi-Sheet + Dashboard Eksekutif)
-        if ($format === 'xlsx' || $type === 'comprehensive') {
+        if ($format === 'xlsx' || ($format !== 'csv' && $type === 'comprehensive')) {
             $incomeStatement = $this->financialReportService->getIncomeStatement($business, $startDate, $endDate);
             $cashFlow = $this->financialReportService->getCashFlowStatement($business, $startDate, $endDate);
             $agingSummary = $this->financialReportService->getAgingSummary($business);
