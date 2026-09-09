@@ -415,6 +415,8 @@
                 <p>© 2026 COOCA.ID. Platform Bisnis UMKM Indonesia. All rights reserved.</p>
                 <div class="flex items-center gap-4">
                     <a href="{{ route('contact') }}" class="hover:text-slate-400">Kontak</a>
+                    <a href="{{ route('sitemap.html') }}" class="hover:text-slate-400">Peta Situs</a>
+                    <a href="{{ route('sitemap.xml') }}" target="_blank" class="hover:text-slate-400">Sitemap XML</a>
                     <a href="https://cooca.id/privacy" target="_blank" class="hover:text-slate-400">Privasi</a>
                     <a href="https://cooca.id/terms" target="_blank" class="hover:text-slate-400">Ketentuan</a>
                 </div>

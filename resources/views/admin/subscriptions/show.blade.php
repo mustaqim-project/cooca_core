@@ -82,7 +82,15 @@
                 </div>
                 <div class="flex justify-between py-1.5 border-b border-slate-800/80">
                     <span class="text-slate-400">Paket Dipesan:</span>
-                    <span class="font-bold text-indigo-300 uppercase">{{ $payment->cycle === 'annual' ? 'Cooca UMKM Tahunan' : 'Cooca UMKM Bulanan' }}</span>
+                    <span class="font-bold text-indigo-300 uppercase">
+                        @if($payment->payment_type === 'ai_token')
+                            {{ $payment->package_name ?: 'Topup Token AI' }} (+{{ number_format($payment->topup_quantity ?? 0, 0, ',', '.') }} Token AI)
+                        @elseif($payment->payment_type === 'storage')
+                            {{ $payment->package_name ?: 'Topup Storage Disk' }} (+{{ $payment->topup_storage_bytes ? round($payment->topup_storage_bytes / 1073741824, 1) . ' GB' : '-' }})
+                        @else
+                            {{ $payment->package_name ?: ($payment->cycle === 'annual' || $payment->plan_code === 'core_annual' ? 'Cooca UMKM Tahunan' : 'Cooca UMKM Bulanan') }} ({{ $payment->package_duration_days ? $payment->package_duration_days . ' Hari' : ($payment->cycle === 'annual' ? '365 Hari' : '30 Hari') }})
+                        @endif
+                    </span>
                 </div>
                 <div class="flex justify-between py-1.5 border-b border-slate-800/80">
                     <span class="text-slate-400">Nominal Pokok:</span>
