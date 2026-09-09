@@ -7,8 +7,8 @@
     showRefundModal: false,
     selectedOrder: null,
     selectedOrderId: null,
-    viewDetail(order) {
-        this.selectedOrder = order;
+    viewDetail(id) {
+        this.selectedOrder = (window.COOCA_POS_ORDERS || []).find(o => o.id === id) || null;
         this.showDetailModal = true;
     },
     openVoid(id) {
@@ -20,6 +20,9 @@
         this.showRefundModal = true;
     }
 }">
+    <script>
+        window.COOCA_POS_ORDERS = @json($orders->items());
+    </script>
     
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -72,9 +75,9 @@
 
     <!-- Orders Table -->
     <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[720px]">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-3.5 px-4">No. Order</th>
                         <th class="py-3.5 px-4">Waktu / Kasir</th>
@@ -127,7 +130,7 @@
                             <a href="{{ route('pos.receipt', $o->id) }}" target="_blank" title="Cetak Struk" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white inline-flex items-center">
                                 <i data-lucide="printer" class="w-3.5 h-3.5"></i>
                             </a>
-                            <button @click="viewDetail(@json($o))" title="Lihat Detail" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white inline-flex items-center">
+                            <button @click="viewDetail('{{ $o->id }}')" title="Lihat Detail" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white inline-flex items-center">
                                 <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                             </button>
                             @if($o->status === 'completed')

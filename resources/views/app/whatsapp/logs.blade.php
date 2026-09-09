@@ -30,10 +30,10 @@
                 <p class="text-slate-600 text-xs">Log akan muncul setelah pesan pertama dikirim</p>
             </div>
         @else
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs">
+            <div class="table-responsive">
+                <table class="w-full text-xs min-w-[560px]">
                     <thead>
-                        <tr class="border-b border-slate-800 text-slate-500 uppercase tracking-wide">
+                        <tr class="border-b border-slate-800 text-slate-500 uppercase tracking-wide whitespace-nowrap">
                             <th class="text-left px-5 py-3 font-semibold">Penerima</th>
                             <th class="text-left px-3 py-3 font-semibold">Tipe</th>
                             <th class="text-left px-3 py-3 font-semibold">Pesan</th>

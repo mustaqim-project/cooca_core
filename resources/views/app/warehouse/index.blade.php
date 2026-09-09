@@ -286,9 +286,9 @@
             </div>
             <a href="{{ route('inventory.movements') }}" class="text-xs text-slate-400 hover:text-indigo-400 transition font-semibold">Lihat Semua →</a>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[580px]">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-3 px-4">Produk</th>
                         <th class="py-3 px-4">Gudang</th>
@@ -350,8 +350,8 @@
 
             <form action="{{ route('warehouse.store') }}" method="POST" class="space-y-4 text-sm">
                 @csrf
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div class="col-span-1 sm:col-span-2">
                         <label class="block text-slate-400 font-bold uppercase text-xs mb-1.5">Nama Gudang / Outlet <span class="text-rose-400">*</span></label>
                         <input type="text" name="name" required placeholder="Mis: Gudang Pusat, Outlet Sudirman..."
                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 transition">
@@ -408,8 +408,8 @@
 
             <form :action="'{{ url('/warehouse') }}/' + editData.id" method="POST" class="space-y-4 text-sm">
                 @csrf @method('PUT')
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div class="col-span-1 sm:col-span-2">
                         <label class="block text-slate-400 font-bold uppercase text-xs mb-1.5">Nama Gudang <span class="text-rose-400">*</span></label>
                         <input type="text" name="name" :value="editData.name" required
                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 transition">

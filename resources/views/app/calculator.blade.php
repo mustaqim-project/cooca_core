@@ -258,10 +258,10 @@
 
     <!-- Mode Selector Banner -->
     <div class="glass-card rounded-3xl p-3 sm:p-4 border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-950/80 border border-slate-800/80">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-950/80 border border-slate-800/80 w-full sm:w-auto">
             <button type="button" @click="activeTab = 'quick'"
                     :class="activeTab === 'quick' ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-black shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:text-white'"
-                    class="px-4 py-2 rounded-xl text-xs transition flex items-center gap-2">
+                    class="px-4 py-2 rounded-xl text-xs transition flex items-center justify-center gap-2 w-full">
                 <i data-lucide="zap" class="w-4 h-4 text-amber-300"></i>
                 <span>Mode Cepat (3 Pilar HPP)</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-white/20 text-white uppercase">Simpel</span>
@@ -269,7 +269,7 @@
 
             <button type="button" @click="activeTab = 'advanced'"
                     :class="activeTab === 'advanced' ? 'bg-indigo-600 text-white font-black shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white'"
-                    class="px-4 py-2 rounded-xl text-xs transition flex items-center gap-2">
+                    class="px-4 py-2 rounded-xl text-xs transition flex items-center justify-center gap-2 w-full">
                 <i data-lucide="layers" class="w-4 h-4 text-indigo-300"></i>
                 <span>Mode Detail Resep (BOM)</span>
             </button>
@@ -406,7 +406,7 @@
                             <div :style="'width: ' + quickLaborPct + '%'" class="bg-indigo-500 transition-all duration-300" title="Upah Kerja"></div>
                             <div :style="'width: ' + quickOverheadPct + '%'" class="bg-amber-500 transition-all duration-300" title="Operasional"></div>
                         </div>
-                        <div class="flex items-center justify-between text-[10px] text-slate-400 font-semibold pt-1">
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-400 font-semibold pt-1">
                             <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-emerald-500"></div><span>Bahan (<span x-text="quickMaterialPct + '%'"></span>)</span></div>
                             <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-indigo-500"></div><span>Upah (<span x-text="quickLaborPct + '%'"></span>)</span></div>
                             <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-amber-500"></div><span>Operasional (<span x-text="quickOverheadPct + '%'"></span>)</span></div>
@@ -434,7 +434,7 @@
             <div class="lg:col-span-5 space-y-6">
 
                 <!-- Pricing & Profit Engine Card -->
-                <div class="glass-card rounded-3xl p-6 border border-slate-800 space-y-6 sticky top-24">
+                <div class="glass-card rounded-3xl p-6 border border-slate-800 space-y-6 lg:sticky lg:top-24">
                     <div class="border-b border-slate-800 pb-3 flex items-center justify-between">
                         <h3 class="text-base font-black text-white flex items-center gap-2">
                             <i data-lucide="trending-up" class="w-5 h-5 text-teal-400"></i>
@@ -537,10 +537,10 @@
                             </span>
                             <span class="text-[10px] text-slate-500 font-mono">Simulasi Beban</span>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
                             <span class="text-slate-500 text-[11px]">Beban Sewa/Listrik Bln:</span>
                             <input type="number" x-model.number="quickMonthlyFixedCost" step="100000"
-                                   class="w-32 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-right text-xs font-mono text-white">
+                                   class="w-full sm:w-32 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-right text-xs font-mono text-white">
                         </div>
                         <div class="pt-1 text-[11px] text-slate-300 leading-relaxed">
                             💡 Jual minimal <strong class="text-emerald-400 font-bold font-mono"><span x-text="quickBepUnitsDaily"></span> pcs/hari</strong> (atau <span x-text="quickBepUnitsMonthly"></span> pcs/bulan) agar balik modal operasional. Porsi berikutnya adalah <strong class="text-white">keuntungan bersih Anda!</strong>
@@ -585,7 +585,7 @@
                     <span>Katalog Produk</span>
                 </a>
                 <select x-model="selectedProductId" @change="selectProduct($event.target.value)"
-                        class="px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-xs font-semibold text-white min-w-[240px]">
+                        class="px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-xs font-semibold text-white w-full sm:w-auto min-w-0 sm:min-w-[240px]">
                     <option value="">-- Pilih Produk --</option>
                     <template x-for="p in products" :key="p.id">
                         <option :value="p.id" x-text="p.name + ' (' + (p.output_unit ? p.output_unit.name : 'pcs') + ')'"></option>

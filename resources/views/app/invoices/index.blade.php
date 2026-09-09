@@ -73,7 +73,7 @@
             </select>
         </form>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
             <a href="{{ route('invoices.export-excel') }}" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors">
                 <i data-lucide="download" class="w-4 h-4 text-slate-400"></i>
                 <span>Export CSV</span>
@@ -88,10 +88,10 @@
 
     <!-- Invoices Table Card -->
     <div class="glass-card rounded-2xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs min-w-[760px]">
                 <thead>
-                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
+                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50 whitespace-nowrap">
                         <th class="py-3.5 px-4 font-semibold">Nomor Faktur & Tanggal</th>
                         <th class="py-3.5 px-4 font-semibold">Pelanggan / Klien</th>
                         <th class="py-3.5 px-4 font-semibold">Jatuh Tempo</th>

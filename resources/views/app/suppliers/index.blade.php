@@ -48,10 +48,10 @@
 
     <!-- Suppliers Table Card -->
     <div class="glass-card rounded-2xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs min-w-[640px]">
                 <thead>
-                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
+                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50 whitespace-nowrap">
                         <th class="py-3.5 px-4 font-semibold">Nama Pemasok</th>
                         <th class="py-3.5 px-4 font-semibold">Kontak PIC</th>
                         <th class="py-3.5 px-4 font-semibold">Telepon / WhatsApp</th>
@@ -148,7 +148,7 @@
 
     <!-- Modal Tambah Pemasok -->
     <div x-show="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card w-full max-w-lg rounded-2xl p-6 border border-slate-700 space-y-4" @click.outside="showAddModal = false">
+        <div class="glass-card w-full max-w-lg rounded-2xl p-6 border border-slate-700 space-y-4 max-h-[90dvh] overflow-y-auto" @click.outside="showAddModal = false">
             <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
                     <i data-lucide="truck" class="w-5 h-5 text-emerald-400"></i>
@@ -202,7 +202,7 @@
 
     <!-- Modal Edit Pemasok -->
     <div x-show="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card w-full max-w-lg rounded-2xl p-6 border border-slate-700 space-y-4" @click.outside="showEditModal = false">
+        <div class="glass-card w-full max-w-lg rounded-2xl p-6 border border-slate-700 space-y-4 max-h-[90dvh] overflow-y-auto" @click.outside="showEditModal = false">
             <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
                     <i data-lucide="edit-3" class="w-5 h-5 text-emerald-400"></i>

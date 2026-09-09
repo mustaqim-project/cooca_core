@@ -95,10 +95,10 @@
 
     <!-- Purchase Orders Table Card -->
     <div class="glass-card rounded-2xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs min-w-[700px]">
                 <thead>
-                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
+                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50 whitespace-nowrap">
                         <th class="py-3.5 px-4 font-semibold">Nomor PO & Tanggal</th>
                         <th class="py-3.5 px-4 font-semibold">Tipe</th>
                         <th class="py-3.5 px-4 font-semibold">Pihak Terkait (Klien / Vendor)</th>

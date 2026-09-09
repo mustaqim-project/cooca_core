@@ -226,8 +226,8 @@
 }">
 
     <!-- Top Action Bar -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <form method="GET" action="{{ route('products.index') }}" class="flex-1 flex items-center gap-3">
+    <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        <form method="GET" action="{{ route('products.index') }}" class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div class="relative flex-1 max-w-md">
                 <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
                 <input type="text" name="search" value="{{ request('search') }}"
@@ -244,6 +244,7 @@
             </select>
         </form>
 
+        <div class="flex flex-wrap items-center gap-2">
             <button type="button" @click="togglePosShowImages()" :disabled="posImageToggling"
                class="px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all border disabled:opacity-50"
                :class="posShowImages ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 shadow-sm' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'"
@@ -271,16 +272,16 @@
 
     <!-- Products Table Card -->
     <div class="glass-card rounded-2xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs min-w-[640px]">
                 <thead>
                     <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
-                        <th class="py-3.5 px-4 font-semibold">Nama Produk & Barcode</th>
-                        <th class="py-3.5 px-4 font-semibold">Kategori</th>
-                        <th class="py-3.5 px-4 font-semibold">Satuan Output</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">HPP Standar / Aktif</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">Harga Jual Aktif</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">Aksi</th>
+                        <th class="py-3.5 px-4 font-semibold whitespace-nowrap">Nama Produk & Barcode</th>
+                        <th class="py-3.5 px-4 font-semibold whitespace-nowrap">Kategori</th>
+                        <th class="py-3.5 px-4 font-semibold whitespace-nowrap">Satuan Output</th>
+                        <th class="py-3.5 px-4 font-semibold text-right whitespace-nowrap">HPP Standar / Aktif</th>
+                        <th class="py-3.5 px-4 font-semibold text-right whitespace-nowrap">Harga Jual Aktif</th>
+                        <th class="py-3.5 px-4 font-semibold text-right whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/60">
@@ -395,7 +396,7 @@
 
     <!-- Modal Tambah Produk -->
     <div x-show="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card max-w-md w-full p-6 rounded-2xl space-y-4" @click.outside="showAddModal = false">
+        <div class="glass-card max-w-md w-full p-6 rounded-2xl space-y-4 max-h-[88dvh] overflow-y-auto" @click.outside="showAddModal = false">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-base font-bold text-white">Buat Produk Baru</h3>
                 <button @click="showAddModal = false" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -493,7 +494,7 @@
 
     <!-- Modal CMS Kategori Produk -->
     <div x-show="showAddCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4" @click.outside="showAddCategoryModal = false">
+        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4 max-h-[88dvh] overflow-y-auto" @click.outside="showAddCategoryModal = false">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <i data-lucide="folder-plus" class="w-4 h-4 text-emerald-400"></i>
@@ -526,7 +527,7 @@
 
     <!-- Modal CMS Satuan Output Baru -->
     <div x-show="showAddUnitModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4" @click.outside="showAddUnitModal = false">
+        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4 max-h-[88dvh] overflow-y-auto" @click.outside="showAddUnitModal = false">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <i data-lucide="scale" class="w-4 h-4 text-emerald-400"></i>

@@ -37,7 +37,14 @@ final class CustomerWebController extends Controller
 
         $customers = $query->paginate(15)->withQueryString();
 
-        return view('app.customers.index', compact('business', 'customers'));
+        $totalCustomers = Customer::where('business_id', $business->id)->count();
+        $totalCorporate = Customer::where('business_id', $business->id)
+            ->whereNotNull('company_name')
+            ->where('company_name', '!=', '')
+            ->count();
+        $avgPaymentTerms = (int) round((float) (Customer::where('business_id', $business->id)->avg('payment_terms_days') ?: 30));
+
+        return view('app.customers.index', compact('business', 'customers', 'totalCustomers', 'totalCorporate', 'avgPaymentTerms'));
     }
 
     /**

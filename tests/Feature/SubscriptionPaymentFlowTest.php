@@ -253,4 +253,18 @@ class SubscriptionPaymentFlowTest extends TestCase
             'payment_id' => $payment->id,
         ]);
     }
+
+    public function test_tenant_can_view_and_download_subscription_invoice(): void
+    {
+        $service = new EntitlementService();
+        $payment = $service->createPaymentOrder($this->business, $this->user, 'annual', SubscriptionPayment::METHOD_BCA);
+
+        $response = $this->actingAs($this->user)->get(route('billing.payment.invoice', $payment));
+
+        $response->assertOk();
+        $response->assertSee('INVOICE TAGIHAN');
+        $response->assertSee($payment->order_number);
+        $response->assertSee($this->business->name);
+        $response->assertSee('Download PDF Langsung');
+    }
 }

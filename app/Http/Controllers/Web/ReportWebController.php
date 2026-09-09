@@ -18,7 +18,8 @@ final class ReportWebController extends Controller
 {
     public function __construct(
         private readonly ReportingService $reportingService = new ReportingService,
-        private readonly FinancialReportService $financialReportService = new FinancialReportService
+        private readonly FinancialReportService $financialReportService = new FinancialReportService,
+        private readonly \App\Domain\Report\ExcelReportExportService $excelExportService = new \App\Domain\Report\ExcelReportExportService
     ) {}
 
     /**
@@ -97,12 +98,13 @@ final class ReportWebController extends Controller
     }
 
     /**
-     * Export Laporan ke Excel / CSV berdasarkan tab/jenis yang diminta.
+     * Export Laporan ke Excel (.xlsx komprehensif dengan multi-sheet & dashboard) atau CSV.
      */
     public function exportExcel(Request $request): StreamedResponse
     {
         $business = Context::requireBusiness();
-        $type = $request->query('type', 'income_statement');
+        $format = strtolower((string) $request->query('format', 'xlsx'));
+        $type = (string) $request->query('type', 'comprehensive');
 
         $startDate = $request->filled('start_date') ? Carbon::parse($request->query('start_date')) : Carbon::today()->startOfMonth();
         $endDate   = $request->filled('end_date') ? Carbon::parse($request->query('end_date')) : Carbon::today()->endOfMonth();
@@ -111,6 +113,29 @@ final class ReportWebController extends Controller
             [$startDate, $endDate] = [$endDate, $startDate];
         }
 
+        // Format XLSX: Export Workbook Komprehensif (Multi-Sheet + Dashboard Eksekutif)
+        if ($format === 'xlsx' || $type === 'comprehensive') {
+            $incomeStatement = $this->financialReportService->getIncomeStatement($business, $startDate, $endDate);
+            $cashFlow = $this->financialReportService->getCashFlowStatement($business, $startDate, $endDate);
+            $agingSummary = $this->financialReportService->getAgingSummary($business);
+            $stockValuation = $this->financialReportService->getStockValuationAndTurnover($business);
+            $hppReport = $this->reportingService->hppPerProduct();
+            $costBreakdown = $this->reportingService->costBreakdownSummary();
+
+            return $this->excelExportService->downloadComprehensiveWorkbook(
+                $business,
+                $startDate,
+                $endDate,
+                $incomeStatement,
+                $cashFlow,
+                $agingSummary,
+                $stockValuation,
+                $hppReport,
+                $costBreakdown
+            );
+        }
+
+        // Fallback: Format CSV per Tab
         $filename = 'Laporan_' . Str::studly($type) . '_' . Str::slug($business->name) . '_' . date('Ymd_His') . '.csv';
 
         $headers = [

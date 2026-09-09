@@ -519,9 +519,9 @@
 
     <!-- Modal 2: Change Employee / Member Role Modal -->
     <div x-show="showMemberRoleModal" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card w-full max-w-md rounded-3xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col" @click.outside="showMemberRoleModal = false">
+        <div class="glass-card w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col" @click.outside="showMemberRoleModal = false">
             <!-- Modal Header -->
-            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/60 shrink-0">
                 <div class="flex items-center gap-2.5">
                     <div class="p-2 rounded-xl bg-cyan-500/20 text-cyan-300">
                         <i data-lucide="user-cog" class="w-5 h-5"></i>
@@ -562,7 +562,7 @@
                 </div>
 
                 <!-- Modal Footer -->
-                <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2.5">
+                <div class="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-end gap-2.5">
                     <button type="button" @click="showMemberRoleModal = false" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
                         Batal
                     </button>

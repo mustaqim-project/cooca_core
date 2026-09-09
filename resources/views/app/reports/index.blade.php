@@ -81,14 +81,21 @@
 
         <!-- Export & Print Actions -->
         <div class="flex items-center gap-2">
-            <a :href="'{{ route('reports.export-excel') }}?type=' + activeTab + '&start_date={{ $startDate->toDateString() }}&end_date={{ $endDate->toDateString() }}'"
-                class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-600/20 transition whitespace-nowrap">
-                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-                <span>Export Excel (.CSV)</span>
+            <!-- Tombol Utama: Export Excel (.xlsx) -->
+            <a :href="'{{ route('reports.export-excel') }}?format=xlsx&start_date={{ $startDate->toDateString() }}&end_date={{ $endDate->toDateString() }}'"
+                id="btnExportExcel"
+                class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/25 transition group">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-100 group-hover:scale-110 transition"></i>
+                <div class="flex flex-col text-left leading-tight">
+                    <span>Export Excel (.xlsx)</span>
+                    <span class="text-[10px] text-emerald-200 font-normal">Dashboard + 6 Sheet Lengkap</span>
+                </div>
             </a>
-            <button type="button" onclick="window.print()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 transition">
-                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                <span class="hidden sm:inline">Cetak PDF</span>
+
+            <!-- Tombol Cetak / PDF -->
+            <button type="button" onclick="window.print()" class="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Cetak</span>
             </button>
         </div>
     </div>
@@ -451,9 +458,9 @@
             </div>
 
             <!-- AR Details Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300 font-mono">
-                    <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+            <div class="table-responsive">
+                <table class="w-full text-left text-xs text-slate-300 font-mono min-w-[620px]">
+                    <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800 whitespace-nowrap">
                         <tr>
                             <th class="py-2.5 px-3 font-sans">No. Invoice</th>
                             <th class="py-2.5 px-3 font-sans">Pelanggan</th>
@@ -512,9 +519,9 @@
             </div>
 
             <!-- AP Details Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300 font-mono">
-                    <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+            <div class="table-responsive">
+                <table class="w-full text-left text-xs text-slate-300 font-mono min-w-[620px]">
+                    <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800 whitespace-nowrap">
                         <tr>
                             <th class="py-2.5 px-3 font-sans">No. Tagihan Vendor</th>
                             <th class="py-2.5 px-3 font-sans">Supplier / Vendor</th>
@@ -590,9 +597,9 @@
             <div class="p-4 bg-slate-900/90 border-b border-slate-800 text-xs font-bold text-white flex justify-between items-center">
                 <span>Daftar Nilai Valuasi Stok per Produk</span>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300 font-mono">
-                    <thead class="bg-slate-950/60 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+            <div class="table-responsive">
+                <table class="w-full text-left text-xs text-slate-300 font-mono min-w-[700px]">
+                    <thead class="bg-slate-950/60 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800 whitespace-nowrap">
                         <tr>
                             <th class="py-2.5 px-3 font-sans">Produk &amp; SKU</th>
                             <th class="py-2.5 px-3 font-sans">Kategori</th>
@@ -705,10 +712,10 @@
             <div class="p-4 bg-slate-900/90 border-b border-slate-800 text-xs font-bold text-white">
                 Tabel Analisis Modal HPP, Harga Jual &amp; Margin per Produk
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
+            <div class="table-responsive">
+                <table class="w-full text-left text-xs text-slate-300 min-w-[750px]">
                     <thead>
-                        <tr class="text-slate-400 border-b border-slate-800 bg-slate-950/60 font-mono text-[10px] uppercase font-bold">
+                        <tr class="text-slate-400 border-b border-slate-800 bg-slate-950/60 font-mono text-[10px] uppercase font-bold whitespace-nowrap">
                             <th class="py-3 px-4 font-sans">Produk &amp; SKU</th>
                             <th class="py-3 px-4 font-sans">Kategori</th>
                             <th class="py-3 px-4 text-right">Modal Bahan</th>

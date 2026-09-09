@@ -6,13 +6,18 @@
     selectedStock: null,
     newQuantity: 0,
     unitCost: 0,
-    openAdjust(stock) {
+    openAdjust(stockId) {
+        const stock = (window.COOCA_STOCKS || []).find(s => s.id === stockId);
+        if (!stock) return;
         this.selectedStock = stock;
         this.newQuantity = Number(stock.quantity);
-        this.unitCost = Number(stock.last_cost || stock.product.base_cost || 0);
+        this.unitCost = Number(stock.last_cost || (stock.product ? stock.product.base_cost : 0) || 0);
         this.showAdjustModal = true;
     }
 }">
+    <script>
+        window.COOCA_STOCKS = @json($stocks->items());
+    </script>
     
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -99,18 +104,18 @@
 
     <!-- Stock Table -->
     <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[700px]">
                 <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800">
                     <tr>
-                        <th class="py-3.5 px-4">Produk / SKU</th>
-                        <th class="py-3.5 px-4">Lokasi / Outlet</th>
-                        <th class="py-3.5 px-4 text-right">Stok Fisik</th>
-                        <th class="py-3.5 px-4 text-right">Stok Min.</th>
-                        <th class="py-3.5 px-4 text-right">HPP / Unit</th>
-                        <th class="py-3.5 px-4 text-right">Total Nilai</th>
-                        <th class="py-3.5 px-4 text-center">Status</th>
-                        <th class="py-3.5 px-4 text-right">Aksi</th>
+                        <th class="py-3.5 px-4 whitespace-nowrap">Produk / SKU</th>
+                        <th class="py-3.5 px-4 whitespace-nowrap">Lokasi / Outlet</th>
+                        <th class="py-3.5 px-4 text-right whitespace-nowrap">Stok Fisik</th>
+                        <th class="py-3.5 px-4 text-right whitespace-nowrap">Stok Min.</th>
+                        <th class="py-3.5 px-4 text-right whitespace-nowrap">HPP / Unit</th>
+                        <th class="py-3.5 px-4 text-right whitespace-nowrap">Total Nilai</th>
+                        <th class="py-3.5 px-4 text-center whitespace-nowrap">Status</th>
+                        <th class="py-3.5 px-4 text-right whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/60">
@@ -151,7 +156,7 @@
                             @endif
                         </td>
                         <td class="py-3.5 px-4 text-right">
-                            <button @click="openAdjust(@json($st))" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+                            <button @click="openAdjust('{{ $st->id }}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
                                 Sesuaikan
                             </button>
                         </td>

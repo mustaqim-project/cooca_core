@@ -160,6 +160,19 @@ final class SubscriptionCheckoutWebController extends Controller
     }
 
     /**
+     * View and download official subscription payment invoice / receipt.
+     */
+    public function invoice(SubscriptionPayment $payment): View
+    {
+        $business = Context::requireBusiness();
+        abort_unless($payment->business_id === $business->id, 403);
+
+        $methodDetails = $payment->getPaymentMethodDetails();
+
+        return view('app.billing.invoice', compact('business', 'payment', 'methodDetails'));
+    }
+
+    /**
      * Upload transfer receipt proof for verification.
      */
     public function uploadProof(Request $request, SubscriptionPayment $payment): RedirectResponse

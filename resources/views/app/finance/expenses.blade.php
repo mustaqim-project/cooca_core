@@ -9,7 +9,7 @@
             <h1 class="text-2xl font-black text-white tracking-tight">Beban & Biaya Operasional Toko</h1>
             <p class="text-sm text-slate-400 mt-1">Catat biaya operasional toko/outlet (listrik, kemasan, konsumsi, kebersihan) dengan jurnal otomatis.</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2">
             <a href="{{ route('finance.journals.index') }}" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
                 ← Lihat Buku Jurnal
             </a>
@@ -40,9 +40,9 @@
 
     <!-- Expenses Table -->
     <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[620px]">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-3.5 px-4">No. Bukti / Tanggal</th>
                         <th class="py-3.5 px-4">Kategori & Keterangan</th>
@@ -92,7 +92,7 @@
 
     <!-- Modal Catat Biaya -->
     <div x-show="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" style="display: none;">
-        <div class="w-full max-w-md glass-card rounded-2xl border border-slate-700 p-6 space-y-4">
+        <div class="w-full max-w-md glass-card rounded-2xl border border-slate-700 p-6 space-y-4 max-h-[90dvh] overflow-y-auto">
             <h3 class="font-extrabold text-lg text-white">Catat Beban Operasional Baru</h3>
             <form action="{{ route('finance.expenses.store') }}" method="POST" class="space-y-3 text-xs">
                 @csrf

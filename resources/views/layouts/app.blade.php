@@ -91,13 +91,60 @@
     </style>
 
     <style>
-        html,
-        body {
+        /* Responsive root foundation without overflow hacks */
+        html {
+            box-sizing: border-box;
+            -webkit-text-size-adjust: 100%;
+            scroll-behavior: smooth;
             overflow-x: hidden;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+        }
+
+        /* Universal Adaptive Modal Dialogs (Prevents viewport cut-off on mobile & keyboards) */
+        .fixed.inset-0 .glass-card,
+        .fixed.inset-0 .glass-panel,
+        .app-modal-dialog {
+            width: 100% !important;
+            max-width: min(calc(100vw - 1.5rem), var(--modal-max-width, 32rem)) !important;
+            max-height: min(92dvh, calc(100vh - 2rem)) !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        /* Universal Responsive Table Utilities */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+        }
+        .table-responsive table {
+            min-width: 580px;
+            width: 100%;
+        }
+        .table-responsive-wide table {
+            min-width: 760px;
+            width: 100%;
+        }
+        .table-responsive th,
+        .table-responsive td.cell-nowrap {
+            white-space: nowrap;
+        }
+
+        /* Touch & form controls optimization */
+        input, select, textarea, button {
+            touch-action: manipulation;
         }
 
         .glass-nav {
@@ -157,61 +204,61 @@
             white-space: nowrap;
         }
 
+        /* Topbar Header Responsive Base */
         @media (max-width: 1023px) {
             .app-sidebar {
                 width: min(18rem, 86vw);
             }
 
             .app-topbar {
-                min-height: 4.25rem;
+                min-height: 3.75rem;
                 height: auto;
-                padding: .75rem 1rem;
-                gap: .75rem;
+                padding: 0.5rem 0.75rem;
+                gap: 0.5rem;
             }
 
             .app-topbar-title {
                 flex: 1 1 auto;
                 min-width: 0;
-                overflow: hidden;
             }
 
             .app-topbar-actions {
                 flex: 0 0 auto;
                 min-width: 0;
-                flex-wrap: nowrap;
+                display: flex;
+                align-items: center;
+                gap: 0.375rem;
             }
         }
 
         @media (max-width: 639px) {
+            .app-topbar {
+                padding: 0.5rem;
+                gap: 0.375rem;
+            }
+
             .app-topbar-title h1 {
-                font-size: .875rem;
-                max-width: 45vw;
-            }
-
-            .app-topbar-actions .relative>button {
-                max-width: 7rem;
-                padding-left: .55rem;
-                padding-right: .55rem;
-            }
-
-            .app-topbar-actions .plan-pill-detail,
-            .app-topbar-actions .upgrade-link {
-                display: none;
+                font-size: 0.875rem;
+                line-height: 1.25rem;
             }
 
             .app-topbar-actions {
-                gap: .5rem;
+                gap: 0.25rem;
             }
         }
 
-        @media (max-width: 360px) {
-            .app-topbar-title h1 {
-                max-width: 40vw;
-                font-size: .8rem;
+        @media (max-width: 380px) {
+            .app-topbar {
+                padding: 0.375rem 0.5rem;
+                gap: 0.25rem;
             }
 
-            .app-topbar-actions .relative>button {
-                max-width: 6rem;
+            .app-topbar-title h1 {
+                font-size: 0.8125rem;
+            }
+
+            .app-topbar-actions {
+                gap: 0.2rem;
             }
         }
     </style>
@@ -511,9 +558,15 @@
 
                             @if (\App\Support\Context::hasPermission('customers.view'))
                                 <a href="{{ route('customers.index') }}" id="tour-nav-customers"
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('customers.*') || request()->routeIs('crm.*') ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('customers.*') ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
                                     <i data-lucide="users" class="w-3.5 h-3.5 text-indigo-400"></i>
-                                    <span>Pelanggan &amp; CRM</span>
+                                    <span>Pelanggan</span>
+                                </a>
+
+                                <a href="{{ route('crm.members.index') }}" id="tour-nav-crm-members"
+                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('crm.*') ? 'bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/30 shadow-sm' : 'text-slate-400 hover:bg-slate-900 hover:text-white' }}">
+                                    <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <span>CRM &amp; Loyalitas</span>
                                 </a>
                             @endif
 
@@ -937,92 +990,106 @@
         </aside>
 
         <!-- Main Content Area -->
-        <div class="flex-1 lg:pl-72 flex flex-col min-h-screen">
+        <div class="flex-1 lg:pl-72 flex flex-col min-h-screen min-w-0">
 
             <!-- Topbar Header -->
             <header
-                class="app-topbar h-20 glass-header sticky top-0 z-30 flex items-center justify-between px-6 lg:px-10">
-                <div class="app-topbar-title flex items-center gap-4 min-w-0 flex-1">
+                class="app-topbar min-h-[3.75rem] lg:h-20 glass-header sticky top-0 z-30 flex items-center justify-between px-2.5 sm:px-6 lg:px-10 transition-all">
+                <div class="app-topbar-title flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                     <button id="tour-mobile-menu-btn"
                         @click="sidebarOpen = true; window.dispatchEvent(new CustomEvent('sidebar-opened'))"
-                        class="lg:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 shrink-0">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
+                        class="lg:hidden p-1.5 sm:p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 shrink-0 transition"
+                        title="Buka Menu Navigasi" aria-label="Menu Navigasi">
+                        <i data-lucide="menu" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                     </button>
-                    <div class="min-w-0">
-                        <h1 class="text-lg font-bold text-white truncate">{{ $headerTitle ?? 'Cooca UMKM' }}</h1>
-<p class="text-xs text-slate-400 hidden sm:block truncate">
+                    <div class="min-w-0 flex-1">
+                        <h1 class="text-sm sm:text-base lg:text-lg font-bold text-white truncate leading-tight">{{ $headerTitle ?? 'Cooca UMKM' }}</h1>
+                        <p class="text-[11px] sm:text-xs text-slate-400 hidden sm:block truncate leading-normal">
                             {{ $headerSubtitle ?? 'Sistem Perhitungan HPP & Manajemen Komersial Terintegrasi' }}</p>
                     </div>
                 </div>
 
-                <div class="app-topbar-actions flex items-center gap-2.5 flex-shrink-0">
+                <div class="app-topbar-actions flex items-center gap-1.5 sm:gap-2.5 shrink-0">
                     @if ($activeBiz && $navUsage)
                         <!-- Plan Tracking & Subscription Status Popover -->
                         <div class="relative" x-data="{ planDropdownOpen: false }" @click.outside="planDropdownOpen = false">
                             @if ($isCorePlan)
                                 <!-- Core Plan Active Pill -->
                                 <button @click="planDropdownOpen = !planDropdownOpen" type="button"
-                                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/40 text-xs text-white transition shadow-sm group">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"></span>
-                                    <span class="font-black text-emerald-300">Patungan Aktif</span>
+                                    class="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/40 text-xs text-white transition shadow-sm group">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400 shrink-0"></span>
+                                    <span class="font-black text-emerald-300 hidden sm:inline">Patungan Aktif</span>
+                                    <span class="font-black text-emerald-300 sm:hidden">Patungan</span>
                                     @if (($navUsage['ai_tokens']['remaining'] ?? 0) > 0)
                                         <span class="plan-pill-detail hidden md:inline text-[10px] text-amber-300/90 font-mono">({{ number_format(($navUsage['ai_tokens']['remaining'] ?? 0) / 1000, 0) }}k AI)</span>
                                     @endif
-                                    <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-emerald-400 transition-transform duration-200" :class="planDropdownOpen ? 'rotate-180' : ''"></i>
+                                    <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-emerald-400 transition-transform duration-200 shrink-0" :class="planDropdownOpen ? 'rotate-180' : ''"></i>
                                 </button>
                             @else
                                 <!-- Free Plan Pill with Upgrade CTA -->
-                                <div class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-1 sm:gap-1.5">
                                     <button @click="planDropdownOpen = !planDropdownOpen" type="button"
-                                        class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-amber-500/40 text-xs text-slate-200 transition shadow-sm group">
-                                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                                        <span class="font-bold text-amber-300">Free Plan</span>
-                                        <span class="hidden sm:inline text-[10px] text-slate-400 font-mono">({{ $navUsage['products']['used'] ?? 0 }}/50 Prod • {{ $navUsage['invoices_this_month']['used'] ?? 0 }}/10 Inv)</span>
-                                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="planDropdownOpen ? 'rotate-180' : ''"></i>
+                                        class="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-amber-500/40 text-xs text-slate-200 transition shadow-sm group">
+                                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+                                        <span class="font-bold text-amber-300">Free</span>
+                                        <span class="hidden md:inline text-[10px] text-slate-400 font-mono">({{ $navUsage['products']['used'] ?? 0 }}/50 Prod • {{ $navUsage['invoices_this_month']['used'] ?? 0 }}/10 Inv)</span>
+                                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0" :class="planDropdownOpen ? 'rotate-180' : ''"></i>
                                     </button>
 
                                     <a href="{{ route('billing.patungan') }}"
-                                        class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs font-black shadow-md shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95">
+                                        class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs font-black shadow-md shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95"
+                                        title="Tingkatkan ke Cooca UMKM">
                                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                        <span>Ikut Patungan</span>
+                                        <span>Upgrade Patungan</span>
                                     </a>
                                 </div>
                             @endif
 
-                            <!-- Dropdown Panel -->
+                            <!-- Mobile Backdrop for Plan Dropdown -->
+                            <div x-show="planDropdownOpen" x-transition.opacity @click="planDropdownOpen = false"
+                                class="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden" style="display: none;"></div>
+
+                            <!-- Dropdown Panel (Fixed on mobile with safe margin & close btn, absolute on desktop) -->
                             <div x-show="planDropdownOpen" x-transition:enter="transition ease-out duration-150"
                                 x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
                                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                                 x-transition:leave="transition ease-in duration-100"
                                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                                class="absolute right-0 mt-2 w-96 max-w-[92vw] rounded-3xl bg-slate-950/95 backdrop-blur-xl border border-slate-800 shadow-2xl p-5 space-y-4 z-50 text-slate-200"
+                                class="fixed inset-x-3 sm:inset-x-auto sm:right-4 top-16 max-h-[85dvh] sm:max-w-md w-auto sm:w-96 md:top-full md:right-0 md:mt-2 md:absolute md:inset-x-auto overflow-y-auto overscroll-contain rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl p-4 sm:p-5 space-y-4 z-50 text-slate-200"
                                 style="display: none;">
 
                                 <!-- Header status -->
                                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                                    <div>
+                                    <div class="min-w-0 flex-1 pr-2">
                                         <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Status Langganan</span>
-                                        <h4 class="font-black text-sm text-white flex items-center gap-1.5 mt-0.5">
+                                        <h4 class="font-black text-sm text-white flex items-center gap-1.5 mt-0.5 truncate">
                                             @if ($isCorePlan)
-                                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-                                                <span class="text-emerald-300">{{ $navUsage['plan_label'] ?? 'Cooca UMKM (Patungan)' }}</span>
+                                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                                <span class="text-emerald-300 truncate">{{ $navUsage['plan_label'] ?? 'Cooca UMKM (Patungan)' }}</span>
                                             @else
-                                                <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
-                                                <span>Paket Free (Solo)</span>
+                                                <i data-lucide="sparkles" class="w-4 h-4 text-amber-400 shrink-0"></i>
+                                                <span class="truncate">Paket Free (Solo)</span>
                                             @endif
                                         </h4>
                                         @if ($isCorePlan && !empty($navUsage['ends_at']))
                                             <p class="text-[10px] text-emerald-400/90 font-mono mt-0.5">Aktif s/d {{ $navUsage['ends_at'] }}</p>
                                         @endif
                                     </div>
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border {{ $isCorePlan ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-slate-800 text-slate-400 border-slate-700' }}">
-                                        {{ $isCorePlan ? 'Aktif' : 'Gratis' }}
-                                    </span>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border {{ $isCorePlan ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-slate-800 text-slate-400 border-slate-700' }}">
+                                            {{ $isCorePlan ? 'Aktif' : 'Gratis' }}
+                                        </span>
+                                        <button type="button" @click="planDropdownOpen = false"
+                                            class="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                                            title="Tutup Popup" aria-label="Tutup">
+                                            <i data-lucide="x" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Resource Usage Meters (Sesuai /billing/limits) -->
-                                <div class="space-y-3.5 text-xs max-h-72 overflow-y-auto pr-1">
+                                <div class="space-y-3.5 text-xs max-h-64 sm:max-h-72 overflow-y-auto overscroll-contain pr-1">
                                     <!-- 1. Katalog Produk -->
                                     <div class="space-y-1">
                                         <div class="flex justify-between text-[11px]">
@@ -1160,7 +1227,7 @@
                                         </p>
                                         <a href="{{ route('billing.patungan') }}"
                                             class="block w-full py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-center text-slate-950 text-xs font-black shadow-lg shadow-emerald-500/20 transition">
-                                            Ikut Patungan Sekarang
+                                            Tingkatkan ke Cooca UMKM
                                         </a>
                                     </div>
                                 @endif
@@ -1178,23 +1245,76 @@
 
                     @if ($activeBiz)
                         <div
-                            class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300">
+                            class="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                             <span>{{ $activeBiz->currency_code }} ({{ $activeBiz->currency_symbol }})</span>
                         </div>
                     @endif
 
+                    <!-- Fullscreen Toggle Button -->
+                    <div x-data="{
+                        isFullscreen: false,
+                        init() {
+                            const handleFs = () => this.updateState();
+                            document.addEventListener('fullscreenchange', handleFs);
+                            document.addEventListener('webkitfullscreenchange', handleFs);
+                            document.addEventListener('mozfullscreenchange', handleFs);
+                            document.addEventListener('MSFullscreenChange', handleFs);
+                        },
+                        toggleFullscreen() {
+                            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+                                const docEl = document.documentElement;
+                                if (docEl.requestFullscreen) {
+                                    docEl.requestFullscreen().catch(() => {});
+                                } else if (docEl.webkitRequestFullscreen) {
+                                    docEl.webkitRequestFullscreen();
+                                } else if (docEl.mozRequestFullScreen) {
+                                    docEl.mozRequestFullScreen();
+                                } else if (docEl.msRequestFullscreen) {
+                                    docEl.msRequestFullscreen();
+                                }
+                            } else {
+                                if (document.exitFullscreen) {
+                                    document.exitFullscreen().catch(() => {});
+                                } else if (document.webkitExitFullscreen) {
+                                    document.webkitExitFullscreen();
+                                } else if (document.mozCancelFullScreen) {
+                                    document.mozCancelFullScreen();
+                                } else if (document.msExitFullscreen) {
+                                    document.msExitFullscreen();
+                                }
+                            }
+                        },
+                        updateState() {
+                            this.isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+                        }
+                    }" class="relative">
+                        <button type="button" @click="toggleFullscreen()"
+                            :title="isFullscreen ? 'Keluar Layar Penuh (Esc)' : 'Mode Layar Penuh (Full Screen)'"
+                            aria-label="Toggle Fullscreen"
+                            class="p-2 sm:px-2.5 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/40 text-slate-300 hover:text-white transition-all shadow-sm flex items-center gap-1.5 shrink-0 group">
+                            <i x-show="!isFullscreen" data-lucide="maximize" class="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors"></i>
+                            <i x-show="isFullscreen" data-lucide="minimize" class="w-4 h-4 text-emerald-400 group-hover:text-emerald-300 transition-colors" style="display: none;"></i>
+                            <span class="hidden 2xl:inline text-xs font-semibold" x-text="isFullscreen ? 'Normal' : 'Layar Penuh'"></span>
+                        </button>
+                    </div>
+
                     <!-- Quick Action Menu Dropdown -->
                     <div class="relative" x-data="{ openQuick: false }">
                         <button type="button" @click="openQuick = !openQuick" @click.outside="openQuick = false"
-                            class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/40 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm">
-                            <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+                            class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/40 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                            title="Menu Aksi Cepat">
+                            <i data-lucide="zap" class="w-4 h-4 text-amber-400 shrink-0"></i>
                             <span class="hidden sm:inline">Aksi Cepat</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:inline shrink-0"></i>
                         </button>
 
+                        <!-- Mobile Backdrop for Quick Action -->
+                        <div x-show="openQuick" x-transition.opacity @click="openQuick = false"
+                            class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 sm:hidden" style="display: none;"></div>
+
                         <div x-show="openQuick" x-transition
-                            class="absolute right-0 mt-2 w-56 rounded-2xl bg-slate-950/95 backdrop-blur-xl border border-slate-800 shadow-2xl p-2 z-50 space-y-1 text-xs"
+                            class="fixed inset-x-4 top-16 max-h-[80dvh] sm:top-full sm:inset-x-auto sm:right-0 sm:mt-2 sm:absolute w-auto sm:w-56 overflow-y-auto rounded-2xl bg-slate-950/95 backdrop-blur-2xl border border-slate-800 shadow-2xl p-2 z-50 space-y-1 text-xs"
                             style="display: none;">
                             <button type="button" @click="openQuick = false; $dispatch('open-quick-expense')"
                                 class="w-full px-3 py-2.5 rounded-xl hover:bg-slate-900 text-left text-slate-200 hover:text-emerald-400 flex items-center gap-2.5 transition">
@@ -1245,15 +1365,16 @@
                     </div>
 
                     <a href="{{ route('calculator.index') }}"
-                        class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition-all shrink-0">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Hitung HPP</span>
+                        class="hidden sm:flex px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 items-center gap-1.5 transition-all shrink-0"
+                        title="Hitung HPP Produk">
+                        <i data-lucide="plus" class="w-4 h-4 shrink-0"></i>
+                        <span>Hitung HPP</span>
                     </a>
                 </div>
             </header>
 
             <!-- Main Page Content -->
-            <main class="flex-1 p-6 lg:p-10 space-y-6">
+            <main class="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 xl:p-10 space-y-5 sm:space-y-6 min-w-0 pb-28 lg:pb-10">
                 <!-- Flash Alerts -->
                 @if (session('success'))
                     <div
@@ -1409,7 +1530,7 @@
             }">
 
                 <!-- Floating Toasts Container -->
-                <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 max-w-sm pointer-events-none">
+                <div class="fixed bottom-20 lg:bottom-6 right-3 sm:right-6 left-3 sm:left-auto z-50 flex flex-col gap-2.5 max-w-[calc(100vw-1.5rem)] sm:max-w-sm pointer-events-none">
                     <template x-for="t in toastList" :key="t.id">
                         <div x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
@@ -1995,20 +2116,6 @@
                             icon: 'bot',
                             desc: 'Fitur AI Cockpit untuk analisis penjualan, prediksi tren, dan asisten pintar kasir POS berbasis Gemini AI.',
                             color: 'purple'
-                        }
-                    }));
-                    return;
-                }
-
-                // Match /community
-                if (fullHref.includes('/community') || href.includes('/community')) {
-                    e.preventDefault();
-                    window.dispatchEvent(new CustomEvent('cooca-coming-soon', {
-                        detail: {
-                            title: 'Komunitas Owner',
-                            icon: 'users',
-                            desc: 'Forum diskusi eksklusif khusus para owner UMKM Cooca — berbagi tips, trik, dan strategi bisnis bersama.',
-                            color: 'amber'
                         }
                     }));
                     return;

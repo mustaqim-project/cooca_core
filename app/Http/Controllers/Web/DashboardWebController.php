@@ -436,6 +436,7 @@ final class DashboardWebController extends Controller
             'unpaid_invoices_amount' => $unpaidAmount,
             'unpaid_invoices_count' => $unpaidCount,
             'total_stock_valuation' => $totalStockValuation,
+            'inventory_valuation' => $totalStockValuation,
             'low_stock_count' => $lowStockCount,
             'total_products' => $totalProducts,
             'total_materials' => Material::where('business_id', $business->id)->count(),

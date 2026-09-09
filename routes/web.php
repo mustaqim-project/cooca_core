@@ -342,6 +342,7 @@ Route::middleware('auth:web')->group(function (): void {
         Route::get('/billing/checkout', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.checkout');
         Route::post('/billing/order', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'store'])->name('billing.order.store');
         Route::get('/billing/payments/{payment}', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'payment'])->name('billing.payment.show');
+        Route::get('/billing/payments/{payment}/invoice', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'invoice'])->name('billing.payment.invoice');
         Route::post('/billing/payments/{payment}/upload-proof', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'uploadProof'])->name('billing.payment.upload');
         Route::get('/billing/history', [\App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController::class, 'history'])->name('billing.history');
 

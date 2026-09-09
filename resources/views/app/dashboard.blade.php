@@ -122,7 +122,7 @@
                             <i data-lucide="shopping-cart" class="w-5 h-5"></i>
                         </div>
                     </div>
-                    <div class="text-2xl lg:text-3xl font-extrabold text-white font-mono tracking-tight">
+                    <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white font-mono tracking-tight truncate">
                         Rp <span
                             x-text="Number(stats.today_sales).toLocaleString('id-ID')">{{ number_format($stats['today_sales'], 0, ',', '.') }}</span>
                     </div>
@@ -150,7 +150,7 @@
                             <i data-lucide="trending-up" class="w-5 h-5"></i>
                         </div>
                     </div>
-                    <div class="text-2xl lg:text-3xl font-extrabold font-mono tracking-tight text-teal-300"
+                    <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold font-mono tracking-tight truncate text-teal-300"
                         :class="stats.month_net_profit_est >= 0 ? 'text-teal-300' : 'text-rose-400'">
                         Rp <span
                             x-text="Number(stats.month_net_profit_est).toLocaleString('id-ID')">{{ number_format($stats['month_net_profit_est'], 0, ',', '.') }}</span>
@@ -178,9 +178,9 @@
                             <i data-lucide="warehouse" class="w-5 h-5"></i>
                         </div>
                     </div>
-                    <div class="text-2xl lg:text-3xl font-extrabold text-white font-mono tracking-tight">
+                    <div class="text-xl sm:text-2xl font-extrabold text-white font-mono tracking-tight truncate">
                         Rp <span
-                            x-text="Number(stats.total_stock_valuation).toLocaleString('id-ID')">{{ number_format($stats['total_stock_valuation'], 0, ',', '.') }}</span>
+                            x-text="Number(stats.total_stock_valuation || stats.inventory_valuation || 0).toLocaleString('id-ID')">{{ number_format($stats['total_stock_valuation'] ?? $stats['inventory_valuation'] ?? 0, 0, ',', '.') }}</span>
                     </div>
                 </div>
                 <div class="mt-3 pt-3 border-t border-slate-800/80 text-xs flex items-center justify-between">
@@ -215,7 +215,7 @@
                             <i data-lucide="receipt" class="w-5 h-5"></i>
                         </div>
                     </div>
-                    <div class="text-2xl lg:text-3xl font-extrabold text-white font-mono tracking-tight">
+                    <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white font-mono tracking-tight truncate">
                         Rp <span
                             x-text="Number(stats.unpaid_invoices_amount).toLocaleString('id-ID')">{{ number_format($stats['unpaid_invoices_amount'], 0, ',', '.') }}</span>
                     </div>
@@ -260,9 +260,9 @@
                 </div>
 
                 <!-- CSS/SVG Visual Bar Chart -->
-                <div class="h-44 pt-4 flex items-end justify-between gap-2 sm:gap-4 px-2">
+                <div class="h-44 pt-4 flex items-end justify-between gap-1 sm:gap-4 px-1 sm:px-2">
                     @foreach ($sevenDaysTrend as $day)
-                        <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                        <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end min-w-0">
                             <div
                                 class="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 border border-slate-700 text-white font-mono text-[10px] px-2 py-1 rounded-md shadow-lg pointer-events-none whitespace-nowrap z-20">
                                 Rp {{ number_format($day['amount'], 0, ',', '.') }}
@@ -270,9 +270,9 @@
                             <div class="w-full max-w-[48px] rounded-xl bg-gradient-to-t from-emerald-600/60 to-teal-400 hover:to-emerald-300 transition-all duration-300 relative group-hover:shadow-lg group-hover:shadow-emerald-500/30"
                                 style="height: {{ $day['height_pct'] }}%;">
                             </div>
-                            <div class="text-center">
-                                <div class="text-xs font-bold text-slate-300">{{ $day['day_name'] }}</div>
-                                <div class="text-[10px] text-slate-400 font-mono">{{ $day['date_formatted'] }}</div>
+                            <div class="text-center w-full min-w-0">
+                                <div class="text-[10px] sm:text-xs font-bold text-slate-300 truncate">{{ $day['day_name'] }}</div>
+                                <div class="text-[9px] sm:text-[10px] text-slate-400 font-mono truncate">{{ $day['date_formatted'] }}</div>
                             </div>
                         </div>
                     @endforeach
@@ -427,8 +427,8 @@
                             Baru</a>
                     </div>
                 @else
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
+                    <div class="table-responsive">
+                        <table class="w-full text-left text-xs min-w-[340px]">
                             <thead>
                                 <tr class="text-slate-400 border-b border-slate-800">
                                     <th class="pb-2.5 font-semibold">Produk</th>

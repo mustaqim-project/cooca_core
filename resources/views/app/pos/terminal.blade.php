@@ -49,8 +49,33 @@
     <script src="{{ asset('js/app-alert.js') }}"></script>
 
     <style>
-        html, body { overflow-x: hidden; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        /* Responsive root foundation without overflow hacks */
+        html {
+            box-sizing: border-box;
+            -webkit-text-size-adjust: 100%;
+        }
+        *, *:before, *:after { box-sizing: inherit; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        /* Universal Adaptive Modal Dialogs for POS */
+        .pos-modal-panel,
+        .fixed.inset-0 .glass-panel,
+        .fixed.inset-0 .glass-card {
+            max-height: min(92dvh, calc(100vh - 2rem)) !important;
+            max-width: min(calc(100vw - 1.5rem), 42rem) !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        input, select, textarea, button {
+            touch-action: manipulation;
+        }
+
         .glass-panel {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
@@ -88,11 +113,14 @@
             .pos-search-row .search-box { min-width: 0; width: 100%; }
             .pos-search-row .category-bar { margin-top: .5rem; max-width: 100%; }
             .pos-products { padding-right: 0; }
-            .pos-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
-            .pos-product-card { padding: .65rem; border-radius: .85rem; }
+            .pos-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
+            @media (min-width: 480px) and (max-width: 767px) {
+                .pos-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+            }
+            .pos-product-card { padding: .55rem .65rem; border-radius: .75rem; }
             .pos-product-card .product-code { display: none; }
-            .pos-product-card h4 { font-size: .8rem; }
-            .pos-product-card .pos-price { font-size: .8rem; }
+            .pos-product-card h4 { font-size: .78rem; line-height: 1.25; }
+            .pos-product-card .pos-price { font-size: .78rem; }
 
             /* Prevent flex/grid children from forcing horizontal overflow */
             .pos-catalog,
@@ -261,7 +289,8 @@
             }
 
             .pos-header-hold-btn,
-            .pos-header-cash-btn {
+            .pos-header-cash-btn,
+            .pos-header-fs-btn {
                 width: 2.15rem;
                 height: 2.15rem;
                 padding: 0;
@@ -271,12 +300,14 @@
             }
 
             .pos-header-hold-btn .action-label,
-            .pos-header-cash-btn .action-label {
+            .pos-header-cash-btn .action-label,
+            .pos-header-fs-btn .action-label {
                 display: none;
             }
 
             .pos-header-hold-btn i,
-            .pos-header-cash-btn i {
+            .pos-header-cash-btn i,
+            .pos-header-fs-btn i {
                 width: 1rem;
                 height: 1rem;
             }
@@ -348,7 +379,7 @@
             .pos-product-grid { gap: .4rem; }
             .pos-product-card .pos-price { font-size: .72rem; }
             .pos-product-card .stock-chip { padding: .15rem .4rem; font-size: 9px; }
-            .pos-header-hold-btn, .pos-header-cash-btn { padding: .3rem .4rem; }
+            .pos-header-hold-btn, .pos-header-cash-btn, .pos-header-fs-btn { padding: .3rem .4rem; }
             .pos-header-brand .business-name { font-size: .72rem; }
             .pos-header-subtitle { display: none; }
             .pos-header-back,
@@ -356,6 +387,7 @@
             .pos-header-shift-status,
             .pos-header-hold-btn,
             .pos-header-cash-btn,
+            .pos-header-fs-btn,
             .pos-cashier-avatar {
                 width: 2rem;
                 height: 2rem;
@@ -446,6 +478,44 @@
                     <span class="action-label">Kas Masuk/Keluar</span>
                 </button>
 
+                <!-- Fullscreen Toggle for POS -->
+                <div x-data="{
+                    isFullscreen: false,
+                    init() {
+                        const handleFs = () => this.updateState();
+                        document.addEventListener('fullscreenchange', handleFs);
+                        document.addEventListener('webkitfullscreenchange', handleFs);
+                        document.addEventListener('mozfullscreenchange', handleFs);
+                        document.addEventListener('MSFullscreenChange', handleFs);
+                    },
+                    toggleFullscreen() {
+                        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+                            const docEl = document.documentElement;
+                            if (docEl.requestFullscreen) { docEl.requestFullscreen().catch(() => {}); }
+                            else if (docEl.webkitRequestFullscreen) { docEl.webkitRequestFullscreen(); }
+                            else if (docEl.mozRequestFullScreen) { docEl.mozRequestFullScreen(); }
+                            else if (docEl.msRequestFullscreen) { docEl.msRequestFullscreen(); }
+                        } else {
+                            if (document.exitFullscreen) { document.exitFullscreen().catch(() => {}); }
+                            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+                            else if (document.mozCancelFullScreen) { document.mozCancelFullScreen(); }
+                            else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+                        }
+                    },
+                    updateState() {
+                        this.isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+                    }
+                }">
+                    <button type="button" @click="toggleFullscreen()"
+                            class="pos-header-fs-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-semibold transition group"
+                            :title="isFullscreen ? 'Keluar Layar Penuh (Esc)' : 'Mode Layar Penuh (Full Screen)'"
+                            aria-label="Toggle Fullscreen">
+                        <i x-show="!isFullscreen" data-lucide="maximize" class="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors shrink-0"></i>
+                        <i x-show="isFullscreen" data-lucide="minimize" class="w-4 h-4 text-emerald-400 group-hover:text-emerald-300 transition-colors shrink-0" style="display: none;"></i>
+                        <span class="action-label hidden xl:inline" x-text="isFullscreen ? 'Normal' : 'Fullscreen'"></span>
+                    </button>
+                </div>
+
                 <!-- Cashier -->
                 <div class="pos-header-cashier-info flex items-center gap-2 pl-2 border-l border-slate-800 text-xs">
                     <div class="pos-cashier-avatar w-7 h-7 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold shrink-0"
@@ -506,32 +576,57 @@
 
                 <!-- Products Grid (Touch Cards) -->
                 <div class="pos-products flex-1 overflow-y-auto pr-1">
-                    <div class="pos-product-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                    <div class="pos-product-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
                         <template x-for="product in filteredProducts" :key="product.id">
                             <div @click="addToCart(product)"
-                                 class="pos-product-card glass-card rounded-2xl p-3 cursor-pointer hover:border-emerald-500/40 hover:bg-slate-800/80 transition-all flex flex-col justify-between group active:scale-[0.98]">
+                                 class="pos-product-card glass-card rounded-xl sm:rounded-2xl p-2 sm:p-3 cursor-pointer hover:border-emerald-500/40 hover:bg-slate-800/80 transition-all flex flex-col justify-between group active:scale-[0.98] select-none min-w-0">
                                 @if($posShowProductImages)
                                     <div>
-                                        <div class="relative w-full h-28 rounded-xl bg-slate-900 border border-slate-800/80 mb-2 overflow-hidden flex items-center justify-center group-hover:border-emerald-500/30 transition">
+                                        <!-- Desktop Thumbnail: Image if available, Icon if not. Never overlapping. Hidden on mobile for sleek minimalist layout. -->
+                                        <div class="hidden sm:flex relative w-full h-28 md:h-32 rounded-xl bg-slate-900 border border-slate-800/80 mb-2 overflow-hidden items-center justify-center group-hover:border-emerald-500/30 transition shrink-0">
                                             <template x-if="product.image_url">
-                                                <img :src="product.image_url" :alt="product.name" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <img :src="product.image_url"
+                                                     :alt="product.name"
+                                                     loading="lazy"
+                                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                                     x-on:error="product.image_url = null">
                                             </template>
-                                            <div class="w-full h-full flex items-center justify-center text-slate-600 bg-slate-900">
-                                                <i data-lucide="package" class="w-6 h-6 stroke-1"></i>
-                                            </div>
+                                            <template x-if="!product.image_url">
+                                                <div class="w-full h-full flex flex-col items-center justify-center text-slate-600 bg-slate-900/60">
+                                                    <svg class="w-8 h-8 stroke-1 text-slate-600 group-hover:text-slate-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                                                        <path d="m3.3 7 8.7 5 8.7-5"></path>
+                                                        <path d="M12 22V12"></path>
+                                                    </svg>
+                                                </div>
+                                            </template>
+                                            <!-- Desktop Stock Badge -->
                                             <span class="absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded shadow backdrop-blur-md"
-                                                  :class="product.current_stock > 0 ? 'bg-slate-950/80 text-emerald-300 border border-emerald-500/30' : 'bg-rose-950/80 text-rose-300 border border-rose-500/30'"
+                                                  :class="product.current_stock > 0 ? 'bg-slate-950/85 text-emerald-300 border border-emerald-500/30' : 'bg-rose-950/85 text-rose-300 border border-rose-500/30'"
                                                   x-text="'Stok: ' + product.current_stock">
                                             </span>
                                         </div>
-                                        <h4 class="font-bold text-xs sm:text-sm text-white line-clamp-2 leading-tight group-hover:text-emerald-300 transition" x-text="product.name"></h4>
-                                        <div class="product-code text-[10px] text-slate-400 font-mono mt-0.5" x-text="product.code || '-'"></div>
+
+                                        <!-- Mobile Top Row: SKU & Stock Badge (Minimalist) -->
+                                        <div class="sm:hidden flex items-center justify-between gap-1 mb-1">
+                                            <span class="text-[9px] font-mono text-slate-400 truncate" x-text="product.code || '-'"></span>
+                                            <span class="text-[8px] font-bold px-1.5 py-0.5 rounded shrink-0 shadow-sm"
+                                                  :class="product.current_stock > 0 ? 'bg-slate-900 text-emerald-300 border border-emerald-500/30' : 'bg-rose-950/80 text-rose-300 border border-rose-500/30'"
+                                                  x-text="'Stok: ' + product.current_stock">
+                                            </span>
+                                        </div>
+
+                                        <!-- Product Name -->
+                                        <h4 class="font-bold text-xs sm:text-sm text-white line-clamp-2 leading-snug group-hover:text-emerald-300 transition" x-text="product.name"></h4>
+
+                                        <!-- Desktop SKU Code -->
+                                        <div class="hidden sm:block product-code text-[10px] text-slate-400 font-mono mt-0.5 truncate" x-text="product.code || '-'"></div>
                                     </div>
                                 @else
                                     <div>
                                         <div class="flex items-center justify-between gap-1.5 mb-1.5">
-                                            <span class="product-code text-[10px] text-slate-400 font-mono truncate" x-text="product.code || '-'"></span>
-                                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0"
+                                            <span class="product-code text-[9px] sm:text-[10px] text-slate-400 font-mono truncate" x-text="product.code || '-'"></span>
+                                            <span class="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0"
                                                   :class="product.current_stock > 0 ? 'bg-slate-800 text-slate-300 border border-slate-700' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'"
                                                   x-text="'Stok: ' + product.current_stock">
                                             </span>
@@ -539,10 +634,15 @@
                                         <h4 class="font-bold text-xs sm:text-sm text-white line-clamp-2 leading-snug group-hover:text-emerald-300 transition" x-text="product.name"></h4>
                                     </div>
                                 @endif
-                                <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between">
-                                    <span class="font-extrabold text-xs sm:text-sm text-emerald-400 font-mono" x-text="formatRupiah(product.selling_price)"></span>
-                                    <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-slate-950 transition">
-                                        <i data-lucide="plus" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+
+                                <!-- Bottom Price & Quick Add Button -->
+                                <div class="mt-2 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-slate-800/80 flex items-center justify-between gap-1">
+                                    <span class="font-extrabold text-xs sm:text-sm text-emerald-400 font-mono truncate pos-price" x-text="formatRupiah(product.selling_price)"></span>
+                                    <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-slate-950 transition shrink-0">
+                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
                                     </div>
                                 </div>
                             </div>
@@ -881,7 +981,7 @@
                     <input type="number" x-model.number="currentTenderAmount" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xl font-bold font-mono text-white focus:outline-none focus:border-emerald-500">
 
                     <!-- Quick Cash Presets (only for Cash) -->
-                    <div x-show="selectedPayMethod === 'cash'" class="pos-pay-presets grid grid-cols-4 gap-2 mt-2">
+                    <div x-show="selectedPayMethod === 'cash'" class="pos-pay-presets grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
                         <button @click="currentTenderAmount = grandTotal" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-emerald-400 font-mono">Uang Pas</button>
                         <button @click="currentTenderAmount = 20000" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 font-mono">20.000</button>
                         <button @click="currentTenderAmount = 50000" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 font-mono">50.000</button>

@@ -95,9 +95,9 @@
         </div>
 
         <!-- Table of Items -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="text-slate-500 uppercase text-[10px] font-bold border-b border-slate-800">
+        <div class="table-responsive-wide">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[580px]">
+                <thead class="text-slate-500 uppercase text-[10px] font-bold border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-2.5 px-3">No.</th>
                         <th class="py-2.5 px-3">Deskripsi Item</th>

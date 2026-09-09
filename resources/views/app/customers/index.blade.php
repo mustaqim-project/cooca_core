@@ -1,309 +1,1020 @@
 @extends('layouts.app', [
-    'title' => 'Klien & Pelanggan',
+    'title' => 'Klien & Pelanggan Komersial — Cooca UMKM',
     'headerTitle' => 'Manajemen Pelanggan (Customers)',
-    'headerSubtitle' => 'Kelola direktori klien, profil perusahaan, kontak penagihan, dan termin pembayaran'
+    'headerSubtitle' => 'Kelola direktori klien komersial, profil perusahaan, kontak penagihan, termin kredit pembayaran, dan riwayat transaksi'
 ])
 
 @section('content')
-<div class="space-y-6" x-data="{
+<script>
+    window.COOCA_CUSTOMERS = @json($customers->items());
+</script>
+
+<div class="space-y-8" x-data="{
+    customersList: window.COOCA_CUSTOMERS || [],
     showAddModal: false,
     showEditModal: false,
-    editCustomer: { id: '', slug: '', name: '', company_name: '', code: '', email: '', phone: '', billing_address: '', shipping_address: '', tax_identification_number: '', payment_terms_days: 30, notes: '' },
+    showDetailModal: false,
+    selectedCustomer: null,
+    editCustomer: {
+        id: '',
+        slug: '',
+        name: '',
+        company_name: '',
+        code: '',
+        email: '',
+        phone: '',
+        billing_address: '',
+        shipping_address: '',
+        tax_identification_number: '',
+        payment_terms_days: 30,
+        notes: ''
+    },
     
-    openEditModal(c) {
-        this.editCustomer = { ...c };
+    openEditModal(id) {
+        const c = this.customersList.find(item => item.id == id);
+        if (!c) return;
+        this.editCustomer = {
+            id: c.id || '',
+            slug: c.slug || '',
+            name: c.name || '',
+            company_name: c.company_name || '',
+            code: c.code || '',
+            email: c.email || '',
+            phone: c.phone || '',
+            billing_address: c.billing_address || '',
+            shipping_address: c.shipping_address || '',
+            tax_identification_number: c.tax_identification_number || '',
+            payment_terms_days: c.payment_terms_days !== undefined ? c.payment_terms_days : 30,
+            notes: c.notes || ''
+        };
         this.showEditModal = true;
+    },
+
+    openDetailModal(id) {
+        this.selectedCustomer = this.customersList.find(item => item.id == id) || null;
+        this.showDetailModal = true;
+    },
+
+    copyBillingToShipping(target) {
+        if (target === 'add') {
+            const billing = document.getElementById('add_billing_address');
+            const shipping = document.getElementById('add_shipping_address');
+            if (billing && shipping) {
+                shipping.value = billing.value;
+            }
+        } else if (target === 'edit') {
+            this.editCustomer.shipping_address = this.editCustomer.billing_address;
+        }
+    },
+
+    setPaymentTerm(days, target) {
+        if (target === 'add') {
+            const input = document.getElementById('add_payment_terms_days');
+            if (input) input.value = days;
+        } else if (target === 'edit') {
+            this.editCustomer.payment_terms_days = days;
+        }
     }
 }">
 
-    <!-- Top Action Bar -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <!-- Search Form -->
-        <form method="GET" action="{{ route('customers.index') }}" class="flex-1 flex items-center gap-3">
-            <div class="relative flex-1 max-w-md">
-                <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                <input type="text" name="search" value="{{ request('search') }}" 
-                       placeholder="Cari nama pelanggan, perusahaan, nomor telp, email..." 
-                       class="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-xs text-white">
+    <!-- Page Header & Action Controls -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                    B2B COMMERCIAL DIRECTORY &amp; CLIENT ACCOUNTS
+                </span>
+                <span class="text-xs text-slate-500 font-mono hidden sm:inline">• Master Data Pelanggan</span>
             </div>
-            @if(request('search'))
-                <a href="{{ route('customers.index') }}" class="text-xs text-slate-400 hover:text-white">Reset</a>
-            @endif
-        </form>
+            <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1">Direktori Klien &amp; Pelanggan</h1>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                Kelola basis data klien komersial, profil perusahaan B2B, kontak penagihan, termin tempo kredit (Net D), serta rekam jejak pesanan dan faktur.
+            </p>
+        </div>
 
-        <div class="flex items-center gap-2">
-            <button @click="showAddModal = true" 
-                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
-                <i data-lucide="user-plus" class="w-4 h-4"></i>
-                <span>Tambah Pelanggan</span>
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+            <a href="{{ route('crm.members.index') }}" 
+               class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 text-xs font-bold transition flex items-center gap-2 shadow-sm">
+                <i data-lucide="award" class="w-4 h-4 text-emerald-400"></i>
+                <span>Loyalitas &amp; Poin CRM</span>
+            </a>
+            <a href="{{ route('crm.vouchers.index') }}" 
+               class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 text-xs font-bold transition flex items-center gap-2 shadow-sm">
+                <i data-lucide="ticket" class="w-4 h-4 text-cyan-400"></i>
+                <span>Voucher Kasir</span>
+            </a>
+            <button type="button" 
+                    @click="showAddModal = true" 
+                    class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-2 group cursor-pointer">
+                <i data-lucide="user-plus" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                <span>Tambah Pelanggan Baru</span>
             </button>
         </div>
     </div>
 
-    <!-- Customers Table Card -->
-    <div class="glass-card rounded-2xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead>
-                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
-                        <th class="py-3.5 px-4 font-semibold">Nama & Perusahaan</th>
-                        <th class="py-3.5 px-4 font-semibold">ID Klien</th>
-                        <th class="py-3.5 px-4 font-semibold">Kontak & Email</th>
-                        <th class="py-3.5 px-4 font-semibold">Alamat Penagihan</th>
-                        <th class="py-3.5 px-4 font-semibold text-center">Termin Bayar</th>
-                        <th class="py-3.5 px-4 font-semibold text-center">Transaksi</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800/60">
-                    @forelse($customers as $customer)
-                    <tr class="hover:bg-slate-800/30 transition-colors">
-                        <td class="py-3 px-4">
-                            <div class="font-bold text-white text-sm">{{ $customer->name }}</div>
-                            @if($customer->company_name)
-                                <div class="text-xs text-emerald-400 font-medium flex items-center gap-1 mt-0.5">
-                                    <i data-lucide="building" class="w-3 h-3"></i>
-                                    <span>{{ $customer->company_name }}</span>
-                                </div>
-                            @endif
-                        </td>
-                        <td class="py-3 px-4 font-mono text-slate-300">
-                            {{ $customer->code ?? '-' }}
-                        </td>
-                        <td class="py-3 px-4">
-                            @if($customer->phone)
-                                <div class="font-mono text-slate-200 flex items-center gap-1.5">
-                                    <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-400"></i>
-                                    <span>{{ $customer->phone }}</span>
-                                </div>
-                            @endif
-                            @if($customer->email)
-                                <div class="text-slate-400 flex items-center gap-1.5 mt-0.5">
-                                    <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-500"></i>
-                                    <span>{{ $customer->email }}</span>
-                                </div>
-                            @endif
-                            @if(! $customer->phone && ! $customer->email)
-                                <span class="text-slate-500">-</span>
-                            @endif
-                        </td>
-                        <td class="py-3 px-4 text-slate-400 max-w-xs truncate">
-                            {{ $customer->billing_address ?? '-' }}
-                        </td>
-                        <td class="py-3 px-4 text-center font-mono">
-                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
-                                Net {{ $customer->payment_terms_days }} hari
-                            </span>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <span class="text-[11px] text-slate-300 font-semibold" title="Total PO">
-                                    {{ $customer->purchase_orders_count }} PO
-                                </span>
-                                <span class="text-slate-600">•</span>
-                                <span class="text-[11px] text-emerald-400 font-semibold" title="Total Faktur">
-                                    {{ $customer->invoices_count }} Faktur
-                                </span>
-                            </div>
-                        </td>
-                        <td class="py-3 px-4 text-right">
-                            <div class="flex items-center justify-end gap-1.5">
-                                <button @click="openEditModal({
-                                    id: '{{ $customer->id }}',
-                                    slug: '{{ $customer->slug }}',
-                                    name: '{{ addslashes($customer->name) }}',
-                                    company_name: '{{ addslashes($customer->company_name ?? '') }}',
-                                    code: '{{ addslashes($customer->code ?? '') }}',
-                                    email: '{{ addslashes($customer->email ?? '') }}',
-                                    phone: '{{ addslashes($customer->phone ?? '') }}',
-                                    billing_address: '{{ addslashes($customer->billing_address ?? '') }}',
-                                    shipping_address: '{{ addslashes($customer->shipping_address ?? '') }}',
-                                    tax_identification_number: '{{ addslashes($customer->tax_identification_number ?? '') }}',
-                                    payment_terms_days: {{ (int) $customer->payment_terms_days }},
-                                    notes: '{{ addslashes($customer->notes ?? '') }}'
-                                })" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors" title="Edit Pelanggan">
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                </button>
-                                <form method="POST" action="{{ route('customers.destroy', $customer->slug) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus data pelanggan {{ addslashes($customer->name) }}?', 'Hapus Pelanggan?', 'danger')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="p-1.5 hover:bg-rose-500/20 rounded-lg text-slate-400 hover:text-rose-400 transition-colors" title="Hapus Pelanggan">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="py-12 text-center text-slate-500">
-                            <i data-lucide="users" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
-                            <p class="text-sm font-medium">Belum ada data pelanggan.</p>
-                            <p class="text-xs text-slate-400 mt-1">Tambahkan pelanggan untuk mulai mencatat pesanan (PO) dan menerbitkan faktur penjualan.</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <!-- Flash Alert -->
+    @if(session('success'))
+        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-xs flex items-center justify-between gap-3 shadow-lg">
+            <div class="flex items-center gap-2.5">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400 shrink-0"></i>
+                <span class="font-semibold">{{ session('success') }}</span>
+            </div>
+            <button type="button" @click="$el.parentElement.remove()" class="text-emerald-400 hover:text-emerald-200">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    @endif
+
+    <!-- Top KPI Metrics Cards (4 Columns Responsive) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        <!-- 1. Total Customers -->
+        <div class="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl backdrop-blur-md flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shrink-0 shadow-inner">
+                <i data-lucide="users" class="w-6 h-6"></i>
+            </div>
+            <div class="min-w-0">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">Total Klien Terdaftar</span>
+                <div class="text-xl sm:text-2xl font-black text-white font-mono tracking-tight mt-0.5">
+                    {{ number_format($totalCustomers ?? $customers->total(), 0, ',', '.') }}
+                </div>
+                <span class="text-[11px] text-slate-400">Database pelanggan aktif</span>
+            </div>
         </div>
 
+        <!-- 2. Corporate Clients -->
+        <div class="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl backdrop-blur-md flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0 shadow-inner">
+                <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <div class="min-w-0">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-cyan-400/80 font-bold block">Entitas Korporat / PT</span>
+                <div class="text-xl sm:text-2xl font-black text-cyan-400 font-mono tracking-tight mt-0.5">
+                    {{ number_format($totalCorporate ?? 0, 0, ',', '.') }}
+                </div>
+                <span class="text-[11px] text-slate-400">Klien berbadan usaha</span>
+            </div>
+        </div>
+
+        <!-- 3. Average Payment Terms -->
+        <div class="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl backdrop-blur-md flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 shadow-inner">
+                <i data-lucide="calendar-clock" class="w-6 h-6"></i>
+            </div>
+            <div class="min-w-0">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-amber-400/80 font-bold block">Rata-Rata Termin Bayar</span>
+                <div class="text-xl sm:text-2xl font-black text-amber-400 font-mono tracking-tight mt-0.5">
+                    Net {{ $avgPaymentTerms ?? 30 }} Hari
+                </div>
+                <span class="text-[11px] text-slate-400">Kebijakan tempo penagihan</span>
+            </div>
+        </div>
+
+        <!-- 4. Total Orders & Invoices Handled -->
+        <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-950/30 via-slate-900/80 to-slate-900/80 border border-emerald-500/30 shadow-xl backdrop-blur-md flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0 shadow-inner">
+                <i data-lucide="receipt" class="w-6 h-6"></i>
+            </div>
+            <div class="min-w-0">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-bold block">Aktivitas Transaksi</span>
+                <div class="text-xl sm:text-2xl font-black text-white font-mono tracking-tight mt-0.5">
+                    {{ number_format($customers->sum('invoices_count') + $customers->sum('purchase_orders_count'), 0, ',', '.') }}
+                </div>
+                <span class="text-[11px] text-slate-400">Total PO &amp; Faktur terbit</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="p-5 sm:p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-xl">
+        <form method="GET" action="{{ route('customers.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center">
+            <!-- Search Query Input -->
+            <div class="sm:col-span-9 relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </div>
+                <input type="text" 
+                       name="search" 
+                       value="{{ request('search') }}" 
+                       placeholder="Cari nama pelanggan, nama perusahaan/PT, kode klien, nomor telepon/WhatsApp, atau email..." 
+                       class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition">
+            </div>
+
+            <!-- Submit & Reset Buttons -->
+            <div class="sm:col-span-3 flex items-center gap-2">
+                <button type="submit" 
+                        class="flex-1 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+                    <span>Cari Pelanggan</span>
+                </button>
+                @if(request('search'))
+                <a href="{{ route('customers.index') }}" 
+                   class="px-3.5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-semibold transition flex items-center gap-1"
+                   title="Reset Pencarian">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Reset</span>
+                </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    <!-- Customers Container Card -->
+    <div class="rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl overflow-hidden backdrop-blur-xl">
+        
+        <!-- Table Header Bar -->
+        <div class="p-5 sm:p-6 border-b border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <i data-lucide="contact-2" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Daftar Klien &amp; Pelanggan Komersial</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">Basis data pelanggan B2B dan ritel untuk penerbitan Purchase Order &amp; Faktur Penjualan.</p>
+            </div>
+            <span class="text-xs font-mono text-slate-400 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+                Menampilkan {{ $customers->count() }} dari {{ $customers->total() }} pelanggan
+            </span>
+        </div>
+
+        @if($customers->count() > 0)
+
+            <!-- Desktop View: Dense Data Table (Hidden on Mobile) -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950/70 text-slate-400 font-mono uppercase text-[10px] border-b border-slate-800 tracking-wider">
+                        <tr>
+                            <th class="py-4 px-5">Nama &amp; Perusahaan</th>
+                            <th class="py-4 px-4">ID Klien</th>
+                            <th class="py-4 px-4">Kontak &amp; Email</th>
+                            <th class="py-4 px-4">Alamat Penagihan</th>
+                            <th class="py-4 px-4 text-center">Termin Bayar</th>
+                            <th class="py-4 px-4 text-center">Aktivitas Transaksi</th>
+                            <th class="py-4 px-5 text-right">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60 font-sans">
+                        @foreach($customers as $customer)
+                        @php
+                            $termsDays = (int) ($customer->payment_terms_days ?? 30);
+                            $termBadge = match(true) {
+                                $termsDays <= 0 => 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+                                $termsDays <= 14 => 'bg-teal-500/15 text-teal-300 border-teal-500/30',
+                                $termsDays <= 30 => 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+                                default => 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+                            };
+                            $termLabel = $termsDays <= 0 ? 'Tunai / Cash' : 'Net ' . $termsDays . ' Hari';
+                        @endphp
+                        <tr class="hover:bg-slate-850/50 transition duration-150 group">
+                            
+                            <!-- 1. Name & Company -->
+                            <td class="py-4 px-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 text-emerald-400 font-black text-sm flex items-center justify-center shrink-0 shadow-inner group-hover:border-emerald-500/40 transition">
+                                        {{ strtoupper(substr($customer->name, 0, 1)) }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <button type="button" 
+                                                @click="openDetailModal('{{ $customer->id }}')" 
+                                                class="font-black text-white text-sm hover:text-emerald-400 transition text-left truncate block">
+                                            {{ $customer->name }}
+                                        </button>
+                                        @if($customer->company_name)
+                                            <div class="text-[11px] text-cyan-300/90 font-medium flex items-center gap-1 mt-0.5 truncate">
+                                                <i data-lucide="building-2" class="w-3 h-3 text-cyan-400 shrink-0"></i>
+                                                <span class="truncate">{{ $customer->company_name }}</span>
+                                            </div>
+                                        @else
+                                            <span class="text-[10px] text-slate-500 font-mono">Personal Client</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- 2. Client Code -->
+                            <td class="py-4 px-4 font-mono">
+                                @if($customer->code)
+                                    <span class="px-2 py-0.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 font-bold text-[11px]">
+                                        {{ $customer->code }}
+                                    </span>
+                                @else
+                                    <span class="text-slate-600 font-mono text-xs">-</span>
+                                @endif
+                            </td>
+
+                            <!-- 3. Contact & Email -->
+                            <td class="py-4 px-4">
+                                <div class="space-y-1">
+                                    @if($customer->phone)
+                                        <div class="font-mono text-slate-200 flex items-center gap-1.5">
+                                            <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+                                            <a href="tel:{{ $customer->phone }}" class="hover:underline hover:text-emerald-300">{{ $customer->phone }}</a>
+                                        </div>
+                                    @endif
+                                    @if($customer->email)
+                                        <div class="text-slate-400 flex items-center gap-1.5 text-[11px]">
+                                            <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
+                                            <a href="mailto:{{ $customer->email }}" class="hover:underline hover:text-slate-200 truncate max-w-[180px]">{{ $customer->email }}</a>
+                                        </div>
+                                    @endif
+                                    @if(! $customer->phone && ! $customer->email)
+                                        <span class="text-slate-500 italic text-[11px]">Belum diisi</span>
+                                    @endif
+                                </div>
+                            </td>
+
+                            <!-- 4. Billing Address -->
+                            <td class="py-4 px-4 text-slate-300 max-w-[200px]">
+                                @if($customer->billing_address)
+                                    <div class="truncate text-xs" title="{{ $customer->billing_address }}">
+                                        {{ $customer->billing_address }}
+                                    </div>
+                                    @if($customer->tax_identification_number)
+                                        <div class="text-[10px] font-mono text-slate-500 mt-0.5 flex items-center gap-1">
+                                            <i data-lucide="file-text" class="w-3 h-3 text-slate-600"></i>
+                                            <span>NPWP: {{ $customer->tax_identification_number }}</span>
+                                        </div>
+                                    @endif
+                                @else
+                                    <span class="text-slate-600 text-xs">-</span>
+                                @endif
+                            </td>
+
+                            <!-- 5. Payment Terms -->
+                            <td class="py-4 px-4 text-center font-mono">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border {{ $termBadge }}">
+                                    {{ $termLabel }}
+                                </span>
+                            </td>
+
+                            <!-- 6. Transactions Count -->
+                            <td class="py-4 px-4 text-center">
+                                <div class="inline-flex items-center justify-center gap-2 p-1.5 rounded-xl bg-slate-950 border border-slate-800">
+                                    <span class="text-[11px] font-mono font-bold text-slate-300" title="Total Pesanan Pembelian">
+                                        {{ $customer->purchase_orders_count }} PO
+                                    </span>
+                                    <span class="text-slate-700">•</span>
+                                    <span class="text-[11px] font-mono font-black text-emerald-400" title="Total Faktur Penjualan">
+                                        {{ $customer->invoices_count }} Faktur
+                                    </span>
+                                </div>
+                            </td>
+
+                            <!-- 7. Actions -->
+                            <td class="py-4 px-5 text-right">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <!-- Quick Detail -->
+                                    <button type="button" 
+                                            @click="openDetailModal('{{ $customer->id }}')" 
+                                            class="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition shadow-sm" 
+                                            title="Lihat Detail Profil">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </button>
+
+                                    <!-- Edit -->
+                                    <button type="button" 
+                                            @click="openEditModal('{{ $customer->id }}')" 
+                                            class="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition shadow-sm" 
+                                            title="Edit Pelanggan">
+                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                    </button>
+
+                                    <!-- Delete -->
+                                    <form method="POST" 
+                                          action="{{ route('customers.destroy', $customer->slug) }}" 
+                                          onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus data pelanggan {{ addslashes($customer->name) }}?', 'Hapus Pelanggan?', 'danger')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="p-2 hover:bg-rose-500/20 rounded-xl text-slate-400 hover:text-rose-400 transition shadow-sm" 
+                                                title="Hapus Pelanggan">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile View: Clean Card Stream (Visible on Mobile Only, Zero Horizontal Overflow!) -->
+            <div class="block md:hidden divide-y divide-slate-800/80">
+                @foreach($customers as $customer)
+                @php
+                    $termsDays = (int) ($customer->payment_terms_days ?? 30);
+                    $termBadge = match(true) {
+                        $termsDays <= 0 => 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+                        $termsDays <= 14 => 'bg-teal-500/15 text-teal-300 border-teal-500/30',
+                        $termsDays <= 30 => 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+                        default => 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+                    };
+                    $termLabel = $termsDays <= 0 ? 'Tunai (Cash)' : 'Net ' . $termsDays . ' Hari';
+                @endphp
+                <div class="p-5 space-y-4 hover:bg-slate-850/40 transition">
+                    
+                    <!-- Card Top: Client Avatar, Name, Company & Term Badge -->
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 text-emerald-400 font-black text-xs flex items-center justify-center shrink-0 shadow-inner">
+                                {{ strtoupper(substr($customer->name, 0, 1)) }}
+                            </div>
+                            <div class="min-w-0">
+                                <button type="button" 
+                                        @click="openDetailModal('{{ $customer->id }}')" 
+                                        class="font-black text-white text-sm hover:text-emerald-400 transition text-left truncate block">
+                                    {{ $customer->name }}
+                                </button>
+                                @if($customer->company_name)
+                                    <div class="text-[11px] text-cyan-300/90 font-medium flex items-center gap-1 truncate">
+                                        <i data-lucide="building-2" class="w-3 h-3 text-cyan-400 shrink-0"></i>
+                                        <span class="truncate">{{ $customer->company_name }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col items-end gap-1 shrink-0">
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border {{ $termBadge }}">
+                                {{ $termLabel }}
+                            </span>
+                            @if($customer->code)
+                                <span class="text-[9px] font-mono text-slate-500 uppercase">{{ $customer->code }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Card Body: Contact Quick Actions & Micro Stats -->
+                    <div class="grid grid-cols-2 gap-2 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 text-center">
+                        <div class="space-y-0.5">
+                            <span class="text-[10px] text-slate-500 block uppercase font-mono font-bold">Purchase Orders</span>
+                            <div class="text-xs font-mono font-bold text-slate-200">
+                                {{ $customer->purchase_orders_count }} PO Terbit
+                            </div>
+                        </div>
+                        <div class="space-y-0.5 border-l border-slate-900">
+                            <span class="text-[10px] text-slate-500 block uppercase font-mono font-bold">Faktur Penjualan</span>
+                            <div class="text-xs font-mono font-black text-emerald-400">
+                                {{ $customer->invoices_count }} Faktur Terbit
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact & Address Snippet -->
+                    <div class="space-y-1 text-xs text-slate-400">
+                        @if($customer->phone)
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+                                <a href="tel:{{ $customer->phone }}" class="text-slate-200 font-mono hover:underline">{{ $customer->phone }}</a>
+                            </div>
+                        @endif
+                        @if($customer->email)
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
+                                <span class="truncate">{{ $customer->email }}</span>
+                            </div>
+                        @endif
+                        @if($customer->billing_address)
+                            <div class="flex items-start gap-2 text-[11px] text-slate-400 pt-0.5">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5"></i>
+                                <span class="line-clamp-1">{{ $customer->billing_address }}</span>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Card Footer: Action Buttons -->
+                    <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-850">
+                        <button type="button" 
+                                @click="openDetailModal('{{ $customer->id }}')" 
+                                class="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white font-semibold">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <span>Detail Profil</span>
+                        </button>
+
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" 
+                                    @click="openEditModal('{{ $customer->id }}')" 
+                                    class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1 shadow-sm">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>Edit</span>
+                            </button>
+                            <form method="POST" 
+                                  action="{{ route('customers.destroy', $customer->slug) }}" 
+                                  onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus data pelanggan {{ addslashes($customer->name) }}?', 'Hapus Pelanggan?', 'danger')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" 
+                                        class="p-1.5 rounded-xl hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+                @endforeach
+            </div>
+
+        @else
+            <!-- Empty State -->
+            <div class="py-16 px-6 text-center space-y-4">
+                <div class="w-16 h-16 rounded-3xl bg-slate-800/80 border border-slate-700/60 text-slate-500 flex items-center justify-center mx-auto shadow-inner">
+                    <i data-lucide="users" class="w-8 h-8"></i>
+                </div>
+                <div class="space-y-1 max-w-sm mx-auto">
+                    <h4 class="text-sm font-black text-white">Tidak Ada Data Pelanggan Ditemukan</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Coba ubah kata kunci pencarian Anda atau tambahkan pelanggan baru untuk mulai mencatat pesanan pembelian dan menerbitkan faktur penjualan.
+                    </p>
+                </div>
+                <div class="pt-2">
+                    <button type="button" 
+                            @click="showAddModal = true" 
+                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        <span>Tambah Pelanggan Baru</span>
+                    </button>
+                </div>
+            </div>
+        @endif
+
+        <!-- Pagination -->
         @if($customers->hasPages())
-        <div class="p-4 border-t border-slate-800 bg-slate-900/40">
+        <div class="p-5 border-t border-slate-800 bg-slate-950/40">
             {{ $customers->links() }}
         </div>
         @endif
+
     </div>
 
-    <!-- Modal Tambah Pelanggan -->
-    <div x-show="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card w-full max-w-xl rounded-2xl p-6 border border-slate-700 space-y-4 max-h-[90vh] overflow-y-auto" @click.outside="showAddModal = false">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i data-lucide="user-plus" class="w-5 h-5 text-emerald-400"></i>
-                    <span>Tambah Pelanggan Baru</span>
-                </h3>
-                <button @click="showAddModal = false" class="text-slate-400 hover:text-white">
+    <!-- Modal 1: Tambah Pelanggan Baru -->
+    <div x-show="showAddModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all"
+         @keydown.escape.window="showAddModal = false">
+        
+        <div class="w-full max-w-2xl p-6 sm:p-7 rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto"
+             @click.away="showAddModal = false">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                        <i data-lucide="user-plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-white">Tambah Pelanggan Baru</h3>
+                        <span class="text-[10px] text-slate-400 font-mono">Form Registrasi Klien &amp; B2B Account</span>
+                    </div>
+                </div>
+                <button type="button" @click="showAddModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
             <form method="POST" action="{{ route('customers.store') }}" class="space-y-4 text-xs">
                 @csrf
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Nama Pelanggan (PIC) *</label>
-                        <input type="text" name="name" required placeholder="Ahmad Zaki" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+
+                <!-- Section 1: Data Identitas Klien -->
+                <div class="space-y-3 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+                    <span class="text-[10px] font-mono text-emerald-400 uppercase font-bold tracking-wider block">1. Identitas Klien &amp; Badan Usaha</span>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                Nama Pelanggan (PIC) <span class="text-rose-400">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="name" 
+                                   required 
+                                   placeholder="Contoh: Ahmad Zaki" 
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                Nama Perusahaan / Instansi <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="text" 
+                                   name="company_name" 
+                                   placeholder="Contoh: PT Maju Bersama Sentosa" 
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Nama Perusahaan / Instansi</label>
-                        <input type="text" name="company_name" placeholder="PT Maju Bersama Sentosa" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                ID / Kode Klien <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="text" 
+                                   name="code" 
+                                   placeholder="Contoh: CUST-001" 
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 font-mono text-white uppercase focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                NPWP / Nomor Pokok Wajib Pajak <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="text" 
+                                   name="tax_identification_number" 
+                                   placeholder="01.234.567.8-901.000" 
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">ID / Kode Klien</label>
-                        <input type="text" name="code" placeholder="CUST-001" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                <!-- Section 2: Kontak Penagihan & Termin -->
+                <div class="space-y-3 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+                    <span class="text-[10px] font-mono text-cyan-400 uppercase font-bold tracking-wider block">2. Kontak &amp; Kebijakan Pembayaran</span>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                No. Telepon / WhatsApp <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="text" 
+                                   name="phone" 
+                                   placeholder="0812-8888-9999" 
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                Alamat Email Penagihan <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="email" 
+                                   name="email" 
+                                   placeholder="finance@majubersama.com" 
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">No. Telepon / WhatsApp</label>
-                        <input type="text" name="phone" placeholder="0812-8888-9999" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Termin Bayar (Hari)</label>
-                        <input type="number" name="payment_terms_days" value="30" min="0" max="365" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+
+                    <!-- Payment Terms & Quick Chips -->
+                    <div class="space-y-2 pt-1">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                Termin Pembayaran Kredit (Hari)
+                            </label>
+                            <span class="text-[10px] font-mono text-slate-400">Pilih Cepat:</span>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" @click="setPaymentTerm(0, 'add')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Tunai (0 Hari)</button>
+                            <button type="button" @click="setPaymentTerm(14, 'add')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Net 14 Hari</button>
+                            <button type="button" @click="setPaymentTerm(30, 'add')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Net 30 Hari</button>
+                            <button type="button" @click="setPaymentTerm(45, 'add')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Net 45 Hari</button>
+                            <button type="button" @click="setPaymentTerm(60, 'add')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Net 60 Hari</button>
+                        </div>
+
+                        <input type="number" 
+                               id="add_payment_terms_days"
+                               name="payment_terms_days" 
+                               value="30" 
+                               min="0" 
+                               max="365" 
+                               class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Alamat Email Penagihan</label>
-                        <input type="email" name="email" placeholder="finance@majubersama.com" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+                <!-- Section 3: Alamat Penagihan & Pengiriman -->
+                <div class="space-y-3 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono text-amber-400 uppercase font-bold tracking-wider block">3. Alamat Operasional &amp; Pengiriman</span>
+                        <button type="button" 
+                                @click="copyBillingToShipping('add')" 
+                                class="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition">
+                            <i data-lucide="copy" class="w-3 h-3"></i>
+                            <span>Salin ke Alamat Pengiriman</span>
+                        </button>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">NPWP / Pajak</label>
-                        <input type="text" name="tax_identification_number" placeholder="01.234.567.8-901.000" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+
+                    <div class="space-y-1.5">
+                        <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                            Alamat Penagihan (Billing Address)
+                        </label>
+                        <textarea id="add_billing_address" 
+                                  name="billing_address" 
+                                  rows="2" 
+                                  placeholder="Gedung Cyber 2 Lt. 10, Jl. HR Rasuna Said, Jakarta Selatan" 
+                                  class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition"></textarea>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                            Alamat Pengiriman (Shipping Address)
+                        </label>
+                        <textarea id="add_shipping_address" 
+                                  name="shipping_address" 
+                                  rows="2" 
+                                  placeholder="Gudang Logistik Kawasan Industri Pulogadung" 
+                                  class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition"></textarea>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                            Catatan Khusus Klien <span class="text-slate-500">(Opsional)</span>
+                        </label>
+                        <input type="text" 
+                               name="notes" 
+                               placeholder="Diskon khusus pesanan repeat order > 100 unit / syarat DO" 
+                               class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
                     </div>
                 </div>
 
-                <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Alamat Penagihan (Billing Address)</label>
-                    <textarea name="billing_address" rows="2" placeholder="Gedung Cyber 2 Lt. 10, Jl. HR Rasuna Said, Jakarta Selatan" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white"></textarea>
-                </div>
-
-                <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Alamat Pengiriman (Shipping Address)</label>
-                    <textarea name="shipping_address" rows="2" placeholder="Gudang Logistik Kawasan Industri Pulogadung" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white"></textarea>
-                </div>
-
-                <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Catatan Klien</label>
-                    <input type="text" name="notes" placeholder="Diskon khusus pesanan repeat order > 100 unit" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
-                    <button type="button" @click="showAddModal = false" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white">Batal</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-lg shadow-emerald-500/20">Simpan Pelanggan</button>
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800">
+                    <button type="button" 
+                            @click="showAddModal = false" 
+                            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                        Batal
+                    </button>
+                    <button type="submit" 
+                            class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Simpan Pelanggan</span>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal Edit Pelanggan -->
-    <div x-show="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card w-full max-w-xl rounded-2xl p-6 border border-slate-700 space-y-4 max-h-[90vh] overflow-y-auto" @click.outside="showEditModal = false">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i data-lucide="edit-3" class="w-5 h-5 text-emerald-400"></i>
-                    <span>Edit Data Pelanggan</span>
-                </h3>
-                <button @click="showEditModal = false" class="text-slate-400 hover:text-white">
+    <!-- Modal 2: Edit Data Pelanggan -->
+    <div x-show="showEditModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all"
+         @keydown.escape.window="showEditModal = false">
+        
+        <div class="w-full max-w-2xl p-6 sm:p-7 rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto"
+             @click.away="showEditModal = false">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 flex items-center justify-center">
+                        <i data-lucide="edit-3" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-white">Edit Data Pelanggan</h3>
+                        <span class="text-[10px] text-slate-400 font-mono" x-text="editCustomer.name"></span>
+                    </div>
+                </div>
+                <button type="button" @click="showEditModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <form :action="'/customers/' + editCustomer.slug" method="POST" class="space-y-4 text-xs">
+            <form :action="'/customers/' + (editCustomer.slug || editCustomer.id)" method="POST" class="space-y-4 text-xs">
                 @csrf
                 @method('PUT')
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Nama Pelanggan (PIC) *</label>
-                        <input type="text" name="name" x-model="editCustomer.name" required class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+                <!-- Section 1: Data Identitas Klien -->
+                <div class="space-y-3 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+                    <span class="text-[10px] font-mono text-emerald-400 uppercase font-bold tracking-wider block">1. Identitas Klien &amp; Badan Usaha</span>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                Nama Pelanggan (PIC) <span class="text-rose-400">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="name" 
+                                   x-model="editCustomer.name"
+                                   required 
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                Nama Perusahaan / Instansi <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="text" 
+                                   name="company_name" 
+                                   x-model="editCustomer.company_name"
+                                   placeholder="Contoh: PT Maju Bersama Sentosa" 
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Nama Perusahaan / Instansi</label>
-                        <input type="text" name="company_name" x-model="editCustomer.company_name" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                ID / Kode Klien <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="text" 
+                                   name="code" 
+                                   x-model="editCustomer.code"
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 font-mono text-white uppercase focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                NPWP / Nomor Pokok Wajib Pajak <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="text" 
+                                   name="tax_identification_number" 
+                                   x-model="editCustomer.tax_identification_number"
+                                   placeholder="01.234.567.8-901.000" 
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">ID / Kode Klien</label>
-                        <input type="text" name="code" x-model="editCustomer.code" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                <!-- Section 2: Kontak Penagihan & Termin -->
+                <div class="space-y-3 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+                    <span class="text-[10px] font-mono text-cyan-400 uppercase font-bold tracking-wider block">2. Kontak &amp; Kebijakan Pembayaran</span>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                No. Telepon / WhatsApp <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="text" 
+                                   name="phone" 
+                                   x-model="editCustomer.phone"
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                Alamat Email Penagihan <span class="text-slate-500">(Opsional)</span>
+                            </label>
+                            <input type="email" 
+                                   name="email" 
+                                   x-model="editCustomer.email"
+                                   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">No. Telepon / WhatsApp</label>
-                        <input type="text" name="phone" x-model="editCustomer.phone" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Termin Bayar (Hari)</label>
-                        <input type="number" name="payment_terms_days" x-model="editCustomer.payment_terms_days" min="0" max="365" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+
+                    <!-- Payment Terms & Quick Chips -->
+                    <div class="space-y-2 pt-1">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                                Termin Pembayaran Kredit (Hari)
+                            </label>
+                            <span class="text-[10px] font-mono text-slate-400">Pilih Cepat:</span>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" @click="setPaymentTerm(0, 'edit')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Tunai (0 Hari)</button>
+                            <button type="button" @click="setPaymentTerm(14, 'edit')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Net 14 Hari</button>
+                            <button type="button" @click="setPaymentTerm(30, 'edit')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Net 30 Hari</button>
+                            <button type="button" @click="setPaymentTerm(45, 'edit')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Net 45 Hari</button>
+                            <button type="button" @click="setPaymentTerm(60, 'edit')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">Net 60 Hari</button>
+                        </div>
+
+                        <input type="number" 
+                               name="payment_terms_days" 
+                               x-model.number="editCustomer.payment_terms_days"
+                               min="0" 
+                               max="365" 
+                               class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Alamat Email Penagihan</label>
-                        <input type="email" name="email" x-model="editCustomer.email" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+                <!-- Section 3: Alamat Penagihan & Pengiriman -->
+                <div class="space-y-3 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono text-amber-400 uppercase font-bold tracking-wider block">3. Alamat Operasional &amp; Pengiriman</span>
+                        <button type="button" 
+                                @click="copyBillingToShipping('edit')" 
+                                class="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition">
+                            <i data-lucide="copy" class="w-3 h-3"></i>
+                            <span>Salin ke Alamat Pengiriman</span>
+                        </button>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-300 mb-1">NPWP / Pajak</label>
-                        <input type="text" name="tax_identification_number" x-model="editCustomer.tax_identification_number" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+
+                    <div class="space-y-1.5">
+                        <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                            Alamat Penagihan (Billing Address)
+                        </label>
+                        <textarea name="billing_address" 
+                                  rows="2" 
+                                  x-model="editCustomer.billing_address"
+                                  class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition"></textarea>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                            Alamat Pengiriman (Shipping Address)
+                        </label>
+                        <textarea name="shipping_address" 
+                                  rows="2" 
+                                  x-model="editCustomer.shipping_address"
+                                  class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition"></textarea>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-slate-300 font-bold uppercase text-[10px] tracking-wider">
+                            Catatan Khusus Klien <span class="text-slate-500">(Opsional)</span>
+                        </label>
+                        <input type="text" 
+                               name="notes" 
+                               x-model="editCustomer.notes"
+                               class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition">
                     </div>
                 </div>
 
-                <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Alamat Penagihan (Billing Address)</label>
-                    <textarea name="billing_address" rows="2" x-model="editCustomer.billing_address" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white"></textarea>
-                </div>
-
-                <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Alamat Pengiriman (Shipping Address)</label>
-                    <textarea name="shipping_address" rows="2" x-model="editCustomer.shipping_address" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white"></textarea>
-                </div>
-
-                <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Catatan Klien</label>
-                    <input type="text" name="notes" x-model="editCustomer.notes" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
-                    <button type="button" @click="showEditModal = false" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white">Batal</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-lg shadow-emerald-500/20">Simpan Perubahan</button>
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800">
+                    <button type="button" 
+                            @click="showEditModal = false" 
+                            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                        Batal
+                    </button>
+                    <button type="submit" 
+                            class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Simpan Perubahan</span>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- Modal 3: Detail Profil Klien Lengkap (Quick Inspection Modal) -->
+    <div x-show="showDetailModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all"
+         @keydown.escape.window="showDetailModal = false">
+        
+        <div class="w-full max-w-lg p-6 sm:p-7 rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl space-y-5 relative"
+             @click.away="showDetailModal = false">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 font-black text-sm flex items-center justify-center">
+                        <span x-text="selectedCustomer ? selectedCustomer.name.substring(0, 1).toUpperCase() : 'C'"></span>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-white" x-text="selectedCustomer ? selectedCustomer.name : ''"></h3>
+                        <span class="text-[10px] text-cyan-400 font-mono" x-text="selectedCustomer && selectedCustomer.company_name ? selectedCustomer.company_name : 'Personal Client'"></span>
+                    </div>
+                </div>
+                <button type="button" @click="showDetailModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <!-- 3 Pillars Info Card -->
+                <div class="grid grid-cols-3 gap-2 p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-center font-mono">
+                    <div>
+                        <span class="text-[9px] uppercase text-slate-500 font-bold block">ID Klien</span>
+                        <span class="font-bold text-white text-xs" x-text="selectedCustomer && selectedCustomer.code ? selectedCustomer.code : '-'"></span>
+                    </div>
+                    <div class="border-x border-slate-900">
+                        <span class="text-[9px] uppercase text-slate-500 font-bold block">Termin Bayar</span>
+                        <span class="font-bold text-amber-400 text-xs" x-text="selectedCustomer ? (selectedCustomer.payment_terms_days <= 0 ? 'Tunai' : 'Net ' + selectedCustomer.payment_terms_days + ' Hari') : 'Net 30'"></span>
+                    </div>
+                    <div>
+                        <span class="text-[9px] uppercase text-slate-500 font-bold block">Faktur Terbit</span>
+                        <span class="font-bold text-emerald-400 text-xs" x-text="selectedCustomer ? (selectedCustomer.invoices_count || 0) + ' Faktur' : '0 Faktur'"></span>
+                    </div>
+                </div>
+
+                <!-- Contact & NPWP Details -->
+                <div class="space-y-2 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+                    <div class="flex justify-between items-center py-1 border-b border-slate-800/60">
+                        <span class="text-slate-400">Telepon / WA:</span>
+                        <span class="font-mono font-bold text-slate-200" x-text="selectedCustomer && selectedCustomer.phone ? selectedCustomer.phone : '-'"></span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-800/60">
+                        <span class="text-slate-400">Email:</span>
+                        <span class="font-mono text-slate-200 truncate max-w-[220px]" x-text="selectedCustomer && selectedCustomer.email ? selectedCustomer.email : '-'"></span>
+                    </div>
+                    <div class="flex justify-between items-center py-1">
+                        <span class="text-slate-400">NPWP:</span>
+                        <span class="font-mono text-slate-200" x-text="selectedCustomer && selectedCustomer.tax_identification_number ? selectedCustomer.tax_identification_number : '-'"></span>
+                    </div>
+                </div>
+
+                <!-- Addresses -->
+                <div class="space-y-3 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-mono text-slate-500 uppercase font-bold block">Alamat Penagihan:</span>
+                        <p class="text-slate-300 leading-relaxed" x-text="selectedCustomer && selectedCustomer.billing_address ? selectedCustomer.billing_address : 'Belum diisi'"></p>
+                    </div>
+                    <div class="space-y-1 pt-2 border-t border-slate-800/60">
+                        <span class="text-[10px] font-mono text-slate-500 uppercase font-bold block">Alamat Pengiriman:</span>
+                        <p class="text-slate-300 leading-relaxed" x-text="selectedCustomer && selectedCustomer.shipping_address ? selectedCustomer.shipping_address : 'Belum diisi'"></p>
+                    </div>
+                    <template x-if="selectedCustomer && selectedCustomer.notes">
+                        <div class="space-y-1 pt-2 border-t border-slate-800/60">
+                            <span class="text-[10px] font-mono text-slate-500 uppercase font-bold block">Catatan Tambahan:</span>
+                            <p class="text-amber-300/90 italic" x-text="selectedCustomer.notes"></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+                <button type="button" 
+                        @click="showDetailModal = false; openEditModal(selectedCustomer ? selectedCustomer.id : '')" 
+                        class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1.5">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    <span>Edit Profil Ini</span>
+                </button>
+                <button type="button" 
+                        @click="showDetailModal = false" 
+                        class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 @endsection

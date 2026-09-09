@@ -47,10 +47,10 @@
     @endif
 
     <div x-show="activeTab === 'units'" class="glass-card rounded-2xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs min-w-[540px]">
                 <thead>
-                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
+                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50 whitespace-nowrap">
                         <th class="py-3.5 px-4 font-semibold">{{ $type === 'units' ? 'Kode' : 'Nama' }}</th>
                         @if($type === 'units')
                             <th class="py-3.5 px-4 font-semibold">Nama Satuan</th>
@@ -124,9 +124,9 @@
             @endif
 
             <div class="glass-card rounded-2xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead><tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50"><th class="py-3.5 px-4">Dari</th><th class="py-3.5 px-4">Ke</th><th class="py-3.5 px-4">Faktor</th><th class="py-3.5 px-4 text-right">Aksi</th></tr></thead>
+                <div class="table-responsive">
+                    <table class="w-full text-left text-xs min-w-[480px]">
+                        <thead><tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50 whitespace-nowrap"><th class="py-3.5 px-4">Dari</th><th class="py-3.5 px-4">Ke</th><th class="py-3.5 px-4">Faktor</th><th class="py-3.5 px-4 text-right">Aksi</th></tr></thead>
                         <tbody class="divide-y divide-slate-800/60">
                             @forelse($unitConversions as $conversion)
                                 <tr class="hover:bg-slate-800/30"><td class="py-3 px-4 font-semibold text-white">{{ $conversion->fromUnit?->code }} — {{ $conversion->fromUnit?->name }}</td><td class="py-3 px-4 font-semibold text-white">{{ $conversion->toUnit?->code }} — {{ $conversion->toUnit?->name }}</td><td class="py-3 px-4 font-mono text-emerald-400">{{ number_format((float) $conversion->factor, 6, '.', '') }}</td><td class="py-3 px-4 text-right"><form method="POST" action="{{ route('unit-conversions.destroy', $conversion->id) }}" onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus konversi ini?', 'Hapus Konversi?', 'danger')">@csrf @method('DELETE')<button type="submit" title="Hapus" class="p-1.5 text-slate-400 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button></form></td></tr>

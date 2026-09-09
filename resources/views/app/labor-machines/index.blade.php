@@ -28,10 +28,10 @@
         </div>
 
         <div class="glass-card rounded-2xl overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
+            <div class="table-responsive">
+                <table class="w-full text-left text-xs min-w-[620px]">
                     <thead>
-                        <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
+                        <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50 whitespace-nowrap">
                             <th class="py-3.5 px-4 font-semibold">Nama Posisi / Peran</th>
                             <th class="py-3.5 px-4 font-semibold">Basis Pembayaran</th>
                             <th class="py-3.5 px-4 font-semibold text-right">Nominal Tarif Dasar</th>
@@ -108,10 +108,10 @@
         </div>
 
         <div class="glass-card rounded-2xl overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
+            <div class="table-responsive">
+                <table class="w-full text-left text-xs min-w-[650px]">
                     <thead>
-                        <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
+                        <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50 whitespace-nowrap">
                             <th class="py-3.5 px-4 font-semibold">Nama Mesin / Peralatan</th>
                             <th class="py-3.5 px-4 font-semibold text-right">Harga Perolehan</th>
                             <th class="py-3.5 px-4 font-semibold text-center">Umur Manfaat (Jam)</th>

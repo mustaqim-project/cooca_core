@@ -41,9 +41,9 @@
 
     <!-- Table -->
     <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[700px]">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-3 px-4">No. Sales Order</th>
                         <th class="py-3 px-4">Pelanggan</th>

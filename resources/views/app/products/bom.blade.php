@@ -56,10 +56,10 @@
             </h3>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs min-w-[620px]">
                 <thead>
-                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
+                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50 whitespace-nowrap">
                         <th class="py-3.5 px-4 font-semibold">Komponen Bahan Baku</th>
                         <th class="py-3.5 px-4 font-semibold text-center">Jumlah Resep</th>
                         <th class="py-3.5 px-4 font-semibold text-right">Harga Efektif Bahan</th>

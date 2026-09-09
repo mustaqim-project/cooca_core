@@ -120,10 +120,10 @@
         </div>
 
         <!-- Items Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+        <div class="table-responsive-wide">
+            <table class="w-full text-left text-xs min-w-[650px]">
                 <thead>
-                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-950/80">
+                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-950/80 whitespace-nowrap">
                         <th class="py-3 px-3 font-semibold w-12 text-center">No</th>
                         <th class="py-3 px-3 font-semibold">Deskripsi Produk / Item</th>
                         <th class="py-3 px-3 font-semibold text-center w-24">Satuan</th>

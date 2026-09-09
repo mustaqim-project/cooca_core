@@ -35,9 +35,9 @@
 }">
 
     <!-- Top Action Bar -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+    <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         <!-- Search & Filter Form -->
-        <form method="GET" action="{{ route('materials.index') }}" class="flex-1 flex items-center gap-3">
+        <form method="GET" action="{{ route('materials.index') }}" class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div class="relative flex-1 max-w-md">
                 <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
                 <input type="text" name="search" value="{{ request('search') }}" 
@@ -54,7 +54,7 @@
             </select>
         </form>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
             <a href="{{ route('import.index', ['tab' => 'materials']) }}" 
                class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
                title="Import data bahan baku massal dari file Excel / CSV">
@@ -72,17 +72,17 @@
 
     <!-- Materials Table Card -->
     <div class="glass-card rounded-2xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs min-w-[650px]">
                 <thead>
                     <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
-                        <th class="py-3.5 px-4 font-semibold">Nama Bahan & SKU</th>
-                        <th class="py-3.5 px-4 font-semibold">Kategori</th>
-                        <th class="py-3.5 px-4 font-semibold">Satuan Beli</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">Harga Beli Terakhir</th>
-                        <th class="py-3.5 px-4 font-semibold text-center">Yield / Waste</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">Biaya Efektif/Unit</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">Aksi</th>
+                        <th class="py-3.5 px-4 font-semibold whitespace-nowrap">Nama Bahan & SKU</th>
+                        <th class="py-3.5 px-4 font-semibold whitespace-nowrap">Kategori</th>
+                        <th class="py-3.5 px-4 font-semibold whitespace-nowrap">Satuan Beli</th>
+                        <th class="py-3.5 px-4 font-semibold text-right whitespace-nowrap">Harga Beli Terakhir</th>
+                        <th class="py-3.5 px-4 font-semibold text-center whitespace-nowrap">Yield / Waste</th>
+                        <th class="py-3.5 px-4 font-semibold text-right whitespace-nowrap">Biaya Efektif/Unit</th>
+                        <th class="py-3.5 px-4 font-semibold text-right whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/60">
@@ -269,7 +269,7 @@
 
     <!-- Modal Update Harga -->
     <div x-show="showPriceModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card max-w-md w-full p-6 rounded-2xl space-y-4" @click.outside="showPriceModal = false">
+        <div class="glass-card max-w-md w-full p-6 rounded-2xl space-y-4 max-h-[88dvh] overflow-y-auto" @click.outside="showPriceModal = false">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
                     <h3 class="text-base font-bold text-white">Update Harga Bahan</h3>
@@ -318,7 +318,7 @@
 
     <!-- Modal CMS Supplier -->
     <div x-show="showAddSupplierModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4" @click.outside="showAddSupplierModal = false">
+        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4 max-h-[88dvh] overflow-y-auto" @click.outside="showAddSupplierModal = false">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <i data-lucide="truck" class="w-4 h-4 text-emerald-400"></i>
@@ -364,7 +364,7 @@
 
     <!-- Modal CMS Kategori Bahan -->
     <div x-show="showAddCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4" @click.outside="showAddCategoryModal = false">
+        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4 max-h-[88dvh] overflow-y-auto" @click.outside="showAddCategoryModal = false">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <i data-lucide="folder-plus" class="w-4 h-4 text-emerald-400"></i>
@@ -397,7 +397,7 @@
 
     <!-- Modal CMS Satuan Beli Baru -->
     <div x-show="showAddUnitModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4" @click.outside="showAddUnitModal = false">
+        <div class="glass-card max-w-sm w-full p-6 rounded-2xl space-y-4 max-h-[88dvh] overflow-y-auto" @click.outside="showAddUnitModal = false">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <i data-lucide="scale" class="w-4 h-4 text-emerald-400"></i>

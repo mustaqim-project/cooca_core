@@ -112,9 +112,9 @@
                 <i data-lucide="award" class="w-4 h-4 text-emerald-400"></i>
                 <span>Top Produk Paling Laris</span>
             </h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="bg-slate-900/60 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-800">
+            <div class="table-responsive">
+                <table class="w-full text-left text-xs text-slate-300 min-w-[440px]">
+                    <thead class="bg-slate-900/60 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-800 whitespace-nowrap">
                         <tr>
                             <th class="py-2 px-3">Nama Produk</th>
                             <th class="py-2 px-3 text-right">Terjual</th>
@@ -146,9 +146,9 @@
                 <i data-lucide="credit-card" class="w-4 h-4 text-cyan-400"></i>
                 <span>Performa Metode Pembayaran</span>
             </h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="bg-slate-900/60 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-800">
+            <div class="table-responsive">
+                <table class="w-full text-left text-xs text-slate-300 min-w-[360px]">
+                    <thead class="bg-slate-900/60 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-800 whitespace-nowrap">
                         <tr>
                             <th class="py-2 px-3">Metode Bayar</th>
                             <th class="py-2 px-3 text-center">Jumlah Transaksi</th>
@@ -208,9 +208,9 @@
         </div>
 
         @if(! empty($productAveragePrices))
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900/60 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-800">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[560px]">
+                <thead class="bg-slate-900/60 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-2 px-3">Produk</th>
                         <th class="py-2 px-3 text-center">Qty Terjual</th>

@@ -418,7 +418,12 @@ class ComprehensiveFinancialReportingTest extends TestCase
 
         // Test Export CSV - khusus paket Core; aktifkan plan dulu.
         app(\App\Domain\Billing\EntitlementService::class)->upgradeToCore($this->business, 'monthly');
-        $exportResponse = $this->actingAs($this->user)->get(route('reports.export-excel', ['type' => 'income_statement']));
-        $exportResponse->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $exportCsvResponse = $this->actingAs($this->user)->get(route('reports.export-excel', ['format' => 'csv', 'type' => 'income_statement']));
+        $exportCsvResponse->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+
+        // Test Export Excel Komprehensif (.xlsx)
+        $exportExcelResponse = $this->actingAs($this->user)->get(route('reports.export-excel', ['format' => 'xlsx']));
+        $exportExcelResponse->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $this->assertStringContainsString('.xlsx', (string) $exportExcelResponse->headers->get('Content-Disposition'));
     }
 }

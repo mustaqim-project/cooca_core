@@ -109,16 +109,16 @@
             </a>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[620px]">
                 <thead class="border-b border-slate-800 bg-slate-950/60 uppercase text-[10px] text-slate-400 font-bold tracking-wider">
                     <tr>
-                        <th class="p-4">Tanggal</th>
-                        <th class="p-4">Akun Rekening</th>
-                        <th class="p-4">Arus</th>
-                        <th class="p-4">Keterangan / Referensi</th>
-                        <th class="p-4 text-right">Nominal</th>
-                        <th class="p-4 text-right">Saldo Akhir</th>
+                        <th class="p-4 whitespace-nowrap">Tanggal</th>
+                        <th class="p-4 whitespace-nowrap">Akun Rekening</th>
+                        <th class="p-4 whitespace-nowrap">Arus</th>
+                        <th class="p-4 whitespace-nowrap">Keterangan / Referensi</th>
+                        <th class="p-4 text-right whitespace-nowrap">Nominal</th>
+                        <th class="p-4 text-right whitespace-nowrap">Saldo Akhir</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/60 font-sans">

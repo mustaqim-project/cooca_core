@@ -59,9 +59,9 @@
                 </button>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="text-slate-500 uppercase text-[10px] font-bold border-b border-slate-800">
+            <div class="table-responsive-wide">
+                <table class="w-full text-left text-xs text-slate-300 min-w-[620px]">
+                    <thead class="text-slate-500 uppercase text-[10px] font-bold border-b border-slate-800 whitespace-nowrap">
                         <tr>
                             <th class="py-2.5 px-3">Produk / Item</th>
                             <th class="py-2.5 px-3 text-right w-28">Harga (Rp)</th>

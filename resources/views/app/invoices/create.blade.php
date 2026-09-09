@@ -280,16 +280,16 @@
                 </button>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
+            <div class="table-responsive-wide">
+                <table class="w-full text-left text-xs min-w-[760px]">
                     <thead>
                         <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
-                            <th class="py-2.5 px-3 font-semibold w-1/3">Produk / Item *</th>
-                            <th class="py-2.5 px-3 font-semibold w-24">Satuan *</th>
-                            <th class="py-2.5 px-3 font-semibold w-20 text-right">Qty *</th>
-                            <th class="py-2.5 px-3 font-semibold w-32 text-right">Harga Jual *</th>
-                            <th class="py-2.5 px-3 font-semibold w-28 text-right text-emerald-400">HPP (Modal)</th>
-                            <th class="py-2.5 px-3 font-semibold w-32 text-right">Subtotal</th>
+                            <th class="py-2.5 px-3 font-semibold w-1/3 whitespace-nowrap">Produk / Item *</th>
+                            <th class="py-2.5 px-3 font-semibold w-24 whitespace-nowrap">Satuan *</th>
+                            <th class="py-2.5 px-3 font-semibold w-20 text-right whitespace-nowrap">Qty *</th>
+                            <th class="py-2.5 px-3 font-semibold w-32 text-right whitespace-nowrap">Harga Jual *</th>
+                            <th class="py-2.5 px-3 font-semibold w-28 text-right text-emerald-400 whitespace-nowrap">HPP (Modal)</th>
+                            <th class="py-2.5 px-3 font-semibold w-32 text-right whitespace-nowrap">Subtotal</th>
                             <th class="py-2.5 px-2 font-semibold w-8 text-center"></th>
                         </tr>
                     </thead>

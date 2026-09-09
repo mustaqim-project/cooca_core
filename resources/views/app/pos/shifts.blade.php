@@ -26,7 +26,7 @@
             <h1 class="text-2xl font-black text-white tracking-tight">Sesi Shift Kasir</h1>
             <p class="text-sm text-slate-400 mt-1">Kelola pembukaan shift kasir, mutasi kas, dan rekonsiliasi laci uang fisik (*cash drawer*).</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2">
             <a href="{{ route('pos.terminal') }}" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition flex items-center gap-2">
                 <i data-lucide="layout-grid" class="w-4 h-4 text-emerald-400"></i>
                 <span>Terminal POS</span>
@@ -79,9 +79,9 @@
             <h3 class="font-bold text-sm text-white">Riwayat Shift Kasir</h3>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[700px]">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-3.5 px-4">Kasir / Outlet</th>
                         <th class="py-3.5 px-4">Waktu Buka / Tutup</th>

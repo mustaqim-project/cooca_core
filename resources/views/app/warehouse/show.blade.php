@@ -193,9 +193,9 @@
                 <a href="{{ route('inventory.stocks') }}?location_id={{ $location->id }}" class="text-xs text-slate-400 hover:text-emerald-400 transition font-semibold">Lihat Detail Lengkap →</a>
             </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[650px]">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-3.5 px-4">Produk</th>
                         <th class="py-3.5 px-4">Kategori</th>
@@ -290,9 +290,9 @@
             <i data-lucide="package-check" class="w-4 h-4 text-amber-400"></i>
             <span class="font-bold text-white text-sm">Riwayat Penerimaan Barang (Goods Receipt)</span>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[620px]">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-3.5 px-4">No. Penerimaan</th>
                         <th class="py-3.5 px-4">Tanggal</th>
@@ -344,9 +344,9 @@
             </div>
             <a href="{{ route('inventory.movements') }}?location_id={{ $location->id }}" class="text-xs text-slate-400 hover:text-indigo-400 transition font-semibold">Lihat Semua Mutasi →</a>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800">
+        <div class="table-responsive">
+            <table class="w-full text-left text-xs text-slate-300 min-w-[650px]">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-800 whitespace-nowrap">
                     <tr>
                         <th class="py-3.5 px-4">Produk</th>
                         <th class="py-3.5 px-4">Tipe Mutasi</th>
@@ -413,8 +413,8 @@
             </div>
             <form action="{{ route('warehouse.update', $location->id) }}" method="POST" class="space-y-4 text-sm">
                 @csrf @method('PUT')
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div class="col-span-1 sm:col-span-2">
                         <label class="block text-slate-400 font-bold uppercase text-xs mb-1.5">Nama</label>
                         <input type="text" name="name" value="{{ $location->name }}" required
                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
@@ -444,7 +444,7 @@
                             <option value="0" {{ !$location->is_active ? 'selected' : '' }}>❌ Nonaktif</option>
                         </select>
                     </div>
-                    <div class="col-span-2">
+                    <div class="col-span-1 sm:col-span-2">
                         <label class="block text-slate-400 font-bold uppercase text-xs mb-1.5">Alamat</label>
                         <textarea name="address" rows="2"
                                   class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 resize-none">{{ $location->address }}</textarea>

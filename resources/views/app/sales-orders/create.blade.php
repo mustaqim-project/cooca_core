@@ -136,15 +136,15 @@
                 </button>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
+            <div class="table-responsive-wide">
+                <table class="w-full text-left text-xs text-slate-300 min-w-[680px]">
                     <thead class="text-slate-500 uppercase text-[10px] font-bold border-b border-slate-800">
                         <tr>
-                            <th class="py-2.5 px-3">Produk / Item</th>
-                            <th class="py-2.5 px-3 text-right w-32">Harga Satuan (Rp)</th>
-                            <th class="py-2.5 px-3 text-right w-24">Jumlah</th>
-                            <th class="py-2.5 px-3 text-right w-28">Diskon (Rp)</th>
-                            <th class="py-2.5 px-3 text-right w-36">Subtotal (Rp)</th>
+                            <th class="py-2.5 px-3 whitespace-nowrap">Produk / Item</th>
+                            <th class="py-2.5 px-3 text-right w-32 whitespace-nowrap">Harga Satuan (Rp)</th>
+                            <th class="py-2.5 px-3 text-right w-24 whitespace-nowrap">Jumlah</th>
+                            <th class="py-2.5 px-3 text-right w-28 whitespace-nowrap">Diskon (Rp)</th>
+                            <th class="py-2.5 px-3 text-right w-36 whitespace-nowrap">Subtotal (Rp)</th>
                             <th class="py-2.5 px-3 text-center w-12"></th>
                         </tr>
                     </thead>
