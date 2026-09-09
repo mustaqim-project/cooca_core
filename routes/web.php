@@ -82,6 +82,10 @@ Route::post('/kontak', [PublicContactController::class, 'submit'])->name('contac
 // 6. Public Business Single-Page Landing Pages
 Route::get('/b/{slug}', [PublicBusinessLandingController::class, 'show'])->name('public.business.landing');
 
+// 7. Sitemap XML & HTML (SEO & Web Crawlers)
+Route::get('/sitemap.xml', [\App\Http\Controllers\Web\SitemapController::class, 'xml'])->name('sitemap.xml');
+Route::get('/sitemap', [\App\Http\Controllers\Web\SitemapController::class, 'html'])->name('sitemap.html');
+
 /*
 |--------------------------------------------------------------------------
 | User Google OAuth Routes

@@ -181,4 +181,9 @@ class Business extends Model
     {
         return $this->hasMany(PosOrder::class);
     }
+
+    public function locations(): HasMany
+    {
+        return $this->hasMany(Location::class);
+    }
 }

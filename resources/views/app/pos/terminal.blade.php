@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="robots" content="noindex, nofollow">
     <title>Terminal Kasir POS — {{ $business->name }}</title>
 
     <!-- Google Fonts -->
@@ -635,17 +636,37 @@
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex-1">
                                     <div class="font-bold text-xs text-white leading-tight" x-text="item.product_name"></div>
-                                    <div class="text-[11px] font-mono text-emerald-400 mt-0.5" x-text="formatRupiah(item.unit_price)"></div>
+                                    <div class="text-[11px] font-mono text-emerald-400 mt-0.5">
+                                        <span x-text="formatRupiah(item.unit_price)"></span>
+                                        <template x-if="item.unit_symbol">
+                                            <span class="text-slate-400 text-[10px]" x-text="'/' + item.unit_symbol"></span>
+                                        </template>
+                                    </div>
                                 </div>
-                                <div class="font-extrabold text-xs text-white font-mono" x-text="formatRupiah(item.quantity * item.unit_price)"></div>
+                                <div class="font-extrabold text-xs text-white font-mono" x-text="formatRupiah((parseFloat(item.quantity) || 0) * item.unit_price)"></div>
                             </div>
                             <div class="flex items-center justify-between pt-1 border-t border-slate-800/60">
-                                <div class="flex items-center gap-1.5 bg-slate-950 rounded-lg p-0.5 border border-slate-800">
-                                    <button @click="decrementQty(index)" class="pos-qty-btn w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs">-</button>
-                                    <span class="w-8 text-center font-mono font-bold text-xs text-white" x-text="item.quantity"></span>
-                                    <button @click="incrementQty(index)" class="pos-qty-btn w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs">+</button>
+                                <div class="flex items-center gap-1 bg-slate-950 rounded-lg p-0.5 border border-slate-800 focus-within:border-emerald-500/80 transition">
+                                    <button type="button" @click="decrementQty(index)" class="pos-qty-btn w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs shrink-0" title="Kurangi 1">-</button>
+                                    <div class="flex items-center">
+                                        <input type="number"
+                                               step="any"
+                                               min="0.0001"
+                                               :value="item.quantity"
+                                               @input="updateItemQty(index, $event.target.value)"
+                                               @blur="normalizeItemQty(index)"
+                                               @click.stop
+                                               @focus="$event.target.select()"
+                                               class="w-16 bg-slate-900/90 border border-slate-700/80 rounded text-center font-mono font-bold text-xs text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 py-0.5 px-1"
+                                               placeholder="Qty"
+                                               title="Ketik jumlah atau berat timbangan (contoh: 3.45)">
+                                        <template x-if="item.unit_symbol">
+                                            <span class="text-[10px] text-slate-400 font-semibold px-1 select-none" x-text="item.unit_symbol"></span>
+                                        </template>
+                                    </div>
+                                    <button type="button" @click="incrementQty(index)" class="pos-qty-btn w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs shrink-0" title="Tambah 1">+</button>
                                 </div>
-                                <button @click="removeFromCart(index)" class="p-1 rounded-lg text-slate-500 hover:text-rose-400 transition">
+                                <button type="button" @click="removeFromCart(index)" class="p-1 rounded-lg text-slate-500 hover:text-rose-400 transition" title="Hapus dari keranjang">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -1359,12 +1380,15 @@
                 addToCart(product) {
                     const existing = this.cart.find(item => item.product_id === product.id);
                     if (existing) {
-                        existing.quantity++;
+                        const current = parseFloat(existing.quantity) || 0;
+                        existing.quantity = parseFloat((current + 1).toFixed(4));
                     } else {
+                        const unitSymbol = product.output_unit?.symbol || product.output_unit?.code || product.output_unit?.name || '';
                         this.cart.push({
                             product_id: product.id,
                             product_name: product.name,
                             unit_price: Number(product.selling_price || 0),
+                            unit_symbol: unitSymbol,
                             quantity: 1,
                             discount_amount: 0,
                             notes: ''
@@ -1376,14 +1400,35 @@
                 },
 
                 incrementQty(idx) {
-                    this.cart[idx].quantity++;
+                    const current = parseFloat(this.cart[idx].quantity) || 0;
+                    this.cart[idx].quantity = parseFloat((current + 1).toFixed(4));
                 },
 
                 decrementQty(idx) {
-                    if (this.cart[idx].quantity > 1) {
-                        this.cart[idx].quantity--;
+                    const current = parseFloat(this.cart[idx].quantity) || 0;
+                    if (current > 1) {
+                        this.cart[idx].quantity = parseFloat((current - 1).toFixed(4));
                     } else {
                         this.removeFromCart(idx);
+                    }
+                },
+
+                updateItemQty(idx, val) {
+                    if (val === '' || val === null) {
+                        return;
+                    }
+                    const num = parseFloat(val);
+                    if (!isNaN(num) && num >= 0) {
+                        this.cart[idx].quantity = num;
+                    }
+                },
+
+                normalizeItemQty(idx) {
+                    const current = parseFloat(this.cart[idx].quantity);
+                    if (isNaN(current) || current <= 0) {
+                        this.cart[idx].quantity = 1;
+                    } else {
+                        this.cart[idx].quantity = parseFloat(current.toFixed(4));
                     }
                 },
 
@@ -1413,7 +1458,7 @@
                 },
 
                 get subtotal() {
-                    return this.cart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+                    return this.cart.reduce((sum, item) => sum + ((parseFloat(item.quantity) || 0) * (parseFloat(item.unit_price) || 0)), 0);
                 },
 
                 get orderDiscountAmount() {

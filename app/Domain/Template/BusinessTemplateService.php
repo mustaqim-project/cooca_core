@@ -230,7 +230,6 @@ final class BusinessTemplateService
                     'purchase_price' => $mItem['price'],
                     'yield_percentage' => $mItem['yield'] ?? 100,
                     'waste_percentage' => $mItem['waste'] ?? 0,
-                    'effective_cost' => $mItem['price'],
                 ]
             );
 
@@ -250,6 +249,8 @@ final class BusinessTemplateService
                     'category_id' => isset($pData['category_key'], $prodCatMap[$pData['category_key']]) ? $prodCatMap[$pData['category_key']]->id : null,
                     'output_unit_id' => $pData['unit']->id,
                     'business_type_hint' => $template->industry_category,
+                    'selling_price' => (float) ($pData['selling_price'] ?? 35000),
+                    'base_cost' => (float) ($pData['base_cost'] ?? 15000),
                 ]
             );
 
@@ -315,6 +316,9 @@ final class BusinessTemplateService
                 $costModel->load(['bomHeaders.items.material.prices', 'bomHeaders.items.unit', 'labors.laborRate', 'machines.machine', 'product.outputUnit']);
                 $dto = $engine->calculate($costModel);
                 $costingService->persist($costModel, $dto, 'template_seed');
+                if ($dto->hppPerUnit > 0) {
+                    $product->update(['base_cost' => round($dto->hppPerUnit, 2)]);
+                }
             } catch (\Throwable) {
                 // Silently continue
             }

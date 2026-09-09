@@ -1,2 +1,70 @@
+# ==============================================================================
+# COOCA UMKM (cooca.id) - robots.txt
+# Business Operating System & POS Kasir untuk UMKM Indonesia
+# ==============================================================================
+
 User-agent: *
-Disallow:
+
+# 1. Public Marketing, Tools, Calculators & Educational Hub (INDEX & FOLLOW)
+Allow: /
+Allow: /kalkulator
+Allow: /kalkulator/
+Allow: /template-pembukuan-gratis
+Allow: /template/
+Allow: /solusi/
+Allow: /blog
+Allow: /blog/
+Allow: /kontak
+Allow: /b/
+Allow: /sitemap
+Allow: /sitemap.xml
+
+# 2. Private App, Internal POS, & Tenant Operating System (NOINDEX & NOFOLLOW)
+Disallow: /admin
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /pos
+Disallow: /pos/
+Disallow: /inventory
+Disallow: /inventory/
+Disallow: /invoices
+Disallow: /invoices/
+Disallow: /purchasing
+Disallow: /purchasing/
+Disallow: /sales
+Disallow: /sales/
+Disallow: /materials
+Disallow: /materials/
+Disallow: /products
+Disallow: /products/
+Disallow: /recipes
+Disallow: /recipes/
+Disallow: /settings
+Disallow: /settings/
+Disallow: /reports
+Disallow: /reports/
+Disallow: /calculator
+Disallow: /calculator/
+Disallow: /import
+Disallow: /import/
+Disallow: /onboarding
+Disallow: /onboarding/
+
+# 3. Authentication & Account State (NOINDEX & NOFOLLOW)
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /complete-profile
+Disallow: /select-business
+Disallow: /auth/
+Disallow: /email/
+
+# 4. APIs & Internal Endpoints (NOINDEX & NOFOLLOW)
+Disallow: /api/
+Disallow: /webhook/
+Disallow: /broadcasting/
+
+# 5. Dynamic XML Sitemap Reference
+Sitemap: https://cooca.id/sitemap.xml
