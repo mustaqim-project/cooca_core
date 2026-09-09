@@ -26,6 +26,7 @@ class SubscriptionPayment extends Model
     public const METHOD_MANDIRI = 'mandiri';
     public const METHOD_BRI = 'bri';
     public const METHOD_QRIS = 'qris';
+    public const METHOD_FREE_PROMO = 'free_promo';
 
     public const PAYMENT_METHODS = [
         self::METHOD_BCA => [
@@ -71,6 +72,17 @@ class SubscriptionPayment extends Model
             'icon' => 'qr-code',
             'color' => 'emerald',
             'instructions' => 'Buka aplikasi BCA Mobile, GoPay, OVO, ShopeePay, atau Dana, scan kode QRIS Cooca, masukkan nominal sesuai angka unik, dan upload screenshot bukti bayar.',
+        ],
+        self::METHOD_FREE_PROMO => [
+            'code' => self::METHOD_FREE_PROMO,
+            'name' => 'Promo Bebas Biaya (Trial)',
+            'type' => 'promo',
+            'bank_name' => 'Promo Spesial Cooca',
+            'account_number' => 'Trial Pro',
+            'account_name' => 'COOCA MARKETING PROMO',
+            'icon' => 'sparkles',
+            'color' => 'emerald',
+            'instructions' => 'Paket promo trial aktif otomatis seketika tanpa perlu transfer bank maupun konfirmasi admin.',
         ],
     ];
 

@@ -683,6 +683,11 @@ final class EntitlementService
 
     public function createPackageOrder(Business $business, User $user, BillingPackage $package, string $paymentMethod = SubscriptionPayment::METHOD_BCA): SubscriptionPayment
     {
+        // If package is free / promo trial (price <= 0), activate immediately without payment
+        if ((float) $package->price <= 0.0) {
+            return $this->activateFreePackage($business, $user, $package);
+        }
+
         $uniqueCode = random_int(100, 999);
         $orderNumber = $this->nextOrderNumber('PKG-' . date('Ym') . '-');
         $paymentType = $package->type;
@@ -706,6 +711,90 @@ final class EntitlementService
             'payment_method' => $paymentMethod,
             'status' => SubscriptionPayment::STATUS_PENDING,
         ]);
+    }
+
+    /**
+     * Activate a free promo package (e.g. 15-day Trial Pro) immediately without payment or confirmation.
+     */
+    public function activateFreePackage(Business $business, User $user, BillingPackage $package): SubscriptionPayment
+    {
+        return DB::transaction(function () use ($business, $user, $package) {
+            $orderNumber = $this->nextOrderNumber('FREE-' . date('Ym') . '-');
+            $paymentType = $package->type;
+            $isSubscription = $paymentType === BillingPackage::TYPE_SUBSCRIPTION;
+            $durationDays = max(1, (int) ($package->duration_days ?? 15));
+
+            $payment = SubscriptionPayment::create([
+                'business_id' => $business->id,
+                'user_id' => $user->id,
+                'payment_type' => $paymentType,
+                'billing_package_id' => $package->id,
+                'package_name' => $package->name,
+                'package_duration_days' => $durationDays,
+                'order_number' => $orderNumber,
+                'plan_code' => $isSubscription ? BusinessSubscription::PLAN_CORE_MONTHLY : 'topup',
+                'cycle' => $isSubscription ? 'package' : 'one_time',
+                'amount' => 0,
+                'unique_code' => 0,
+                'total_payable' => 0,
+                'topup_quantity' => $package->token_quantity,
+                'topup_storage_bytes' => $package->storage_bytes,
+                'payment_method' => SubscriptionPayment::METHOD_FREE_PROMO,
+                'status' => SubscriptionPayment::STATUS_APPROVED,
+                'admin_notes' => 'Aktivasi Otomatis Promo Bebas Biaya / Trial Pro ' . $durationDays . ' Hari',
+                'approved_at' => Carbon::now(),
+            ]);
+
+            if ($isSubscription) {
+                $subscription = $this->getSubscription($business);
+                $currentEnd = ($subscription->isActive() && $subscription->ends_at && $subscription->ends_at->isFuture())
+                    ? $subscription->ends_at
+                    : Carbon::now();
+
+                $subscription->update([
+                    'plan_code' => BusinessSubscription::PLAN_CORE_MONTHLY,
+                    'price' => 0,
+                    'status' => BusinessSubscription::STATUS_ACTIVE,
+                    'starts_at' => Carbon::now(),
+                    'ends_at' => $currentEnd->copy()->addDays($durationDays),
+                    'ai_tokens_monthly_allowance' => 0,
+                    'last_token_reset_at' => Carbon::today()->toDateString(),
+                ]);
+
+                if ($package->token_quantity > 0) {
+                    $purchasedAt = Carbon::now();
+                    AiTokenTopup::create([
+                        'business_id' => $business->id,
+                        'payment_id' => $payment->id,
+                        'purchased_tokens' => $package->token_quantity,
+                        'remaining_tokens' => $package->token_quantity,
+                        'purchased_at' => $purchasedAt,
+                        'expires_at' => $purchasedAt->copy()->addDays($durationDays),
+                    ]);
+                }
+            } elseif ($paymentType === 'ai_token') {
+                $purchasedAt = Carbon::now();
+                $expiryDays = $package->token_expiry_days ?? 30;
+                AiTokenTopup::create([
+                    'business_id' => $business->id,
+                    'payment_id' => $payment->id,
+                    'purchased_tokens' => $package->token_quantity,
+                    'remaining_tokens' => $package->token_quantity,
+                    'purchased_at' => $purchasedAt,
+                    'expires_at' => $purchasedAt->copy()->addDays($expiryDays),
+                ]);
+            } elseif ($paymentType === 'storage') {
+                $owner = $business->users()->wherePivot('role', 'owner')->firstOrFail();
+                OwnerStorageTopup::create([
+                    'owner_id' => $owner->id,
+                    'payment_id' => $payment->id,
+                    'storage_bytes' => $package->storage_bytes,
+                    'approved_at' => Carbon::now(),
+                ]);
+            }
+
+            return $payment;
+        });
     }
 
     /**

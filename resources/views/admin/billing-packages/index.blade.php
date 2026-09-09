@@ -209,8 +209,11 @@
 
             <div>
                 <label class="block font-semibold text-slate-300 mb-1.5 text-xs">Harga (Rp) <span class="text-rose-400">*</span></label>
-                <input type="number" name="price" required min="0" step="1000" placeholder="300000"
+                <input type="number" name="price" required min="0" step="any" placeholder="0"
                        class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-white font-mono text-xs">
+                <p class="text-[11px] text-emerald-400/90 mt-1">
+                    Set <strong>0</strong> untuk promo marketing (misal promo 15 hari trial pro). Tenant aktif instan tanpa perlu bayar & tanpa verifikasi admin.
+                </p>
             </div>
 
             <div>
@@ -292,7 +295,14 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                     <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
                         <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Harga</div>
-                        <div class="font-mono font-black text-emerald-400 text-sm mt-1">Rp {{ number_format($package->price, 0, ',', '.') }}</div>
+                        <div class="font-mono font-black text-emerald-400 text-sm mt-1 flex items-center gap-1.5 flex-wrap">
+                            @if((float) $package->price <= 0)
+                                <span class="text-emerald-400">Rp 0</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-sans font-bold border border-emerald-500/30">PROMO GRATIS / TRIAL</span>
+                            @else
+                                Rp {{ number_format($package->price, 0, ',', '.') }}
+                            @endif
+                        </div>
                     </div>
 
                     @if($type === App\Models\BillingPackage::TYPE_SUBSCRIPTION)
@@ -371,8 +381,11 @@
 
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1.5">Harga (Rp) <span class="text-rose-400">*</span></label>
-                    <input type="number" name="price" x-model="editForm.price" required min="0" step="1000"
+                    <input type="number" name="price" x-model="editForm.price" required min="0" step="any"
                            class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono text-xs">
+                    <p class="text-[11px] text-emerald-400/90 mt-1">
+                        Set <strong>0</strong> untuk promo marketing (trial gratis tanpa perlu transfer/konfirmasi).
+                    </p>
                 </div>
 
                 <div>

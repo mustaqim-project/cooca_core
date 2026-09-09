@@ -72,10 +72,19 @@
                                 <span x-show="packageId === '{{ $package->id }}'" class="w-1.5 h-1.5 rounded-full bg-slate-950"></span>
                             </span>
                         </div>
-                        <div class="text-2xl font-black text-emerald-400 font-mono mt-3">Rp {{ number_format($package->price, 0, ',', '.') }}</div>
+                        @if($package->price <= 0)
+                            <div class="flex items-center gap-1.5 mt-3">
+                                <span class="text-xl font-black text-emerald-400 font-mono">Rp 0</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse">
+                                    PROMO TRIAL GRATIS
+                                </span>
+                            </div>
+                        @else
+                            <div class="text-2xl font-black text-emerald-400 font-mono mt-3">Rp {{ number_format($package->price, 0, ',', '.') }}</div>
+                        @endif
                         <p class="text-[11px] text-slate-400 mt-1">{{ $package->description }}</p>
                         @if($type === 'subscription')
-                            <p class="text-[11px] text-cyan-300 mt-2 font-medium">Akses Pro/Patungan {{ $package->duration_days }} hari</p>
+                            <p class="text-[11px] text-cyan-300 mt-2 font-medium">Akses Core Pro {{ $package->duration_days }} hari @if($package->price <= 0) (Gratis Promo) @endif</p>
                         @elseif($type === 'ai_token')
                             <p class="text-[11px] text-amber-300 mt-2">{{ number_format($package->token_quantity, 0, ',', '.') }} token · {{ $package->token_expiry_days ?? 30 }} hari</p>
                         @else
@@ -94,10 +103,24 @@
                         <i data-lucide="wallet" class="w-5 h-5 text-cyan-400"></i>
                         <span>Metode Pembayaran Resmi</span>
                     </h3>
-                    <span class="text-xs text-slate-400 font-mono">Verifikasi Manual Cepat</span>
+                    <span class="text-xs text-slate-400 font-mono" x-text="currentPrice <= 0 ? 'Bebas Biaya (Trial)' : 'Verifikasi Manual Cepat'"></span>
                 </div>
 
-                <div class="space-y-3">
+                <!-- Celebratory Free Promo Notice -->
+                <div x-show="currentPrice <= 0" class="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">Paket Bebas Biaya — Promo Trial Aktif Otomatis</h4>
+                        <p class="text-xs text-emerald-300/90 mt-1 leading-relaxed">
+                            Anda memilih paket promo khusus (Rp 0). Bisnis Anda <strong>tidak perlu transfer uang</strong> ataupun mengunggah bukti bayar. Fitur Cooca Core Pro akan langsung aktif seketika setelah Anda menekan tombol aktivasi.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Payment Accounts List (Hidden when price is 0) -->
+                <div x-show="currentPrice > 0" class="space-y-3">
                     @forelse($paymentAccounts as $account)
                     <div @click="paymentMethod = '{{ $account->bank_code }}'"
                          class="cursor-pointer rounded-2xl p-4 border transition-all flex items-center justify-between"
@@ -175,31 +198,33 @@
                 <!-- Cost Summary -->
                 <div class="border-t border-slate-800 pt-4 space-y-2 text-xs">
                     <div class="flex items-center justify-between text-slate-400">
-                        <span>{{ $type === 'subscription' ? 'Nominal Patungan:' : 'Harga Top Up:' }}</span>
+                        <span>{{ $type === 'subscription' ? 'Nominal Paket:' : 'Harga Top Up:' }}</span>
                         <span class="font-mono text-white">
-                            <span x-text="'Rp ' + formatRupiah(currentPrice)"></span>
+                            <span x-text="currentPrice <= 0 ? 'Rp 0 (Gratis Promo)' : ('Rp ' + formatRupiah(currentPrice))"></span>
                             <span class="sr-only">Rp {{ number_format($basePrice, 0, ',', '.') }}</span>
                         </span>
                     </div>
-                    <div class="flex items-center justify-between text-slate-400">
+                    <div x-show="currentPrice > 0" class="flex items-center justify-between text-slate-400">
                         <span>Kode Verifikasi Unik:</span>
                         <span class="font-mono text-purple-300">Dihasilkan di invoice</span>
                     </div>
                     <div class="border-t border-slate-800/80 pt-3 flex items-baseline justify-between">
                         <span class="font-bold text-white text-sm">Estimasi Total:</span>
-                        <span class="font-black text-xl text-emerald-400 font-mono" x-text="'Rp ' + formatRupiah(currentPrice)"></span>
+                        <span class="font-black text-xl text-emerald-400 font-mono" x-text="currentPrice <= 0 ? 'Rp 0' : ('Rp ' + formatRupiah(currentPrice))"></span>
                     </div>
                 </div>
 
                 <!-- Submit Button -->
                 <button type="submit"
-                        class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/20 transition flex items-center justify-center gap-2 group">
-                    <span>Lanjutkan Pembayaran</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        class="w-full py-3.5 rounded-2xl text-slate-950 font-black text-sm shadow-xl transition flex items-center justify-center gap-2 group"
+                        :class="currentPrice <= 0 ? 'bg-gradient-to-r from-amber-400 to-emerald-400 hover:from-amber-300 hover:to-emerald-300 shadow-amber-500/20' : 'bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 shadow-emerald-500/20'">
+                    <i data-lucide="sparkles" class="w-4 h-4" x-show="currentPrice <= 0"></i>
+                    <span x-text="currentPrice <= 0 ? 'Aktifkan Promo Trial Sekarang (Gratis)' : 'Lanjutkan Pembayaran'"></span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" x-show="currentPrice > 0"></i>
                 </button>
 
-                <p class="text-[10px] text-center text-slate-500 leading-relaxed">
-                    Setelah klik tombol di atas, Anda akan mendapatkan nomor rekening resmi dan form upload bukti transfer.
+                <p class="text-[10px] text-center text-slate-500 leading-relaxed"
+                   x-text="currentPrice <= 0 ? 'Paket trial pro langsung aktif otomatis seketika tanpa perlu bayar maupun verifikasi admin.' : 'Setelah klik tombol di atas, Anda akan mendapatkan nomor rekening resmi dan form upload bukti transfer.'">
                 </p>
             </div>
         </div>

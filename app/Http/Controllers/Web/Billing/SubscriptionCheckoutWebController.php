@@ -42,9 +42,13 @@ final class SubscriptionCheckoutWebController extends Controller
         $topupQuantity = $type === 'ai_token' ? $this->entitlementService->getTokenTopupAmount() : $this->entitlementService->getStorageTopupBytes();
         $packages = $this->entitlementService->activePackages($type);
         if ($type === 'subscription'
+            && !$request->is('patungan')
+            && !$request->has('package_id')
+            && !$request->has('type')
             && (SystemSetting::get('subscription_price_monthly') !== null
                 || SystemSetting::get('subscription_price_annual') !== null)) {
-            $packages = $packages->filter(static fn (BillingPackage $package): bool => false)->values();
+            // Keep free / promo trial packages (price <= 0) visible even when default system settings are configured
+            $packages = $packages->filter(static fn (BillingPackage $package): bool => (float) $package->price <= 0.0)->values();
         }
         $packagesData = $packages->map(fn (BillingPackage $package): array => [
             'id' => $package->id,
@@ -81,30 +85,42 @@ final class SubscriptionCheckoutWebController extends Controller
     }
 
     /**
-     * Create a new subscription payment order.
+     * Create a new subscription payment order or activate free promo package immediately.
      */
     public function store(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
         $user = auth()->user();
 
+        $orderType = $request->input('order_type', 'subscription');
+        $packageId = $request->input('package_id');
+        $package = !empty($packageId)
+            ? BillingPackage::active()->where('id', $packageId)->where('type', $orderType)->first()
+            : null;
+
+        $isFreePackage = $package && (float) $package->price <= 0.0;
+
         // Get allowed bank codes
         $validCodes = PaymentAccount::active()->pluck('bank_code')->toArray();
         if (empty($validCodes)) {
             $validCodes = array_keys(SubscriptionPayment::PAYMENT_METHODS);
         }
+        $validCodes[] = SubscriptionPayment::METHOD_FREE_PROMO;
 
         $validated = $request->validate([
             'order_type' => ['nullable', 'string', 'in:subscription,ai_token,storage'],
             'package_id' => ['nullable', 'uuid', 'exists:billing_packages,id'],
             'cycle' => ['nullable', 'string', 'in:monthly,annual'],
-            'payment_method' => ['required', 'string', 'in:' . implode(',', $validCodes)],
+            'payment_method' => [$isFreePackage ? 'nullable' : 'required', 'string', 'in:' . implode(',', $validCodes)],
         ]);
 
-        $orderType = $validated['order_type'] ?? 'subscription';
-        $package = !empty($validated['package_id'])
-            ? BillingPackage::active()->where('id', $validated['package_id'])->where('type', $orderType)->firstOrFail()
-            : null;
+        // If free package (price = 0): Instant activation, no payment & no confirmation needed!
+        if ($isFreePackage) {
+            $payment = $this->entitlementService->activateFreePackage($business, $user, $package);
+
+            return redirect()->route('dashboard')
+                ->with('success', "Selamat! Paket promo '{$package->name}' ({$payment->package_duration_days} Hari Trial Pro) berhasil diaktifkan secara instan tanpa perlu transfer pembayaran.");
+        }
 
         // If subscription order without explicit package_id, resolve from BillingPackage catalog
         if (!$package && $orderType === 'subscription'
@@ -116,13 +132,15 @@ final class SubscriptionCheckoutWebController extends Controller
                 : BillingPackage::active()->where('type', BillingPackage::TYPE_SUBSCRIPTION)->where(fn ($q) => $q->where('code', 'core-monthly')->orWhere('duration_days', '<=', 31))->orderBy('sort_order')->first();
         }
 
+        $paymentMethod = $validated['payment_method'] ?? SubscriptionPayment::METHOD_BCA;
+
         $payment = $package
-            ? $this->entitlementService->createPackageOrder($business, $user, $package, $validated['payment_method'])
+            ? $this->entitlementService->createPackageOrder($business, $user, $package, $paymentMethod)
             : ($orderType === 'ai_token'
-            ? $this->entitlementService->createTokenTopupOrder($business, $user, $validated['payment_method'])
+            ? $this->entitlementService->createTokenTopupOrder($business, $user, $paymentMethod)
             : ($orderType === 'storage'
-                ? $this->entitlementService->createStorageTopupOrder($business, $user, $validated['payment_method'])
-                : $this->entitlementService->createPaymentOrder($business, $user, $validated['cycle'] ?? 'monthly', $validated['payment_method'])));
+                ? $this->entitlementService->createStorageTopupOrder($business, $user, $paymentMethod)
+                : $this->entitlementService->createPaymentOrder($business, $user, $validated['cycle'] ?? 'monthly', $paymentMethod)));
 
         return redirect()->route('billing.payment.show', $payment)
             ->with('success', "Pesanan #{$payment->order_number} berhasil dibuat. Silakan selesaikan pembayaran sesuai nominal unik.");
