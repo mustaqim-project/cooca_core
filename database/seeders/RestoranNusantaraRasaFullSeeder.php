@@ -81,9 +81,9 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
             }
 
             foreach ($usersToLink as $u) {
-                BusinessUser::firstOrCreate(
+                BusinessMembership::firstOrCreate(
                     ['business_id' => $business->id, 'user_id' => $u->id],
-                    ['role' => 'owner']
+                    ['id' => (string) Str::uuid(), 'role' => 'owner']
                 );
             }
 
