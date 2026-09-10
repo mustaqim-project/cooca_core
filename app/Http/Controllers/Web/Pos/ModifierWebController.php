@@ -33,7 +33,7 @@ final class ModifierWebController extends Controller
 
         $groups = $this->modifierService->getGroups($business);
         $products = Product::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
-        $materials = Material::where('business_id', $business->id)->where('is_active', true)->with('unit')->orderBy('name')->get();
+        $materials = Material::where('business_id', $business->id)->whereNull('discontinued_at')->with('unit')->orderBy('name')->get();
         $units = Unit::all();
 
         return view('app.products.modifiers', compact('business', 'groups', 'products', 'materials', 'units'));

@@ -410,6 +410,7 @@ Route::middleware('auth:web')->group(function (): void {
 
         // Table Management
         Route::get('/pos/tables', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'index'])->name('pos.tables.index');
+        Route::get('/pos/tables/qr-cards', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'allQrCards'])->name('pos.tables.qr-cards');
         Route::post('/pos/tables', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'store'])->name('pos.tables.store');
         Route::put('/pos/tables/{table}', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'update'])->name('pos.tables.update');
         Route::delete('/pos/tables/{table}', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'destroy'])->name('pos.tables.destroy');
@@ -430,6 +431,7 @@ Route::middleware('auth:web')->group(function (): void {
         // Kitchen & Bar Display
         Route::get('/pos/kitchen', [\App\Http\Controllers\Web\Pos\PosKitchenWebController::class, 'index'])->name('pos.kitchen.index');
         Route::get('/pos/kitchen/orders', [\App\Http\Controllers\Web\Pos\PosKitchenWebController::class, 'getActiveOrders'])->name('pos.kitchen.orders');
+        Route::get('/pos/kitchen/active', [\App\Http\Controllers\Web\Pos\PosKitchenWebController::class, 'getActiveOrders'])->name('pos.kitchen.active');
         Route::post('/pos/kitchen/{order}/status', [\App\Http\Controllers\Web\Pos\PosKitchenWebController::class, 'updateStatus'])->name('pos.kitchen.status');
 
         /*

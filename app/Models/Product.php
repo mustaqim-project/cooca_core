@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Product extends Model
 {
     use Auditable, BelongsToBusiness, HasFactory, HasSlug, HasUuid, SoftDeletes;
@@ -280,7 +280,7 @@ class Product extends Model
      *
      * @return BelongsToMany<ModifierGroup, $this>
      */
-    public function modifierGroups(): BelongsToMany
+    public function modifierGroups()
     {
         return $this->belongsToMany(ModifierGroup::class, 'product_modifier_groups', 'product_id', 'modifier_group_id')
             ->withPivot('sort_order')

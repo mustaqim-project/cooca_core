@@ -206,6 +206,25 @@ final class PosTableWebController extends Controller
     }
 
     /**
+     * Render printable QR Standee Cards for all tables in business.
+     */
+    public function allQrCards(Request $request): View
+    {
+        $business = Context::requireBusiness();
+        $locationId = $request->query('location_id');
+        $tables = $this->tableService->getTables($business, $locationId);
+
+        $cards = $tables->map(function (PosTable $t) use ($business) {
+            return [
+                'table' => $t,
+                'qrSvg' => $this->qrCodeService->generateForTable($t, $business, 500),
+            ];
+        });
+
+        return view('app.pos.qr-card', compact('business', 'tables', 'cards'));
+    }
+
+    /**
      * Render printable QR Standee Card view.
      */
     public function qrCard(PosTable $table): View

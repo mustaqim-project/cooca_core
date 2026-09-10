@@ -518,6 +518,40 @@
                                 </a>
                             @endif
 
+                            @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::isOwner())
+                                <a href="{{ route('pos.kitchen.index') }}" id="tour-nav-pos-kitchen"
+                                    {{ request()->routeIs('pos.kitchen.*') ? 'aria-current="page"' : '' }}
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.kitchen.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="chef-hat"
+                                        class="w-3.5 h-3.5 {{ request()->routeIs('pos.kitchen.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Kitchen Display (KDS)</span>
+                                </a>
+
+                                <a href="{{ route('pos.tables.index') }}" id="tour-nav-pos-tables"
+                                    {{ request()->routeIs('pos.tables.index') ? 'aria-current="page"' : '' }}
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.tables.index') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="layout-grid"
+                                        class="w-3.5 h-3.5 {{ request()->routeIs('pos.tables.index') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Manajemen Meja &amp; QR</span>
+                                </a>
+
+                                <a href="{{ route('pos.tables.qr-cards') }}" id="tour-nav-pos-qr-cards" target="_blank"
+                                    {{ request()->routeIs('pos.tables.qr-cards') ? 'aria-current="page"' : '' }}
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.tables.qr-cards') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="qr-code"
+                                        class="w-3.5 h-3.5 {{ request()->routeIs('pos.tables.qr-cards') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Cetak Kartu QR Meja</span>
+                                </a>
+
+                                <a href="{{ route('pos.modifiers.index') }}" id="tour-nav-pos-modifiers"
+                                    {{ request()->routeIs('pos.modifiers.*') ? 'aria-current="page"' : '' }}
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.modifiers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="sliders"
+                                        class="w-3.5 h-3.5 {{ request()->routeIs('pos.modifiers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Modifier &amp; Add-on F&amp;B</span>
+                                </a>
+                            @endif
+
                             @if (\App\Support\Context::hasPermission('invoices.view'))
                                 <a href="{{ route('invoices.index') }}" id="tour-nav-invoices"
                                     {{ request()->routeIs('invoices.*') ? 'aria-current="page"' : '' }}
@@ -590,6 +624,28 @@
                                     <span>Terminal Kasir POS</span>
                                 </a>
                             @endif
+                            @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::isOwner())
+                                <a href="{{ route('pos.kitchen.index') }}"
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="chef-hat" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                    <span>Kitchen Display (KDS)</span>
+                                </a>
+                                <a href="{{ route('pos.tables.index') }}"
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                    <span>Manajemen Meja &amp; QR</span>
+                                </a>
+                                <a href="{{ route('pos.tables.qr-cards') }}" target="_blank"
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                    <span>Cetak Kartu QR Meja</span>
+                                </a>
+                                <a href="{{ route('pos.modifiers.index') }}"
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                                    <span>Modifier &amp; Add-on</span>
+                                </a>
+                            @endif
                             @if (\App\Support\Context::hasPermission('invoices.view'))
                                 <a href="{{ route('invoices.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
@@ -647,6 +703,14 @@
                                     <i data-lucide="package"
                                         class="w-3.5 h-3.5 {{ request()->routeIs('products.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                                     <span class="truncate">Katalog Produk &amp; Resep</span>
+                                </a>
+
+                                <a href="{{ route('pos.modifiers.index') }}" id="tour-nav-product-modifiers"
+                                    {{ request()->routeIs('pos.modifiers.*') ? 'aria-current="page"' : '' }}
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('pos.modifiers.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="sliders"
+                                        class="w-3.5 h-3.5 {{ request()->routeIs('pos.modifiers.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                    <span class="truncate">Modifier &amp; Varian Produk</span>
                                 </a>
                             @endif
 
@@ -710,6 +774,11 @@
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="package" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                     <span>Katalog Produk</span>
+                                </a>
+                                <a href="{{ route('pos.modifiers.index') }}"
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                                    <span>Modifier &amp; Varian</span>
                                 </a>
                             @endif
                             @if (\App\Support\Context::hasPermission('inventory.view'))

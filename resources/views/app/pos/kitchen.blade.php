@@ -336,7 +336,7 @@ function kitchenDisplay() {
         async fetchOrders(showSpinner = false) {
             if (showSpinner) this.isLoading = true;
             try {
-                const res = await fetch("{{ route('pos.kitchen.active') }}", {
+                const res = await fetch("{{ route('pos.kitchen.orders') }}", {
                     headers: { 'Accept': 'application/json' }
                 });
                 const data = await res.json();

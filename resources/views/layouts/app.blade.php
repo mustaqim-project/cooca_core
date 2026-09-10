@@ -1284,6 +1284,28 @@
                                     <div class="text-[11px] text-black/45 dark:text-white/45">3-Pilar harga jual</div>
                                 </div>
                             </a>
+
+                            <a href="{{ route('pos.kitchen.index') }}"
+                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
+                                    <i data-lucide="chef-hat" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-black dark:text-white">Kitchen (KDS)</div>
+                                    <div class="text-[11px] text-black/45 dark:text-white/45">Pesanan dapur live</div>
+                                </div>
+                            </a>
+
+                            <a href="{{ route('pos.tables.index') }}"
+                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-black dark:text-white">Meja &amp; QR</div>
+                                    <div class="text-[11px] text-black/45 dark:text-white/45">Dine-in self order</div>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>
