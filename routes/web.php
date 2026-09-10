@@ -82,7 +82,14 @@ Route::post('/kontak', [PublicContactController::class, 'submit'])->name('contac
 // 6. Public Business Single-Page Landing Pages
 Route::get('/b/{slug}', [PublicBusinessLandingController::class, 'show'])->name('public.business.landing');
 
-// 7. Sitemap XML & HTML (SEO & Web Crawlers)
+// 7. Public Customer QR Table Ordering
+Route::get('/t/{qrToken}', [\App\Http\Controllers\Web\Pos\PublicQrOrderWebController::class, 'showMenu'])->name('public.qr.menu');
+Route::post('/t/{qrToken}/order', [\App\Http\Controllers\Web\Pos\PublicQrOrderWebController::class, 'submitOrder'])->name('public.qr.order');
+Route::get('/t/{qrToken}/order/{order}/track', [\App\Http\Controllers\Web\Pos\PublicQrOrderWebController::class, 'trackOrder'])->name('public.qr.track');
+Route::get('/b/{slug}/table/{qrToken}', [\App\Http\Controllers\Web\Pos\PublicQrOrderWebController::class, 'showMenu'])->name('public.qr.menu.slug');
+Route::post('/b/{slug}/table/{qrToken}/order', [\App\Http\Controllers\Web\Pos\PublicQrOrderWebController::class, 'submitOrder'])->name('public.qr.order.slug');
+
+// 8. Sitemap XML & HTML (SEO & Web Crawlers)
 Route::get('/sitemap.xml', [\App\Http\Controllers\Web\SitemapController::class, 'xml'])->name('sitemap.xml');
 Route::get('/sitemap', [\App\Http\Controllers\Web\SitemapController::class, 'html'])->name('sitemap.html');
 
@@ -393,6 +400,37 @@ Route::middleware('auth:web')->group(function (): void {
         Route::get('/pos/ai', [\App\Http\Controllers\Web\Ai\PosAiWebController::class, 'index'])->name('pos.ai.index');
         Route::post('/pos/ai/ask', [\App\Http\Controllers\Web\Ai\PosAiWebController::class, 'ask'])->middleware('entitlement:ai')->name('pos.ai.ask');
         Route::post('/pos/ai/execute-action', [\App\Http\Controllers\Web\Ai\PosAiWebController::class, 'executeAction'])->middleware('entitlement:ai')->name('pos.ai.execute-action');
+
+        // POS Incoming QR Orders & Table Session Checkout
+        Route::get('/pos/incoming-orders', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'getIncomingOrders'])->name('pos.incoming-orders');
+        Route::post('/pos/incoming-orders/{order}/accept', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'acceptIncomingOrder'])->name('pos.incoming-orders.accept');
+        Route::post('/pos/incoming-orders/{order}/reject', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'rejectIncomingOrder'])->name('pos.incoming-orders.reject');
+        Route::get('/pos/tables/{table}/details', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'getTableDetails'])->name('pos.tables.details');
+        Route::post('/pos/orders/{order}/pay-table', [\App\Http\Controllers\Web\Pos\PosTerminalWebController::class, 'payTableOrder'])->name('pos.orders.pay-table');
+
+        // Table Management
+        Route::get('/pos/tables', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'index'])->name('pos.tables.index');
+        Route::post('/pos/tables', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'store'])->name('pos.tables.store');
+        Route::put('/pos/tables/{table}', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'update'])->name('pos.tables.update');
+        Route::delete('/pos/tables/{table}', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'destroy'])->name('pos.tables.destroy');
+        Route::post('/pos/tables/{table}/regenerate-qr', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'regenerateQr'])->name('pos.tables.regenerate-qr');
+        Route::get('/pos/tables/{table}/qr-card', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'qrCard'])->name('pos.tables.qr-card');
+        Route::get('/pos/tables/{table}/qr-svg', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'downloadSvg'])->name('pos.tables.qr-svg');
+        Route::post('/pos/sessions/{session}/close', [\App\Http\Controllers\Web\Pos\PosTableWebController::class, 'closeSession'])->name('pos.sessions.close');
+
+        // Modifiers & Add-ons Management
+        Route::get('/pos/modifiers', [\App\Http\Controllers\Web\Pos\ModifierWebController::class, 'index'])->name('pos.modifiers.index');
+        Route::post('/pos/modifiers/groups', [\App\Http\Controllers\Web\Pos\ModifierWebController::class, 'storeGroup'])->name('pos.modifiers.groups.store');
+        Route::put('/pos/modifiers/groups/{group}', [\App\Http\Controllers\Web\Pos\ModifierWebController::class, 'updateGroup'])->name('pos.modifiers.groups.update');
+        Route::delete('/pos/modifiers/groups/{group}', [\App\Http\Controllers\Web\Pos\ModifierWebController::class, 'destroyGroup'])->name('pos.modifiers.groups.destroy');
+        Route::post('/pos/modifiers/groups/{group}/options', [\App\Http\Controllers\Web\Pos\ModifierWebController::class, 'storeOption'])->name('pos.modifiers.options.store');
+        Route::put('/pos/modifiers/options/{option}', [\App\Http\Controllers\Web\Pos\ModifierWebController::class, 'updateOption'])->name('pos.modifiers.options.update');
+        Route::delete('/pos/modifiers/options/{option}', [\App\Http\Controllers\Web\Pos\ModifierWebController::class, 'destroyOption'])->name('pos.modifiers.options.destroy');
+
+        // Kitchen & Bar Display
+        Route::get('/pos/kitchen', [\App\Http\Controllers\Web\Pos\PosKitchenWebController::class, 'index'])->name('pos.kitchen.index');
+        Route::get('/pos/kitchen/orders', [\App\Http\Controllers\Web\Pos\PosKitchenWebController::class, 'getActiveOrders'])->name('pos.kitchen.orders');
+        Route::post('/pos/kitchen/{order}/status', [\App\Http\Controllers\Web\Pos\PosKitchenWebController::class, 'updateStatus'])->name('pos.kitchen.status');
 
         /*
         |--------------------------------------------------------------------------

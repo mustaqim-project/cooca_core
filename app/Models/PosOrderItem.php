@@ -61,4 +61,32 @@ class PosOrderItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<PosOrderItemModifier, $this>
+     */
+    public function modifiers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PosOrderItemModifier::class, 'pos_order_item_id');
+    }
+
+    /**
+     * Get formatted string of selected modifiers for receipts and order lists.
+     */
+    public function getModifiersDisplayTextAttribute(): string
+    {
+        if (! $this->relationLoaded('modifiers')) {
+            $this->load('modifiers');
+        }
+
+        if ($this->modifiers->isEmpty()) {
+            return '';
+        }
+
+        return $this->modifiers->map(function (PosOrderItemModifier $mod): string {
+            $priceStr = $mod->unit_price > 0 ? ' (+Rp ' . number_format($mod->unit_price, 0, ',', '.') . ')' : '';
+            return "{$mod->modifier_option_name}{$priceStr}";
+        })->implode(', ');
+    }
 }
+

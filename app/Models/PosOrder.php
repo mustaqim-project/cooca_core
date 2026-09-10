@@ -19,13 +19,31 @@ class PosOrder extends Model
 
     public const STATUS_DRAFT_HELD = 'draft_held';
 
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_CONFIRMED = 'confirmed';
+
+    public const STATUS_PREPARING = 'preparing';
+
+    public const STATUS_READY = 'ready';
+
+    public const STATUS_SERVED = 'served';
+
+    public const STATUS_WAITING_PAYMENT = 'waiting_payment';
+
     public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_REJECTED = 'rejected';
 
     public const STATUS_VOIDED = 'voided';
 
     public const STATUS_REFUNDED = 'refunded';
 
     public const STATUS_PARTIAL_REFUND = 'partial_refund';
+
+    public const SOURCE_POS = 'pos';
+
+    public const SOURCE_QR_TABLE = 'qr_table';
 
     protected $fillable = [
         'business_id',
@@ -37,8 +55,12 @@ class PosOrder extends Model
         'order_date',
         'status',
         'order_type',
+        'order_source',
+        'pos_table_id',
+        'pos_table_session_id',
         'table_or_reference',
         'customer_name_guest',
+        'customer_phone_guest',
         'subtotal',
         'discount_type',
         'discount_value',
@@ -66,10 +88,14 @@ class PosOrder extends Model
         'refund_reason',
         'refunded_by',
         'refunded_at',
+        'rejection_reason',
+        'rejected_by',
+        'rejected_at',
         'supervisor_approved_by',
         'supervisor_approved_at',
         'notes',
     ];
+
 
     /**
      * @return array<string, string>
@@ -81,6 +107,7 @@ class PosOrder extends Model
             'held_at' => 'datetime',
             'voided_at' => 'datetime',
             'refunded_at' => 'datetime',
+            'rejected_at' => 'datetime',
             'supervisor_approved_at' => 'datetime',
             'subtotal' => 'float',
             'discount_value' => 'float',
@@ -178,4 +205,29 @@ class PosOrder extends Model
     {
         return $this->hasMany(SalesReturn::class);
     }
+
+    /**
+     * @return BelongsTo<PosTable, $this>
+     */
+    public function posTable(): BelongsTo
+    {
+        return $this->belongsTo(PosTable::class, 'pos_table_id');
+    }
+
+    /**
+     * @return BelongsTo<PosTableSession, $this>
+     */
+    public function tableSession(): BelongsTo
+    {
+        return $this->belongsTo(PosTableSession::class, 'pos_table_session_id');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function rejectedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
+    }
 }
+

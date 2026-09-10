@@ -276,6 +276,40 @@
                     </div>
                 </template>
 
+                <!-- QR Table Orders Button with Live Pulse Indicator -->
+                <button @click="openIncomingOrdersModal()"
+                        class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
+                        title="Pesanan Masuk dari Meja QR">
+                    <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
+                    </svg>
+                    <span class="hidden xl:inline">Order QR</span>
+                    <span x-show="pendingQrCount > 0" x-text="pendingQrCount" class="px-1.5 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] flex items-center justify-center tabular-nums animate-pulse"></span>
+                </button>
+
+                <!-- Resto Meja Selector Button -->
+                <button @click="openTablesModal()"
+                        class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
+                        title="Daftar Meja & Sesi Tagihan Meja">
+                    <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                    </svg>
+                    <span class="hidden xl:inline">Meja</span>
+                    <template x-if="selectedTable">
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#34C759]/20 text-[#34C759]" x-text="'M-' + selectedTable.table_number"></span>
+                    </template>
+                </button>
+
+                <!-- Kitchen Display Quick Link -->
+                <a href="{{ route('pos.kitchen.index') }}"
+                   class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
+                   title="Kitchen & Bar Display">
+                    <svg class="w-4 h-4 text-[#FF9500] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                    </svg>
+                    <span class="hidden 2xl:inline">Dapur</span>
+                </a>
+
                 <!-- Antrean Hold Button -->
                 <button @click="showHeldOrdersModal = true"
                         class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
@@ -433,7 +467,7 @@
                 <div class="pos-products pr-1">
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-3">
                         <template x-for="product in filteredProducts" :key="product.id">
-                            <div @click="addToCart(product)"
+                            <div @click="handleProductClick(product)"
                                  class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/5 hover:border-[#007AFF]/40 hover:shadow-sm active:scale-[0.97] active:opacity-85 transition-all p-2.5 sm:p-3 cursor-pointer flex flex-col justify-between group select-none min-w-0">
                                 <div>
                                     @if($posShowProductImages)
@@ -472,7 +506,14 @@
 
                                     <!-- Product Name (2 lines clamped) -->
                                     <h4 class="font-semibold text-[13px] sm:text-[14px] text-black dark:text-white line-clamp-2 leading-snug group-hover:text-[#007AFF] transition-colors" x-text="product.name"></h4>
-                                    <div class="text-[11px] text-black/40 dark:text-white/40 tabular-nums mt-0.5 truncate" x-text="product.code || '-'"></div>
+                                    <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                        <span class="text-[11px] text-black/40 dark:text-white/40 tabular-nums truncate" x-text="product.code || '-'"></span>
+                                        <template x-if="product.modifier_groups && product.modifier_groups.length > 0">
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#007AFF]/10 text-[#007AFF]">
+                                                + Varian
+                                            </span>
+                                        </template>
+                                    </div>
                                 </div>
 
                                 <!-- Price and Add Button -->
@@ -531,19 +572,117 @@
 
                     <!-- Customer Selector & Order Type -->
                     <div class="flex items-center gap-2">
-                        <div class="relative flex-1">
-                            <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                            </svg>
-                            <select x-model="selectedCustomerId" @change="onCustomerSelected()" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] pl-8 pr-7 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 cursor-pointer">
-                                <option value="" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white">Pelanggan Umum (Guest)</option>
-                                @foreach($customers as $cust)
-                                    <option value="{{ $cust->id }}" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white">
-                                        {{ $cust->name }} ({{ strtoupper($cust->membership_tier ?? 'Bronze') }} • {{ $cust->points_balance }} Poin)
-                                    </option>
-                                @endforeach
-                            </select>
+                        <!-- Searchable Customer Combobox -->
+                        <div class="relative flex-1" @click.outside="customerDropdownOpen = false">
+                            <button type="button"
+                                    @click="customerDropdownOpen = !customerDropdownOpen; if(customerDropdownOpen) $nextTick(() => $refs.customerSearchInput?.focus())"
+                                    class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] border border-black/5 dark:border-white/10 rounded-[10px] pl-8 pr-7 text-[12px] text-left text-black dark:text-white flex items-center justify-between transition focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 cursor-pointer">
+                                <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 pointer-events-none shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                </svg>
+                                <span class="truncate font-medium pr-1" x-text="activeCustomer ? activeCustomer.name : 'Pelanggan Umum (Guest)'"></span>
+                                <svg class="w-3.5 h-3.5 text-black/40 dark:text-white/40 shrink-0 transition-transform duration-200" :class="customerDropdownOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+
+                            <!-- Clear Customer selection button (Reset to Guest) -->
+                            <button x-show="activeCustomer"
+                                    @click.stop="selectCustomer(null)"
+                                    type="button"
+                                    class="absolute right-7 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-black/10 dark:bg-white/20 text-black/60 dark:text-white/60 hover:bg-black/20 dark:hover:bg-white/30 flex items-center justify-center transition"
+                                    title="Reset ke Pelanggan Umum">
+                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
+                            <!-- Searchable Popover Dropdown Panel -->
+                            <div x-show="customerDropdownOpen"
+                                 x-cloak
+                                 @keydown.escape.window="customerDropdownOpen = false"
+                                 class="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[14px] p-2 shadow-[0_12px_36px_rgba(0,0,0,0.25)] text-black dark:text-white min-w-[260px] max-w-[340px]">
+                                
+                                <!-- Search Input with icon and clear -->
+                                <div class="relative mb-1.5">
+                                    <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 pointer-events-none shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                    </svg>
+                                    <input type="text"
+                                           x-ref="customerSearchInput"
+                                           x-model="customerSearchQuery"
+                                           placeholder="Cari nama / nomor HP..."
+                                           class="w-full h-8.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] pl-8 pr-7 text-[12px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                    <button x-show="customerSearchQuery"
+                                            @click="customerSearchQuery = ''; $refs.customerSearchInput?.focus()"
+                                            type="button"
+                                            class="absolute right-2 top-1/2 -translate-y-1/2 text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white p-0.5">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Scrollable Customers Results List -->
+                                <div class="max-h-52 overflow-y-auto space-y-0.5 overscroll-contain pr-0.5">
+                                    <!-- Pelanggan Umum (Guest) Option -->
+                                    <div @click="selectCustomer(null)"
+                                         :class="!selectedCustomerId ? 'bg-[#007AFF] text-white font-medium' : 'hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-black dark:text-white'"
+                                         class="flex items-center justify-between px-2.5 py-1.5 rounded-[8px] cursor-pointer text-xs transition">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0" :class="!selectedCustomerId ? 'bg-white/20 text-white' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60'">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                                </svg>
+                                            </div>
+                                            <span class="truncate">Pelanggan Umum (Guest)</span>
+                                        </div>
+                                        <svg x-show="!selectedCustomerId" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- Filtered Customers -->
+                                    <template x-for="cust in filteredCustomers" :key="cust.id">
+                                        <div @click="selectCustomer(cust)"
+                                             :class="selectedCustomerId === cust.id ? 'bg-[#007AFF] text-white' : 'hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-black dark:text-white'"
+                                             class="flex items-center justify-between px-2.5 py-1.5 rounded-[8px] cursor-pointer text-xs transition">
+                                            <div class="min-w-0 pr-1.5">
+                                                <div class="font-semibold truncate flex items-center gap-1.5">
+                                                    <span x-text="cust.name"></span>
+                                                    <span x-show="cust.membership_tier"
+                                                          :class="selectedCustomerId === cust.id ? 'bg-white/25 text-white' : 'bg-[#AF52DE]/15 text-[#AF52DE] dark:text-[#BF5AF2]'"
+                                                          class="px-1.5 py-0.2 rounded-full text-[9px] uppercase font-bold"
+                                                          x-text="cust.membership_tier"></span>
+                                                </div>
+                                                <div class="text-[11px] opacity-70 flex items-center gap-2 mt-0.5">
+                                                    <span x-show="cust.phone" x-text="cust.phone"></span>
+                                                    <span x-text="Number(cust.points_balance || 0) + ' Poin'"></span>
+                                                </div>
+                                            </div>
+                                            <svg x-show="selectedCustomerId === cust.id" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                            </svg>
+                                        </div>
+                                    </template>
+
+                                    <!-- Empty State -->
+                                    <div x-show="filteredCustomers.length === 0" class="py-3 text-center text-xs text-black/45 dark:text-white/45">
+                                        <p>Pelanggan tidak ditemukan.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Dropdown Footer -->
+                                <div class="pt-2 mt-1 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-[11px]">
+                                    <span class="text-black/40 dark:text-white/40" x-text="filteredCustomers.length + ' data'"></span>
+                                    <button type="button" @click="customerDropdownOpen = false; openCustomerModal()" class="text-[#007AFF] font-semibold hover:underline flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                        <span>Pelanggan Baru</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
                         <button type="button" @click="openCustomerModal()"
                                 class="shrink-0 h-9 w-9 rounded-[10px] bg-[#007AFF]/10 border border-[#007AFF]/25 text-[#007AFF] hover:bg-[#007AFF] hover:text-white transition flex items-center justify-center active:scale-[0.97]"
                                 title="Tambah pelanggan cepat" aria-label="Tambah pelanggan cepat">
@@ -556,6 +695,15 @@
                             <option value="dine_in" class="bg-white dark:bg-[#1C1C1E]">Dine In</option>
                             <option value="delivery" class="bg-white dark:bg-[#1C1C1E]">Kirim</option>
                         </select>
+                    </div>
+
+                    <!-- Selected Table Indicator -->
+                    <div x-show="selectedTable" class="px-2.5 py-1.5 rounded-[10px] bg-[#34C759]/10 border border-[#34C759]/25 flex items-center justify-between text-xs text-[#34C759]">
+                        <div class="flex items-center gap-1.5 font-semibold">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+                            <span x-text="'Meja ' + (selectedTable ? selectedTable.table_number : '') + (selectedTable && selectedTable.name ? ' (' + selectedTable.name + ')' : '')"></span>
+                        </div>
+                        <button type="button" @click="selectedTable = null" class="text-[10px] text-black/50 dark:text-white/50 hover:text-[#FF3B30] transition font-medium">Batal Meja</button>
                     </div>
 
                     <!-- Member Loyalty Card Preview -->
@@ -586,6 +734,12 @@
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex-1 min-w-0">
                                     <div class="font-semibold text-[13px] text-black dark:text-white leading-tight truncate" x-text="item.product_name"></div>
+                                    <template x-if="item.modifiers_summary">
+                                        <div class="text-[11px] text-[#007AFF] font-medium leading-tight mt-0.5" x-text="item.modifiers_summary"></div>
+                                    </template>
+                                    <template x-if="item.notes">
+                                        <div class="inline-block text-[10px] text-[#FF9500] font-medium bg-[#FF9500]/10 border border-[#FF9500]/20 px-1.5 py-0.5 rounded mt-0.5" x-text="'📝 ' + item.notes"></div>
+                                    </template>
                                     <div class="text-[11px] text-black/50 dark:text-white/50 tabular-nums mt-0.5">
                                         <span x-text="formatRupiah(item.unit_price)"></span>
                                         <template x-if="item.unit_symbol">
@@ -1179,6 +1333,378 @@
     </div>
 
     <!-- ===================================================== -->
+    <!-- MODAL: CASHIER PRODUCT MODIFIER & VARIANT PICKER      -->
+    <!-- ===================================================== -->
+    <div x-show="showModifierModal" x-cloak
+         class="fixed inset-0 z-[65] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
+         @keydown.escape.window="showModifierModal = false">
+        <div class="pos-modal-panel w-full max-w-md bg-white dark:bg-[#2C2C2E] rounded-[20px] border border-black/10 dark:border-white/10 p-5 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-black dark:text-white"
+             @click.outside="showModifierModal = false">
+            <template x-if="activeModifierProduct">
+                <div class="space-y-4">
+                    <!-- Product Header -->
+                    <div class="flex items-start justify-between gap-3 border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <template x-if="activeModifierProduct.image_url">
+                                <img :src="activeModifierProduct.image_url" class="w-12 h-12 rounded-[10px] object-cover border border-black/5 dark:border-white/10 shrink-0" alt="">
+                            </template>
+                            <div class="min-w-0">
+                                <h3 class="font-bold text-[15px] text-black dark:text-white leading-snug truncate" x-text="activeModifierProduct.name"></h3>
+                                <div class="text-xs text-[#007AFF] font-bold tabular-nums mt-0.5" x-text="formatRupiah(activeModifierProduct.selling_price)"></div>
+                            </div>
+                        </div>
+                        <button type="button" @click="showModifierModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Modifier Groups List -->
+                    <div class="space-y-3.5 max-h-[50vh] overflow-y-auto pr-1">
+                        <template x-for="group in activeModifierProduct.modifier_groups" :key="group.id">
+                            <div class="space-y-2 p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/5">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-xs text-black dark:text-white" x-text="group.name"></span>
+                                        <span x-show="group.is_required" class="text-[9px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 px-1.5 py-0.2 rounded">Wajib</span>
+                                    </div>
+                                    <span class="text-[10px] text-black/45 dark:text-white/45" x-text="group.selection_type === 'single' ? 'Pilih 1' : ('Pilih maks ' + group.max_selection)"></span>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <template x-for="opt in group.options" :key="opt.id">
+                                        <label class="flex items-center justify-between p-2 rounded-[8px] border transition cursor-pointer text-xs select-none"
+                                               :class="isModifierSelected(group.id, opt.id)
+                                                   ? 'bg-[#007AFF]/10 border-[#007AFF] text-[#007AFF] font-semibold'
+                                                   : (opt.is_in_stock ? 'border-black/[0.06] dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] text-black dark:text-white' : 'opacity-40 cursor-not-allowed border-dashed')">
+                                            <div class="flex items-center gap-2">
+                                                <input :type="group.selection_type === 'single' ? 'radio' : 'checkbox'"
+                                                       :name="'mod_group_' + group.id"
+                                                       :disabled="!opt.is_in_stock"
+                                                       :checked="isModifierSelected(group.id, opt.id)"
+                                                       @change="toggleModifierOption(group, opt)"
+                                                       class="w-4 h-4 text-[#007AFF] focus:ring-0 rounded">
+                                                <span x-text="opt.name"></span>
+                                                <span x-show="!opt.is_in_stock" class="text-[9px] text-[#FF3B30] font-bold bg-[#FF3B30]/15 px-1 py-0.2 rounded">Stok Habis</span>
+                                            </div>
+                                            <span class="tabular-nums font-medium" x-text="opt.price_delta > 0 ? ('+' + formatRupiah(opt.price_delta)) : 'Gratis'"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Item Notes Input -->
+                        <div class="space-y-1">
+                            <label class="block text-xs font-semibold text-black dark:text-white">Catatan Item (Opsional)</label>
+                            <input type="text" x-model="modifierItemNotes" placeholder="Cth: Less Sugar, No Ice, Pisah Saus..." class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        </div>
+
+                        <!-- Quantity Stepper -->
+                        <div class="flex items-center justify-between pt-1">
+                            <span class="text-xs font-semibold text-black dark:text-white">Jumlah</span>
+                            <div class="flex items-center gap-2 bg-black/[0.04] dark:bg-white/[0.06] rounded-[8px] p-1 border border-black/5 dark:border-white/10">
+                                <button type="button" @click="modifierItemQty = Math.max(1, modifierItemQty - 1)" class="w-7 h-7 rounded-[6px] bg-white dark:bg-white/[0.1] text-black dark:text-white flex items-center justify-center font-bold text-sm shadow-xs">-</button>
+                                <span class="w-8 text-center font-bold tabular-nums text-xs" x-text="modifierItemQty"></span>
+                                <button type="button" @click="modifierItemQty++" class="w-7 h-7 rounded-[6px] bg-white dark:bg-white/[0.1] text-black dark:text-white flex items-center justify-center font-bold text-sm shadow-xs">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Actions -->
+                    <div class="flex items-center justify-between gap-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
+                        <div>
+                            <div class="text-[10px] text-black/50 dark:text-white/50 font-medium">Subtotal Item</div>
+                            <div class="text-sm font-extrabold text-black dark:text-white tabular-nums" x-text="formatRupiah(calculateModifierTotalPrice() * modifierItemQty)"></div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="showModifierModal = false" class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-black/60 dark:text-white/60 hover:bg-black/[0.05] dark:hover:bg-white/[0.08]">Batal</button>
+                            <button type="button" @click="addModifierItemToCart()" class="h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm">
+                                Tambah ke Pesanan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- MODAL: INCOMING QR TABLE ORDERS DRAWER                -->
+    <!-- ===================================================== -->
+    <div x-show="showIncomingOrdersModal" x-cloak
+         class="fixed inset-0 z-[65] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
+         @keydown.escape.window="showIncomingOrdersModal = false">
+        <div class="pos-modal-panel w-full max-w-2xl bg-white dark:bg-[#2C2C2E] rounded-[20px] border border-black/10 dark:border-white/10 p-5 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-black dark:text-white"
+             @click.outside="showIncomingOrdersModal = false">
+            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-black dark:text-white">Pesanan Masuk dari Meja QR</h3>
+                        <p class="text-xs text-black/50 dark:text-white/50">Pelanggan scan QR meja dan mengirim pesanan langsung.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="fetchIncomingOrders()" class="p-2 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white" title="Segarkan">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                    </button>
+                    <button type="button" @click="showIncomingOrdersModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders List -->
+            <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                <template x-for="order in incomingQrOrders" :key="order.id">
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 space-y-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-[#007AFF]/15 text-[#007AFF]" x-text="'Meja ' + (order.pos_table ? order.pos_table.table_number : '-')"></span>
+                                    <span class="font-mono text-xs text-black/50 dark:text-white/50" x-text="'#' + (order.order_number || order.id)"></span>
+                                </div>
+                                <div class="text-xs font-semibold text-black dark:text-white mt-1">
+                                    <span x-text="order.customer_name_guest || 'Pelanggan'"></span>
+                                    <span class="text-black/45 dark:text-white/45" x-text="' • ' + (order.customer_phone_guest || '-')"></span>
+                                </div>
+                            </div>
+                            <span class="text-[11px] font-bold text-black/50 dark:text-white/50" x-text="formatTimeAgo(order.created_at)"></span>
+                        </div>
+
+                        <!-- General Order Note -->
+                        <div x-show="order.notes" class="p-2 rounded-[8px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-xs text-[#FF9500] font-medium flex items-center gap-1.5">
+                            <span class="font-bold">Catatan Meja:</span>
+                            <span x-text="order.notes"></span>
+                        </div>
+
+                        <!-- Items Breakdown -->
+                        <div class="space-y-1.5 border-t border-b border-black/[0.05] dark:border-white/5 py-2">
+                            <template x-for="item in order.items" :key="item.id">
+                                <div class="text-xs">
+                                    <div class="flex items-baseline justify-between">
+                                        <div class="flex items-baseline gap-1.5 font-medium text-black dark:text-white">
+                                            <span class="font-bold text-[#007AFF]" x-text="item.quantity + 'x'"></span>
+                                            <span x-text="item.product_name"></span>
+                                        </div>
+                                        <span class="tabular-nums font-semibold" x-text="formatRupiah(item.total_price)"></span>
+                                    </div>
+                                    <div x-show="item.modifiers && item.modifiers.length > 0" class="pl-4 text-[11px] text-[#007AFF]">
+                                        <template x-for="mod in item.modifiers" :key="mod.id">
+                                            <span class="mr-2" x-text="'• ' + mod.modifier_group_name + ': ' + mod.modifier_option_name"></span>
+                                        </template>
+                                    </div>
+                                    <div x-show="item.notes" class="pl-4 text-[10px] text-[#FF9500] font-medium" x-text="'Catatan: ' + item.notes"></div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Total & Action Buttons -->
+                        <div class="flex items-center justify-between gap-3 pt-1">
+                            <div>
+                                <span class="text-[10px] text-black/50 dark:text-white/50 block">Total Tagihan</span>
+                                <span class="text-base font-extrabold text-black dark:text-white tabular-nums" x-text="formatRupiah(order.total_amount)"></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="promptRejectOrder(order)" class="h-9 px-3 rounded-[10px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] text-xs font-bold transition">
+                                    Tolak
+                                </button>
+                                <button type="button" @click="acceptIncomingOrder(order.id)" class="h-9 px-4 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                    <span>Terima Pesanan</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <div x-show="incomingQrOrders.length === 0" class="text-center py-16 text-black/40 dark:text-white/40 text-xs">
+                    <svg class="w-10 h-10 mx-auto mb-2 opacity-30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Tidak ada antrean pesanan QR baru.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- MODAL: REJECT REASON PROMPT                           -->
+    <!-- ===================================================== -->
+    <div x-show="showRejectReasonModal" x-cloak
+         class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
+         @keydown.escape.window="showRejectReasonModal = false">
+        <div class="pos-modal-panel w-full max-w-sm bg-white dark:bg-[#2C2C2E] rounded-[20px] border border-black/10 dark:border-white/10 p-5 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-black dark:text-white"
+             @click.outside="showRejectReasonModal = false">
+            <div>
+                <h3 class="font-bold text-base text-[#FF3B30]">Tolak Pesanan Meja</h3>
+                <p class="text-xs text-black/60 dark:text-white/60 mt-1">Masukkan alasan penolakan agar tercatat di histori order.</p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-black dark:text-white mb-1">Alasan Penolakan</label>
+                <textarea x-model="rejectionReason" rows="3" placeholder="Cth: Bahan baku habis, Meja sedang reservasi..." class="w-full rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 p-2.5 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF3B30]"></textarea>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button type="button" @click="showRejectReasonModal = false" class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-black/60 dark:text-white/60 hover:bg-black/[0.05] dark:hover:bg-white/[0.08]">Batal</button>
+                <button type="button" @click="submitRejectOrder()" class="h-9 px-4 rounded-[10px] bg-[#FF3B30] hover:bg-[#D70015] text-white text-xs font-bold transition">
+                    Konfirmasi Tolak
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- MODAL: RESTAURANT TABLES & ACTIVE BILLS               -->
+    <!-- ===================================================== -->
+    <div x-show="showTablesModal" x-cloak
+         class="fixed inset-0 z-[65] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
+         @keydown.escape.window="showTablesModal = false">
+        <div class="pos-modal-panel w-full max-w-3xl bg-white dark:bg-[#2C2C2E] rounded-[20px] border border-black/10 dark:border-white/10 p-5 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-black dark:text-white"
+             @click.outside="showTablesModal = false">
+            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-black dark:text-white">Manajemen Meja &amp; Tagihan Restoran</h3>
+                        <p class="text-xs text-black/50 dark:text-white/50">Pilih meja untuk transaksi kasir atau bayar pesanan meja QR.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('pos.tables.index') }}" target="_blank" class="text-xs font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
+                        <span>Kelola Meja &amp; QR</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                    </a>
+                    <button type="button" @click="showTablesModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tables Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[60vh] overflow-y-auto pr-1">
+                <template x-for="tbl in tables" :key="tbl.id">
+                    <div class="p-3.5 rounded-[14px] border transition flex flex-col justify-between select-none"
+                         :class="tbl.status === 'available' ? 'bg-[#34C759]/5 border-[#34C759]/30' : (tbl.status === 'waiting_payment' ? 'bg-[#FF9500]/10 border-[#FF9500]/40' : 'bg-[#007AFF]/10 border-[#007AFF]/40')">
+                        <div>
+                            <div class="flex items-start justify-between gap-1">
+                                <span class="font-extrabold text-base text-black dark:text-white" x-text="'Meja ' + tbl.table_number"></span>
+                                <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded"
+                                      :class="tbl.status === 'available' ? 'bg-[#34C759]/20 text-[#34C759]' : (tbl.status === 'waiting_payment' ? 'bg-[#FF9500]/20 text-[#FF9500]' : 'bg-[#007AFF]/20 text-[#007AFF]')"
+                                      x-text="tbl.status"></span>
+                            </div>
+                            <div class="text-[11px] text-black/50 dark:text-white/50 mt-0.5" x-text="(tbl.name ? tbl.name + ' • ' : '') + tbl.capacity + ' Kursi'"></div>
+
+                            <!-- Session info if occupied -->
+                            <div x-show="tbl.active_session" class="mt-2 pt-2 border-t border-black/5 dark:border-white/5 space-y-1">
+                                <div class="text-[11px] font-bold text-black dark:text-white truncate" x-text="tbl.active_session?.customer_name"></div>
+                                <div class="text-xs font-extrabold text-[#007AFF] tabular-nums" x-text="formatRupiah(tbl.active_session?.total_amount || 0)"></div>
+                            </div>
+                        </div>
+
+                        <!-- Card Actions -->
+                        <div class="mt-3 pt-2 border-t border-black/5 dark:border-white/5 flex flex-col gap-1.5">
+                            <button type="button" @click="selectTableForCart(tbl)" class="w-full h-7 rounded-[7px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] text-black dark:text-white text-[11px] font-semibold transition">
+                                Pilih Meja Ini
+                            </button>
+                            <template x-if="tbl.active_session && tbl.active_session.orders && tbl.active_session.orders.length > 0">
+                                <button type="button" @click="openPayTableOrder(tbl)" class="w-full h-7 rounded-[7px] bg-[#34C759] hover:bg-[#28A745] text-white text-[11px] font-bold transition">
+                                    Bayar Tagihan
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- MODAL: PAY TABLE QR ORDER (ATOMIC MATERIAL DEDUCTION)  -->
+    <!-- ===================================================== -->
+    <div x-show="showTablePaymentModal" x-cloak
+         class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
+         @keydown.escape.window="showTablePaymentModal = false">
+        <div class="pos-modal-panel w-full max-w-md bg-white dark:bg-[#2C2C2E] rounded-[20px] border border-black/10 dark:border-white/10 p-5 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-black dark:text-white"
+             @click.outside="showTablePaymentModal = false">
+            <template x-if="activeTableOrder">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                        <div>
+                            <h3 class="font-bold text-base text-black dark:text-white">Pembayaran Pesanan Meja</h3>
+                            <div class="text-xs text-black/50 dark:text-white/50" x-text="'Pesanan #' + activeTableOrder.order_number"></div>
+                        </div>
+                        <button type="button" @click="showTablePaymentModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Order Items Summary -->
+                    <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1.5 max-h-40 overflow-y-auto">
+                        <template x-for="it in activeTableOrder.items" :key="it.id">
+                            <div class="flex justify-between text-xs">
+                                <div>
+                                    <span class="font-bold" x-text="it.quantity + 'x '"></span>
+                                    <span x-text="it.product_name"></span>
+                                    <div x-show="it.modifiers && it.modifiers.length > 0" class="text-[10px] text-[#007AFF]">
+                                        <template x-for="m in it.modifiers" :key="m.id">
+                                            <span class="mr-1" x-text="'+ ' + m.modifier_option_name"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                                <span class="font-semibold tabular-nums" x-text="formatRupiah(it.total_price)"></span>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Total Amount Display -->
+                    <div class="text-center py-2 bg-[#007AFF]/10 rounded-[12px] border border-[#007AFF]/20">
+                        <span class="text-xs text-[#007AFF] font-medium block">Total yang Harus Dibayar</span>
+                        <span class="text-2xl font-black text-[#007AFF] tabular-nums" x-text="formatRupiah(activeTableOrder.total_amount)"></span>
+                    </div>
+
+                    <!-- Payment Method Selector -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-black dark:text-white">Metode Pembayaran</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button type="button" @click="selectedTablePayMethod = 'cash'; tableTenderAmount = activeTableOrder.total_amount"
+                                    :class="selectedTablePayMethod === 'cash' ? 'bg-[#007AFF] text-white font-bold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
+                                    class="h-9 rounded-[8px] text-xs transition">Tunai</button>
+                            <button type="button" @click="selectedTablePayMethod = 'qris'; tableTenderAmount = activeTableOrder.total_amount"
+                                    :class="selectedTablePayMethod === 'qris' ? 'bg-[#007AFF] text-white font-bold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
+                                    class="h-9 rounded-[8px] text-xs transition">QRIS</button>
+                            <button type="button" @click="selectedTablePayMethod = 'transfer'; tableTenderAmount = activeTableOrder.total_amount"
+                                    :class="selectedTablePayMethod === 'transfer' ? 'bg-[#007AFF] text-white font-bold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
+                                    class="h-9 rounded-[8px] text-xs transition">Transfer</button>
+                            <button type="button" @click="selectedTablePayMethod = 'debit'; tableTenderAmount = activeTableOrder.total_amount"
+                                    :class="selectedTablePayMethod === 'debit' ? 'bg-[#007AFF] text-white font-bold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
+                                    class="h-9 rounded-[8px] text-xs transition">Debit</button>
+                        </div>
+                    </div>
+
+                    <!-- Tender Amount (for Cash) -->
+                    <div x-show="selectedTablePayMethod === 'cash'" class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-black dark:text-white">Nominal Diterima</label>
+                        <input type="number" x-model.number="tableTenderAmount" class="w-full h-10 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 font-bold text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        <div x-show="tableTenderAmount > activeTableOrder.total_amount" class="text-xs text-[#34C759] font-bold">
+                            Kembalian: <span x-text="formatRupiah(tableTenderAmount - activeTableOrder.total_amount)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
+                        <button type="button" @click="showTablePaymentModal = false" class="h-10 px-4 rounded-[10px] text-xs font-semibold text-black/60 dark:text-white/60 hover:bg-black/[0.05] dark:hover:bg-white/[0.08]">Batal</button>
+                        <button type="button" @click="submitPayTableOrder()" :disabled="tableTenderAmount < activeTableOrder.total_amount || isProcessing" class="h-10 px-5 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm disabled:opacity-40">
+                            Konfirmasi Lunas
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
     <!-- 13. ALPINE.JS POS STATE ENGINE (100% PRESERVED)       -->
     <!-- ===================================================== -->
     <script>
@@ -1199,6 +1725,8 @@
                 cart: [],
                 selectedCustomerId: '',
                 activeCustomer: null,
+                customerSearchQuery: '',
+                customerDropdownOpen: false,
                 orderType: 'takeaway',
                 voucherCode: '',
                 voucherDiscount: 0,
@@ -1206,6 +1734,32 @@
                 discountValue: 0,
                 redeemPoints: false,
                 pointsDiscount: 0,
+
+                // F&B Tables & QR state
+                tables: @json($tables ?? []),
+                pendingQrCount: {{ $pendingQrOrdersCount ?? 0 }},
+                incomingQrOrders: [],
+                selectedTable: null,
+                showIncomingOrdersModal: false,
+                showTablesModal: false,
+                showRejectReasonModal: false,
+                rejectingOrder: null,
+                rejectionReason: '',
+                incomingPollInterval: null,
+                audioCtx: null,
+
+                // Cashier Modifier Modal state
+                showModifierModal: false,
+                activeModifierProduct: null,
+                selectedModifiers: {},
+                modifierItemNotes: '',
+                modifierItemQty: 1,
+
+                // Table payment modal state
+                showTablePaymentModal: false,
+                activeTableOrder: null,
+                tableTenderAmount: 0,
+                selectedTablePayMethod: 'cash',
 
                 // Modals
                 showPaymentModal: false,
@@ -1261,6 +1815,10 @@
                     this.$nextTick(() => {
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     });
+                    this.fetchIncomingOrders();
+                    this.incomingPollInterval = setInterval(() => {
+                        this.fetchIncomingOrders();
+                    }, 5000);
                 },
 
                 initTheme() {
@@ -1560,6 +2118,33 @@
                     return Number(this.currentTenderAmount || 0);
                 },
 
+                get filteredCustomers() {
+                    if (!this.customerSearchQuery || !this.customerSearchQuery.trim()) {
+                        return this.customers;
+                    }
+                    const q = this.customerSearchQuery.toLowerCase().trim();
+                    return this.customers.filter(c => {
+                        const nameMatch = c.name && c.name.toLowerCase().includes(q);
+                        const phoneMatch = c.phone && c.phone.toLowerCase().includes(q);
+                        const tierMatch = c.membership_tier && c.membership_tier.toLowerCase().includes(q);
+                        return nameMatch || phoneMatch || tierMatch;
+                    });
+                },
+
+                selectCustomer(cust) {
+                    if (!cust) {
+                        this.selectedCustomerId = '';
+                        this.activeCustomer = null;
+                    } else {
+                        this.selectedCustomerId = cust.id;
+                        this.activeCustomer = cust;
+                    }
+                    this.redeemPoints = false;
+                    this.pointsDiscount = 0;
+                    this.customerDropdownOpen = false;
+                    this.customerSearchQuery = '';
+                },
+
                 onCustomerSelected() {
                     this.activeCustomer = this.customers.find(c => c.id === this.selectedCustomerId) || null;
                     this.redeemPoints = false;
@@ -1598,8 +2183,7 @@
                         }
 
                         this.customers.push(data.customer);
-                        this.selectedCustomerId = data.customer.id;
-                        this.onCustomerSelected();
+                        this.selectCustomer(data.customer);
                         this.showCustomerModal = false;
                         this.newCustomer = { name: '', phone: '' };
                     } catch (error) {
@@ -1665,6 +2249,8 @@
                         ],
                         customer_id: this.selectedCustomerId || null,
                         order_type: this.orderType,
+                        pos_table_id: this.selectedTable?.id || null,
+                        pos_table_session_id: this.selectedTable?.active_session?.id || null,
                         discount_type: this.discountType,
                         discount_value: Number(this.discountValue || 0),
                         voucher_code: this.voucherCode || null,
@@ -1694,6 +2280,7 @@
                             this.showPaymentModal = false;
                             this.showSuccessModal = true;
                             this.cart = [];
+                            this.selectedTable = null;
                             this.voucherCode = '';
                             this.voucherDiscount = 0;
                             this.discountValue = 0;
@@ -1909,6 +2496,352 @@
                             this.cashMovementReason = '';
                         }
                     });
+                },
+
+                // =====================================================
+                // F&B METHODS: PRODUCT MODIFIERS, QR & TABLES
+                // =====================================================
+                handleProductClick(product) {
+                    if (product.modifier_groups && product.modifier_groups.length > 0) {
+                        this.openModifierModal(product);
+                    } else {
+                        this.addToCart(product);
+                    }
+                },
+
+                openModifierModal(product) {
+                    this.activeModifierProduct = product;
+                    this.selectedModifiers = {};
+                    this.modifierItemNotes = '';
+                    this.modifierItemQty = 1;
+
+                    // Pre-select default or first available option if single choice
+                    product.modifier_groups.forEach(group => {
+                        if (group.selection_type === 'single') {
+                            const firstAvailable = group.options.find(o => o.is_in_stock);
+                            if (firstAvailable) {
+                                this.selectedModifiers[group.id] = firstAvailable.id;
+                            }
+                        } else {
+                            this.selectedModifiers[group.id] = [];
+                        }
+                    });
+
+                    this.showModifierModal = true;
+                },
+
+                isModifierSelected(groupId, optionId) {
+                    const val = this.selectedModifiers[groupId];
+                    if (Array.isArray(val)) {
+                        return val.includes(optionId);
+                    }
+                    return val === optionId;
+                },
+
+                toggleModifierOption(group, option) {
+                    if (!option.is_in_stock) return;
+
+                    if (group.selection_type === 'single') {
+                        this.selectedModifiers[group.id] = option.id;
+                    } else {
+                        if (!Array.isArray(this.selectedModifiers[group.id])) {
+                            this.selectedModifiers[group.id] = [];
+                        }
+                        const arr = this.selectedModifiers[group.id];
+                        const idx = arr.indexOf(option.id);
+                        if (idx > -1) {
+                            arr.splice(idx, 1);
+                        } else {
+                            if (group.max_selection > 0 && arr.length >= group.max_selection) {
+                                AppAlert.warning(`Maksimal pilihan untuk ${group.name} adalah ${group.max_selection}.`);
+                                return;
+                            }
+                            arr.push(option.id);
+                        }
+                    }
+                },
+
+                calculateModifierTotalPrice() {
+                    if (!this.activeModifierProduct) return 0;
+                    let base = Number(this.activeModifierProduct.selling_price || 0);
+                    let delta = 0;
+
+                    this.activeModifierProduct.modifier_groups.forEach(group => {
+                        const val = this.selectedModifiers[group.id];
+                        if (Array.isArray(val)) {
+                            val.forEach(optId => {
+                                const opt = group.options.find(o => o.id === optId);
+                                if (opt) delta += Number(opt.price_delta || 0);
+                            });
+                        } else if (val) {
+                            const opt = group.options.find(o => o.id === val);
+                            if (opt) delta += Number(opt.price_delta || 0);
+                        }
+                    });
+
+                    return base + delta;
+                },
+
+                addModifierItemToCart() {
+                    if (!this.activeModifierProduct) return;
+
+                    // Validate required groups
+                    for (const group of this.activeModifierProduct.modifier_groups) {
+                        if (group.is_required) {
+                            const val = this.selectedModifiers[group.id];
+                            if (!val || (Array.isArray(val) && val.length === 0)) {
+                                AppAlert.warning(`Silakan pilih opsi untuk ${group.name}.`);
+                                return;
+                            }
+                        }
+                    }
+
+                    const selectedOptionIds = [];
+                    const summaryParts = [];
+
+                    this.activeModifierProduct.modifier_groups.forEach(group => {
+                        const val = this.selectedModifiers[group.id];
+                        if (Array.isArray(val)) {
+                            val.forEach(optId => {
+                                const opt = group.options.find(o => o.id === optId);
+                                if (opt) {
+                                    selectedOptionIds.push(opt.id);
+                                    summaryParts.push(opt.price_delta > 0 ? `${opt.name} (+${this.formatRupiah(opt.price_delta)})` : opt.name);
+                                }
+                            });
+                        } else if (val) {
+                            const opt = group.options.find(o => o.id === val);
+                            if (opt) {
+                                selectedOptionIds.push(opt.id);
+                                summaryParts.push(opt.price_delta > 0 ? `${opt.name} (+${this.formatRupiah(opt.price_delta)})` : opt.name);
+                            }
+                        }
+                    });
+
+                    const unitPrice = this.calculateModifierTotalPrice();
+                    const unitSymbol = this.activeModifierProduct.output_unit?.symbol || this.activeModifierProduct.output_unit?.name || '';
+
+                    this.cart.push({
+                        cart_item_id: Date.now() + Math.random(),
+                        product_id: this.activeModifierProduct.id,
+                        product_name: this.activeModifierProduct.name,
+                        unit_price: unitPrice,
+                        unit_symbol: unitSymbol,
+                        quantity: this.modifierItemQty,
+                        selected_modifiers: selectedOptionIds,
+                        modifiers_summary: summaryParts.join(', '),
+                        notes: this.modifierItemNotes.trim(),
+                        discount_amount: 0
+                    });
+
+                    this.showModifierModal = false;
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                },
+
+                openIncomingOrdersModal() {
+                    this.showIncomingOrdersModal = true;
+                    this.fetchIncomingOrders();
+                },
+
+                async fetchIncomingOrders() {
+                    try {
+                        const res = await fetch("{{ route('pos.incoming-orders') }}", {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            const prevCount = this.pendingQrCount;
+                            this.incomingQrOrders = data.orders;
+                            this.pendingQrCount = data.orders.length;
+                            if (this.pendingQrCount > prevCount) {
+                                this.playIncomingChime();
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Fetch incoming orders error:', e);
+                    }
+                },
+
+                async acceptIncomingOrder(orderId) {
+                    try {
+                        const res = await fetch(`/pos/incoming-orders/${orderId}/accept`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            AppAlert.success('Pesanan berhasil diterima dan diteruskan ke Dapur/Bar!');
+                            this.incomingQrOrders = this.incomingQrOrders.filter(o => o.id !== orderId);
+                            this.pendingQrCount = this.incomingQrOrders.length;
+                            this.fetchTables();
+                        } else {
+                            AppAlert.error(data.message || 'Gagal menerima pesanan');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Terjadi kesalahan saat menerima pesanan');
+                    }
+                },
+
+                promptRejectOrder(order) {
+                    this.rejectingOrder = order;
+                    this.rejectionReason = '';
+                    this.showRejectReasonModal = true;
+                },
+
+                async submitRejectOrder() {
+                    if (!this.rejectingOrder) return;
+                    if (!this.rejectionReason.trim()) {
+                        AppAlert.warning('Mohon masukkan alasan penolakan.');
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`/pos/incoming-orders/${this.rejectingOrder.id}/reject`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            },
+                            body: JSON.stringify({ reason: this.rejectionReason })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            AppAlert.success('Pesanan ditolak.');
+                            this.incomingQrOrders = this.incomingQrOrders.filter(o => o.id !== this.rejectingOrder.id);
+                            this.pendingQrCount = this.incomingQrOrders.length;
+                            this.showRejectReasonModal = false;
+                            this.rejectingOrder = null;
+                        } else {
+                            AppAlert.error(data.message || 'Gagal menolak pesanan');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Terjadi kesalahan saat menolak pesanan');
+                    }
+                },
+
+                openTablesModal() {
+                    this.showTablesModal = true;
+                    this.fetchTables();
+                },
+
+                async fetchTables() {
+                    try {
+                        const res = await fetch("{{ route('pos.tables.index') }}", {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.tables = data.tables;
+                        }
+                    } catch (e) {
+                        console.error('Fetch tables error:', e);
+                    }
+                },
+
+                selectTableForCart(table) {
+                    this.selectedTable = table;
+                    this.showTablesModal = false;
+                    AppAlert.success(`Meja ${table.table_number} dipilih untuk transaksi kasir ini.`);
+                },
+
+                openPayTableOrder(table) {
+                    if (!table.active_session || !table.active_session.orders || table.active_session.orders.length === 0) {
+                        AppAlert.warning('Tidak ada tagihan aktif untuk meja ini.');
+                        return;
+                    }
+                    const order = table.active_session.orders.find(o => o.status !== 'completed' && o.status !== 'voided' && o.status !== 'rejected') || table.active_session.orders[0];
+                    this.activeTableOrder = order;
+                    this.selectedTablePayMethod = 'cash';
+                    this.tableTenderAmount = Number(order.total_amount || 0);
+                    this.showTablesModal = false;
+                    this.showTablePaymentModal = true;
+                },
+
+                async submitPayTableOrder() {
+                    if (!this.activeTableOrder) return;
+                    if (this.tableTenderAmount < this.activeTableOrder.total_amount) {
+                        AppAlert.warning('Nominal pembayaran kurang.');
+                        return;
+                    }
+
+                    this.isProcessing = true;
+                    try {
+                        const res = await fetch(`/pos/orders/${this.activeTableOrder.id}/pay-table`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            },
+                            body: JSON.stringify({
+                                payments: [{ payment_method: this.selectedTablePayMethod, amount: this.tableTenderAmount }],
+                                location_id: this.selectedLocationId
+                            })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            AppAlert.success(data.message || 'Pembayaran berhasil diselesaikan.');
+                            this.showTablePaymentModal = false;
+                            this.lastCompletedOrder = data.order;
+                            this.lastReceiptUrl = data.receipt_url;
+                            this.lastWhatsAppUrl = data.whatsapp_url;
+                            this.showSuccessModal = true;
+                            this.fetchIncomingOrders();
+                        } else {
+                            AppAlert.error(data.message || 'Gagal memproses pembayaran meja.');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Terjadi kesalahan memproses pembayaran meja.');
+                    } finally {
+                        this.isProcessing = false;
+                    }
+                },
+
+                playIncomingChime() {
+                    try {
+                        if (!this.audioCtx) {
+                            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        }
+                        if (this.audioCtx.state === 'suspended') {
+                            this.audioCtx.resume();
+                        }
+                        const now = this.audioCtx.currentTime;
+                        const osc = this.audioCtx.createOscillator();
+                        const gain = this.audioCtx.createGain();
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(523.25, now);
+                        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.12);
+                        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.24);
+
+                        gain.gain.setValueAtTime(0.25, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+                        osc.connect(gain);
+                        gain.connect(this.audioCtx.destination);
+
+                        osc.start(now);
+                        osc.stop(now + 0.6);
+                    } catch (e) {
+                        console.warn('Audio chime error:', e);
+                    }
+                },
+
+                formatTimeAgo(dateStr) {
+                    if (!dateStr) return '';
+                    const diffMs = new Date() - new Date(dateStr);
+                    const diffMins = Math.floor(diffMs / 60000);
+                    if (diffMins < 1) return 'Baru saja';
+                    if (diffMins < 60) return `${diffMins} m lalu`;
+                    const hours = Math.floor(diffMins / 60);
+                    return `${hours} jam lalu`;
                 },
 
                 changeLocation() {

@@ -12,12 +12,17 @@ use App\Models\Customer;
 use App\Models\Location;
 use App\Models\PosOrder;
 use App\Models\PosOrderItem;
+use App\Models\PosOrderItemModifier;
 use App\Models\PosOrderPayment;
 use App\Models\PosShift;
+use App\Models\PosTable;
+use App\Models\PosTableSession;
 use App\Models\Product;
+use App\Models\StockMovement;
 use App\Models\User;
 use App\Models\Voucher;
 use Carbon\Carbon;
+use DomainException;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -26,7 +31,9 @@ final class PosOrderService
     public function __construct(
         private readonly StockService $stockService = new StockService,
         private readonly AutoJournalService $journalService = new AutoJournalService,
-        private readonly LoyaltyService $loyaltyService = new LoyaltyService
+        private readonly LoyaltyService $loyaltyService = new LoyaltyService,
+        private readonly ModifierService $modifierService = new ModifierService,
+        private readonly PosTableService $tableService = new PosTableService
     ) {}
 
     /**
@@ -51,7 +58,7 @@ final class PosOrderService
     }
 
     /**
-     * Complete a POS checkout transaction.
+     * Complete a POS checkout transaction (Direct / Walk-in Cashier).
      *
      * @param array<int, array{
      *     product_id?: string|null,
@@ -61,7 +68,8 @@ final class PosOrderService
      *     discount_amount?: float|int|null,
      *     notes?: string|null,
      *     batch_number?: string|null,
-     *     serial_number?: string|null
+     *     serial_number?: string|null,
+     *     selected_modifiers?: array<int, string>|null
      * }> $itemsData
      * @param array<int, array{
      *     payment_method: string,
@@ -101,7 +109,7 @@ final class PosOrderService
             $customerId = ! empty($attributes['customer_id']) ? (string) $attributes['customer_id'] : null;
             $customer = $customerId ? Customer::find($customerId) : null;
 
-            // 1. Calculate items subtotal and HPP
+            // 1. Calculate items subtotal, modifiers and HPP
             $subtotal = 0.0;
             $totalHpp = 0.0;
             $processedItems = [];
@@ -117,7 +125,20 @@ final class PosOrderService
 
                 $productName = $row['product_name'] ?? $product?->name ?? 'Item Custom';
                 $productCode = $product?->code;
-                $unitPrice = (float) ($row['unit_price'] ?? $product?->selling_price ?? 0.0);
+                $baseUnitPrice = (float) ($product?->selling_price ?? $row['unit_price'] ?? 0.0);
+
+                // Modifiers validation and server-side calculation
+                $selectedModifiers = $row['selected_modifiers'] ?? [];
+                $modifierSnapshots = [];
+                $modPriceDelta = 0.0;
+
+                if ($product && ! empty($selectedModifiers)) {
+                    $modResolution = $this->modifierService->validateAndResolveModifiers($product, $selectedModifiers, $locationId);
+                    $modPriceDelta = $modResolution['total_price_delta'];
+                    $modifierSnapshots = $modResolution['snapshots'];
+                }
+
+                $unitPrice = $baseUnitPrice + $modPriceDelta;
 
                 // Unit HPP from Product base_cost or active BOM/cost model
                 $unitHpp = 0.0;
@@ -155,6 +176,7 @@ final class PosOrderService
                     'batch_number' => $row['batch_number'] ?? null,
                     'serial_number' => $row['serial_number'] ?? null,
                     'notes' => $row['notes'] ?? null,
+                    'modifiers' => $modifierSnapshots,
                 ];
             }
 
@@ -226,8 +248,12 @@ final class PosOrderService
                 'order_date' => Carbon::today()->toDateString(),
                 'status' => PosOrder::STATUS_COMPLETED,
                 'order_type' => $attributes['order_type'] ?? 'takeaway',
+                'order_source' => $attributes['order_source'] ?? PosOrder::SOURCE_POS,
+                'pos_table_id' => $attributes['pos_table_id'] ?? null,
+                'pos_table_session_id' => $attributes['pos_table_session_id'] ?? null,
                 'table_or_reference' => $attributes['table_or_reference'] ?? null,
                 'customer_name_guest' => $attributes['customer_name_guest'] ?? ($customer?->name ?? 'Pelanggan Umum'),
+                'customer_phone_guest' => $attributes['customer_phone_guest'] ?? null,
                 'subtotal' => $subtotal,
                 'discount_type' => $discountType,
                 'discount_value' => $discountValue,
@@ -247,9 +273,9 @@ final class PosOrderService
                 'notes' => $attributes['notes'] ?? null,
             ]);
 
-            // 7. Save Line Items and Deduct Inventory Stock
+            // 7. Save Line Items, Modifiers and Deduct Inventory Stock
             foreach ($processedItems as $itemInfo) {
-                PosOrderItem::create([
+                $orderItem = PosOrderItem::create([
                     'pos_order_id' => $order->id,
                     'product_id' => $itemInfo['product_id'],
                     'product_name' => $itemInfo['product_name'],
@@ -266,7 +292,44 @@ final class PosOrderService
                     'notes' => $itemInfo['notes'],
                 ]);
 
-                // Stock reduction
+                // Save modifier snapshots
+                foreach ($itemInfo['modifiers'] as $modSnap) {
+                    PosOrderItemModifier::create([
+                        'pos_order_item_id' => $orderItem->id,
+                        'modifier_group_id' => $modSnap['modifier_group_id'],
+                        'modifier_option_id' => $modSnap['modifier_option_id'],
+                        'modifier_group_name' => $modSnap['modifier_group_name'],
+                        'modifier_option_name' => $modSnap['modifier_option_name'],
+                        'unit_price' => $modSnap['unit_price'],
+                        'quantity' => $modSnap['quantity'],
+                        'subtotal' => $modSnap['subtotal'],
+                        'material_snapshot' => $modSnap['material_snapshot'],
+                    ]);
+
+                    // Deduct stock for modifier materials
+                    if (! empty($modSnap['material_snapshot']) && $locationId) {
+                        foreach ($modSnap['material_snapshot'] as $mat) {
+                            $totalMatQty = ((float) $mat['quantity']) * $itemInfo['quantity'];
+                            if ($totalMatQty > 0) {
+                                $this->stockService->recordMovement(
+                                    businessId: $business->id,
+                                    locationId: $locationId,
+                                    productId: null,
+                                    movementType: StockMovement::TYPE_POS_SALE,
+                                    quantityChange: -abs($totalMatQty),
+                                    unitCost: 0.0,
+                                    referenceId: $order->id,
+                                    referenceNumber: $order->order_number,
+                                    notes: "Modifier {$modSnap['modifier_option_name']} untuk {$itemInfo['product_name']} #{$order->order_number}",
+                                    userId: $cashier->id,
+                                    materialId: $mat['material_id']
+                                );
+                            }
+                        }
+                    }
+                }
+
+                // Base Product stock reduction
                 if ($itemInfo['product_id'] && $locationId) {
                     $this->stockService->deductForPosSale(
                         businessId: $business->id,
@@ -313,7 +376,374 @@ final class PosOrderService
             // 10. Automatic Accounting Journal
             $this->journalService->recordPosSaleJournal($order);
 
-            return $order->load(['items', 'payments', 'customer', 'location']);
+            // 11. Sync Table Status if table is associated
+            if ($order->pos_table_id && $order->posTable) {
+                $this->tableService->syncTableStatus($order->posTable);
+            }
+
+            return $order->load(['items.modifiers', 'payments', 'customer', 'location', 'posTable']);
+        });
+    }
+
+    /**
+     * Submit an incoming order from a Customer scanning a Table QR code.
+     * Starts in 'pending' status without immediate inventory deduction.
+     *
+     * @param array<int, array{
+     *     product_id: string,
+     *     quantity: float|int,
+     *     selected_modifiers?: array<int, string>,
+     *     notes?: string|null
+     * }> $itemsData
+     */
+    public function createQrOrder(
+        PosTable $table,
+        string $customerName,
+        string $customerPhone,
+        array $itemsData,
+        ?string $orderNotes = null
+    ): PosOrder {
+        $customerName = trim($customerName);
+        $customerPhone = trim($customerPhone);
+
+        if ($customerName === '') {
+            throw new DomainException('Nama pelanggan wajib diisi.');
+        }
+
+        if ($customerPhone === '') {
+            throw new DomainException('Nomor WhatsApp / HP wajib diisi.');
+        }
+
+        if (empty($itemsData)) {
+            throw new DomainException('Pesanan tidak boleh kosong.');
+        }
+
+        $business = $table->business;
+        if (! $business || ! $business->is_active) {
+            throw new DomainException('Bisnis sedang tidak aktif menerima pesanan.');
+        }
+
+        if (! $table->is_active) {
+            throw new DomainException('Meja sedang nonaktif.');
+        }
+
+        $locationId = $table->location_id
+            ?? Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
+            ?? Location::where('business_id', $business->id)->value('id');
+
+        return DB::transaction(function () use ($business, $table, $customerName, $customerPhone, $itemsData, $orderNotes, $locationId) {
+            // Get or create table session
+            $session = $this->tableService->getOrCreateActiveSession($table, $customerName, $customerPhone);
+            $orderNumber = $this->generateOrderNumber($business);
+
+            $subtotal = 0.0;
+            $totalHpp = 0.0;
+            $processedItems = [];
+
+            foreach ($itemsData as $row) {
+                $qty = (float) ($row['quantity'] ?? 1);
+                if ($qty <= 0) {
+                    continue;
+                }
+
+                $productId = (string) ($row['product_id'] ?? '');
+                $product = Product::where('business_id', $business->id)
+                    ->where('is_active', true)
+                    ->findOrFail($productId);
+
+                // Check product base availability
+                $stock = $product->calculateEffectiveStock($locationId);
+                if ($stock < $qty && ! $business->allow_negative_stock) {
+                    throw new DomainException("Stok produk '{$product->name}' tidak mencukupi (tersedia: {$stock}).");
+                }
+
+                $baseUnitPrice = (float) $product->selling_price;
+
+                // Validate and resolve modifiers
+                $selectedModifiers = $row['selected_modifiers'] ?? [];
+                $modResult = $this->modifierService->validateAndResolveModifiers($product, $selectedModifiers, $locationId);
+
+                $unitPrice = $baseUnitPrice + $modResult['total_price_delta'];
+                $lineSubtotal = $qty * $unitPrice;
+                $unitHpp = (float) $product->base_cost;
+                $lineHpp = $qty * $unitHpp;
+
+                $subtotal += $lineSubtotal;
+                $totalHpp += $lineHpp;
+
+                $processedItems[] = [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'product_code' => $product->code,
+                    'unit_price' => $unitPrice,
+                    'unit_cost_hpp' => $unitHpp,
+                    'quantity' => $qty,
+                    'subtotal' => $lineSubtotal,
+                    'total_price' => $lineSubtotal,
+                    'total_hpp' => $lineHpp,
+                    'notes' => $row['notes'] ?? null,
+                    'modifiers' => $modResult['snapshots'],
+                ];
+            }
+
+            // Tax & Service Charge
+            $taxPercent = $business->pos_enable_tax ? (float) $business->pos_tax_percent : 0.0;
+            $servicePercent = $business->pos_enable_service_charge ? (float) $business->pos_service_charge_percent : 0.0;
+
+            $taxAmount = ($subtotal * $taxPercent) / 100.0;
+            $serviceChargeAmount = ($subtotal * $servicePercent) / 100.0;
+            $finalTotal = round($subtotal + $taxAmount + $serviceChargeAmount, $business->currency_precision ?? 0);
+
+            $order = PosOrder::create([
+                'business_id' => $business->id,
+                'location_id' => $locationId,
+                'user_id' => $business->users()->first()?->id ?? null,
+                'order_number' => $orderNumber,
+                'order_date' => Carbon::today()->toDateString(),
+                'status' => PosOrder::STATUS_PENDING,
+                'order_type' => 'dine_in',
+                'order_source' => PosOrder::SOURCE_QR_TABLE,
+                'pos_table_id' => $table->id,
+                'pos_table_session_id' => $session->id,
+                'table_or_reference' => $table->table_number,
+                'customer_name_guest' => $customerName,
+                'customer_phone_guest' => $customerPhone,
+                'subtotal' => $subtotal,
+                'tax_percentage' => $taxPercent,
+                'tax_amount' => $taxAmount,
+                'service_charge_percentage' => $servicePercent,
+                'service_charge_amount' => $serviceChargeAmount,
+                'total_amount' => $finalTotal,
+                'paid_amount' => 0.0,
+                'change_amount' => 0.0,
+                'total_hpp_cost' => $totalHpp,
+                'total_gross_profit' => max(0.0, $subtotal - $totalHpp),
+                'notes' => $orderNotes,
+            ]);
+
+            foreach ($processedItems as $itemInfo) {
+                $orderItem = PosOrderItem::create([
+                    'pos_order_id' => $order->id,
+                    'product_id' => $itemInfo['product_id'],
+                    'product_name' => $itemInfo['product_name'],
+                    'product_code' => $itemInfo['product_code'],
+                    'unit_price' => $itemInfo['unit_price'],
+                    'unit_cost_hpp' => $itemInfo['unit_cost_hpp'],
+                    'quantity' => $itemInfo['quantity'],
+                    'subtotal' => $itemInfo['subtotal'],
+                    'discount_amount' => 0.0,
+                    'total_price' => $itemInfo['total_price'],
+                    'total_hpp' => $itemInfo['total_hpp'],
+                    'notes' => $itemInfo['notes'],
+                ]);
+
+                foreach ($itemInfo['modifiers'] as $modSnap) {
+                    PosOrderItemModifier::create([
+                        'pos_order_item_id' => $orderItem->id,
+                        'modifier_group_id' => $modSnap['modifier_group_id'],
+                        'modifier_option_id' => $modSnap['modifier_option_id'],
+                        'modifier_group_name' => $modSnap['modifier_group_name'],
+                        'modifier_option_name' => $modSnap['modifier_option_name'],
+                        'unit_price' => $modSnap['unit_price'],
+                        'quantity' => $modSnap['quantity'],
+                        'subtotal' => $modSnap['subtotal'],
+                        'material_snapshot' => $modSnap['material_snapshot'],
+                    ]);
+                }
+            }
+
+            $table->update(['status' => PosTable::STATUS_OCCUPIED]);
+
+            return $order->load(['items.modifiers', 'posTable', 'tableSession']);
+        });
+    }
+
+    /**
+     * Cashier accepts an incoming QR order.
+     */
+    public function acceptQrOrder(PosOrder $order, User $cashier): PosOrder
+    {
+        if ($order->status !== PosOrder::STATUS_PENDING) {
+            throw new DomainException('Hanya pesanan berstatus pending yang dapat diterima.');
+        }
+
+        $order->update([
+            'status' => PosOrder::STATUS_CONFIRMED,
+            'user_id' => $cashier->id,
+        ]);
+
+        if ($order->posTable) {
+            $order->posTable->update(['status' => PosTable::STATUS_PREPARING]);
+        }
+
+        return $order->load(['items.modifiers', 'posTable']);
+    }
+
+    /**
+     * Cashier rejects an incoming QR order with mandatory reason.
+     */
+    public function rejectQrOrder(PosOrder $order, User $cashier, string $reason): PosOrder
+    {
+        $reason = trim($reason);
+        if ($reason === '') {
+            throw new DomainException('Alasan penolakan pesanan wajib diisi.');
+        }
+
+        if ($order->status !== PosOrder::STATUS_PENDING) {
+            throw new DomainException('Hanya pesanan berstatus pending yang dapat ditolak.');
+        }
+
+        $order->update([
+            'status' => PosOrder::STATUS_REJECTED,
+            'rejection_reason' => $reason,
+            'rejected_by' => $cashier->id,
+            'rejected_at' => now(),
+        ]);
+
+        if ($order->posTable) {
+            $this->tableService->syncTableStatus($order->posTable);
+        }
+
+        return $order;
+    }
+
+    /**
+     * Update order preparation status (e.g. from Kitchen/Bar).
+     */
+    public function updateOrderStatus(PosOrder $order, string $status, ?User $user = null): PosOrder
+    {
+        $validStatuses = [
+            PosOrder::STATUS_CONFIRMED,
+            PosOrder::STATUS_PREPARING,
+            PosOrder::STATUS_READY,
+            PosOrder::STATUS_SERVED,
+            PosOrder::STATUS_WAITING_PAYMENT,
+        ];
+
+        if (! in_array($status, $validStatuses, true)) {
+            throw new DomainException("Status pesanan '{$status}' tidak valid.");
+        }
+
+        $order->update(['status' => $status]);
+
+        if ($order->posTable) {
+            $this->tableService->syncTableStatus($order->posTable);
+        }
+
+        return $order;
+    }
+
+    /**
+     * Process payment for an active Table QR Order (Completes transaction, deducts inventory, journals).
+     *
+     * @param array<int, array{payment_method: string, amount: float|int, reference_number?: string|null}> $paymentsData
+     */
+    public function payQrOrder(
+        PosOrder $order,
+        array $paymentsData,
+        User $cashier,
+        ?PosShift $shift = null
+    ): PosOrder {
+        if ($order->status === PosOrder::STATUS_COMPLETED) {
+            throw new DomainException('Pesanan ini sudah lunas.');
+        }
+
+        if (empty($paymentsData)) {
+            throw new InvalidArgumentException('Metode pembayaran wajib ditentukan.');
+        }
+
+        $business = $order->business;
+        $locationId = $order->location_id ?? $shift?->location_id;
+
+        return DB::transaction(function () use ($order, $paymentsData, $cashier, $shift, $business, $locationId) {
+            $totalPaid = 0.0;
+            foreach ($paymentsData as $p) {
+                $totalPaid += (float) ($p['amount'] ?? 0.0);
+            }
+
+            if ($totalPaid < $order->total_amount) {
+                throw new DomainException('Jumlah pembayaran kurang dari total tagihan pesanan.');
+            }
+
+            $changeAmount = max(0.0, $totalPaid - $order->total_amount);
+
+            $order->update([
+                'status' => PosOrder::STATUS_COMPLETED,
+                'user_id' => $cashier->id,
+                'pos_shift_id' => $shift?->id,
+                'paid_amount' => $totalPaid,
+                'change_amount' => $changeAmount,
+            ]);
+
+            // Deduct stock for base items and modifier materials
+            foreach ($order->items as $item) {
+                // Modifiers stock deduction
+                foreach ($item->modifiers as $mod) {
+                    if (! empty($mod->material_snapshot) && $locationId) {
+                        foreach ($mod->material_snapshot as $mat) {
+                            $totalMatQty = ((float) $mat['quantity']) * (float) $item->quantity;
+                            if ($totalMatQty > 0) {
+                                $this->stockService->recordMovement(
+                                    businessId: $business->id,
+                                    locationId: $locationId,
+                                    productId: null,
+                                    movementType: StockMovement::TYPE_POS_SALE,
+                                    quantityChange: -abs($totalMatQty),
+                                    unitCost: 0.0,
+                                    referenceId: $order->id,
+                                    referenceNumber: $order->order_number,
+                                    notes: "Modifier {$mod->modifier_option_name} untuk {$item->product_name} #{$order->order_number}",
+                                    userId: $cashier->id,
+                                    materialId: $mat['material_id']
+                                );
+                            }
+                        }
+                    }
+                }
+
+                // Base product stock deduction
+                if ($item->product_id && $locationId) {
+                    $this->stockService->deductForPosSale(
+                        businessId: $business->id,
+                        locationId: $locationId,
+                        productId: $item->product_id,
+                        quantity: (float) $item->quantity,
+                        unitCost: (float) $item->unit_cost_hpp,
+                        orderId: $order->id,
+                        orderNumber: $order->order_number,
+                        userId: $cashier->id
+                    );
+                }
+            }
+
+            // Save payments
+            foreach ($paymentsData as $p) {
+                $amount = (float) ($p['amount'] ?? 0.0);
+                if ($amount <= 0) continue;
+
+                PosOrderPayment::create([
+                    'pos_order_id' => $order->id,
+                    'payment_method' => (string) ($p['payment_method'] ?? 'cash'),
+                    'amount' => $amount,
+                    'reference_number' => $p['reference_number'] ?? null,
+                    'fee_amount' => 0.0,
+                    'net_amount' => $amount,
+                    'status' => 'paid',
+                ]);
+            }
+
+            // Auto Journal
+            $this->journalService->recordPosSaleJournal($order);
+
+            // Table Session closing if all orders in session are finished
+            $session = $order->tableSession;
+            if ($session && $session->canBeClosed()) {
+                $this->tableService->closeSession($session);
+            } elseif ($order->posTable) {
+                $this->tableService->syncTableStatus($order->posTable);
+            }
+
+            return $order->load(['items.modifiers', 'payments', 'posTable', 'tableSession']);
         });
     }
 
@@ -384,6 +814,31 @@ final class PosOrderService
             // Restore inventory
             if ($order->location_id) {
                 foreach ($order->items as $item) {
+                    // Restore modifier materials
+                    foreach ($item->modifiers as $mod) {
+                        if (! empty($mod->material_snapshot)) {
+                            foreach ($mod->material_snapshot as $mat) {
+                                $totalMatQty = ((float) $mat['quantity']) * (float) $item->quantity;
+                                if ($totalMatQty > 0) {
+                                    $this->stockService->recordMovement(
+                                        businessId: $order->business_id,
+                                        locationId: $order->location_id,
+                                        productId: null,
+                                        movementType: StockMovement::TYPE_POS_REFUND,
+                                        quantityChange: abs($totalMatQty),
+                                        unitCost: 0.0,
+                                        referenceId: $order->id,
+                                        referenceNumber: $order->order_number,
+                                        notes: "Void Modifier {$mod->modifier_option_name} untuk {$item->product_name} #{$order->order_number}",
+                                        userId: $user->id,
+                                        materialId: $mat['material_id']
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    // Restore base product stock
                     if ($item->product_id) {
                         $this->stockService->restoreForPosRefund(
                             businessId: $order->business_id,
@@ -399,6 +854,10 @@ final class PosOrderService
                 }
             }
 
+            if ($order->posTable) {
+                $this->tableService->syncTableStatus($order->posTable);
+            }
+
             return $order;
         });
     }
@@ -409,7 +868,7 @@ final class PosOrderService
     public function refundOrder(PosOrder $order, User $user, string $reason, bool $restoreStock = true): PosOrder
     {
         return DB::transaction(function () use ($order, $user, $reason, $restoreStock) {
-            $order = PosOrder::with(['items', 'payments'])->lockForUpdate()->findOrFail($order->id);
+            $order = PosOrder::with(['items.modifiers', 'payments'])->lockForUpdate()->findOrFail($order->id);
             if ($order->status !== PosOrder::STATUS_COMPLETED) {
                 throw new InvalidArgumentException('Hanya transaksi POS completed yang dapat direfund penuh.');
             }
@@ -423,6 +882,31 @@ final class PosOrderService
 
             if ($restoreStock && $order->location_id) {
                 foreach ($order->items as $item) {
+                    // Restore modifier materials
+                    foreach ($item->modifiers as $mod) {
+                        if (! empty($mod->material_snapshot)) {
+                            foreach ($mod->material_snapshot as $mat) {
+                                $totalMatQty = ((float) $mat['quantity']) * (float) $item->quantity;
+                                if ($totalMatQty > 0) {
+                                    $this->stockService->recordMovement(
+                                        businessId: $order->business_id,
+                                        locationId: $order->location_id,
+                                        productId: null,
+                                        movementType: StockMovement::TYPE_POS_REFUND,
+                                        quantityChange: abs($totalMatQty),
+                                        unitCost: 0.0,
+                                        referenceId: $order->id,
+                                        referenceNumber: $order->order_number,
+                                        notes: "Refund Modifier {$mod->modifier_option_name} untuk {$item->product_name} #{$order->order_number}",
+                                        userId: $user->id,
+                                        materialId: $mat['material_id']
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    // Restore base product stock
                     if ($item->product_id) {
                         $this->stockService->restoreForPosRefund(
                             businessId: $order->business_id,

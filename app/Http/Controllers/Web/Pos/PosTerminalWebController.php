@@ -13,6 +13,8 @@ use App\Models\Location;
 use App\Models\PosOrder;
 use App\Models\PosRegister;
 use App\Models\PosShift;
+use App\Models\PosTable;
+use App\Models\PosTableSession;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Voucher;
@@ -66,6 +68,7 @@ final class PosTerminalWebController extends Controller
             ->map(function ($p) use ($selectedLocationId) {
                 // Effective stock dihitung dari Material master stock (via BOM/direct material).
                 $p->current_stock = $p->calculateEffectiveStock($selectedLocationId);
+                $p->modifier_groups = $p->getAvailableModifierGroupsWithStock($selectedLocationId);
                 return $p;
             })
             ->each(function ($p): void {
@@ -90,7 +93,19 @@ final class PosTerminalWebController extends Controller
             ->where('is_active', true)
             ->get();
 
-        // 8. Adaptive Operating Mode (Solo Owner vs. Team)
+        // 8. F&B Tables & Incoming QR Orders
+        $tables = PosTable::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->with(['activeSession.orders.items.modifiers'])
+            ->orderBy('table_number')
+            ->get();
+
+        $pendingQrOrdersCount = PosOrder::where('business_id', $business->id)
+            ->where('order_source', PosOrder::SOURCE_QR_TABLE)
+            ->where('status', PosOrder::STATUS_PENDING)
+            ->count();
+
+        // 9. Adaptive Operating Mode (Solo Owner vs. Team)
         $operatingModeService = new \App\Domain\System\OperatingModeService;
         $operatingMode = $operatingModeService->getOperatingModeProfile($business);
         $canBypassSupervisor = $operatingModeService->canBypassSupervisor($business, $user);
@@ -108,6 +123,8 @@ final class PosTerminalWebController extends Controller
             'customers',
             'heldOrders',
             'vouchers',
+            'tables',
+            'pendingQrOrdersCount',
             'operatingMode',
             'canBypassSupervisor',
             'hideCostFromCashier',
@@ -168,6 +185,7 @@ final class PosTerminalWebController extends Controller
             'items.*.quantity' => ['required', 'numeric', 'min:0.0001'],
             'items.*.discount_amount' => ['nullable', 'numeric', 'min:0'],
             'items.*.notes' => ['nullable', 'string'],
+            'items.*.selected_modifiers' => ['nullable', 'array'],
             'payments' => ['required', 'array', 'min:1'],
             'payments.*.payment_method' => ['required', 'string'],
             'payments.*.amount' => ['required', 'numeric', 'min:0'],
@@ -176,6 +194,8 @@ final class PosTerminalWebController extends Controller
             'customer_name_guest' => ['nullable', 'string', 'max:150'],
             'order_type' => ['nullable', 'string', 'in:dine_in,takeaway,delivery'],
             'table_or_reference' => ['nullable', 'string', 'max:100'],
+            'pos_table_id' => ['nullable', 'string'],
+            'pos_table_session_id' => ['nullable', 'string'],
             'discount_type' => ['nullable', 'string', 'in:fixed,percentage'],
             'discount_value' => ['nullable', 'numeric', 'min:0'],
             'voucher_code' => ['nullable', 'string'],
@@ -204,6 +224,9 @@ final class PosTerminalWebController extends Controller
                     'customer_id' => $validated['customer_id'] ?? null,
                     'customer_name_guest' => $validated['customer_name_guest'] ?? null,
                     'order_type' => $validated['order_type'] ?? 'takeaway',
+                    'order_source' => PosOrder::SOURCE_POS,
+                    'pos_table_id' => $validated['pos_table_id'] ?? null,
+                    'pos_table_session_id' => $validated['pos_table_session_id'] ?? null,
                     'table_or_reference' => $validated['table_or_reference'] ?? null,
                     'discount_type' => $validated['discount_type'] ?? 'fixed',
                     'discount_value' => (float) ($validated['discount_value'] ?? 0),
@@ -374,5 +397,186 @@ final class PosTerminalWebController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'PIN Supervisor salah.'], 401);
+    }
+
+    /**
+     * Get pending incoming QR orders for live polling (AJAX).
+     */
+    public function getIncomingOrders(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        $orders = PosOrder::where('business_id', $business->id)
+            ->where('order_source', PosOrder::SOURCE_QR_TABLE)
+            ->where('status', PosOrder::STATUS_PENDING)
+            ->with(['items.modifiers', 'posTable'])
+            ->latest()
+            ->get()
+            ->map(function ($o) {
+                return [
+                    'id' => $o->id,
+                    'order_number' => $o->order_number,
+                    'table_number' => $o->posTable?->table_number ?? $o->table_or_reference ?? '-',
+                    'customer_name' => $o->customer_name_guest,
+                    'customer_phone' => $o->customer_phone_guest,
+                    'total_amount' => (float) $o->total_amount,
+                    'created_at_time' => $o->created_at->format('H:i:s'),
+                    'notes' => $o->notes,
+                    'items' => $o->items->map(fn ($item) => [
+                        'id' => $item->id,
+                        'name' => $item->product_name,
+                        'quantity' => (float) $item->quantity,
+                        'unit_price' => (float) $item->unit_price,
+                        'total_price' => (float) $item->total_price,
+                        'notes' => $item->notes,
+                        'modifiers' => $item->modifiers_display_text,
+                    ]),
+                ];
+            });
+
+        return response()->json(['success' => true, 'orders' => $orders]);
+    }
+
+    /**
+     * Cashier accepts an incoming QR order.
+     */
+    public function acceptIncomingOrder(PosOrder $order): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        if ($order->business_id !== $business->id) {
+            abort(403);
+        }
+
+        try {
+            $accepted = $this->orderService->acceptQrOrder($order, auth()->user());
+            return response()->json([
+                'success' => true,
+                'message' => "Pesanan #{$order->order_number} diterima dan diteruskan ke dapur.",
+                'order' => $accepted,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * Cashier rejects an incoming QR order with mandatory reason.
+     */
+    public function rejectIncomingOrder(Request $request, PosOrder $order): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        if ($order->business_id !== $business->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        try {
+            $rejected = $this->orderService->rejectQrOrder($order, auth()->user(), $validated['reason']);
+            return response()->json([
+                'success' => true,
+                'message' => "Pesanan #{$order->order_number} ditolak.",
+                'order' => $rejected,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * Get table and session details for payment modal (AJAX).
+     */
+    public function getTableDetails(PosTable $table): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        if ($table->business_id !== $business->id) {
+            abort(403);
+        }
+
+        $table->load(['activeSession.orders.items.modifiers']);
+        $session = $table->activeSession;
+        $unpaidOrders = $session ? $session->orders->whereNotIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_VOIDED, PosOrder::STATUS_REJECTED])->values() : collect();
+
+        return response()->json([
+            'success' => true,
+            'table' => [
+                'id' => $table->id,
+                'table_number' => $table->table_number,
+                'name' => $table->name,
+                'status' => $table->status,
+                'status_label' => $table->status_label,
+                'capacity' => $table->capacity,
+                'session' => $session ? [
+                    'id' => $session->id,
+                    'session_number' => $session->session_number,
+                    'customer_name' => $session->customer_name,
+                    'customer_phone' => $session->customer_phone,
+                    'opened_at' => $session->opened_at->format('H:i'),
+                    'total_amount' => $session->total_amount,
+                    'unpaid_orders' => $unpaidOrders->map(fn ($o) => [
+                        'id' => $o->id,
+                        'order_number' => $o->order_number,
+                        'status' => $o->status,
+                        'total_amount' => (float) $o->total_amount,
+                        'items' => $o->items->map(fn ($item) => [
+                            'name' => $item->product_name,
+                            'quantity' => (float) $item->quantity,
+                            'unit_price' => (float) $item->unit_price,
+                            'total_price' => (float) $item->total_price,
+                            'modifiers' => $item->modifiers_display_text,
+                            'notes' => $item->notes,
+                        ]),
+                    ]),
+                ] : null,
+            ],
+        ]);
+    }
+
+    /**
+     * Cashier processes payment for a Table QR order.
+     */
+    public function payTableOrder(Request $request, PosOrder $order): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+        if ($order->business_id !== $business->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'payments' => ['required', 'array', 'min:1'],
+            'payments.*.payment_method' => ['required', 'string'],
+            'payments.*.amount' => ['required', 'numeric', 'min:0'],
+            'payments.*.reference_number' => ['nullable', 'string'],
+            'location_id' => ['nullable', 'string'],
+        ]);
+
+        $activeShift = $this->shiftService->getActiveShift($business, $user, $validated['location_id'] ?? $order->location_id);
+        if ($activeShift === null) {
+            return response()->json(['success' => false, 'message' => 'Shift kasir belum dibuka. Buka shift terlebih dahulu.'], 403);
+        }
+
+        try {
+            $completed = $this->orderService->payQrOrder($order, $validated['payments'], $user, $activeShift);
+            $whatsappUrl = $this->loyaltyService->generateWhatsAppReceiptUrl($completed);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Pembayaran pesanan #{$completed->order_number} berhasil diselesaikan.",
+                'order' => [
+                    'id' => $completed->id,
+                    'order_number' => $completed->order_number,
+                    'total_amount' => $completed->total_amount,
+                    'paid_amount' => $completed->paid_amount,
+                    'change_amount' => $completed->change_amount,
+                ],
+                'receipt_url' => route('pos.receipt', $completed->id),
+                'whatsapp_url' => $whatsappUrl,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
     }
 }

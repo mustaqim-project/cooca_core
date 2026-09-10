@@ -274,4 +274,52 @@ class Product extends Model
     {
         return $this->calculateEffectiveStock();
     }
+
+    /**
+     * Modifier groups assigned to this product.
+     *
+     * @return BelongsToMany<ModifierGroup, $this>
+     */
+    public function modifierGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(ModifierGroup::class, 'product_modifier_groups', 'product_id', 'modifier_group_id')
+            ->withPivot('sort_order')
+            ->orderByPivot('sort_order');
+    }
+
+    /**
+     * Get active modifier groups with options and real-time stock availability.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getAvailableModifierGroupsWithStock(?string $locationId = null): array
+    {
+        return $this->modifierGroups()
+            ->where('modifier_groups.is_active', true)
+            ->with(['activeOptions.materials'])
+            ->get()
+            ->map(function (ModifierGroup $group) use ($locationId): array {
+                return [
+                    'id' => $group->id,
+                    'name' => $group->name,
+                    'description' => $group->description,
+                    'selection_type' => $group->selection_type,
+                    'min_selection' => (int) $group->min_selection,
+                    'max_selection' => (int) $group->max_selection,
+                    'is_required' => (bool) $group->is_required,
+                    'options' => $group->activeOptions->map(function (ModifierOption $opt) use ($locationId): array {
+                        return [
+                            'id' => $opt->id,
+                            'name' => $opt->name,
+                            'price_delta' => (float) $opt->price_delta,
+                            'affects_material' => (bool) $opt->affects_material,
+                            'is_available' => $opt->isAvailableInStock($locationId),
+                        ];
+                    })->values()->all(),
+                ];
+            })
+            ->values()
+            ->all();
+    }
 }
+
