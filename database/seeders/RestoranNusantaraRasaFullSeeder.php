@@ -6,7 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\BomHeader;
 use App\Models\Business;
-use App\Models\BusinessUser;
+use App\Models\BusinessMembership;
 use App\Models\CostModel;
 use App\Models\Customer;
 use App\Models\Expense;
