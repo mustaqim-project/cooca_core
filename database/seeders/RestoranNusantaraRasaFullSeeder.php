@@ -8,6 +8,7 @@ use App\Models\BomHeader;
 use App\Models\Business;
 use App\Models\BusinessMembership;
 use App\Models\CostModel;
+use App\Models\Currency;
 use App\Models\Customer;
 use App\Models\Expense;
 use App\Models\InventoryStock;
@@ -22,6 +23,7 @@ use App\Models\PosOrder;
 use App\Models\PosOrderItem;
 use App\Models\PosOrderItemModifier;
 use App\Models\PosOrderPayment;
+use App\Models\PosRegister;
 use App\Models\PosShift;
 use App\Models\PosTable;
 use App\Models\PosTableSession;
@@ -41,7 +43,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
     {
         DB::transaction(function () {
             // ─────────────────────────────────────────────────────────────────
-            // 1. BUSINESS PROFILE & LOGGED-IN USER ASSIGNMENT
+            // 1. BUSINESS PROFILE & USER ASSIGNMENT
             // ─────────────────────────────────────────────────────────────────
             $business = Business::where('slug', 'restoran-nusantara-rasa')->first();
 
@@ -66,7 +68,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                 ]);
             }
 
-            // Hubungkan semua user demo & resto ke bisnis ini sebagai Owner
+            // Hubungkan user demo & resto ke bisnis ini sebagai Owner dan aktifkan bisnis
             $usersToLink = User::whereIn('email', [
                 'demo@cooca.id',
                 'owner.resto@cooca.id',
@@ -85,6 +87,9 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                     ['business_id' => $business->id, 'user_id' => $u->id],
                     ['id' => (string) Str::uuid(), 'role' => 'owner']
                 );
+                if ($u->email === 'demo@cooca.id') {
+                    $u->update(['active_business_id' => $business->id]);
+                }
             }
 
             $primaryOwner = $usersToLink->first() ?? User::first();
@@ -119,17 +124,30 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
             );
 
             // ─────────────────────────────────────────────────────────────────
-            // 3. UNITS & MATERIAL CATEGORIES
+            // 3. UNITS, CURRENCIES & MATERIAL CATEGORIES
             // ─────────────────────────────────────────────────────────────────
+            $idrCurrency = Currency::where('code', 'IDR')->first();
+
+            $uKg = Unit::where('code', 'kg')->first();
+            $uG = Unit::where('code', 'g')->first();
+            $uL = Unit::where('code', 'l')->first();
+            $uMl = Unit::where('code', 'ml')->first();
+            $uPorsi = Unit::where('code', 'porsi')->first();
+            $uPcs = Unit::where('code', 'pcs')->first();
+            $uBox = Unit::where('code', 'box')->first();
+            $uCup = Unit::where('code', 'cup')->first() ?? $uPorsi;
+
             $units = [
-                'kg' => Unit::firstOrCreate(['code' => 'kg'], ['name' => 'Kilogram', 'symbol' => 'kg', 'is_base' => true]),
-                'g' => Unit::firstOrCreate(['code' => 'g'], ['name' => 'Gram', 'symbol' => 'g', 'is_base' => false]),
-                'l' => Unit::firstOrCreate(['code' => 'liter'], ['name' => 'Liter', 'symbol' => 'L', 'is_base' => true]),
-                'ml' => Unit::firstOrCreate(['code' => 'ml'], ['name' => 'Mililiter', 'symbol' => 'ml', 'is_base' => false]),
-                'porsi' => Unit::firstOrCreate(['code' => 'porsi'], ['name' => 'Porsi', 'symbol' => 'porsi', 'is_base' => true]),
-                'pcs' => Unit::firstOrCreate(['code' => 'pcs'], ['name' => 'Pieces / Butir', 'symbol' => 'pcs', 'is_base' => true]),
-                'box' => Unit::firstOrCreate(['code' => 'box'], ['name' => 'Kotak / Box', 'symbol' => 'box', 'is_base' => false]),
-                'gelas' => Unit::firstOrCreate(['code' => 'gelas'], ['name' => 'Gelas', 'symbol' => 'gls', 'is_base' => false]),
+                'kg' => $uKg,
+                'g' => $uG,
+                'l' => $uL,
+                'liter' => $uL,
+                'ml' => $uMl,
+                'porsi' => $uPorsi,
+                'pcs' => $uPcs,
+                'box' => $uBox,
+                'cup' => $uCup,
+                'gelas' => $uCup,
             ];
 
             $matCats = [
@@ -147,45 +165,50 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
             // ─────────────────────────────────────────────────────────────────
             $suppliers = [
                 'daging' => Supplier::updateOrCreate(
-                    ['business_id' => $business->id, 'code' => 'SUP-DGG-01'],
+                    ['business_id' => $business->id, 'slug' => 'cv-berkah-daging-nusantara'],
                     [
                         'name' => 'CV Berkah Daging Nusantara',
+                        'contact_person' => 'Haji Mansur',
                         'phone' => '0811-2233-4455',
                         'email' => 'sales@berkahdaging.co.id',
                         'address' => 'Pasar Induk Kramat Jati Blok D-12, Jakarta Timur',
                     ]
                 ),
                 'rempah' => Supplier::updateOrCreate(
-                    ['business_id' => $business->id, 'code' => 'SUP-RMP-02'],
+                    ['business_id' => $business->id, 'slug' => 'pt-sumber-rempah-rembang'],
                     [
                         'name' => 'PT Sumber Rempah Rembang',
+                        'contact_person' => 'Ibu Sri Wahyuni',
                         'phone' => '0812-8899-0011',
                         'email' => 'order@rempahrembang.com',
                         'address' => 'Kawasan Pergudangan Pluit Blok C, Jakarta Utara',
                     ]
                 ),
                 'sayur' => Supplier::updateOrCreate(
-                    ['business_id' => $business->id, 'code' => 'SUP-SYR-03'],
+                    ['business_id' => $business->id, 'slug' => 'toko-tani-sayur-segar-cipanas'],
                     [
                         'name' => 'Toko Tani Sayur Segar Cipanas',
+                        'contact_person' => 'Kang Asep',
                         'phone' => '0813-7766-5544',
                         'email' => 'sayurcipanas@gmail.com',
                         'address' => 'Jl. Raya Pacet Km 3, Cianjur',
                     ]
                 ),
                 'pangan' => Supplier::updateOrCreate(
-                    ['business_id' => $business->id, 'code' => 'SUP-PNG-04'],
+                    ['business_id' => $business->id, 'slug' => 'distributor-pangan-sejahtera'],
                     [
                         'name' => 'Distributor Pangan Sejahtera (Beras & Minyak)',
+                        'contact_person' => 'Bpk. Surya Wijaya',
                         'phone' => '0815-3344-5566',
                         'email' => 'distribusi@pangansejahtera.id',
                         'address' => 'Jl. Daan Mogot Km 11, Jakarta Barat',
                     ]
                 ),
                 'kopi' => Supplier::updateOrCreate(
-                    ['business_id' => $business->id, 'code' => 'SUP-KPI-05'],
+                    ['business_id' => $business->id, 'slug' => 'cv-aroma-nusantara-coffee-dairy'],
                     [
                         'name' => 'CV Aroma Nusantara Coffee & Dairy',
+                        'contact_person' => 'Mas Dimas',
                         'phone' => '0818-4455-6677',
                         'email' => 'aromanusantara@coffee.id',
                         'address' => 'Jl. Panglima Polim No. 42, Jakarta Selatan',
@@ -238,6 +261,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                     ['business_id' => $business->id, 'material_id' => $mat->id, 'sequence' => 1],
                     [
                         'supplier_id' => $suppliers[$ms['sup']]->id,
+                        'currency_id' => $idrCurrency?->id,
                         'purchase_unit_id' => $units[$ms['unit']]->id,
                         'purchase_price' => $ms['price'],
                         'effective_date' => Carbon::now()->subMonths(1),
@@ -277,8 +301,8 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                     'image' => 'products/rendang.jpg',
                     'desc' => 'Daging sapi empuk dimasak 6 jam dengan santan murni dan rempah Minang pekat autentik.',
                     'recipe' => [
-                        ['mat' => 'MAT-DGG-01', 'qty' => 0.15, 'unit' => 'kg'], // 150g daging
-                        ['mat' => 'MAT-SNT-05', 'qty' => 0.20, 'unit' => 'liter'], // 200ml santan
+                        ['mat' => 'MAT-DGG-01', 'qty' => 0.15, 'unit' => 'kg'],
+                        ['mat' => 'MAT-SNT-05', 'qty' => 0.20, 'unit' => 'liter'],
                         ['mat' => 'MAT-BMR-06', 'qty' => 0.03, 'unit' => 'kg'],
                         ['mat' => 'MAT-BPT-07', 'qty' => 0.02, 'unit' => 'kg'],
                         ['mat' => 'MAT-CBK-08', 'qty' => 0.04, 'unit' => 'kg'],
@@ -468,10 +492,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                         'name' => 'HPP ' . $product->name,
                         'slug' => 'hpp-' . Str::slug($product->name),
                         'method' => CostModel::METHOD_RECIPE_BOM,
-                        'basis' => CostModel::BASIS_PLANNED,
-                        'batch_size' => 1,
-                        'batch_unit_id' => $units[$pSpec['unit']]->id,
-                        'target_margin_pct' => 40.0,
+                        'output_basis' => CostModel::BASIS_PLANNED,
                         'is_active' => true,
                     ]
                 );
@@ -481,9 +502,6 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                     [
                         'name' => 'Resep Utama ' . $product->name,
                         'type' => BomHeader::TYPE_RECIPE,
-                        'output_quantity' => 1,
-                        'output_unit_id' => $units[$pSpec['unit']]->id,
-                        'yield_percentage' => 100,
                         'level' => 1,
                     ]
                 );
@@ -660,10 +678,20 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
             }
 
             // ─────────────────────────────────────────────────────────────────
-            // 9. POS SHIFTS (ACTIVE & HISTORICAL)
+            // 9. POS REGISTERS & SHIFTS
             // ─────────────────────────────────────────────────────────────────
+            $posRegister = PosRegister::firstOrCreate(
+                ['business_id' => $business->id, 'code' => 'REG-01'],
+                [
+                    'location_id' => $locOutlet->id,
+                    'name' => 'Kasir Utama Menteng',
+                    'is_active' => true,
+                ]
+            );
+
             $activeShift = PosShift::create([
                 'business_id' => $business->id,
+                'pos_register_id' => $posRegister->id,
                 'location_id' => $locOutlet->id,
                 'user_id' => $primaryOwner->id,
                 'opened_at' => Carbon::now()->startOfDay()->addHours(10),
@@ -682,7 +710,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                 'session_number' => 'SES-' . date('Ymd') . '-03',
                 'customer_name' => 'Ibu Dian Sastrowardoyo',
                 'customer_phone' => '0812-9988-7766',
-                'status' => PosTableSession::STATUS_ACTIVE,
+                'status' => PosTableSession::STATUS_OPEN,
                 'opened_at' => Carbon::now()->subMinutes(12),
             ]);
 
@@ -692,10 +720,10 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                 'pos_shift_id' => $activeShift->id,
                 'user_id' => $primaryOwner->id,
                 'order_number' => 'ORD-' . date('Ymd') . '-001',
-                'order_date' => Carbon::now()->subMinutes(10),
+                'order_date' => Carbon::now()->toDateString(),
                 'status' => PosOrder::STATUS_CONFIRMED,
-                'order_type' => PosOrder::ORDER_TYPE_DINE_IN,
-                'order_source' => 'qr_customer',
+                'order_type' => 'dine_in',
+                'order_source' => PosOrder::SOURCE_QR_TABLE,
                 'pos_table_id' => $tables['Meja 03']->id,
                 'pos_table_session_id' => $session03->id,
                 'table_or_reference' => 'Meja 03',
@@ -768,7 +796,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                 'session_number' => 'SES-' . date('Ymd') . '-07',
                 'customer_name' => 'Bpk. Rahmat Hidayat (Rombongan 5 Org)',
                 'customer_phone' => '0813-1122-3344',
-                'status' => PosTableSession::STATUS_ACTIVE,
+                'status' => PosTableSession::STATUS_OPEN,
                 'opened_at' => Carbon::now()->subMinutes(25),
             ]);
 
@@ -778,10 +806,10 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                 'pos_shift_id' => $activeShift->id,
                 'user_id' => $primaryOwner->id,
                 'order_number' => 'ORD-' . date('Ymd') . '-002',
-                'order_date' => Carbon::now()->subMinutes(20),
+                'order_date' => Carbon::now()->toDateString(),
                 'status' => PosOrder::STATUS_PREPARING,
-                'order_type' => PosOrder::ORDER_TYPE_DINE_IN,
-                'order_source' => 'pos_waiter',
+                'order_type' => 'dine_in',
+                'order_source' => PosOrder::SOURCE_POS,
                 'pos_table_id' => $tables['Meja 07']->id,
                 'pos_table_session_id' => $session07->id,
                 'table_or_reference' => 'Meja 07',
@@ -859,7 +887,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                 'session_number' => 'SES-' . date('Ymd') . '-VIP1',
                 'customer_name' => 'PT Telkom Indonesia (Meeting Luncheon)',
                 'customer_phone' => '0811-2233-4455',
-                'status' => PosTableSession::STATUS_ACTIVE,
+                'status' => PosTableSession::STATUS_OPEN,
                 'opened_at' => Carbon::now()->subMinutes(40),
             ]);
 
@@ -869,10 +897,10 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                 'pos_shift_id' => $activeShift->id,
                 'user_id' => $primaryOwner->id,
                 'order_number' => 'ORD-' . date('Ymd') . '-003',
-                'order_date' => Carbon::now()->subMinutes(35),
+                'order_date' => Carbon::now()->toDateString(),
                 'status' => PosOrder::STATUS_READY,
-                'order_type' => PosOrder::ORDER_TYPE_DINE_IN,
-                'order_source' => 'pos_waiter',
+                'order_type' => 'dine_in',
+                'order_source' => PosOrder::SOURCE_POS,
                 'pos_table_id' => $tables['Meja VIP 1']->id,
                 'pos_table_session_id' => $sessionVip1->id,
                 'table_or_reference' => 'Meja VIP 1',
@@ -922,37 +950,37 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
             $customers = [
                 Customer::updateOrCreate(
                     ['business_id' => $business->id, 'phone' => '0812-1111-2222'],
-                    ['name' => 'Bpk. Ir. Hendra Gunawan', 'slug' => 'hendra-gunawan', 'email' => 'hendra.gunawan@telkom.id', 'billing_address' => 'Menteng Regency No. 4A']
+                    ['code' => 'CUST-001', 'name' => 'Bpk. Ir. Hendra Gunawan', 'slug' => 'hendra-gunawan', 'email' => 'hendra.gunawan@telkom.id', 'billing_address' => 'Menteng Regency No. 4A', 'is_active' => true]
                 ),
                 Customer::updateOrCreate(
                     ['business_id' => $business->id, 'phone' => '0813-3333-4444'],
-                    ['name' => 'Ibu Ratna Sarumpaet', 'slug' => 'ratna-sarumpaet', 'email' => 'ratna.sarumpaet@gmail.com', 'billing_address' => 'Jl. Cikini Raya No. 12']
+                    ['code' => 'CUST-002', 'name' => 'Ibu Ratna Sarumpaet', 'slug' => 'ratna-sarumpaet', 'email' => 'ratna.sarumpaet@gmail.com', 'billing_address' => 'Jl. Cikini Raya No. 12', 'is_active' => true]
                 ),
                 Customer::updateOrCreate(
                     ['business_id' => $business->id, 'phone' => '0818-5555-6666'],
-                    ['name' => 'Clarissa Anggraini', 'slug' => 'clarissa-anggraini', 'email' => 'clarissa@agency.co.id', 'billing_address' => 'Apartemen Menteng Park']
+                    ['code' => 'CUST-003', 'name' => 'Clarissa Anggraini', 'slug' => 'clarissa-anggraini', 'email' => 'clarissa@agency.co.id', 'billing_address' => 'Apartemen Menteng Park', 'is_active' => true]
                 ),
             ];
 
             $completedSales = [
-                ['order_num' => 'ORD-' . date('Ymd') . '-010', 'hours_ago' => 2, 'cust' => 0, 'method' => 'qris', 'subtotal' => 138000, 'items' => [
+                ['order_num' => 'ORD-' . date('Ymd') . '-010', 'hours_ago' => 2, 'cust' => 0, 'method' => PosOrderPayment::METHOD_QRIS, 'subtotal' => 138000, 'items' => [
                     ['code' => 'FNB-RND-001', 'qty' => 2, 'price' => 45000, 'cost' => 27500],
                     ['code' => 'BEV-CND-008', 'qty' => 2, 'price' => 24000, 'cost' => 10800],
                 ]],
-                ['order_num' => 'ORD-' . date('Ymd') . '-011', 'hours_ago' => 3, 'cust' => 1, 'method' => 'cash', 'subtotal' => 86000, 'items' => [
+                ['order_num' => 'ORD-' . date('Ymd') . '-011', 'hours_ago' => 3, 'cust' => 1, 'method' => PosOrderPayment::METHOD_CASH, 'subtotal' => 86000, 'items' => [
                     ['code' => 'FNB-RWN-006', 'qty' => 1, 'price' => 42000, 'cost' => 24500],
                     ['code' => 'SNK-MDN-007', 'qty' => 1, 'price' => 16000, 'cost' => 6200],
-                    ['code' => 'BEV-NAS-004', 'qty' => 1, 'price' => 28000, 'cost' => 13500],
+                    ['code' => 'FNB-NAS-004', 'qty' => 1, 'price' => 28000, 'cost' => 13500],
                 ]],
-                ['order_num' => 'ORD-' . date('Ymd') . '-012', 'hours_ago' => 4, 'cust' => 2, 'method' => 'bank_transfer', 'subtotal' => 190000, 'items' => [
+                ['order_num' => 'ORD-' . date('Ymd') . '-012', 'hours_ago' => 4, 'cust' => 2, 'method' => PosOrderPayment::METHOD_TRANSFER, 'subtotal' => 190000, 'items' => [
                     ['code' => 'FNB-SAT-002', 'qty' => 3, 'price' => 38000, 'cost' => 21800],
                     ['code' => 'FNB-AYM-003', 'qty' => 2, 'price' => 32000, 'cost' => 16400],
                     ['code' => 'BEV-KPI-009', 'qty' => 2, 'price' => 18000, 'cost' => 7200],
                 ]],
-                ['order_num' => 'ORD-' . date('Ymd', strtotime('-1 day')) . '-020', 'hours_ago' => 26, 'cust' => 0, 'method' => 'qris', 'subtotal' => 270000, 'items' => [
+                ['order_num' => 'ORD-' . date('Ymd', strtotime('-1 day')) . '-020', 'hours_ago' => 26, 'cust' => 0, 'method' => PosOrderPayment::METHOD_QRIS, 'subtotal' => 270000, 'items' => [
                     ['code' => 'CAT-TPG-011', 'qty' => 6, 'price' => 45000, 'cost' => 26000],
                 ]],
-                ['order_num' => 'ORD-' . date('Ymd', strtotime('-2 days')) . '-030', 'hours_ago' => 50, 'cust' => 1, 'method' => 'cash', 'subtotal' => 116000, 'items' => [
+                ['order_num' => 'ORD-' . date('Ymd', strtotime('-2 days')) . '-030', 'hours_ago' => 50, 'cust' => 1, 'method' => PosOrderPayment::METHOD_CASH, 'subtotal' => 116000, 'items' => [
                     ['code' => 'FNB-GRM-005', 'qty' => 2, 'price' => 58000, 'cost' => 32000],
                 ]],
             ];
@@ -970,10 +998,10 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                     'user_id' => $primaryOwner->id,
                     'customer_id' => $customers[$cs['cust']]->id,
                     'order_number' => $cs['order_num'],
-                    'order_date' => Carbon::now()->subHours($cs['hours_ago']),
+                    'order_date' => Carbon::now()->subHours($cs['hours_ago'])->toDateString(),
                     'status' => PosOrder::STATUS_COMPLETED,
-                    'order_type' => PosOrder::ORDER_TYPE_DINE_IN,
-                    'order_source' => 'pos_terminal',
+                    'order_type' => 'dine_in',
+                    'order_source' => PosOrder::SOURCE_POS,
                     'table_or_reference' => 'Kasir Utama',
                     'subtotal' => $subtotal,
                     'tax_amount' => $tax,
@@ -1016,7 +1044,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                     'payment_method' => $cs['method'],
                     'amount' => $total,
                     'net_amount' => $total,
-                    'status' => PosOrderPayment::STATUS_COMPLETED,
+                    'status' => 'completed',
                     'reference_number' => 'REF-' . strtoupper(Str::random(8)),
                 ]);
             }
