@@ -5,113 +5,175 @@
 ])
 
 @section('content')
-<div class="space-y-6" x-data="{ showAddItemModal: false }">
+<div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
+    showAddItemModal: false,
+    deleteModalOpen: false,
+    deleteTarget: { id: null, name: '' },
+    openDelete(id, name) {
+        this.deleteTarget = { id, name };
+        this.deleteModalOpen = true;
+    },
+    closeDelete() {
+        this.deleteModalOpen = false;
+        this.deleteTarget = { id: null, name: '' };
+    },
+    submitDelete() {
+        if (this.deleteTarget.id) {
+            document.getElementById('form-delete-' + this.deleteTarget.id).submit();
+        }
+    }
+}">
 
-    <!-- Top Info Card -->
-    <div class="glass-card p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-            <a href="{{ route('products.index') }}" class="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
-                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    <!-- ===================================================== -->
+    <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
+    <!-- ===================================================== -->
+    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <!-- Breadcrumb minimal -->
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                <span>›</span>
+                <a href="{{ route('products.index') }}" class="hover:text-[#007AFF] transition-colors">Katalog Produk</a>
+                <span>›</span>
+                <span class="text-black dark:text-white font-medium">{{ $product->name }}</span>
+                <span>›</span>
+                <span class="text-black/70 dark:text-white/70 font-medium">BOM</span>
+            </nav>
+            <div class="flex items-center gap-2.5">
+                <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">{{ $product->name }}</h1>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] tabular-nums">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                    Output: {{ $bomHeader->output_quantity }} {{ $product->outputUnit?->name ?? 'pcs' }}
+                </span>
+            </div>
+            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Model HPP: {{ $costModel->name }} ({{ strtoupper($costModel->method) }})</p>
+        </div>
+
+        <!-- Toolbar Actions -->
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <a href="{{ route('products.index') }}" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                <span>Daftar Produk</span>
             </a>
-            <div>
-                <div class="flex items-center gap-2">
-                    <h2 class="text-xl font-bold text-white">{{ $product->name }}</h2>
-                    <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-400 font-mono text-[10px] uppercase font-bold">
-                        Output: {{ $bomHeader->output_quantity }} {{ $product->outputUnit?->name ?? 'pcs' }}
-                    </span>
-                </div>
-                <p class="text-xs text-slate-400 mt-0.5">Model HPP: {{ $costModel->name }} ({{ strtoupper($costModel->method) }})</p>
+
+            <a href="{{ route('import.index', ['tab' => 'recipes']) }}" 
+               class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5"
+               title="Import formula resep dari file Excel / CSV">
+                <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                <span>Import Resep</span>
+            </a>
+
+            <button type="button" @click="showAddItemModal = true" 
+                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                <span>Tambah Bahan</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===================================================== -->
+    <!-- 2. TOTAL ACCUMULATED COST KPI                         -->
+    <!-- ===================================================== -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Biaya Bahan Resep (BOM)</span>
+            <div class="mt-2 flex items-baseline justify-between">
+                <span class="text-[24px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">
+                    {{ $business->currency_symbol }} {{ number_format((float) ($explosion['total_rolled_up_material_cost'] ?? 0), 0, ',', '.') }}
+                </span>
+                <span class="text-[11px] font-medium text-[#34C759] dark:text-[#30D158]">Rolled-up Cost</span>
             </div>
         </div>
 
-        <div class="flex items-center gap-3">
-            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-right">
-                <div class="text-[10px] text-slate-400 uppercase font-semibold">Total Biaya Bahan BOM</div>
-                <div class="text-lg font-extrabold text-emerald-400 font-mono">
-                    {{ $business->currency_symbol }} {{ number_format((float) ($explosion['total_rolled_up_material_cost'] ?? 0), 0, ',', '.') }}
-                </div>
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Komponen Terdaftar</span>
+            <div class="mt-2 flex items-baseline justify-between">
+                <span class="text-[24px] font-bold tabular-nums text-black dark:text-white">
+                    {{ $bomHeader->items->count() }}
+                </span>
+                <span class="text-[11px] text-black/40 dark:text-white/40">Bahan Baku</span>
             </div>
+        </div>
 
-            <a href="{{ route('import.index', ['tab' => 'recipes']) }}" 
-               class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all"
-               title="Import formula resep dari file Excel / CSV">
-                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-blue-400"></i>
-                <span>Import Resep Excel</span>
-            </a>
-
-            <button @click="showAddItemModal = true" 
-                    class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tambah Bahan ke Resep</span>
-            </button>
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Output Batch Standar</span>
+            <div class="mt-2 flex items-baseline justify-between">
+                <span class="text-[24px] font-bold tabular-nums text-[#007AFF]">
+                    {{ $bomHeader->output_quantity }} {{ $product->outputUnit?->code ?? 'pcs' }}
+                </span>
+                <span class="text-[11px] text-black/40 dark:text-white/40">Satuan Akhir</span>
+            </div>
         </div>
     </div>
 
-    <!-- BOM Items Table Card -->
-    <div class="glass-card rounded-2xl overflow-hidden">
-        <div class="p-4 border-b border-slate-800 bg-slate-900/40 flex items-center justify-between">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <i data-lucide="list-tree" class="w-4 h-4 text-emerald-400"></i>
-                <span>Komponen Bahan Terdaftar ({{ $bomHeader->items->count() }} Komponen)</span>
-            </h3>
+    <!-- ===================================================== -->
+    <!-- 3. BOM ITEMS TABLE (Dense High-Density Data List)      -->
+    <!-- ===================================================== -->
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <div class="px-4 py-3 border-b border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-between">
+            <h2 class="text-[13px] font-semibold text-black dark:text-white">Komponen Bahan Terdaftar ({{ $bomHeader->items->count() }} Komponen)</h2>
         </div>
 
-        <div class="table-responsive">
-            <table class="w-full text-left text-xs min-w-[620px]">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-[13px]">
                 <thead>
-                    <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50 whitespace-nowrap">
-                        <th class="py-3.5 px-4 font-semibold">Komponen Bahan Baku</th>
-                        <th class="py-3.5 px-4 font-semibold text-center">Jumlah Resep</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">Harga Efektif Bahan</th>
-                        <th class="py-3.5 px-4 font-semibold text-center">Waste %</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">Subtotal Biaya</th>
-                        <th class="py-3.5 px-4 font-semibold text-right">Aksi</th>
+                    <tr class="border-b border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02]">
+                        <th class="py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Komponen Bahan Baku</th>
+                        <th class="py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">Jumlah Resep</th>
+                        <th class="py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Harga Efektif Bahan</th>
+                        <th class="py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">Susut (Waste %)</th>
+                        <th class="py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Subtotal Biaya</th>
+                        <th class="py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800/60">
+                <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                     @forelse($bomHeader->items as $item)
                     @php
                         $mat = $item->material;
                         $price = $mat?->prices->first()?->effective_cost ?? 0;
                         $itemSubtotal = $price * $item->quantity * (1 + ($item->waste_percentage / 100));
                     @endphp
-                    <tr class="hover:bg-slate-900/40 transition-colors">
-                        <td class="py-3.5 px-4 font-medium text-white">
-                            <div class="font-bold">{{ $mat?->name ?? 'Sub-BOM' }}</div>
-                            <div class="text-[10px] text-slate-400 font-mono">{{ $mat?->sku ?? '-' }}</div>
+                    <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                        <td class="py-3 px-4 font-medium text-black dark:text-white">
+                            <div class="font-semibold">{{ $mat?->name ?? 'Sub-BOM' }}</div>
+                            <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums">{{ $mat?->sku ?? '-' }}</div>
+                            @if($item->notes)
+                                <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">{{ $item->notes }}</div>
+                            @endif
                         </td>
-                        <td class="py-3.5 px-4 text-center font-mono font-bold text-white">
+                        <td class="py-3 px-4 text-center tabular-nums font-semibold text-black dark:text-white">
                             {{ $item->quantity }} {{ $item->unit?->code ?? $mat?->unit?->code }}
                         </td>
-                        <td class="py-3.5 px-4 text-right font-mono text-slate-300">
+                        <td class="py-3 px-4 text-right tabular-nums text-black/70 dark:text-white/70">
                             {{ $business->currency_symbol }} {{ number_format((float)$price, 0, ',', '.') }}
                         </td>
-                        <td class="py-3.5 px-4 text-center">
+                        <td class="py-3 px-4 text-center">
                             @if($item->waste_percentage > 0)
-                                <span class="px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 font-mono font-bold text-[10px]">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] tabular-nums">
                                     +{{ $item->waste_percentage }}%
                                 </span>
                             @else
-                                <span class="text-slate-500">0%</span>
+                                <span class="text-black/40 dark:text-white/40 tabular-nums">0%</span>
                             @endif
                         </td>
-                        <td class="py-3.5 px-4 text-right font-mono font-extrabold text-emerald-400">
+                        <td class="py-3 px-4 text-right tabular-nums font-bold text-[#34C759] dark:text-[#30D158]">
                             {{ $business->currency_symbol }} {{ number_format((float)$itemSubtotal, 0, ',', '.') }}
                         </td>
-                        <td class="py-3.5 px-4 text-right">
-                            <form method="POST" action="{{ route('bom.items.destroy', $item->id) }}" onsubmit="event.preventDefault(); if (typeof Swal !== 'undefined') { Swal.fire({ title: 'Apakah Anda yakin?', text: 'Komponen ini akan dihapus dari resep.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal', confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b' }).then(r => { if (r.isConfirmed) this.submit(); }); } else { this.submit(); }">
+                        <td class="py-3 px-4 text-right">
+                            <button type="button" @click="openDelete('{{ $item->id }}', '{{ addslashes($mat?->name ?? 'Komponen Resep') }}')"
+                                    class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors inline-flex items-center">
+                                Hapus
+                            </button>
+                            <form id="form-delete-{{ $item->id }}" method="POST" action="{{ route('bom.items.destroy', $item->id) }}" class="hidden">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="p-1.5 text-slate-500 hover:text-red-400 rounded transition-colors">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
                             </form>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="py-8 text-center text-slate-500">
-                            Resep masih kosong. Klik tombol "+ Tambah Bahan ke Resep" di atas.
+                        <td colspan="6" class="py-12 text-center text-black/45 dark:text-white/45">
+                            Resep masih kosong. Klik tombol "+ Tambah Bahan" di toolbar atas.
                         </td>
                     </tr>
                     @endforelse
@@ -120,24 +182,26 @@
         </div>
     </div>
 
-    <!-- Modal Tambah Item ke BOM -->
-    <div x-show="showAddItemModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-        <div class="glass-card max-w-md w-full p-6 rounded-2xl space-y-4" @click.outside="showAddItemModal = false">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white">Tambah Bahan ke Resep / BOM</h3>
-                <button @click="showAddItemModal = false" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <!-- ===================================================== -->
+    <!-- 4. MODAL: TAMBAH BAHAN KE BOM (Apple Sheet)           -->
+    <!-- ===================================================== -->
+    <div x-show="showAddItemModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]">
+        <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)]" @click.outside="showAddItemModal = false">
+            <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
+                <h3 class="text-[16px] font-semibold text-black dark:text-white">Tambah Bahan ke Resep / BOM</h3>
+                <button @click="showAddItemModal = false" class="p-1 rounded-[6px] text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">✕</button>
             </div>
 
-            <form method="POST" action="{{ route('bom.items.store', $bomHeader->id) }}" class="space-y-3.5 text-xs">
+            <form method="POST" action="{{ route('bom.items.store', $bomHeader->id) }}" class="space-y-3.5 text-[13px]">
                 @csrf
                 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Pilih Bahan Baku *</label>
-                    <select name="material_id" required class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
-                        <option value="">-- Pilih Bahan --</option>
+                    <label class="block font-medium text-black/70 dark:text-white/70 mb-1">Pilih Bahan Baku <span class="text-[#FF3B30]">*</span></label>
+                    <select name="material_id" required class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        <option value="">-- Pilih Bahan Baku --</option>
                         @foreach($materials as $m)
                             <option value="{{ $m->id }}">
-                                {{ $m->name }} (Satuan: {{ $m->unit?->code }} - Efektif: {{ $business->currency_symbol }} {{ number_format((float)($m->prices->first()?->effective_cost ?? 0), 0, ',', '.') }})
+                                {{ $m->name }} ({{ $m->unit?->code }} - {{ $business->currency_symbol }} {{ number_format((float)($m->prices->first()?->effective_cost ?? 0), 0, ',', '.') }})
                             </option>
                         @endforeach
                     </select>
@@ -145,13 +209,13 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Jumlah Pemakaian *</label>
+                        <label class="block font-medium text-black/70 dark:text-white/70 mb-1">Jumlah Pemakaian <span class="text-[#FF3B30]">*</span></label>
                         <input type="number" name="quantity" step="any" min="0.0001" required placeholder="0.5"
-                               class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono">
+                               class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Satuan Takar *</label>
-                        <select name="unit_id" required class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+                        <label class="block font-medium text-black/70 dark:text-white/70 mb-1">Satuan Takar <span class="text-[#FF3B30]">*</span></label>
+                        <select name="unit_id" required class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                             @foreach($units as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->code }})</option>
                             @endforeach
@@ -160,24 +224,48 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Susut Proses / Waste Tambahan (%)</label>
+                    <label class="block font-medium text-black/70 dark:text-white/70 mb-1">Susut Proses / Waste Tambahan (%)</label>
                     <input type="number" name="waste_percentage" value="0" min="0" max="100" step="0.5"
-                           class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono">
-                    <p class="text-[10px] text-slate-400 mt-1">Misal sisa adonan di wadah atau potongan terbuang.</p>
+                           class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    <p class="text-[11px] text-black/40 dark:text-white/40 mt-1">Misal sisa adonan pada wadah atau potongan terbuang.</p>
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Catatan Khusus</label>
-                    <input type="text" name="notes" placeholder="Dicampur di tahap akhir"
-                           class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+                    <label class="block font-medium text-black/70 dark:text-white/70 mb-1">Catatan Khusus (Opsional)</label>
+                    <input type="text" name="notes" placeholder="Misal: dimasukkan pada menit terakhir"
+                           class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
-                <div class="pt-2 flex justify-end gap-2">
-                    <button type="button" @click="showAddItemModal = false" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold">Batal</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-lg shadow-emerald-500/20">Tambah ke Resep</button>
+                <div class="pt-3 flex justify-end gap-2 border-t border-black/10 dark:border-white/10">
+                    <button type="button" @click="showAddItemModal = false" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] transition">Batal</button>
+                    <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition shadow-[0_1px_2px_rgba(0,122,255,0.25)]">Tambah ke Resep</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- ===================================================== -->
+    <!-- 5. APPLE ALERT DIALOG (Hapus Komponen Resep)          -->
+    <!-- ===================================================== -->
+    <div x-show="deleteModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-[2px]">
+        <div class="w-[290px] rounded-[14px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-black/5 dark:border-white/10"
+            @click.away="closeDelete()">
+            <div class="px-4 pt-5 pb-4">
+                <p class="text-[17px] font-semibold text-black dark:text-white">Hapus Bahan Resep?</p>
+                <p class="text-[13px] text-black/60 dark:text-white/60 mt-1 leading-snug">
+                    <span x-text="deleteTarget.name" class="font-medium text-black dark:text-white"></span> akan dihapus dari formula BOM produk ini.
+                </p>
+            </div>
+            <div class="grid grid-cols-2 border-t border-black/10 dark:border-white/10 text-[15px] font-medium">
+                <button type="button" @click="closeDelete()" class="py-3 text-[#007AFF] border-r border-black/10 dark:border-white/10 active:bg-black/5 transition-colors">
+                    Batal
+                </button>
+                <button type="button" @click="submitDelete()" class="py-3 text-[#FF3B30] font-semibold active:bg-black/5 transition-colors">
+                    Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 @endsection

@@ -24,11 +24,11 @@
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $title ?? 'Cooca UMKM' }} — cooca.id</title>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts (Inter fallback, JetBrains Mono fallback) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
@@ -39,21 +39,45 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', 'Inter', 'system-ui', 'sans-serif'],
                     },
                     colors: {
+                        apple: {
+                            blue: '#007AFF',
+                            'blue-dark': '#0A84FF',
+                            green: '#34C759',
+                            'green-dark': '#30D158',
+                            orange: '#FF9500',
+                            'orange-dark': '#FF9F0A',
+                            red: '#FF3B30',
+                            'red-dark': '#FF453A',
+                            purple: '#AF52DE',
+                            'purple-dark': '#BF5AF2',
+                            teal: '#30B0C7',
+                            'teal-dark': '#40C8E0',
+                            indigo: '#5856D6',
+                            'indigo-dark': '#5E5CE6',
+                            yellow: '#FFCC00',
+                            'yellow-dark': '#FFD60A',
+                            gray: '#8E8E93',
+                            gray2: '#AEAEB2',
+                            gray3: '#C7C7CC',
+                            gray4: '#D1D1D6',
+                            gray5: '#E5E5EA',
+                            gray6: '#F2F2F7',
+                        },
                         brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            200: '#bbf7d0',
-                            300: '#86efac',
-                            400: '#4ade80',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            300: '#7cc5fb',
+                            400: '#36a6f7',
+                            500: '#007AFF',
+                            600: '#0071E3',
+                            700: '#0056b3',
+                            800: '#00448f',
+                            900: '#00336d',
+                            950: '#001e44',
                         }
                     }
                 }
@@ -76,185 +100,240 @@
     <!-- AppAlert (Centralized Alert & Confirm System) -->
     <script src="{{ asset('js/app-alert.js') }}"></script>
     <style>
-        /* SweetAlert2 Theme-Aware Customization */
+        /* Apple Alert Dialog Styling for SweetAlert2 */
         .swal2-popup {
-            background: var(--surface) !important;
-            border: 1px solid var(--border-str) !important;
-            border-radius: 1.25rem !important;
-            color: var(--text-1) !important;
-            box-shadow: var(--shadow-xl) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            border-radius: 14px !important;
+            color: #000000 !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2) !important;
+            width: 290px !important;
+            padding: 1.25rem !important;
+        }
+        .dark .swal2-popup {
+            background: rgba(44, 44, 46, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
         }
         .swal2-title {
-            color: var(--text-1) !important;
-            font-size: 1.15rem !important;
-            font-weight: 800 !important;
+            color: inherit !important;
+            font-size: 1.0625rem !important; /* 17px Headline */
+            font-weight: 600 !important;
+            margin: 0.25rem 0 !important;
+            letter-spacing: -0.015em !important;
         }
         .swal2-html-container {
-            color: var(--text-2) !important;
-            font-size: 0.875rem !important;
+            color: rgba(60, 60, 67, 0.6) !important;
+            font-size: 0.8125rem !important; /* 13px Footnote */
+            line-height: 1.35 !important;
+            margin: 0.25rem 0 1rem 0 !important;
+        }
+        .dark .swal2-html-container {
+            color: rgba(235, 235, 245, 0.6) !important;
+        }
+        .swal2-actions {
+            width: 100% !important;
+            margin: 0 !important;
+            padding-top: 0.75rem !important;
+            border-top: 1px solid rgba(60, 60, 67, 0.12) !important;
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.5rem !important;
+        }
+        .dark .swal2-actions {
+            border-top-color: rgba(255, 255, 255, 0.1) !important;
         }
         .swal2-confirm {
-            background-color: var(--brand) !important;
+            background-color: #007AFF !important;
             color: #ffffff !important;
-            font-weight: 800 !important;
-            border-radius: 0.75rem !important;
-            padding: 0.625rem 1.25rem !important;
-            box-shadow: 0 10px 15px -3px rgba(22, 163, 74, 0.25) !important;
+            font-size: 0.875rem !important; /* 14px */
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 0.75rem !important;
+            min-height: 36px !important;
+            box-shadow: none !important;
+            transition: opacity 0.15s ease !important;
+        }
+        .swal2-confirm:active {
+            opacity: 0.8 !important;
+            transform: scale(0.97) !important;
         }
         .swal2-cancel {
-            background-color: var(--surface-2) !important;
-            color: var(--text-1) !important;
-            border: 1px solid var(--border) !important;
-            font-weight: 700 !important;
-            border-radius: 0.75rem !important;
-            padding: 0.625rem 1.25rem !important;
+            background-color: rgba(0, 0, 0, 0.05) !important;
+            color: #007AFF !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 0.75rem !important;
+            min-height: 36px !important;
+            transition: opacity 0.15s ease !important;
+        }
+        .dark .swal2-cancel {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            color: #0A84FF !important;
+        }
+        .swal2-cancel:active {
+            opacity: 0.8 !important;
+            transform: scale(0.97) !important;
         }
     </style>
 
     <style>
-        /* === COOCA DESIGN SYSTEM TOKENS === */
+        /* === COOCA DESIGN SYSTEM v2.0 TOKENS (APPLE HIG STANDARD) === */
         :root {
             /* Surface & Background */
-            --bg:          #f8fafc;   /* Page background (slate-50) */
-            --surface:     #ffffff;   /* Card, header, dialog surface */
-            --surface-2:   #f1f5f9;   /* Secondary surface (slate-100) */
-            --surface-3:   #e2e8f0;   /* Elevated hover surface (slate-200) */
+            --bg:          #F2F2F7;   /* Secondary system background (grouped/macOS container) */
+            --surface:     #FFFFFF;   /* Primary system background / cards */
+            --surface-2:   #F2F2F7;   /* System Gray 6 */
+            --surface-3:   #E5E5EA;   /* System Gray 5 (elevated hover surface) */
 
             /* Typography */
-            --text-1:      #0f172a;   /* Primary text (slate-900) */
-            --text-2:      #475569;   /* Secondary text (slate-600) */
-            --text-3:      #94a3b8;   /* Muted text (slate-400) */
-            --text-dis:    #cbd5e1;   /* Disabled text (slate-300) */
+            --text-1:      #000000;             /* Primary label */
+            --text-2:      rgba(60, 60, 67, 0.6);   /* Secondary label (60%) */
+            --text-3:      rgba(60, 60, 67, 0.3);   /* Tertiary label (30%) */
+            --text-dis:    rgba(60, 60, 67, 0.18);  /* Quaternary label (18%) */
 
-            /* Borders */
-            --border:      #e2e8f0;   /* Default border (slate-200) */
-            --border-sub:  #f1f5f9;   /* Subtle divider (slate-100) */
-            --border-str:  #cbd5e1;   /* Strong border (slate-300) */
+            /* Borders (Hairline Separators) */
+            --border:      rgba(60, 60, 67, 0.08);  /* Hairline border */
+            --border-sub:  rgba(60, 60, 67, 0.04);
+            --border-str:  rgba(60, 60, 67, 0.18);
 
-            /* Brand Colors (Emerald) */
-            --brand:       #16a34a;   /* Primary brand (emerald-600) */
-            --brand-hover: #15803d;   /* Brand hover (emerald-700) */
-            --brand-light: #dcfce7;   /* Brand soft tint (emerald-100) */
-            --brand-text:  #14532d;   /* Brand dark text (emerald-900) */
+            /* Brand Colors (System Blue Master Accent) */
+            --brand:       #007AFF;   /* Primary System Blue */
+            --brand-hover: #0071E3;
+            --brand-light: rgba(0, 122, 255, 0.1);
+            --brand-text:  #007AFF;
 
-            /* Semantic Status Tokens */
-            --success:        #16a34a;
-            --success-bg:     #dcfce7;
-            --success-border: #bbf7d0;
-            --success-text:   #14532d;
+            /* Apple Semantic Status Tokens */
+            --color-accent:    #007AFF;
+            --color-success:   #34C759;
+            --color-warning:   #FF9500;
+            --color-danger:    #FF3B30;
+            --color-ai:        #AF52DE;
+            --color-info:      #5856D6;
+            --color-teal:      #30B0C7;
 
-            --warn:           #d97706;
-            --warn-bg:        #fef3c7;
-            --warn-border:    #fde68a;
-            --warn-text:      #92400e;
+            --success:        #34C759;
+            --success-bg:     rgba(52, 199, 89, 0.12);
+            --success-border: rgba(52, 199, 89, 0.25);
+            --success-text:   #248A3D;
 
-            --danger:         #dc2626;
-            --danger-bg:      #fee2e2;
-            --danger-border:  #fecaca;
-            --danger-text:    #991b1b;
+            --warn:           #FF9500;
+            --warn-bg:        rgba(255, 149, 0, 0.12);
+            --warn-border:    rgba(255, 149, 0, 0.25);
+            --warn-text:      #B25E00;
 
-            --info:           #0284c7;
-            --info-bg:        #e0f2fe;
-            --info-border:    #bae6fd;
-            --info-text:      #075985;
+            --danger:         #FF3B30;
+            --danger-bg:      rgba(255, 59, 48, 0.12);
+            --danger-border:  rgba(255, 59, 48, 0.25);
+            --danger-text:    #C41E17;
+
+            --info:           #5856D6;
+            --info-bg:        rgba(88, 86, 214, 0.12);
+            --info-border:    rgba(88, 86, 214, 0.25);
+            --info-text:      #413FA6;
 
             /* Input Controls */
-            --input-bg:       #ffffff;
-            --input-border:   #cbd5e1;
-            --input-focus:    #16a34a;
+            --input-bg:       rgba(0, 0, 0, 0.04);
+            --input-border:   transparent;
+            --input-focus:    #007AFF;
 
-            /* Navigation & Sidebar */
-            --nav-bg:             #ffffff;
-            --nav-border:         #e2e8f0;
-            --nav-active:         #f0fdf4;
-            --nav-active-text:    #15803d;
-            --nav-active-border:  #bbf7d0;
+            /* Navigation & Sidebar (macOS Source List Vibrancy) */
+            --nav-bg:             rgba(242, 242, 247, 0.8);
+            --nav-border:         rgba(60, 60, 67, 0.08);
+            --nav-active:         #007AFF;
+            --nav-active-text:    #FFFFFF;
+            --nav-active-border:  transparent;
 
-            /* Overlays & Shadows */
-            --overlay:    rgba(15, 23, 42, 0.45);
-            --shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md:  0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
-            --shadow-lg:  0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.03);
-            --shadow-xl:  0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.02);
+            /* Overlays & Shadows (Subtle Diffused Elevation) */
+            --overlay:    rgba(0, 0, 0, 0.25);
+            --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md:  0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.06);
+            --shadow-xl:  0 20px 50px rgba(0, 0, 0, 0.15);
 
-            /* Radius */
-            --r-sm:  0.375rem;  /* 6px  */
-            --r-md:  0.625rem;  /* 10px */
-            --r-lg:  0.875rem;  /* 14px */
-            --r-xl:  1rem;      /* 16px */
-            --r-2xl: 1.25rem;   /* 20px */
-
-            /* Typography Scale */
-            --text-xs:   0.75rem;   /* 12px */
-            --text-sm:   0.8125rem; /* 13px */
-            --text-base: 0.875rem;  /* 14px */
-            --text-lg:   1rem;      /* 16px */
-            --text-xl:   1.125rem;  /* 18px */
+            /* Apple Squircle Radius Hierarchy */
+            --r-sm:  8px;    /* Small buttons, inline badges */
+            --r-md:  10px;   /* Regular buttons, form inputs */
+            --r-lg:  14px;   /* Data cards, KPI tiles */
+            --r-xl:  16px;   /* Modals, large panels */
+            --r-2xl: 20px;   /* Sheet headers, big containers */
         }
 
         .dark {
             /* Surface & Background */
-            --bg:          #020617;   /* Page background (slate-950) */
-            --surface:     #0f172a;   /* Card, header, dialog surface (slate-900) */
-            --surface-2:   #1e293b;   /* Secondary surface (slate-800) */
-            --surface-3:   #334155;   /* Elevated hover surface (slate-700) */
+            --bg:          #1E1E1E;   /* macOS desktop window background */
+            --surface:     #1C1C1E;   /* Secondary system background (dark) */
+            --surface-2:   #2C2C2E;   /* Tertiary system background (elevated card) */
+            --surface-3:   #3A3A3C;   /* System Gray 4 */
 
             /* Typography */
-            --text-1:      #f1f5f9;   /* Primary text (slate-100) */
-            --text-2:      #94a3b8;   /* Secondary text (slate-400) */
-            --text-3:      #64748b;   /* Muted text (slate-500) */
-            --text-dis:    #334155;   /* Disabled text (slate-700) */
+            --text-1:      #FFFFFF;
+            --text-2:      rgba(235, 235, 245, 0.6);
+            --text-3:      rgba(235, 235, 245, 0.3);
+            --text-dis:    rgba(235, 235, 245, 0.18);
 
             /* Borders */
-            --border:      #1e293b;   /* Default border (slate-800) */
-            --border-sub:  #0f172a;   /* Subtle divider (slate-900) */
-            --border-str:  #334155;   /* Strong border (slate-700) */
+            --border:      rgba(255, 255, 255, 0.08);
+            --border-sub:  rgba(255, 255, 255, 0.04);
+            --border-str:  rgba(255, 255, 255, 0.15);
 
-            /* Brand Colors (Emerald) */
-            --brand:       #22c55e;   /* Primary brand (emerald-500) */
-            --brand-hover: #4ade80;   /* Brand hover (emerald-400) */
-            --brand-light: rgba(34, 197, 94, 0.12);
-            --brand-text:  #4ade80;
+            /* Brand Colors (System Blue Dark) */
+            --brand:       #0A84FF;
+            --brand-hover: #007AFF;
+            --brand-light: rgba(10, 132, 255, 0.15);
+            --brand-text:  #0A84FF;
 
-            /* Semantic Status Tokens */
-            --success:        #22c55e;
-            --success-bg:     rgba(34, 197, 94, 0.12);
-            --success-border: rgba(34, 197, 94, 0.28);
-            --success-text:   #4ade80;
+            /* Apple Semantic Status Tokens */
+            --color-accent:    #0A84FF;
+            --color-success:   #30D158;
+            --color-warning:   #FF9F0A;
+            --color-danger:    #FF453A;
+            --color-ai:        #BF5AF2;
+            --color-info:      #5E5CE6;
+            --color-teal:      #40C8E0;
 
-            --warn:           #f59e0b;
-            --warn-bg:        rgba(245, 158, 11, 0.12);
-            --warn-border:    rgba(245, 158, 11, 0.28);
-            --warn-text:      #fbbf24;
+            --success:        #30D158;
+            --success-bg:     rgba(48, 209, 88, 0.14);
+            --success-border: rgba(48, 209, 88, 0.28);
+            --success-text:   #30D158;
 
-            --danger:         #f87171;
-            --danger-bg:      rgba(248, 113, 113, 0.12);
-            --danger-border:  rgba(248, 113, 113, 0.28);
-            --danger-text:    #fca5a5;
+            --warn:           #FF9F0A;
+            --warn-bg:        rgba(255, 159, 10, 0.14);
+            --warn-border:    rgba(255, 159, 10, 0.28);
+            --warn-text:      #FF9F0A;
 
-            --info:           #38bdf8;
-            --info-bg:        rgba(56, 189, 248, 0.12);
-            --info-border:    rgba(56, 189, 248, 0.28);
-            --info-text:      #7dd3fc;
+            --danger:         #FF453A;
+            --danger-bg:      rgba(255, 69, 58, 0.14);
+            --danger-border:  rgba(255, 69, 58, 0.28);
+            --danger-text:    #FF453A;
+
+            --info:           #5E5CE6;
+            --info-bg:        rgba(94, 92, 230, 0.14);
+            --info-border:    rgba(94, 92, 230, 0.28);
+            --info-text:      #5E5CE6;
 
             /* Input Controls */
-            --input-bg:       #0f172a;
-            --input-border:   #334155;
-            --input-focus:    #22c55e;
+            --input-bg:       rgba(255, 255, 255, 0.06);
+            --input-border:   transparent;
+            --input-focus:    #0A84FF;
 
-            /* Navigation & Sidebar */
-            --nav-bg:             rgba(15, 23, 42, 0.92);
+            /* Navigation & Sidebar (Dark Vibrancy) */
+            --nav-bg:             rgba(28, 28, 30, 0.8);
             --nav-border:         rgba(255, 255, 255, 0.08);
-            --nav-active:         rgba(34, 197, 94, 0.12);
-            --nav-active-text:    #4ade80;
-            --nav-active-border:  rgba(34, 197, 94, 0.32);
+            --nav-active:         #0A84FF;
+            --nav-active-text:    #FFFFFF;
+            --nav-active-border:  transparent;
 
             /* Overlays & Shadows */
-            --overlay:    rgba(0, 0, 0, 0.75);
-            --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
-            --shadow-md:  0 4px 6px -1px rgba(0,0,0,0.5);
-            --shadow-lg:  0 10px 15px -3px rgba(0,0,0,0.5);
-            --shadow-xl:  0 20px 25px -5px rgba(0,0,0,0.6);
+            --overlay:    rgba(0, 0, 0, 0.65);
+            --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg:  0 12px 30px rgba(0, 0, 0, 0.5);
+            --shadow-xl:  0 20px 50px rgba(0, 0, 0, 0.6);
         }
 
         /* Responsive root foundation */
@@ -265,6 +344,7 @@
             overflow-x: hidden;
             background-color: var(--bg);
             color: var(--text-1);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
         }
 
         *, *:before, *:after {
@@ -272,15 +352,17 @@
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
             min-height: 100vh;
             min-height: 100dvh;
             overflow-x: hidden;
             background-color: var(--bg);
             color: var(--text-1);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Universal Adaptive Modal Dialogs (Prevents viewport cut-off on mobile & keyboards) */
+        /* Universal Adaptive Modal Dialogs */
         .fixed.inset-0 .glass-card,
         .fixed.inset-0 .glass-panel,
         .app-modal-dialog {
@@ -317,19 +399,19 @@
             touch-action: manipulation;
         }
 
-        /* Standard Glassmorphic Surfaces (Theme-Aware) */
+        /* Standard Glassmorphic Surfaces (Apple HIG Translucent Materials) */
         .glass-nav {
             background: var(--nav-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             border-right: 1px solid var(--nav-border);
         }
 
         .glass-header {
             background: var(--surface);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--nav-border);
         }
 
         .glass-card {
@@ -337,6 +419,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border);
+            border-radius: var(--r-lg);
         }
 
         .glass-card-interactive {
@@ -344,48 +427,200 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border);
-            transition: all 0.2s ease-in-out;
+            border-radius: var(--r-lg);
+            transition: all 0.15s ease-out;
         }
 
         .glass-card-interactive:hover {
-            border-color: var(--brand);
-            transform: translateY(-2px);
+            border-color: rgba(0, 122, 255, 0.3);
+            transform: translateY(-1px);
             box-shadow: var(--shadow-md);
         }
 
-        /* Standardized Button Utility Classes */
-        .btn-brand-primary {
-            background: var(--brand);
+        /* Standardized Apple Button Utility Classes (§6.3 & §23) */
+        .btn-apple-filled {
+            height: 2.25rem; /* 36px desktop */
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-radius: var(--r-md);
+            font-size: 0.8125rem; /* 13px */
+            font-weight: 600;
             color: #ffffff;
-            font-weight: 700;
-            padding: 0.5rem 1rem;
-            border-radius: var(--r-xl);
+            background-color: #007AFF;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);
-            transition: all 0.15s ease;
+            gap: 0.375rem;
+            box-shadow: 0 1px 2px rgba(0, 122, 255, 0.25);
+            transition: all 0.15s ease-out;
+            cursor: pointer;
+        }
+        .btn-apple-filled:hover {
+            background-color: #0071E3;
+        }
+        .btn-apple-filled:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+
+        .btn-apple-tinted {
+            height: 2.25rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-radius: var(--r-md);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #007AFF;
+            background-color: rgba(0, 122, 255, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+            transition: all 0.15s ease-out;
+            cursor: pointer;
+        }
+        .btn-apple-tinted:hover {
+            background-color: rgba(0, 122, 255, 0.15);
+        }
+        .btn-apple-tinted:active {
+            transform: scale(0.97);
+            opacity: 0.7;
+        }
+        .dark .btn-apple-tinted {
+            color: #0A84FF;
+            background-color: rgba(10, 132, 255, 0.15);
+        }
+        .dark .btn-apple-tinted:hover {
+            background-color: rgba(10, 132, 255, 0.22);
+        }
+
+        .btn-apple-gray {
+            height: 2.25rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-radius: var(--r-md);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.06);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+            transition: all 0.15s ease-out;
+            cursor: pointer;
+        }
+        .btn-apple-gray:hover {
+            background-color: rgba(0, 0, 0, 0.09);
+        }
+        .btn-apple-gray:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+        .dark .btn-apple-gray {
+            color: rgba(255, 255, 255, 0.85);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .btn-apple-gray:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-apple-plain {
+            height: 2.25rem;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            border-radius: var(--r-sm);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: #007AFF;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            transition: all 0.15s ease-out;
+            cursor: pointer;
+        }
+        .btn-apple-plain:hover {
+            background-color: rgba(0, 122, 255, 0.08);
+        }
+        .btn-apple-plain:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+        .dark .btn-apple-plain {
+            color: #0A84FF;
+        }
+
+        .btn-apple-danger {
+            height: 2.25rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-radius: var(--r-md);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #FF3B30;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+            box-shadow: 0 1px 2px rgba(255, 59, 48, 0.25);
+            transition: all 0.15s ease-out;
+            cursor: pointer;
+        }
+        .btn-apple-danger:hover {
+            background-color: #E0352B;
+        }
+        .btn-apple-danger:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+
+        /* Backward compatibility mappings for legacy classes */
+        .btn-brand-primary {
+            background: #007AFF;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.8125rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--r-md);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+            box-shadow: 0 1px 2px rgba(0, 122, 255, 0.25);
+            transition: all 0.15s ease-out;
         }
         .btn-brand-primary:hover {
-            background: var(--brand-hover);
-            transform: translateY(-1px);
+            background: #0071E3;
         }
+        .btn-brand-primary:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+
         .btn-brand-secondary {
-            background: var(--surface-2);
-            color: var(--text-1);
-            border: 1px solid var(--border);
-            font-weight: 600;
+            background: rgba(0, 0, 0, 0.06);
+            color: rgba(0, 0, 0, 0.8);
+            font-weight: 500;
+            font-size: 0.8125rem;
             padding: 0.5rem 1rem;
-            border-radius: var(--r-xl);
+            border-radius: var(--r-md);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            transition: all 0.15s ease;
+            gap: 0.375rem;
+            transition: all 0.15s ease-out;
+        }
+        .dark .btn-brand-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.85);
         }
         .btn-brand-secondary:hover {
-            background: var(--surface-3);
+            background: rgba(0, 0, 0, 0.09);
+        }
+        .dark .btn-brand-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
         }
 
         /* Custom scrollbar */
@@ -393,21 +628,24 @@
             width: 6px;
             height: 6px;
         }
-
         ::-webkit-scrollbar-track {
-            background: var(--bg);
+            background: transparent;
         }
-
         ::-webkit-scrollbar-thumb {
-            background: var(--border-str);
-            border-radius: 3px;
+            background: rgba(60, 60, 67, 0.2);
+            border-radius: 999px;
         }
-
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(235, 235, 245, 0.2);
+        }
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-3);
+            background: rgba(60, 60, 67, 0.35);
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: rgba(235, 235, 245, 0.35);
         }
 
-        /* Aturan global untuk truncate judul topbar */
+        /* Global truncation for topbar headers */
         .app-topbar-title h1,
         .app-topbar-title p {
             overflow: hidden;
@@ -415,16 +653,23 @@
             white-space: nowrap;
         }
 
-        /* Topbar Header Responsive Base */
+        /* Topbar Header Responsive Base (Apple macOS Toolbar Architecture) */
+        @media (min-width: 1024px) {
+            .app-topbar {
+                height: 3.5rem; /* 56px macOS standard toolbar height */
+            }
+        }
+
         @media (max-width: 1023px) {
             .app-sidebar {
-                width: min(18rem, 86vw);
+                width: 280px !important;
+                max-width: 86vw;
             }
 
             .app-topbar {
-                min-height: 3.75rem;
+                min-height: 3.25rem;
                 height: auto;
-                padding: 0.5rem 0.75rem;
+                padding: 0.5rem 0.875rem;
                 gap: 0.5rem;
             }
 
@@ -444,7 +689,7 @@
 
         @media (max-width: 639px) {
             .app-topbar {
-                padding: 0.5rem;
+                padding: 0.5rem 0.75rem;
                 gap: 0.375rem;
             }
 
@@ -475,8 +720,17 @@
     </style>
 </head>
 
-<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased" x-data="{
+<body class="h-full bg-[#F2F2F7] dark:bg-[#1E1E1E] text-black dark:text-white antialiased selection:bg-[#007AFF]/20 selection:text-[#007AFF]" x-data="{
     sidebarOpen: false,
+    sidebarCollapsed: localStorage.getItem('cooca-sidebar-collapsed') === 'true',
+    toggleSidebarCollapse() {
+        this.sidebarCollapsed = !this.sidebarCollapsed;
+        localStorage.setItem('cooca-sidebar-collapsed', this.sidebarCollapsed);
+        window.dispatchEvent(new CustomEvent('sidebar-collapsed-changed', { detail: { collapsed: this.sidebarCollapsed } }));
+        this.$nextTick(() => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    },
     comingSoonOpen: false,
     comingSoonFeature: { title: '', icon: 'sparkles', desc: '', color: 'purple' },
     openComingSoon(feature) {
@@ -489,1232 +743,89 @@
         this.comingSoonOpen = true;
     },
     init() {
-        window.addEventListener('tour-open-sidebar', () => { this.sidebarOpen = true; });
+        window.addEventListener('tour-open-sidebar', () => {
+            this.sidebarOpen = true;
+            this.sidebarCollapsed = false;
+        });
         window.addEventListener('tour-close-sidebar', () => { this.sidebarOpen = false; });
         window.addEventListener('cooca-coming-soon', (e) => { this.openComingSoon(e.detail); });
     }
 }">
+    @php
+        $activeBiz = \App\Support\Context::business();
+        $navEntitlement = app(\App\Domain\Billing\EntitlementService::class);
+        $navUsage = $activeBiz ? $navEntitlement->getUsageSummary($activeBiz) : null;
+        $isCorePlan = $navUsage['is_core'] ?? false;
+
+        $canAccessSales =
+            \App\Support\Context::hasPermission('pos.terminal') ||
+            \App\Support\Context::hasPermission('invoices.view') ||
+            \App\Support\Context::hasPermission('sales.view') ||
+            \App\Support\Context::hasPermission('customers.view');
+        $canAccessPurchasing =
+            \App\Support\Context::hasPermission('purchasing.view') ||
+            \App\Support\Context::hasPermission('receiving.manage');
+        $canAccessInventory =
+            \App\Support\Context::hasPermission('products.view') ||
+            \App\Support\Context::hasPermission('materials.view') ||
+            \App\Support\Context::hasPermission('inventory.view') ||
+            \App\Support\Context::hasPermission('inventory.manage');
+        $canAccessCosting =
+            \App\Support\Context::hasPermission('costing.view_margin') ||
+            \App\Support\Context::hasPermission('costing.manage') ||
+            \App\Support\Context::hasPermission('labor_machines.view');
+        $canAccessFinance =
+            \App\Support\Context::hasPermission('accounting.view') ||
+            \App\Support\Context::hasPermission('expenses.view');
+        $canAccessReports =
+            \App\Support\Context::hasPermission('reports.view') ||
+            \App\Support\Context::hasPermission('pos.reports');
+        $canAccessSettings =
+            \App\Support\Context::hasPermission('settings.view') ||
+            \App\Support\Context::hasPermission('roles.view') ||
+            \App\Support\Context::hasPermission('billing.view') ||
+            \App\Support\Context::isOwner();
+        $canAccessRoles =
+            \App\Support\Context::hasPermission('roles.view') ||
+            \App\Support\Context::isOwner();
+        $canAccessBilling =
+            \App\Support\Context::hasPermission('billing.view') ||
+            \App\Support\Context::isOwner();
+        $canAccessMasterData =
+            \App\Support\Context::hasPermission('master_data.suppliers.view') ||
+            \App\Support\Context::hasPermission('master_data.material_categories.view') ||
+            \App\Support\Context::hasPermission('master_data.product_categories.view') ||
+            \App\Support\Context::hasPermission('master_data.units.view');
+    @endphp
     <div class="min-h-full flex flex-col lg:flex-row">
 
-        <!-- Mobile Sidebar Backdrop -->
-        <div x-show="sidebarOpen" x-transition:enter="transition-opacity ease-linear duration-300"
+        <!-- Mobile Sidebar Backdrop (Apple Frosted Dimmer) -->
+        <div x-show="sidebarOpen" x-transition:enter="transition-opacity ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/80 z-40 lg:hidden"
+            x-transition:leave="transition-opacity ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 lg:hidden"
             @click="sidebarOpen = false" style="display: none;"></div>
 
-        <!-- Sidebar Navigation -->
-        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-            class="app-sidebar fixed inset-y-0 left-0 z-50 w-72 h-screen max-h-screen glass-nav flex flex-col justify-between transition-transform duration-300 ease-in-out">
-
-            <!-- Brand Logo -->
-            <div class="h-20 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800 shrink-0">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                    <div id="tour-active-business"
-                        class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                        <i data-lucide="boxes" class="w-5 h-5 text-white"></i>
-                    </div>
-                    <div>
-                        <div class="font-extrabold text-lg text-slate-900 dark:text-white tracking-tight leading-none">Cooca UMKM</div>
-                    </div>
-                </a>
-                <button @click="sidebarOpen = false"
-                    class="lg:hidden text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-
-            <!-- Active Tenant Card -->
-            @php
-                $activeBiz = \App\Support\Context::business();
-                $navEntitlement = app(\App\Domain\Billing\EntitlementService::class);
-                $navUsage = $activeBiz ? $navEntitlement->getUsageSummary($activeBiz) : null;
-                $isCorePlan = $navUsage['is_core'] ?? false;
-            @endphp
-            @if ($activeBiz)
-                <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800/80 shrink-0">
-                    <div
-                        class="p-3 rounded-xl bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            @if ($activeBiz->logo_url)
-                                <div
-                                    class="w-8 h-8 rounded-lg bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden p-0.5">
-                                    <img src="{{ $activeBiz->logo_url }}" alt="{{ $activeBiz->name }}"
-                                        class="w-full h-full object-contain">
-                                </div>
-                            @else
-                                <div
-                                    class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                                    <i data-lucide="building-2" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                                </div>
-                            @endif
-                            <div class="overflow-hidden">
-                                <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Bisnis Aktif</div>
-                                <div class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ $activeBiz->name }}</div>
-                            </div>
-                        </div>
-                        <a href="{{ route('businesses.select') }}" id="tour-switch-business" title="Ganti Bisnis"
-                            class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                            <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
-                        </a>
-                    </div>
-                </div>
-            @endif
-
-            <!-- Navigation Links (Scrollable Container) -->
-            @php
-                $isSalesRoute =
-                    request()->routeIs('pos.*') ||
-                    request()->routeIs('invoices.*') ||
-                    request()->routeIs('sales.*') ||
-                    request()->routeIs('customers.*') ||
-                    request()->routeIs('crm.*');
-                $isPurchasingRoute =
-                    request()->routeIs('purchasing.*') ||
-                    request()->routeIs('purchase-orders.*') ||
-                    request()->routeIs('purchase.returns.*');
-                $isMasterDataRoute =
-                    request()->routeIs('suppliers.*') ||
-                    request()->routeIs('material-categories.*') ||
-                    request()->routeIs('product-categories.*') ||
-                    request()->routeIs('units.*');
-                $isInventoryRoute =
-                    request()->routeIs('products.*') ||
-                    request()->routeIs('materials.*') ||
-                    request()->routeIs('inventory.*') ||
-                    request()->routeIs('warehouse.*');
-                $isCostingRoute =
-                    request()->routeIs('calculator.*') ||
-                    request()->routeIs('labor-machines.*') ||
-                    request()->routeIs('profitability.*') ||
-                    request()->routeIs('simulator.*');
-                $isWhatsAppRoute = request()->routeIs('whatsapp.*');
-                $isFinanceRoute = request()->routeIs('finance.*');
-                $isReportsRoute = request()->routeIs('reports.*') || request()->routeIs('pos.reports.*');
-                $isSettingsRoute =
-                    request()->routeIs('settings.*') ||
-                    request()->routeIs('billing.*') ||
-                    request()->routeIs('community.*') ||
-                    request()->routeIs('feedback.*');
-
-                // Permission aggregations for accordion visibility
-                $canAccessSales =
-                    \App\Support\Context::hasPermission('pos.terminal') ||
-                    \App\Support\Context::hasPermission('invoices.view') ||
-                    \App\Support\Context::hasPermission('sales.view') ||
-                    \App\Support\Context::hasPermission('customers.view');
-                $canAccessPurchasing =
-                    \App\Support\Context::hasPermission('purchasing.view') ||
-                    \App\Support\Context::hasPermission('receiving.manage');
-                $canAccessInventory =
-                    \App\Support\Context::hasPermission('products.view') ||
-                    \App\Support\Context::hasPermission('materials.view') ||
-                    \App\Support\Context::hasPermission('inventory.view') ||
-                    \App\Support\Context::hasPermission('inventory.manage');
-                $canAccessCosting =
-                    \App\Support\Context::hasPermission('costing.view_margin') ||
-                    \App\Support\Context::hasPermission('costing.manage') ||
-                    \App\Support\Context::hasPermission('labor_machines.view');
-                $canAccessFinance =
-                    \App\Support\Context::hasPermission('accounting.view') ||
-                    \App\Support\Context::hasPermission('expenses.view');
-                $canAccessReports =
-                    \App\Support\Context::hasPermission('reports.view') ||
-                    \App\Support\Context::hasPermission('pos.reports');
-                $canAccessSettings =
-                    \App\Support\Context::hasPermission('settings.view') ||
-                    \App\Support\Context::isOwner();
-                $canAccessRoles =
-                    \App\Support\Context::hasPermission('roles.view') ||
-                    \App\Support\Context::isOwner();
-                $canAccessBilling =
-                    \App\Support\Context::hasPermission('billing.view') ||
-                    \App\Support\Context::isOwner();
-                $canAccessMasterData =
-                    \App\Support\Context::hasPermission('master_data.suppliers.view') ||
-                    \App\Support\Context::hasPermission('master_data.material_categories.view') ||
-                    \App\Support\Context::hasPermission('master_data.product_categories.view') ||
-                    \App\Support\Context::hasPermission('master_data.units.view');
-            @endphp
-
-            <nav class="flex-1 overflow-y-auto px-3.5 py-3 space-y-2.5 min-h-0 overscroll-contain text-xs"
-                x-data="{
-                    salesOpen: {{ $isSalesRoute ? 'true' : 'false' }},
-                    whatsappOpen: {{ $isWhatsAppRoute ? 'true' : 'false' }},
-                    purchasingOpen: {{ $isPurchasingRoute ? 'true' : 'false' }},
-                    masterDataOpen: {{ $isMasterDataRoute ? 'true' : 'false' }},
-                    inventoryOpen: {{ $isInventoryRoute ? 'true' : 'false' }},
-                    costingOpen: {{ $isCostingRoute ? 'true' : 'false' }},
-                    financeOpen: {{ $isFinanceRoute ? 'true' : 'false' }},
-                    reportsOpen: {{ $isReportsRoute ? 'true' : 'false' }}
-                }">
-
-                <!-- 1. RINGKASAN & INTI (DASHBOARD & AI) -->
-                <div class="space-y-1">
-                    <a href="{{ route('dashboard') }}" id="tour-nav-dashboard"
-                        {{ request()->routeIs('dashboard') ? 'aria-current="page"' : '' }}
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all {{ request()->routeIs('dashboard') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900/80 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                        <span>Dashboard</span>
-                    </a>
-
-                    @if (\App\Support\Context::hasPermission('ai.access'))
-                        <a href="#" id="tour-nav-ai" @click.prevent="openComingSoon({ title: 'AI Assistant', icon: 'bot', desc: 'Fitur AI Cockpit untuk analisis penjualan, prediksi tren, dan asisten pintar kasir POS berbasis Gemini AI.', color: 'purple' })"
-                            {{ request()->routeIs('pos.ai.*') ? 'aria-current="page"' : '' }}
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all {{ request()->routeIs('pos.ai.*') ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 shadow-sm' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900/80 hover:text-slate-900 dark:hover:text-white' }}">
-                            <i data-lucide="bot" class="w-4 h-4 text-purple-600 dark:text-purple-400"></i>
-                            <span>AI Assistant</span>
-                            <span class="ml-auto text-[9px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 font-black border border-purple-500/30">Segera</span>
-                        </a>
-                    @endif
-
-                    @if (\App\Support\Context::isOwner())
-                        <a href="#" id="tour-nav-community" @click.prevent="openComingSoon({ title: 'Komunitas Owner', icon: 'users', desc: 'Forum diskusi eksklusif khusus para owner UMKM Cooca — berbagi tips, trik, dan strategi bisnis bersama.', color: 'amber' })"
-                            {{ request()->routeIs('community.*') ? 'aria-current="page"' : '' }}
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all {{ request()->routeIs('community.*') ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-sm' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900/80 hover:text-slate-900 dark:hover:text-white' }}">
-                            <i data-lucide="users" class="w-4 h-4 text-amber-600 dark:text-amber-400"></i>
-                            <span>Komunitas Owner</span>
-                            <span class="ml-auto text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-black">Segera</span>
-                        </a>
-                    @endif
-                </div>
-
-                <!-- 3B. WEBSITE & LANDING PAGE (CMS & PUBLIC PAGE) -->
-                <div class="space-y-1">
-                    <a href="{{ route('landing-page.edit') }}" id="tour-nav-landing-page"
-                        {{ request()->routeIs('landing-page.*') ? 'aria-current="page"' : '' }}
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all {{ request()->routeIs('landing-page.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900/80 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="globe" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                        <span>Landing Page</span>
-                        <span class="ml-auto text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black border border-emerald-500/30">Live CMS</span>
-                    </a>
-                </div>
-
-                <!-- 3. WHATSAPP GATEWAY (BOT & PROMOSI) -->
-                <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden">
-                    <button type="button" @click="whatsappOpen = !whatsappOpen" role="button" :aria-expanded="whatsappOpen ? 'true' : 'false'"
-                        class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900/50 transition"
-                        :class="whatsappOpen ? 'bg-emerald-500/10 text-emerald-900 dark:text-white' : ''">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-4 h-4 rounded flex items-center justify-center text-[#25D366]">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z"/></svg>
-                            </div>
-                            <span class="text-xs">WhatsApp Gateway</span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-[#25D366]/15 text-[#1b8742] dark:text-[#25D366] font-extrabold border border-[#25D366]/30">Scan WA</span>
-                            <i data-lucide="chevron-down"
-                                class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-transform duration-200"
-                                :class="whatsappOpen ? 'rotate-180 text-[#25D366]' : ''"></i>
-                        </div>
-                    </button>
-
-                    <div x-show="whatsappOpen" x-transition.opacity
-                        class="px-2 pb-2 pt-1 space-y-0.5 border-t border-slate-200/80 dark:border-slate-900">
-                        <a href="{{ route('whatsapp.index') }}"
-                            {{ request()->routeIs('whatsapp.index') ? 'aria-current="page"' : '' }}
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('whatsapp.index') ? 'bg-[#25D366]/15 text-[#1b8742] dark:text-[#25D366] font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                            <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#25D366]"></i>
-                            <span>Scan QR / Status</span>
-                        </a>
-                        <a href="{{ route('whatsapp.broadcast.index') }}"
-                            {{ request()->routeIs('whatsapp.broadcast.*') ? 'aria-current="page"' : '' }}
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('whatsapp.broadcast.*') ? 'bg-[#25D366]/15 text-[#1b8742] dark:text-[#25D366] font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                            <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                            <span>Blast Promosi</span>
-                        </a>
-                        <a href="{{ route('whatsapp.logs.index') }}"
-                            {{ request()->routeIs('whatsapp.logs.*') ? 'aria-current="page"' : '' }}
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('whatsapp.logs.*') ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                            <i data-lucide="list" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-                            <span>Log Pesan Struk</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 2. PENJUALAN (COLLAPSIBLE) -->
-                @if ($canAccessSales)
-                    <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden">
-                        <button type="button" id="tour-group-sales" data-tour-group="sales" @click="salesOpen = !salesOpen" role="button" :aria-expanded="salesOpen ? 'true' : 'false'"
-                            class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900/50 transition"
-                            :class="salesOpen ? 'bg-teal-500/10 text-teal-900 dark:text-white' : ''">
-                            <div class="flex items-center gap-2.5">
-                                <i data-lucide="shopping-cart" class="w-4 h-4 text-teal-500 dark:text-teal-400"></i>
-                                <span class="text-xs">Kasir &amp; Penjualan</span>
-                            </div>
-                            <i data-lucide="chevron-down"
-                                class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-transform duration-200"
-                                :class="salesOpen ? 'rotate-180 text-teal-500 dark:text-teal-400' : ''"></i>
-                        </button>
-
-                        <div x-show="salesOpen" x-transition.opacity
-                            class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-200/80 dark:border-slate-900">
-                            @if (\App\Support\Context::hasPermission('pos.terminal'))
-                                <a href="{{ route('pos.terminal') }}" id="tour-nav-pos-terminal"
-                                    {{ request()->routeIs('pos.terminal') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('pos.terminal') ? 'bg-teal-500/15 text-teal-700 dark:text-teal-300 font-bold border border-teal-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="calculator" class="w-3.5 h-3.5 text-teal-500 dark:text-teal-400"></i>
-                                    <span>Terminal Kasir POS</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('invoices.view'))
-                                <a href="{{ route('invoices.index') }}" id="tour-nav-invoices"
-                                    {{ request()->routeIs('invoices.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('invoices.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="receipt" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                    <span>Faktur &amp; Piutang</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.reports'))
-                                <a href="{{ route('pos.orders.index') }}" id="tour-nav-pos-orders"
-                                    {{ request()->routeIs('pos.orders.*') || request()->routeIs('pos.shifts.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('pos.orders.*') || request()->routeIs('pos.shifts.*') ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-                                    <span>Riwayat Transaksi &amp; Shift</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('customers.view'))
-                                <a href="{{ route('customers.index') }}" id="tour-nav-customers"
-                                    {{ request()->routeIs('customers.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('customers.*') ? 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="users" class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400"></i>
-                                    <span>Pelanggan</span>
-                                </a>
-
-                                <a href="{{ route('crm.members.index') }}" id="tour-nav-crm-members"
-                                    {{ request()->routeIs('crm.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('crm.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                    <span>CRM &amp; Loyalitas</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('sales.view'))
-                                <a href="{{ route('sales.orders.index') }}" id="tour-nav-sales-orders"
-                                    {{ request()->routeIs('sales.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('sales.*') ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="check-square" class="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400"></i>
-                                    <span>Pesanan &amp; Penawaran</span>
-                                </a>
-
-                                <a href="{{ route('sales.returns.index') }}" id="tour-nav-sales-returns"
-                                    {{ request()->routeIs('sales.returns.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('sales.returns.*') ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 font-bold border border-rose-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="undo-2" class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400"></i>
-                                    <span>Retur Penjualan</span>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                <!-- 4. MASTER DATA CMS (COLLAPSIBLE) -->
-                @if ($canAccessMasterData)
-                    <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden">
-                        <button type="button" id="tour-group-master-data" data-tour-group="master-data" @click="masterDataOpen = !masterDataOpen" role="button" :aria-expanded="masterDataOpen ? 'true' : 'false'"
-                            class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900/50 transition"
-                            :class="masterDataOpen ? 'bg-emerald-500/10 text-emerald-900 dark:text-white' : ''">
-                            <div class="flex items-center gap-2.5">
-                                <i data-lucide="database" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                                <span class="text-xs">Master Data</span>
-                            </div>
-                            <i data-lucide="chevron-down"
-                                class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-transform duration-200"
-                                :class="masterDataOpen ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''"></i>
-                        </button>
-
-                        <div x-show="masterDataOpen" x-transition.opacity
-                            class="px-2 pb-2 pt-1 space-y-0.5 border-t border-slate-200/80 dark:border-slate-900">
-                            @if (\App\Support\Context::hasPermission('master_data.suppliers.view'))
-                                <a href="{{ route('suppliers.index') }}" id="tour-nav-suppliers"
-                                    {{ request()->routeIs('suppliers.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('suppliers.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="truck" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                    <span>Supplier</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('master_data.material_categories.view'))
-                                <a href="{{ route('material-categories.index') }}" id="tour-nav-material-categories"
-                                    {{ request()->routeIs('material-categories.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('material-categories.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="layers" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                    <span>Kategori Bahan</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('master_data.product_categories.view'))
-                                <a href="{{ route('product-categories.index') }}" id="tour-nav-product-categories"
-                                    {{ request()->routeIs('product-categories.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('product-categories.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                    <span>Kategori Produk</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('master_data.units.view'))
-                                <a href="{{ route('units.index') }}" id="tour-nav-units"
-                                    {{ request()->routeIs('units.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('units.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="scale" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                    <span>Satuan &amp; Konversi</span>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                <!-- 4. PEMBELIAN (COLLAPSIBLE) -->
-                @if ($canAccessPurchasing)
-                    <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden">
-                        <button type="button" id="tour-group-purchasing" data-tour-group="purchasing" @click="purchasingOpen = !purchasingOpen" role="button" :aria-expanded="purchasingOpen ? 'true' : 'false'"
-                            class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900/50 transition"
-                            :class="purchasingOpen ? 'bg-amber-500/10 text-amber-900 dark:text-white' : ''">
-                            <div class="flex items-center gap-2.5">
-                                <i data-lucide="truck" class="w-4 h-4 text-amber-500 dark:text-amber-400"></i>
-                                <span class="text-xs">Pembelian &amp; Vendor</span>
-                            </div>
-                            <i data-lucide="chevron-down"
-                                class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-transform duration-200"
-                                :class="purchasingOpen ? 'rotate-180 text-amber-600 dark:text-amber-400' : ''"></i>
-                        </button>
-
-                        <div x-show="purchasingOpen" x-transition.opacity
-                            class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-200/80 dark:border-slate-900">
-                            @if (\App\Support\Context::hasPermission('purchasing.view'))
-                                <a href="{{ route('purchase-orders.index') }}" id="tour-nav-purchase-orders"
-                                    {{ request()->routeIs('purchase-orders.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('purchase-orders.*') ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"></i>
-                                    <span>Purchase Order (PO)</span>
-                                </a>
-
-                                <a href="{{ route('purchasing.bills.index') }}" id="tour-nav-purchasing-bills"
-                                    {{ request()->routeIs('purchasing.bills.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('purchasing.bills.*') ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="receipt" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"></i>
-                                    <span>Tagihan &amp; Hutang Supplier</span>
-                                </a>
-
-                                <a href="{{ route('purchase.returns.index') }}" id="tour-nav-purchase-returns"
-                                    {{ request()->routeIs('purchase.returns.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('purchase.returns.*') ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 font-bold border border-rose-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="corner-up-left" class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400"></i>
-                                    <span>Retur Pembelian</span>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                <!-- 5. PERSEDIAAN (COLLAPSIBLE) -->
-                @if ($canAccessInventory)
-                    <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden">
-                        <button type="button" id="tour-group-inventory" data-tour-group="inventory" @click="inventoryOpen = !inventoryOpen" role="button" :aria-expanded="inventoryOpen ? 'true' : 'false'"
-                            class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900/50 transition"
-                            :class="inventoryOpen ? 'bg-emerald-500/10 text-emerald-900 dark:text-white' : ''">
-                            <div class="flex items-center gap-2.5">
-                                <i data-lucide="package" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                                <span class="text-xs">Produk &amp; Inventori</span>
-                            </div>
-                            <i data-lucide="chevron-down"
-                                class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-transform duration-200"
-                                :class="inventoryOpen ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''"></i>
-                        </button>
-
-                        <div x-show="inventoryOpen" x-transition.opacity
-                            class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-200/80 dark:border-slate-900">
-                            @if (\App\Support\Context::hasPermission('inventory.view') || \App\Support\Context::hasPermission('inventory.manage'))
-                                <a href="{{ route('warehouse.index') }}" id="tour-nav-warehouse"
-                                    {{ request()->routeIs('warehouse.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('warehouse.*') ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="warehouse" class="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400"></i>
-                                    <span>Gudang &amp; Lokasi</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('products.view'))
-                                <a href="{{ route('products.index') }}" id="tour-nav-products"
-                                    {{ request()->routeIs('products.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('products.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="package" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                    <span>Katalog Produk &amp; Resep</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('materials.view'))
-                                <a href="{{ route('materials.index') }}" id="tour-nav-materials"
-                                    {{ request()->routeIs('materials.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('materials.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="boxes" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-                                    <span>Bahan Baku &amp; Harga</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('inventory.view'))
-                                <a href="{{ route('inventory.stocks') }}" id="tour-nav-inventory-stocks"
-                                    {{ request()->routeIs('inventory.stocks') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('inventory.stocks') ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400"></i>
-                                    <span>Stok Real-Time</span>
-                                </a>
-
-                                <a href="{{ route('inventory.movements') }}" id="tour-nav-inventory-movements"
-                                    {{ request()->routeIs('inventory.movements') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('inventory.movements') ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400"></i>
-                                    <span>Mutasi Stok (Kartu Stok)</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('inventory.manage'))
-                                <a href="{{ route('inventory.transfers.index') }}" id="tour-nav-inventory-transfers"
-                                    {{ request()->routeIs('inventory.transfers.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('inventory.transfers.*') ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="repeat" class="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400"></i>
-                                    <span>Transfer Stok Gudang</span>
-                                </a>
-
-                                <a href="{{ route('inventory.opnames.index') }}" id="tour-nav-inventory-opnames"
-                                    {{ request()->routeIs('inventory.opnames.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('inventory.opnames.*') ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400"></i>
-                                    <span>Stock Opname Fisik</span>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                <!-- 6. HPP & PRODUKSI (COLLAPSIBLE) -->
-                @if ($canAccessCosting)
-                    <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden">
-                        <button type="button" id="tour-group-costing" data-tour-group="costing" @click="costingOpen = !costingOpen" role="button" :aria-expanded="costingOpen ? 'true' : 'false'"
-                            class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900/50 transition"
-                            :class="costingOpen ? 'bg-emerald-500/10 text-emerald-900 dark:text-white' : ''">
-                            <div class="flex items-center gap-2.5">
-                                <i data-lucide="calculator" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                                <span class="text-xs">HPP &amp; Produksi</span>
-                            </div>
-                            <i data-lucide="chevron-down"
-                                class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-transform duration-200"
-                                :class="costingOpen ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''"></i>
-                        </button>
-
-                        <div x-show="costingOpen" x-transition.opacity
-                            class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-200/80 dark:border-slate-900">
-                            @if (\App\Support\Context::hasPermission('costing.view_margin'))
-                                <a href="{{ route('calculator.index') }}" id="tour-nav-calculator"
-                                    {{ request()->routeIs('calculator.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('calculator.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                    <span>Kalkulator HPP 3-Pilar</span>
-                                </a>
-                            @endif
-
-                            @if (
-                                \App\Support\Context::hasPermission('labor_machines.view') ||
-                                    \App\Support\Context::hasPermission('costing.view_margin'))
-                                <a href="{{ route('labor-machines.index') }}" id="tour-nav-labor-machines"
-                                    {{ request()->routeIs('labor-machines.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('labor-machines.*') ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="users-2" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-                                    <span>Upah Kerja &amp; Mesin</span>
-                                </a>
-                            @endif
-
-                            @if (
-                                \App\Support\Context::hasPermission('costing.view_margin') ||
-                                    \App\Support\Context::hasPermission('reports.costing'))
-                                <a href="{{ route('profitability.index') }}" id="tour-nav-profitability"
-                                    {{ request()->routeIs('profitability.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('profitability.*') ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="target" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                    <span>BEP &amp; Profitabilitas</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('costing.view_margin'))
-                                <a href="{{ route('simulator.index') }}" id="tour-nav-simulator"
-                                    {{ request()->routeIs('simulator.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('simulator.*') ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="sliders" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-                                    <span>Simulasi What-If</span>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                <!-- 7. KEUANGAN (COLLAPSIBLE) -->
-                @if ($canAccessFinance)
-                    <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden">
-                        <button type="button" id="tour-group-finance" data-tour-group="finance" @click="financeOpen = !financeOpen" role="button" :aria-expanded="financeOpen ? 'true' : 'false'"
-                            class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900/50 transition"
-                            :class="financeOpen ? 'bg-amber-500/10 text-amber-900 dark:text-white' : ''">
-                            <div class="flex items-center gap-2.5">
-                                <i data-lucide="landmark" class="w-4 h-4 text-amber-500 dark:text-amber-400"></i>
-                                <span class="text-xs">Keuangan &amp; Kas</span>
-                            </div>
-                            <i data-lucide="chevron-down"
-                                class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-transform duration-200"
-                                :class="financeOpen ? 'rotate-180 text-amber-600 dark:text-amber-400' : ''"></i>
-                        </button>
-
-                        <div x-show="financeOpen" x-transition.opacity
-                            class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-200/80 dark:border-slate-900">
-                            @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('expenses.view'))
-                                <a href="{{ route('finance.cash-bank.index') }}" id="tour-nav-cash-bank"
-                                    {{ request()->routeIs('finance.cash-bank.index') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.cash-bank.index') ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="landmark" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"></i>
-                                    <span>Kas &amp; Rekening Bank</span>
-                                </a>
-
-                                <a href="{{ route('finance.cash-bank.ledger') }}" id="tour-nav-cash-ledger"
-                                    {{ request()->routeIs('finance.cash-bank.ledger') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.cash-bank.ledger') ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="book" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"></i>
-                                    <span>Buku Kas &amp; Ledger</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('expenses.view'))
-                                <a href="{{ route('finance.expenses.index') }}" id="tour-nav-expenses"
-                                    {{ request()->routeIs('finance.expenses.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.expenses.*') ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 font-bold border border-rose-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="wallet" class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400"></i>
-                                    <span>Beban Operasional</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('invoices.view'))
-                                <a href="{{ route('finance.receivables') }}" id="tour-nav-receivables"
-                                    {{ request()->routeIs('finance.receivables') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.receivables') ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400"></i>
-                                    <span>Piutang Usaha (AR Aging)</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('purchasing.view'))
-                                <a href="{{ route('finance.payables') }}" id="tour-nav-payables"
-                                    {{ request()->routeIs('finance.payables') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.payables') ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"></i>
-                                    <span>Hutang Usaha (AP Aging)</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('accounting.view'))
-                                <a href="{{ route('finance.journals.index') }}" id="tour-nav-journals"
-                                    {{ request()->routeIs('finance.journals.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('finance.journals.*') ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-                                    <span>Jurnal Akuntansi Otomatis</span>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                <!-- 8. LAPORAN & ANALITIK (COLLAPSIBLE) -->
-                @if ($canAccessReports)
-                    <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden">
-                        <button type="button" id="tour-group-reports" data-tour-group="reports" @click="reportsOpen = !reportsOpen" role="button" :aria-expanded="reportsOpen ? 'true' : 'false'"
-                            class="w-full flex items-center justify-between px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900/50 transition"
-                            :class="reportsOpen ? 'bg-amber-500/10 text-amber-900 dark:text-white' : ''">
-                            <div class="flex items-center gap-2.5">
-                                <i data-lucide="bar-chart-3" class="w-4 h-4 text-amber-500 dark:text-amber-400"></i>
-                                <span class="text-xs">Laporan &amp; Analitik</span>
-                            </div>
-                            <i data-lucide="chevron-down"
-                                class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-transform duration-200"
-                                :class="reportsOpen ? 'rotate-180 text-amber-600 dark:text-amber-400' : ''"></i>
-                        </button>
-
-                        <div x-show="reportsOpen" x-transition.opacity
-                            class="px-2 pb-2 space-y-0.5 pt-1 border-t border-slate-200/80 dark:border-slate-900">
-                            @if (\App\Support\Context::hasPermission('reports.view'))
-                                <a href="{{ route('reports.index') }}" id="tour-nav-reports"
-                                    {{ request()->routeIs('reports.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('reports.*') ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"></i>
-                                    <span>Laporan &amp; Analitik Bisnis</span>
-                                </a>
-                            @endif
-
-                            @if (\App\Support\Context::hasPermission('pos.reports'))
-                                <a href="{{ route('pos.reports.index') }}" id="tour-nav-pos-reports"
-                                    {{ request()->routeIs('pos.reports.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all {{ request()->routeIs('pos.reports.*') ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                                    <i data-lucide="file-pie-chart" class="w-3.5 h-3.5 text-teal-500 dark:text-teal-400"></i>
-                                    <span>Laporan Kasir POS</span>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                <!-- 9. PENGATURAN USAHA (MANDIRI) -->
-                @if ($canAccessSettings)
-                    <div class="space-y-1 pt-1">
-                        <a href="{{ route('settings.index') }}" id="tour-nav-settings"
-                            {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('roles.*')) ? 'aria-current="page"' : '' }}
-                            class="flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('roles.*')) ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-semibold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                            <i data-lucide="settings" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
-                            <span>Pengaturan Usaha</span>
-                        </a>
-                    </div>
-                @endif
-
-                <!-- 10. KONTROL AKSES & ROLE (MANDIRI) -->
-                @if ($canAccessRoles)
-                    <div class="space-y-1">
-                        <a href="{{ route('roles.index') }}" id="tour-nav-roles"
-                            {{ (request()->routeIs('roles.*') || request()->routeIs('settings.roles.*')) ? 'aria-current="page"' : '' }}
-                            class="flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all {{ (request()->routeIs('roles.*') || request()->routeIs('settings.roles.*')) ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 font-semibold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                            <i data-lucide="shield-check" class="w-4 h-4 text-cyan-500 dark:text-cyan-400"></i>
-                            <span>Kontrol Akses &amp; Role</span>
-                        </a>
-                    </div>
-                @endif
-
-                <!-- 11. PAKET & KUOTA (MANDIRI) -->
-                @if ($canAccessBilling)
-                    <div class="space-y-1">
-                        <a href="{{ route('billing') }}" id="tour-nav-billing"
-                            {{ (request()->routeIs('billing*') || request()->is('billing*')) ? 'aria-current="page"' : '' }}
-                            class="flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all {{ (request()->routeIs('billing*') || request()->is('billing*')) ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 font-semibold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-purple-500 dark:text-purple-400"></i>
-                            <span>Paket &amp; Kuota</span>
-                            <span
-                                class="ml-auto text-[9px] px-2 py-0.5 rounded-full {{ $isCorePlan ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-amber-500/20 text-amber-700 dark:text-amber-300' }} font-black uppercase">
-                                {{ $isCorePlan ? 'Core' : 'Free' }}
-                            </span>
-                        </a>
-                    </div>
-                @endif
-
-                @if (\App\Support\Context::isOwner())
-                    <div class="space-y-1">
-                        <a href="{{ route('feedback.bugs.index') }}" id="tour-nav-feedback"
-                            {{ request()->routeIs('feedback.*') ? 'aria-current="page"' : '' }}
-                            class="flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all {{ request()->routeIs('feedback.*') ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 font-semibold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
-                            <i data-lucide="life-buoy" class="w-4 h-4 text-cyan-500 dark:text-cyan-400"></i>
-                            <span>Dukungan Produk</span>
-                        </a>
-                    </div>
-                @endif
-
-            </nav>
-
-            <!-- User Profile Bottom Bar (Sticky at Bottom) -->
-            <div class="p-3 border-t border-slate-200 dark:border-slate-800/80 space-y-2 shrink-0 bg-white/90 dark:bg-slate-950/90">
-                <form method="POST" action="{{ route('onboarding.restart') }}">
-                    @csrf
-                    <button type="submit"
-                        class="w-full px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors">
-                        <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
-                        <span>Mulai Ulang Panduan Tour</span>
-                    </button>
-                </form>
-
-                <div class="flex items-center justify-between">
-                    <a href="{{ route('profile.edit') }}"
-                        class="flex items-center gap-2.5 overflow-hidden group flex-1 mr-2 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors">
-                        <div
-                            class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-emerald-600 dark:text-emerald-400 shrink-0 group-hover:border-emerald-500/50">
-                            {{ substr(auth()->user()->name ?? 'U', 0, 2) }}
-                        </div>
-                        <div class="overflow-hidden text-left">
-                            <div
-                                class="text-xs font-semibold text-slate-900 dark:text-white truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                                {{ auth()->user()->name ?? 'User' }}</div>
-                            <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
-                                <i data-lucide="key" class="w-3 h-3 text-emerald-600 dark:text-emerald-400"></i>
-                                <span>Profil &amp; Sandi</span>
-                            </div>
-                        </div>
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" title="Logout"
-                            class="p-2 hover:bg-red-500/10 text-slate-400 hover:text-red-500 rounded-lg transition-colors">
-                            <i data-lucide="log-out" class="w-4 h-4"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <div class="flex-1 lg:pl-72 flex flex-col min-h-screen min-w-0">
-
-            <!-- Topbar Header -->
-            <header
-                class="app-topbar min-h-[3.75rem] lg:h-20 glass-header sticky top-0 z-30 flex items-center justify-between px-2.5 sm:px-6 lg:px-10 transition-all">
-                <div class="app-topbar-title flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-                    <button id="tour-mobile-menu-btn"
-                        @click="sidebarOpen = true; window.dispatchEvent(new CustomEvent('sidebar-opened'))"
-                        class="lg:hidden p-1.5 sm:p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0 transition"
-                        title="Buka Menu Navigasi" aria-label="Menu Navigasi">
-                        <i data-lucide="menu" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                    </button>
-                    <div class="min-w-0 flex-1">
-                        <h1 class="text-sm sm:text-base lg:text-lg font-bold text-slate-900 dark:text-white truncate leading-tight">{{ $headerTitle ?? 'Cooca UMKM' }}</h1>
-                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 hidden sm:block truncate leading-normal">
-                            {{ $headerSubtitle ?? 'Sistem Perhitungan HPP & Manajemen Komersial Terintegrasi' }}</p>
-                    </div>
-                </div>
-
-                <div class="app-topbar-actions flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-                    @if ($activeBiz && $navUsage)
-                        <!-- Plan Tracking & Subscription Status Popover -->
-                        <div class="relative" x-data="{ planDropdownOpen: false }" @click.outside="planDropdownOpen = false">
-                            @if ($isCorePlan)
-                                <!-- Core Plan Active Pill -->
-                                <button @click="planDropdownOpen = !planDropdownOpen" type="button"
-                                    class="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40 border border-emerald-500/30 dark:border-emerald-500/40 text-xs text-emerald-900 dark:text-white transition shadow-sm group">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-sm shadow-emerald-400 shrink-0"></span>
-                                    <span class="font-black text-emerald-700 dark:text-emerald-300 hidden sm:inline">Patungan Aktif</span>
-                                    <span class="font-black text-emerald-700 dark:text-emerald-300 sm:hidden">Patungan</span>
-                                    @if (($navUsage['ai_tokens']['remaining'] ?? 0) > 0)
-                                        <span class="plan-pill-detail hidden md:inline text-[10px] text-amber-700 dark:text-amber-300/90 font-mono">({{ number_format(($navUsage['ai_tokens']['remaining'] ?? 0) / 1000, 0) }}k AI)</span>
-                                    @endif
-                                    <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 transition-transform duration-200 shrink-0" :class="planDropdownOpen ? 'rotate-180' : ''"></i>
-                                </button>
-                            @else
-                                <!-- Free Plan Pill with Upgrade CTA -->
-                                <div class="flex items-center gap-1 sm:gap-1.5">
-                                    <button @click="planDropdownOpen = !planDropdownOpen" type="button"
-                                        class="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800 border border-amber-500/40 text-xs text-slate-800 dark:text-slate-200 transition shadow-sm group">
-                                        <span class="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse shrink-0"></span>
-                                        <span class="font-bold text-amber-700 dark:text-amber-300">Free</span>
-                                        <span class="hidden md:inline text-[10px] text-slate-500 dark:text-slate-400 font-mono">({{ $navUsage['products']['used'] ?? 0 }}/50 Prod • {{ $navUsage['invoices_this_month']['used'] ?? 0 }}/10 Inv)</span>
-                                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform duration-200 shrink-0" :class="planDropdownOpen ? 'rotate-180' : ''"></i>
-                                    </button>
-
-                                    <a href="{{ route('billing.patungan') }}"
-                                        class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs font-black shadow-md shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95"
-                                        title="Tingkatkan ke Cooca UMKM">
-                                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                        <span>Upgrade Patungan</span>
-                                    </a>
-                                </div>
-                            @endif
-
-                            <!-- Mobile Backdrop for Plan Dropdown -->
-                            <div x-show="planDropdownOpen" x-transition.opacity @click="planDropdownOpen = false"
-                                class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden" style="display: none;"></div>
-
-                            <!-- Dropdown Panel (Fixed on mobile with safe margin & close btn, absolute on desktop) -->
-                            <div x-show="planDropdownOpen" x-transition:enter="transition ease-out duration-150"
-                                x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
-                                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                                x-transition:leave="transition ease-in duration-100"
-                                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                                x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                                class="fixed inset-x-3 sm:inset-x-auto sm:right-4 top-16 max-h-[85dvh] sm:max-w-md w-auto sm:w-96 md:top-full md:right-0 md:mt-2 md:absolute md:inset-x-auto overflow-y-auto overscroll-contain rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xl p-4 sm:p-5 space-y-4 z-50 text-slate-800 dark:text-slate-200"
-                                style="display: none;">
-
-                                <!-- Header status -->
-                                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-                                    <div class="min-w-0 flex-1 pr-2">
-                                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Status Langganan</span>
-                                        <h4 class="font-black text-sm text-slate-900 dark:text-white flex items-center gap-1.5 mt-0.5 truncate">
-                                            @if ($isCorePlan)
-                                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                                                <span class="text-emerald-700 dark:text-emerald-300 truncate">{{ $navUsage['plan_label'] ?? 'Cooca UMKM (Patungan)' }}</span>
-                                            @else
-                                                <i data-lucide="sparkles" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0"></i>
-                                                <span class="truncate">Paket Free (Solo)</span>
-                                            @endif
-                                        </h4>
-                                        @if ($isCorePlan && !empty($navUsage['ends_at']))
-                                            <p class="text-[10px] text-emerald-600 dark:text-emerald-400/90 font-mono mt-0.5">Aktif s/d {{ $navUsage['ends_at'] }}</p>
-                                        @endif
-                                    </div>
-                                    <div class="flex items-center gap-1.5 shrink-0">
-                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border {{ $isCorePlan ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700' }}">
-                                            {{ $isCorePlan ? 'Aktif' : 'Gratis' }}
-                                        </span>
-                                        <button type="button" @click="planDropdownOpen = false"
-                                            class="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                                            title="Tutup Popup" aria-label="Tutup">
-                                            <i data-lucide="x" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Resource Usage Meters (Sesuai /billing/limits) -->
-                                <div class="space-y-3.5 text-xs max-h-64 sm:max-h-72 overflow-y-auto overscroll-contain pr-1">
-                                    <!-- 1. Katalog Produk -->
-                                    <div class="space-y-1">
-                                        <div class="flex justify-between text-[11px]">
-                                            <span class="text-slate-600 dark:text-slate-400 font-medium">Katalog Produk:</span>
-                                            <span class="font-mono font-bold {{ ($navUsage['products']['is_reached'] ?? false) ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
-                                                {{ $navUsage['products']['used'] ?? 0 }} / {{ $isCorePlan ? '∞ Unlimited' : ($navUsage['products']['limit'] ?? 50) }}
-                                            </span>
-                                        </div>
-                                        @if (!$isCorePlan)
-                                            <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                                <div class="h-full rounded-full transition-all duration-500 {{ ($navUsage['products']['percent'] ?? 0) >= 90 ? 'bg-rose-500' : (($navUsage['products']['percent'] ?? 0) >= 70 ? 'bg-amber-500' : 'bg-emerald-500') }}"
-                                                    style="width: {{ $navUsage['products']['percent'] ?? 0 }}%">
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <!-- 2. Invoice / Faktur Penjualan -->
-                                    <div class="space-y-1">
-                                        <div class="flex justify-between text-[11px]">
-                                            <span class="text-slate-600 dark:text-slate-400 font-medium">Invoice Bulan Ini:</span>
-                                            <span class="font-mono font-bold {{ ($navUsage['invoices_this_month']['is_reached'] ?? false) ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
-                                                {{ $navUsage['invoices_this_month']['used'] ?? 0 }} / {{ $isCorePlan ? '∞ Unlimited' : ($navUsage['invoices_this_month']['limit'] ?? 10) }}
-                                            </span>
-                                        </div>
-                                        @if (!$isCorePlan)
-                                            <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                                <div class="h-full rounded-full transition-all duration-500 {{ ($navUsage['invoices_this_month']['percent'] ?? 0) >= 90 ? 'bg-rose-500' : (($navUsage['invoices_this_month']['percent'] ?? 0) >= 70 ? 'bg-amber-500' : 'bg-indigo-500') }}"
-                                                    style="width: {{ $navUsage['invoices_this_month']['percent'] ?? 0 }}%">
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <!-- 3. Transaksi Kasir POS -->
-                                    <div class="space-y-1">
-                                        <div class="flex justify-between text-[11px]">
-                                            <span class="text-slate-600 dark:text-slate-400 font-medium">Transaksi Kasir POS:</span>
-                                            <span class="font-mono font-bold {{ ($navUsage['pos_this_month']['is_reached'] ?? false) ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
-                                                {{ $navUsage['pos_this_month']['used'] ?? 0 }} / {{ $isCorePlan ? '∞ Unlimited' : ($navUsage['pos_this_month']['limit'] ?? 100) }}
-                                            </span>
-                                        </div>
-                                        @if (!$isCorePlan)
-                                            <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                                <div class="h-full rounded-full transition-all duration-500 {{ ($navUsage['pos_this_month']['percent'] ?? 0) >= 90 ? 'bg-rose-500' : (($navUsage['pos_this_month']['percent'] ?? 0) >= 70 ? 'bg-amber-500' : 'bg-emerald-500') }}"
-                                                    style="width: {{ $navUsage['pos_this_month']['percent'] ?? 0 }}%">
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <!-- 4. Purchase Orders (PO) -->
-                                    <div class="space-y-1">
-                                        <div class="flex justify-between text-[11px]">
-                                            <span class="text-slate-600 dark:text-slate-400 font-medium">Purchase Order (PO):</span>
-                                            <span class="font-mono font-bold {{ ($navUsage['po_this_month']['is_reached'] ?? false) ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
-                                                {{ $navUsage['po_this_month']['used'] ?? 0 }} / {{ $isCorePlan ? '∞ Unlimited' : ($navUsage['po_this_month']['limit'] ?? 10) }}
-                                            </span>
-                                        </div>
-                                        @if (!$isCorePlan)
-                                            <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                                <div class="h-full rounded-full transition-all duration-500 {{ ($navUsage['po_this_month']['percent'] ?? 0) >= 90 ? 'bg-rose-500' : (($navUsage['po_this_month']['percent'] ?? 0) >= 70 ? 'bg-amber-500' : 'bg-amber-500') }}"
-                                                    style="width: {{ $navUsage['po_this_month']['percent'] ?? 0 }}%">
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <!-- 5. Resep & BOM -->
-                                    <div class="space-y-1">
-                                        <div class="flex justify-between text-[11px]">
-                                            <span class="text-slate-600 dark:text-slate-400 font-medium">Resep / BOM:</span>
-                                            <span class="font-mono font-bold {{ ($navUsage['recipes']['is_reached'] ?? false) ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
-                                                {{ $navUsage['recipes']['used'] ?? 0 }} / {{ $isCorePlan ? '∞ Unlimited' : ($navUsage['recipes']['limit'] ?? 20) }}
-                                            </span>
-                                        </div>
-                                        @if (!$isCorePlan)
-                                            <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                                <div class="h-full rounded-full transition-all duration-500 {{ ($navUsage['recipes']['percent'] ?? 0) >= 90 ? 'bg-rose-500' : (($navUsage['recipes']['percent'] ?? 0) >= 70 ? 'bg-amber-500' : 'bg-purple-500') }}"
-                                                    style="width: {{ $navUsage['recipes']['percent'] ?? 0 }}%"></div>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <!-- 6. Bahan Baku -->
-                                    <div class="space-y-1">
-                                        <div class="flex justify-between text-[11px]">
-                                            <span class="text-slate-600 dark:text-slate-400 font-medium">Bahan Baku:</span>
-                                            <span class="font-mono font-bold {{ ($navUsage['materials']['is_reached'] ?? false) ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
-                                                {{ $navUsage['materials']['used'] ?? 0 }} / {{ $isCorePlan ? '∞ Unlimited' : ($navUsage['materials']['limit'] ?? 20) }}
-                                            </span>
-                                        </div>
-                                        @if (!$isCorePlan)
-                                            <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                                <div class="h-full rounded-full transition-all duration-500 {{ ($navUsage['materials']['percent'] ?? 0) >= 90 ? 'bg-rose-500' : (($navUsage['materials']['percent'] ?? 0) >= 70 ? 'bg-amber-500' : 'bg-cyan-500') }}"
-                                                    style="width: {{ $navUsage['materials']['percent'] ?? 0 }}%"></div>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <!-- 7. Token Asisten AI (Top-Up) -->
-                                    <div class="space-y-1">
-                                        <div class="flex justify-between text-[11px]">
-                                            <span class="text-slate-600 dark:text-slate-400 font-medium">Token AI (Top-up):</span>
-                                            <span class="font-mono font-bold text-amber-600 dark:text-amber-300">
-                                                {{ number_format($navUsage['ai_tokens']['remaining'] ?? 0, 0, ',', '.') }} Token
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <!-- 8. Storage Cloud Owner -->
-                                    <div class="space-y-1">
-                                        <div class="flex justify-between text-[11px]">
-                                            <span class="text-slate-600 dark:text-slate-400 font-medium">Storage Cloud:</span>
-                                            <span class="font-mono font-bold text-cyan-600 dark:text-cyan-300">
-                                                {{ number_format($navUsage['storage']['used_mb'] ?? 0, 1, ',', '.') }} MB / {{ number_format($navUsage['storage']['limit_gb'] ?? 1, 1, ',', '.') }} GB
-                                            </span>
-                                        </div>
-                                        <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                            <div class="h-full rounded-full bg-cyan-500 transition-all duration-500"
-                                                style="width: {{ $navUsage['storage']['percentage'] ?? 0 }}%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                @if (!$isCorePlan)
-                                    <!-- Upgrade Teaser Box -->
-                                    <div class="p-3.5 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/30 space-y-2">
-                                        <div class="text-[11px] font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 dark:text-yellow-300"></i>
-                                            <span>Program Patungan Cooca UMKM</span>
-                                        </div>
-                                        <p class="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                                            Buka akses produk & resep tanpa batas, multi-gudang, dan import/export Excel lengkap.
-                                        </p>
-                                        <a href="{{ route('billing.patungan') }}"
-                                            class="block w-full py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-center text-slate-950 text-xs font-black shadow-lg shadow-emerald-500/20 transition">
-                                            Tingkatkan ke Cooca UMKM
-                                        </a>
-                                    </div>
-                                @endif
-
-                                <div class="pt-1 text-center border-t border-slate-200 dark:border-slate-800/80">
-                                    <a href="{{ route('billing.limits') }}"
-                                        class="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 font-semibold">
-                                        <span>Kelola Paket & Kuota Lengkap</span>
-                                        <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
-                    @if ($activeBiz)
-                        <div
-                            class="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
-                            <span>{{ $activeBiz->currency_code }} ({{ $activeBiz->currency_symbol }})</span>
-                        </div>
-                    @endif
-
-                    <!-- Fullscreen Toggle Button -->
-                    <div x-data="{
-                        isFullscreen: false,
-                        init() {
-                            const handleFs = () => this.updateState();
-                            document.addEventListener('fullscreenchange', handleFs);
-                            document.addEventListener('webkitfullscreenchange', handleFs);
-                            document.addEventListener('mozfullscreenchange', handleFs);
-                            document.addEventListener('MSFullscreenChange', handleFs);
-                        },
-                        toggleFullscreen() {
-                            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-                                const docEl = document.documentElement;
-                                if (docEl.requestFullscreen) {
-                                    docEl.requestFullscreen().catch(() => {});
-                                } else if (docEl.webkitRequestFullscreen) {
-                                    docEl.webkitRequestFullscreen();
-                                } else if (docEl.mozRequestFullScreen) {
-                                    docEl.mozRequestFullScreen();
-                                } else if (docEl.msRequestFullscreen) {
-                                    docEl.msRequestFullscreen();
-                                }
-                            } else {
-                                if (document.exitFullscreen) {
-                                    document.exitFullscreen().catch(() => {});
-                                } else if (document.webkitExitFullscreen) {
-                                    document.webkitExitFullscreen();
-                                } else if (document.mozCancelFullScreen) {
-                                    document.mozCancelFullScreen();
-                                } else if (document.msExitFullscreen) {
-                                    document.msExitFullscreen();
-                                }
-                            }
-                        },
-                        updateState() {
-                            this.isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-                        }
-                    }" class="relative">
-                        <button type="button" @click="toggleFullscreen()"
-                            :title="isFullscreen ? 'Keluar Layar Penuh (Esc)' : 'Mode Layar Penuh (Full Screen)'"
-                            aria-label="Toggle Fullscreen"
-                            class="p-2 sm:px-2.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm flex items-center gap-1.5 shrink-0 group">
-                            <i x-show="!isFullscreen" data-lucide="maximize" class="w-4 h-4 text-slate-600 dark:text-slate-300 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors"></i>
-                            <i x-show="isFullscreen" data-lucide="minimize" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors" style="display: none;"></i>
-                            <span class="hidden 2xl:inline text-xs font-semibold" x-text="isFullscreen ? 'Normal' : 'Layar Penuh'"></span>
-                        </button>
-                    </div>
-
-                    <!-- Theme Switcher (Light / Dark / System) -->
-                    <div x-data="{
-                        theme: localStorage.getItem('cooca-theme') || 'light',
-                        themeDropdownOpen: false,
-                        setTheme(val) {
-                            this.theme = val;
-                            localStorage.setItem('cooca-theme', val);
-                            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                            if (val === 'dark' || (val === 'system' && prefersDark)) {
-                                document.documentElement.classList.add('dark');
-                            } else {
-                                document.documentElement.classList.remove('dark');
-                            }
-                            document.documentElement.setAttribute('data-theme', val);
-                            this.themeDropdownOpen = false;
-                        },
-                        init() {
-                            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                                if (this.theme === 'system') {
-                                    if (e.matches) {
-                                        document.documentElement.classList.add('dark');
-                                    } else {
-                                        document.documentElement.classList.remove('dark');
-                                    }
-                                }
-                            });
-                        }
-                    }" class="relative" @click.outside="themeDropdownOpen = false">
-                        <button type="button" @click="themeDropdownOpen = !themeDropdownOpen"
-                            :title="'Ganti Tema: ' + (theme === 'dark' ? 'Gelap' : (theme === 'system' ? 'Sistem' : 'Terang'))"
-                            aria-label="Theme Switcher"
-                            class="p-2 sm:px-2.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm flex items-center gap-1.5 shrink-0 group">
-                            <span x-show="theme === 'light'">
-                                <i data-lucide="sun" class="w-4 h-4 text-amber-500 group-hover:rotate-45 transition-transform"></i>
-                            </span>
-                            <span x-show="theme === 'dark'" style="display: none;">
-                                <i data-lucide="moon" class="w-4 h-4 text-indigo-400 group-hover:-rotate-12 transition-transform"></i>
-                            </span>
-                            <span x-show="theme === 'system'" style="display: none;">
-                                <i data-lucide="monitor" class="w-4 h-4 text-emerald-500"></i>
-                            </span>
-                            <span class="hidden 2xl:inline text-xs font-semibold capitalize" x-text="theme === 'dark' ? 'Gelap' : (theme === 'system' ? 'Sistem' : 'Terang')"></span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 hidden sm:inline" :class="themeDropdownOpen ? 'rotate-180' : ''"></i>
-                        </button>
-
-                        <!-- Theme Dropdown Menu -->
-                        <div x-show="themeDropdownOpen" x-transition
-                            class="absolute right-0 mt-2 w-36 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl p-1.5 z-50 space-y-1 text-xs"
-                            style="display: none;">
-                            <button type="button" @click="setTheme('light')"
-                                class="w-full px-2.5 py-2 rounded-xl flex items-center gap-2 text-left font-medium transition"
-                                :class="theme === 'light' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900'">
-                                <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
-                                <span>Terang</span>
-                            </button>
-                            <button type="button" @click="setTheme('dark')"
-                                class="w-full px-2.5 py-2 rounded-xl flex items-center gap-2 text-left font-medium transition"
-                                :class="theme === 'dark' ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900'">
-                                <i data-lucide="moon" class="w-4 h-4 text-indigo-400"></i>
-                                <span>Gelap</span>
-                            </button>
-                            <button type="button" @click="setTheme('system')"
-                                class="w-full px-2.5 py-2 rounded-xl flex items-center gap-2 text-left font-medium transition"
-                                :class="theme === 'system' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900'">
-                                <i data-lucide="monitor" class="w-4 h-4 text-emerald-500"></i>
-                                <span>Sistem OS</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Quick Action Menu Dropdown -->
-                    <div class="relative" x-data="{ openQuick: false }">
-                        <button type="button" @click="openQuick = !openQuick" @click.outside="openQuick = false"
-                            class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 text-slate-800 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
-                            title="Menu Aksi Cepat">
-                            <i data-lucide="zap" class="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0"></i>
-                            <span class="hidden sm:inline">Aksi Cepat</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:inline shrink-0"></i>
-                        </button>
-
-                        <!-- Mobile Backdrop for Quick Action -->
-                        <div x-show="openQuick" x-transition.opacity @click="openQuick = false"
-                            class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 sm:hidden" style="display: none;"></div>
-
-                        <div x-show="openQuick" x-transition
-                            class="fixed inset-x-4 top-16 max-h-[80dvh] sm:top-full sm:inset-x-auto sm:right-0 sm:mt-2 sm:absolute w-auto sm:w-56 overflow-y-auto rounded-2xl bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-2 z-50 space-y-1 text-xs"
-                            style="display: none;">
-                            <button type="button" @click="openQuick = false; $dispatch('open-quick-expense')"
-                                class="w-full px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 text-left text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2.5 transition">
-                                <div class="p-1.5 rounded-lg bg-rose-500/10 text-rose-400">
-                                    <i data-lucide="receipt" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold">Catat Pengeluaran</div>
-                                    <div class="text-[10px] text-slate-500">Biaya operasional kasir</div>
-                                </div>
-                            </button>
-
-                            <button type="button" @click="openQuick = false; $dispatch('open-quick-stockin')"
-                                class="w-full px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 text-left text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2.5 transition">
-                                <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                    <i data-lucide="package-plus" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold">Beli Stok Langsung</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">1-Klik tambah persediaan</div>
-                                </div>
-                            </button>
-
-                            <button type="button" @click="openQuick = false; $dispatch('open-quick-material')"
-                                class="w-full px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 text-left text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2.5 transition">
-                                <div class="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                                    <i data-lucide="boxes" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold">Tambah Bahan Baku</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">Master bahan & resep</div>
-                                </div>
-                            </button>
-
-                            <div class="border-t border-slate-200 dark:border-slate-800 my-1"></div>
-
-                            <a href="{{ route('pos.terminal') }}"
-                                class="w-full px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 text-left text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2.5 transition">
-                                <div class="p-1.5 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400">
-                                    <i data-lucide="store" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold">Buka Kasir POS</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">Terminal kasir kilat</div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-
-                    <a href="{{ route('calculator.index') }}"
-                        class="hidden sm:flex px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 items-center gap-1.5 transition-all shrink-0"
-                        title="Hitung HPP Produk">
-                        <i data-lucide="plus" class="w-4 h-4 shrink-0"></i>
-                        <span>Hitung HPP</span>
-                    </a>
-                </div>
-            </header>
+        <!-- Sidebar Navigation (Apple HIG / macOS Sonoma Edition) -->
+        @include('layouts.partials.sidebar', compact('activeBiz', 'navEntitlement', 'navUsage', 'isCorePlan', 'canAccessSales', 'canAccessPurchasing', 'canAccessInventory', 'canAccessCosting', 'canAccessFinance', 'canAccessReports', 'canAccessSettings', 'canAccessRoles', 'canAccessBilling', 'canAccessMasterData'))
+
+        <!-- Main Content Area (macOS Window Canvas) -->
+        <div :class="sidebarCollapsed ? 'lg:pl-[76px]' : 'lg:pl-[268px]'"
+            class="flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-250 ease-out bg-[#F2F2F7] dark:bg-[#1E1E1E]">
+
+            <!-- Topbar Header (Apple macOS Toolbar Architecture) -->
+            @include('layouts.partials.topbar', compact('activeBiz', 'navEntitlement', 'navUsage', 'isCorePlan'))
 
             <!-- Main Page Content -->
-            <main class="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 xl:p-10 space-y-5 sm:space-y-6 min-w-0 pb-28 lg:pb-10">
+            <main class="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-7 space-y-5 sm:space-y-6 min-w-0 pb-28 lg:pb-10 max-w-[1400px] w-full mx-auto">
                 {{-- Flash success & error notifications are handled by AppAlert floating toasts in footer scripts to avoid duplicate UI banners --}}
                 @if (isset($errors) && $errors->any())
-                    <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200/90 dark:border-rose-800/90 text-rose-800 dark:text-rose-200 space-y-1.5 shadow-xs">
-                        <div class="flex items-center gap-2 font-bold text-xs">
-                            <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0"></i>
+                    <div class="p-3.5 rounded-[12px] bg-[#FF3B30]/10 dark:bg-[#FF453A]/15 border border-[#FF3B30]/20 text-[#C41E17] dark:text-[#FF453A] space-y-1">
+                        <div class="flex items-center gap-2 font-semibold text-[13px]">
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A] shrink-0"></i>
                             <span>Terdapat kesalahan input:</span>
                         </div>
-                        <ul class="list-disc list-inside text-xs space-y-0.5 pl-2 text-rose-700 dark:text-rose-300">
+                        <ul class="list-disc list-inside text-[12px] space-y-0.5 pl-2 opacity-90">
                             @foreach ($errors->all() as $err)
                                 <li>{{ $err }}</li>
                             @endforeach
@@ -1845,67 +956,67 @@
                 }
             }">
 
-                <!-- Floating Toasts Container -->
-                <div class="fixed bottom-20 lg:bottom-6 right-3 sm:right-6 left-3 sm:left-auto z-50 flex flex-col gap-2.5 max-w-[calc(100vw-1.5rem)] sm:max-w-sm pointer-events-none">
+                <!-- Floating Toasts Container (Apple Centered Top Banner) -->
+                <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-sm px-4">
                     <template x-for="t in toastList" :key="t.id">
-                        <div x-transition:enter="transition ease-out duration-300"
-                            x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                        <div x-transition:enter="transition ease-out duration-250"
+                            x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave="transition ease-in duration-150"
                             x-transition:leave-start="opacity-100 scale-100"
-                            x-transition:leave-end="opacity-0 scale-90"
-                            :class="t.type === 'error' ? 'bg-white/95 dark:bg-rose-950/95 border-rose-200 dark:border-rose-500/40 text-rose-800 dark:text-rose-200 shadow-rose-500/10' :
-                                'bg-white/95 dark:bg-slate-900/95 border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-200 shadow-emerald-500/10'"
-                            class="p-4 rounded-2xl border shadow-xl backdrop-blur-xl pointer-events-auto flex items-center gap-3 text-xs font-semibold">
-                            <i :data-lucide="t.type === 'error' ? 'alert-triangle' : 'check-circle-2'"
-                                :class="t.type === 'error' ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'"
-                                class="w-5 h-5 shrink-0"></i>
-                            <span x-text="t.msg" class="flex-1"></span>
+                            x-transition:leave-end="opacity-0 -translate-y-2 scale-90"
+                            class="p-3 px-4 rounded-[14px] border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl pointer-events-auto flex items-center gap-2.5 text-[13px] font-medium bg-white/95 dark:bg-[#2C2C2E]/95 text-black dark:text-white">
+                            <span class="w-2 h-2 rounded-full shrink-0"
+                                :class="t.type === 'error' ? 'bg-[#FF3B30]' : 'bg-[#34C759]'"></span>
+                            <span x-text="t.msg" class="flex-1 leading-snug"></span>
                         </div>
                     </template>
                 </div>
 
-                <!-- Modal 1: Quick Expense -->
-                <div x-show="showExpenseModal" x-transition
-                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm"
+                <!-- Modal 1: Quick Expense (Apple Centered Floating Sheet) -->
+                <div x-show="showExpenseModal" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]"
                     style="display: none;">
-                    <div class="glass-card p-6 rounded-3xl w-full max-w-md border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4"
+                    <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
                         @click.outside="showExpenseModal = false">
-                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <div class="flex items-center gap-2.5">
-                                <div class="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
                                     <i data-lucide="receipt" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">Catat Pengeluaran Cepat</h3>
-                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Jurnal otomatis tanpa pindah menu</p>
+                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">Catat Pengeluaran Cepat</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Jurnal otomatis operasional bisnis</p>
                                 </div>
                             </div>
                             <button type="button" @click="showExpenseModal = false"
-                                class="text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
-                                <i data-lucide="x" class="w-5 h-5"></i>
+                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
                         </div>
 
-                        <form @submit.prevent="submitQuickExpense" class="space-y-3.5 text-xs">
+                        <form @submit.prevent="submitQuickExpense" class="space-y-3 text-[13px]">
                             <div>
-                                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Nama / Keterangan Biaya *</label>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama / Keterangan Biaya *</label>
                                 <input type="text" x-model="expenseForm.name" required
                                     placeholder="Contoh: Gas Elpiji 3kg, Plastik Kresek"
-                                    class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-rose-500 dark:focus:border-rose-500 rounded-xl text-slate-900 dark:text-white">
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Nominal (Rp) *</label>
+                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nominal (Rp) *</label>
                                     <input type="number" x-model.number="expenseForm.amount" required min="100"
                                         placeholder="25000"
-                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-rose-500 dark:focus:border-rose-500 rounded-xl text-slate-900 dark:text-white font-mono">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Metode Bayar</label>
+                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Metode Bayar</label>
                                     <select x-model="expenseForm.payment_method"
-                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                         <option value="cash">Kas Tunai (Laci)</option>
                                         <option value="bank">Transfer Bank</option>
                                         <option value="qris">QRIS / e-Wallet</option>
@@ -1914,9 +1025,9 @@
                             </div>
 
                             <div>
-                                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Kategori Biaya</label>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Kategori Biaya</label>
                                 <select x-model="expenseForm.category"
-                                    class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white">
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                     <option value="Operasional Toko">Operasional Toko</option>
                                     <option value="Bahan Habis Pakai">Bahan Habis Pakai (Plastik/Kemasan)</option>
                                     <option value="Listrik, Air & Gas">Listrik, Air & Gas</option>
@@ -1925,14 +1036,11 @@
                                 </select>
                             </div>
 
-                            <div class="flex justify-end gap-2 pt-2">
-                                <button type="button" @click="showExpenseModal = false"
-                                    class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold transition-colors">
+                            <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
+                                <button type="button" @click="showExpenseModal = false" class="btn-apple-gray">
                                     Batal
                                 </button>
-                                <button type="submit" :disabled="isSubmitting"
-                                    class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold flex items-center gap-1.5 shadow-lg shadow-rose-500/20">
-                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                <button type="submit" :disabled="isSubmitting" class="btn-apple-filled">
                                     <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Pengeluaran'"></span>
                                 </button>
                             </div>
@@ -1940,33 +1048,36 @@
                     </div>
                 </div>
 
-                <!-- Modal 2: Quick Instant Stock-In -->
-                <div x-show="showStockInModal" x-transition
-                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm"
+                <!-- Modal 2: Quick Instant Stock-In (Apple Sheet) -->
+                <div x-show="showStockInModal" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]"
                     style="display: none;">
-                    <div class="glass-card p-6 rounded-3xl w-full max-w-md border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4"
+                    <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
                         @click.outside="showStockInModal = false">
-                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <div class="flex items-center gap-2.5">
-                                <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
                                     <i data-lucide="package-plus" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">Beli Stok Masuk Cepat</h3>
-                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">1-Klik tambah persediaan & valuasi aset</p>
+                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">Beli Stok Masuk Cepat</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Tambah persediaan &amp; valuasi aset</p>
                                 </div>
                             </div>
                             <button type="button" @click="showStockInModal = false"
-                                class="text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
-                                <i data-lucide="x" class="w-5 h-5"></i>
+                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
                         </div>
 
-                        <form @submit.prevent="submitQuickStockIn" class="space-y-3.5 text-xs">
+                        <form @submit.prevent="submitQuickStockIn" class="space-y-3 text-[13px]">
                             <div>
-                                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Bahan Baku / Produk *</label>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Bahan Baku / Produk *</label>
                                 <select x-model="stockInForm.material_id" required
-                                    class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-emerald-500 rounded-xl text-slate-900 dark:text-white">
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                     <option value="">-- Pilih Bahan Baku --</option>
                                     @php
                                         $modalMaterials = $activeBiz ? \Illuminate\Support\Facades\Cache::remember("layout_modal_mat_{$activeBiz->id}", 60, function () use ($activeBiz) {
@@ -1991,34 +1102,31 @@
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Jumlah Masuk *</label>
+                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Jumlah Masuk *</label>
                                     <input type="number" x-model.number="stockInForm.quantity" required
                                         min="0.01" step="any" placeholder="10"
-                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-emerald-500 rounded-xl text-slate-900 dark:text-white font-mono">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Harga Beli / Satuan (Rp) *</label>
+                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Harga Beli / Satuan (Rp) *</label>
                                     <input type="number" x-model.number="stockInForm.unit_cost" required
                                         min="0" placeholder="15000"
-                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-emerald-500 rounded-xl text-slate-900 dark:text-white font-mono">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Nama Pemasok / Toko Beli</label>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama Pemasok / Toko Beli</label>
                                 <input type="text" x-model="stockInForm.supplier_name"
                                     placeholder="Contoh: Pasar Induk, Toko Bahan Kue Maju"
-                                    class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white">
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                             </div>
 
-                            <div class="flex justify-end gap-2 pt-2">
-                                <button type="button" @click="showStockInModal = false"
-                                    class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold transition-colors">
+                            <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
+                                <button type="button" @click="showStockInModal = false" class="btn-apple-gray">
                                     Batal
                                 </button>
-                                <button type="submit" :disabled="isSubmitting"
-                                    class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
-                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                <button type="submit" :disabled="isSubmitting" class="btn-apple-filled">
                                     <span x-text="isSubmitting ? 'Memproses...' : 'Tambah Stok Masuk'"></span>
                                 </button>
                             </div>
@@ -2026,47 +1134,50 @@
                     </div>
                 </div>
 
-                <!-- Modal 3: Quick Create Material -->
-                <div x-show="showMaterialModal" x-transition
-                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm"
+                <!-- Modal 3: Quick Create Material (Apple Sheet) -->
+                <div x-show="showMaterialModal" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]"
                     style="display: none;">
-                    <div class="glass-card p-6 rounded-3xl w-full max-w-md border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4"
+                    <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
                         @click.outside="showMaterialModal = false">
-                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <div class="flex items-center gap-2.5">
-                                <div class="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
                                     <i data-lucide="boxes" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">Tambah Bahan Baku Cepat</h3>
-                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Daftarkan bahan baku baru tanpa pindah layar</p>
+                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">Tambah Bahan Baku Cepat</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Daftarkan bahan baku baru tanpa pindah layar</p>
                                 </div>
                             </div>
                             <button type="button" @click="showMaterialModal = false"
-                                class="text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
-                                <i data-lucide="x" class="w-5 h-5"></i>
+                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
                         </div>
 
-                        <form @submit.prevent="submitQuickMaterial" class="space-y-3.5 text-xs">
+                        <form @submit.prevent="submitQuickMaterial" class="space-y-3 text-[13px]">
                             <div>
-                                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Nama Bahan Baku *</label>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama Bahan Baku *</label>
                                 <input type="text" x-model="materialForm.name" required
                                     placeholder="Contoh: Tepung Terigu Segitiga Biru"
-                                    class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl text-slate-900 dark:text-white">
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Harga Beli Dasar (Rp) *</label>
+                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Harga Beli Dasar (Rp) *</label>
                                     <input type="number" x-model.number="materialForm.cost_per_unit" required
                                         min="0" placeholder="12000"
-                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl text-slate-900 dark:text-white font-mono">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Satuan Ukur</label>
+                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Satuan Ukur</label>
                                     <select x-model="materialForm.unit_id"
-                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                         <option value="">Pilih Satuan</option>
                                         @php
                                             $modalUnits = $activeBiz ? \Illuminate\Support\Facades\Cache::remember("layout_modal_units_{$activeBiz->id}", 300, function () use ($activeBiz) {
@@ -2090,14 +1201,11 @@
                                 </div>
                             </div>
 
-                            <div class="flex justify-end gap-2 pt-2">
-                                <button type="button" @click="showMaterialModal = false"
-                                    class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold transition-colors">
+                            <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
+                                <button type="button" @click="showMaterialModal = false" class="btn-apple-gray">
                                     Batal
                                 </button>
-                                <button type="submit" :disabled="isSubmitting"
-                                    class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold flex items-center gap-1.5 shadow-lg shadow-blue-500/20">
-                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                <button type="submit" :disabled="isSubmitting" class="btn-apple-filled">
                                     <span x-text="isSubmitting ? 'Menyimpan...' : 'Tambah Bahan'"></span>
                                 </button>
                             </div>
@@ -2105,67 +1213,75 @@
                     </div>
                 </div>
 
-                <!-- Modal 4: Mobile Action Sheet Bottom Modal -->
-                <div x-show="showMobileActionSheet" x-transition.opacity
-                    class="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm lg:hidden"
+                <!-- Modal 4: Mobile Action Sheet Bottom Modal (iOS 18 Sheet) -->
+                <div x-show="showMobileActionSheet" x-transition:enter="transition-opacity ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition-opacity ease-in duration-150" x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-[2px] lg:hidden"
                     style="display: none;">
-                    <div class="glass-card p-6 rounded-t-3xl w-full border-t border-slate-200 dark:border-slate-700 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto"
-                        @click.outside="showMobileActionSheet = false">
-                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                    <i data-lucide="zap" class="w-4 h-4"></i>
-                                </div>
-                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Aksi Cepat Instan</h3>
-                            </div>
+                    <div class="rounded-t-[20px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl w-full border-t border-black/5 dark:border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.15)] p-5 pt-3 space-y-3 max-h-[85vh] overflow-y-auto"
+                        @click.outside="showMobileActionSheet = false"
+                        x-transition:enter="transition ease-out duration-250"
+                        x-transition:enter-start="translate-y-full"
+                        x-transition:enter-end="translate-y-0"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="translate-y-0"
+                        x-transition:leave-end="translate-y-full">
+
+                        <!-- Grabber Bar -->
+                        <div class="w-9 h-1 rounded-full bg-black/20 dark:bg-white/20 mx-auto"></div>
+
+                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-2">
+                            <h3 class="text-[15px] font-semibold text-black dark:text-white">Aksi Cepat Instan</h3>
                             <button type="button" @click="showMobileActionSheet = false"
-                                class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 transition-colors">
-                                <i data-lucide="x" class="w-5 h-5"></i>
+                                class="text-black/40 dark:text-white/40 p-1">
+                                <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="grid grid-cols-2 gap-2.5 text-[13px]">
                             <button type="button" @click="showMobileActionSheet = false; showExpenseModal = true"
-                                class="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 hover:border-rose-500/40 text-left space-y-2 transition active:scale-95">
-                                <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
                                     <i data-lucide="receipt" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-slate-900 dark:text-white">Catat Beban</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">Biaya operasional</div>
+                                    <div class="font-medium text-black dark:text-white">Catat Beban</div>
+                                    <div class="text-[11px] text-black/45 dark:text-white/45">Biaya operasional</div>
                                 </div>
                             </button>
 
                             <button type="button" @click="showMobileActionSheet = false; showStockInModal = true"
-                                class="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 text-left space-y-2 transition active:scale-95">
-                                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
                                     <i data-lucide="package-plus" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-slate-900 dark:text-white">Beli Stok</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">Tambah persediaan</div>
+                                    <div class="font-medium text-black dark:text-white">Beli Stok</div>
+                                    <div class="text-[11px] text-black/45 dark:text-white/45">Tambah persediaan</div>
                                 </div>
                             </button>
 
                             <button type="button" @click="showMobileActionSheet = false; showMaterialModal = true"
-                                class="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 hover:border-blue-500/40 text-left space-y-2 transition active:scale-95">
-                                <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
                                     <i data-lucide="boxes" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-slate-900 dark:text-white">Bahan Baku</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">Master bahan resep</div>
+                                    <div class="font-medium text-black dark:text-white">Bahan Baku</div>
+                                    <div class="text-[11px] text-black/45 dark:text-white/45">Master bahan resep</div>
                                 </div>
                             </button>
 
                             <a href="{{ route('calculator.index') }}"
-                                class="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 text-left space-y-2 transition block active:scale-95">
-                                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#AF52DE]/12 text-[#AF52DE] dark:text-[#BF5AF2] flex items-center justify-center">
                                     <i data-lucide="sparkles" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-slate-900 dark:text-white">Hitung HPP</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">3-Pilar harga jual</div>
+                                    <div class="font-medium text-black dark:text-white">Hitung HPP</div>
+                                    <div class="text-[11px] text-black/45 dark:text-white/45">3-Pilar harga jual</div>
                                 </div>
                             </a>
                         </div>
@@ -2174,14 +1290,14 @@
 
             </div>
 
-            <!-- Mobile Bottom App Bar (Sticky at Bottom for Mobile Devices) -->
+            <!-- Mobile Bottom App Bar (iOS 18 Frosted Tab Bar) -->
             <div
-                class="fixed inset-x-0 bottom-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-t border-slate-200/90 dark:border-slate-800/90 lg:hidden px-4 py-2 shadow-2xl">
+                class="fixed inset-x-0 bottom-0 z-40 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border-t border-black/5 dark:border-white/10 lg:hidden px-4 py-1.5 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
                 <div class="flex items-center justify-around">
                     <!-- 1. Home / Dashboard -->
                     <a href="{{ route('dashboard') }}"
                         {{ request()->routeIs('dashboard') ? 'aria-current="page"' : '' }}
-                        class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition {{ request()->routeIs('dashboard') ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200' }}">
+                        class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] transition active:scale-[0.97] {{ request()->routeIs('dashboard') ? 'text-[#007AFF] font-semibold' : 'text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70' }}">
                         <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                         <span class="text-[10px]">Home</span>
                     </a>
@@ -2189,23 +1305,23 @@
                     <!-- 2. Kasir POS -->
                     <a href="{{ route('pos.terminal') }}"
                         {{ request()->routeIs('pos.terminal') ? 'aria-current="page"' : '' }}
-                        class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition {{ request()->routeIs('pos.terminal') ? 'text-teal-600 dark:text-teal-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200' }}">
+                        class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] transition active:scale-[0.97] {{ request()->routeIs('pos.terminal') ? 'text-[#007AFF] font-semibold' : 'text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70' }}">
                         <i data-lucide="calculator" class="w-5 h-5"></i>
                         <span class="text-[10px]">Kasir</span>
                     </a>
 
-                    <!-- 3. Glowing Quick Action Trigger (Center Thumb Zone) -->
+                    <!-- 3. Center Action Trigger (iOS Action Capsule) -->
                     <button type="button" @click="$dispatch('open-mobile-actions')"
-                        class="w-12 h-12 -mt-6 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-emerald-400 text-slate-950 flex items-center justify-center shadow-lg shadow-emerald-500/40 ring-4 ring-white dark:ring-slate-950 font-black hover:scale-105 active:scale-95 transition-all"
+                        class="w-10 h-10 -mt-4 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white flex items-center justify-center shadow-[0_4px_14px_rgba(0,122,255,0.35)] ring-4 ring-white dark:ring-[#1C1C1E] active:scale-[0.93] transition-all"
                         aria-label="Aksi Cepat">
-                        <i data-lucide="zap" class="w-6 h-6"></i>
+                        <i data-lucide="plus" class="w-5 h-5"></i>
                     </button>
 
                     <!-- 4. Katalog Produk & Stok -->
                     @if ($canAccessInventory)
                         <a href="{{ route('products.index') }}"
                             {{ request()->routeIs('products.*') || request()->routeIs('inventory.*') ? 'aria-current="page"' : '' }}
-                            class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition {{ request()->routeIs('products.*') || request()->routeIs('inventory.*') ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200' }}">
+                            class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] transition active:scale-[0.97] {{ request()->routeIs('products.*') || request()->routeIs('inventory.*') ? 'text-[#007AFF] font-semibold' : 'text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70' }}">
                             <i data-lucide="package" class="w-5 h-5"></i>
                             <span class="text-[10px]">Produk</span>
                         </a>
@@ -2213,7 +1329,7 @@
 
                     <!-- 5. Menu Drawer Trigger -->
                     <button type="button" @click="sidebarOpen = true"
-                        class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
+                        class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70 transition active:scale-[0.97]"
                         aria-label="Buka Menu">
                         <i data-lucide="menu" class="w-5 h-5"></i>
                         <span class="text-[10px]">Menu</span>
@@ -2221,15 +1337,15 @@
                 </div>
             </div>
 
-            <!-- Footer -->
+            <!-- Footer (macOS Minimalist Footnote) -->
             <footer
-                class="px-6 lg:px-10 py-5 border-t border-slate-200 dark:border-slate-900 text-slate-500 dark:text-slate-400 text-xs flex flex-col sm:flex-row items-center justify-between gap-2 mb-16 lg:mb-0">
+                class="px-6 lg:px-10 py-4 border-t border-black/5 dark:border-white/5 text-black/45 dark:text-white/45 text-[12px] flex flex-col sm:flex-row items-center justify-between gap-2 mb-16 lg:mb-0">
                 <div>&copy; {{ date('Y') }} Cooca UMKM (cooca.id). Business Operating System.</div>
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
                     <a href="{{ url('/api/v1/docs') }}" target="_blank"
-                        class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">API Docs</a>
+                        class="hover:text-[#007AFF] transition-colors">API Docs</a>
                     <span>•</span>
-                    <a href="{{ route('settings.index') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">20
+                    <a href="{{ route('settings.index') }}" class="hover:text-[#007AFF] transition-colors">20
                         Template Bisnis</a>
                 </div>
             </footer>

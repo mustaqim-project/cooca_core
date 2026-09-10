@@ -5,175 +5,205 @@
 ])
 
 @section('content')
-<div class="space-y-6">
+<div class="max-w-[1360px] mx-auto space-y-6 pb-12">
 
-    <!-- Module Navigation Sub-Tabs & Action Bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 w-full sm:w-auto overflow-x-auto text-xs font-bold">
+    <!-- ========================================== -->
+    <!-- 0. BREADCRUMB BAR (APPLE MINIMALIST)       -->
+    <!-- ========================================== -->
+    <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden" aria-label="Breadcrumb">
+        <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
+        <span>›</span>
+        <a href="{{ route('whatsapp.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">WhatsApp Gateway</a>
+        <span>›</span>
+        <span class="text-black/80 dark:text-white/80 font-medium">Blast Promosi</span>
+    </nav>
+
+    <!-- ===================================================== -->
+    <!-- 1. TOOLBAR & SUB-TABS (macOS Sonoma Toolbar Style)     -->
+    <!-- ===================================================== -->
+    <header class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <div>
+            <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">Blast Promosi WhatsApp</h1>
+            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Kirim promosi massal &amp; notifikasi spesial ke seluruh pelanggan terdaftar</p>
+        </div>
+
+        <a href="{{ route('whatsapp.broadcast.create') }}"
+            class="h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-[13px] shadow-[0_1px_2px_rgba(0,122,255,0.25)] flex items-center justify-center gap-1.5 transition-all active:scale-[0.97] active:opacity-80 w-full sm:w-auto">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Buat Blast Promosi Baru</span>
+        </a>
+    </header>
+
+    <!-- Sub-Tabs Segmented Bar -->
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <div class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto overflow-x-auto text-[13px] font-medium">
             <a href="{{ route('whatsapp.index') }}"
-                class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
+                class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                 <i data-lucide="smartphone" class="w-4 h-4"></i>
                 <span>Koneksi Gateway</span>
             </a>
             <a href="{{ route('whatsapp.broadcast.index') }}"
-                class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs border border-slate-200/60 dark:border-slate-800 flex items-center gap-2 whitespace-nowrap">
-                <i data-lucide="megaphone" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+                class="h-8 px-4 rounded-[9px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] flex items-center gap-2 whitespace-nowrap">
+                <i data-lucide="megaphone" class="w-4 h-4 text-[#007AFF]"></i>
                 <span>Blast Promosi</span>
             </a>
             <a href="{{ route('whatsapp.logs.index') }}"
-                class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
+                class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                 <i data-lucide="history" class="w-4 h-4"></i>
                 <span>Log Pesan</span>
             </a>
         </div>
-
-        <a href="{{ route('whatsapp.broadcast.create') }}"
-            class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-98">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Buat Blast Promosi Baru</span>
-        </a>
     </div>
 
-    <!-- STATS KPI GRID (4 METRICS) -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 shadow-xs transition-colors">
+    <!-- ===================================================== -->
+    <!-- 2. STATS KPI GRID (4 METRICS - Apple HIG Style)        -->
+    <!-- ===================================================== -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <!-- Metric 1: Total Kampanye -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Kampanye</span>
-                <div class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                    <i data-lucide="layers" class="w-4 h-4"></i>
+                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Kampanye</span>
+                <div class="w-7 h-7 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
-            <div class="text-2xl font-black font-mono text-slate-900 dark:text-white">
-                {{ number_format($stats['total_campaigns']) }}
+            <div class="text-[20px] sm:text-[26px] font-bold tabular-nums text-black dark:text-white tracking-tight">
+                {{ number_format($stats['total_campaigns'], 0, ',', '.') }}
             </div>
-            <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Riwayat broadcast</div>
+            <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">Riwayat broadcast</div>
         </div>
 
-        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 shadow-xs transition-colors">
+        <!-- Metric 2: Pesan Terkirim (System Green) -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pesan Terkirim</span>
-                <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                    <i data-lucide="send" class="w-4 h-4"></i>
+                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Pesan Terkirim</span>
+                <div class="w-7 h-7 rounded-[8px] bg-[#34C759]/12 flex items-center justify-center text-[#34C759] dark:text-[#30D158]">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
-            <div class="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">
-                {{ number_format($stats['total_sent']) }}
+            <div class="text-[20px] sm:text-[26px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] tracking-tight">
+                {{ number_format($stats['total_sent'], 0, ',', '.') }}
             </div>
-            <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Berhasil masuk ke WA</div>
+            <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">Berhasil masuk ke WA</div>
         </div>
 
-        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 shadow-xs transition-colors">
+        <!-- Metric 3: Total Target (System Indigo) -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Target</span>
-                <div class="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                    <i data-lucide="users" class="w-4 h-4"></i>
+                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Target</span>
+                <div class="w-7 h-7 rounded-[8px] bg-[#5856D6]/10 flex items-center justify-center text-[#5856D6] dark:text-[#5E5CE6]">
+                    <i data-lucide="users" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
-            <div class="text-2xl font-black font-mono text-slate-900 dark:text-white">
-                {{ number_format($stats['total_recipients']) }}
+            <div class="text-[20px] sm:text-[26px] font-bold tabular-nums text-black dark:text-white tracking-tight">
+                {{ number_format($stats['total_recipients'], 0, ',', '.') }}
             </div>
-            <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Penerima ditargetkan</div>
+            <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">Penerima ditargetkan</div>
         </div>
 
-        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 shadow-xs transition-colors">
+        <!-- Metric 4: Keberhasilan (System Blue/Green) -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Keberhasilan</span>
-                <div class="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
-                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Tingkat Sukses</span>
+                <div class="w-7 h-7 rounded-[8px] bg-[#34C759]/12 flex items-center justify-center text-[#34C759] dark:text-[#30D158]">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
-            <div class="text-2xl font-black font-mono text-teal-600 dark:text-teal-400">
+            <div class="text-[20px] sm:text-[26px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] tracking-tight">
                 {{ $stats['success_rate'] }}%
             </div>
-            <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Tingkat delivery sukses</div>
+            <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">Delivery rate sukses</div>
         </div>
     </div>
 
-    <!-- CAMPAIGNS DATA TABLE -->
-    <div class="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs overflow-hidden transition-colors">
-        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+    <!-- ===================================================== -->
+    <!-- 3. CAMPAIGNS DATA TABLE (Apple Dense Table)           -->
+    <!-- ===================================================== -->
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden transition-colors">
+        <div class="p-4 sm:p-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
             <div>
-                <h2 class="text-base font-bold text-slate-900 dark:text-white">Riwayat Kampanye Broadcast</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Daftar semua pesan blast yang pernah dijadwalkan dan dikirim</p>
+                <h2 class="text-[14px] font-semibold text-black dark:text-white">Riwayat Kampanye Broadcast</h2>
+                <p class="text-[12px] text-black/50 dark:text-white/50">Daftar semua pesan promosi massal yang pernah dikirimkan</p>
             </div>
         </div>
 
         @if($campaigns->isEmpty())
             <div class="text-center py-16 px-4 space-y-3">
-                <div class="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center mx-auto border border-slate-200 dark:border-slate-700">
+                <div class="w-14 h-14 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] text-black/30 dark:text-white/30 flex items-center justify-center mx-auto border border-black/5 dark:border-white/10">
                     <i data-lucide="megaphone-off" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <h3 class="text-slate-900 dark:text-white font-bold text-sm">Belum Ada Kampanye Blast Promosi</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-sm mx-auto">
+                    <h3 class="text-black dark:text-white font-semibold text-[15px]">Belum Ada Kampanye Blast Promosi</h3>
+                    <p class="text-black/50 dark:text-white/50 text-[13px] mt-1 max-w-sm mx-auto leading-relaxed">
                         Buat pesan promosi massal pertama Anda untuk mengabarkan diskon atau info menu terbaru ke pelanggan setia.
                     </p>
                 </div>
                 <a href="{{ route('whatsapp.broadcast.create') }}"
-                    class="inline-flex items-center gap-2 mt-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all active:scale-98">
+                    class="inline-flex items-center gap-2 mt-2 h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-[13px] shadow-[0_1px_2px_rgba(0,122,255,0.25)] transition-all active:scale-[0.97] active:opacity-80">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     <span>Buat Blast Pertama Sekarang</span>
                 </a>
             </div>
         @else
-            <div class="table-responsive overflow-x-auto">
-                <table class="w-full text-left text-xs min-w-[640px]">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-[13px] min-w-[640px]">
                     <thead>
-                        <tr class="border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[11px]">
-                            <th class="px-6 py-3.5 font-semibold">Judul Kampanye</th>
-                            <th class="px-4 py-3.5 font-semibold">Target Audiens</th>
-                            <th class="px-4 py-3.5 font-semibold text-center">Penerima</th>
-                            <th class="px-4 py-3.5 font-semibold text-center">Terkirim</th>
-                            <th class="px-4 py-3.5 font-semibold text-center">Status</th>
-                            <th class="px-4 py-3.5 font-semibold">Waktu Kirim</th>
-                            <th class="px-6 py-3.5 text-right font-semibold">Aksi</th>
+                        <tr class="border-b border-black/5 dark:border-white/10 text-black/40 dark:text-white/40 uppercase tracking-wide text-[11px] font-semibold">
+                            <th class="px-5 py-2.5">Judul Kampanye</th>
+                            <th class="px-4 py-2.5">Target Audiens</th>
+                            <th class="px-4 py-2.5 text-center">Penerima</th>
+                            <th class="px-4 py-2.5 text-center">Terkirim</th>
+                            <th class="px-4 py-2.5 text-center">Status</th>
+                            <th class="px-4 py-2.5">Waktu Kirim</th>
+                            <th class="px-5 py-2.5 text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                         @foreach($campaigns as $campaign)
-                            <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
-                                <td class="px-6 py-3.5">
-                                    <div class="font-bold text-slate-900 dark:text-white">{{ $campaign->title }}</div>
-                                    <div class="text-slate-500 dark:text-slate-400 truncate max-w-xs mt-0.5 text-[11px]">
+                            <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                                <td class="px-5 py-3">
+                                    <div class="font-semibold text-black dark:text-white">{{ $campaign->title }}</div>
+                                    <div class="text-black/50 dark:text-white/50 truncate max-w-xs mt-0.5 text-[12px]">
                                         {{ Str::limit($campaign->message, 55) }}
                                     </div>
                                 </td>
-                                <td class="px-4 py-3.5">
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold
                                         {{ $campaign->target_filter === 'all' 
-                                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' 
-                                            : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20' }}">
+                                            ? 'bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60' 
+                                            : 'bg-[#007AFF]/10 text-[#007AFF]' }}">
                                         {{ $campaign->target_filter === 'all' ? 'Semua Pelanggan' : ucfirst($campaign->target_filter) }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3.5 text-center font-mono font-semibold text-slate-700 dark:text-slate-300">
-                                    {{ number_format($campaign->total_recipients) }}
+                                <td class="px-4 py-3 text-center tabular-nums font-semibold text-black/80 dark:text-white/80">
+                                    {{ number_format($campaign->total_recipients, 0, ',', '.') }}
                                 </td>
-                                <td class="px-4 py-3.5 text-center font-mono">
-                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ number_format($campaign->total_sent) }}</span>
+                                <td class="px-4 py-3 text-center tabular-nums">
+                                    <span class="text-[#34C759] dark:text-[#30D158] font-bold">{{ number_format($campaign->total_sent, 0, ',', '.') }}</span>
                                     @if($campaign->total_failed > 0)
-                                        <span class="text-rose-600 dark:text-rose-400 font-semibold text-[11px]"> ({{ $campaign->total_failed }} gagal)</span>
+                                        <span class="text-[#FF3B30] dark:text-[#FF453A] font-medium text-[11px]"> ({{ $campaign->total_failed }} gagal)</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3.5 text-center">
+                                <td class="px-4 py-3 text-center">
                                     @php
                                         $statusBadge = match($campaign->status) {
-                                            'completed'  => ['bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20', 'Selesai'],
-                                            'processing' => ['bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20', 'Memproses'],
-                                            'failed'     => ['bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20', 'Gagal'],
-                                            default      => ['bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700', 'Draft'],
+                                            'completed'  => ['bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border-[#34C759]/20', 'Selesai', 'bg-[#34C759]'],
+                                            'processing' => ['bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A] border-[#FF9500]/20', 'Memproses', 'bg-[#FF9500] animate-pulse'],
+                                            'failed'     => ['bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] border-[#FF3B30]/20', 'Gagal', 'bg-[#FF3B30]'],
+                                            default      => ['bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60 border-black/10', 'Draft', 'bg-black/40'],
                                         };
                                     @endphp
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border {{ $statusBadge[0] }}">
-                                        {{ $statusBadge[1] }}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold {{ $statusBadge[0] }}">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $statusBadge[2] }}"></span>
+                                        <span>{{ $statusBadge[1] }}</span>
                                     </span>
                                 </td>
-                                <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 text-[11px] font-mono">
+                                <td class="px-4 py-3 text-black/50 dark:text-white/50 text-[12px] tabular-nums whitespace-nowrap">
                                     {{ $campaign->created_at->format('d/m/Y H:i') }}
                                 </td>
-                                <td class="px-6 py-3.5 text-right">
+                                <td class="px-5 py-3 text-right">
                                     <a href="{{ route('whatsapp.broadcast.show', $campaign) }}"
-                                        class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline transition-colors">
+                                        class="h-7 px-2.5 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors inline-flex items-center gap-1">
                                         <span>Detail</span>
                                         <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                                     </a>
@@ -184,7 +214,7 @@
                 </table>
             </div>
             @if($campaigns->hasPages())
-                <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800">
+                <div class="p-4 border-t border-black/5 dark:border-white/10">
                     {{ $campaigns->links() }}
                 </div>
             @endif

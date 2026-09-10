@@ -1,71 +1,106 @@
-@extends('layouts.app', ['title' => 'Detail Retur Pembelian'])
+@extends('layouts.app', [
+    'title' => 'Detail Retur ' . $return->return_number,
+    'headerTitle' => 'Detail Retur Pembelian',
+    'headerSubtitle' => 'Rincian fisik barang yang diretur ke pemasok dan penyesuaian stok'
+])
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
-    <!-- Breadcrumb & Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="max-w-[1080px] mx-auto space-y-6 pb-12">
+    <!-- ===================================================== -->
+    <!-- 1. TOOLBAR / HEADER (macOS Sonoma Style)              -->
+    <!-- ===================================================== -->
+    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
-                <a href="{{ route('purchase.returns.index') }}" class="hover:text-white transition">Retur Pembelian</a>
-                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-600"></i>
-                <span class="text-rose-400 font-semibold">{{ $return->return_number }}</span>
+            <!-- Breadcrumb minimal -->
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                <span>›</span>
+                <a href="{{ route('purchase.returns.index') }}" class="hover:text-[#007AFF] transition-colors">Retur Pembelian</a>
+                <span>›</span>
+                <span class="text-black dark:text-white font-medium">{{ $return->return_number }}</span>
+            </nav>
+            <div class="flex items-center gap-2.5">
+                <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">{{ $return->return_number }}</h1>
+                @if($return->status === 'completed')
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Selesai
+                    </span>
+                @elseif($return->status === 'approved')
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span> Disetujui
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span> Draft
+                    </span>
+                @endif
             </div>
-            <h1 class="text-2xl font-black text-white tracking-tight">{{ $return->return_number }}</h1>
-            <p class="text-xs text-slate-400 mt-1">
-                Ref. GR: <span class="text-white font-mono font-bold">{{ $return->goodsReceipt->receipt_number ?? '-' }}</span> &bull; 
-                Supplier: <span class="text-white font-bold">{{ $return->supplier->name ?? '-' }}</span>
+            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">
+                Ref. GR: <span class="font-medium text-black dark:text-white tabular-nums">{{ $return->goodsReceipt->receipt_number ?? '-' }}</span> &bull; 
+                Supplier: <span class="font-medium text-black dark:text-white">{{ $return->supplier->name ?? '-' }}</span>
             </p>
         </div>
+
         <div class="flex items-center gap-2">
-            <a href="{{ route('purchase.returns.index') }}" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold transition">
-                ← Kembali
+            <a href="{{ route('purchase.returns.index') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                <span>Kembali</span>
             </a>
         </div>
-    </div>
+    </header>
 
     @if(session('success'))
-        <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
-            <i data-lucide="check-circle" class="w-4 h-4"></i>
-            <span>{{ session('success') }}</span>
-        </div>
+    <div class="rounded-[12px] bg-[#34C759]/12 border border-[#34C759]/20 px-4 py-3 text-[13px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{{ session('success') }}</span>
+    </div>
     @endif
 
-    <!-- Status & Action Card -->
-    <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+    <!-- ===================================================== -->
+    <!-- 2. STATUS & SUMMARY COCKPIT                           -->
+    <!-- ===================================================== -->
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/5 dark:border-white/10 pb-4">
             <div>
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status Dokumen</div>
+                <span class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wide">Status Dokumen</span>
                 <div class="mt-1">
                     @if($return->status === 'completed')
-                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Selesai (Stok Telah Disesuaikan)</span>
+                        <span class="text-[15px] font-semibold text-[#34C759] dark:text-[#30D158]">Selesai (Stok Fisik Telah Dipotong)</span>
                     @elseif($return->status === 'approved')
-                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">Disetujui (Menunggu Pengiriman Fisik)</span>
+                        <span class="text-[15px] font-semibold text-[#007AFF] dark:text-[#0A84FF]">Disetujui (Menunggu Pengiriman Fisik)</span>
                     @else
-                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Draft (Belum Disetujui)</span>
+                        <span class="text-[15px] font-semibold text-[#FF9500] dark:text-[#FF9F0A]">Draft (Menunggu Persetujuan Manajer)</span>
                     @endif
                 </div>
             </div>
 
-            <div class="text-right">
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Nilai Retur</div>
-                <div class="text-xl font-black text-rose-400 font-mono mt-0.5">
+            <div class="text-left sm:text-right">
+                <span class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wide">Total Nilai Retur</span>
+                <div class="text-[22px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A] mt-0.5">
                     Rp {{ number_format($return->total_amount, 0, ',', '.') }}
                 </div>
             </div>
         </div>
 
-        <div class="text-xs text-slate-300">
-            <span class="text-slate-400 font-semibold">Alasan Retur:</span>
-            <span class="ml-1 text-slate-200">{{ $return->reason }}</span>
+        <div class="text-[13px] text-black/70 dark:text-white/70">
+            <span class="font-medium text-black dark:text-white">Alasan Retur / Klaim:</span>
+            <span class="ml-1">{{ $return->reason }}</span>
         </div>
 
         <!-- Action Buttons -->
+        @if($return->status === 'draft' || $return->status === 'approved')
         <div class="flex items-center gap-3 pt-2">
             @if($return->status === 'draft')
             <form method="POST" action="{{ route('purchase.returns.approve', $return) }}">
                 @csrf
-                <button type="submit" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20 transition flex items-center gap-1.5">
-                    <i data-lucide="check" class="w-4 h-4"></i>
+                <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
                     <span>Setujui Retur</span>
                 </button>
             </form>
@@ -74,43 +109,49 @@
             @if($return->status === 'approved')
             <form method="POST" action="{{ route('purchase.returns.complete', $return) }}">
                 @csrf
-                <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5">
-                    <i data-lucide="check-check" class="w-4 h-4"></i>
-                    <span>Selesaikan & Potong Stok Gudang</span>
+                <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#2FB350] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Selesaikan &amp; Potong Stok Gudang</span>
                 </button>
             </form>
             @endif
         </div>
+        @endif
     </div>
 
-    <!-- Items Table Card -->
-    <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-        <div class="p-4 bg-slate-900/90 border-b border-slate-800 text-xs font-bold text-white">
-            Daftar Barang yang Diretur
+    <!-- ===================================================== -->
+    <!-- 3. ITEMS TABLE CARD                                   -->
+    <!-- ===================================================== -->
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+            <h3 class="text-[14px] font-semibold text-black dark:text-white">Daftar Barang yang Diretur</h3>
+            <span class="text-[12px] text-black/50 dark:text-white/50 tabular-nums">{{ count($return->items) }} Item Baris</span>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300 font-mono">
-                <thead class="bg-slate-950/60 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-800/40">
-                    <tr>
-                        <th class="py-3 px-4 font-sans">Nama Produk / Bahan</th>
-                        <th class="py-3 px-4 text-center">Kuantitas</th>
-                        <th class="py-3 px-4 text-right">Harga Satuan (Rp)</th>
-                        <th class="py-3 px-4 text-right">Subtotal (Rp)</th>
+            <table class="w-full text-left text-[13px]">
+                <thead>
+                    <tr class="border-b border-black/5 dark:border-white/10">
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Nama Produk / Bahan</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">Kuantitas</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Harga Satuan (Rp)</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Subtotal (Rp)</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800/50">
+                <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                     @foreach($return->items as $item)
-                    <tr class="hover:bg-slate-800/30">
-                        <td class="py-3 px-4 font-sans font-medium text-white">
+                    <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                        <td class="px-4 py-3 font-medium text-black dark:text-white">
                             {{ $item->item_name }}
                         </td>
-                        <td class="py-3 px-4 text-center font-bold text-amber-300">
+                        <td class="px-4 py-3 text-center tabular-nums font-semibold text-[#FF9500] dark:text-[#FF9F0A]">
                             {{ $item->quantity }}
                         </td>
-                        <td class="py-3 px-4 text-right text-slate-400">
+                        <td class="px-4 py-3 text-right tabular-nums text-black/60 dark:text-white/60">
                             {{ number_format($item->unit_price ?? 0, 0, ',', '.') }}
                         </td>
-                        <td class="py-3 px-4 text-right font-black text-white">
+                        <td class="px-4 py-3 text-right tabular-nums font-semibold text-black dark:text-white">
                             {{ number_format($item->subtotal, 0, ',', '.') }}
                         </td>
                     </tr>

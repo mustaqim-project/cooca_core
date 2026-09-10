@@ -1,104 +1,113 @@
 @extends('layouts.app', ['title' => 'Detail Retur Penjualan ' . $return->return_number])
 
 @section('content')
-<div class="max-w-5xl mx-auto space-y-6 pb-12">
-    <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
-        <a href="{{ route('dashboard') }}" class="hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors flex items-center gap-1.5">
-            <i data-lucide="home" class="w-3.5 h-3.5"></i>
-            <span>Dashboard</span>
-        </a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-        <span>Kasir &amp; Penjualan</span>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-        <a href="{{ route('sales.returns.index') }}" class="hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
-            Retur Penjualan
-        </a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-        <span class="text-slate-900 dark:text-white font-semibold font-mono">{{ $return->return_number }}</span>
-    </nav>
+<div class="max-w-[1100px] mx-auto space-y-6 pb-12" x-data="{
+    approveModalOpen: false,
+    completeModalOpen: false,
 
-    <!-- Top Action & Title Bar -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs print:border-none print:shadow-none print:p-0">
-        <div class="space-y-1.5">
-            <div class="flex flex-wrap items-center gap-2.5">
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/80">
-                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                    {{ $return->return_number }}
-                </span>
-                
+    promptApprove() {
+        this.approveModalOpen = true;
+    },
+    submitApprove() {
+        this.approveModalOpen = false;
+        document.getElementById('approve-form').submit();
+    },
+
+    promptComplete() {
+        this.completeModalOpen = true;
+    },
+    submitComplete() {
+        this.completeModalOpen = false;
+        document.getElementById('complete-form').submit();
+    }
+}">
+
+    <!-- ===================================================== -->
+    <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
+    <!-- ===================================================== -->
+    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
+        <div>
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                <span>›</span>
+                <a href="{{ route('sales.returns.index') }}" class="hover:text-[#007AFF] transition-colors">Retur Penjualan</a>
+                <span>›</span>
+                <span class="text-black dark:text-white font-mono font-medium">{{ $return->return_number }}</span>
+            </nav>
+            <div class="flex items-center gap-2.5">
+                <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight font-mono">{{ $return->return_number }}</h1>
                 @if($return->status === 'completed')
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200/90 dark:border-emerald-800/90">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Selesai &amp; Direstock
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Selesai &amp; Direstock
                     </span>
                 @elseif($return->status === 'approved')
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 border border-blue-200/90 dark:border-blue-800/90">
-                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                        Disetujui
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span> Disetujui
                     </span>
                 @else
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200/90 dark:border-amber-800/90">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                        Draft (Menunggu Persetujuan)
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span> Draft (Menunggu Persetujuan)
                     </span>
                 @endif
             </div>
-
-            <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                Nota Retur Penjualan
-            </h1>
-            <p class="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-2">
-                <span>Tanggal: <strong class="text-slate-700 dark:text-slate-300 font-mono">{{ $return->return_date ? $return->return_date->translatedFormat('d F Y') : $return->created_at->format('d/m/Y') }}</strong></span>
-                <span>&bull;</span>
-                <span>Dibuat: <strong class="text-slate-700 dark:text-slate-300 font-mono">{{ $return->created_at->format('d/m/Y H:i') }}</strong></span>
-            </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5 print:hidden">
-            <a href="{{ route('sales.returns.index') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                <span>Kembali</span>
-            </a>
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- State-driven action triggers -->
+            @if($return->status === 'draft')
+                <button type="button" @click="promptApprove()"
+                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    <span>Setujui Retur</span>
+                </button>
 
-            <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors shadow-2xs">
-                <i data-lucide="printer" class="w-4 h-4 text-slate-500"></i>
+                <form id="approve-form" method="POST" action="{{ route('sales.returns.approve', $return) }}" class="hidden">
+                    @csrf
+                </form>
+            @elseif($return->status === 'approved')
+                <button type="button" @click="promptComplete()"
+                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#30B350] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Selesaikan &amp; Restock</span>
+                </button>
+
+                <form id="complete-form" method="POST" action="{{ route('sales.returns.complete', $return) }}" class="hidden">
+                    @csrf
+                </form>
+            @endif
+
+            <!-- Print Button -->
+            <button type="button" onclick="window.print()"
+                class="h-9 px-3 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] transition flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+                </svg>
                 <span>Cetak Nota</span>
             </button>
 
-            <!-- State-driven action triggers -->
-            @if($return->status === 'draft')
-                <form id="approve-form" method="POST" action="{{ route('sales.returns.approve', $return) }}">
-                    @csrf
-                    <button type="button" onclick="confirmApprove()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-sm shadow-blue-500/20 active:scale-[0.98] transition-all cursor-pointer">
-                        <i data-lucide="check" class="w-4 h-4"></i>
-                        <span>Setujui Retur Penjualan</span>
-                    </button>
-                </form>
-            @elseif($return->status === 'approved')
-                <form id="complete-form" method="POST" action="{{ route('sales.returns.complete', $return) }}">
-                    @csrf
-                    <button type="button" onclick="confirmComplete()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer">
-                        <i data-lucide="check-check" class="w-4 h-4"></i>
-                        <span>Selesaikan &amp; Masukkan ke Stok Gudang</span>
-                    </button>
-                </form>
-            @endif
+            <!-- Back Link -->
+            <a href="{{ route('sales.returns.index') }}"
+                class="h-9 px-3 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition flex items-center">
+                <span>Kembali</span>
+            </a>
         </div>
-    </div>
+    </header>
 
-    <!-- Alert Success / Error -->
+    <!-- Flash Notifications (Apple Banner Style) -->
     @if(session('success'))
-        <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-3">
-            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-            <span class="font-medium">{{ session('success') }}</span>
+        <div class="rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/20 px-4 py-3 text-[13px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-[#34C759] shrink-0"></span>
+            <div class="flex-1 font-medium">{{ session('success') }}</div>
         </div>
     @endif
-
     @if($errors->any())
-        <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/80 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-3">
-            <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0"></i>
-            <div class="font-medium">
+        <div class="rounded-[14px] bg-[#FF3B30]/12 border border-[#FF3B30]/20 px-4 py-3 text-[13px] text-[#C41E17] dark:text-[#FF453A] flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-[#FF3B30] shrink-0"></span>
+            <div class="flex-1 font-medium">
                 @foreach($errors->all() as $err)
                     <div>{{ $err }}</div>
                 @endforeach
@@ -106,59 +115,59 @@
         </div>
     @endif
 
-    <!-- Workflow Progress Stepper -->
-    <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 p-5 shadow-xs print:hidden">
-        <div class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">
+    <!-- Workflow Progress Stepper (Apple HIG Style) -->
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 print:hidden">
+        <span class="text-[11px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-wider block mb-3">
             Alur Proses Retur Penjualan
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
+        </span>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <!-- Step 1: Draft -->
-            <div class="flex items-start gap-3 p-3.5 rounded-xl border {{ $return->status === 'draft' ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/60' : 'bg-slate-50/60 dark:bg-slate-800/30 border-slate-200/80 dark:border-slate-800/60' }}">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ in_array($return->status, ['draft', 'approved', 'completed']) ? 'bg-amber-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500' }} font-bold text-xs">
+            <div class="rounded-[10px] p-3.5 border {{ $return->status === 'draft' ? 'bg-[#FF9500]/8 border-[#FF9500]/20' : 'bg-black/[0.02] dark:bg-white/[0.03] border-black/5 dark:border-white/5' }} flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 {{ in_array($return->status, ['draft', 'approved', 'completed']) ? 'bg-[#FF9500] text-white' : 'bg-black/10 dark:bg-white/10 text-black/40' }} font-bold text-[11px]">
                     @if(in_array($return->status, ['approved', 'completed']))
-                        <i data-lucide="check" class="w-4 h-4"></i>
+                        ✓
                     @else
                         1
                     @endif
                 </div>
                 <div>
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white">1. Pengajuan Draft</h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Item &amp; kuantitas retur dicatat ke sistem.</p>
-                    <span class="inline-block mt-1 text-[10px] font-mono text-slate-400">{{ $return->created_at->format('d M Y, H:i') }}</span>
+                    <h3 class="text-[13px] font-semibold text-black dark:text-white">1. Pengajuan Draft</h3>
+                    <p class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">Item &amp; kuantitas retur dicatat ke sistem.</p>
+                    <span class="text-[10px] tabular-nums text-black/40 dark:text-white/40 block mt-1">{{ $return->created_at->format('d M Y, H:i') }}</span>
                 </div>
             </div>
 
             <!-- Step 2: Approved -->
-            <div class="flex items-start gap-3 p-3.5 rounded-xl border {{ $return->status === 'approved' ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800/60' : (in_array($return->status, ['completed']) ? 'bg-slate-50/60 dark:bg-slate-800/30 border-slate-200/80 dark:border-slate-800/60' : 'bg-slate-50/30 dark:bg-slate-800/10 border-dashed border-slate-200 dark:border-slate-800') }}">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ in_array($return->status, ['approved', 'completed']) ? 'bg-blue-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400' }} font-bold text-xs">
+            <div class="rounded-[10px] p-3.5 border {{ $return->status === 'approved' ? 'bg-[#007AFF]/8 border-[#007AFF]/20' : 'bg-black/[0.02] dark:bg-white/[0.03] border-black/5 dark:border-white/5' }} flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 {{ in_array($return->status, ['approved', 'completed']) ? 'bg-[#007AFF] text-white' : 'bg-black/10 dark:bg-white/10 text-black/40' }} font-bold text-[11px]">
                     @if($return->status === 'completed')
-                        <i data-lucide="check" class="w-4 h-4"></i>
+                        ✓
                     @else
                         2
                     @endif
                 </div>
                 <div>
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white">2. Persetujuan Retur</h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Disetujui untuk pemeriksaan fisik barang.</p>
-                    <span class="inline-block mt-1 text-[10px] font-mono text-slate-400">
+                    <h3 class="text-[13px] font-semibold text-black dark:text-white">2. Persetujuan Retur</h3>
+                    <p class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">Disetujui untuk pemeriksaan fisik barang.</p>
+                    <span class="text-[10px] tabular-nums text-black/40 dark:text-white/40 block mt-1">
                         {{ $return->approved_at ? $return->approved_at->format('d M Y, H:i') : ($return->status === 'approved' ? 'Sedang diverifikasi' : 'Menunggu approval') }}
                     </span>
                 </div>
             </div>
 
             <!-- Step 3: Completed -->
-            <div class="flex items-start gap-3 p-3.5 rounded-xl border {{ $return->status === 'completed' ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60' : 'bg-slate-50/30 dark:bg-slate-800/10 border-dashed border-slate-200 dark:border-slate-800' }}">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ $return->status === 'completed' ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400' }} font-bold text-xs">
+            <div class="rounded-[10px] p-3.5 border {{ $return->status === 'completed' ? 'bg-[#34C759]/8 border-[#34C759]/20' : 'bg-black/[0.02] dark:bg-white/[0.03] border-black/5 dark:border-white/5' }} flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 {{ $return->status === 'completed' ? 'bg-[#34C759] text-white' : 'bg-black/10 dark:bg-white/10 text-black/40' }} font-bold text-[11px]">
                     @if($return->status === 'completed')
-                        <i data-lucide="check-check" class="w-4 h-4"></i>
+                        ✓
                     @else
                         3
                     @endif
                 </div>
                 <div>
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white">3. Selesai &amp; Restock</h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Stok gudang bertambah &amp; kompensasi terekam.</p>
-                    <span class="inline-block mt-1 text-[10px] font-mono text-slate-400">
+                    <h3 class="text-[13px] font-semibold text-black dark:text-white">3. Selesai &amp; Restock</h3>
+                    <p class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">Stok gudang bertambah &amp; kompensasi terekam.</p>
+                    <span class="text-[10px] tabular-nums text-black/40 dark:text-white/40 block mt-1">
                         {{ $return->completed_at ? $return->completed_at->format('d M Y, H:i') : 'Menunggu penyelesaian' }}
                     </span>
                 </div>
@@ -167,48 +176,45 @@
     </div>
 
     <!-- Details Grid: Origin Reference + Compensation -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Card 1: Origin Transaction & Customer Info -->
-        <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 p-5 shadow-xs space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="receipt" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i>
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                        Sumber Transaksi &amp; Pelanggan
-                    </h3>
-                </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Card 1: Sumber Transaksi & Pelanggan -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 space-y-3">
+            <div class="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-2.5">
+                <h3 class="text-[13px] font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">
+                    Sumber Transaksi &amp; Pelanggan
+                </h3>
                 @if($return->invoice)
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#007AFF]/10 text-[#007AFF]">
                         Faktur B2B
                     </span>
                 @elseif($return->posOrder)
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#5856D6]/10 text-[#5856D6]">
                         Kasir POS
                     </span>
                 @else
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-black/5 dark:bg-white/5 text-black/50 dark:text-white/50">
                         Manual
                     </span>
                 @endif
             </div>
 
-            <div class="space-y-3 text-xs">
-                <div class="flex justify-between items-center py-1 border-b border-slate-50 dark:border-slate-800/40">
-                    <span class="text-slate-500 dark:text-slate-400">Nomor Dokumen Asal:</span>
-                    <span class="font-mono font-bold text-slate-900 dark:text-white">
+            <div class="space-y-2 text-[13px]">
+                <div class="flex justify-between items-center py-1 border-b border-black/[0.04] dark:border-white/[0.04]">
+                    <span class="text-black/50 dark:text-white/50">Nomor Dokumen Asal:</span>
+                    <span class="font-semibold tabular-nums text-black dark:text-white">
                         @if($return->invoice)
                             {{ $return->invoice->invoice_number }}
                         @elseif($return->posOrder)
                             {{ $return->posOrder->order_number }}
                         @else
-                            -
+                            —
                         @endif
                     </span>
                 </div>
 
-                <div class="flex justify-between items-center py-1 border-b border-slate-50 dark:border-slate-800/40">
-                    <span class="text-slate-500 dark:text-slate-400">Nama Pelanggan:</span>
-                    <span class="font-bold text-slate-900 dark:text-white">
+                <div class="flex justify-between items-center py-1 border-b border-black/[0.04] dark:border-white/[0.04]">
+                    <span class="text-black/50 dark:text-white/50">Nama Pelanggan:</span>
+                    <span class="font-semibold text-black dark:text-white">
                         @if($return->invoice)
                             {{ $return->invoice->customer?->name ?? 'Pelanggan Umum' }}
                         @elseif($return->posOrder)
@@ -220,86 +226,70 @@
                 </div>
 
                 @if($return->location)
-                <div class="flex justify-between items-center py-1 border-b border-slate-50 dark:border-slate-800/40">
-                    <span class="text-slate-500 dark:text-slate-400">Lokasi / Gudang Restock:</span>
-                    <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $return->location->name }}</span>
+                <div class="flex justify-between items-center py-1 border-b border-black/[0.04] dark:border-white/[0.04]">
+                    <span class="text-black/50 dark:text-white/50">Gudang Restock:</span>
+                    <span class="font-medium text-black dark:text-white">{{ $return->location->name }}</span>
                 </div>
                 @endif
 
-                <div class="pt-2">
-                    <span class="text-slate-500 dark:text-slate-400 block mb-1">Alasan Retur Pelanggan:</span>
-                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 text-slate-800 dark:text-slate-200 italic">
+                <div class="pt-1">
+                    <span class="text-black/50 dark:text-white/50 block text-[12px] mb-1">Alasan Retur Pelanggan:</span>
+                    <div class="p-3 rounded-[8px] bg-black/[0.02] dark:bg-white/[0.03] text-black/80 dark:text-white/80 italic text-[12px]">
                         &ldquo;{{ $return->reason ?: 'Tidak ada catatan spesifik.' }}&rdquo;
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Card 2: Financial & Compensation Summary -->
-        <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 p-5 shadow-xs space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="wallet" class="w-4 h-4 text-rose-600 dark:text-rose-400"></i>
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                        Kompensasi &amp; Nilai Retur
-                    </h3>
-                </div>
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+        <!-- Card 2: Kompensasi & Nilai Retur -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 space-y-3">
+            <div class="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-2.5">
+                <h3 class="text-[13px] font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">
+                    Kompensasi &amp; Nilai Retur
+                </h3>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#FF3B30]/10 text-[#FF3B30]">
                     Refund
                 </span>
             </div>
 
-            <div class="space-y-3 text-xs">
+            <div class="space-y-3 text-[13px]">
                 <div>
-                    <span class="text-slate-500 dark:text-slate-400 text-[11px] block">Total Nilai Kompensasi / Refund:</span>
-                    <div class="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400 font-mono tracking-tight mt-1">
+                    <span class="text-[12px] text-black/45 dark:text-white/45 block">Total Nilai Refund / Kompensasi:</span>
+                    <div class="text-[24px] font-bold tabular-nums text-[#FF3B30] mt-0.5">
                         Rp {{ number_format($return->total_amount, 0, ',', '.') }}
                     </div>
                 </div>
 
-                <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 space-y-2">
+                <div class="p-3 rounded-[10px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1">
                     <div class="flex items-center justify-between">
-                        <span class="text-slate-500 dark:text-slate-400 font-medium">Metode Kompensasi:</span>
+                        <span class="text-black/50 dark:text-white/50">Metode Kompensasi:</span>
                         @if(($return->refund_method ?? 'cash_refund') === 'cash_refund')
-                            <span class="inline-flex items-center gap-1 font-bold text-slate-900 dark:text-white uppercase">
-                                <i data-lucide="banknote" class="w-3.5 h-3.5 text-emerald-600"></i>
-                                Tunai (Cash Refund)
-                            </span>
+                            <span class="font-semibold text-black dark:text-white">Tunai (Cash Refund)</span>
                         @elseif(($return->refund_method ?? '') === 'credit_note')
-                            <span class="inline-flex items-center gap-1 font-bold text-slate-900 dark:text-white uppercase">
-                                <i data-lucide="file-minus" class="w-3.5 h-3.5 text-blue-600"></i>
-                                Pemotongan Tagihan (Credit Note)
-                            </span>
+                            <span class="font-semibold text-[#007AFF]">Pemotongan Tagihan (Credit Note)</span>
                         @else
-                            <span class="inline-flex items-center gap-1 font-bold text-slate-900 dark:text-white uppercase">
-                                <i data-lucide="coins" class="w-3.5 h-3.5 text-amber-600"></i>
-                                Deposit (Store Credit)
-                            </span>
+                            <span class="font-semibold text-[#FF9500]">Deposit (Store Credit)</span>
                         @endif
                     </div>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    <p class="text-[11px] text-black/45 dark:text-white/45 leading-relaxed">
                         @if(($return->refund_method ?? 'cash_refund') === 'cash_refund')
                             Pengembalian uang tunai langsung kepada pelanggan dari kas kasir / rekening operasional.
                         @elseif(($return->refund_method ?? '') === 'credit_note')
                             Nilai retur akan dikurangkan langsung dari sisa kewajiban piutang pada faktur penjualan.
                         @else
-                            Nilai retur disimpan sebagai saldo kredit/deposit yang dapat digunakan pada pembelian berikutnya.
+                            Nilai retur disimpan sebagai saldo deposit pelanggan untuk pembelian berikutnya.
                         @endif
                     </p>
                 </div>
 
-                <div class="flex items-center justify-between pt-1">
-                    <span class="text-slate-500 dark:text-slate-400">Status Restock Fisik:</span>
+                <div class="flex items-center justify-between pt-1 text-[12px]">
+                    <span class="text-black/50 dark:text-white/50">Status Restock Fisik:</span>
                     @if($return->status === 'completed')
-                        <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
-                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                            Stok telah kembali ke gudang
+                        <span class="text-[#34C759] dark:text-[#30D158] font-semibold flex items-center gap-1">
+                            <span>✓</span> Stok telah kembali ke gudang
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
-                            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-                            Menunggu penyelesaian
-                        </span>
+                        <span class="text-[#FF9500] font-medium">Menunggu penyelesaian fisik</span>
                     @endif
                 </div>
             </div>
@@ -307,72 +297,67 @@
     </div>
 
     <!-- Items Table Card -->
-    <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 overflow-hidden shadow-xs">
-        <div class="p-4 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200/90 dark:border-slate-800/90 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <i data-lucide="package-search" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i>
-                <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    Daftar Barang yang Diretur Pelanggan
-                </h3>
-            </div>
-            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                Total: <strong class="text-slate-900 dark:text-white">{{ $return->items->count() }}</strong> Jenis Item
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden">
+        <div class="p-4 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+            <h3 class="text-[15px] font-semibold text-black dark:text-white">
+                Daftar Barang yang Diretur Pelanggan
+            </h3>
+            <span class="text-[12px] tabular-nums text-black/50 dark:text-white/50">
+                Total: <strong class="text-black dark:text-white">{{ $return->items->count() }}</strong> Jenis Item
             </span>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                <thead class="bg-slate-100/70 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold border-b border-slate-200 dark:border-slate-800">
-                    <tr>
-                        <th class="py-3 px-4 w-12 text-center">#</th>
-                        <th class="py-3 px-4">Barang / Item Produk</th>
-                        <th class="py-3 px-4 text-center">Kuantitas Retur</th>
-                        <th class="py-3 px-4 text-right">Harga Satuan Asal</th>
-                        <th class="py-3 px-4 text-right">Nilai Retur (Subtotal)</th>
+            <table class="w-full text-left text-[13px]">
+                <thead>
+                    <tr class="border-b border-black/5 dark:border-white/10 text-black/40 dark:text-white/40 text-[11px] font-semibold uppercase tracking-wide">
+                        <th class="py-2.5 px-4 w-12 text-center">#</th>
+                        <th class="py-2.5 px-4">Barang / Item Produk</th>
+                        <th class="py-2.5 px-4 text-center">Kuantitas Retur</th>
+                        <th class="py-2.5 px-4 text-right">Harga Satuan Asal</th>
+                        <th class="py-2.5 px-4 text-right">Nilai Retur (Subtotal)</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                     @forelse($return->items as $idx => $item)
-                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                        <td class="py-3.5 px-4 text-center text-slate-400 dark:text-slate-500">
+                    <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                        <td class="py-3 px-4 text-center tabular-nums text-black/40 dark:text-white/40">
                             {{ $idx + 1 }}
                         </td>
-                        <td class="py-3.5 px-4 font-sans">
-                            <div class="font-bold text-slate-900 dark:text-white">
+                        <td class="py-3 px-4">
+                            <div class="font-medium text-black dark:text-white">
                                 {{ $item->item_name }}
                             </div>
                             @if($item->product?->sku)
-                                <div class="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                                <div class="text-[11px] font-mono text-black/40 dark:text-white/40">
                                     SKU: {{ $item->product->sku }}
                                 </div>
                             @endif
                         </td>
-                        <td class="py-3.5 px-4 text-center">
-                            <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md text-xs font-black bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/80">
-                                {{ number_format($item->quantity, 0, ',', '.') }}
-                            </span>
+                        <td class="py-3 px-4 text-center tabular-nums font-semibold text-black dark:text-white">
+                            {{ number_format($item->quantity, 0, ',', '.') }}
                         </td>
-                        <td class="py-3.5 px-4 text-right text-slate-600 dark:text-slate-400">
+                        <td class="py-3 px-4 text-right tabular-nums text-black/60 dark:text-white/60">
                             Rp {{ number_format($item->unit_price ?? 0, 0, ',', '.') }}
                         </td>
-                        <td class="py-3.5 px-4 text-right font-black text-slate-900 dark:text-white">
+                        <td class="py-3 px-4 text-right tabular-nums font-semibold text-[#FF3B30]">
                             Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-8 text-center text-slate-400 dark:text-slate-500 italic font-sans">
+                        <td colspan="5" class="py-8 text-center text-black/40 dark:text-white/40 italic">
                             Tidak ada rincian item dalam dokumen retur ini.
                         </td>
                     </tr>
                     @endforelse
                 </tbody>
-                <tfoot class="bg-slate-50/90 dark:bg-slate-950/80 font-mono border-t border-slate-200 dark:border-slate-800">
+                <tfoot class="border-t border-black/5 dark:border-white/10">
                     <tr>
-                        <td colspan="4" class="py-3.5 px-4 text-right font-sans font-bold text-slate-700 dark:text-slate-300">
+                        <td colspan="4" class="py-3 px-4 text-right font-semibold text-black dark:text-white">
                             Grand Total Nilai Retur:
                         </td>
-                        <td class="py-3.5 px-4 text-right font-black text-rose-600 dark:text-rose-400 text-sm">
+                        <td class="py-3 px-4 text-right font-bold tabular-nums text-[#FF3B30] text-[15px]">
                             Rp {{ number_format($return->total_amount, 0, ',', '.') }}
                         </td>
                     </tr>
@@ -381,85 +366,114 @@
         </div>
     </div>
 
-    <!-- Print Authorization Signatures (Visible on Print Only) -->
-    <div class="hidden print:grid grid-cols-3 gap-6 pt-12 text-center text-xs text-slate-800">
+    <!-- Print Signatures (Visible on Print Only) -->
+    <div class="hidden print:grid grid-cols-3 gap-6 pt-12 text-center text-xs text-black/70">
         <div class="space-y-16">
             <p class="font-semibold">Diajukan oleh (Pelanggan),</p>
             <div>
-                <p class="font-bold border-b border-slate-800 pb-1 mx-8 font-sans">
+                <p class="font-bold border-b border-black/30 pb-1 mx-8">
                     {{ $return->invoice?->customer?->name ?? ($return->posOrder?->customer?->name ?? ($return->customer?->name ?? 'Pelanggan')) }}
                 </p>
-                <p class="text-[10px] text-slate-600 mt-1">Tanda Tangan &amp; Nama Jelas</p>
+                <p class="text-[10px] text-black/50 mt-1">Tanda Tangan &amp; Nama Jelas</p>
             </div>
         </div>
 
         <div class="space-y-16">
             <p class="font-semibold">Diterima Fisik (Staff Gudang),</p>
             <div>
-                <p class="font-bold border-b border-slate-800 pb-1 mx-8 font-sans">( ........................................ )</p>
-                <p class="text-[10px] text-slate-600 mt-1">Petugas Verifikasi Fisik</p>
+                <p class="font-bold border-b border-black/30 pb-1 mx-8">( ........................................ )</p>
+                <p class="text-[10px] text-black/50 mt-1">Petugas Verifikasi Fisik</p>
             </div>
         </div>
 
         <div class="space-y-16">
             <p class="font-semibold">Disetujui oleh (Supervisor / Kasir),</p>
             <div>
-                <p class="font-bold border-b border-slate-800 pb-1 mx-8 font-sans">( ........................................ )</p>
-                <p class="text-[10px] text-slate-600 mt-1">Authorized Signature</p>
+                <p class="font-bold border-b border-black/30 pb-1 mx-8">( ........................................ )</p>
+                <p class="text-[10px] text-black/50 mt-1">Authorized Signature</p>
             </div>
         </div>
     </div>
+
+    <!-- ===================================================== -->
+    <!-- APPLE ALERT DIALOG: SETUJUI RETUR                     -->
+    <!-- ===================================================== -->
+    <div x-show="approveModalOpen"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-[2px]"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0">
+
+        <div class="w-[290px] rounded-[14px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-black/5 dark:border-white/10"
+            @click.away="approveModalOpen = false"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95">
+
+            <div class="px-4 pt-5 pb-4">
+                <p class="text-[17px] font-semibold text-black dark:text-white">Setujui Retur?</p>
+                <p class="text-[13px] text-black/60 dark:text-white/60 mt-1 leading-snug">
+                    Status dokumen akan disetujui untuk pemeriksaan fisik barang yang dikembalikan.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 border-t border-black/10 dark:border-white/10 text-[15px] font-medium">
+                <button type="button" @click="approveModalOpen = false" class="py-3 text-black/60 dark:text-white/60 border-r border-black/10 dark:border-white/10 active:bg-black/5 dark:active:bg-white/5 transition-colors">
+                    Batal
+                </button>
+                <button type="button" @click="submitApprove()" class="py-3 text-[#007AFF] font-semibold active:bg-black/5 dark:active:bg-white/5 transition-colors">
+                    Setujui
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- APPLE ALERT DIALOG: SELESAIKAN & RESTOCK              -->
+    <!-- ===================================================== -->
+    <div x-show="completeModalOpen"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-[2px]"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0">
+
+        <div class="w-[290px] rounded-[14px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-black/5 dark:border-white/10"
+            @click.away="completeModalOpen = false"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95">
+
+            <div class="px-4 pt-5 pb-4">
+                <p class="text-[17px] font-semibold text-black dark:text-white">Selesaikan &amp; Restock?</p>
+                <p class="text-[13px] text-black/60 dark:text-white/60 mt-1 leading-snug">
+                    Sistem akan mengembalikan kuantitas barang ke stok gudang dan mencatat penyesuaian kompensasi.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 border-t border-black/10 dark:border-white/10 text-[15px] font-medium">
+                <button type="button" @click="completeModalOpen = false" class="py-3 text-black/60 dark:text-white/60 border-r border-black/10 dark:border-white/10 active:bg-black/5 dark:active:bg-white/5 transition-colors">
+                    Batal
+                </button>
+                <button type="button" @click="submitComplete()" class="py-3 text-[#34C759] font-semibold active:bg-black/5 dark:active:bg-white/5 transition-colors">
+                    Selesaikan
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
-
-@push('scripts')
-<script>
-function confirmApprove() {
-    Swal.fire({
-        title: 'Setujui Retur Penjualan?',
-        text: 'Status dokumen akan disetujui. Petugas gudang dapat bersiap memverifikasi fisik barang yang diretur.',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#2563eb',
-        cancelButtonColor: '#64748b',
-        confirmButtonText: 'Ya, Setujui',
-        cancelButtonText: 'Batal',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'Memproses Persetujuan...',
-                text: 'Mohon tunggu sebentar',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
-            document.getElementById('approve-form').submit();
-        }
-    });
-}
-
-function confirmComplete() {
-    Swal.fire({
-        title: 'Selesaikan & Masukkan ke Stok Gudang?',
-        text: 'Sistem akan menambahkan kuantitas barang kembali ke stok inventori gudang dan mencatat penyesuaian kompensasi pengembalian.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#059669',
-        cancelButtonColor: '#64748b',
-        confirmButtonText: 'Ya, Selesaikan & Restock',
-        cancelButtonText: 'Batal',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'Memproses Restock...',
-                text: 'Memasukkan barang kembali ke stok inventori...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
-            document.getElementById('complete-form').submit();
-        }
-    });
-}
-</script>
-@endpush
 @endsection

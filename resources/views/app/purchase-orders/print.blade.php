@@ -6,12 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase Order {{ $purchaseOrder->po_number }} — {{ $business->name }}</title>
 
-    <!-- Google Fonts -->
+    <!-- System Font & Fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,9 +24,9 @@
 
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
-            color: #0f172a;
+            font-family: -apple-system, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
+            background-color: #f2f2f7;
+            color: #000000;
         }
 
         @page {
@@ -44,7 +42,6 @@
         }
 
         @media print {
-
             html,
             body {
                 background-color: #ffffff !important;
@@ -105,24 +102,24 @@
     </style>
 </head>
 
-<body class="py-6 px-4 sm:px-6 bg-slate-100">
+<body class="py-6 px-4 sm:px-6 bg-[#F2F2F7] dark:bg-[#000000]">
 
-    <!-- Floating Top Print Action Bar -->
-    <div class="no-print max-w-4xl mx-auto mb-6 bg-slate-900 text-white p-4 rounded-2xl shadow-xl space-y-3">
+    <!-- Floating Top Print Action Bar (macOS Sonoma Floating Toolbar) -->
+    <div class="no-print max-w-4xl mx-auto mb-6 backdrop-blur-md bg-white/90 dark:bg-[#1C1C1E]/90 border border-black/10 dark:border-white/10 p-4 rounded-[14px] shadow-[0_4px_24px_rgba(0,0,0,0.06)] space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                <span class="text-xs font-bold tracking-tight">Dokumen Purchase Order (A4 Ready)</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#34C759]"></span>
+                <span class="text-[13px] font-semibold text-black dark:text-white tracking-tight">Dokumen Purchase Order (Format A4 Resmi)</span>
             </div>
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2">
                 <button onclick="window.history.back()"
-                    class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium transition-colors">
+                    class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all">
                     Kembali
                 </button>
                 <button onclick="window.print()"
-                    class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-black/60 dark:text-white/60" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                         <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
                         <rect x="6" y="14" width="12" height="8" rx="1" />
@@ -130,7 +127,7 @@
                     <span>Cetak Printer</span>
                 </button>
                 <button id="btnDownloadPdf" onclick="downloadPDF()"
-                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all">
+                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)] flex items-center gap-1.5">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -141,22 +138,21 @@
                 </button>
             </div>
         </div>
-        <div class="pt-2 border-t border-slate-800 flex items-center gap-2 text-[11px] text-slate-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24"
+        <div class="pt-2 border-t border-black/5 dark:border-white/10 flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#007AFF] shrink-0" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <span>Klik <strong>"Download PDF Langsung"</strong> untuk mengunduh file <code>.pdf</code> secara instan tanpa dialog print peramban dan bebas header tanggal/URL.</span>
+            <span>Klik <strong>"Download PDF Langsung"</strong> untuk mengunduh berkas <code>.pdf</code> resmi tanpa dialog cetak peramban.</span>
         </div>
     </div>
 
     <!-- Paper Sheet (Standard A4 Flat Container) -->
-    <div
-        class="print-sheet max-w-4xl mx-auto bg-white p-8 sm:p-12 border-0 shadow-none rounded-none text-slate-900 space-y-6">
+    <div class="print-sheet max-w-4xl mx-auto bg-white p-8 sm:p-12 border border-black/10 shadow-sm rounded-[14px] text-black space-y-6">
 
         <!-- Header / Kop Surat -->
-        <div class="flex justify-between items-start border-b-2 border-slate-900 pb-5">
-            <div class="space-y-2 max-w-md">
+        <div class="flex justify-between items-start border-b-2 border-black pb-5">
+            <div class="space-y-1.5 max-w-md">
                 @if ($business->logo_url)
                     <div class="mb-1">
                         <img src="{{ $business->logo_url }}" alt="{{ $business->name }}"
@@ -164,9 +160,9 @@
                     </div>
                 @endif
                 <div class="space-y-0.5">
-                    <h1 class="text-base font-bold text-slate-950 uppercase tracking-wide leading-tight">{{ $business->name }}</h1>
-                    <p class="text-xs text-slate-600">{{ $business->address ?? 'Alamat Kantor Operasional' }}</p>
-                    <p class="text-xs text-slate-600">
+                    <h1 class="text-[16px] font-bold text-black uppercase tracking-wide leading-tight">{{ $business->name }}</h1>
+                    <p class="text-[12px] text-black/70">{{ $business->address ?? 'Alamat Kantor Operasional' }}</p>
+                    <p class="text-[12px] text-black/70">
                         @if ($business->email)
                             Email: {{ $business->email }}
                         @endif
@@ -175,82 +171,79 @@
                         @endif
                     </p>
                     @if ($business->tax_identification_number)
-                        <p class="text-xs text-slate-600 font-mono">NPWP: {{ $business->tax_identification_number }}</p>
+                        <p class="text-[12px] text-black/70 tabular-nums">NPWP: {{ $business->tax_identification_number }}</p>
                     @endif
                 </div>
             </div>
 
             <div class="text-right space-y-0.5">
-                <div class="text-lg font-bold tracking-wider text-slate-950 uppercase">
+                <div class="text-[16px] font-bold tracking-wider text-black uppercase">
                     {{ $purchaseOrder->po_type === 'customer' ? 'CUSTOMER PURCHASE ORDER' : 'VENDOR PURCHASE ORDER' }}
                 </div>
-                <div class="text-sm font-mono font-bold text-slate-800">{{ $purchaseOrder->po_number }}</div>
+                <div class="text-[14px] font-bold tabular-nums text-black/80">{{ $purchaseOrder->po_number }}</div>
                 @if ($purchaseOrder->reference_number)
-                    <div class="text-xs text-slate-500 font-mono">No. Ref: {{ $purchaseOrder->reference_number }}</div>
+                    <div class="text-[12px] text-black/60 tabular-nums">No. Ref: {{ $purchaseOrder->reference_number }}</div>
                 @endif
-                <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 mt-1">
-                    STATUS: <span class="font-bold text-slate-900">{{ strtoupper(str_replace('_', ' ', $purchaseOrder->status)) }}</span>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-black/60 mt-1">
+                    STATUS: <span class="font-bold text-black">{{ strtoupper(str_replace('_', ' ', $purchaseOrder->status)) }}</span>
                 </div>
             </div>
         </div>
 
         <!-- Detail Dokumen & Pihak Terkait -->
-        <div class="grid grid-cols-2 gap-8 text-xs">
-            <div class="space-y-1.5">
-                <div class="font-bold text-slate-500 uppercase tracking-wider text-[10px]">
+        <div class="grid grid-cols-2 gap-8 text-[12px]">
+            <div class="space-y-1">
+                <div class="font-bold text-black/50 uppercase tracking-wider text-[10px]">
                     {{ $purchaseOrder->po_type === 'customer' ? 'Pelanggan / Pemesan:' : 'Pemasok / Vendor Tujuan:' }}
                 </div>
                 @if ($purchaseOrder->customer)
-                    <div class="text-sm font-bold text-slate-950">{{ $purchaseOrder->customer->name }}</div>
+                    <div class="text-[14px] font-bold text-black">{{ $purchaseOrder->customer->name }}</div>
                     @if ($purchaseOrder->customer->company_name)
-                        <div class="font-semibold text-slate-800">{{ $purchaseOrder->customer->company_name }}</div>
+                        <div class="font-semibold text-black/80">{{ $purchaseOrder->customer->company_name }}</div>
                     @endif
-                    <div class="text-slate-600 whitespace-pre-line">
+                    <div class="text-black/70 whitespace-pre-line leading-relaxed">
                         {{ $purchaseOrder->customer->billing_address ?? '-' }}</div>
-                    <div class="text-slate-600 font-mono">Kontak:
+                    <div class="text-black/70 tabular-nums">Kontak:
                         {{ $purchaseOrder->customer->phone ?? ($purchaseOrder->customer->email ?? '-') }}</div>
                     @if ($purchaseOrder->customer->tax_identification_number)
-                        <div class="text-slate-600 font-mono">NPWP:
+                        <div class="text-black/70 tabular-nums">NPWP:
                             {{ $purchaseOrder->customer->tax_identification_number }}</div>
                     @endif
                 @elseif($purchaseOrder->supplier)
-                    <div class="text-sm font-bold text-slate-950">{{ $purchaseOrder->supplier->name }}</div>
-                    <div class="text-slate-600">PIC: {{ $purchaseOrder->supplier->contact_person ?? '-' }}</div>
-                    <div class="text-slate-600 whitespace-pre-line">{{ $purchaseOrder->supplier->address ?? '-' }}
+                    <div class="text-[14px] font-bold text-black">{{ $purchaseOrder->supplier->name }}</div>
+                    <div class="text-black/70">PIC: {{ $purchaseOrder->supplier->contact_person ?? '-' }}</div>
+                    <div class="text-black/70 whitespace-pre-line leading-relaxed">{{ $purchaseOrder->supplier->address ?? '-' }}
                     </div>
-                    <div class="text-slate-600 font-mono">Kontak:
+                    <div class="text-black/70 tabular-nums">Kontak:
                         {{ $purchaseOrder->supplier->phone ?? ($purchaseOrder->supplier->email ?? '-') }}</div>
                 @else
-                    <span class="text-slate-500">-</span>
+                    <span class="text-black/50">-</span>
                 @endif
             </div>
 
-            <div class="space-y-2 text-right">
+            <div class="space-y-1.5 text-right">
                 <div class="flex justify-end gap-4">
-                    <span class="text-slate-500">Tanggal Order:</span>
-                    <span
-                        class="font-mono font-bold text-slate-900">{{ $purchaseOrder->order_date?->translatedFormat('d F Y') }}</span>
+                    <span class="text-black/50">Tanggal Order:</span>
+                    <span class="tabular-nums font-semibold text-black">{{ $purchaseOrder->order_date?->translatedFormat('d F Y') }}</span>
                 </div>
                 @if ($purchaseOrder->expected_delivery_date)
                     <div class="flex justify-end gap-4">
-                        <span class="text-slate-500">Target Pengiriman:</span>
-                        <span
-                            class="font-mono font-bold text-slate-900">{{ $purchaseOrder->expected_delivery_date?->translatedFormat('d F Y') }}</span>
+                        <span class="text-black/50">Target Pengiriman:</span>
+                        <span class="tabular-nums font-semibold text-black">{{ $purchaseOrder->expected_delivery_date?->translatedFormat('d F Y') }}</span>
                     </div>
                 @endif
                 <div class="flex justify-end gap-4">
-                    <span class="text-slate-500">Mata Uang:</span>
-                    <span class="font-semibold text-slate-800">{{ $business->currency_code }}
-                        ({{ $business->currency_symbol }})</span>
+                    <span class="text-black/50">Mata Uang:</span>
+                    <span class="font-semibold text-black/80">{{ $business->currency_code }} ({{ $business->currency_symbol }})</span>
                 </div>
             </div>
         </div>
 
         <!-- Tabel Rincian Item PO -->
         <div class="overflow-visible">
-            <table class="w-full text-left text-xs border-collapse">
+            <table class="w-full text-left text-[12px] border-collapse">
                 <thead>
-                    <tr class="border-y-2 border-slate-900 bg-slate-100 text-slate-900">
+                    <tr class="border-y-2 border-black bg-black/[0.04] text-black">
                         <th class="py-2 px-2.5 font-bold w-10 text-center">No</th>
                         <th class="py-2 px-2.5 font-bold">Deskripsi Item / Barang</th>
                         <th class="py-2 px-2.5 font-bold text-center w-16">Satuan</th>
@@ -259,29 +252,29 @@
                         <th class="py-2 px-2.5 font-bold text-right w-32 whitespace-nowrap">Jumlah</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200">
+                <tbody class="divide-y divide-black/10">
                     @foreach ($purchaseOrder->items as $idx => $item)
                         <tr class="align-top">
-                            <td class="py-2 px-2.5 text-center font-mono text-slate-600">{{ $idx + 1 }}</td>
+                            <td class="py-2 px-2.5 text-center tabular-nums text-black/60">{{ $idx + 1 }}</td>
                             <td class="py-2 px-2.5">
-                                <div class="font-bold text-slate-950 leading-tight">{{ $item->item_name }}</div>
+                                <div class="font-bold text-black leading-tight">{{ $item->item_name }}</div>
                                 @if ($item->sku)
-                                    <div class="text-[10px] text-slate-500 font-mono mt-0.5">Kode: {{ $item->sku }}</div>
+                                    <div class="text-[10px] text-black/50 tabular-nums mt-0.5">Kode: {{ $item->sku }}</div>
                                 @endif
                                 @if ($item->notes)
-                                    <div class="text-[10px] text-slate-600 mt-0.5 leading-snug">{{ $item->notes }}</div>
+                                    <div class="text-[10px] text-black/60 mt-0.5 leading-snug">{{ $item->notes }}</div>
                                 @endif
                             </td>
-                            <td class="py-2 px-2.5 text-center font-mono text-slate-700 uppercase">
+                            <td class="py-2 px-2.5 text-center tabular-nums text-black/70 uppercase">
                                 {{ $item->unit?->code ?? ($item->unit?->symbol ?? 'pcs') }}
                             </td>
-                            <td class="py-2 px-2.5 text-right font-mono font-semibold text-slate-900">
+                            <td class="py-2 px-2.5 text-right tabular-nums font-semibold text-black">
                                 {{ (float) $item->quantity == (int) $item->quantity ? number_format((float) $item->quantity, 0, ',', '.') : rtrim(rtrim(number_format((float) $item->quantity, 2, ',', '.'), '0'), ',') }}
                             </td>
-                            <td class="py-2 px-2.5 text-right font-mono text-slate-800 whitespace-nowrap">
+                            <td class="py-2 px-2.5 text-right tabular-nums text-black/80 whitespace-nowrap">
                                 {{ $business->currency_symbol }} {{ number_format((float) $item->unit_price, 0, ',', '.') }}
                             </td>
-                            <td class="py-2 px-2.5 text-right font-mono font-bold text-slate-950 whitespace-nowrap">
+                            <td class="py-2 px-2.5 text-right tabular-nums font-bold text-black whitespace-nowrap">
                                 {{ $business->currency_symbol }} {{ number_format((float) $item->subtotal, 0, ',', '.') }}
                             </td>
                         </tr>
@@ -293,76 +286,80 @@
         <!-- Footer: Kalkulasi Finansial & Tanda Tangan (Keep Together) -->
         <div class="keep-together space-y-6 pt-2">
             <!-- Kalkulasi Finansial & Catatan -->
-            <div class="flex justify-between items-start border-t-2 border-slate-900 pt-2 gap-6 text-xs">
-                <div class="space-y-4 w-1/2">
+            <div class="flex justify-between items-start border-t-2 border-black pt-3 gap-6 text-[12px]">
+                <div class="space-y-3 w-1/2">
                     @if ($purchaseOrder->terms_and_conditions)
                         <div>
-                            <div class="font-bold text-slate-900 mb-0.5">Syarat & Ketentuan Pengiriman:</div>
-                            <div class="text-slate-600 whitespace-pre-line">{{ $purchaseOrder->terms_and_conditions }}
-                            </div>
+                            <div class="font-bold text-black mb-0.5">Syarat & Ketentuan Pengiriman:</div>
+                            <div class="text-black/70 whitespace-pre-line leading-relaxed">{{ $purchaseOrder->terms_and_conditions }}</div>
                         </div>
                     @endif
 
                     @if ($purchaseOrder->notes)
                         <div>
-                            <div class="font-bold text-slate-900 mb-0.5">Catatan:</div>
-                            <div class="text-slate-600 whitespace-pre-line">{{ $purchaseOrder->notes }}</div>
+                            <div class="font-bold text-black mb-0.5">Catatan:</div>
+                            <div class="text-black/70 whitespace-pre-line leading-relaxed">{{ $purchaseOrder->notes }}</div>
                         </div>
                     @endif
                 </div>
 
                 <div class="w-72 space-y-2">
-                    <div class="flex justify-between text-slate-600">
+                    <div class="flex justify-between text-black/70">
                         <span>Subtotal Item:</span>
-                        <span class="font-mono font-semibold text-slate-900">{{ $business->currency_symbol }}
-                            {{ number_format((float) $purchaseOrder->subtotal, 0, ',', '.') }}</span>
+                        <span class="tabular-nums font-semibold text-black">
+                            {{ $business->currency_symbol }} {{ number_format((float) $purchaseOrder->subtotal, 0, ',', '.') }}
+                        </span>
                     </div>
 
                     @if ($purchaseOrder->discount_amount > 0)
-                        <div class="flex justify-between text-slate-600">
+                        <div class="flex justify-between text-black/70">
                             <span>Potongan Diskon:</span>
-                            <span class="font-mono font-semibold text-rose-600">- {{ $business->currency_symbol }}
-                                {{ number_format((float) $purchaseOrder->discount_amount, 0, ',', '.') }}</span>
+                            <span class="tabular-nums font-semibold text-[#FF3B30]">
+                                - {{ $business->currency_symbol }} {{ number_format((float) $purchaseOrder->discount_amount, 0, ',', '.') }}
+                            </span>
                         </div>
                     @endif
 
                     @if ($purchaseOrder->tax_amount > 0)
-                        <div class="flex justify-between text-slate-600">
+                        <div class="flex justify-between text-black/70">
                             <span>PPN ({{ $purchaseOrder->tax_percentage }}%):</span>
-                            <span class="font-mono font-semibold text-slate-900">+ {{ $business->currency_symbol }}
-                                {{ number_format((float) $purchaseOrder->tax_amount, 0, ',', '.') }}</span>
+                            <span class="tabular-nums font-semibold text-black">
+                                + {{ $business->currency_symbol }} {{ number_format((float) $purchaseOrder->tax_amount, 0, ',', '.') }}
+                            </span>
                         </div>
                     @endif
 
-                    <div
-                        class="pt-2 border-t-2 border-slate-900 flex justify-between items-center text-sm font-bold text-slate-950">
+                    <div class="pt-2 border-t-2 border-black flex justify-between items-center text-[14px] font-bold text-black">
                         <span>Total Nilai PO:</span>
-                        <span class="font-mono text-base">{{ $business->currency_symbol }}
-                            {{ number_format((float) $purchaseOrder->total_amount, 0, ',', '.') }}</span>
+                        <span class="tabular-nums text-[16px]">
+                            {{ $business->currency_symbol }} {{ number_format((float) $purchaseOrder->total_amount, 0, ',', '.') }}
+                        </span>
                     </div>
                 </div>
             </div>
 
             <!-- Kolom Tanda Tangan Otorisasi -->
-            <div class="pt-8 grid grid-cols-2 gap-12 text-center text-xs">
+            <div class="pt-8 grid grid-cols-2 gap-12 text-center text-[12px]">
                 <div class="space-y-16">
                     <div>
-                        <div class="text-slate-500">Dibuat Oleh,</div>
-                        <div class="font-bold text-slate-950 mt-1">{{ $business->name }}</div>
+                        <div class="text-black/60">Dibuat Oleh,</div>
+                        <div class="font-bold text-black mt-1">{{ $business->name }}</div>
                     </div>
-                    <div class="border-t border-slate-400 w-48 mx-auto pt-1 font-semibold text-slate-700">( Bagian
-                        Purchasing )</div>
+                    <div class="border-t border-black/40 w-48 mx-auto pt-1 font-semibold text-black/80">
+                        ( Bagian Purchasing )
+                    </div>
                 </div>
 
                 <div class="space-y-16">
                     <div>
-                        <div class="text-slate-500">Disetujui & Dikonfirmasi Oleh,</div>
-                        <div class="font-bold text-slate-950 mt-1">
+                        <div class="text-black/60">Disetujui & Dikonfirmasi Oleh,</div>
+                        <div class="font-bold text-black mt-1">
                             {{ $purchaseOrder->customer?->company_name ?? ($purchaseOrder->customer?->name ?? ($purchaseOrder->supplier?->name ?? 'Pihak Terkait')) }}
                         </div>
                     </div>
-                    <div class="border-t border-slate-400 w-48 mx-auto pt-1 font-semibold text-slate-700">( Tanda Tangan &
-                        Cap )</div>
+                    <div class="border-t border-black/40 w-48 mx-auto pt-1 font-semibold text-black/80">
+                        ( Tanda Tangan & Cap )
+                    </div>
                 </div>
             </div>
         </div>
@@ -404,7 +401,7 @@
                     btn.disabled = false;
                     btn.classList.remove('opacity-75', 'cursor-wait');
                     btn.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         <span>✓ Berhasil Diunduh!</span>
                     `;
                     setTimeout(() => {
