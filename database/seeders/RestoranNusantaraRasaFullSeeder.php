@@ -621,23 +621,42 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
             );
 
             // Hubungkan Modifier Groups ke Produk
+            $linkModGroup = function (string $productId, string $groupId, int $sort) {
+                $exists = DB::table('product_modifier_groups')
+                    ->where('product_id', $productId)
+                    ->where('modifier_group_id', $groupId)
+                    ->exists();
+
+                if (! $exists) {
+                    DB::table('product_modifier_groups')->insert([
+                        'id' => (string) Str::uuid(),
+                        'product_id' => $productId,
+                        'modifier_group_id' => $groupId,
+                        'sort_order' => $sort,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                } else {
+                    DB::table('product_modifier_groups')
+                        ->where('product_id', $productId)
+                        ->where('modifier_group_id', $groupId)
+                        ->update(['sort_order' => $sort, 'updated_at' => now()]);
+                }
+            };
+
             $mainDishes = ['FNB-RND-001', 'FNB-SAT-002', 'FNB-AYM-003', 'FNB-NAS-004', 'FNB-GRM-005', 'FNB-RWN-006'];
             foreach ($mainDishes as $code) {
                 if (isset($productMap[$code])) {
-                    $productMap[$code]->modifierGroups()->syncWithoutDetaching([
-                        $grpPedas->id => ['sort_order' => 1],
-                        $grpNasi->id => ['sort_order' => 2],
-                        $grpTopping->id => ['sort_order' => 3],
-                    ]);
+                    $linkModGroup($productMap[$code]->id, $grpPedas->id, 1);
+                    $linkModGroup($productMap[$code]->id, $grpNasi->id, 2);
+                    $linkModGroup($productMap[$code]->id, $grpTopping->id, 3);
                 }
             }
 
             $drinks = ['BEV-CND-008', 'BEV-KPI-009', 'BEV-TEH-010'];
             foreach ($drinks as $code) {
                 if (isset($productMap[$code])) {
-                    $productMap[$code]->modifierGroups()->syncWithoutDetaching([
-                        $grpDrink->id => ['sort_order' => 1],
-                    ]);
+                    $linkModGroup($productMap[$code]->id, $grpDrink->id, 1);
                 }
             }
 
