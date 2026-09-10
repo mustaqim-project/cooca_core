@@ -708,260 +708,299 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                 ]
             );
 
-            $activeShift = PosShift::create([
-                'business_id' => $business->id,
-                'pos_register_id' => $posRegister->id,
-                'location_id' => $locOutlet->id,
-                'user_id' => $primaryOwner->id,
-                'opened_at' => Carbon::now()->startOfDay()->addHours(10),
-                'opening_cash' => 500000,
-                'status' => PosShift::STATUS_OPEN,
-                'notes' => 'Shift Siang Kasir Utama Menteng',
-            ]);
+            $activeShift = PosShift::where('business_id', $business->id)
+                ->where('location_id', $locOutlet->id)
+                ->where('status', PosShift::STATUS_OPEN)
+                ->first();
+
+            if (! $activeShift) {
+                $activeShift = PosShift::create([
+                    'business_id' => $business->id,
+                    'pos_register_id' => $posRegister->id,
+                    'location_id' => $locOutlet->id,
+                    'user_id' => $primaryOwner->id,
+                    'opened_at' => Carbon::now()->startOfDay()->addHours(10),
+                    'opening_cash' => 500000,
+                    'status' => PosShift::STATUS_OPEN,
+                    'notes' => 'Shift Siang Kasir Utama Menteng',
+                ]);
+            }
+
+            // Helper idempotent untuk membuat pesanan beserta item & modifier
+            $seedOrderWithItems = function (array $orderAttributes, array $itemsData) use ($business) {
+                $order = PosOrder::updateOrCreate(
+                    ['business_id' => $business->id, 'order_number' => $orderAttributes['order_number']],
+                    $orderAttributes
+                );
+
+                // Hapus item lama jika seeder dijalankan ulang
+                $existingItemIds = PosOrderItem::where('pos_order_id', $order->id)->pluck('id');
+                PosOrderItemModifier::whereIn('pos_order_item_id', $existingItemIds)->delete();
+                PosOrderItem::where('pos_order_id', $order->id)->delete();
+                PosOrderPayment::where('pos_order_id', $order->id)->delete();
+
+                foreach ($itemsData as $it) {
+                    $orderItem = PosOrderItem::create([
+                        'pos_order_id' => $order->id,
+                        'product_id' => $it['product_id'],
+                        'product_name' => $it['product_name'],
+                        'product_code' => $it['product_code'],
+                        'unit_price' => $it['unit_price'],
+                        'unit_cost_hpp' => $it['unit_cost_hpp'],
+                        'quantity' => $it['quantity'],
+                        'subtotal' => $it['subtotal'],
+                        'total_price' => $it['total_price'],
+                        'total_hpp' => $it['total_hpp'],
+                        'notes' => $it['notes'] ?? null,
+                    ]);
+
+                    if (! empty($it['modifiers'])) {
+                        foreach ($it['modifiers'] as $mod) {
+                            PosOrderItemModifier::create(array_merge(['pos_order_item_id' => $orderItem->id], $mod));
+                        }
+                    }
+                }
+
+                return $order;
+            };
 
             // ─────────────────────────────────────────────────────────────────
             // 10. ACTIVE DINE-IN TABLE SESSIONS & LIVE KITCHEN ORDERS
             // ─────────────────────────────────────────────────────────────────
             // A. Meja 03 - Pesanan Baru Masuk (KDS Kolom 1: confirmed)
-            $session03 = PosTableSession::create([
-                'business_id' => $business->id,
-                'pos_table_id' => $tables['Meja 03']->id,
-                'session_number' => 'SES-' . date('Ymd') . '-03',
-                'customer_name' => 'Ibu Dian Sastrowardoyo',
-                'customer_phone' => '0812-9988-7766',
-                'status' => PosTableSession::STATUS_OPEN,
-                'opened_at' => Carbon::now()->subMinutes(12),
-            ]);
+            $session03 = PosTableSession::updateOrCreate(
+                ['business_id' => $business->id, 'session_number' => 'SES-' . date('Ymd') . '-03'],
+                [
+                    'pos_table_id' => $tables['Meja 03']->id,
+                    'customer_name' => 'Ibu Dian Sastrowardoyo',
+                    'customer_phone' => '0812-9988-7766',
+                    'status' => PosTableSession::STATUS_OPEN,
+                    'opened_at' => Carbon::now()->subMinutes(12),
+                ]
+            );
 
-            $orderKds1 = PosOrder::create([
-                'business_id' => $business->id,
-                'location_id' => $locOutlet->id,
-                'pos_shift_id' => $activeShift->id,
-                'user_id' => $primaryOwner->id,
-                'order_number' => 'ORD-' . date('Ymd') . '-001',
-                'order_date' => Carbon::now()->toDateString(),
-                'status' => PosOrder::STATUS_CONFIRMED,
-                'order_type' => 'dine_in',
-                'order_source' => PosOrder::SOURCE_QR_TABLE,
-                'pos_table_id' => $tables['Meja 03']->id,
-                'pos_table_session_id' => $session03->id,
-                'table_or_reference' => 'Meja 03',
-                'customer_name_guest' => 'Ibu Dian Sastrowardoyo',
-                'customer_phone_guest' => '0812-9988-7766',
-                'subtotal' => 75000,
-                'tax_amount' => 7500,
-                'total_amount' => 82500,
-                'paid_amount' => 0,
-                'change_amount' => 0,
-                'total_hpp_cost' => 41500,
-                'total_gross_profit' => 33500,
-                'notes' => 'Pesanan QR: Tolong rendangnya pilih yang empuk.',
-            ]);
-
-            $item1 = PosOrderItem::create([
-                'pos_order_id' => $orderKds1->id,
-                'product_id' => $productMap['FNB-RND-001']->id,
-                'product_name' => $productMap['FNB-RND-001']->name,
-                'product_code' => $productMap['FNB-RND-001']->code,
-                'unit_price' => 45000,
-                'unit_cost_hpp' => 27500,
-                'quantity' => 1,
-                'subtotal' => 45000,
-                'total_price' => 51000,
-                'total_hpp' => 29000,
-                'notes' => 'Level 2, Nasi Uduk',
-            ]);
-
-            PosOrderItemModifier::create([
-                'pos_order_item_id' => $item1->id,
-                'modifier_group_id' => $grpPedas->id,
-                'modifier_option_id' => $optLevel2->id,
-                'modifier_group_name' => 'Tingkat Kepedasan',
-                'modifier_option_name' => 'Level 2: Pedas Gurih',
-                'unit_price' => 0,
-                'quantity' => 1,
-                'subtotal' => 0,
-            ]);
-
-            PosOrderItemModifier::create([
-                'pos_order_item_id' => $item1->id,
-                'modifier_group_id' => $grpNasi->id,
-                'modifier_option_id' => $optNasiUduk->id,
-                'modifier_group_name' => 'Pilihan Nasi',
-                'modifier_option_name' => 'Nasi Uduk Gurih Betawi',
-                'unit_price' => 6000,
-                'quantity' => 1,
-                'subtotal' => 6000,
-            ]);
-
-            PosOrderItem::create([
-                'pos_order_id' => $orderKds1->id,
-                'product_id' => $productMap['BEV-CND-008']->id,
-                'product_name' => $productMap['BEV-CND-008']->name,
-                'product_code' => $productMap['BEV-CND-008']->code,
-                'unit_price' => 24000,
-                'unit_cost_hpp' => 10800,
-                'quantity' => 1,
-                'subtotal' => 24000,
-                'total_price' => 24000,
-                'total_hpp' => 10800,
-                'notes' => 'Duriannya banyakin ya',
-            ]);
+            $seedOrderWithItems(
+                [
+                    'location_id' => $locOutlet->id,
+                    'pos_shift_id' => $activeShift->id,
+                    'user_id' => $primaryOwner->id,
+                    'order_number' => 'ORD-' . date('Ymd') . '-001',
+                    'order_date' => Carbon::now()->toDateString(),
+                    'status' => PosOrder::STATUS_CONFIRMED,
+                    'order_type' => 'dine_in',
+                    'order_source' => PosOrder::SOURCE_QR_TABLE,
+                    'pos_table_id' => $tables['Meja 03']->id,
+                    'pos_table_session_id' => $session03->id,
+                    'table_or_reference' => 'Meja 03',
+                    'customer_name_guest' => 'Ibu Dian Sastrowardoyo',
+                    'customer_phone_guest' => '0812-9988-7766',
+                    'subtotal' => 75000,
+                    'tax_amount' => 7500,
+                    'total_amount' => 82500,
+                    'paid_amount' => 0,
+                    'change_amount' => 0,
+                    'total_hpp_cost' => 41500,
+                    'total_gross_profit' => 33500,
+                    'notes' => 'Pesanan QR: Tolong rendangnya pilih yang empuk.',
+                ],
+                [
+                    [
+                        'product_id' => $productMap['FNB-RND-001']->id,
+                        'product_name' => $productMap['FNB-RND-001']->name,
+                        'product_code' => $productMap['FNB-RND-001']->code,
+                        'unit_price' => 45000,
+                        'unit_cost_hpp' => 27500,
+                        'quantity' => 1,
+                        'subtotal' => 45000,
+                        'total_price' => 51000,
+                        'total_hpp' => 29000,
+                        'notes' => 'Level 2, Nasi Uduk',
+                        'modifiers' => [
+                            [
+                                'modifier_group_id' => $grpPedas->id,
+                                'modifier_option_id' => $optLevel2->id,
+                                'modifier_group_name' => 'Tingkat Kepedasan',
+                                'modifier_option_name' => 'Level 2: Pedas Gurih',
+                                'unit_price' => 0,
+                                'quantity' => 1,
+                                'subtotal' => 0,
+                            ],
+                            [
+                                'modifier_group_id' => $grpNasi->id,
+                                'modifier_option_id' => $optNasiUduk->id,
+                                'modifier_group_name' => 'Pilihan Nasi',
+                                'modifier_option_name' => 'Nasi Uduk Gurih Betawi',
+                                'unit_price' => 6000,
+                                'quantity' => 1,
+                                'subtotal' => 6000,
+                            ],
+                        ],
+                    ],
+                    [
+                        'product_id' => $productMap['BEV-CND-008']->id,
+                        'product_name' => $productMap['BEV-CND-008']->name,
+                        'product_code' => $productMap['BEV-CND-008']->code,
+                        'unit_price' => 24000,
+                        'unit_cost_hpp' => 10800,
+                        'quantity' => 1,
+                        'subtotal' => 24000,
+                        'total_price' => 24000,
+                        'total_hpp' => 10800,
+                        'notes' => 'Duriannya banyakin ya',
+                    ],
+                ]
+            );
 
             // B. Meja 07 - Sedang Dimasak (KDS Kolom 2: preparing)
-            $session07 = PosTableSession::create([
-                'business_id' => $business->id,
-                'pos_table_id' => $tables['Meja 07']->id,
-                'session_number' => 'SES-' . date('Ymd') . '-07',
-                'customer_name' => 'Bpk. Rahmat Hidayat (Rombongan 5 Org)',
-                'customer_phone' => '0813-1122-3344',
-                'status' => PosTableSession::STATUS_OPEN,
-                'opened_at' => Carbon::now()->subMinutes(25),
-            ]);
+            $session07 = PosTableSession::updateOrCreate(
+                ['business_id' => $business->id, 'session_number' => 'SES-' . date('Ymd') . '-07'],
+                [
+                    'pos_table_id' => $tables['Meja 07']->id,
+                    'customer_name' => 'Bpk. Rahmat Hidayat (Rombongan 5 Org)',
+                    'customer_phone' => '0813-1122-3344',
+                    'status' => PosTableSession::STATUS_OPEN,
+                    'opened_at' => Carbon::now()->subMinutes(25),
+                ]
+            );
 
-            $orderKds2 = PosOrder::create([
-                'business_id' => $business->id,
-                'location_id' => $locOutlet->id,
-                'pos_shift_id' => $activeShift->id,
-                'user_id' => $primaryOwner->id,
-                'order_number' => 'ORD-' . date('Ymd') . '-002',
-                'order_date' => Carbon::now()->toDateString(),
-                'status' => PosOrder::STATUS_PREPARING,
-                'order_type' => 'dine_in',
-                'order_source' => PosOrder::SOURCE_POS,
-                'pos_table_id' => $tables['Meja 07']->id,
-                'pos_table_session_id' => $session07->id,
-                'table_or_reference' => 'Meja 07',
-                'customer_name_guest' => 'Bpk. Rahmat Hidayat',
-                'customer_phone_guest' => '0813-1122-3344',
-                'subtotal' => 162000,
-                'tax_amount' => 16200,
-                'total_amount' => 178200,
-                'paid_amount' => 0,
-                'change_amount' => 0,
-                'total_hpp_cost' => 84800,
-                'total_gross_profit' => 77200,
-                'notes' => 'Gurame digoreng kering garing, sambal pisah.',
-            ]);
-
-            PosOrderItem::create([
-                'pos_order_id' => $orderKds2->id,
-                'product_id' => $productMap['FNB-GRM-005']->id,
-                'product_name' => $productMap['FNB-GRM-005']->name,
-                'product_code' => $productMap['FNB-GRM-005']->code,
-                'unit_price' => 58000,
-                'unit_cost_hpp' => 32000,
-                'quantity' => 1,
-                'subtotal' => 58000,
-                'total_price' => 58000,
-                'total_hpp' => 32000,
-                'notes' => 'Garing banget',
-            ]);
-
-            PosOrderItem::create([
-                'pos_order_id' => $orderKds2->id,
-                'product_id' => $productMap['FNB-AYM-003']->id,
-                'product_name' => $productMap['FNB-AYM-003']->name,
-                'product_code' => $productMap['FNB-AYM-003']->code,
-                'unit_price' => 32000,
-                'unit_cost_hpp' => 16400,
-                'quantity' => 2,
-                'subtotal' => 64000,
-                'total_price' => 64000,
-                'total_hpp' => 32800,
-                'notes' => 'Pedas manis madu',
-            ]);
-
-            PosOrderItem::create([
-                'pos_order_id' => $orderKds2->id,
-                'product_id' => $productMap['SNK-MDN-007']->id,
-                'product_name' => $productMap['SNK-MDN-007']->name,
-                'product_code' => $productMap['SNK-MDN-007']->code,
-                'unit_price' => 16000,
-                'unit_cost_hpp' => 6200,
-                'quantity' => 1,
-                'subtotal' => 16000,
-                'total_price' => 16000,
-                'total_hpp' => 6200,
-            ]);
-
-            PosOrderItem::create([
-                'pos_order_id' => $orderKds2->id,
-                'product_id' => $productMap['BEV-TEH-010']->id,
-                'product_name' => $productMap['BEV-TEH-010']->name,
-                'product_code' => $productMap['BEV-TEH-010']->code,
-                'unit_price' => 8000,
-                'unit_cost_hpp' => 2200,
-                'quantity' => 3,
-                'subtotal' => 24000,
-                'total_price' => 24000,
-                'total_hpp' => 6600,
-                'notes' => 'Es batu dipisah',
-            ]);
+            $seedOrderWithItems(
+                [
+                    'location_id' => $locOutlet->id,
+                    'pos_shift_id' => $activeShift->id,
+                    'user_id' => $primaryOwner->id,
+                    'order_number' => 'ORD-' . date('Ymd') . '-002',
+                    'order_date' => Carbon::now()->toDateString(),
+                    'status' => PosOrder::STATUS_PREPARING,
+                    'order_type' => 'dine_in',
+                    'order_source' => PosOrder::SOURCE_POS,
+                    'pos_table_id' => $tables['Meja 07']->id,
+                    'pos_table_session_id' => $session07->id,
+                    'table_or_reference' => 'Meja 07',
+                    'customer_name_guest' => 'Bpk. Rahmat Hidayat',
+                    'customer_phone_guest' => '0813-1122-3344',
+                    'subtotal' => 162000,
+                    'tax_amount' => 16200,
+                    'total_amount' => 178200,
+                    'paid_amount' => 0,
+                    'change_amount' => 0,
+                    'total_hpp_cost' => 84800,
+                    'total_gross_profit' => 77200,
+                    'notes' => 'Gurame digoreng kering garing, sambal pisah.',
+                ],
+                [
+                    [
+                        'product_id' => $productMap['FNB-GRM-005']->id,
+                        'product_name' => $productMap['FNB-GRM-005']->name,
+                        'product_code' => $productMap['FNB-GRM-005']->code,
+                        'unit_price' => 58000,
+                        'unit_cost_hpp' => 32000,
+                        'quantity' => 1,
+                        'subtotal' => 58000,
+                        'total_price' => 58000,
+                        'total_hpp' => 32000,
+                        'notes' => 'Garing banget',
+                    ],
+                    [
+                        'product_id' => $productMap['FNB-AYM-003']->id,
+                        'product_name' => $productMap['FNB-AYM-003']->name,
+                        'product_code' => $productMap['FNB-AYM-003']->code,
+                        'unit_price' => 32000,
+                        'unit_cost_hpp' => 16400,
+                        'quantity' => 2,
+                        'subtotal' => 64000,
+                        'total_price' => 64000,
+                        'total_hpp' => 32800,
+                        'notes' => 'Pedas manis madu',
+                    ],
+                    [
+                        'product_id' => $productMap['SNK-MDN-007']->id,
+                        'product_name' => $productMap['SNK-MDN-007']->name,
+                        'product_code' => $productMap['SNK-MDN-007']->code,
+                        'unit_price' => 16000,
+                        'unit_cost_hpp' => 6200,
+                        'quantity' => 1,
+                        'subtotal' => 16000,
+                        'total_price' => 16000,
+                        'total_hpp' => 6200,
+                    ],
+                    [
+                        'product_id' => $productMap['BEV-TEH-010']->id,
+                        'product_name' => $productMap['BEV-TEH-010']->name,
+                        'product_code' => $productMap['BEV-TEH-010']->code,
+                        'unit_price' => 8000,
+                        'unit_cost_hpp' => 2200,
+                        'quantity' => 3,
+                        'subtotal' => 24000,
+                        'total_price' => 24000,
+                        'total_hpp' => 6600,
+                        'notes' => 'Es batu dipisah',
+                    ],
+                ]
+            );
 
             // C. Meja VIP 1 - Siap Disajikan (KDS Kolom 3: ready)
-            $sessionVip1 = PosTableSession::create([
-                'business_id' => $business->id,
-                'pos_table_id' => $tables['Meja VIP 1']->id,
-                'session_number' => 'SES-' . date('Ymd') . '-VIP1',
-                'customer_name' => 'PT Telkom Indonesia (Meeting Luncheon)',
-                'customer_phone' => '0811-2233-4455',
-                'status' => PosTableSession::STATUS_OPEN,
-                'opened_at' => Carbon::now()->subMinutes(40),
-            ]);
+            $sessionVip1 = PosTableSession::updateOrCreate(
+                ['business_id' => $business->id, 'session_number' => 'SES-' . date('Ymd') . '-VIP1'],
+                [
+                    'pos_table_id' => $tables['Meja VIP 1']->id,
+                    'customer_name' => 'PT Telkom Indonesia (Meeting Luncheon)',
+                    'customer_phone' => '0811-2233-4455',
+                    'status' => PosTableSession::STATUS_OPEN,
+                    'opened_at' => Carbon::now()->subMinutes(40),
+                ]
+            );
 
-            $orderKds3 = PosOrder::create([
-                'business_id' => $business->id,
-                'location_id' => $locOutlet->id,
-                'pos_shift_id' => $activeShift->id,
-                'user_id' => $primaryOwner->id,
-                'order_number' => 'ORD-' . date('Ymd') . '-003',
-                'order_date' => Carbon::now()->toDateString(),
-                'status' => PosOrder::STATUS_READY,
-                'order_type' => 'dine_in',
-                'order_source' => PosOrder::SOURCE_POS,
-                'pos_table_id' => $tables['Meja VIP 1']->id,
-                'pos_table_session_id' => $sessionVip1->id,
-                'table_or_reference' => 'Meja VIP 1',
-                'customer_name_guest' => 'PT Telkom Indonesia',
-                'customer_phone_guest' => '0811-2233-4455',
-                'subtotal' => 224000,
-                'tax_amount' => 22400,
-                'total_amount' => 246400,
-                'paid_amount' => 0,
-                'change_amount' => 0,
-                'total_hpp_cost' => 116000,
-                'total_gross_profit' => 108000,
-                'notes' => 'VIP: Sajikan bersamaan dengan kopi susu aren.',
-            ]);
-
-            PosOrderItem::create([
-                'pos_order_id' => $orderKds3->id,
-                'product_id' => $productMap['FNB-SAT-002']->id,
-                'product_name' => $productMap['FNB-SAT-002']->name,
-                'product_code' => $productMap['FNB-SAT-002']->code,
-                'unit_price' => 38000,
-                'unit_cost_hpp' => 21800,
-                'quantity' => 4,
-                'subtotal' => 152000,
-                'total_price' => 152000,
-                'total_hpp' => 87200,
-                'notes' => 'Daging empuk, bumbu manis gurih',
-            ]);
-
-            PosOrderItem::create([
-                'pos_order_id' => $orderKds3->id,
-                'product_id' => $productMap['BEV-KPI-009']->id,
-                'product_name' => $productMap['BEV-KPI-009']->name,
-                'product_code' => $productMap['BEV-KPI-009']->code,
-                'unit_price' => 18000,
-                'unit_cost_hpp' => 7200,
-                'quantity' => 4,
-                'subtotal' => 72000,
-                'total_price' => 72000,
-                'total_hpp' => 28800,
-                'notes' => 'Less sugar semua',
-            ]);
+            $seedOrderWithItems(
+                [
+                    'location_id' => $locOutlet->id,
+                    'pos_shift_id' => $activeShift->id,
+                    'user_id' => $primaryOwner->id,
+                    'order_number' => 'ORD-' . date('Ymd') . '-003',
+                    'order_date' => Carbon::now()->toDateString(),
+                    'status' => PosOrder::STATUS_READY,
+                    'order_type' => 'dine_in',
+                    'order_source' => PosOrder::SOURCE_POS,
+                    'pos_table_id' => $tables['Meja VIP 1']->id,
+                    'pos_table_session_id' => $sessionVip1->id,
+                    'table_or_reference' => 'Meja VIP 1',
+                    'customer_name_guest' => 'PT Telkom Indonesia',
+                    'customer_phone_guest' => '0811-2233-4455',
+                    'subtotal' => 224000,
+                    'tax_amount' => 22400,
+                    'total_amount' => 246400,
+                    'paid_amount' => 0,
+                    'change_amount' => 0,
+                    'total_hpp_cost' => 116000,
+                    'total_gross_profit' => 108000,
+                    'notes' => 'VIP: Sajikan bersamaan dengan kopi susu aren.',
+                ],
+                [
+                    [
+                        'product_id' => $productMap['FNB-SAT-002']->id,
+                        'product_name' => $productMap['FNB-SAT-002']->name,
+                        'product_code' => $productMap['FNB-SAT-002']->code,
+                        'unit_price' => 38000,
+                        'unit_cost_hpp' => 21800,
+                        'quantity' => 4,
+                        'subtotal' => 152000,
+                        'total_price' => 152000,
+                        'total_hpp' => 87200,
+                        'notes' => 'Daging empuk, bumbu manis gurih',
+                    ],
+                    [
+                        'product_id' => $productMap['BEV-KPI-009']->id,
+                        'product_name' => $productMap['BEV-KPI-009']->name,
+                        'product_code' => $productMap['BEV-KPI-009']->code,
+                        'unit_price' => 18000,
+                        'unit_cost_hpp' => 7200,
+                        'quantity' => 4,
+                        'subtotal' => 72000,
+                        'total_price' => 72000,
+                        'total_hpp' => 28800,
+                        'notes' => 'Less sugar semua',
+                    ],
+                ]
+            );
 
             // ─────────────────────────────────────────────────────────────────
             // 11. COMPLETED HISTORICAL POS TRANSACTIONS (UNTUK DASHBOARD & LAPORAN)
@@ -1010,27 +1049,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                 $total = $subtotal + $tax;
                 $totCost = 0;
 
-                $ord = PosOrder::create([
-                    'business_id' => $business->id,
-                    'location_id' => $locOutlet->id,
-                    'pos_shift_id' => $activeShift->id,
-                    'user_id' => $primaryOwner->id,
-                    'customer_id' => $customers[$cs['cust']]->id,
-                    'order_number' => $cs['order_num'],
-                    'order_date' => Carbon::now()->subHours($cs['hours_ago'])->toDateString(),
-                    'status' => PosOrder::STATUS_COMPLETED,
-                    'order_type' => 'dine_in',
-                    'order_source' => PosOrder::SOURCE_POS,
-                    'table_or_reference' => 'Kasir Utama',
-                    'subtotal' => $subtotal,
-                    'tax_amount' => $tax,
-                    'total_amount' => $total,
-                    'paid_amount' => $total,
-                    'change_amount' => 0,
-                    'total_hpp_cost' => 0,
-                    'total_gross_profit' => 0,
-                ]);
-
+                $itemsFormatted = [];
                 foreach ($cs['items'] as $it) {
                     $prod = $productMap[$it['code']] ?? null;
                     if ($prod) {
@@ -1038,8 +1057,7 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                         $lineCost = $it['qty'] * $it['cost'];
                         $totCost += $lineCost;
 
-                        PosOrderItem::create([
-                            'pos_order_id' => $ord->id,
+                        $itemsFormatted[] = [
                             'product_id' => $prod->id,
                             'product_name' => $prod->name,
                             'product_code' => $prod->code,
@@ -1049,14 +1067,32 @@ final class RestoranNusantaraRasaFullSeeder extends Seeder
                             'subtotal' => $lineSub,
                             'total_price' => $lineSub,
                             'total_hpp' => $lineCost,
-                        ]);
+                        ];
                     }
                 }
 
-                $ord->update([
-                    'total_hpp_cost' => $totCost,
-                    'total_gross_profit' => max(0, $subtotal - $totCost),
-                ]);
+                $ord = $seedOrderWithItems(
+                    [
+                        'location_id' => $locOutlet->id,
+                        'pos_shift_id' => $activeShift->id,
+                        'user_id' => $primaryOwner->id,
+                        'customer_id' => $customers[$cs['cust']]->id,
+                        'order_number' => $cs['order_num'],
+                        'order_date' => Carbon::now()->subHours($cs['hours_ago'])->toDateString(),
+                        'status' => PosOrder::STATUS_COMPLETED,
+                        'order_type' => 'dine_in',
+                        'order_source' => PosOrder::SOURCE_POS,
+                        'table_or_reference' => 'Kasir Utama',
+                        'subtotal' => $subtotal,
+                        'tax_amount' => $tax,
+                        'total_amount' => $total,
+                        'paid_amount' => $total,
+                        'change_amount' => 0,
+                        'total_hpp_cost' => $totCost,
+                        'total_gross_profit' => max(0, $subtotal - $totCost),
+                    ],
+                    $itemsFormatted
+                );
 
                 PosOrderPayment::create([
                     'pos_order_id' => $ord->id,
