@@ -151,6 +151,10 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
     // User Profile & Password Management
     Route::get('/profile', [\App\Http\Controllers\Web\ProfileWebController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [\App\Http\Controllers\Web\ProfileWebController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/contact', [\App\Http\Controllers\Web\ProfileWebController::class, 'requestContactChange'])->name('profile.contact.request');
+    Route::get('/profile/contact/verify', fn () => view('app.profile.verify-contact'))->name('profile.contact.verify');
+    Route::post('/profile/contact/verify', [\App\Http\Controllers\Web\ProfileWebController::class, 'verifyContactChange'])->middleware('throttle:10,1')->name('profile.contact.verify.submit');
+    Route::post('/profile/contact/verify/resend', [\App\Http\Controllers\Web\ProfileWebController::class, 'resendContactChange'])->middleware('throttle:3,1')->name('profile.contact.verify.resend');
     Route::put('/profile/password', [\App\Http\Controllers\Web\ProfileWebController::class, 'updatePassword'])->name('profile.password');
 
     // Complete Profile Onboarding
@@ -169,7 +173,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
     Route::post('/onboarding/restart', [\App\Http\Controllers\Web\OnboardingWebController::class, 'restart'])->name('onboarding.restart');
 
     // Tenant Protected Web Panel
-    Route::middleware(['business.active', 'profile.complete'])->group(function (): void {
+    Route::middleware(['business.active', 'profile.complete', 'verified'])->group(function (): void {
         // Executive Dashboard & Zero-Navigation Quick Actions
         Route::get('/dashboard', [DashboardWebController::class, 'index'])->name('dashboard');
         Route::get('/dashboard/quick-stats', [DashboardWebController::class, 'quickStats'])->name('dashboard.quick-stats');

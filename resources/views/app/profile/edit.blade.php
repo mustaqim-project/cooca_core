@@ -83,7 +83,7 @@
                     </div>
                     <div>
                         <h2 class="text-[16px] font-semibold text-black dark:text-white">Profil Pengguna</h2>
-                        <p class="text-[12px] text-black/50 dark:text-white/50">Ubah nama identitas dan alamat surel login Anda</p>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">Ubah nama identitas dan kontak akun Anda</p>
                     </div>
                 </div>
 
@@ -103,8 +103,13 @@
                         <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1.5">
                             Alamat Surel (Email) <span class="text-[#FF3B30]">*</span>
                         </label>
-                        <input type="email" name="email" value="{{ old('email', $user->email) }}" required
-                               class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        <input type="email" value="{{ $user->email }}" disabled
+                               class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black/50 dark:text-white/50 focus:outline-none transition">
+                        @if($user->hasVerifiedEmail())
+                            <p class="mt-1.5 text-[11px] text-[#248A3D]">Email terverifikasi</p>
+                        @else
+                            <p class="mt-1.5 text-[11px] text-[#FF9500]">Email belum terverifikasi</p>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -175,6 +180,36 @@
                 </button>
             </div>
         </div>
+
+        @if(\App\Support\Context::isOwner())
+        <div class="md:col-span-2 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            <div class="flex items-center gap-3 border-b border-black/5 dark:border-white/10 pb-4 mb-5">
+                <div class="w-10 h-10 rounded-[10px] bg-[#34C759]/10 text-[#248A3D] flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75A2.25 2.25 0 014.5 4.5h15a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75zM2.25 7.5l9.75 6 9.75-6" /></svg>
+                </div>
+                <div>
+                    <h2 class="text-[16px] font-semibold text-black dark:text-white">Ganti Email &amp; Nomor WhatsApp</h2>
+                    <p class="text-[12px] text-black/50 dark:text-white/50">Perubahan dikonfirmasi dengan OTP WhatsApp dan verifikasi email baru</p>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('profile.contact.request') }}" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                @csrf
+                <div>
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1.5">Email Baru <span class="text-[#FF3B30]">*</span></label>
+                    <input type="email" name="email" value="{{ old('email', $user->email) }}" required class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition">
+                </div>
+                <div>
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1.5">Nomor WhatsApp Baru <span class="text-[#FF3B30]">*</span></label>
+                    <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" inputmode="tel" required placeholder="081234567890" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition">
+                </div>
+                <div class="md:col-span-2 flex justify-end">
+                    <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#248A3D] active:scale-[0.97] transition-all flex items-center gap-1.5">
+                        <span>Kirim OTP &amp; Minta Verifikasi</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        @endif
 
     </div>
 </div>

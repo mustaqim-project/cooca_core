@@ -45,8 +45,7 @@
         \App\Support\Context::hasPermission('pos.orders') ||
         \App\Support\Context::hasPermission('pos.reports') ||
         \App\Support\Context::hasPermission('pos.kitchen') ||
-        \App\Support\Context::hasPermission('pos.tables') ||
-        \App\Support\Context::hasPermission('pos.modifiers');
+        \App\Support\Context::hasPermission('pos.tables');
 
     $canAccessB2bSales =
         \App\Support\Context::hasPermission('sales.view') ||
@@ -96,14 +95,12 @@
         \App\Support\Context::hasPermission('pos.reports');
 
     $canAccessChannels =
-        \App\Support\Context::hasPermission('whatsapp.view') ||
-        \App\Support\Context::hasPermission('cms.manage');
+        \App\Support\Context::hasPermission('whatsapp.view');
 
     $canAccessSettings = \App\Support\Context::hasPermission('settings.view') || \App\Support\Context::isOwner();
     $canAccessRoles = \App\Support\Context::hasPermission('roles.view') || \App\Support\Context::isOwner();
     $canAccessBilling = \App\Support\Context::hasPermission('billing.view') || \App\Support\Context::isOwner();
     $canAccessMasterData =
-        \App\Support\Context::hasPermission('master_data.suppliers.view') ||
         \App\Support\Context::hasPermission('master_data.material_categories.view') ||
         \App\Support\Context::hasPermission('master_data.product_categories.view') ||
         \App\Support\Context::hasPermission('master_data.units.view');
@@ -490,18 +487,15 @@
                 <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Dashboard</span>
             </a>
 
-            {{-- AI Assistant (Apple Intelligence Purple) --}}
+            {{-- AI Assistant --}}
             @if (\App\Support\Context::hasPermission('ai.access'))
-                <a href="#" id="tour-nav-ai"
-                    @click.prevent="openComingSoon({ title: 'AI Assistant', icon: 'bot', desc: 'Fitur AI Cockpit untuk analisis penjualan, prediksi tren, dan asisten pintar kasir POS berbasis Gemini AI.', color: 'purple' })"
+                <a href="{{ route('pos.ai.index') }}" id="tour-nav-ai"
                     {{ request()->routeIs('pos.ai.*') ? 'aria-current="page"' : '' }}
-                    :title="sidebarCollapsed ? 'AI Assistant (Segera)' : ''"
+                    :title="sidebarCollapsed ? 'AI Assistant' : ''"
                     class="sidebar-item flex items-center gap-2.5 px-2.5 py-1.5 rounded-[8px] text-[13px] font-medium transition-all active:scale-[0.97] {{ request()->routeIs('pos.ai.*') ? 'bg-[#AF52DE] text-white shadow-[0_1px_2px_rgba(175,82,222,0.25)]' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.05] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
                     <i data-lucide="bot"
                         class="w-4 h-4 {{ request()->routeIs('pos.ai.*') ? 'text-white' : 'text-[#AF52DE] dark:text-[#BF5AF2]' }} shrink-0"></i>
                     <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>AI Assistant</span>
-                    <span x-show="!sidebarCollapsed"
-                        class="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-[#AF52DE]/15 text-[#7C3AA6] dark:text-[#BF5AF2] font-semibold shrink-0">Segera</span>
                 </a>
             @endif
 
@@ -607,13 +601,6 @@
                                     <span class="truncate">Cetak Kartu QR Meja</span>
                                 </a>
 
-                                <a href="{{ route('pos.modifiers.index') }}" id="tour-nav-pos-modifiers"
-                                    {{ request()->routeIs('pos.modifiers.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.modifiers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                    <i data-lucide="sliders"
-                                        class="w-3.5 h-3.5 {{ request()->routeIs('pos.modifiers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                    <span class="truncate">Modifier &amp; Add-on F&amp;B</span>
-                                </a>
                             @endif
 
                             {{-- Subgroup: Penjualan & Penagihan B2B --}}
@@ -630,6 +617,15 @@
                                     <i data-lucide="check-square"
                                         class="w-3.5 h-3.5 {{ request()->routeIs('sales.*') && !request()->routeIs('sales.returns.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                     <span class="truncate">Pesanan &amp; Penawaran</span>
+                                </a>
+                            @endif
+
+                            @if (\App\Support\Context::hasPermission('sales.view'))
+                                <a href="{{ route('sales.quotations.index') }}" id="tour-nav-sales-quotations"
+                                    {{ request()->routeIs('sales.quotations.*') ? 'aria-current="page"' : '' }}
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('sales.quotations.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="file-signature" class="w-3.5 h-3.5 {{ request()->routeIs('sales.quotations.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Penawaran</span>
                                 </a>
                             @endif
 
@@ -659,6 +655,7 @@
                                     Pelanggan &amp; Loyalitas
                                 </div>
 
+                                @if (\App\Support\Context::hasPermission('customers.view'))
                                 <a href="{{ route('customers.index') }}" id="tour-nav-customers"
                                     {{ request()->routeIs('customers.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('customers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -666,7 +663,9 @@
                                         class="w-3.5 h-3.5 {{ request()->routeIs('customers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                     <span class="truncate">Pelanggan</span>
                                 </a>
+                                @endif
 
+                                @if (\App\Support\Context::hasPermission('crm.view'))
                                 <a href="{{ route('crm.members.index') }}" id="tour-nav-crm-members"
                                     {{ request()->routeIs('crm.members.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('crm.members.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -682,6 +681,7 @@
                                         class="w-3.5 h-3.5 {{ request()->routeIs('crm.vouchers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                     <span class="truncate">Voucher Diskon Promosi</span>
                                 </a>
+                                @endif
                             @endif
                         </div>
 
@@ -722,17 +722,17 @@
                                     <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#34C759]"></i>
                                     <span>Cetak Kartu QR Meja</span>
                                 </a>
-                                <a href="{{ route('pos.modifiers.index') }}"
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                    <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
-                                    <span>Modifier &amp; Add-on</span>
-                                </a>
                             @endif
                             @if (\App\Support\Context::hasPermission('sales.view'))
                                 <a href="{{ route('sales.orders.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="check-square" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                     <span>Pesanan &amp; Penawaran</span>
+                                </a>
+                                <a href="{{ route('sales.quotations.index') }}"
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="file-signature" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                    <span>Penawaran</span>
                                 </a>
                             @endif
                             @if (\App\Support\Context::hasPermission('invoices.view'))
@@ -755,11 +755,14 @@
                                     <i data-lucide="users" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                     <span>Pelanggan</span>
                                 </a>
+                            @endif
+                            @if (\App\Support\Context::hasPermission('crm.view'))
                                 <a href="{{ route('crm.members.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="award" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                                     <span>CRM &amp; Loyalitas</span>
                                 </a>
+                            @endif
                             @endif
                         </div>
                     </div>
@@ -795,7 +798,8 @@
                                 </div>
                             @endif
 
-                            @if (\App\Support\Context::hasPermission('products.view'))
+                            @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('pos.modifiers'))
+                                @if (\App\Support\Context::hasPermission('products.view'))
                                 <a href="{{ route('products.index') }}" id="tour-nav-products"
                                     {{ request()->routeIs('products.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('products.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -803,7 +807,9 @@
                                         class="w-3.5 h-3.5 {{ request()->routeIs('products.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                                     <span class="truncate">Katalog Produk &amp; Resep</span>
                                 </a>
+                                @endif
 
+                                @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('pos.modifiers'))
                                 <a href="{{ route('pos.modifiers.index') }}" id="tour-nav-product-modifiers"
                                     {{ request()->routeIs('pos.modifiers.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('pos.modifiers.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -811,6 +817,7 @@
                                         class="w-3.5 h-3.5 {{ request()->routeIs('pos.modifiers.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                                     <span class="truncate">Modifier &amp; Varian Produk</span>
                                 </a>
+                                @endif
                             @endif
 
                             @if (\App\Support\Context::hasPermission('materials.view'))
@@ -857,6 +864,13 @@
                                     <span class="truncate">Mutasi Stok (Kartu Stok)</span>
                                 </a>
                             @endif
+                            @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('pos.modifiers'))
+                                <a href="{{ route('pos.modifiers.index') }}"
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                                    <span>Modifier &amp; Varian</span>
+                                </a>
+                            @endif
 
                             @if (\App\Support\Context::hasPermission('inventory.manage'))
                                 <a href="{{ route('inventory.transfers.index') }}" id="tour-nav-inventory-transfers"
@@ -894,17 +908,21 @@
                             <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                                 Produk &amp; Inventori
                             </div>
-                            @if (\App\Support\Context::hasPermission('products.view'))
+                            @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('pos.modifiers'))
+                                @if (\App\Support\Context::hasPermission('products.view'))
                                 <a href="{{ route('products.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="package" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                     <span>Katalog Produk</span>
                                 </a>
+                                @endif
+                                @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('pos.modifiers'))
                                 <a href="{{ route('pos.modifiers.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
                                     <span>Modifier &amp; Varian</span>
                                 </a>
+                                @endif
                             @endif
                             @if (\App\Support\Context::hasPermission('materials.view'))
                                 <a href="{{ route('materials.index') }}"
@@ -1003,15 +1021,6 @@
                                 </a>
                             @endif
 
-                            @if (\App\Support\Context::hasPermission('master_data.suppliers.view') || \App\Support\Context::hasPermission('purchasing.view'))
-                                <a href="{{ route('suppliers.index') }}" id="tour-nav-purchasing-suppliers"
-                                    {{ request()->routeIs('suppliers.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('suppliers.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                    <i data-lucide="truck"
-                                        class="w-3.5 h-3.5 {{ request()->routeIs('suppliers.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                    <span class="truncate">Data Supplier</span>
-                                </a>
-                            @endif
                         </div>
 
                         {{-- Flyout on Collapsed Hover --}}
@@ -1036,13 +1045,6 @@
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="corner-up-left" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
                                     <span>Retur Pembelian</span>
-                                </a>
-                            @endif
-                            @if (\App\Support\Context::hasPermission('master_data.suppliers.view') || \App\Support\Context::hasPermission('purchasing.view'))
-                                <a href="{{ route('suppliers.index') }}"
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                    <i data-lucide="truck" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                                    <span>Data Supplier</span>
                                 </a>
                             @endif
                         </div>
@@ -1374,6 +1376,7 @@
         {{-- ======================================================== --}}
         {{-- SEKSI 4: SALURAN & PROMOSI (CHANNELS)                    --}}
         {{-- ======================================================== --}}
+        @if ($canAccessChannels || \App\Support\Context::hasPermission('cms.manage'))
         <div class="space-y-0.5 pt-1.5">
             <div x-show="!sidebarCollapsed"
                 class="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold tracking-wider uppercase text-black/40 dark:text-white/40 select-none">
@@ -1382,6 +1385,7 @@
             <div x-show="sidebarCollapsed" class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/5"></div>
 
             {{-- WhatsApp Gateway --}}
+            @if ($canAccessChannels)
             <div class="relative group" x-data="{ flyoutOpen: false }" @mouseenter="if(sidebarCollapsed) flyoutOpen = true"
                 @mouseleave="flyoutOpen = false">
                 <button type="button" @click="whatsappOpen = !whatsappOpen" role="button"
@@ -1457,8 +1461,10 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             {{-- Landing Page CMS --}}
+            @if (\App\Support\Context::hasPermission('cms.manage'))
             <a href="{{ route('landing-page.edit') }}" id="tour-nav-landing-page"
                 {{ request()->routeIs('landing-page.*') ? 'aria-current="page"' : '' }}
                 :title="sidebarCollapsed ? 'Landing Page' : ''"
@@ -1470,7 +1476,9 @@
                     class="ml-auto text-[9px] px-1.5 py-0.2 rounded-full {{ request()->routeIs('landing-page.*') ? 'bg-white/20 text-white' : 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' }} font-semibold shrink-0">Live
                     CMS</span>
             </a>
+            @endif
         </div>
+        @endif
 
         {{-- ======================================================== --}}
         {{-- SEKSI 5: SISTEM & PENGATURAN                             --}}
@@ -1585,6 +1593,14 @@
             @endif
 
             {{-- Pengaturan Usaha --}}
+            <a href="{{ route('profile.edit') }}" id="tour-nav-profile"
+                {{ request()->routeIs('profile.edit') ? 'aria-current="page"' : '' }}
+                :title="sidebarCollapsed ? 'Profil Saya' : ''"
+                class="sidebar-item flex items-center gap-2.5 px-2.5 py-1.5 rounded-[8px] text-[13px] font-medium transition-all active:scale-[0.97] {{ request()->routeIs('profile.edit') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                <i data-lucide="user-round" class="w-4 h-4 {{ request()->routeIs('profile.edit') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Profil Saya</span>
+            </a>
+
             @if ($canAccessSettings)
                 <a href="{{ route('settings.index') }}" id="tour-nav-settings"
                     {{ request()->routeIs('settings.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('roles.*') ? 'aria-current="page"' : '' }}
