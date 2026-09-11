@@ -174,7 +174,7 @@ final class ProductWebController extends Controller
     public function update(Request $request, Product $product): RedirectResponse
     {
         $business = Context::requireBusiness();
-        abort_unless($product->business_id === $business->id, 404);
+        abort_unless($product->business_id === $business->id, 403);
 
         $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
         $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);

@@ -471,7 +471,7 @@
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors flex items-center" title="Hapus Produk">
                                     Hapus
                                 </button>
-                                <form id="form-delete-{{ $prod->id }}" method="POST" action="{{ route('products.destroy', $prod->slug) }}" class="hidden">
+                                <form id="form-delete-{{ $prod->id }}" method="POST" action="{{ route('products.destroy', $prod->id) }}" class="hidden">
                                     @csrf
                                     @method('DELETE')
                                 </form>

@@ -203,7 +203,7 @@ final class MaterialWebController extends Controller
     public function destroy(Material $material): RedirectResponse
     {
         $business = Context::requireBusiness();
-        abort_unless($material->business_id === $business->id, 404);
+        abort_unless($material->business_id === $business->id, 403);
 
         $material->delete();
 

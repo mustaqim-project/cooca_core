@@ -238,7 +238,7 @@
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors" title="Hapus Bahan Baku">
                                     Hapus
                                 </button>
-                                <form id="form-delete-{{ $mat->id }}" method="POST" action="{{ route('materials.destroy', $mat->slug) }}" class="hidden">
+                                <form id="form-delete-{{ $mat->id }}" method="POST" action="{{ route('materials.destroy', $mat->id) }}" class="hidden">
                                     @csrf
                                     @method('DELETE')
                                 </form>
