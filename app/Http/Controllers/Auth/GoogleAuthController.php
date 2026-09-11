@@ -127,8 +127,19 @@ final class GoogleAuthController extends Controller
 
         Auth::guard('web')->login($user, true);
 
+        request()->session()->regenerate();
+
+        if (! $user->active_business_id) {
+            $firstBusiness = $user->businesses()->first();
+
+            if ($firstBusiness !== null) {
+                $user->update(['active_business_id' => $firstBusiness->id]);
+                $user->active_business_id = $firstBusiness->id;
+            }
+        }
+
         if ($user->active_business_id) {
-            session(['active_business_id' => $user->active_business_id]);
+            request()->session()->put('active_business_id', $user->active_business_id);
         }
 
         return redirect()->intended(route('dashboard'))->with('success', 'Selamat datang, '.$user->name.'!');
