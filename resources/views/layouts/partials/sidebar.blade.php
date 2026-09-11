@@ -763,7 +763,6 @@
                                     <span>CRM &amp; Loyalitas</span>
                                 </a>
                             @endif
-                            @endif
                         </div>
                     </div>
                 @endif
