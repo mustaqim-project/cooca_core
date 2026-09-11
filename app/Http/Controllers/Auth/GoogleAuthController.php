@@ -94,6 +94,7 @@ final class GoogleAuthController extends Controller
                 'email' => $googleUser->getEmail(),
                 'google_id' => $googleUser->getId(),
                 'avatar' => $googleUser->getAvatar(),
+                'email_verified_at' => now(),
                 'password' => Hash::make(Str::random(32)),
             ]);
 
