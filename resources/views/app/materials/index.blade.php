@@ -15,19 +15,32 @@
     selectedMaterial: null,
     editMaterial: { id: '', slug: '', name: '', sku: '', category_id: '', supplier_id: '', unit_id: '' },
     deleteModalOpen: false,
-    deleteTarget: { slug: '', name: '' },
-    
-    openDelete(slug, name) {
-        this.deleteTarget = { slug, name };
+    deleteTarget: { id: '', name: '' },
+    init() {
+        window.addEventListener('pageshow', () => {
+            this.showAddModal = false;
+            this.showEditModal = false;
+            this.showPriceModal = false;
+            this.showAddSupplierModal = false;
+            this.showAddCategoryModal = false;
+            this.showAddUnitModal = false;
+            this.selectedMaterial = null;
+            this.deleteModalOpen = false;
+        });
+    },
+
+    openDelete(id, name) {
+        this.deleteTarget = { id, name };
         this.deleteModalOpen = true;
     },
     closeDelete() {
         this.deleteModalOpen = false;
-        this.deleteTarget = { slug: '', name: '' };
+        this.deleteTarget = { id: '', name: '' };
     },
     submitDelete() {
-        if (this.deleteTarget.slug) {
-            document.getElementById('form-delete-' + this.deleteTarget.slug).submit();
+        if (this.deleteTarget.id) {
+            const form = document.getElementById('form-delete-' + this.deleteTarget.id);
+            if (form) form.submit();
         }
     },
     openPriceModal(mat) {
@@ -68,14 +81,14 @@
         <!-- Toolbar Actions -->
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             @if(\App\Support\Context::hasPermission('materials.create'))
-            <a href="{{ route('import.index', ['tab' => 'materials']) }}" 
+            <a href="{{ route('import.index', ['tab' => 'materials']) }}"
                class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5"
                title="Import data bahan baku massal dari file Excel / CSV">
                 <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                 <span>Import</span>
             </a>
 
-            <button @click="showAddModal = true" 
+            <button @click="showAddModal = true"
                     class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                 <span>Tambah Bahan Baku</span>
@@ -133,8 +146,8 @@
             <!-- Search Field -->
             <div class="relative flex-1 max-w-md">
                 <svg class="w-4 h-4 text-black/35 dark:text-white/35 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
-                <input type="text" name="search" value="{{ request('search') }}" 
-                       placeholder="Cari nama bahan atau SKU..." 
+                <input type="text" name="search" value="{{ request('search') }}"
+                       placeholder="Cari nama bahan atau SKU..."
                        class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] pl-9 pr-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
             </div>
 
@@ -211,21 +224,21 @@
                         <td class="py-3 px-4 text-right">
                             <div class="flex items-center justify-end gap-1">
                                 @if(\App\Support\Context::hasPermission('materials.edit'))
-                                <button type="button" @click="openPriceModal({{ Js::from($mat) }})" 
+                                <button type="button" @click="openPriceModal({{ Js::from($mat) }})"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-colors">
                                     Update Harga
                                 </button>
-                                <button type="button" @click="openEditModal({{ Js::from($mat) }})" 
+                                <button type="button" @click="openEditModal({{ Js::from($mat) }})"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors" title="Edit Spesifikasi Bahan">
                                     Edit
                                 </button>
                                 @endif
                                 @if(\App\Support\Context::hasPermission('materials.delete'))
-                                <button type="button" @click="openDelete('{{ $mat->slug }}', '{{ addslashes($mat->name) }}')"
+                                <button type="button" @click="openDelete('{{ $mat->id }}', {{ Js::from($mat->name) }})"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors" title="Hapus Bahan Baku">
                                     Hapus
                                 </button>
-                                <form id="form-delete-{{ $mat->slug }}" method="POST" action="{{ route('materials.destroy', $mat->slug) }}" class="hidden">
+                                <form id="form-delete-{{ $mat->id }}" method="POST" action="{{ route('materials.destroy', $mat->slug) }}" class="hidden">
                                     @csrf
                                     @method('DELETE')
                                 </form>
@@ -284,6 +297,11 @@
                 <button type="button" @click="openEditModal({{ Js::from($mat) }})" class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 bg-black/[0.06] dark:bg-white/[0.08] flex items-center">
                     Edit
                 </button>
+                @if(\App\Support\Context::hasPermission('materials.delete'))
+                <button type="button" @click="openDelete('{{ $mat->id }}', {{ Js::from($mat->name) }})" class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-[#FF3B30] bg-[#FF3B30]/10 flex items-center">
+                    Hapus
+                </button>
+                @endif
                 @endif
             </div>
         </div>
@@ -313,7 +331,7 @@
 
             <form method="POST" action="{{ route('materials.store') }}" class="space-y-3.5 text-[13px]">
                 @csrf
-                
+
                 <div>
                     <label class="block font-medium text-black/70 dark:text-white/70 mb-1">Nama Bahan Baku <span class="text-[#FF3B30]">*</span></label>
                     <input type="text" name="name" required placeholder="Contoh: Tepung Terigu Protein Tinggi"
@@ -427,7 +445,7 @@
             <template x-if="selectedMaterial">
                 <form :action="'/materials/' + selectedMaterial.slug + '/prices'" method="POST" class="space-y-3.5 text-[13px]">
                     @csrf
-                    
+
                     <div>
                         <label class="block font-medium text-black/70 dark:text-white/70 mb-1">Harga Beli Baru (Rp) <span class="text-[#FF3B30]">*</span></label>
                         <input type="number" name="purchase_price" required min="1" step="100"

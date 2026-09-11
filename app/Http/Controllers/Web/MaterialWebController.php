@@ -202,6 +202,9 @@ final class MaterialWebController extends Controller
      */
     public function destroy(Material $material): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($material->business_id === $business->id, 404);
+
         $material->delete();
 
         return redirect()->route('materials.index')->with('success', 'Bahan berhasil dihapus.');

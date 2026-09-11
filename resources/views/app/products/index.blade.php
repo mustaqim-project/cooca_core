@@ -19,23 +19,34 @@
     productScannerFrameId: null,
     productScannerBusy: false,
     productScannerTarget: 'add',
+    init() {
+        window.addEventListener('pageshow', () => {
+            this.showAddModal = false;
+            this.showAddCategoryModal = false;
+            this.showAddUnitModal = false;
+            this.showProductScannerPermission = false;
+            this.closeProductScanner();
+            this.deleteModalOpen = false;
+        });
+    },
     posShowImages: {{ $business->pos_show_product_images ? 'true' : 'false' }},
     posImageToggling: false,
     newProductPreview: '',
     editProductPreview: '',
     deleteModalOpen: false,
-    deleteTarget: { slug: '', name: '' },
-    openDelete(slug, name) {
-        this.deleteTarget = { slug, name };
+    deleteTarget: { id: '', name: '' },
+    openDelete(id, name) {
+        this.deleteTarget = { id, name };
         this.deleteModalOpen = true;
     },
     closeDelete() {
         this.deleteModalOpen = false;
-        this.deleteTarget = { slug: '', name: '' };
+        this.deleteTarget = { id: '', name: '' };
     },
     submitDelete() {
-        if (this.deleteTarget.slug) {
-            document.getElementById('form-delete-' + this.deleteTarget.slug).submit();
+        if (this.deleteTarget.id) {
+            const form = document.getElementById('form-delete-' + this.deleteTarget.id);
+            if (form) form.submit();
         }
     },
     async togglePosShowImages() {
@@ -456,11 +467,11 @@
                                 @endif
 
                                 @if(\App\Support\Context::hasPermission('products.delete') || \App\Support\Context::hasPermission('products.manage'))
-                                <button type="button" @click="openDelete('{{ $prod->slug }}', '{{ addslashes($prod->name) }}')"
+                                <button type="button" @click="openDelete('{{ $prod->id }}', {{ Js::from($prod->name) }})"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors flex items-center" title="Hapus Produk">
                                     Hapus
                                 </button>
-                                <form id="form-delete-{{ $prod->slug }}" method="POST" action="{{ route('products.destroy', $prod->slug) }}" class="hidden">
+                                <form id="form-delete-{{ $prod->id }}" method="POST" action="{{ route('products.destroy', $prod->slug) }}" class="hidden">
                                     @csrf
                                     @method('DELETE')
                                 </form>
@@ -531,6 +542,11 @@
                     image_url: '{{ addslashes($prod->image_url ?? '') }}'
                 })" class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 bg-black/[0.06] dark:bg-white/[0.08] flex items-center">
                     Edit
+                </button>
+                @endif
+                @if(\App\Support\Context::hasPermission('products.delete') || \App\Support\Context::hasPermission('products.manage'))
+                <button type="button" @click="openDelete('{{ $prod->id }}', {{ Js::from($prod->name) }})" class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-[#FF3B30] bg-[#FF3B30]/10 flex items-center">
+                    Hapus
                 </button>
                 @endif
             </div>

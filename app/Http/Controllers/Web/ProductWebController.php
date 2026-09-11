@@ -315,6 +315,9 @@ final class ProductWebController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($product->business_id === $business->id, 404);
+
         if ($product->image_path) {
             app(\App\Domain\Storage\StorageTrackingService::class)->deleteFile($product->image_path, 'public');
         }

@@ -24,6 +24,8 @@
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $title ?? 'Cooca UMKM' }} — cooca.id</title>
 
+    <style>[x-cloak] { display: none !important; }</style>
+
     <!-- Google Fonts (Inter fallback, JetBrains Mono fallback) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1638,19 +1640,25 @@
     <script src="{{ asset('js/onboarding/product-tour.js') }}"></script>
 
     <!-- AppAlert Session Flash Notifications -->
+    @php
+        $flashSuccess = session()->pull('success');
+        $flashError = session()->pull('error');
+        $flashWarning = session()->pull('warning');
+        $flashInfo = session()->pull('info');
+    @endphp
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if (session('success'))
-                AppAlert.success(@json(session('success')));
+            @if ($flashSuccess)
+                AppAlert.success(@json($flashSuccess));
             @endif
-            @if (session('error'))
-                AppAlert.error(@json(session('error')));
+            @if ($flashError)
+                AppAlert.error(@json($flashError));
             @endif
-            @if (session('warning'))
-                AppAlert.warning(@json(session('warning')));
+            @if ($flashWarning)
+                AppAlert.warning(@json($flashWarning));
             @endif
-            @if (session('info'))
-                AppAlert.info(@json(session('info')));
+            @if ($flashInfo)
+                AppAlert.info(@json($flashInfo));
             @endif
         });
     </script>

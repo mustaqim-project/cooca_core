@@ -71,18 +71,23 @@
         @yield('content')
     </div>
 
+    @php
+        $flashSuccess = session()->pull('success');
+        $flashError = session()->pull('error');
+        $flashWarning = session()->pull('warning');
+    @endphp
     <script>
         lucide.createIcons();
 
         document.addEventListener('DOMContentLoaded', () => {
-            @if (session('success'))
-                AppAlert.success(@json(session('success')));
+            @if ($flashSuccess)
+                AppAlert.success(@json($flashSuccess));
             @endif
-            @if (session('error'))
-                AppAlert.error(@json(session('error')));
+            @if ($flashError)
+                AppAlert.error(@json($flashError));
             @endif
-            @if (session('warning'))
-                AppAlert.warning(@json(session('warning')));
+            @if ($flashWarning)
+                AppAlert.warning(@json($flashWarning));
             @endif
         });
     </script>
