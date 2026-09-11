@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-<div class="max-w-5xl mx-auto space-y-6" x-data="{
+<div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
     customerId: '{{ $selectedPo?->customer_id ?? '' }}',
     purchaseOrderId: '{{ $selectedPo?->id ?? '' }}',
     paymentTerms: 'Net 30',
@@ -164,32 +164,55 @@
     }
 }">
 
-    <div class="flex items-center justify-between">
-        <a href="{{ route('invoices.index') }}" class="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            <span>Kembali ke Daftar Faktur</span>
-        </a>
-    </div>
-
     <form method="POST" action="{{ route('invoices.store') }}" class="space-y-6">
         @csrf
 
-        <!-- Card Header Dokumen Faktur -->
-        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <!-- ===================================================== -->
+        <!-- 1. TOOLBAR / STUDIO HEADER (macOS Window Pattern)      -->
+        <!-- ===================================================== -->
+        <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <!-- Minimal Breadcrumb -->
+                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+                    <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                    <span>›</span>
+                    <a href="{{ route('invoices.index') }}" class="hover:text-[#007AFF] transition-colors">Faktur Penjualan</a>
+                    <span>›</span>
+                    <span class="text-black dark:text-white font-medium">Buat Baru</span>
+                </nav>
+                <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Buat Faktur Penjualan</h1>
+                <p class="text-[13px] text-black/50 dark:text-white/50">Lengkapi data penagihan komersial atau impor dari Purchase Order</p>
+            </div>
+
+            <!-- Toolbar Actions -->
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <a href="{{ route('invoices.index') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.97] transition-all flex items-center justify-center">
+                    Batal
+                </a>
+                <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                    <span>Terbitkan Faktur</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ===================================================== -->
+        <!-- 2. DOCUMENT INFO PANEL                                -->
+        <!-- ===================================================== -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
                 <div>
-                    <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i data-lucide="receipt" class="w-5 h-5 text-emerald-400"></i>
-                        <span>Informasi Faktur Penjualan</span>
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Lengkapi identitas penagihan dan referensi transaksi</p>
+                    <h2 class="text-[15px] font-semibold text-black dark:text-white">Identitas Penagihan &amp; Dokumen</h2>
+                    <p class="text-[12px] text-black/50 dark:text-white/50">Tentukan pelanggan, tanggal jatuh tempo, dan referensi transaksi</p>
                 </div>
 
                 <!-- Opsi Tarik dari Purchase Order -->
                 @if($availablePurchaseOrders->isNotEmpty())
                 <div class="flex items-center gap-2">
-                    <span class="text-xs text-slate-400">Ambil dari PO Pelanggan:</span>
-                    <select name="purchase_order_id" x-model="purchaseOrderId" @change="onPoChange()" class="px-3 py-1.5 bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl text-xs text-emerald-400 font-medium">
+                    <span class="text-[12px] text-black/50 dark:text-white/50">Tarik dari PO:</span>
+                    <select name="purchase_order_id" x-model="purchaseOrderId" @change="onPoChange()" class="h-8 px-2.5 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] text-[12px] text-[#007AFF] font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         <option value="">-- Buat Faktur Manual --</option>
                         <template x-for="po in availablePos" :key="po.id">
                             <option :value="po.id" x-text="po.po_number + ' - ' + (po.customer ? po.customer.name : '')"></option>
@@ -199,11 +222,11 @@
                 @endif
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-[13px]">
                 <!-- Customer Select -->
                 <div class="sm:col-span-2">
-                    <label class="block font-semibold text-slate-300 mb-1">Pilih Pelanggan / Klien *</label>
-                    <select name="customer_id" x-model="customerId" @change="onCustomerChange()" required class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Pilih Pelanggan / Klien *</label>
+                    <select name="customer_id" x-model="customerId" @change="onCustomerChange()" required class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         <option value="">-- Pilih Pelanggan --</option>
                         @foreach($customers as $cust)
                             <option value="{{ $cust->id }}" {{ ($selectedPo?->customer_id ?? '') === $cust->id ? 'selected' : '' }}>
@@ -214,28 +237,28 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Tanggal Faktur *</label>
-                    <input type="date" name="invoice_date" x-model="invoiceDate" required class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Tanggal Faktur *</label>
+                    <input type="date" name="invoice_date" x-model="invoiceDate" required class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Tanggal Jatuh Tempo *</label>
-                    <input type="date" name="due_date" x-model="dueDate" required class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Tanggal Jatuh Tempo *</label>
+                    <input type="date" name="due_date" x-model="dueDate" required class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Nomor Faktur (Opsional)</label>
-                    <input type="text" name="invoice_number" placeholder="Otomatis (INV-YYYYMM-XXXX)" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white font-mono">
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nomor Faktur (Opsional)</label>
+                    <input type="text" name="invoice_number" placeholder="Otomatis (INV-YYYYMM-XXXX)" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] tabular-nums text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Termin Pembayaran</label>
-                    <input type="text" name="payment_terms" x-model="paymentTerms" placeholder="Net 30 / COD" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Termin Pembayaran</label>
+                    <input type="text" name="payment_terms" x-model="paymentTerms" placeholder="Net 30 / COD" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">Status Awal</label>
-                    <select name="status" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Status Awal</label>
+                    <select name="status" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         <option value="draft">Draft (Belum Terbit)</option>
                         <option value="sent" selected>Sent (Terkirim ke Klien)</option>
                         <option value="unpaid">Unpaid (Resmi Menunggu Bayar)</option>
@@ -245,11 +268,10 @@
                 <!-- Gudang / Lokasi Pengeluaran Barang -->
                 @if($locations->isNotEmpty())
                 <div>
-                    <label class="block font-semibold text-slate-300 mb-1">
-                        <i data-lucide="warehouse" class="inline w-3.5 h-3.5 text-emerald-400 mr-1"></i>
-                        Gudang Asal Barang
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                        Gudang Pengeluaran
                     </label>
-                    <select name="location_id" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-xl text-white">
+                    <select name="location_id" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         <option value="">-- Otomatis (Gudang Utama) --</option>
                         @foreach($locations as $loc)
                             <option value="{{ $loc->id }}" {{ $loc->is_primary ? 'selected' : '' }}>
@@ -257,122 +279,130 @@
                             </option>
                         @endforeach
                     </select>
-                    <p class="text-slate-500 mt-0.5 text-[10px]">Stok barang akan dipotong dari gudang/outlet yang dipilih saat faktur dikonfirmasi.</p>
                 </div>
                 @endif
             </div>
         </div>
 
-        <!-- Card Daftar Item Faktur (Dynamic Table) -->
-        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <!-- ===================================================== -->
+        <!-- 3. ITEMS TABLE (Dynamic Table / Dense List)           -->
+        <!-- ===================================================== -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div>
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="package-check" class="w-4 h-4 text-emerald-400"></i>
-                        <span>Item Produk & Harga Jual</span>
-                    </h3>
-                    <p class="text-xs text-slate-400">Pilih produk katalog untuk auto-fill harga jual dan snapshot HPP modal</p>
+                    <h3 class="text-[15px] font-semibold text-black dark:text-white">Rincian Item &amp; Harga Jual</h3>
+                    <p class="text-[12px] text-black/50 dark:text-white/50">Pilih dari katalog untuk auto-fill harga jual dan snapshot HPP modal</p>
                 </div>
 
-                <button type="button" @click="addItem()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors">
-                    <i data-lucide="plus" class="w-4 h-4 text-emerald-400"></i>
+                <button type="button" @click="addItem()" class="h-8 px-3 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] transition-all flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
                     <span>Tambah Baris</span>
                 </button>
             </div>
 
-            <div class="table-responsive-wide">
-                <table class="w-full text-left text-xs min-w-[760px]">
-                    <thead>
-                        <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/50">
-                            <th class="py-2.5 px-3 font-semibold w-1/3 whitespace-nowrap">Produk / Item *</th>
-                            <th class="py-2.5 px-3 font-semibold w-24 whitespace-nowrap">Satuan *</th>
-                            <th class="py-2.5 px-3 font-semibold w-20 text-right whitespace-nowrap">Qty *</th>
-                            <th class="py-2.5 px-3 font-semibold w-32 text-right whitespace-nowrap">Harga Jual *</th>
-                            <th class="py-2.5 px-3 font-semibold w-28 text-right text-emerald-400 whitespace-nowrap">HPP (Modal)</th>
-                            <th class="py-2.5 px-3 font-semibold w-32 text-right whitespace-nowrap">Subtotal</th>
-                            <th class="py-2.5 px-2 font-semibold w-8 text-center"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-800/60">
-                        <template x-for="(item, index) in items" :key="index">
-                            <tr class="hover:bg-slate-800/20">
-                                <td class="py-2 px-3">
-                                    <select :name="'items[' + index + '][product_id]'" x-model="item.product_id" @change="onProductChange(index)" 
-                                            class="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 focus:border-emerald-500 rounded-lg text-xs text-white">
-                                        <option value="">-- Pilih dari Katalog Produk --</option>
-                                        <template x-for="prod in products" :key="prod.id">
-                                            <option :value="prod.id" x-text="prod.name + (prod.selling_price > 0 ? ' (Jual: Rp ' + new Intl.NumberFormat('id-ID').format(prod.selling_price) + ')' : '')"></option>
-                                        </template>
-                                    </select>
-                                    <input type="text" :name="'items[' + index + '][item_name]'" x-model="item.item_name" required placeholder="Nama item pada faktur" class="w-full px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-lg text-[11px] text-slate-200 mt-1">
-                                    <input type="hidden" :name="'items[' + index + '][sku]'" x-model="item.sku">
-                                </td>
-                                <td class="py-2 px-3">
-                                    <select :name="'items[' + index + '][unit_id]'" x-model="item.unit_id" required class="w-full px-2 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
-                                        <template x-for="u in units" :key="u.id">
-                                            <option :value="u.id" x-text="u.name + ' (' + u.code + ')'"></option>
-                                        </template>
-                                    </select>
-                                </td>
-                                <td class="py-2 px-3 text-right">
-                                    <input type="number" step="any" min="0.0001" :name="'items[' + index + '][quantity]'" x-model="item.quantity" required class="w-full px-2 py-1.5 bg-slate-900 border border-slate-800 text-right rounded-lg text-xs text-white font-mono font-semibold">
-                                </td>
-                                <td class="py-2 px-3 text-right">
-                                    <input type="number" step="any" min="0" :name="'items[' + index + '][unit_price]'" x-model="item.unit_price" required class="w-full px-2 py-1.5 bg-slate-900 border border-slate-800 text-right rounded-lg text-xs text-white font-mono font-semibold">
-                                </td>
-                                <td class="py-2 px-3 text-right">
-                                    <input type="number" step="any" min="0" :name="'items[' + index + '][unit_hpp]'" x-model="item.unit_hpp" title="Snapshot HPP Modal" class="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 text-right rounded-lg text-xs text-emerald-400 font-mono">
-                                </td>
-                                <td class="py-2 px-3 text-right font-mono font-bold text-white text-xs" x-text="formatCurrency(item.quantity * item.unit_price)">
-                                </td>
-                                <td class="py-2 px-2 text-center">
-                                    <button type="button" @click="removeItem(index)" :disabled="items.length <= 1" class="p-1 text-slate-500 hover:text-rose-400 disabled:opacity-30 rounded transition-colors">
-                                        <i data-lucide="x" class="w-4 h-4"></i>
-                                    </button>
-                                </td>
+            <div class="rounded-[12px] border border-black/5 dark:border-white/10 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[13px]">
+                        <thead>
+                            <tr class="border-b border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] whitespace-nowrap">
+                                <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 w-2/5">Produk / Item *</th>
+                                <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 w-24">Satuan *</th>
+                                <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 w-20 text-right">Qty *</th>
+                                <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 w-32 text-right">Harga Jual *</th>
+                                <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-[#FF9500] dark:text-[#FF9F0A] w-28 text-right">HPP Modal</th>
+                                <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 w-32 text-right">Subtotal</th>
+                                <th class="py-2.5 px-2 w-8 text-center"></th>
                             </tr>
-                        </template>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+                            <template x-for="(item, index) in items" :key="index">
+                                <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                                    <td class="py-2.5 px-3">
+                                        <select :name="'items[' + index + '][product_id]'" x-model="item.product_id" @change="onProductChange(index)" 
+                                                class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                            <option value="">-- Pilih dari Katalog Produk --</option>
+                                            <template x-for="prod in products" :key="prod.id">
+                                                <option :value="prod.id" x-text="prod.name + (prod.selling_price > 0 ? ' (Rp ' + new Intl.NumberFormat('id-ID').format(prod.selling_price) + ')' : '')"></option>
+                                            </template>
+                                        </select>
+                                        <input type="text" :name="'items[' + index + '][item_name]'" x-model="item.item_name" required placeholder="Nama item pada faktur"
+                                            class="w-full h-7 bg-transparent border-b border-black/10 dark:border-white/10 px-1 text-[12px] text-black dark:text-white mt-1 placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:border-[#007AFF] transition">
+                                        <input type="hidden" :name="'items[' + index + '][sku]'" x-model="item.sku">
+                                    </td>
+                                    <td class="py-2.5 px-3">
+                                        <select :name="'items[' + index + '][unit_id]'" x-model="item.unit_id" required class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                            <template x-for="u in units" :key="u.id">
+                                                <option :value="u.id" x-text="u.name + ' (' + u.code + ')'"></option>
+                                            </template>
+                                        </select>
+                                    </td>
+                                    <td class="py-2.5 px-3 text-right">
+                                        <input type="number" step="any" min="0.0001" :name="'items[' + index + '][quantity]'" x-model="item.quantity" required
+                                            class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] text-right tabular-nums font-semibold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    </td>
+                                    <td class="py-2.5 px-3 text-right">
+                                        <input type="number" step="any" min="0" :name="'items[' + index + '][unit_price]'" x-model="item.unit_price" required
+                                            class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] text-right tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    </td>
+                                    <td class="py-2.5 px-3 text-right">
+                                        <input type="number" step="any" min="0" :name="'items[' + index + '][unit_hpp]'" x-model="item.unit_hpp" title="Snapshot HPP Modal"
+                                            class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] text-right tabular-nums text-[#FF9500] dark:text-[#FF9F0A] focus:outline-none focus:ring-2 focus:ring-[#FF9500]/50 transition">
+                                    </td>
+                                    <td class="py-2.5 px-3 text-right tabular-nums font-semibold text-black dark:text-white text-[13px]" x-text="formatCurrency(item.quantity * item.unit_price)">
+                                    </td>
+                                    <td class="py-2.5 px-2 text-center">
+                                        <button type="button" @click="removeItem(index)" :disabled="items.length <= 1" class="p-1 rounded-[6px] text-black/30 hover:text-[#FF3B30] dark:text-white/30 dark:hover:text-[#FF453A] disabled:opacity-20 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- Profitability Summary Widget & Totals -->
-            <div class="flex flex-col sm:flex-row justify-between items-start pt-4 border-t border-slate-800 gap-6">
-                <!-- Left: Estimated Profit Badge & Notes -->
-                <div class="space-y-3 w-full sm:max-w-md">
-                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between">
+            <!-- Profitability Summary & Financial Calculation -->
+            <div class="flex flex-col sm:flex-row justify-between items-start pt-4 border-t border-black/5 dark:border-white/10 gap-6">
+                <!-- Left: Estimated Profit & Notes -->
+                <div class="space-y-3 w-full sm:max-w-md text-[13px]">
+                    <div class="p-4 rounded-[12px] bg-[#34C759]/10 border border-[#34C759]/20 flex items-center justify-between">
                         <div>
-                            <div class="text-[11px] text-emerald-400 font-bold uppercase tracking-wider">Estimasi Laba Kotor Transaksi:</div>
-                            <div class="text-lg font-extrabold text-emerald-400 font-mono" x-text="formatCurrency(totalGrossProfit)"></div>
+                            <div class="text-[11px] text-[#248A3D] dark:text-[#30D158] font-semibold uppercase tracking-wider">Estimasi Laba Kotor Transaksi:</div>
+                            <div class="text-[20px] font-bold text-[#248A3D] dark:text-[#30D158] tabular-nums" x-text="formatCurrency(totalGrossProfit)"></div>
                         </div>
                         <div class="text-right">
-                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 font-mono" x-text="'Margin ' + Math.round(grossMarginPercentage) + '%'"></span>
+                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] tabular-nums" x-text="'Margin ' + Math.round(grossMarginPercentage) + '%'"></span>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Catatan Tagihan (Tampil pada Faktur)</label>
-                        <input type="text" name="notes" placeholder="Terima kasih atas kerja sama bisnis Anda..." class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white">
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Catatan Tagihan (Tampil pada Faktur)</label>
+                        <input type="text" name="notes" placeholder="Terima kasih atas kerja sama bisnis Anda..." class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Ketentuan Pembayaran & Garansi</label>
-                        <textarea name="terms_conditions" rows="2" placeholder="Pembayaran ditransfer ke rekening resmi. Komplain maksimal 3 hari..." class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"></textarea>
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Ketentuan Pembayaran &amp; Garansi</label>
+                        <textarea name="terms_conditions" rows="2" placeholder="Pembayaran ditransfer ke rekening resmi. Komplain maksimal 3 hari..." class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] p-3 text-[13px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition"></textarea>
                     </div>
                 </div>
 
-                <!-- Right: Financial Breakdown -->
-                <div class="w-full sm:w-80 glass-card p-4 rounded-xl border border-slate-800 space-y-2.5 text-xs">
-                    <div class="flex justify-between text-slate-400">
+                <!-- Right: Totals Breakdown -->
+                <div class="w-full sm:w-80 p-4 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2.5 text-[13px]">
+                    <div class="flex justify-between text-black/60 dark:text-white/60">
                         <span>Subtotal Barang:</span>
-                        <span class="font-mono font-semibold text-white" x-text="formatCurrency(subtotal)"></span>
+                        <span class="tabular-nums font-medium text-black dark:text-white" x-text="formatCurrency(subtotal)"></span>
                     </div>
 
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-slate-400">Potongan Diskon:</span>
+                        <span class="text-black/60 dark:text-white/60">Potongan Diskon:</span>
                         <div class="flex items-center gap-1.5">
-                            <input type="number" step="any" min="0" name="discount_value" x-model="discountValue" class="w-20 px-2 py-1 bg-slate-900 border border-slate-800 text-right rounded-lg text-xs font-mono text-white">
-                            <select name="discount_type" x-model="discountType" class="px-1.5 py-1 bg-slate-900 border border-slate-800 rounded-lg text-[11px] text-slate-300">
+                            <input type="number" step="any" min="0" name="discount_value" x-model="discountValue" class="w-20 h-7 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[6px] px-2 text-[12px] tabular-nums text-right text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            <select name="discount_type" x-model="discountType" class="h-7 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[6px] px-1.5 text-[11px] text-black/70 dark:text-white/70 focus:outline-none">
                                 <option value="fixed">{{ $business->currency_symbol }}</option>
                                 <option value="percentage">%</option>
                             </select>
@@ -380,29 +410,36 @@
                     </div>
 
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-slate-400">Pajak PPN (%):</span>
-                        <input type="number" step="any" min="0" max="100" name="tax_percentage" x-model="taxPercentage" placeholder="11" class="w-20 px-2 py-1 bg-slate-900 border border-slate-800 text-right rounded-lg text-xs font-mono text-white">
+                        <span class="text-black/60 dark:text-white/60">Pajak PPN (%):</span>
+                        <input type="number" step="any" min="0" max="100" name="tax_percentage" x-model="taxPercentage" placeholder="11" class="w-20 h-7 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[6px] px-2 text-[12px] tabular-nums text-right text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                     </div>
 
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-slate-400">Ongkos Kirim:</span>
-                        <input type="number" step="any" min="0" name="shipping_cost" x-model="shippingCost" placeholder="0" class="w-24 px-2 py-1 bg-slate-900 border border-slate-800 text-right rounded-lg text-xs font-mono text-white">
+                        <span class="text-black/60 dark:text-white/60">Ongkos Kirim:</span>
+                        <input type="number" step="any" min="0" name="shipping_cost" x-model="shippingCost" placeholder="0" class="w-24 h-7 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[6px] px-2 text-[12px] tabular-nums text-right text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                     </div>
 
-                    <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-sm font-bold text-white">
+                    <div class="pt-2 border-t border-black/5 dark:border-white/10 flex justify-between items-center text-[15px] font-bold text-black dark:text-white">
                         <span>Total Tagihan:</span>
-                        <span class="font-mono text-emerald-400 text-base" x-text="formatCurrency(grandTotal)"></span>
+                        <span class="tabular-nums text-[18px] text-[#007AFF]" x-text="formatCurrency(grandTotal)"></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flex items-center justify-end gap-3">
-            <a href="{{ route('invoices.index') }}" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors">Batal</a>
-            <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all">
-                <i data-lucide="send" class="w-4 h-4"></i>
+        <!-- Sticky/Bottom Form Actions -->
+        <div class="flex items-center justify-end gap-2 pt-2">
+            <a href="{{ route('invoices.index') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.97] transition-all flex items-center justify-center">
+                Batal
+            </a>
+            @if(\App\Support\Context::hasPermission('invoices.create'))
+            <button type="submit" class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                </svg>
                 <span>Terbitkan Faktur Penjualan</span>
             </button>
+            @endif
         </div>
     </form>
 </div>

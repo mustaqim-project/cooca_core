@@ -172,6 +172,15 @@
                         </div>
                     </div>
 
+                    <!-- Refresh QR Button -->
+                    <div class="flex items-center justify-center gap-2 pt-0.5">
+                        <button type="button" @click="fetchQr()"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] text-[12px] font-medium bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 transition-all cursor-pointer">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                            <span>Muat Ulang Barcode QR</span>
+                        </button>
+                    </div>
+
                     <!-- Steps Guide (Grouped Inset Style) -->
                     <div class="text-left bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 rounded-[12px] p-4 space-y-2.5 text-[12px] text-black/70 dark:text-white/70">
                         <p class="font-semibold text-black dark:text-white flex items-center gap-1.5">
@@ -321,10 +330,10 @@
 <script>
 function waGateway() {
     return {
-        status: '{{ $waSession?->status ?? 'disconnected' }}',
+        status: '{{ $liveStatus ?? ($waSession?->status ?? 'disconnected') }}',
         phone: '{{ $waSession?->phone_number ?? '' }}',
         deviceName: '{{ $waSession?->device_name ?? '' }}',
-        qrDataUrl: null,
+        qrDataUrl: {!! json_encode($qrDataUrl ?? null) !!},
         isLoading: false,
         pollTimer: null,
         testPhone: '',
@@ -334,42 +343,85 @@ function waGateway() {
         testOk: false,
 
         init() {
-            if (this.status !== 'connected') {
-                this.pollStatus();
+            // Hanya cek status existing — TIDAK auto-start sesi baru.
+            // Polling dimulai hanya jika sesi sebelumnya masih di scan_qr,
+            // atau jika user klik tombol "Mulai Scan QR Code".
+            this.checkStatus();
+        },
+
+        // Cek status existing sesi tanpa memulai sesi baru.
+        async checkStatus() {
+            try {
+                const res = await fetch('{{ route('whatsapp.qr') }}', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                    }
+                });
+                const data = await res.json();
+                if (data.status) {
+                    const raw = data.status.toUpperCase();
+                    if (raw === 'CONNECTED') {
+                        this.status = 'connected';
+                        this.phone = data.phone || this.phone;
+                        this.deviceName = data.deviceName || this.deviceName;
+                        if (this.pollTimer) clearInterval(this.pollTimer);
+                    } else if (raw === 'SCAN_QR' || data.qrDataUrl) {
+                        // Sesi sudah dimulai sebelumnya dan menunggu scan
+                        this.status = 'scan_qr';
+                        if (data.qrDataUrl) this.qrDataUrl = data.qrDataUrl;
+                        // Lanjutkan polling karena sesi ini sudah aktif
+                        this.pollStatus();
+                    } else {
+                        // disconnected atau no session — biarkan UI tampilkan state disconnected
+                        this.status = 'disconnected';
+                    }
+                }
+            } catch (e) {
+                // Jika WA server tidak bisa diakses, tampilkan disconnected
+                this.status = 'disconnected';
             }
+        },
+
+        // Fetch QR saat sedang polling (sesi sudah aktif)
+        async fetchQr() {
+            try {
+                const res = await fetch('{{ route('whatsapp.qr') }}', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                    }
+                });
+                const data = await res.json();
+                if (data.status) {
+                    const raw = data.status.toUpperCase();
+                    if (raw === 'CONNECTED') {
+                        this.status = 'connected';
+                        if (this.pollTimer) clearInterval(this.pollTimer);
+                        setTimeout(() => window.location.reload(), 800);
+                    } else if (raw === 'SCAN_QR' || data.qrDataUrl) {
+                        this.status = 'scan_qr';
+                        if (data.qrDataUrl) this.qrDataUrl = data.qrDataUrl;
+                    } else {
+                        this.status = 'disconnected';
+                        if (this.pollTimer) clearInterval(this.pollTimer);
+                    }
+                }
+            } catch (e) {}
         },
 
         pollStatus() {
             if (this.pollTimer) clearInterval(this.pollTimer);
-            this.pollTimer = setInterval(async () => {
-                try {
-                    const res = await fetch('{{ route('whatsapp.qr') }}', {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                        }
-                    });
-                    const data = await res.json();
-
-                    const raw = (data.status || '').toUpperCase();
-                    if (raw === 'CONNECTED') {
-                        this.status = 'connected';
-                        clearInterval(this.pollTimer);
-                        setTimeout(() => window.location.reload(), 1000);
-                    } else if (raw === 'SCAN_QR') {
-                        this.status = 'scan_qr';
-                        this.qrDataUrl = data.qrDataUrl || null;
-                    } else {
-                        this.status = 'disconnected';
-                    }
-                } catch (e) {}
-            }, 3000);
+            this.pollTimer = setInterval(() => {
+                this.fetchQr();
+            }, 2500);
         },
 
         async startSession() {
             this.isLoading = true;
+            this.qrDataUrl = null;
             try {
-                const res = await fetch('{{ route('whatsapp.start') }}', {
+                await fetch('{{ route('whatsapp.start') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -377,12 +429,14 @@ function waGateway() {
                         'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
                     }
                 });
-                const data = await res.json();
-                if (data.success) {
-                    this.status = 'scan_qr';
-                    this.pollStatus();
-                }
-            } catch (e) {} finally {
+                // Set status scan_qr hanya setelah request start berhasil
+                this.status = 'scan_qr';
+                // Mulai polling untuk mendapatkan QR dan memantau scan
+                await this.fetchQr();
+                this.pollStatus();
+            } catch (e) {
+                this.status = 'disconnected';
+            } finally {
                 this.isLoading = false;
             }
         },

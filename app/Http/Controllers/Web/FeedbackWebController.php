@@ -44,11 +44,20 @@ final class FeedbackWebController extends Controller
         ]);
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $storageQuota = app(\App\Domain\Storage\OwnerStorageQuotaService::class);
-            if (! $storageQuota->canUpload($user, (int) $file->getSize())) {
-                return back()->withInput()->withErrors(['attachment' => 'Kuota storage Anda tidak mencukupi untuk mengunggah lampiran ini.']);
-            }
-            $validated['attachment_path'] = $file->store('feedback/bugs', 'public');
+            $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
+            $owner = app(\App\Domain\Storage\OwnerStorageQuotaService::class)->ownerForBusiness($business) ?? $user;
+            $trackingService->assertCanUpload($owner, (int) $file->getSize(), 'attachment');
+            $path = $file->store('feedback/bugs', 'public');
+            $validated['attachment_path'] = $path;
+            $trackingService->recordUpload(
+                file: $file,
+                filePath: $path,
+                category: \App\Models\StorageFile::CATEGORY_FEEDBACK_ATTACHMENT,
+                module: 'feedback',
+                owner: $owner,
+                business: $business,
+                uploader: $user
+            );
         }
         $validated['business_id'] = $business->id;
         $validated['reporter_id'] = $user->getAuthIdentifier();

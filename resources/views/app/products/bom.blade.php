@@ -56,6 +56,7 @@
                 <span>Daftar Produk</span>
             </a>
 
+            @if(\App\Support\Context::hasPermission('costing.manage'))
             <a href="{{ route('import.index', ['tab' => 'recipes']) }}" 
                class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5"
                title="Import formula resep dari file Excel / CSV">
@@ -68,6 +69,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                 <span>Tambah Bahan</span>
             </button>
+            @endif
         </div>
     </header>
 
@@ -160,6 +162,7 @@
                             {{ $business->currency_symbol }} {{ number_format((float)$itemSubtotal, 0, ',', '.') }}
                         </td>
                         <td class="py-3 px-4 text-right">
+                            @if(\App\Support\Context::hasPermission('costing.manage'))
                             <button type="button" @click="openDelete('{{ $item->id }}', '{{ addslashes($mat?->name ?? 'Komponen Resep') }}')"
                                     class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors inline-flex items-center">
                                 Hapus
@@ -168,6 +171,7 @@
                                 @csrf
                                 @method('DELETE')
                             </form>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -185,6 +189,7 @@
     <!-- ===================================================== -->
     <!-- 4. MODAL: TAMBAH BAHAN KE BOM (Apple Sheet)           -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('costing.manage'))
     <div x-show="showAddItemModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]">
         <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)]" @click.outside="showAddItemModal = false">
             <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
@@ -243,10 +248,12 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- 5. APPLE ALERT DIALOG (Hapus Komponen Resep)          -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('costing.manage'))
     <div x-show="deleteModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-[2px]">
         <div class="w-[290px] rounded-[14px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-black/5 dark:border-white/10"
             @click.away="closeDelete()">
@@ -266,6 +273,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

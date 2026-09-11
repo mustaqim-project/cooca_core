@@ -152,13 +152,15 @@ final class ModifierWebController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'price_delta' => ['nullable', 'numeric', 'min:0'],
-            'affects_material' => ['nullable', 'boolean'],
+            'affects_material' => ['nullable'],
             'sort_order' => ['nullable', 'integer'],
             'materials' => ['nullable', 'array'],
             'materials.*.material_id' => ['required_with:materials', 'string', 'exists:materials,id'],
             'materials.*.quantity' => ['required_with:materials', 'numeric', 'min:0.0001'],
             'materials.*.unit_id' => ['nullable', 'string', 'exists:units,id'],
         ]);
+
+        $validated['affects_material'] = filter_var($request->input('affects_material', false), FILTER_VALIDATE_BOOLEAN);
 
         try {
             $option = $this->modifierService->addOption($group, $validated);
@@ -190,7 +192,7 @@ final class ModifierWebController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'price_delta' => ['nullable', 'numeric', 'min:0'],
-            'affects_material' => ['nullable', 'boolean'],
+            'affects_material' => ['nullable'],
             'sort_order' => ['nullable', 'integer'],
             'is_active' => ['nullable', 'boolean'],
             'materials' => ['nullable', 'array'],
@@ -198,6 +200,8 @@ final class ModifierWebController extends Controller
             'materials.*.quantity' => ['required_with:materials', 'numeric', 'min:0.0001'],
             'materials.*.unit_id' => ['nullable', 'string', 'exists:units,id'],
         ]);
+
+        $validated['affects_material'] = filter_var($request->input('affects_material', false), FILTER_VALIDATE_BOOLEAN);
 
         try {
             $this->modifierService->updateOption($option, $validated);

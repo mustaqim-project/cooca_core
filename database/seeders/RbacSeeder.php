@@ -26,6 +26,8 @@ final class RbacSeeder extends Seeder
             'customers.edit'              => ['Edit Pelanggan',                         'customers',   'Mengubah data pelanggan.'],
             'customers.delete'            => ['Hapus Pelanggan',                        'customers',   'Menghapus data pelanggan.'],
             'customers.export'            => ['Export Pelanggan',                       'customers',   'Export data pelanggan ke Excel/CSV.'],
+            'crm.view'                    => ['Lihat CRM & Loyalitas',                  'customers',   'Melihat tier membership pelanggan, riwayat poin, dan status voucher.'],
+            'crm.manage'                  => ['Kelola CRM & Loyalitas',                 'customers',   'Mengatur tingkatan tier membership, formula reward poin, dan voucher promo.'],
 
             // ─── Products & BOM ──────────────────────────────────────
             'products.view'               => ['Lihat Katalog Produk',                   'products',    'Melihat daftar produk dan resep BOM.'],
@@ -55,9 +57,14 @@ final class RbacSeeder extends Seeder
             // ─── Sales Pipeline (Quotation & SO) ─────────────────────
             'sales.view'                  => ['Lihat Penawaran & Pesanan',              'sales',       'Melihat daftar quotation dan sales order.'],
             'sales.pipeline'              => ['Kelola Penawaran & Pesanan Penjualan',   'sales',       'Membuat dan mengelola surat penawaran harga dan pesanan penjualan.'],
+            'sales.returns'               => ['Retur Penjualan',                        'sales',       'Melihat dan memproses formulir retur barang dari pelanggan.'],
 
             // ─── POS ─────────────────────────────────────────────────
             'pos.terminal'                => ['Operasikan Kasir POS',                   'pos',         'Mengoperasikan kasir, checkout pesanan, dan cetak struk.'],
+            'pos.kitchen'                 => ['Kitchen Display System (KDS)',           'pos',         'Melihat dan memproses antrean pesanan di layar dapur / bar (KDS).'],
+            'pos.tables'                  => ['Manajemen Meja & QR Dine-in',            'pos',         'Mengatur nomor meja, tata letak area dine-in, dan cetak kartu QR meja.'],
+            'pos.modifiers'               => ['Modifier & Add-on Menu',                 'pos',         'Mengatur pilihan opsi modifier, add-on topping, dan varian pesanan kasir.'],
+            'pos.orders'                  => ['Riwayat Transaksi & Shift',              'pos',         'Melihat riwayat transaksi kasir, detail struk, dan rekonsiliasi shift.'],
             'pos.supervisor_pin'          => ['Otorisasi Void & Diskon Supervisor',     'pos',         'Otorisasi pembatalan pesanan kasir, refund, dan diskon manual.'],
             'pos.reports'                 => ['Laporan POS & Shift',                    'pos',         'Melihat laporan transaksi kasir, shift, dan summary penjualan.'],
             'pos.reports_export'          => ['Export Laporan POS',                     'pos',         'Export laporan POS ke Excel.'],
@@ -65,6 +72,8 @@ final class RbacSeeder extends Seeder
             // ─── Purchasing / PO ─────────────────────────────────────
             'purchasing.view'             => ['Lihat Purchase Order',                   'purchasing',  'Melihat daftar dan detail purchase order.'],
             'purchasing.manage'           => ['Kelola Purchase Order & Pemasok',        'purchasing',  'Membuat pesanan pembelian ke pemasok dan kelola database vendor.'],
+            'purchasing.bills'            => ['Tagihan & Hutang Supplier',              'purchasing',  'Melihat dan mengelola invoice tagihan pembelian dari vendor/supplier.'],
+            'purchase.returns'            => ['Retur Pembelian',                        'purchasing',  'Mencatat dan memproses pengembalian barang retur ke pihak supplier.'],
 
             // ─── Receiving / Penerimaan Barang ───────────────────────
             'receiving.manage'            => ['Penerimaan Barang (Receiving)',           'receiving',   'Mencatat fisik barang masuk dari PO atau pembelian langsung ke stok.'],
@@ -72,6 +81,8 @@ final class RbacSeeder extends Seeder
             // ─── Inventory / Stok ─────────────────────────────────────
             'inventory.view'              => ['Lihat Stok',                             'inventory',   'Melihat stok real-time dan riwayat mutasi.'],
             'inventory.manage'            => ['Mutasi & Opname Stok',                   'inventory',   'Kelola transfer gudang, penyesuaian stok, dan rekonsiliasi opname.'],
+            'warehouse.view'              => ['Lihat Gudang & Lokasi',                  'inventory',   'Melihat daftar master multi-gudang dan lokasi penyimpanan barang.'],
+            'warehouse.manage'            => ['Kelola Gudang & Lokasi',                 'inventory',   'Menambah, mengubah, dan mengatur master lokasi gudang penyimpanan.'],
 
             // ─── Expenses / Beban ─────────────────────────────────────
             'expenses.view'               => ['Lihat Beban Operasional',                'expenses',    'Melihat daftar pengeluaran operasional.'],
@@ -79,6 +90,16 @@ final class RbacSeeder extends Seeder
 
             // ─── Accounting / Buku Besar ──────────────────────────────
             'accounting.view'             => ['Lihat Buku Besar & Jurnal',              'accounting',  'Melihat bagan akun (COA) dan entri jurnal pembukuan ganda.'],
+            'finance.cash_bank'           => ['Kas & Rekening Bank',                    'accounting',  'Melihat saldo kas kecil, mutasi rekening bank, dan buku kas harian.'],
+            'finance.receivables'         => ['Piutang Usaha (AR Aging)',               'accounting',  'Memantau dan mengelola umur piutang faktur pelanggan.'],
+            'finance.payables'            => ['Hutang Usaha (AP Aging)',                'accounting',  'Memantau jadwal jatuh tempo hutang tagihan ke vendor/supplier.'],
+
+            // ─── WhatsApp Gateway ─────────────────────────────────────
+            'whatsapp.view'               => ['Lihat WhatsApp Gateway',                 'whatsapp',    'Melihat status koneksi QR code dan riwayat log pengiriman pesan struk.'],
+            'whatsapp.manage'             => ['Kelola WhatsApp & Broadcast',            'whatsapp',    'Menghubungkan nomor WhatsApp, konfigurasi gateway, dan kirim blast promo.'],
+
+            // ─── Landing Page CMS ─────────────────────────────────────
+            'cms.manage'                  => ['Kelola Landing Page CMS',                'cms',         'Mengatur website mini publik bisnis, katalog unggulan, banner, dan kontak.'],
 
             // ─── Reports ─────────────────────────────────────────────
             'reports.view'                => ['Lihat Laporan',                          'reports',     'Akses halaman laporan dan analitik.'],
@@ -147,17 +168,20 @@ final class RbacSeeder extends Seeder
         $managerSlugs   = [
             'dashboard.view',
             'customers.view', 'customers.create', 'customers.edit', 'customers.export',
+            'crm.view', 'crm.manage',
             'products.view', 'products.create', 'products.edit', 'products.manage',
             'materials.view', 'materials.create', 'materials.edit',
             'costing.view_margin', 'costing.manage',
             'invoices.view', 'invoices.create', 'invoices.edit', 'invoices.record_payment', 'invoices.export',
-            'sales.view', 'sales.pipeline',
-            'pos.terminal', 'pos.supervisor_pin', 'pos.reports', 'pos.reports_export',
-            'purchasing.view', 'purchasing.manage',
+            'sales.view', 'sales.pipeline', 'sales.returns',
+            'pos.terminal', 'pos.kitchen', 'pos.tables', 'pos.modifiers', 'pos.orders', 'pos.supervisor_pin', 'pos.reports', 'pos.reports_export',
+            'purchasing.view', 'purchasing.manage', 'purchasing.bills', 'purchase.returns',
             'receiving.manage',
-            'inventory.view', 'inventory.manage',
+            'inventory.view', 'inventory.manage', 'warehouse.view', 'warehouse.manage',
             'expenses.view', 'expenses.manage',
-            'accounting.view',
+            'accounting.view', 'finance.cash_bank', 'finance.receivables', 'finance.payables',
+            'whatsapp.view', 'whatsapp.manage',
+            'cms.manage',
             'reports.view', 'reports.financial', 'reports.export', 'reports.costing',
             'settings.view',
             'master_data.suppliers.view', 'master_data.suppliers.manage',
@@ -191,9 +215,10 @@ final class RbacSeeder extends Seeder
                 'permissions' => [
                     'dashboard.view',
                     'customers.view', 'customers.create',
+                    'crm.view',
                     'sales.view', 'sales.pipeline',
                     'invoices.view', 'invoices.create', 'invoices.record_payment',
-                    'pos.terminal',
+                    'pos.terminal', 'pos.kitchen', 'pos.tables', 'pos.orders',
                     'inventory.view',
                     'ai.access',
                 ],
@@ -206,7 +231,9 @@ final class RbacSeeder extends Seeder
                     'products.view',
                     'materials.view',
                     'inventory.view', 'inventory.manage',
+                    'warehouse.view', 'warehouse.manage',
                     'purchasing.view',
+                    'purchase.returns',
                     'receiving.manage',
                     'ai.access',
                 ],
@@ -219,9 +246,10 @@ final class RbacSeeder extends Seeder
                     'customers.view',
                     'costing.view_margin',
                     'invoices.view', 'invoices.create', 'invoices.edit', 'invoices.record_payment', 'invoices.export',
-                    'purchasing.view', 'purchasing.manage',
+                    'purchasing.view', 'purchasing.manage', 'purchasing.bills',
+                    'sales.returns',
                     'expenses.view', 'expenses.manage',
-                    'accounting.view',
+                    'accounting.view', 'finance.cash_bank', 'finance.receivables', 'finance.payables',
                     'reports.view', 'reports.financial', 'reports.export',
                     'ai.access',
                 ],
@@ -232,10 +260,11 @@ final class RbacSeeder extends Seeder
                 'permissions' => [
                     'dashboard.view',
                     'customers.view',
+                    'crm.view',
                     'products.view',
                     'sales.view', 'sales.pipeline',
                     'invoices.view', 'invoices.create', 'invoices.record_payment',
-                    'pos.terminal',
+                    'pos.terminal', 'pos.kitchen', 'pos.tables', 'pos.orders',
                     'inventory.view',
                     'receiving.manage',
                     'ai.access',
@@ -248,9 +277,14 @@ final class RbacSeeder extends Seeder
                     'dashboard.view',
                     'reports.view', 'reports.financial',
                     'accounting.view',
+                    'finance.cash_bank',
                     'invoices.view',
                     'inventory.view',
+                    'warehouse.view',
                     'customers.view',
+                    'crm.view',
+                    'pos.orders',
+                    'whatsapp.view',
                 ],
             ],
         ];

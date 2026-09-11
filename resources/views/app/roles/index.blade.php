@@ -6,11 +6,12 @@
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
-    activeTab: 'roles',
+    activeTab: '{{ (\App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage')) ? 'roles' : ((\App\Support\Context::hasPermission('users.view') || \App\Support\Context::hasPermission('users.manage')) ? 'members' : 'matrix') }}',
     showGuide: true,
     showCreateModal: false,
     showMemberRoleModal: false,
     editingRole: null,
+    editingPreset: false,
     editFormAction: '',
     searchPermission: '',
     selectedPermissions: [],
@@ -54,12 +55,22 @@
 
     openCreateModal() {
         this.editingRole = null;
+        this.editingPreset = false;
         this.selectedPermissions = [];
         this.showCreateModal = true;
     },
 
     openEditModal(role, actionUrl, permSlugs) {
         this.editingRole = role;
+        this.editingPreset = false;
+        this.editFormAction = actionUrl;
+        this.selectedPermissions = [...permSlugs];
+        this.showCreateModal = true;
+    },
+
+    openEditPresetModal(role, actionUrl, permSlugs) {
+        this.editingRole = role;
+        this.editingPreset = true;
         this.editFormAction = actionUrl;
         this.selectedPermissions = [...permSlugs];
         this.showCreateModal = true;
@@ -107,6 +118,7 @@
 
         <!-- Toolbar Actions & Primary Button -->
         <div class="flex items-center gap-2.5 w-full sm:w-auto">
+            @if(\App\Support\Context::hasPermission('roles.create') || \App\Support\Context::hasPermission('roles.manage'))
             <button type="button" @click="openCreateModal()"
                 class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] w-full sm:w-auto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -114,6 +126,7 @@
                 </svg>
                 <span>Buat Role Custom</span>
             </button>
+            @endif
         </div>
     </header>
 
@@ -177,25 +190,31 @@
     <!-- ===================================================== -->
     <div class="flex items-center justify-between gap-3 border-b border-black/5 dark:border-white/5 pb-3">
         <div class="inline-flex p-0.5 rounded-[9px] bg-black/[0.06] dark:bg-white/[0.08] text-[13px] font-medium">
+            @if(\App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage'))
             <button type="button" @click="activeTab = 'roles'"
                 :class="activeTab === 'roles' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55'"
                 class="px-3.5 py-1.5 rounded-[7px] transition-all flex items-center gap-1.5">
                 <span>Daftar Role</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-black/10 dark:bg-white/10 tabular-nums">{{ $roles->count() }}</span>
             </button>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('users.view') || \App\Support\Context::hasPermission('users.manage'))
             <button type="button" @click="activeTab = 'members'"
                 :class="activeTab === 'members' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55'"
                 class="px-3.5 py-1.5 rounded-[7px] transition-all flex items-center gap-1.5">
                 <span>Anggota Tim</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-black/10 dark:bg-white/10 tabular-nums">{{ $members->count() }}</span>
             </button>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage'))
             <button type="button" @click="activeTab = 'matrix'"
                 :class="activeTab === 'matrix' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55'"
                 class="px-3.5 py-1.5 rounded-[7px] transition-all flex items-center gap-1.5">
                 <span>Matriks Hak Akses</span>
             </button>
+            @endif
         </div>
 
         <button type="button" @click="showGuide = !showGuide" class="text-[12px] text-[#007AFF] hover:underline font-medium flex items-center gap-1">
@@ -230,6 +249,7 @@
         </div>
     </div>
 
+    @if(\App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage'))
     <!-- ===================================================== -->
     <!-- TAB 1: DAFTAR ROLE CARDS                              -->
     <!-- ===================================================== -->
@@ -298,6 +318,7 @@
                 <!-- Card Actions -->
                 <div class="pt-3 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between gap-2">
                     @if($isCustom)
+                        @if(\App\Support\Context::hasPermission('roles.edit') || \App\Support\Context::hasPermission('roles.manage'))
                         <button type="button"
                             @click="openEditModal({{ Js::from($role) }}, '{{ route('roles.update', $role) }}', {{ Js::from($permSlugs) }})"
                             class="h-8 px-3 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
@@ -306,7 +327,9 @@
                             </svg>
                             <span>Edit Permission</span>
                         </button>
+                        @endif
 
+                        @if(\App\Support\Context::hasPermission('roles.delete') || \App\Support\Context::hasPermission('roles.manage'))
                         <button type="button"
                             @click="openDeleteRole({{ $role->id }}, '{{ addslashes($role->name) }}')"
                             class="h-8 w-8 rounded-[8px] text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center"
@@ -320,27 +343,40 @@
                             @csrf
                             @method('DELETE')
                         </form>
+                        @endif
                     @else
-                        <span class="text-[12px] text-black/40 dark:text-white/40 italic flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                            </svg>
-                            Preset terlindungi
-                        </span>
-                        <button type="button" @click="activeTab = 'matrix'" class="text-[12px] text-[#007AFF] hover:underline font-semibold transition">
-                            Lihat Matriks &rarr;
-                        </button>
+                        <div class="flex items-center justify-between gap-2 w-full">
+                            <span class="text-[12px] text-[#FF9500] flex items-center gap-1.5 font-medium">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                                </svg>
+                                Nama terlindungi
+                            </span>
+                            @if(\App\Support\Context::hasPermission('roles.edit') || \App\Support\Context::hasPermission('roles.manage'))
+                            <button type="button"
+                                @click="openEditPresetModal({{ Js::from($role) }}, '{{ route('roles.update', $role) }}', {{ Js::from($permSlugs) }})"
+                                class="h-8 px-3 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                </svg>
+                                <span>Edit Permission</span>
+                            </button>
+                            @endif
+                        </div>
                     @endif
                 </div>
             </div>
             @endforeach
         </div>
     </div>
+    @endif
 
+    @if(\App\Support\Context::hasPermission('users.view') || \App\Support\Context::hasPermission('users.manage'))
     <!-- ===================================================== -->
     <!-- TAB 2: ANGGOTA TIM & TAMBAH KARYAWAN                  -->
     <!-- ===================================================== -->
     <div x-show="activeTab === 'members'" class="space-y-6" style="display: none;">
+        @if(\App\Support\Context::hasPermission('users.create') || \App\Support\Context::hasPermission('users.manage'))
         <!-- Form Tambah Karyawan Baru -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 space-y-4">
             <div class="border-b border-black/5 dark:border-white/5 pb-3">
@@ -389,6 +425,7 @@
                 </button>
             </form>
         </div>
+        @endif
 
         <!-- Tabel Daftar Karyawan Aktif -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden">
@@ -409,7 +446,9 @@
                             <th class="py-2.5 px-4">Nama Pengguna</th>
                             <th class="py-2.5 px-4">Email Login</th>
                             <th class="py-2.5 px-4">Role / Wewenang</th>
+                            @if(\App\Support\Context::hasPermission('users.edit') || \App\Support\Context::hasPermission('users.delete') || \App\Support\Context::hasPermission('users.manage'))
                             <th class="py-2.5 px-4 text-right">Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -437,15 +476,19 @@
                                     {{ $member->customRole?->name ?? ucfirst($member->role) }}
                                 </span>
                             </td>
+                            @if(\App\Support\Context::hasPermission('users.edit') || \App\Support\Context::hasPermission('users.delete') || \App\Support\Context::hasPermission('users.manage'))
                             <td class="py-3 px-4 text-right">
                                 @if($member->role !== 'owner')
                                     <div class="flex items-center justify-end gap-1.5">
+                                        @if(\App\Support\Context::hasPermission('users.edit') || \App\Support\Context::hasPermission('users.manage'))
                                         <button type="button"
                                             @click="openChangeMemberRoleModal({{ Js::from($member) }}, '{{ route('roles.members.role', $member) }}', '{{ $memberRoleId }}')"
                                             class="h-7 px-2.5 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center gap-1">
                                             <span>Ubah Role</span>
                                         </button>
+                                        @endif
 
+                                        @if(\App\Support\Context::hasPermission('users.delete') || \App\Support\Context::hasPermission('users.manage'))
                                         <button type="button"
                                             @click="openDeleteMember({{ $member->id }}, '{{ addslashes($member->user?->name ?? 'Karyawan') }}')"
                                             class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors flex items-center"
@@ -457,11 +500,13 @@
                                             @csrf
                                             @method('DELETE')
                                         </form>
+                                        @endif
                                     </div>
                                 @else
                                     <span class="text-[11px] text-black/40 dark:text-white/40 italic">Owner Utama</span>
                                 @endif
                             </td>
+                            @endif
                         </tr>
                         @endforeach
                     </tbody>
@@ -469,7 +514,9 @@
             </div>
         </div>
     </div>
+    @endif
 
+    @if(\App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage'))
     <!-- ===================================================== -->
     <!-- TAB 3: MATRIKS HAK AKSES LENGKAP                      -->
     <!-- ===================================================== -->
@@ -517,7 +564,9 @@
             @endforeach
         </div>
     </div>
+    @endif
 
+    @if(\App\Support\Context::hasPermission('roles.create') || \App\Support\Context::hasPermission('roles.edit') || \App\Support\Context::hasPermission('roles.manage'))
     <!-- ===================================================== -->
     <!-- MODAL 1: CREATE / EDIT CUSTOM ROLE (macOS Sheet)       -->
     <!-- ===================================================== -->
@@ -543,8 +592,10 @@
             <!-- Sheet Header -->
             <div class="px-6 py-4 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
                 <div>
-                    <h3 class="text-[17px] font-semibold text-black dark:text-white" x-text="editingRole ? 'Edit Role: ' + editingRole.name : 'Buat Role Custom Baru'"></h3>
-                    <p class="text-[12px] text-black/50 dark:text-white/50">Tentukan kombinasi hak akses yang diizinkan untuk peran ini.</p>
+                    <h3 class="text-[17px] font-semibold text-black dark:text-white"
+                        x-text="editingRole ? (editingPreset ? 'Edit Permission: ' + editingRole.name : 'Edit Role: ' + editingRole.name) : 'Buat Role Custom Baru'"></h3>
+                    <p class="text-[12px] text-black/50 dark:text-white/50"
+                        x-text="editingPreset ? 'Hak akses preset role dapat diubah. Nama role sistem tidak dapat dimodifikasi.' : 'Tentukan kombinasi hak akses yang diizinkan untuk peran ini.'"></p>
                 </div>
                 <button type="button" @click="showCreateModal = false" class="w-8 h-8 rounded-[8px] hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center text-black/50 dark:text-white/50 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -563,16 +614,30 @@
                 <div class="p-6 space-y-5 overflow-y-auto flex-1">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[13px] font-medium text-black/70 dark:text-white/70 mb-1.5">Nama Role <span class="text-[#FF3B30]">*</span></label>
-                            <input type="text" name="name" required
+                            <label class="block text-[13px] font-medium text-black/70 dark:text-white/70 mb-1.5">
+                                Nama Role
+                                <span class="text-[#FF3B30]" x-show="!editingPreset">*</span>
+                            </label>
+                            <input type="text" name="name"
+                                :required="!editingPreset"
                                 :value="editingRole ? editingRole.name : ''"
+                                :disabled="editingPreset"
+                                :class="editingPreset ? 'opacity-50 cursor-not-allowed' : ''"
                                 placeholder="Contoh: Kasir Shift Pagi"
                                 class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            <p class="text-[11px] text-[#FF9500] mt-1 flex items-center gap-1" x-show="editingPreset">
+                                <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                                </svg>
+                                Nama role sistem terlindungi
+                            </p>
                         </div>
                         <div>
                             <label class="block text-[13px] font-medium text-black/70 dark:text-white/70 mb-1.5">Deskripsi Peran</label>
                             <input type="text" name="description"
                                 :value="editingRole ? editingRole.description : ''"
+                                :disabled="editingPreset"
+                                :class="editingPreset ? 'opacity-50 cursor-not-allowed' : ''"
                                 placeholder="Ringkasan tanggung jawab..."
                                 class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         </div>
@@ -629,13 +694,15 @@
                     </button>
                     <button type="submit"
                         class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                        <span x-text="editingRole ? 'Simpan Perubahan' : 'Buat Role Custom'"></span>
+                        <span x-text="editingPreset ? 'Simpan Permission' : (editingRole ? 'Simpan Perubahan' : 'Buat Role Custom')"></span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
+    @endif
 
+    @if(\App\Support\Context::hasPermission('users.edit') || \App\Support\Context::hasPermission('users.manage'))
     <!-- ===================================================== -->
     <!-- MODAL 2: CHANGE MEMBER ROLE (macOS Sheet)              -->
     <!-- ===================================================== -->
@@ -703,7 +770,9 @@
             </form>
         </div>
     </div>
+    @endif
 
+    @if(\App\Support\Context::hasPermission('roles.delete') || \App\Support\Context::hasPermission('roles.manage'))
     <!-- ===================================================== -->
     <!-- APPLE ALERT DIALOG: HAPUS ROLE                        -->
     <!-- ===================================================== -->
@@ -743,7 +812,9 @@
             </div>
         </div>
     </div>
+    @endif
 
+    @if(\App\Support\Context::hasPermission('users.delete') || \App\Support\Context::hasPermission('users.manage'))
     <!-- ===================================================== -->
     <!-- APPLE ALERT DIALOG: KELUARKAN ANGGOTA                 -->
     <!-- ===================================================== -->
@@ -783,6 +854,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

@@ -188,9 +188,9 @@ final class PosAiEngineTest extends TestCase
 
     public function test_ai_pos_cockpit_page_is_accessible(): void
     {
-        $this->actingAs($this->user);
-
-        $response = $this->get(route('pos.ai.index'));
+        $response = $this->actingAs($this->user)
+            ->withSession(['active_business_id' => $this->business->id])
+            ->get(route('pos.ai.index'));
         $response->assertStatus(200);
         $response->assertSee('Pusat Intelijensi');
         $response->assertSee('Peramalan Penjualan');
@@ -299,22 +299,28 @@ final class PosAiEngineTest extends TestCase
 
     public function test_ai_natural_language_reporting_indonesian_queries(): void
     {
-        $this->actingAs($this->user);
+        $session = ['active_business_id' => $this->business->id];
 
         // 1. Ask about today's sales
-        $resToday = $this->postJson(route('pos.ai.ask'), ['query' => 'Berapa penjualan hari ini?']);
+        $resToday = $this->actingAs($this->user)
+            ->withSession($session)
+            ->postJson(route('pos.ai.ask'), ['query' => 'Berapa penjualan hari ini?']);
         $resToday->assertStatus(200);
         $resToday->assertJsonPath('success', true);
         $this->assertNotEmpty($resToday->json('response.headline'));
 
         // 2. Ask about stock prediction
-        $resStock = $this->postJson(route('pos.ai.ask'), ['query' => 'Produk apa yang stoknya mau habis?']);
+        $resStock = $this->actingAs($this->user)
+            ->withSession($session)
+            ->postJson(route('pos.ai.ask'), ['query' => 'Produk apa yang stoknya mau habis?']);
         $resStock->assertStatus(200);
         $resStock->assertJsonPath('success', true);
         $this->assertNotEmpty($resStock->json('response.details'));
 
         // 3. Ask about fraud & suspicious transactions
-        $resFraud = $this->postJson(route('pos.ai.ask'), ['query' => 'Apakah ada transaksi mencurigakan atau fraud?']);
+        $resFraud = $this->actingAs($this->user)
+            ->withSession($session)
+            ->postJson(route('pos.ai.ask'), ['query' => 'Apakah ada transaksi mencurigakan atau fraud?']);
         $resFraud->assertStatus(200);
         $resFraud->assertJsonPath('success', true);
         $this->assertNotEmpty($resFraud->json('response.action_suggestion'));

@@ -239,6 +239,7 @@
 
         <!-- Toolbar Actions -->
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            @if(\App\Support\Context::hasPermission('products.manage') || \App\Support\Context::hasPermission('products.edit'))
             <!-- Toggle Gambar POS -->
             <button type="button" @click="togglePosShowImages()" :disabled="posImageToggling"
                 class="h-9 px-3 rounded-[10px] text-[12px] font-medium transition-all border flex items-center justify-center gap-1.5 disabled:opacity-50"
@@ -248,7 +249,9 @@
                 <span>Gambar di POS:</span>
                 <span class="font-bold tabular-nums" x-text="posShowImages ? 'ON' : 'OFF'"></span>
             </button>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('products.create') || \App\Support\Context::hasPermission('products.manage'))
             <!-- Import Excel -->
             <a href="{{ route('import.index', ['tab' => 'products']) }}"
                 class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5"
@@ -267,6 +270,7 @@
                 </svg>
                 <span>Tambah Produk</span>
             </button>
+            @endif
         </div>
     </header>
 
@@ -417,17 +421,22 @@
                         </td>
                         <td class="py-3 px-4 text-right">
                             <div class="flex items-center justify-end gap-1">
+                                @if(\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('products.manage') || \App\Support\Context::hasPermission('costing.manage'))
                                 <a href="{{ route('products.bom', $prod->slug) }}"
                                    class="h-7 px-2 rounded-[6px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-colors flex items-center gap-1">
                                     <span>BOM</span>
                                 </a>
+                                @endif
 
+                                @if(\App\Support\Context::hasPermission('costing.manage') || \App\Support\Context::hasPermission('costing.view_margin'))
                                 <a href="{{ route('calculator.index', ['product_id' => $prod->id, 'tab' => 'advanced']) }}"
                                    class="h-7 px-2 rounded-[6px] text-[12px] font-semibold text-[#AF52DE] bg-[#AF52DE]/10 hover:bg-[#AF52DE]/15 transition-colors flex items-center gap-1"
                                    title="Hitung HPP & tetapkan harga jual di Kalkulator">
                                     <span>Kalkulasi</span>
                                 </a>
+                                @endif
 
+                                @if(\App\Support\Context::hasPermission('products.edit') || \App\Support\Context::hasPermission('products.manage'))
                                 <button type="button" @click="openEditModal({
                                     id: '{{ $prod->id }}',
                                     slug: '{{ $prod->slug }}',
@@ -444,7 +453,9 @@
                                 })" class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center" title="Edit Produk">
                                     Edit
                                 </button>
+                                @endif
 
+                                @if(\App\Support\Context::hasPermission('products.delete') || \App\Support\Context::hasPermission('products.manage'))
                                 <button type="button" @click="openDelete('{{ $prod->slug }}', '{{ addslashes($prod->name) }}')"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors flex items-center" title="Hapus Produk">
                                     Hapus
@@ -453,6 +464,7 @@
                                     @csrf
                                     @method('DELETE')
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -498,9 +510,12 @@
                 </p>
             </div>
             <div class="flex items-center gap-1 shrink-0">
+                @if(\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('products.manage') || \App\Support\Context::hasPermission('costing.manage'))
                 <a href="{{ route('products.bom', $prod->slug) }}" class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 flex items-center">
                     BOM
                 </a>
+                @endif
+                @if(\App\Support\Context::hasPermission('products.edit') || \App\Support\Context::hasPermission('products.manage'))
                 <button type="button" @click="openEditModal({
                     id: '{{ $prod->id }}',
                     slug: '{{ $prod->slug }}',
@@ -517,6 +532,7 @@
                 })" class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 bg-black/[0.06] dark:bg-white/[0.08] flex items-center">
                     Edit
                 </button>
+                @endif
             </div>
         </div>
         @empty
@@ -535,6 +551,7 @@
     <!-- ===================================================== -->
     <!-- 6. MODAL: TAMBAH PRODUK BARU (Apple Sheet)            -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('products.create') || \App\Support\Context::hasPermission('products.manage'))
     <div x-show="showAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]">
         <div class="w-full max-w-lg rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)] max-h-[88vh] overflow-y-auto" @click.outside="showAddModal = false">
             <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
@@ -627,10 +644,12 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- 7. MODAL: EDIT PRODUK (Apple Sheet)                   -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('products.edit') || \App\Support\Context::hasPermission('products.manage'))
     <div x-show="showEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]">
         <div class="w-full max-w-lg rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)] max-h-[90vh] overflow-y-auto" @click.outside="showEditModal = false">
             <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
@@ -740,6 +759,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- 8. SUB-MODALS: KATEGORI & SATUAN (Apple Sheet)        -->
@@ -849,6 +869,7 @@
     <!-- ===================================================== -->
     <!-- 10. APPLE ALERT DIALOG (Hapus Produk)                  -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('products.delete') || \App\Support\Context::hasPermission('products.manage'))
     <div x-show="deleteModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-[2px]">
         <div class="w-[290px] rounded-[14px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-black/5 dark:border-white/10"
             @click.away="closeDelete()">
@@ -868,6 +889,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

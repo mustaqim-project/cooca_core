@@ -27,17 +27,12 @@ class WhatsAppWebController extends Controller
         $business  = Context::requireBusiness();
         $waSession = WhatsAppSession::where('business_id', $business->id)->first();
 
-        // Auto-start session if none exists yet
-        if (! $waSession) {
-            try {
-                $this->gateway->startSession($business);
-                $waSession = WhatsAppSession::where('business_id', $business->id)->first();
-            } catch (\Throwable) {
-                // wa-server might not be running — show disconnected state
-            }
-        }
+        // Hanya baca status dari database lokal — jangan hit WA server saat halaman dibuka.
+        // QR akan diambil via AJAX (/qr endpoint) hanya saat user klik tombol secara eksplisit.
+        $qrDataUrl  = null;
+        $liveStatus = strtolower($waSession?->status ?? 'disconnected');
 
-        return view('app.whatsapp.index', compact('business', 'waSession'));
+        return view('app.whatsapp.index', compact('business', 'waSession', 'qrDataUrl', 'liveStatus'));
     }
 
     /**
@@ -47,9 +42,25 @@ class WhatsAppWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $data = $this->gateway->getQrCode($business);
+        try {
+            $data = $this->gateway->getQrData($business);
 
-        return response()->json($data);
+            // Sync database if status is already connected
+            if (($data['status'] ?? '') === 'CONNECTED') {
+                $waSession = WhatsAppSession::firstOrNew(['business_id' => $business->id]);
+                $waSession->status = 'connected';
+                $waSession->last_connected_at = now();
+                $waSession->save();
+            }
+
+            return response()->json($data);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status'    => 'disconnected',
+                'qrDataUrl' => null,
+                'error'     => $e->getMessage(),
+            ]);
+        }
     }
 
     /**
@@ -59,15 +70,41 @@ class WhatsAppWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $data      = $this->gateway->getStatus($business);
-        $waSession = WhatsAppSession::where('business_id', $business->id)->first();
+        try {
+            $data      = $this->gateway->getStatus($business);
+            $waSession = WhatsAppSession::where('business_id', $business->id)->first();
 
-        return response()->json([
-            'status'      => $waSession?->status ?? 'disconnected',
-            'phone'       => $waSession?->phone_number,
-            'device_name' => $waSession?->device_name,
-            'live'        => $data,
-        ]);
+            $rawStatus = strtoupper($data['status'] ?? '');
+            if ($rawStatus === 'CONNECTED') {
+                if ($waSession) {
+                    $waSession->status = 'connected';
+                    if (!empty($data['user']['id'])) {
+                        $waSession->phone_number = explode(':', $data['user']['id'])[0];
+                    }
+                    $waSession->last_connected_at = now();
+                    $waSession->save();
+                }
+            } elseif ($rawStatus === 'SCAN_QR') {
+                if ($waSession && $waSession->status !== 'scan_qr') {
+                    $waSession->status = 'scan_qr';
+                    $waSession->save();
+                }
+            }
+
+            return response()->json([
+                'status'      => $waSession?->status ?? 'disconnected',
+                'phone'       => $waSession?->phone_number,
+                'device_name' => $waSession?->device_name,
+                'live'        => $data,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status'      => 'disconnected',
+                'phone'       => null,
+                'device_name' => null,
+                'live'        => ['status' => 'disconnected', 'error' => $e->getMessage()],
+            ]);
+        }
     }
 
     /**
@@ -161,7 +198,8 @@ class WhatsAppWebController extends Controller
         }
 
         $phone  = $request->input('phone') ?: $order->customer?->phone;
-        $ok     = $this->gateway->sendReceipt($order, $phone);
+        $force  = (bool) $request->input('force', false);
+        $ok     = $this->gateway->sendReceipt($order, $phone, $force);
 
         return response()->json([
             'success' => $ok,

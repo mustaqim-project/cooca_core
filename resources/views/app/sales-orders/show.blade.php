@@ -48,7 +48,7 @@
 
         <div class="flex flex-wrap items-center gap-2">
             <!-- 1-Click Generate Invoice Button -->
-            @if($salesOrder->status !== 'fulfilled')
+            @if($salesOrder->status !== 'fulfilled' && \App\Support\Context::hasPermission('invoices.create'))
                 <button type="button" @click="promptInvoice()"
                     class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

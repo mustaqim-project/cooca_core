@@ -720,7 +720,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <i data-lucide="bike" class="w-4 h-4 text-[#AF52DE]"></i>
-                                <span class="text-[13px] font-semibold text-black dark:text-white">Jual di Ojol? (GoFood/Grab)</span>
+                                <span class="text-[13px] font-semibold text-black dark:text-white">Jual di Ojek Online? (GoFood/Grab)</span>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" x-model="quickSellOnline" class="sr-only peer">
@@ -755,7 +755,7 @@
                         <div class="flex items-center justify-between">
                             <span class="font-semibold text-black dark:text-white flex items-center gap-1.5">
                                 <i data-lucide="target" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                <span>Simulasi Balik Modal (BEP)</span>
+                                <span>Target Balik Modal (BEP)</span>
                             </span>
                             <span class="text-[11px] text-black/40 dark:text-white/40">Beban Rutin</span>
                         </div>

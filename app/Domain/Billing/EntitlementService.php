@@ -29,6 +29,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class EntitlementService
 {
@@ -838,7 +839,14 @@ final class EntitlementService
         UploadedFile $file,
         array $senderData = []
     ): SubscriptionPayment {
-        $path = $file->store('payment-proofs', 'public');
+        $directory = public_path('payment-proofs');
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        $filename = Str::random(40) . '.' . $file->extension();
+        $file->move($directory, $filename);
+        $path = 'payment-proofs/' . $filename;
 
         $payment->update([
             'payment_proof_path' => $path,

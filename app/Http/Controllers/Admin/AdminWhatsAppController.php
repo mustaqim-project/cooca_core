@@ -57,9 +57,16 @@ final class AdminWhatsAppController extends Controller
             'free_tier'          => $this->adminWa->resolveBlastRecipients('free_tier')->count(),
         ];
 
+        // Hanya ambil status existing — jangan preload QR saat halaman dibuka.
+        // QR akan diambil via AJAX (/qr endpoint) hanya saat user klik tombol "Tampilkan QR Code".
+        $liveStatus = strtolower($waStatus['status'] ?? 'disconnected');
+        $qrDataUrl  = null;
+
         return view('admin.whatsapp.index', compact(
             'tab',
             'waStatus',
+            'liveStatus',
+            'qrDataUrl',
             'dueData',
             'templates',
             'recentReminders',
@@ -85,7 +92,14 @@ final class AdminWhatsAppController extends Controller
     {
         $data = $this->adminWa->getStatus();
 
-        return response()->json($data);
+        $userId = $data['user']['id'] ?? null;
+        $phone = $data['phone'] ?? ($userId ? explode(':', (string) $userId)[0] : null);
+
+        return response()->json([
+            ...$data,
+            'status' => strtolower((string) ($data['status'] ?? 'disconnected')),
+            'phone' => $phone,
+        ]);
     }
 
     /**
@@ -95,7 +109,9 @@ final class AdminWhatsAppController extends Controller
     {
         $result = $this->adminWa->startSession();
 
-        return response()->json($result);
+        $success = $result['success'] ?? true;
+
+        return response()->json($result, $success ? 200 : 502);
     }
 
     /**

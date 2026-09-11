@@ -41,10 +41,12 @@
                 <span>Layar Penuh</span>
             </button>
 
+            @if(\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.orders'))
             <a href="{{ route('pos.terminal') }}" class="h-9 px-3 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3"/></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3"/></svg>
                 <span>Terminal Kasir</span>
             </a>
+            @endif
         </div>
     </div>
 
@@ -112,10 +114,12 @@
                         </div>
 
                         <!-- Action Button -->
+                        @if(\App\Support\Context::hasPermission('pos.kitchen'))
                         <button type="button" @click="updateStatus(order.id, 'preparing')" class="w-full h-9 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/></svg>
                             <span>Mulai Siapkan / Masak</span>
                         </button>
+                        @endif
                     </div>
                 </template>
 
@@ -187,10 +191,12 @@
                         </div>
 
                         <!-- Action Button -->
+                        @if(\App\Support\Context::hasPermission('pos.kitchen'))
                         <button type="button" @click="updateStatus(order.id, 'ready')" class="w-full h-9 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>Pesanan Siap Saji</span>
                         </button>
+                        @endif
                     </div>
                 </template>
 
@@ -236,10 +242,12 @@
                         </div>
 
                         <!-- Action Button -->
+                        @if(\App\Support\Context::hasPermission('pos.kitchen'))
                         <button type="button" @click="updateStatus(order.id, 'served')" class="w-full h-9 rounded-[10px] bg-black/[0.08] dark:bg-white/[0.12] hover:bg-black/[0.15] dark:hover:bg-white/[0.2] active:scale-[0.98] text-black dark:text-white text-xs font-bold flex items-center justify-center gap-2 transition">
                             <svg class="w-4 h-4 text-[#34C759]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                             <span>Tandai Sudah Disajikan</span>
                         </button>
+                        @endif
                     </div>
                 </template>
 

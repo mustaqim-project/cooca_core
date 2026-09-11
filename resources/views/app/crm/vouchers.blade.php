@@ -82,12 +82,14 @@
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 <span>Kembali ke CRM</span>
             </a>
+            @if(\App\Support\Context::hasPermission('crm.manage'))
             <button type="button" 
                     @click="showCreateModal = true" 
                     class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
                 <i data-lucide="plus-circle" class="w-4 h-4"></i>
                 <span>Buat Voucher Baru</span>
             </button>
+            @endif
         </div>
     </div>
 
@@ -333,6 +335,7 @@
                     Buat kode promo diskon menarik untuk pelanggan setia atau kampanye potongan harga saat checkout kasir POS.
                 </p>
             </div>
+            @if(\App\Support\Context::hasPermission('crm.manage'))
             <div class="pt-2">
                 <button type="button" 
                         @click="showCreateModal = true"
@@ -341,6 +344,7 @@
                     <span>Buat Voucher Pertama</span>
                 </button>
             </div>
+            @endif
         </div>
         @endforelse
     </div>
@@ -352,6 +356,7 @@
     </div>
     @endif
 
+    @if(\App\Support\Context::hasPermission('crm.manage'))
     <!-- Modal: Buat Voucher Baru (With Live Coupon Preview) -->
     <div x-show="showCreateModal" 
          x-cloak 
@@ -524,6 +529,7 @@
             </form>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

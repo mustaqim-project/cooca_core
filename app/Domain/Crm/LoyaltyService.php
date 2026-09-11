@@ -182,54 +182,51 @@ final class LoyaltyService
             $cleanPhone = '62' . substr($cleanPhone, 1);
         }
 
-        $bizName = $order->business?->name ?? 'Si-Cost POS';
-        $currencySymbol = $order->business?->currency_symbol ?? 'Rp';
+        $business    = $order->business;
+        $bizName     = $business?->name ?? 'COOCA POS';
+        $custName    = $order->customer?->name ?? $order->customer_name_guest ?? null;
+        $cashierName = $order->user?->name ?? 'Kasir';
+        $orderDate   = $order->order_date ? $order->order_date->format('d/m/Y H:i') : now()->format('d/m/Y H:i');
+        $receiptUrl  = route('public.receipt', $order->id);
+        $footerNote  = $business?->pos_receipt_footer_note ?? '';
 
-        $text = "*STRUK PEMBELIAN DIGITAL*\n";
-        $text .= "{$bizName}\n";
-        $text .= "--------------------------------\n";
-        $text .= "No. Struk : #{$order->order_number}\n";
-        $text .= "Tanggal   : {$order->order_date->format('d/m/Y')}\n";
-        $text .= "Kasir     : " . ($order->user?->name ?? 'Kasir') . "\n";
-        if ($order->customer) {
-            $text .= "Pelanggan : {$order->customer->name} ({$order->customer->membership_tier})\n";
-        }
-        $text .= "--------------------------------\n";
-
-        foreach ($order->items as $item) {
-            $qty = rtrim(rtrim((string) $item->quantity, '0'), '.');
-            $lineSubtotal = number_format($item->total_price, 0, ',', '.');
-            $unitPrice = number_format($item->unit_price, 0, ',', '.');
-            $text .= "{$item->product_name}\n";
-            $text .= "  {$qty} x {$currencySymbol}{$unitPrice} = {$currencySymbol}{$lineSubtotal}\n";
+        $template = $business?->pos_receipt_wa_template;
+        if (! $template) {
+            $session  = \App\Models\WhatsAppSession::where('business_id', $business?->id)->first();
+            $template = $session?->receipt_template;
         }
 
-        $text .= "--------------------------------\n";
-        $text .= "Subtotal   : {$currencySymbol}" . number_format($order->subtotal, 0, ',', '.') . "\n";
+        if (! empty(trim((string) $template))) {
+            $replacements = [
+                '{business_name}' => $bizName,
+                '{customer_name}' => $custName ?? 'Pelanggan',
+                '{order_number}'  => $order->order_number,
+                '{date}'          => $orderDate,
+                '{cashier_name}'  => $cashierName,
+                '{receipt_link}'  => $receiptUrl,
+                '{footer_note}'   => $footerNote,
+            ];
 
-        if ($order->discount_amount > 0 || $order->voucher_discount_amount > 0) {
-            $disc = $order->discount_amount + $order->voucher_discount_amount;
-            $text .= "Diskon     : -{$currencySymbol}" . number_format($disc, 0, ',', '.') . "\n";
+            $text = strtr($template, $replacements);
+            if (! str_contains($template, '{receipt_link}')) {
+                $text .= "\n\nLihat Struk: " . $receiptUrl;
+            }
+        } else {
+            $greeting = $custName ? "Halo Kak *{$custName}*! 🙏\n" : "Halo! 🙏\n";
+
+            $text  = "🧾 *STRUK PEMBELIAN*\n";
+            $text .= "*{$bizName}*\n\n";
+            $text .= $greeting;
+            $text .= "Terima kasih banyak telah berbelanja di *{$bizName}*.\n\n";
+            $text .= "Berikut tautan e-struk transaksi Anda:\n";
+            $text .= $receiptUrl . "\n\n";
+
+            if ($footerNote) {
+                $text .= $footerNote . "\n\n";
+            }
+
+            $text .= "Semoga hari Anda menyenangkan! ✨";
         }
-
-        if ($order->tax_amount > 0) {
-            $text .= "Pajak PPN  : {$currencySymbol}" . number_format($order->tax_amount, 0, ',', '.') . "\n";
-        }
-
-        if ($order->service_charge_amount > 0) {
-            $text .= "Service    : {$currencySymbol}" . number_format($order->service_charge_amount, 0, ',', '.') . "\n";
-        }
-
-        $text .= "*TOTAL     : {$currencySymbol}" . number_format($order->total_amount, 0, ',', '.') . "*\n";
-        $text .= "Bayar      : {$currencySymbol}" . number_format($order->paid_amount, 0, ',', '.') . "\n";
-        $text .= "Kembalian  : {$currencySymbol}" . number_format($order->change_amount, 0, ',', '.') . "\n";
-
-        if ($order->points_earned > 0) {
-            $text .= "Poin Baru  : +{$order->points_earned} Poin\n";
-        }
-
-        $text .= "--------------------------------\n";
-        $text .= "Terima kasih atas kunjungan Anda!\n";
 
         return 'https://wa.me/' . $cleanPhone . '?text=' . rawurlencode($text);
     }

@@ -57,7 +57,7 @@
                 <span>Daftar PO</span>
             </a>
 
-            @if($purchaseOrder->status === 'draft')
+            @if(\App\Support\Context::hasPermission('purchasing.manage') && $purchaseOrder->status === 'draft')
             <form method="POST" action="{{ route('purchase-orders.confirm', $purchaseOrder->id) }}">
                 @csrf
                 <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
@@ -69,7 +69,7 @@
             </form>
             @endif
 
-            @if($purchaseOrder->po_type === 'customer' && $purchaseOrder->status !== 'fully_invoiced' && $purchaseOrder->status !== 'cancelled')
+            @if(\App\Support\Context::hasPermission('invoices.create') && $purchaseOrder->po_type === 'customer' && $purchaseOrder->status !== 'fully_invoiced' && $purchaseOrder->status !== 'cancelled')
             <form method="POST" action="{{ route('purchase-orders.generate-invoice', $purchaseOrder->id) }}">
                 @csrf
                 <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
@@ -81,7 +81,7 @@
             </form>
             @endif
 
-            @if($purchaseOrder->po_type === 'supplier' && in_array($purchaseOrder->status, ['confirmed', 'partially_invoiced'], true))
+            @if((\App\Support\Context::hasPermission('receiving.manage') || \App\Support\Context::hasPermission('purchasing.manage')) && $purchaseOrder->po_type === 'supplier' && in_array($purchaseOrder->status, ['confirmed', 'partially_invoiced'], true))
             <a href="{{ route('purchasing.receipts.create', $purchaseOrder->id) }}" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#FF9500] hover:bg-[#E08500] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(255,149,0,0.25)]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />

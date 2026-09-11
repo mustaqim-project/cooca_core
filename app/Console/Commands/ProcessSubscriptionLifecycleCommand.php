@@ -41,7 +41,8 @@ class ProcessSubscriptionLifecycleCommand extends Command
         $now = Carbon::now();
 
         // 1. Check and Expire Overdue Subscriptions
-        $expiredSubs = BusinessSubscription::where('status', BusinessSubscription::STATUS_ACTIVE)
+        $expiredSubs = BusinessSubscription::withoutGlobalScopes()
+            ->where('status', BusinessSubscription::STATUS_ACTIVE)
             ->whereNotNull('ends_at')
             ->where('ends_at', '<', $now->toDateTimeString())
             ->get();
@@ -57,7 +58,8 @@ class ProcessSubscriptionLifecycleCommand extends Command
         $this->info("Berhasil menonaktifkan {$expiredCount} langganan yang telah melewati masa aktif.");
 
         // 2. Check and Send Expiry Reminders (H-7, H-3, H-1)
-        $activeSubs = BusinessSubscription::where('status', BusinessSubscription::STATUS_ACTIVE)
+        $activeSubs = BusinessSubscription::withoutGlobalScopes()
+            ->where('status', BusinessSubscription::STATUS_ACTIVE)
             ->whereNotNull('ends_at')
             ->where('ends_at', '>', $now->toDateTimeString())
             ->with(['business.users'])

@@ -58,7 +58,7 @@
 
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <!-- 1-Click Convert to Sales Order Button -->
-            @if(!$quotation->salesOrder && $quotation->status !== 'rejected')
+            @if(!$quotation->salesOrder && $quotation->status !== 'rejected' && \App\Support\Context::hasPermission('sales.pipeline'))
             <form id="form-convert-so" action="{{ route('sales.quotations.convert', $quotation) }}" method="POST" class="inline">
                 @csrf
                 <button type="button" @click="openConvert()" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">

@@ -19,7 +19,9 @@ final class DynamicMailConfig
     public static function bootstrap(): void
     {
         try {
-            if (self::$hasTable === null) {
+            if (app()->environment('testing')) {
+                self::$hasTable = Schema::hasTable('system_settings');
+            } elseif (self::$hasTable === null) {
                 self::$hasTable = \Illuminate\Support\Facades\Cache::remember('db_has_system_settings_tbl', 86400, fn() => Schema::hasTable('system_settings'));
             }
 

@@ -92,7 +92,7 @@
         </div>
 
         <!-- Action Buttons -->
-        @if($return->status === 'draft' || $return->status === 'approved')
+        @if(($return->status === 'draft' || $return->status === 'approved') && (\App\Support\Context::hasPermission('purchase.returns') || \App\Support\Context::hasPermission('purchasing.manage')))
         <div class="flex items-center gap-3 pt-2">
             @if($return->status === 'draft')
             <form method="POST" action="{{ route('purchase.returns.approve', $return) }}">

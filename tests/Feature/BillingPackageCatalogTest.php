@@ -37,6 +37,14 @@ class BillingPackageCatalogTest extends TestCase
         $this->admin = Admin::create(['name' => 'Package Admin', 'email' => 'package-admin@test.local', 'password' => Hash::make('password'), 'role' => 'super_admin', 'is_active' => true]);
     }
 
+    public function test_default_billing_catalog_route_works_without_explicit_type(): void
+    {
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.billing-packages.index'))
+            ->assertOk()
+            ->assertSee('Paket & Durasi Subscription');
+    }
+
     public function test_each_billing_catalog_is_available_in_admin_cms(): void
     {
         $this->actingAs($this->admin, 'admin')->get(route('admin.billing-packages.index', 'subscription'))->assertOk()->assertSee('Paket & Durasi Subscription');

@@ -28,6 +28,7 @@
                 class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition flex items-center">
                 <span>Batal</span>
             </a>
+            @if(\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('sales.pipeline'))
             <button type="button" @click="promptSaveReturn()"
                 :disabled="!hasSelectedSource() || getSelectedCount() === 0"
                 class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
@@ -36,6 +37,7 @@
                 </svg>
                 <span>Simpan Draft Retur</span>
             </button>
+            @endif
         </div>
     </header>
 

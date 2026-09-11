@@ -11,153 +11,103 @@
     modalTitle: ''
 }">
 
-    <!-- Top View Switcher (Dual View: Transaksi Pembayaran vs Status Langganan Tenant) -->
-    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2">
-            <a href="{{ route('admin.subscriptions.index', ['view' => 'payments']) }}"
-               class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $view !== 'tenants' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                <i data-lucide="receipt" class="w-4 h-4"></i>
-                <span>Transaksi & Bukti Pembayaran</span>
+    <!-- Top View Switcher (Segmented Control) -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div class="inline-flex p-0.5 rounded-[9px] bg-black/[0.06] dark:bg-white/[0.08] text-[13px] font-medium">
+            <a href="{{ route('admin.subscriptions.index', ['view' => 'payments']) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 {{ $view !== 'tenants' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55 hover:text-black/80 dark:hover:text-white/80' }} transition-all">
+                <i data-lucide="receipt" class="w-4 h-4" stroke-width="1.5"></i>
+                <span>Transaksi &amp; Bukti Pembayaran</span>
                 @if($paymentCounts['awaiting_approval'] > 0)
-                    <span class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 animate-pulse">
-                        {{ $paymentCounts['awaiting_approval'] }}
-                    </span>
+                    <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#FF9500] dark:text-[#FF9F0A]">{{ $paymentCounts['awaiting_approval'] }}</span>
                 @endif
             </a>
-            <a href="{{ route('admin.subscriptions.index', ['view' => 'tenants']) }}"
-               class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $view === 'tenants' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                <i data-lucide="building-2" class="w-4 h-4"></i>
-                <span>Status Langganan Tenant Bisnis</span>
-                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
-                    {{ $tenantCounts['all'] }}
-                </span>
+            <a href="{{ route('admin.subscriptions.index', ['view' => 'tenants']) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 {{ $view === 'tenants' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55 hover:text-black/80 dark:hover:text-white/80' }} transition-all">
+                <i data-lucide="building-2" class="w-4 h-4" stroke-width="1.5"></i>
+                <span>Status Langganan Tenant</span>
+                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55">{{ $tenantCounts['all'] }}</span>
             </a>
         </div>
-
-        <div class="hidden sm:flex items-center gap-2 text-xs text-slate-400">
-            <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-400"></i>
+        <div class="hidden sm:flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50">
+            <i data-lucide="clock" class="w-3.5 h-3.5 text-[#5856D6] dark:text-[#5E5CE6]" stroke-width="1.5"></i>
             <span>Sinkronisasi otomatis real-time</span>
         </div>
     </div>
 
     @if($view === 'tenants')
-        {{-- ========================================================================= --}}
-        {{-- VIEW 2: TENANT BUSINESS SUBSCRIPTIONS --}}
-        {{-- ========================================================================= --}}
-
         <!-- KPI Metric Cards Grid for Tenants -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Total Tenants -->
-            <div class="glass-card p-5 rounded-2xl border-slate-800 relative overflow-hidden group">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Tenant Bisnis</span>
-                    <div class="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                        <i data-lucide="building-2" class="w-4 h-4"></i>
-                    </div>
+                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Tenant Bisnis</span>
+                    <i data-lucide="building-2" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]" stroke-width="1.5"></i>
                 </div>
-                <div class="text-2xl font-extrabold text-white font-mono">{{ number_format($tenantCounts['all'], 0, ',', '.') }}</div>
-                <p class="text-[11px] text-slate-400 mt-1">Seluruh workspace terdaftar</p>
+                <div class="text-[22px] font-bold tabular-nums text-black dark:text-white">{{ number_format($tenantCounts['all'], 0, ',', '.') }}</div>
+                <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Seluruh workspace terdaftar</p>
             </div>
-
-            <!-- Active Core -->
-            <div class="glass-card p-5 rounded-2xl border-emerald-500/20 relative overflow-hidden group">
+            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Core Aktif</span>
-                    <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                    </div>
+                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Core Aktif</span>
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]" stroke-width="1.5"></i>
                 </div>
-                <div class="text-2xl font-extrabold text-emerald-400 font-mono">{{ number_format($tenantCounts['core_active'], 0, ',', '.') }}</div>
-                <p class="text-[11px] text-emerald-300/80 mt-1">Berlangganan Cooca Core</p>
+                <div class="text-[22px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">{{ number_format($tenantCounts['core_active'], 0, ',', '.') }}</div>
+                <p class="text-[11px] text-[#34C759]/80 dark:text-[#30D158]/80 mt-1">Berlangganan Cooca Core</p>
             </div>
-
-            <!-- Free Plan -->
-            <div class="glass-card p-5 rounded-2xl border-slate-800 relative overflow-hidden group">
+            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Paket Gratis (Free)</span>
-                    <div class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400">
-                        <i data-lucide="gift" class="w-4 h-4"></i>
-                    </div>
+                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Paket Gratis (Free)</span>
+                    <i data-lucide="gift" class="w-4 h-4 text-black/40 dark:text-white/40" stroke-width="1.5"></i>
                 </div>
-                <div class="text-2xl font-extrabold text-slate-300 font-mono">{{ number_format($tenantCounts['free'], 0, ',', '.') }}</div>
-                <p class="text-[11px] text-slate-400 mt-1">Belum upgrade ke Core</p>
+                <div class="text-[22px] font-bold tabular-nums text-black/60 dark:text-white/60">{{ number_format($tenantCounts['free'], 0, ',', '.') }}</div>
+                <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Belum upgrade ke Core</p>
             </div>
-
-            <!-- Expiring Soon / Expired -->
-            <div class="glass-card p-5 rounded-2xl border-amber-500/20 relative overflow-hidden group">
+            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Masa Aktif Kritis</span>
-                    <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                    </div>
+                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Masa Aktif Kritis</span>
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A]" stroke-width="1.5"></i>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl font-extrabold text-amber-400 font-mono">{{ $tenantCounts['expiring_soon'] }}</span>
-                    <span class="text-xs text-slate-500">habis &le; 7 hr /</span>
-                    <span class="text-2xl font-extrabold text-rose-400 font-mono">{{ $tenantCounts['expired'] }}</span>
-                    <span class="text-xs text-slate-500">expired</span>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[20px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A]">{{ $tenantCounts['expiring_soon'] }}</span>
+                    <span class="text-[11px] text-black/45 dark:text-white/45">habis &le; 7 hr</span>
+                    <span class="text-[20px] font-bold tabular-nums text-[#FF3B30] dark:text-[#FF453A]">{{ $tenantCounts['expired'] }}</span>
+                    <span class="text-[11px] text-black/45 dark:text-white/45">expired</span>
                 </div>
-                <p class="text-[11px] text-amber-300/80 mt-1">Perlu difollow-up perpanjangan</p>
+                <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Perlu difollow-up perpanjangan</p>
             </div>
         </div>
 
         <!-- Tenant Filter Tabs & Search Bar -->
-        <div class="glass-card rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            <!-- Status Tabs -->
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 text-xs font-bold">
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'all', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 {{ $status === 'all' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                    <span>Semua</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $status === 'all' ? 'bg-indigo-950 text-indigo-200' : 'bg-slate-800 text-slate-400' }}">{{ $tenantCounts['all'] }}</span>
-                </a>
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'core_active', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 {{ $status === 'core_active' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-emerald-400 hover:bg-slate-800/60' }}">
-                    <span>Core Aktif</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $status === 'core_active' ? 'bg-emerald-950 text-emerald-200' : 'bg-emerald-500/20 text-emerald-300' }}">{{ $tenantCounts['core_active'] }}</span>
-                </a>
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'free', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 {{ $status === 'free' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                    <span>Free Plan</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $status === 'free' ? 'bg-slate-900 text-slate-300' : 'bg-slate-800 text-slate-400' }}">{{ $tenantCounts['free'] }}</span>
-                </a>
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'expiring_soon', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 {{ $status === 'expiring_soon' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-amber-400 hover:bg-slate-800/60' }}">
-                    <span>Segera Berakhir (&le; 7 Hari)</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $status === 'expiring_soon' ? 'bg-slate-950 text-amber-400' : 'bg-amber-500/20 text-amber-300' }}">{{ $tenantCounts['expiring_soon'] }}</span>
-                </a>
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'expired', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 {{ $status === 'expired' ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-rose-400 hover:bg-slate-800/60' }}">
-                    <span>Kadaluarsa</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $status === 'expired' ? 'bg-rose-950 text-rose-200' : 'bg-rose-500/20 text-rose-300' }}">{{ $tenantCounts['expired'] }}</span>
-                </a>
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-3 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[13px] font-medium">
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'all', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 {{ $status === 'all' ? 'bg-[#007AFF] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Semua</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'all' ? 'bg-[#007AFF]/20 text-white' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55' }}">{{ $tenantCounts['all'] }}</span></a>
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'core_active', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 {{ $status === 'core_active' ? 'bg-[#007AFF] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Core Aktif</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'core_active' ? 'bg-[#007AFF]/20 text-white' : 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' }}">{{ $tenantCounts['core_active'] }}</span></a>
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'free', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 {{ $status === 'free' ? 'bg-[#007AFF] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Free Plan</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'free' ? 'bg-[#007AFF]/20 text-white' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55' }}">{{ $tenantCounts['free'] }}</span></a>
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'expiring_soon', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 {{ $status === 'expiring_soon' ? 'bg-[#FF9500] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Segera Berakhir (&le; 7 Hari)</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'expiring_soon' ? 'bg-[#FF9500]/20 text-white' : 'bg-[#FF9500]/10 text-[#FF9500] dark:text-[#FF9F0A]' }}">{{ $tenantCounts['expiring_soon'] }}</span></a>
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['view' => 'tenants', 'status' => 'expired', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 {{ $status === 'expired' ? 'bg-[#FF3B30] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Kadaluarsa</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'expired' ? 'bg-[#FF3B30]/20 text-white' : 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#FF453A]' }}">{{ $tenantCounts['expired'] }}</span></a>
             </div>
-
-            <!-- Search input -->
             <form method="GET" action="{{ route('admin.subscriptions.index') }}" class="relative min-w-[260px]">
                 <input type="hidden" name="view" value="tenants">
                 <input type="hidden" name="status" value="{{ $status }}">
-                <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama bisnis, owner, email..."
-                       class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                <i data-lucide="search" class="w-4 h-4 text-black/35 dark:text-white/35 absolute left-3 top-1/2 -translate-y-1/2" stroke-width="1.5"></i>
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama bisnis, owner, email..." class="w-full h-9 pl-9 pr-3 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
             </form>
         </div>
 
-        <!-- Tenant Subscriptions Table Card -->
-        <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+        <!-- Tenant Subscriptions Table -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="bg-slate-900/80 text-slate-400 font-mono uppercase text-[10px] border-b border-slate-800">
-                        <tr>
-                            <th class="py-3.5 px-5">Nama Bisnis (Tenant)</th>
-                            <th class="py-3.5 px-4">Owner & Kontak</th>
-                            <th class="py-3.5 px-4">Paket Langganan</th>
-                            <th class="py-3.5 px-4">Status</th>
-                            <th class="py-3.5 px-4">Masa Aktif & Sisa Hari</th>
-                            <th class="py-3.5 px-4">Sisa Token AI</th>
-                            <th class="py-3.5 px-5 text-right">Aksi</th>
+                <table class="w-full text-left text-[13px]">
+                    <thead>
+                        <tr class="border-b border-black/5 dark:border-white/10">
+                            <th class="px-5 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Nama Bisnis (Tenant)</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Owner &amp; Kontak</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Paket Langganan</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Status</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Masa Aktif &amp; Sisa Hari</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40 text-right">Sisa Token AI</th>
+                            <th class="px-5 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40 text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800/60">
+                    <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                         @forelse($tenants as $t)
                         @php
                             $sub = $t->subscription;
@@ -167,312 +117,197 @@
                             $endsAt = $sub?->ends_at;
                             $daysLeft = $endsAt ? (int) $now->diffInDays($endsAt, false) : null;
                         @endphp
-                        <tr class="hover:bg-slate-900/40 transition">
-                            <td class="py-4 px-5">
-                                <div class="font-bold text-white flex items-center gap-1.5">
-                                    <i data-lucide="store" class="w-3.5 h-3.5 text-indigo-400 shrink-0"></i>
-                                    <span>{{ $t->name }}</span>
-                                </div>
-                                <div class="text-[11px] text-slate-500 font-mono mt-0.5">slug: {{ $t->slug }}</div>
+                        <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                            <td class="px-5 py-3">
+                                <div class="font-medium text-black dark:text-white flex items-center gap-1.5"><i data-lucide="store" class="w-3.5 h-3.5 text-[#007AFF] dark:text-[#0A84FF] shrink-0" stroke-width="1.5"></i><span>{{ $t->name }}</span></div>
+                                <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums mt-0.5">slug: {{ $t->slug }}</div>
                             </td>
-                            <td class="py-4 px-4">
-                                <div class="font-semibold text-slate-200">{{ $owner->name ?? '-' }}</div>
-                                <div class="text-[11px] text-slate-400">{{ $owner->email ?? $t->email ?? '-' }}</div>
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-black/80 dark:text-white/80">{{ $owner->name ?? '-' }}</div>
+                                <div class="text-[11px] text-black/45 dark:text-white/45">{{ $owner->email ?? $t->email ?? '-' }}</div>
                                 @if($t->phone || ($owner && $owner->phone))
-                                    <div class="text-[10px] text-emerald-400 font-mono mt-0.5 flex items-center gap-1">
-                                        <i data-lucide="phone" class="w-3 h-3"></i>
-                                        <span>{{ $t->phone ?? $owner->phone }}</span>
-                                    </div>
+                                    <div class="text-[11px] text-[#34C759] dark:text-[#30D158] tabular-nums mt-0.5 flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3" stroke-width="1.5"></i><span>{{ $t->phone ?? $owner->phone }}</span></div>
                                 @endif
                             </td>
-                            <td class="py-4 px-4">
+                            <td class="px-4 py-3">
                                 @if($isCore)
-                                    <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold">
-                                        <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-400"></i>
-                                        <span>{{ $sub->plan_code === 'core_annual' ? 'Core Tahunan' : 'Core Bulanan' }}</span>
-                                    </div>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]"><i data-lucide="crown" class="w-3.5 h-3.5 text-[#FF9500] dark:text-[#FF9F0A]" stroke-width="1.5"></i>{{ $sub->plan_code === 'core_annual' ? 'Core Tahunan' : 'Core Bulanan' }}</span>
                                 @else
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 text-xs font-medium">
-                                        <i data-lucide="gift" class="w-3.5 h-3.5"></i>
-                                        <span>Cooca Free</span>
-                                    </span>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55"><i data-lucide="gift" class="w-3.5 h-3.5" stroke-width="1.5"></i>Cooca Free</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-4">
+                            <td class="px-4 py-3">
                                 @if($isCore)
                                     @if($daysLeft !== null && $daysLeft < 0)
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/30 inline-flex items-center gap-1">
-                                            <i data-lucide="x-circle" class="w-3 h-3"></i>
-                                            <span>Expired</span>
-                                        </span>
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]"><i data-lucide="x-circle" class="w-3 h-3" stroke-width="1.5"></i>Expired</span>
                                     @elseif($daysLeft !== null && $daysLeft <= 7)
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 inline-flex items-center gap-1 animate-pulse">
-                                            <i data-lucide="alert-triangle" class="w-3 h-3"></i>
-                                            <span>Segera Habis</span>
-                                        </span>
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]"><i data-lucide="alert-triangle" class="w-3 h-3" stroke-width="1.5"></i>Segera Habis</span>
                                     @else
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1">
-                                            <i data-lucide="check-circle-2" class="w-3 h-3"></i>
-                                            <span>Aktif</span>
-                                        </span>
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]"><i data-lucide="check-circle-2" class="w-3 h-3" stroke-width="1.5"></i>Aktif</span>
                                     @endif
                                 @else
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700 inline-flex items-center gap-1">
-                                        <i data-lucide="info" class="w-3 h-3"></i>
-                                        <span>Gratis Standar</span>
-                                    </span>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55"><i data-lucide="info" class="w-3 h-3" stroke-width="1.5"></i>Gratis Standar</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-4">
+                            <td class="px-4 py-3">
                                 @if($isCore && $endsAt)
-                                    <div class="font-bold text-slate-200 font-mono text-[11px]">
-                                        {{ $endsAt->format('d M Y') }}
-                                    </div>
-                                    <div class="text-[11px] {{ $daysLeft <= 7 ? 'text-amber-400 font-bold' : 'text-slate-400' }}">
+                                    <div class="font-semibold text-black/80 dark:text-white/80 tabular-nums text-[12px]">{{ $endsAt->format('d M Y') }}</div>
+                                    <div class="text-[11px] {{ $daysLeft <= 7 ? 'text-[#FF9500] dark:text-[#FF9F0A] font-semibold' : 'text-black/45 dark:text-white/45' }}">
                                         @if($daysLeft < 0)
-                                            <span class="text-rose-400 font-bold">Kadaluarsa {{ abs($daysLeft) }} hari lalu</span>
+                                            <span class="text-[#FF3B30] dark:text-[#FF453A] font-semibold">Kadaluarsa {{ abs($daysLeft) }} hari lalu</span>
                                         @elseif($daysLeft === 0)
-                                            <span class="text-rose-400 font-bold">Berakhir hari ini!</span>
+                                            <span class="text-[#FF3B30] dark:text-[#FF453A] font-semibold">Berakhir hari ini!</span>
                                         @else
-                                            Sisa <strong class="text-white">{{ $daysLeft }}</strong> hari lagi
+                                            Sisa <strong class="text-black dark:text-white">{{ $daysLeft }}</strong> hari lagi
                                         @endif
                                     </div>
                                 @elseif($isCore)
-                                    <span class="text-slate-400 text-xs">Tanpa batas waktu</span>
+                                    <span class="text-black/45 dark:text-white/45 text-[13px]">Tanpa batas waktu</span>
                                 @else
-                                    <span class="text-slate-500 text-xs italic">Permanen Free</span>
+                                    <span class="text-black/40 dark:text-white/40 text-[13px] italic">Permanen Free</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-4">
+                            <td class="px-4 py-3 text-right">
                                 @if($sub && $sub->ai_tokens_remaining !== null)
-                                    <div class="font-mono font-bold text-purple-400">
-                                        {{ number_format($sub->ai_tokens_remaining, 0, ',', '.') }}
-                                    </div>
-                                    <div class="text-[10px] text-slate-500">Token AI tersisa</div>
+                                    <div class="font-semibold text-[#AF52DE] dark:text-[#BF5AF2] tabular-nums">{{ number_format($sub->ai_tokens_remaining, 0, ',', '.') }}</div>
+                                    <div class="text-[11px] text-black/45 dark:text-white/45">Token AI tersisa</div>
                                 @else
-                                    <span class="text-slate-500 text-xs">0 Token</span>
+                                    <span class="text-black/45 dark:text-white/45 text-[13px]">0 Token</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-5 text-right">
-                                <a href="{{ route('admin.businesses.show', $t) }}"
-                                   class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition inline-flex items-center gap-1">
-                                    <span>Kelola Bisnis</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
+                            <td class="px-5 py-3 text-right">
+                                <a href="{{ route('admin.businesses.show', $t) }}" class="h-8 px-3 rounded-[8px] text-[12px] font-semibold bg-black/[0.06] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all inline-flex items-center gap-1"><span>Kelola Bisnis</span><i data-lucide="arrow-right" class="w-3.5 h-3.5" stroke-width="1.5"></i></a>
                             </td>
                         </tr>
                         @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-12 text-slate-500 text-xs">
-                                Tidak ada tenant bisnis pada filter ini.
-                            </td>
-                        </tr>
+                        <tr><td colspan="7" class="px-4 py-12 text-center text-[13px] text-black/45 dark:text-white/45">Tidak ada tenant bisnis pada filter ini.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-
             @if($tenants->hasPages())
-            <div class="p-4 border-t border-slate-800">
-                {{ $tenants->links() }}
-            </div>
+            <div class="px-4 py-3 border-t border-black/5 dark:border-white/10">{{ $tenants->links() }}</div>
             @endif
         </div>
 
     @else
-        {{-- ========================================================================= --}}
-        {{-- VIEW 1: PAYMENT ORDERS & TRANSFER PROOFS (DEFAULT) --}}
-        {{-- ========================================================================= --}}
-
         <!-- KPI Metric Cards Grid for Payments -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Total Orders -->
-            <div class="glass-card p-5 rounded-2xl border-slate-800 relative overflow-hidden group">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pesanan Masuk</span>
-                    <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
-                    </div>
+                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Pesanan Masuk</span>
+                    <i data-lucide="shopping-cart" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]" stroke-width="1.5"></i>
                 </div>
-                <div class="text-2xl font-extrabold text-white font-mono">{{ number_format($paymentCounts['all'], 0, ',', '.') }}</div>
-                <p class="text-[11px] text-slate-400 mt-1">Semua tagihan & transaksi terbuat</p>
+                <div class="text-[22px] font-bold tabular-nums text-black dark:text-white">{{ number_format($paymentCounts['all'], 0, ',', '.') }}</div>
+                <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Semua tagihan &amp; transaksi terbuat</p>
             </div>
-
-            <!-- Awaiting Verification -->
-            <div class="glass-card p-5 rounded-2xl border-amber-500/30 relative overflow-hidden group">
+            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Perlu Verifikasi</span>
-                    <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                        <i data-lucide="hourglass" class="w-4 h-4 {{ $pendingCount > 0 ? 'animate-spin' : '' }}"></i>
-                    </div>
+                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Perlu Verifikasi</span>
+                    <i data-lucide="hourglass" class="w-4 h-4 {{ $pendingCount > 0 ? 'animate-spin' : '' }} text-[#FF9500] dark:text-[#FF9F0A]" stroke-width="1.5"></i>
                 </div>
-                <div class="text-2xl font-extrabold text-amber-400 font-mono">{{ number_format($pendingCount, 0, ',', '.') }}</div>
-                <p class="text-[11px] text-amber-300/80 mt-1">Bukti transfer menunggu persetujuan admin</p>
+                <div class="text-[22px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A]">{{ number_format($pendingCount, 0, ',', '.') }}</div>
+                <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Bukti transfer menunggu persetujuan admin</p>
             </div>
-
-            <!-- Approved Subscriptions -->
-            <div class="glass-card p-5 rounded-2xl border-emerald-500/20 relative overflow-hidden group">
+            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Disetujui</span>
-                    <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                    </div>
+                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Disetujui</span>
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]" stroke-width="1.5"></i>
                 </div>
-                <div class="text-2xl font-extrabold text-emerald-400 font-mono">{{ number_format($approvedCount, 0, ',', '.') }}</div>
-                <p class="text-[11px] text-slate-400 mt-1">Transaksi langganan aktif berhasil diverifikasi</p>
+                <div class="text-[22px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">{{ number_format($approvedCount, 0, ',', '.') }}</div>
+                <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Transaksi langganan aktif berhasil diverifikasi</p>
             </div>
-
-            <!-- Total SaaS Revenue -->
-            <div class="glass-card p-5 rounded-2xl border-indigo-500/20 relative overflow-hidden group">
+            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Omzet SaaS</span>
-                    <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-                        <i data-lucide="banknote" class="w-4 h-4"></i>
-                    </div>
+                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Omzet SaaS</span>
+                    <i data-lucide="banknote" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]" stroke-width="1.5"></i>
                 </div>
-                <div class="text-2xl font-extrabold text-white font-mono">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
-                <p class="text-[11px] text-slate-400 mt-1">Akumulasi pembayaran yang disetujui</p>
+                <div class="text-[22px] font-bold tabular-nums text-black dark:text-white">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
+                <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Akumulasi pembayaran yang disetujui</p>
             </div>
         </div>
 
-        <!-- Filter Toolbar (Status Tabs, Type Filter, Search Bar) -->
-        <div class="glass-card rounded-2xl p-4 space-y-4">
-            <!-- Row 1: Status Tabs with Accurate Dynamic Badges -->
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-bold scrollbar-thin">
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'all', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $status === 'all' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                    <span>Semua Status</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $status === 'all' ? 'bg-indigo-950 text-indigo-200' : 'bg-slate-800 text-slate-400' }}">
-                        {{ $paymentCounts['all'] }}
-                    </span>
-                </a>
-
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'awaiting_approval', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $status === 'awaiting_approval' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-amber-400 hover:bg-slate-800/60' }}">
-                    <span>Perlu Verifikasi</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black {{ $status === 'awaiting_approval' ? 'bg-slate-950 text-amber-400' : ($paymentCounts['awaiting_approval'] > 0 ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-800 text-slate-400') }}">
-                        {{ $paymentCounts['awaiting_approval'] }}
-                    </span>
-                </a>
-
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'approved', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $status === 'approved' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-emerald-400 hover:bg-slate-800/60' }}">
-                    <span>Disetujui</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $status === 'approved' ? 'bg-emerald-950 text-emerald-200' : 'bg-emerald-500/20 text-emerald-300' }}">
-                        {{ $paymentCounts['approved'] }}
-                    </span>
-                </a>
-
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'pending', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $status === 'pending' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                    <span>Belum Bayar (Pending)</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $status === 'pending' ? 'bg-slate-900 text-slate-300' : 'bg-slate-800 text-slate-400' }}">
-                        {{ $paymentCounts['pending'] }}
-                    </span>
-                </a>
-
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'rejected', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $status === 'rejected' ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-rose-400 hover:bg-slate-800/60' }}">
-                    <span>Ditolak</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $status === 'rejected' ? 'bg-rose-950 text-rose-200' : 'bg-rose-500/20 text-rose-300' }}">
-                        {{ $paymentCounts['rejected'] }}
-                    </span>
-                </a>
-
+        <!-- Filter Toolbar -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-3 sm:p-4 space-y-4">
+            <!-- Row 1: Status Tabs -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[13px] font-medium">
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'all', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'all' ? 'bg-[#007AFF] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Semua Status</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'all' ? 'bg-[#007AFF]/20 text-white' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55' }}">{{ $paymentCounts['all'] }}</span></a>
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'awaiting_approval', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'awaiting_approval' ? 'bg-[#FF9500] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Perlu Verifikasi</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $status === 'awaiting_approval' ? 'bg-[#FF9500]/20 text-white' : ($paymentCounts['awaiting_approval'] > 0 ? 'bg-[#FF9500]/10 text-[#FF9500] dark:text-[#FF9F0A]' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55') }}">{{ $paymentCounts['awaiting_approval'] }}</span></a>
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'approved', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'approved' ? 'bg-[#34C759] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Disetujui</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'approved' ? 'bg-[#34C759]/20 text-white' : 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' }}">{{ $paymentCounts['approved'] }}</span></a>
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'pending', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'pending' ? 'bg-black/20 dark:bg-white/20 text-black dark:text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Belum Bayar (Pending)</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'pending' ? 'bg-black/10 dark:bg-white/15 text-black/60 dark:text-white/60' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55' }}">{{ $paymentCounts['pending'] }}</span></a>
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'rejected', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'rejected' ? 'bg-[#FF3B30] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Ditolak</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'rejected' ? 'bg-[#FF3B30]/20 text-white' : 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#FF453A]' }}">{{ $paymentCounts['rejected'] }}</span></a>
                 @if($paymentCounts['cancelled'] > 0)
-                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'cancelled', 'page' => 1])) }}"
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $status === 'cancelled' ? 'bg-slate-800 text-slate-200 shadow' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/60' }}">
-                    <span>Dibatalkan</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-900 text-slate-400">
-                        {{ $paymentCounts['cancelled'] }}
-                    </span>
-                </a>
+                <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'cancelled', 'page' => 1])) }}" class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'cancelled' ? 'bg-black/20 dark:bg-white/20 text-black dark:text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Dibatalkan</span><span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55">{{ $paymentCounts['cancelled'] }}</span></a>
                 @endif
             </div>
 
-            <!-- Row 2: Type Filter, Method Filter, Date Filter, and Search Form -->
-            <form method="GET" action="{{ route('admin.subscriptions.index') }}" class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/60">
+            <!-- Row 2: Type/Method/Date Filters & Search -->
+            <form method="GET" action="{{ route('admin.subscriptions.index') }}" class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-black/5 dark:border-white/10">
                 <input type="hidden" name="status" value="{{ $status }}">
                 <input type="hidden" name="view" value="payments">
-
-                <div class="flex flex-wrap items-center gap-2.5 text-xs">
-                    <!-- Type Filter -->
-                    <div class="flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 rounded-xl px-2.5 py-1.5">
-                        <span class="text-slate-400 text-[11px] font-semibold">Tipe:</span>
-                        <select name="type" onchange="this.form.submit()" class="bg-transparent text-slate-200 font-bold focus:outline-none cursor-pointer">
-                            <option value="all" class="bg-slate-900 text-white" {{ $type === 'all' ? 'selected' : '' }}>Semua Tipe ({{ $typeCounts['all'] }})</option>
-                            <option value="subscription" class="bg-slate-900 text-white" {{ $type === 'subscription' ? 'selected' : '' }}>Langganan Cooca ({{ $typeCounts['subscription'] }})</option>
-                            <option value="ai_token" class="bg-slate-900 text-white" {{ $type === 'ai_token' ? 'selected' : '' }}>Topup Token AI ({{ $typeCounts['ai_token'] }})</option>
-                            <option value="storage" class="bg-slate-900 text-white" {{ $type === 'storage' ? 'selected' : '' }}>Topup Storage ({{ $typeCounts['storage'] }})</option>
+                <div class="flex flex-wrap items-center gap-2.5 text-[13px]">
+                    <div class="flex items-center gap-1.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-[8px] px-2.5 py-1.5">
+                        <span class="text-black/45 dark:text-white/45 text-[11px] font-semibold">Tipe:</span>
+                        <select name="type" onchange="this.form.submit()" class="bg-transparent text-black/90 dark:text-white/90 font-semibold focus:outline-none cursor-pointer text-[13px]">
+                            <option value="all" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white" {{ $type === 'all' ? 'selected' : '' }}>Semua Tipe ({{ $typeCounts['all'] }})</option>
+                            <option value="subscription" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white" {{ $type === 'subscription' ? 'selected' : '' }}>Langganan Cooca ({{ $typeCounts['subscription'] }})</option>
+                            <option value="ai_token" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white" {{ $type === 'ai_token' ? 'selected' : '' }}>Topup Token AI ({{ $typeCounts['ai_token'] }})</option>
+                            <option value="storage" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white" {{ $type === 'storage' ? 'selected' : '' }}>Topup Storage ({{ $typeCounts['storage'] }})</option>
                         </select>
                     </div>
-
-                    <!-- Payment Method Filter -->
-                    <div class="flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 rounded-xl px-2.5 py-1.5">
-                        <span class="text-slate-400 text-[11px] font-semibold">Metode:</span>
-                        <select name="method" onchange="this.form.submit()" class="bg-transparent text-slate-200 font-bold focus:outline-none cursor-pointer">
-                            <option value="all" class="bg-slate-900 text-white" {{ $method === 'all' ? 'selected' : '' }}>Semua Bank & QRIS</option>
-                            <option value="bca" class="bg-slate-900 text-white" {{ $method === 'bca' ? 'selected' : '' }}>Bank BCA</option>
-                            <option value="mandiri" class="bg-slate-900 text-white" {{ $method === 'mandiri' ? 'selected' : '' }}>Bank Mandiri</option>
-                            <option value="bri" class="bg-slate-900 text-white" {{ $method === 'bri' ? 'selected' : '' }}>Bank BRI</option>
-                            <option value="qris" class="bg-slate-900 text-white" {{ $method === 'qris' ? 'selected' : '' }}>QRIS Instant</option>
+                    <div class="flex items-center gap-1.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-[8px] px-2.5 py-1.5">
+                        <span class="text-black/45 dark:text-white/45 text-[11px] font-semibold">Metode:</span>
+                        <select name="method" onchange="this.form.submit()" class="bg-transparent text-black/90 dark:text-white/90 font-semibold focus:outline-none cursor-pointer text-[13px]">
+                            <option value="all" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white" {{ $method === 'all' ? 'selected' : '' }}>Semua Bank &amp; QRIS</option>
+                            <option value="bca" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white" {{ $method === 'bca' ? 'selected' : '' }}>Bank BCA</option>
+                            <option value="mandiri" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white" {{ $method === 'mandiri' ? 'selected' : '' }}>Bank Mandiri</option>
+                            <option value="bri" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white" {{ $method === 'bri' ? 'selected' : '' }}>Bank BRI</option>
+                            <option value="qris" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white" {{ $method === 'qris' ? 'selected' : '' }}>QRIS Instant</option>
                         </select>
                     </div>
-
                     @if($search || $type !== 'all' || $method !== 'all' || $status !== 'all')
-                    <a href="{{ route('admin.subscriptions.index', ['status' => 'all', 'view' => 'payments']) }}"
-                       class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold transition">
-                        <i data-lucide="x" class="w-3.5 h-3.5 text-rose-400"></i>
-                        <span>Reset Filter</span>
-                    </a>
+                    <a href="{{ route('admin.subscriptions.index', ['status' => 'all', 'view' => 'payments']) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[#FF3B30] dark:text-[#FF453A] text-[11px] font-medium transition"><i data-lucide="x" class="w-3.5 h-3.5" stroke-width="1.5"></i><span>Reset Filter</span></a>
                     @endif
                 </div>
-
-                <!-- Search Input -->
                 <div class="relative min-w-[280px] w-full sm:w-auto">
-                    <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari no pesanan, bisnis, paket, user..."
-                           class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                    <i data-lucide="search" class="w-4 h-4 text-black/35 dark:text-white/35 absolute left-3 top-1/2 -translate-y-1/2" stroke-width="1.5"></i>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari no pesanan, bisnis, paket, user..." class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] pl-9 pr-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
             </form>
         </div>
 
-        <!-- Subscriptions Table Card -->
-        <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+        <!-- Payments Table -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="bg-slate-900/90 text-slate-400 font-mono uppercase text-[10px] border-b border-slate-800">
-                        <tr>
-                            <th class="py-3.5 px-5">No. Pesanan & Tipe</th>
-                            <th class="py-3.5 px-4">Nama Bisnis & Pemesan</th>
-                            <th class="py-3.5 px-4">Detail Paket & Kuota</th>
-                            <th class="py-3.5 px-4">Total Tagihan</th>
-                            <th class="py-3.5 px-4">Metode Bayar</th>
-                            <th class="py-3.5 px-4">Bukti Transfer</th>
-                            <th class="py-3.5 px-4">Status</th>
-                            <th class="py-3.5 px-4">Tanggal Order</th>
-                            <th class="py-3.5 px-5 text-right">Aksi</th>
+                <table class="w-full text-left text-[13px]">
+                    <thead>
+                        <tr class="border-b border-black/5 dark:border-white/10">
+                            <th class="px-5 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">No. Pesanan &amp; Tipe</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Nama Bisnis &amp; Pemesan</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Detail Paket &amp; Kuota</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40 text-right">Total Tagihan</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Metode Bayar</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Bukti Transfer</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Status</th>
+                            <th class="px-4 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40">Tanggal Order</th>
+                            <th class="px-5 py-2.5 text-[11px] font-semibold text-black/40 dark:text-white/40 text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800/60">
+                    <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                         @forelse($payments as $p)
                         @php
                             $badge = $p->getStatusBadge();
                             $method = $p->getPaymentMethodDetails();
-
-                            // Payment Type styling & label
                             $typeLabel = match($p->payment_type) {
                                 'ai_token' => 'Topup Token AI',
                                 'storage' => 'Topup Storage',
                                 default => 'Langganan SaaS'
                             };
                             $typeClass = match($p->payment_type) {
-                                'ai_token' => 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-                                'storage' => 'bg-amber-500/20 text-amber-300 border-amber-500/30',
-                                default => 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                                'ai_token' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]',
+                                'storage' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]',
+                                default => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'
                             };
-
-                            // Accurate Package Name & Details
                             if ($p->payment_type === 'ai_token') {
                                 $pkgTitle = $p->package_name ?: 'Topup Token AI';
                                 $pkgSubtitle = '+' . number_format($p->topup_quantity ?? 0, 0, ',', '.') . ' Token AI';
@@ -487,200 +322,109 @@
                                 $pkgSubtitle = $durationText . ' • ' . strtoupper($p->plan_code ?: 'core_monthly');
                             }
                         @endphp
-                        <tr class="hover:bg-slate-900/40 transition">
-                            <!-- Col 1: Order Number & Type Badge -->
-                            <td class="py-4 px-5">
-                                <div class="font-mono font-bold text-white tracking-wide text-xs">
-                                    {{ $p->order_number }}
-                                </div>
+                        <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                            <td class="px-5 py-3">
+                                <div class="font-mono font-semibold text-black dark:text-white tracking-wide tabular-nums">{{ $p->order_number }}</div>
                                 <div class="mt-1">
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase border {{ $typeClass }}">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold {{ $typeClass }}">
                                         @if($p->payment_type === 'ai_token')
-                                            <i data-lucide="sparkles" class="w-3 h-3"></i>
+                                            <i data-lucide="sparkles" class="w-3 h-3" stroke-width="1.5"></i>
                                         @elseif($p->payment_type === 'storage')
-                                            <i data-lucide="hard-drive" class="w-3 h-3"></i>
+                                            <i data-lucide="hard-drive" class="w-3 h-3" stroke-width="1.5"></i>
                                         @else
-                                            <i data-lucide="layers" class="w-3 h-3"></i>
+                                            <i data-lucide="layers" class="w-3 h-3" stroke-width="1.5"></i>
                                         @endif
                                         <span>{{ $typeLabel }}</span>
                                     </span>
                                 </div>
                             </td>
-
-                            <!-- Col 2: Business & User -->
-                            <td class="py-4 px-4">
-                                <div class="font-bold text-white flex items-center gap-1.5">
-                                    <i data-lucide="store" class="w-3.5 h-3.5 text-indigo-400 shrink-0"></i>
-                                    <span>{{ $p->business->name ?? '-' }}</span>
-                                </div>
-                                <div class="text-[11px] text-slate-300 mt-0.5">
-                                    {{ $p->user->name ?? '-' }}
-                                </div>
-                                <div class="text-[10px] text-slate-500 font-mono">
-                                    {{ $p->user->email ?? '-' }}
-                                </div>
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-black dark:text-white flex items-center gap-1.5"><i data-lucide="store" class="w-3.5 h-3.5 text-[#007AFF] dark:text-[#0A84FF] shrink-0" stroke-width="1.5"></i><span>{{ $p->business->name ?? '-' }}</span></div>
+                                <div class="text-[11px] text-black/60 dark:text-white/60 mt-0.5">{{ $p->user->name ?? '-' }}</div>
+                                <div class="text-[10px] text-black/45 dark:text-white/45">{{ $p->user->email ?? '-' }}</div>
                             </td>
-
-                            <!-- Col 3: Accurate Package & Quota -->
-                            <td class="py-4 px-4">
-                                <div class="font-bold text-indigo-300 text-xs flex items-center gap-1">
+                            <td class="px-4 py-3">
+                                <div class="font-semibold text-black/80 dark:text-white/80 text-[13px] flex items-center gap-1">
                                     @if($p->payment_type === 'ai_token')
-                                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400 shrink-0"></i>
+                                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#AF52DE] dark:text-[#BF5AF2] shrink-0" stroke-width="1.5"></i>
                                     @elseif($p->payment_type === 'storage')
-                                        <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
+                                        <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-[#FF9500] dark:text-[#FF9F0A] shrink-0" stroke-width="1.5"></i>
                                     @else
-                                        <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
+                                        <i data-lucide="crown" class="w-3.5 h-3.5 text-[#FF9500] dark:text-[#FF9F0A] shrink-0" stroke-width="1.5"></i>
                                     @endif
                                     <span>{{ $pkgTitle }}</span>
                                 </div>
-                                <div class="text-[11px] text-slate-400 font-mono mt-0.5">
-                                    {{ $pkgSubtitle }}
-                                </div>
+                                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">{{ $pkgSubtitle }}</div>
                             </td>
-
-                            <!-- Col 4: Total Payable & Unique Code -->
-                            <td class="py-4 px-4">
-                                <div class="font-mono font-black text-sm text-emerald-400">
-                                    Rp {{ number_format($p->total_payable, 0, ',', '.') }}
-                                </div>
+                            <td class="px-4 py-3 text-right">
+                                <div class="font-bold text-[#34C759] dark:text-[#30D158] tabular-nums">Rp {{ number_format($p->total_payable, 0, ',', '.') }}</div>
                                 @if($p->unique_code > 0)
-                                    <div class="text-[10px] text-amber-400 font-mono font-semibold">
-                                        Kode unik: +{{ $p->unique_code }}
-                                    </div>
+                                    <div class="text-[10px] text-[#FF9500] dark:text-[#FF9F0A] font-semibold tabular-nums">Kode unik: +{{ $p->unique_code }}</div>
                                 @endif
                                 @if($p->amount > 0 && $p->amount != $p->total_payable)
-                                    <div class="text-[10px] text-slate-500 font-mono">
-                                        Pokok: Rp {{ number_format($p->amount, 0, ',', '.') }}
-                                    </div>
+                                    <div class="text-[10px] text-black/45 dark:text-white/45 tabular-nums">Pokok: Rp {{ number_format($p->amount, 0, ',', '.') }}</div>
                                 @endif
                             </td>
-
-                            <!-- Col 5: Payment Method -->
-                            <td class="py-4 px-4">
-                                <div class="font-semibold text-slate-200 flex items-center gap-1.5">
-                                    <i data-lucide="{{ $method['icon'] ?? 'credit-card' }}" class="w-3.5 h-3.5 text-cyan-400 shrink-0"></i>
-                                    <span>{{ $method['name'] }}</span>
-                                </div>
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-black/80 dark:text-white/80 flex items-center gap-1.5"><i data-lucide="{{ $method['icon'] ?? 'credit-card' }}" class="w-3.5 h-3.5 text-[#30B0C7] dark:text-[#40C8E0] shrink-0" stroke-width="1.5"></i><span>{{ $method['name'] }}</span></div>
                                 @if($p->sender_account_name)
-                                    <div class="text-[10px] text-emerald-400 mt-0.5 font-medium">
-                                        a/n {{ $p->sender_account_name }} ({{ $p->sender_bank ?: 'Bank' }})
-                                    </div>
+                                    <div class="text-[10px] text-[#34C759] dark:text-[#30D158] mt-0.5 font-medium">a/n {{ $p->sender_account_name }} ({{ $p->sender_bank ?: 'Bank' }})</div>
                                 @else
-                                    <div class="text-[10px] text-slate-400 font-mono">{{ $method['bank_name'] }}</div>
+                                    <div class="text-[10px] text-black/45 dark:text-white/45">{{ $method['bank_name'] }}</div>
                                 @endif
                             </td>
-
-                            <!-- Col 6: Payment Proof (Struk) with Modal Preview -->
-                            <td class="py-4 px-4">
+                            <td class="px-4 py-3">
                                 @if($p->payment_proof_path)
-                                    <button type="button"
-                                            @click="imageModalOpen = true; modalImageUrl = '{{ $p->getProofUrl() }}'; modalTitle = 'Bukti Transfer #{{ $p->order_number }} - {{ $p->business->name ?? '' }}'"
-                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/20 transition text-[11px] font-bold">
-                                        <i data-lucide="image" class="w-3.5 h-3.5"></i>
-                                        <span>Lihat Struk</span>
-                                    </button>
-                                    <div class="text-[9px] text-slate-500 font-mono mt-0.5">
-                                        {{ $p->proof_uploaded_at ? $p->proof_uploaded_at->format('d/m H:i') : 'Diunggah' }}
-                                    </div>
+                                    <button type="button" @click="imageModalOpen = true; modalImageUrl = '{{ $p->getProofUrl() }}'; modalTitle = 'Bukti Transfer #{{ $p->order_number }} - {{ $p->business->name ?? '' }}'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] bg-[#30B0C7]/10 text-[#30B0C7] dark:text-[#40C8E0] hover:bg-[#30B0C7]/20 transition text-[11px] font-semibold"><i data-lucide="image" class="w-3.5 h-3.5" stroke-width="1.5"></i><span>Lihat Struk</span></button>
+                                    <div class="text-[10px] text-black/40 dark:text-white/40 tabular-nums mt-0.5">{{ $p->proof_uploaded_at ? $p->proof_uploaded_at->format('d/m H:i') : 'Diunggah' }}</div>
                                 @else
-                                    <span class="text-slate-500 text-[11px] italic flex items-center gap-1">
-                                        <i data-lucide="minus" class="w-3 h-3"></i>
-                                        <span>Belum ada</span>
-                                    </span>
+                                    <span class="text-black/45 dark:text-white/45 text-[11px] italic flex items-center gap-1"><i data-lucide="minus" class="w-3 h-3" stroke-width="1.5"></i><span>Belum ada</span></span>
                                 @endif
                             </td>
-
-                            <!-- Col 7: Status Badge -->
-                            <td class="py-4 px-4">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border inline-flex items-center gap-1 {{ $badge['class'] }}">
-                                    <i data-lucide="{{ $badge['icon'] }}" class="w-3 h-3"></i>
-                                    <span>{{ $badge['label'] }}</span>
-                                </span>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold {{ $badge['class'] }}"><i data-lucide="{{ $badge['icon'] }}" class="w-3 h-3" stroke-width="1.5"></i><span>{{ $badge['label'] }}</span></span>
                             </td>
-
-                            <!-- Col 8: Date -->
-                            <td class="py-4 px-4 font-mono text-slate-400 text-[11px]">
-                                <div class="text-slate-200 font-semibold">{{ $p->created_at->format('d M Y') }}</div>
-                                <div class="text-[10px] text-slate-500">{{ $p->created_at->format('H:i') }} WIB</div>
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-black/80 dark:text-white/80 tabular-nums text-[12px]">{{ $p->created_at->format('d M Y') }}</div>
+                                <div class="text-[10px] text-black/45 dark:text-white/45 tabular-nums">{{ $p->created_at->format('H:i') }} WIB</div>
                             </td>
-
-                            <!-- Col 9: Action Button -->
-                            <td class="py-4 px-5 text-right">
-                                <a href="{{ route('admin.subscriptions.show', $p) }}"
-                                   class="px-3.5 py-2 rounded-xl {{ $p->isAwaitingApproval() ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-black shadow-lg shadow-amber-500/30' : 'bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold' }} text-xs transition inline-flex items-center gap-1.5">
-                                    <span>{{ $p->isAwaitingApproval() ? 'Verifikasi' : 'Detail' }}</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
+                            <td class="px-5 py-3 text-right">
+                                <a href="{{ route('admin.subscriptions.show', $p) }}" class="h-8 px-3.5 rounded-[8px] text-[12px] font-semibold {{ $p->isAwaitingApproval() ? 'bg-[#FF9500] hover:bg-[#E68A00] text-white' : 'bg-black/[0.06] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.09] dark:hover:bg-white/[0.12]' }} active:scale-[0.97] active:opacity-80 transition-all inline-flex items-center gap-1.5"><span>{{ $p->isAwaitingApproval() ? 'Verifikasi' : 'Detail' }}</span><i data-lucide="arrow-right" class="w-3.5 h-3.5" stroke-width="1.5"></i></a>
                             </td>
                         </tr>
                         @empty
-                        <tr>
-                            <td colspan="9" class="text-center py-16 text-slate-500 text-xs">
-                                <div class="w-12 h-12 rounded-2xl bg-slate-800/80 mx-auto flex items-center justify-center text-slate-400 mb-3">
-                                    <i data-lucide="inbox" class="w-6 h-6"></i>
-                                </div>
-                                <div class="font-bold text-slate-300 text-sm">Tidak ada data transaksi</div>
-                                <p class="text-slate-500 mt-1 max-w-sm mx-auto">
-                                    Tidak ditemukan data transaksi yang sesuai dengan filter status <strong class="text-slate-300">{{ $status }}</strong>
-                                    @if($type !== 'all') dan tipe <strong class="text-slate-300">{{ $type }}</strong> @endif.
-                                </p>
-                                @if($search || $status !== 'all' || $type !== 'all' || $method !== 'all')
-                                    <div class="mt-4">
-                                        <a href="{{ route('admin.subscriptions.index', ['status' => 'all', 'view' => 'payments']) }}" class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs inline-flex items-center gap-1.5 hover:bg-indigo-500 transition">
-                                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                                            <span>Reset Semua Filter</span>
-                                        </a>
-                                    </div>
-                                @endif
-                            </td>
-                        </tr>
+                        <tr><td colspan="9" class="text-center py-16">
+                            <i data-lucide="inbox" class="w-12 h-12 mx-auto text-black/20 dark:text-white/20" stroke-width="1.5"></i>
+                            <div class="text-[15px] font-semibold text-black dark:text-white mt-3">Tidak ada data transaksi</div>
+                            <p class="text-[13px] text-black/50 dark:text-white/50 mt-1 max-w-sm mx-auto">Tidak ditemukan data transaksi yang sesuai dengan filter status <strong class="text-black/80 dark:text-white/80">{{ $status }}</strong>@if($type !== 'all') dan tipe <strong class="text-black/80 dark:text-white/80">{{ $type }}</strong> @endif.</p>
+                            @if($search || $status !== 'all' || $type !== 'all' || $method !== 'all')
+                            <div class="mt-4">
+                                <a href="{{ route('admin.subscriptions.index', ['status' => 'all', 'view' => 'payments']) }}" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all inline-flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5" stroke-width="1.5"></i><span>Reset Semua Filter</span></a>
+                            </div>
+                            @endif
+                        </td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-
             @if($payments->hasPages())
-            <div class="p-4 border-t border-slate-800 bg-slate-900/40">
-                {{ $payments->links() }}
-            </div>
+            <div class="px-4 py-3 border-t border-black/5 dark:border-white/10">{{ $payments->links() }}</div>
             @endif
         </div>
     @endif
 
-    <!-- Image Preview Modal (Alpine.js) -->
-    <div x-show="imageModalOpen"
-         x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 transform scale-95"
-         x-transition:enter-end="opacity-100 transform scale-100"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100 transform scale-100"
-         x-transition:leave-end="opacity-0 transform scale-95">
-
-        <div class="glass-card max-w-2xl w-full rounded-2xl overflow-hidden border border-slate-700 shadow-2xl p-4 space-y-4"
-             @click.away="imageModalOpen = false">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+    <!-- Image Preview Modal (Sheet) -->
+    <div x-show="imageModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="sheet-material max-w-2xl w-full rounded-[20px] overflow-hidden border border-black/5 dark:border-white/10 p-4 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)]" @click.away="imageModalOpen = false">
+            <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
+                <div class="flex items-center gap-2"><i data-lucide="image" class="w-4 h-4 text-[#30B0C7] dark:text-[#40C8E0]" stroke-width="1.5"></i><span class="text-[13px] font-semibold text-black dark:text-white" x-text="modalTitle"></span></div>
                 <div class="flex items-center gap-2">
-                    <i data-lucide="image" class="w-4 h-4 text-cyan-400"></i>
-                    <span class="font-bold text-white text-xs" x-text="modalTitle"></span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <a :href="modalImageUrl" target="_blank" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1">
-                        <i data-lucide="external-link" class="w-3 h-3"></i>
-                        <span>Buka Tab Baru</span>
-                    </a>
-                    <button @click="imageModalOpen = false" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
+                    <a :href="modalImageUrl" target="_blank" class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium bg-black/[0.06] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.09] dark:hover:bg-white/[0.12] transition flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3" stroke-width="1.5"></i><span>Buka Tab Baru</span></a>
+                    <button @click="imageModalOpen = false" class="p-1.5 rounded-[6px] bg-black/[0.06] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:bg-black/[0.09] dark:hover:bg-white/[0.12] transition"><i data-lucide="x" class="w-4 h-4" stroke-width="1.5"></i></button>
                 </div>
             </div>
-
-            <div class="max-h-[70vh] overflow-auto flex items-center justify-center bg-slate-950/80 rounded-xl p-2 border border-slate-800">
-                <img :src="modalImageUrl" alt="Struk Transfer" class="max-h-[65vh] object-contain rounded-lg">
-            </div>
+            <div class="max-h-[70vh] overflow-auto flex items-center justify-center bg-black/[0.03] dark:bg-white/[0.05] rounded-[10px] p-2"><img :src="modalImageUrl" alt="Struk Transfer" class="max-h-[65vh] object-contain rounded-[10px]"></div>
         </div>
     </div>
-
 </div>
 @endsection

@@ -38,7 +38,7 @@
                 </span>
             </div>
             <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                Paket Langganan &amp; Kuota Bisnis
+                Paket Langganan & Kuota Bisnis
             </h1>
             <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Pantau kapasitas pemakaian sumber daya bisnis secara real-time. Dapatkan akses fitur komersial terintegrasi tanpa batas dengan program patungan Cooca UMKM.
@@ -371,7 +371,155 @@
         </div>
     </section>
 
+    <!-- 4.5. SECTION 1B: Storage Detail & Breakdown per Bisnis -->
+    @if (!empty($storageDetails))
+    @php
+        $sdLimitBytes = $storageDetails['limit_bytes'];
+        $sdUsedBytes  = $storageDetails['used_bytes'];
+        $sdPct        = $storageDetails['percentage'];
+        $sdIsOver     = $storageDetails['is_over_limit'];
+    @endphp
+    <section aria-labelledby="storage-detail-heading" class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="hard-drive" class="w-4 h-4 text-cyan-600 dark:text-cyan-400" aria-hidden="true"></i>
+                <h2 id="storage-detail-heading" class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Detail Penggunaan Storage Cloud
+                </h2>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono">
+                    {{ $storageDetails['total_files_count'] }} file aktif · {{ $storageDetails['used_mb'] }} MB / {{ $storageDetails['limit_gb'] }} GB
+                </span>
+                <!-- Recalculate Button -->
+                <form method="POST" action="{{ route('billing.storage.recalculate') }}" class="inline">
+                    @csrf
+                    <button type="submit"
+                        onclick="return confirm('Recalculate akan memindai ulang seluruh file di disk dan menyinkronkan database. Lanjutkan?')"
+                        class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:ring-2 focus-visible:ring-cyan-500">
+                        <i data-lucide="refresh-cw" class="w-3 h-3 text-cyan-600 dark:text-cyan-400" aria-hidden="true"></i>
+                        <span>Recalculate</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <!-- Per-Business Breakdown -->
+            @if (!empty($storageDetails['business_breakdown']))
+            <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-5 space-y-4">
+                <div class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <i data-lucide="building-2" class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" aria-hidden="true"></i>
+                    <span>Pemakaian per Bisnis</span>
+                </div>
+                <div class="space-y-3">
+                    @foreach ($storageDetails['business_breakdown'] as $biz)
+                    @php
+                        $bizPct = $sdLimitBytes > 0 ? min(100, round($biz['used_bytes'] / $sdLimitBytes * 100, 1)) : 0;
+                    @endphp
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
+                                {{ $biz['name'] }}
+                            </span>
+                            <span class="font-mono text-slate-500 dark:text-slate-400 text-[11px] shrink-0 ml-2">
+                                {{ $biz['used_mb'] }} MB ({{ $bizPct }}%) · {{ $biz['files_count'] }} file
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-200 dark:border-slate-800"
+                             role="progressbar" aria-valuenow="{{ $bizPct }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-teal-400 transition-all duration-500"
+                                 style="width: {{ $bizPct }}%"></div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <!-- Category Breakdown -->
+            @if (!empty($storageDetails['category_breakdown']))
+            <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-5 space-y-4">
+                <div class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" aria-hidden="true"></i>
+                    <span>Pemakaian per Kategori File</span>
+                </div>
+                <div class="space-y-2.5">
+                    @foreach ($storageDetails['category_breakdown'] as $cat)
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0"></span>
+                            <span class="font-medium text-slate-700 dark:text-slate-300 truncate">{{ $cat['label'] }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 ml-2">
+                            <span class="font-mono text-slate-500 dark:text-slate-400 text-[11px]">{{ $cat['used_mb'] }} MB</span>
+                            <span class="rounded-full px-1.5 py-0.5 text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">{{ $cat['percentage'] }}%</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+
+        <!-- Largest Files (Top 10) -->
+        @if (!empty($storageDetails['largest_files']))
+        <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-5 space-y-3">
+            <div class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                <i data-lucide="file-search" class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400" aria-hidden="true"></i>
+                <span>10 File Terbesar</span>
+            </div>
+            <div class="overflow-x-auto -mx-5 px-5">
+                <table class="w-full text-xs min-w-[540px]" aria-label="Tabel 10 File Terbesar">
+                    <thead>
+                        <tr class="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                            <th scope="col" class="py-2 text-left font-semibold">Nama File</th>
+                            <th scope="col" class="py-2 text-left font-semibold">Bisnis</th>
+                            <th scope="col" class="py-2 text-left font-semibold">Kategori</th>
+                            <th scope="col" class="py-2 text-right font-semibold">Ukuran</th>
+                            <th scope="col" class="py-2 text-right font-semibold">Diunggah</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                        @foreach ($storageDetails['largest_files'] as $lf)
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="py-2 pr-3 font-medium text-slate-800 dark:text-slate-200 truncate max-w-[160px]" title="{{ $lf['file_name'] }}">
+                                {{ $lf['file_name'] }}
+                            </td>
+                            <td class="py-2 pr-3 text-slate-600 dark:text-slate-400 truncate max-w-[120px]">{{ $lf['business_name'] }}</td>
+                            <td class="py-2 pr-3">
+                                <span class="rounded-full px-2 py-0.5 text-[9px] font-bold bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/60 font-mono">
+                                    {{ $lf['category_label'] }}
+                                </span>
+                            </td>
+                            <td class="py-2 text-right font-mono font-bold text-slate-800 dark:text-slate-200">{{ $lf['formatted_size'] }}</td>
+                            <td class="py-2 text-right text-slate-500 dark:text-slate-400 font-mono">{{ $lf['uploaded_at'] }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
+        @if ($sdIsOver)
+        <div class="flex items-start gap-3 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-500/30 text-xs">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" aria-hidden="true"></i>
+            <div>
+                <strong class="text-rose-800 dark:text-rose-300">Storage melebihi batas!</strong>
+                <span class="text-rose-700 dark:text-rose-400 ml-1">Anda telah menggunakan {{ $storageDetails['used_mb'] }} MB dari kuota {{ $storageDetails['limit_gb'] }} GB. Upload baru akan diblokir. Silakan
+                    <a href="{{ route('billing.checkout', ['type' => 'storage']) }}" class="underline font-bold hover:text-rose-900 dark:hover:text-rose-200">Top Up Storage</a>
+                    untuk melanjutkan.
+                </span>
+            </div>
+        </div>
+        @endif
+    </section>
+    @endif
+
     <!-- 5. SECTION 2: Monthly Commercial Quotas (POS, B2B Invoices, Purchase Orders) -->
+
     <section aria-labelledby="monthly-quotas-heading" class="space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200 dark:border-slate-800 pb-3">
             <div class="flex items-center gap-2">

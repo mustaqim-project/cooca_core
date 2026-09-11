@@ -37,11 +37,40 @@ final class ProfileWebController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email,' . $user->id],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,webp,jpg', 'max:4096'],
+            'remove_avatar' => ['nullable', 'boolean'],
         ]);
+
+        $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
+        $avatarPath = $user->avatar;
+
+        if ($request->boolean('remove_avatar') && $avatarPath) {
+            if (! str_starts_with($avatarPath, 'http')) {
+                $trackingService->deleteFile($avatarPath, 'public');
+            }
+            $avatarPath = null;
+        } elseif ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $trackingService->assertCanUpload($user, (int) $file->getSize(), 'avatar');
+            $oldAvatar = $avatarPath;
+            $avatarPath = $file->store('avatars/' . $user->id, 'public');
+            $trackingService->recordUpload(
+                file: $file,
+                filePath: $avatarPath,
+                category: \App\Models\StorageFile::CATEGORY_OWNER_AVATAR,
+                module: 'profile',
+                owner: $user,
+                uploader: $user
+            );
+            if ($oldAvatar && ! str_starts_with($oldAvatar, 'http')) {
+                $trackingService->deleteFile($oldAvatar, 'public');
+            }
+        }
 
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'avatar' => $avatarPath,
         ]);
 
         return back()->with('success', 'Profil akun Anda berhasil diperbarui.');

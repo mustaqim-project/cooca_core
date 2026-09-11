@@ -67,6 +67,7 @@
 
         <!-- Toolbar Actions -->
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            @if(\App\Support\Context::hasPermission('materials.create'))
             <a href="{{ route('import.index', ['tab' => 'materials']) }}" 
                class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5"
                title="Import data bahan baku massal dari file Excel / CSV">
@@ -79,6 +80,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                 <span>Tambah Bahan Baku</span>
             </button>
+            @endif
         </div>
     </header>
 
@@ -208,6 +210,7 @@
                         </td>
                         <td class="py-3 px-4 text-right">
                             <div class="flex items-center justify-end gap-1">
+                                @if(\App\Support\Context::hasPermission('materials.edit'))
                                 <button type="button" @click="openPriceModal({{ Js::from($mat) }})" 
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-colors">
                                     Update Harga
@@ -216,6 +219,8 @@
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors" title="Edit Spesifikasi Bahan">
                                     Edit
                                 </button>
+                                @endif
+                                @if(\App\Support\Context::hasPermission('materials.delete'))
                                 <button type="button" @click="openDelete('{{ $mat->slug }}', '{{ addslashes($mat->name) }}')"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors" title="Hapus Bahan Baku">
                                     Hapus
@@ -224,6 +229,7 @@
                                     @csrf
                                     @method('DELETE')
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -271,12 +277,14 @@
                 </div>
             </div>
             <div class="flex items-center gap-1 shrink-0">
+                @if(\App\Support\Context::hasPermission('materials.edit'))
                 <button type="button" @click="openPriceModal({{ Js::from($mat) }})" class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 flex items-center">
                     Harga
                 </button>
                 <button type="button" @click="openEditModal({{ Js::from($mat) }})" class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 bg-black/[0.06] dark:bg-white/[0.08] flex items-center">
                     Edit
                 </button>
+                @endif
             </div>
         </div>
         @empty
@@ -295,6 +303,7 @@
     <!-- ===================================================== -->
     <!-- 6. MODAL: TAMBAH BAHAN BAKU (Apple Sheet)             -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('materials.create'))
     <div x-show="showAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]">
         <div class="w-full max-w-lg rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)] max-h-[90vh] overflow-y-auto" @click.outside="showAddModal = false">
             <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
@@ -399,10 +408,12 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- 7. MODAL: UPDATE HARGA BAHAN (Apple Sheet)            -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('materials.edit'))
     <div x-show="showPriceModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]">
         <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)]" @click.outside="showPriceModal = false">
             <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
@@ -450,10 +461,12 @@
             </template>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- 8. MODAL: EDIT SPESIFIKASI BAHAN (Apple Sheet)        -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('materials.edit'))
     <div x-show="showEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]">
         <div class="w-full max-w-lg rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)] max-h-[90vh] overflow-y-auto" @click.outside="showEditModal = false">
             <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
@@ -513,6 +526,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- 9. SUB-MODALS: SUPPLIER, KATEGORI & SATUAN            -->
@@ -613,6 +627,7 @@
     <!-- ===================================================== -->
     <!-- 10. APPLE ALERT DIALOG (Hapus Bahan Baku)              -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('materials.delete'))
     <div x-show="deleteModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-[2px]">
         <div class="w-[290px] rounded-[14px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-black/5 dark:border-white/10"
             @click.away="closeDelete()">
@@ -632,6 +647,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

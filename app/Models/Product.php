@@ -308,12 +308,15 @@ class Product extends Model
                     'max_selection' => (int) $group->max_selection,
                     'is_required' => (bool) $group->is_required,
                     'options' => $group->activeOptions->map(function (ModifierOption $opt) use ($locationId): array {
+                        $isAvailable = $opt->isAvailableInStock($locationId);
+
                         return [
                             'id' => $opt->id,
                             'name' => $opt->name,
                             'price_delta' => (float) $opt->price_delta,
                             'affects_material' => (bool) $opt->affects_material,
-                            'is_available' => $opt->isAvailableInStock($locationId),
+                            'is_available' => $isAvailable,
+                            'is_in_stock' => $isAvailable,
                         ];
                     })->values()->all(),
                 ];

@@ -1,108 +1,45 @@
 <!DOCTYPE html>
-<html lang="id" class="dark h-full">
+<html lang="id" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupa Kata Sandi Admin — Cooca UMKM Platform</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
-                    },
-                    colors: {
-                        brand: { 500: '#6366f1', 600: '#4f46e5' }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .glass-card {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lupa Kata Sandi Admin — Cooca UMKM Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['-apple-system','"SF Pro Text"','Inter','system-ui','sans-serif']}}}}</script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>body{font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}.sheet-material{background:rgba(255,255,255,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}.dark .sheet-material{background:rgba(44,44,46,.96)}</style>
 </head>
-<body class="h-full bg-slate-950 text-slate-100 flex items-center justify-center p-4 sm:p-6 font-sans">
-
-    <div class="w-full max-w-md space-y-6">
-
-        <!-- Logo & Header -->
-        <div class="text-center space-y-2">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-0.5 shadow-xl shadow-indigo-500/20">
-                <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-                    <i data-lucide="shield-alert" class="w-7 h-7 text-indigo-400"></i>
-                </div>
-            </div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Reset Sandi Admin</h2>
-            <p class="text-xs text-slate-400">Masukkan email administrator untuk menerima link reset kata sandi</p>
+<body class="min-h-screen bg-[#F2F2F7] dark:bg-[#1E1E1E] flex items-center justify-center p-4 text-black dark:text-white antialiased">
+<div class="w-full max-w-[400px]">
+  <div class="text-center space-y-2 mb-6">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-[22%] bg-[#007AFF] shadow-[0_4px_16px_rgba(0,122,255,0.3)] mb-3"><i data-lucide="shield-alert" class="w-8 h-8 text-white" stroke-width="1.5"></i></div>
+    <h1 class="text-[24px] font-bold tracking-tight">Reset Sandi Admin</h1>
+    <p class="text-[13px] text-black/50 dark:text-white/50">Masukkan email administrator untuk menerima link reset kata sandi</p>
+  </div>
+  <div class="sheet-material rounded-[20px] p-7 shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-black/5 dark:border-white/10 space-y-5">
+    @if(session('status'))
+      <div class="p-3.5 rounded-[12px] bg-[#5856D6]/10 border border-[#5856D6]/20 text-[#413FA6] dark:text-[#5E5CE6] text-[13px] flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 shrink-0" stroke-width="1.5"></i><span>{{ session('status') }}</span></div>
+    @endif
+    @if($errors->any())
+      <div class="p-3.5 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#C41E17] dark:text-[#FF453A] text-[13px] flex items-center gap-2"><i data-lucide="alert-circle" class="w-4 h-4 shrink-0" stroke-width="1.5"></i><span>{{ $errors->first() }}</span></div>
+    @endif
+    <form method="POST" action="{{ route('admin.password.email') }}" class="space-y-4">
+      @csrf
+      <div>
+        <label class="block text-[13px] font-medium text-black/70 dark:text-white/70 mb-1.5">Alamat Email Administrator</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-black/35 dark:text-white/35"><i data-lucide="mail" class="w-4 h-4" stroke-width="1.5"></i></div>
+          <input type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="admin@cooca.id" class="w-full h-11 pl-10 pr-4 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-[15px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
         </div>
-
-        <!-- Form Card -->
-        <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-5">
-
-            @if(session('status'))
-                <div class="p-3.5 rounded-xl bg-indigo-950/60 border border-indigo-500/40 text-indigo-300 text-xs flex items-center gap-2">
-                    <i data-lucide="mail" class="w-4 h-4 text-indigo-400 shrink-0"></i>
-                    <span>{{ session('status') }}</span>
-                </div>
-            @endif
-
-            @if($errors->any())
-                <div class="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
-                    <i data-lucide="alert-circle" class="w-4 h-4 text-red-400 shrink-0"></i>
-                    <span>{{ $errors->first() }}</span>
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('admin.password.email') }}" class="space-y-4 text-xs">
-                @csrf
-
-                <div>
-                    <label class="block font-semibold text-slate-300 mb-1.5">Alamat Email Administrator</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                            <i data-lucide="mail" class="w-4 h-4"></i>
-                        </div>
-                        <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                               placeholder="admin@cooca.id"
-                               class="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-800 focus:border-indigo-500 rounded-xl text-white font-mono text-xs">
-                    </div>
-                </div>
-
-                <button type="submit"
-                        class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold shadow-lg shadow-indigo-500/25 transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="send" class="w-4 h-4"></i>
-                    <span>Kirim Link Reset Kata Sandi</span>
-                </button>
-            </form>
-
-            <div class="text-center pt-2 border-t border-slate-800/80">
-                <a href="{{ route('admin.login') }}" class="text-xs text-indigo-400 hover:underline font-semibold inline-flex items-center gap-1.5">
-                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-                    <span>Kembali ke Halaman Login</span>
-                </a>
-            </div>
-        </div>
-
+      </div>
+      <button type="submit" class="w-full h-11 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 text-white text-[15px] font-semibold transition-all flex items-center justify-center gap-2 shadow-[0_1px_2px_rgba(0,122,255,0.25)]"><i data-lucide="send" class="w-4 h-4" stroke-width="1.5"></i><span>Kirim Link Reset Kata Sandi</span></button>
+    </form>
+    <div class="text-center pt-2 border-t border-black/5 dark:border-white/10">
+      <a href="{{ route('admin.login') }}" class="text-[13px] font-medium text-[#007AFF] dark:text-[#0A84FF] hover:underline inline-flex items-center gap-1.5"><i data-lucide="arrow-left" class="w-3.5 h-3.5" stroke-width="1.5"></i><span>Kembali ke Halaman Login</span></a>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-        });
-    </script>
+  </div>
+</div>
+<script>document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons()})</script>
 </body>
 </html>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Accounting;
 
 use App\Models\Business;
+use App\Models\CashAccount;
 use App\Models\ChartOfAccount;
 use App\Models\Expense;
 use App\Models\GoodsReceipt;
@@ -17,6 +18,8 @@ use App\Models\SalesReturn;
 use App\Models\SupplierPayment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
 
 final class AutoJournalService
 {
@@ -142,12 +145,22 @@ final class AutoJournalService
                     default => $bankAccount,
                 };
 
+                $payLabel = match ($payMethod) {
+                    PosOrderPayment::METHOD_CASH => 'Kasir Tunai (Cash)',
+                    PosOrderPayment::METHOD_QRIS => 'QRIS',
+                    PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
+                    PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit',
+                    PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit',
+                    PosOrderPayment::METHOD_CUSTOMER_CREDIT => 'Piutang Pelanggan (Kasbon)',
+                    default => ucfirst(str_replace('_', ' ', $payMethod)),
+                };
+
                 JournalEntryLine::create([
                     'journal_entry_id' => $entry->id,
                     'account_id' => $targetAccount->id,
                     'type' => JournalEntryLine::TYPE_DEBIT,
                     'amount' => $payAmount,
-                    'notes' => "Penerimaan " . ucfirst($payMethod),
+                    'notes' => "Penerimaan: " . $payLabel,
                 ]);
                 $totalDebit += $payAmount;
             }
@@ -729,4 +742,62 @@ final class AutoJournalService
             return $entry;
         });
     }
+
+    /**
+     * Record automated double-entry journal for a Cash & Bank transfer between accounts.
+     *
+     * Debit:  Destination Account COA (e.g. 1-1002 Bank)
+     * Kredit: Source Account COA (e.g. 1-1001 Kas Kasir)
+     */
+    public function recordCashTransferJournal(CashAccount $from, CashAccount $to, float $amount, string $description, ?string $userId = null, ?string $referenceId = null): ?JournalEntry
+    {
+        $business = $from->business ?? Business::find($from->business_id);
+        if (! $business || $amount <= 0) {
+            return null;
+        }
+
+        $this->ensureStandardAccounts($business);
+
+        $fromCoa = $from->chart_of_account_id ? ChartOfAccount::find($from->chart_of_account_id) : ($from->type === CashAccount::TYPE_CASH ? $this->getAccount($business, '1-1001') : $this->getAccount($business, '1-1002'));
+        $toCoa = $to->chart_of_account_id ? ChartOfAccount::find($to->chart_of_account_id) : ($to->type === CashAccount::TYPE_CASH ? $this->getAccount($business, '1-1001') : $this->getAccount($business, '1-1002'));
+
+        if (! $fromCoa || ! $toCoa) {
+            return null;
+        }
+
+        return DB::transaction(function () use ($business, $from, $to, $fromCoa, $toCoa, $amount, $description, $userId, $referenceId) {
+            $entry = JournalEntry::create([
+                'business_id' => $business->id,
+                'entry_number' => 'JRN-TRF-' . date('Ymd') . '-' . Str::upper(Str::random(6)),
+                'entry_date' => now()->toDateString(),
+                'reference_type' => 'cash_transfer',
+                'reference_id' => $referenceId,
+                'description' => "Transfer Kas & Bank: {$from->name} → {$to->name} (" . ($description ?: 'Mutasi Kas Antar Rekening') . ")",
+                'total_debit' => $amount,
+                'total_credit' => $amount,
+                'created_by' => $userId,
+            ]);
+
+            // Debit destination account
+            JournalEntryLine::create([
+                'journal_entry_id' => $entry->id,
+                'account_id' => $toCoa->id,
+                'type' => JournalEntryLine::TYPE_DEBIT,
+                'amount' => $amount,
+                'notes' => "Penerimaan transfer ke {$to->name}",
+            ]);
+
+            // Credit source account
+            JournalEntryLine::create([
+                'journal_entry_id' => $entry->id,
+                'account_id' => $fromCoa->id,
+                'type' => JournalEntryLine::TYPE_CREDIT,
+                'amount' => $amount,
+                'notes' => "Pengeluaran transfer dari {$from->name}",
+            ]);
+
+            return $entry;
+        });
+    }
 }
+

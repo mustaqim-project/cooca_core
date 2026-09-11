@@ -166,8 +166,8 @@ class BusinessLandingPageWebController extends Controller
             ->merge($galleryFiles)
             ->merge(collect($request->file('service_images', []))->filter());
         $uploadBytes = $uploads->sum(fn ($file) => (int) $file->getSize());
-        if ($owner && ! app(OwnerStorageQuotaService::class)->canUpload($owner, $uploadBytes)) {
-            throw ValidationException::withMessages(['hero_image' => 'Kuota penyimpanan owner tidak mencukupi untuk upload gambar ini.']);
+        if ($owner && $uploadBytes > 0) {
+            app(\App\Domain\Storage\StorageTrackingService::class)->assertCanUpload($owner, $uploadBytes, 'hero_image');
         }
 
         // Only override stored content with fields the form actually submitted.
@@ -327,6 +327,22 @@ class BusinessLandingPageWebController extends Controller
     {
         $path = $file->store("businesses/{$businessId}/{$category}", 'public');
 
+        $business = Business::find($businessId);
+        if ($business) {
+            $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
+            if ($owner) {
+                app(\App\Domain\Storage\StorageTrackingService::class)->recordUpload(
+                    file: $file,
+                    filePath: $path,
+                    category: \App\Models\StorageFile::CATEGORY_LANDING_PAGE_IMAGE,
+                    module: 'landing_page',
+                    owner: $owner,
+                    business: $business,
+                    uploader: auth()->user()
+                );
+            }
+        }
+
         return Storage::disk('public')->url($path);
     }
 
@@ -339,7 +355,8 @@ class BusinessLandingPageWebController extends Controller
         $path = ltrim((string) parse_url($url, PHP_URL_PATH), '/');
         $storageMarker = strpos($path, 'storage/');
         if ($storageMarker !== false) {
-            Storage::disk('public')->delete(substr($path, $storageMarker + 8));
+            $relPath = substr($path, $storageMarker + 8);
+            app(\App\Domain\Storage\StorageTrackingService::class)->deleteFile($relPath, 'public');
         }
     }
 

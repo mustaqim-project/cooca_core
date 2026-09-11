@@ -33,6 +33,7 @@
         </div>
 
         <div class="flex items-center gap-2.5 w-full sm:w-auto">
+            @if(\App\Support\Context::hasPermission('sales.pipeline'))
             <a href="{{ route('sales.orders.create') }}"
                 class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] w-full sm:w-auto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -40,6 +41,7 @@
                 </svg>
                 <span>Buat Sales Order</span>
             </a>
+            @endif
         </div>
     </header>
 

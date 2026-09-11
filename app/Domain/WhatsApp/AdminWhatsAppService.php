@@ -78,6 +78,13 @@ class AdminWhatsAppService
 
         try {
             $response = $this->client(15)->get("{$baseUrl}/api/sessions/{$sessionId}/qr");
+
+            if ($response->status() === 404) {
+                // Session belum dibuat di wa-server.
+                // Kembalikan disconnected agar user harus klik tombol scan QR secara eksplisit.
+                return ['success' => false, 'status' => 'disconnected', 'qrDataUrl' => null];
+            }
+
             return $response->json() ?? [];
         } catch (\Throwable $e) {
             return ['success' => false, 'status' => 'disconnected', 'qrDataUrl' => null, 'error' => $e->getMessage()];

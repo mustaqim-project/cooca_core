@@ -54,6 +54,7 @@
 
         <div class="flex flex-wrap items-center gap-2">
             <!-- State-driven action triggers -->
+            @if(\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('sales.pipeline'))
             @if($return->status === 'draft')
                 <button type="button" @click="promptApprove()"
                     class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
@@ -78,6 +79,7 @@
                 <form id="complete-form" method="POST" action="{{ route('sales.returns.complete', $return) }}" class="hidden">
                     @csrf
                 </form>
+            @endif
             @endif
 
             <!-- Print Button -->

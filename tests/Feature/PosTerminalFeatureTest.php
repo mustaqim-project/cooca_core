@@ -405,6 +405,7 @@ final class PosTerminalFeatureTest extends TestCase
     public function test_voucher_and_loyalty_point_redemption_on_checkout(): void
     {
         $this->actingAs($this->user);
+        $this->product->update(['selling_price' => 50000]);
 
         // Buka shift kasir terlebih dahulu (wajib sebelum transaksi POS)
         $this->postJson(route('pos.shifts.open'), [

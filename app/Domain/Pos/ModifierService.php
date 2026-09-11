@@ -189,6 +189,9 @@ final class ModifierService
 
         if (array_key_exists('affects_material', $data)) {
             $option->affects_material = (bool) $data['affects_material'];
+            if (! $option->affects_material) {
+                $option->materials()->delete();
+            }
         }
 
         if (array_key_exists('sort_order', $data)) {
@@ -201,7 +204,7 @@ final class ModifierService
 
         $option->save();
 
-        if (array_key_exists('materials', $data) && is_array($data['materials'])) {
+        if ($option->affects_material && array_key_exists('materials', $data) && is_array($data['materials'])) {
             $this->mapOptionMaterials($option, $data['materials']);
         }
 

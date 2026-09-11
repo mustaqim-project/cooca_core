@@ -102,9 +102,10 @@ final class ProductWebController extends Controller
     {
         $business = Context::requireBusiness();
 
+        $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
         $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
-        if ($owner && $request->hasFile('image') && ! app(OwnerStorageQuotaService::class)->canUpload($owner, (int) $request->file('image')->getSize())) {
-            return back()->withErrors(['image' => 'Kuota penyimpanan owner tidak mencukupi untuk gambar produk.'])->withInput();
+        if ($owner && $request->hasFile('image')) {
+            $trackingService->assertCanUpload($owner, (int) $request->file('image')->getSize(), 'image');
         }
 
         $validated = $request->validate([
@@ -140,7 +141,19 @@ final class ProductWebController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $product->update(['image_path' => $request->file('image')->store('businesses/' . $business->id . '/products', 'public')]);
+            $imagePath = $request->file('image')->store('businesses/' . $business->id . '/products', 'public');
+            $product->update(['image_path' => $imagePath]);
+            if ($owner) {
+                $trackingService->recordUpload(
+                    file: $request->file('image'),
+                    filePath: $imagePath,
+                    category: \App\Models\StorageFile::CATEGORY_PRODUCT_IMAGE,
+                    module: 'product',
+                    owner: $owner,
+                    business: $business,
+                    uploader: $request->user()
+                );
+            }
         }
 
         // Auto create primary CostModel
@@ -163,9 +176,10 @@ final class ProductWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($product->business_id === $business->id, 404);
 
+        $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
         $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
-        if ($owner && $request->hasFile('image') && ! app(OwnerStorageQuotaService::class)->canUpload($owner, (int) $request->file('image')->getSize())) {
-            return back()->withErrors(['image' => 'Kuota penyimpanan owner tidak mencukupi untuk gambar produk.'])->withInput();
+        if ($owner && $request->hasFile('image')) {
+            $trackingService->assertCanUpload($owner, (int) $request->file('image')->getSize(), 'image');
         }
 
         $validated = $request->validate([
@@ -200,14 +214,25 @@ final class ProductWebController extends Controller
         ]);
 
         if ($request->boolean('remove_image') && $product->image_path) {
-            Storage::disk('public')->delete($product->image_path);
+            $trackingService->deleteFile($product->image_path, 'public');
             $product->update(['image_path' => null]);
         } elseif ($request->hasFile('image')) {
             $oldImagePath = $product->image_path;
             $newImagePath = $request->file('image')->store('businesses/' . $business->id . '/products', 'public');
             $product->update(['image_path' => $newImagePath]);
+            if ($owner) {
+                $trackingService->recordUpload(
+                    file: $request->file('image'),
+                    filePath: $newImagePath,
+                    category: \App\Models\StorageFile::CATEGORY_PRODUCT_IMAGE,
+                    module: 'product',
+                    owner: $owner,
+                    business: $business,
+                    uploader: $request->user()
+                );
+            }
             if ($oldImagePath) {
-                Storage::disk('public')->delete($oldImagePath);
+                $trackingService->deleteFile($oldImagePath, 'public');
             }
         }
 
@@ -290,6 +315,10 @@ final class ProductWebController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
+        if ($product->image_path) {
+            app(\App\Domain\Storage\StorageTrackingService::class)->deleteFile($product->image_path, 'public');
+        }
+
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');

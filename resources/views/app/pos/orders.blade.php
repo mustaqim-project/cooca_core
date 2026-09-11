@@ -49,12 +49,14 @@
         </div>
 
         <div class="flex items-center gap-2 w-full sm:w-auto">
+            @if(\App\Support\Context::hasPermission('pos.terminal'))
             <a href="{{ route('pos.terminal') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] w-full sm:w-auto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                 </svg>
                 <span>Buka Terminal Kasir</span>
             </a>
+            @endif
         </div>
     </header>
 
@@ -240,14 +242,18 @@
                                     Detail
                                 </button>
                                 @if($o->status === 'completed')
+                                    @if(\App\Support\Context::hasPermission('pos.supervisor_pin') || \App\Support\Context::hasPermission('pos.orders'))
                                     <button type="button" @click="openVoid('{{ $o->id }}')" title="Batalkan (Void)"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors flex items-center">
                                         Void
                                     </button>
+                                    @endif
+                                    @if(\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('pos.orders'))
                                     <button type="button" @click="openRefund('{{ $o->id }}')" title="Retur / Refund"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF9500] hover:bg-[#FF9500]/8 transition-colors flex items-center">
                                         Retur
                                     </button>
+                                    @endif
                                 @endif
                             </div>
                         </td>
@@ -310,14 +316,18 @@
                     Detail
                 </button>
                 @if($o->status === 'completed')
+                    @if(\App\Support\Context::hasPermission('pos.supervisor_pin') || \App\Support\Context::hasPermission('pos.orders'))
                     <button type="button" @click="openVoid('{{ $o->id }}')"
                         class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-[#FF3B30] bg-[#FF3B30]/10 flex items-center">
                         Void
                     </button>
+                    @endif
+                    @if(\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('pos.orders'))
                     <button type="button" @click="openRefund('{{ $o->id }}')"
                         class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-[#FF9500] bg-[#FF9500]/10 flex items-center">
                         Retur
                     </button>
+                    @endif
                 @endif
             </div>
         </div>
@@ -400,6 +410,7 @@
     <!-- ===================================================== -->
     <!-- 6. MODAL: VOID ORDER (Apple Alert Dialog Style)       -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('pos.supervisor_pin') || \App\Support\Context::hasPermission('pos.orders'))
     <div x-show="showVoidModal" x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
         style="display: none;">
@@ -429,10 +440,12 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- 7. MODAL: REFUND ORDER (Apple Alert Dialog Style)     -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('pos.orders'))
     <div x-show="showRefundModal" x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
         style="display: none;">
@@ -469,5 +482,6 @@
             </form>
         </div>
     </div>
+    @endif
 </div>
 @endsection

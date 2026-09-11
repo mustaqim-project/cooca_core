@@ -74,18 +74,25 @@ final class CommunityWebController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $isWithinQuota = $this->storageQuota->canUpload($user, (int) $file->getSize());
-            if (! $isWithinQuota) {
-                return back()
-                    ->withInput()
-                    ->withErrors(['image' => 'Kuota storage Anda tidak cukup untuk mengunggah gambar ini. Hapus file lama atau tambah kapasitas storage terlebih dahulu.']);
-            }
+            $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
+            $owner = app(\App\Domain\Storage\OwnerStorageQuotaService::class)->ownerForBusiness($business) ?? $user;
+            $trackingService->assertCanUpload($owner, (int) $file->getSize(), 'image');
 
             $extension = $file->getClientOriginalExtension() ?: 'jpg';
             $imagePath = $file->storeAs(
                 "businesses/{$business->id}/community",
                 Str::uuid() . '.' . $extension,
                 'public'
+            );
+
+            $trackingService->recordUpload(
+                file: $file,
+                filePath: $imagePath,
+                category: \App\Models\StorageFile::CATEGORY_COMMUNITY_IMAGE,
+                module: 'community',
+                owner: $owner,
+                business: $business,
+                uploader: $user
             );
         }
 
@@ -174,8 +181,8 @@ final class CommunityWebController extends Controller
             abort(403, 'Anda hanya dapat menghapus postingan milik sendiri.');
         }
 
-        if ($post->image_path && Storage::disk('public')->exists($post->image_path)) {
-            Storage::disk('public')->delete($post->image_path);
+        if ($post->image_path) {
+            app(\App\Domain\Storage\StorageTrackingService::class)->deleteFile($post->image_path, 'public');
         }
 
         $post->delete();

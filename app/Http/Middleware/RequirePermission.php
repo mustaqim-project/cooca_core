@@ -18,8 +18,8 @@ final class RequirePermission
      */
     public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
-        // Owner automatically has all permissions
-        if (Context::isOwner()) {
+        // Owner and Admin (internal superuser) automatically have all permissions
+        if (Context::isAdminOrOwner()) {
             return $next($request);
         }
 

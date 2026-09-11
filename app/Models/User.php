@@ -90,4 +90,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(OwnerStorageTopup::class, 'owner_id');
     }
+
+    public function storageFiles(): HasMany
+    {
+        return $this->hasMany(StorageFile::class, 'owner_id');
+    }
 }

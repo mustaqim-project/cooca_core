@@ -191,18 +191,23 @@ class SalesPipelineFeatureTest extends TestCase
 
     public function test_quotations_and_orders_web_interface_is_accessible(): void
     {
-        $this->actingAs($this->user);
-        session(['active_business_id' => $this->business->id]);
+        $session = ['active_business_id' => $this->business->id];
 
-        $responseIndex = $this->get(route('sales.quotations.index'));
+        $responseIndex = $this->actingAs($this->user)
+            ->withSession($session)
+            ->get(route('sales.quotations.index'));
         $responseIndex->assertStatus(200);
         $responseIndex->assertSee('Penawaran Harga');
 
-        $responseCreate = $this->get(route('sales.quotations.create'));
+        $responseCreate = $this->actingAs($this->user)
+            ->withSession($session)
+            ->get(route('sales.quotations.create'));
         $responseCreate->assertStatus(200);
         $responseCreate->assertSee('Buat Penawaran Harga Baru');
 
-        $responseOrders = $this->get(route('sales.orders.index'));
+        $responseOrders = $this->actingAs($this->user)
+            ->withSession($session)
+            ->get(route('sales.orders.index'));
         $responseOrders->assertStatus(200);
         $responseOrders->assertSee('Pesanan Penjualan');
     }

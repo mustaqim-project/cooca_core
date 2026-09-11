@@ -102,7 +102,7 @@
     <!-- ===================================================== -->
     <!-- 3. PAYMENT RECORD FORM                                -->
     <!-- ===================================================== -->
-    @if($invoice->balance_due > 0)
+    @if($invoice->balance_due > 0 && (\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.manage') || \App\Support\Context::hasPermission('invoices.record_payment')))
     <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 space-y-4">
         <div class="border-b border-black/5 dark:border-white/10 pb-3 flex items-center justify-between">
             <div>

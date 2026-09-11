@@ -101,12 +101,14 @@
             <p class="text-xs text-black/60 dark:text-white/60 mt-0.5">Konfigurasi opsi ukuran, tingkat rasa, topping tambahan, dan integrasi konsumsi bahan baku resep.</p>
         </div>
 
+        @if(\App\Support\Context::hasPermission('pos.modifiers'))
         <div class="flex items-center gap-2">
             <button type="button" @click="showAddGroupModal = true" class="h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white text-xs font-semibold flex items-center gap-2 transition shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 <span>Buat Grup Modifier Baru</span>
             </button>
         </div>
+        @endif
     </div>
 
     <!-- Modifiers Group List -->
@@ -117,9 +119,11 @@
         </div>
         <div class="font-semibold text-base text-black dark:text-white">Belum Ada Grup Modifier</div>
         <p class="text-xs text-black/50 dark:text-white/50 max-w-sm mx-auto">Buat grup modifier (seperti Ukuran Cup, Extra Shot, Topping Boba, atau Level Pedas) untuk menambahkan fleksibilitas pada menu Anda.</p>
+        @if(\App\Support\Context::hasPermission('pos.modifiers'))
         <button type="button" @click="showAddGroupModal = true" class="h-9 px-4 rounded-[10px] bg-[#007AFF] text-white text-xs font-semibold inline-flex items-center gap-2">
             <span>Buat Grup Pertama</span>
         </button>
+        @endif
     </div>
     @else
     <div class="space-y-6">
@@ -175,6 +179,7 @@
                     </div>
                 </div>
 
+                @if(\App\Support\Context::hasPermission('pos.modifiers'))
                 <div class="flex items-center gap-2">
                     <button type="button" @click="openAddOption({{ json_encode($group) }})" class="h-8 px-3 rounded-[8px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
@@ -185,6 +190,7 @@
                         Edit Grup
                     </button>
                 </div>
+                @endif
             </div>
 
             <!-- Options Table -->
@@ -241,6 +247,7 @@
                                 @endif
                             </td>
                             <td class="py-3 px-4 text-right">
+                                @if(\App\Support\Context::hasPermission('pos.modifiers'))
                                 <button type="button" @click="openEditOption({{ json_encode($group) }}, {{ json_encode($opt) }})" class="text-xs text-[#007AFF] hover:underline font-semibold mr-3">
                                     Edit
                                 </button>
@@ -251,6 +258,7 @@
                                         Hapus
                                     </button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                         @empty
@@ -271,6 +279,7 @@
     <!-- ========================================================= -->
     <!-- MODAL: BUAT / EDIT MODIFIER GROUP                         -->
     <!-- ========================================================= -->
+    @if(\App\Support\Context::hasPermission('pos.modifiers'))
     <div x-show="showAddGroupModal || showEditGroupModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4" style="display: none;">
         <div class="w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[18px] border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4 text-black dark:text-white max-h-[90vh] overflow-y-auto" @click.outside="showAddGroupModal = false; showEditGroupModal = false;">
             <div class="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
@@ -362,10 +371,12 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ========================================================= -->
     <!-- MODAL: TAMBAH / EDIT OPSI MODIFIER & MATERIAL MAPPING     -->
     <!-- ========================================================= -->
+    @if(\App\Support\Context::hasPermission('pos.modifiers'))
     <div x-show="showAddOptionModal || showEditOptionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4" style="display: none;">
         <div class="w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[18px] border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4 text-black dark:text-white max-h-[90vh] overflow-y-auto" @click.outside="showAddOptionModal = false; showEditOptionModal = false;">
             <div class="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
@@ -397,8 +408,8 @@
                     <div>
                         <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Efek Pengurangan Stok Bahan?</label>
                         <select name="affects_material" x-model="optionForm.affects_material" class="w-full h-10 px-2.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
-                            <option :value="false">Tidak (Hanya Harga)</option>
-                            <option :value="true">Ya (Kurangi Bahan Baku Resep)</option>
+                            <option value="0" :value="false">Tidak (Hanya Variasi / Harga, Tanpa Potong Stok)</option>
+                            <option value="1" :value="true">Ya (Kurangi Bahan Baku Resep)</option>
                         </select>
                     </div>
                 </div>
@@ -455,6 +466,7 @@
             </form>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

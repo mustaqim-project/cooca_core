@@ -54,12 +54,20 @@ class Business extends Model
         'pos_require_pin_for_void',
         'pos_require_pin_for_refund',
         'pos_receipt_footer_note',
+        'pos_receipt_wa_template',
         'pos_show_product_images',
         'pos_enable_tax',
         'pos_tax_percent',
         'pos_enable_service_charge',
         'pos_service_charge_percent',
     ];
+
+    protected static function booted(): void
+    {
+        static::deleted(function (Business $business): void {
+            app(\App\Domain\Storage\StorageTrackingService::class)->handleBusinessDeleted($business);
+        });
+    }
 
     /**
      * @return array<string, string>
@@ -185,5 +193,10 @@ class Business extends Model
     public function locations(): HasMany
     {
         return $this->hasMany(Location::class);
+    }
+
+    public function storageFiles(): HasMany
+    {
+        return $this->hasMany(StorageFile::class, 'business_id');
     }
 }

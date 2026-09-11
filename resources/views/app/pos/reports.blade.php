@@ -22,6 +22,7 @@
         </div>
 
         <div class="flex items-center gap-2 w-full sm:w-auto">
+            @if(\App\Support\Context::hasPermission('pos.reports_export') || \App\Support\Context::hasPermission('pos.reports'))
             <a id="btnPosExportExcel" href="{{ route('pos.reports.export-excel', ['start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString()]) }}"
                 class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
                 <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -37,6 +38,7 @@
                 </svg>
                 <span>Cetak / PDF</span>
             </button>
+            @endif
         </div>
     </header>
 

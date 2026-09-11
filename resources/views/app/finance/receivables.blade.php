@@ -1,172 +1,212 @@
 @extends('layouts.app', ['title' => 'Piutang Usaha (AR Aging)'])
 
 @section('content')
-<div class="space-y-6">
+<div class="max-w-[1360px] mx-auto space-y-5 pb-12">
 
-    <!-- Header & Breadcrumbs -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    {{-- ========================================================== --}}
+    {{-- TOOLBAR / PAGE HEADER --}}
+    {{-- ========================================================== --}}
+    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-emerald-400 transition">Dashboard</a>
-                <span>/</span>
-                <span class="text-slate-500">Keuangan</span>
-                <span>/</span>
-                <span class="text-emerald-400 font-semibold">Piutang Usaha (AR Aging)</span>
-            </div>
-            <h1 class="text-2xl font-black text-white tracking-tight">Piutang Usaha (AR Aging)</h1>
-            <p class="text-sm text-slate-400 mt-0.5">Analisis umur piutang pelanggan dan jadwal penagihan faktur tempo.</p>
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                <span>›</span>
+                <span class="text-black/70 dark:text-white/70 font-medium">Keuangan</span>
+                <span>›</span>
+                <span class="text-black dark:text-white font-medium">Piutang Usaha</span>
+            </nav>
+            <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Piutang Usaha (AR Aging)</h1>
+            <p class="text-[13px] text-black/50 dark:text-white/50">Analisis umur piutang pelanggan dan jadwal penagihan faktur tempo</p>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('invoices.create') }}" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
-                <i data-lucide="plus" class="w-4 h-4"></i>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            @if(\App\Support\Context::hasPermission('invoices.create'))
+            <a href="{{ route('invoices.create') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 <span>Buat Faktur Baru</span>
             </a>
-            <a href="{{ route('invoices.index') }}" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition flex items-center gap-2">
-                <i data-lucide="receipt" class="w-4 h-4 text-emerald-400"></i>
+            @endif
+            @if(\App\Support\Context::hasPermission('invoices.view'))
+            <a href="{{ route('invoices.index') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-[#34C759]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z"/></svg>
                 <span>Daftar Faktur</span>
             </a>
+            @endif
         </div>
-    </div>
+    </header>
 
     @php
-        $totalBalance = $invoices->sum('balance_due');
-        $notDue = $invoices->filter(fn($i) => $i->due_date && $i->due_date->isFuture())->sum('balance_due');
-        $overdue1to30 = $invoices->filter(function($i) {
+        $totalBalance = $totalReceivable ?? $invoices->sum('balance_due');
+        $notDue = $notDue ?? $invoices->filter(fn($i) => $i->due_date && $i->due_date->isFuture())->sum('balance_due');
+        $overdue1to30 = $overdue1to30 ?? $invoices->filter(function($i) {
             if (!$i->due_date || $i->due_date->isFuture()) return false;
             $days = now()->diffInDays($i->due_date);
             return $days >= 0 && $days <= 30;
         })->sum('balance_due');
-        $overdue30plus = $invoices->filter(function($i) {
+        $overdue30plus = $overdue30plus ?? $invoices->filter(function($i) {
             if (!$i->due_date || $i->due_date->isFuture()) return false;
             return now()->diffInDays($i->due_date) > 30;
         })->sum('balance_due');
+        $totalOpenCount = $totalOpenCount ?? $invoices->total();
+        $currentBucket = request('bucket', 'all');
     @endphp
 
-    <!-- AR Aging Summary Widgets -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="glass-card rounded-2xl p-4 border border-slate-800 flex justify-between items-center">
-            <div>
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Piutang Berjalan</div>
-                <div class="text-xl font-black text-white font-mono mt-1">Rp {{ number_format($totalBalance, 0, ',', '.') }}</div>
-                <div class="text-[10px] text-slate-500 mt-0.5">{{ $invoices->total() }} Faktur Terbuka</div>
+    {{-- ========================================================== --}}
+    {{-- AR AGING KPI TILES --}}
+    {{-- ========================================================== --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <a href="{{ route('finance.receivables', array_merge(request()->except(['page']), ['bucket' => 'all'])) }}"
+           class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border {{ $currentBucket === 'all' ? 'border-[#007AFF] shadow-[0_0_0_1px_#007AFF]' : 'border-black/5 dark:border-white/5' }} p-4 flex flex-col justify-between hover:border-[#007AFF]/50 transition-all">
+            <p class="text-[11px] font-medium text-black/45 dark:text-white/45">Total Piutang Berjalan</p>
+            <div class="mt-2">
+                <span class="text-[22px] font-bold tabular-nums text-black dark:text-white">Rp {{ number_format($totalBalance, 0, ',', '.') }}</span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                <i data-lucide="wallet" class="w-5 h-5"></i>
+            <p class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">{{ $totalOpenCount }} Faktur Terbuka</p>
+        </a>
+        <a href="{{ route('finance.receivables', array_merge(request()->except(['page']), ['bucket' => 'not_due'])) }}"
+           class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border {{ $currentBucket === 'not_due' ? 'border-[#34C759] shadow-[0_0_0_1px_#34C759]' : 'border-black/5 dark:border-white/5' }} p-4 flex flex-col justify-between hover:border-[#34C759]/50 transition-all">
+            <p class="text-[11px] font-medium text-black/45 dark:text-white/45">Belum Jatuh Tempo (Lancar)</p>
+            <div class="mt-2">
+                <span class="text-[22px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">Rp {{ number_format($notDue, 0, ',', '.') }}</span>
             </div>
-        </div>
-
-        <div class="glass-card rounded-2xl p-4 border border-slate-800 flex justify-between items-center">
-            <div>
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Belum Jatuh Tempo (Lancar)</div>
-                <div class="text-xl font-black text-emerald-400 font-mono mt-1">Rp {{ number_format($notDue, 0, ',', '.') }}</div>
-                <div class="text-[10px] text-slate-500 mt-0.5">Sesuai termin pembayaran</div>
+            <p class="text-[11px] text-[#34C759] dark:text-[#30D158] mt-0.5">Sesuai termin pembayaran</p>
+        </a>
+        <a href="{{ route('finance.receivables', array_merge(request()->except(['page']), ['bucket' => 'overdue_1_30'])) }}"
+           class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border {{ $currentBucket === 'overdue_1_30' ? 'border-[#FF9500] shadow-[0_0_0_1px_#FF9500]' : 'border-black/5 dark:border-white/5' }} p-4 flex flex-col justify-between hover:border-[#FF9500]/50 transition-all">
+            <p class="text-[11px] font-medium text-black/45 dark:text-white/45">Lewat Tempo (1–30 Hari)</p>
+            <div class="mt-2">
+                <span class="text-[22px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A]">Rp {{ number_format($overdue1to30, 0, ',', '.') }}</span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                <i data-lucide="check-circle" class="w-5 h-5"></i>
+            <p class="text-[11px] text-[#FF9500] dark:text-[#FF9F0A] mt-0.5">Perlu tindak lanjut tagihan</p>
+        </a>
+        <a href="{{ route('finance.receivables', array_merge(request()->except(['page']), ['bucket' => 'overdue_30_plus'])) }}"
+           class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border {{ $currentBucket === 'overdue_30_plus' ? 'border-[#FF3B30] shadow-[0_0_0_1px_#FF3B30]' : 'border-black/5 dark:border-white/5' }} p-4 flex flex-col justify-between hover:border-[#FF3B30]/50 transition-all">
+            <p class="text-[11px] font-medium text-black/45 dark:text-white/45">Lewat Tempo (> 30 Hari)</p>
+            <div class="mt-2">
+                <span class="text-[22px] font-bold tabular-nums text-[#FF3B30] dark:text-[#FF453A]">Rp {{ number_format($overdue30plus, 0, ',', '.') }}</span>
             </div>
-        </div>
-
-        <div class="glass-card rounded-2xl p-4 border border-slate-800 flex justify-between items-center">
-            <div>
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lewat Tempo (1-30 Hari)</div>
-                <div class="text-xl font-black text-amber-400 font-mono mt-1">Rp {{ number_format($overdue1to30, 0, ',', '.') }}</div>
-                <div class="text-[10px] text-amber-500/80 mt-0.5">Perlu tindak lanjut tagihan</div>
-            </div>
-            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
-                <i data-lucide="clock" class="w-5 h-5"></i>
-            </div>
-        </div>
-
-        <div class="glass-card rounded-2xl p-4 border border-slate-800 flex justify-between items-center">
-            <div>
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lewat Tempo (> 30 Hari)</div>
-                <div class="text-xl font-black text-rose-400 font-mono mt-1">Rp {{ number_format($overdue30plus, 0, ',', '.') }}</div>
-                <div class="text-[10px] text-rose-500/80 mt-0.5">Kategori kritis / macet</div>
-            </div>
-            <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
-                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-            </div>
-        </div>
+            <p class="text-[11px] text-[#FF3B30] dark:text-[#FF453A] mt-0.5">Kategori kritis / macet</p>
+        </a>
     </div>
 
-    <!-- Table Card -->
-    <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
-        <div class="p-4 border-b border-slate-800/80 flex items-center justify-between">
-            <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                <i data-lucide="arrow-down-left" class="w-4 h-4 text-cyan-400"></i>
-                <span>Daftar Piutang Faktur Pelanggan</span>
-            </h2>
-            <span class="text-xs text-slate-400 font-mono">{{ $invoices->total() }} Faktur</span>
+    {{-- ========================================================== --}}
+    {{-- SEARCH & FILTER BAR --}}
+    {{-- ========================================================== --}}
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <a href="{{ route('finance.receivables', array_merge(request()->except(['page', 'bucket']), ['bucket' => 'all'])) }}"
+               class="px-3 py-1.5 rounded-[8px] text-[12px] font-medium transition-colors whitespace-nowrap {{ $currentBucket === 'all' ? 'bg-[#007AFF] text-white shadow-sm font-semibold' : 'text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5' }}">
+                Semua
+            </a>
+            <a href="{{ route('finance.receivables', array_merge(request()->except(['page', 'bucket']), ['bucket' => 'not_due'])) }}"
+               class="px-3 py-1.5 rounded-[8px] text-[12px] font-medium transition-colors whitespace-nowrap {{ $currentBucket === 'not_due' ? 'bg-[#34C759] text-white shadow-sm font-semibold' : 'text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5' }}">
+                Lancar (Sesuai Termin)
+            </a>
+            <a href="{{ route('finance.receivables', array_merge(request()->except(['page', 'bucket']), ['bucket' => 'overdue_1_30'])) }}"
+               class="px-3 py-1.5 rounded-[8px] text-[12px] font-medium transition-colors whitespace-nowrap {{ $currentBucket === 'overdue_1_30' ? 'bg-[#FF9500] text-white shadow-sm font-semibold' : 'text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5' }}">
+                Lewat 1–30 Hari
+            </a>
+            <a href="{{ route('finance.receivables', array_merge(request()->except(['page', 'bucket']), ['bucket' => 'overdue_30_plus'])) }}"
+               class="px-3 py-1.5 rounded-[8px] text-[12px] font-medium transition-colors whitespace-nowrap {{ $currentBucket === 'overdue_30_plus' ? 'bg-[#FF3B30] text-white shadow-sm font-semibold' : 'text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5' }}">
+                Lewat > 30 Hari
+            </a>
         </div>
+        <form method="GET" action="{{ route('finance.receivables') }}" class="flex items-center gap-2">
+            <input type="hidden" name="bucket" value="{{ $currentBucket }}">
+            <div class="relative flex-1 sm:w-64">
+                <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari no. faktur / pelanggan..."
+                       class="w-full h-8 pl-8 pr-3 text-[12px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+            </div>
+            @if(request('search') || request('bucket') !== 'all')
+                <a href="{{ route('finance.receivables') }}" class="h-8 px-2.5 rounded-[8px] text-[12px] text-black/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/5 flex items-center">Reset</a>
+            @endif
+        </form>
+    </div>
 
+    {{-- ========================================================== --}}
+    {{-- AR TABLE --}}
+    {{-- ========================================================== --}}
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden">
+        <div class="px-4 py-3 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+            <h2 class="text-[15px] font-semibold text-black dark:text-white">Daftar Piutang Faktur Pelanggan</h2>
+            <span class="text-[13px] text-black/45 dark:text-white/45 tabular-nums">{{ $invoices->total() }} Faktur</span>
+        </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="border-b border-slate-800 bg-slate-950/60 uppercase text-[10px] text-slate-400 font-bold tracking-wider">
-                    <tr>
-                        <th class="p-4">No. Faktur</th>
-                        <th class="p-4">Pelanggan</th>
-                        <th class="p-4">Tgl. Terbit</th>
-                        <th class="p-4">Jatuh Tempo</th>
-                        <th class="p-4 text-right">Total Faktur</th>
-                        <th class="p-4 text-right">Sisa Piutang</th>
-                        <th class="p-4 text-center">Umur Piutang</th>
-                        <th class="p-4 text-center">Aksi</th>
+            <table class="w-full text-left text-[13px]">
+                <thead>
+                    <tr class="border-b border-black/5 dark:border-white/10">
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">No. Faktur</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Pelanggan</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Tgl. Terbit</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Jatuh Tempo</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Total Faktur</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Sisa Piutang</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">Umur Piutang</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800/60 font-sans">
+                <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                     @forelse($invoices as $invoice)
                     @php
                         $daysDiff = $invoice->due_date ? (int) now()->startOfDay()->diffInDays($invoice->due_date, false) : 0;
                         $isOverdue = $daysDiff < 0;
                         $daysOverdue = abs($daysDiff);
                     @endphp
-                    <tr class="hover:bg-slate-800/40 transition">
-                        <td class="p-4 font-mono font-bold text-white">
-                            <a href="{{ route('invoices.show', $invoice) }}" class="hover:text-emerald-400 transition">
+                    <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                        <td class="px-4 py-3">
+                            @if(\App\Support\Context::hasPermission('invoices.view'))
+                            <a href="{{ route('invoices.show', $invoice) }}" class="tabular-nums font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline">
                                 {{ $invoice->invoice_number }}
                             </a>
-                        </td>
-                        <td class="p-4 font-semibold text-slate-200">
-                            {{ $invoice->customer?->name ?? 'Pelanggan Umum' }}
-                            @if($invoice->customer?->phone)
-                                <div class="text-[10px] text-slate-500 font-mono">{{ $invoice->customer->phone }}</div>
+                            @else
+                            <span class="tabular-nums font-semibold text-black dark:text-white">{{ $invoice->invoice_number }}</span>
                             @endif
                         </td>
-                        <td class="p-4 text-slate-400">{{ $invoice->invoice_date?->format('d M Y') ?? '-' }}</td>
-                        <td class="p-4 {{ $isOverdue ? 'text-rose-400 font-bold' : 'text-slate-300' }}">
+                        <td class="px-4 py-3">
+                            <div class="font-medium text-black dark:text-white">{{ $invoice->customer?->name ?? 'Pelanggan Umum' }}</div>
+                            @if($invoice->customer?->phone)
+                                <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums mt-0.5">{{ $invoice->customer->phone }}</div>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-black/60 dark:text-white/60">{{ $invoice->invoice_date?->format('d M Y') ?? '-' }}</td>
+                        <td class="px-4 py-3 {{ $isOverdue ? 'text-[#FF3B30] dark:text-[#FF453A] font-semibold' : 'text-black/60 dark:text-white/60' }}">
                             {{ $invoice->due_date?->format('d M Y') ?? '-' }}
                         </td>
-                        <td class="p-4 text-right font-mono text-slate-400">
+                        <td class="px-4 py-3 text-right tabular-nums text-black/60 dark:text-white/60">
                             Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
                         </td>
-                        <td class="p-4 text-right font-mono font-black text-cyan-400">
+                        <td class="px-4 py-3 text-right tabular-nums font-semibold text-[#34C759] dark:text-[#30D158]">
                             Rp {{ number_format($invoice->balance_due, 0, ',', '.') }}
                         </td>
-                        <td class="p-4 text-center">
+                        <td class="px-4 py-3 text-center">
                             @if($isOverdue)
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                                    Lewat {{ $daysOverdue }} hr
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span> Lewat {{ $daysOverdue }} hr
                                 </span>
                             @else
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                    Sisa {{ $daysDiff }} hr
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Sisa {{ $daysDiff }} hr
                                 </span>
                             @endif
                         </td>
-                        <td class="p-4 text-center">
-                            <a href="{{ route('invoices.show', $invoice) }}" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 font-bold transition text-[11px] inline-flex items-center gap-1">
-                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                                <span>Detail</span>
+                        <td class="px-4 py-3 text-right">
+                            @if(\App\Support\Context::hasPermission('invoices.view'))
+                            <a href="{{ route('invoices.show', $invoice) }}" class="h-7 px-2.5 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors inline-flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                Detail
                             </a>
+                            @endif
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="p-12 text-center text-slate-500">
-                            <div class="flex flex-col items-center justify-center gap-2">
-                                <i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-500/40"></i>
-                                <span class="text-sm font-semibold text-slate-400">Semua Piutang Pelanggan Telah Lunas!</span>
-                                <span class="text-xs text-slate-600">Tidak ada saldo piutang berjalan yang menunggu pembayaran.</span>
+                        <td colspan="8" class="py-16 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <svg class="w-12 h-12 text-black/15 dark:text-white/15" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <div>
+                                    <p class="text-[15px] font-semibold text-black/60 dark:text-white/60">Semua Piutang Pelanggan Telah Lunas!</p>
+                                    <p class="text-[13px] text-black/40 dark:text-white/40 mt-0.5">Tidak ada saldo piutang yang menunggu pembayaran</p>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -176,8 +216,21 @@
         </div>
 
         @if($invoices->hasPages())
-        <div class="p-4 border-t border-slate-800 bg-slate-950/40">
-            {{ $invoices->links() }}
+        <div class="px-4 py-3 border-t border-black/5 dark:border-white/10 flex items-center justify-between text-[13px] text-black/60 dark:text-white/60">
+            <span>{{ $invoices->total() }} faktur</span>
+            <div class="flex items-center gap-2">
+                @if($invoices->onFirstPage())
+                    <span class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-black/30 dark:text-white/30 cursor-not-allowed">‹ Sebelumnya</span>
+                @else
+                    <a href="{{ $invoices->previousPageUrl() }}" class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center">‹ Sebelumnya</a>
+                @endif
+                <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-medium flex items-center tabular-nums">{{ $invoices->currentPage() }}</span>
+                @if($invoices->hasMorePages())
+                    <a href="{{ $invoices->nextPageUrl() }}" class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center">Selanjutnya ›</a>
+                @else
+                    <span class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-black/30 dark:text-white/30 cursor-not-allowed">Selanjutnya ›</span>
+                @endif
+            </div>
         </div>
         @endif
     </div>

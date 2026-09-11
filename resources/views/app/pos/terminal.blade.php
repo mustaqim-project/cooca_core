@@ -211,6 +211,104 @@
       x-data="posApp()"
       x-init="initPos()">
 
+    <!-- ===================================================== -->
+    <!-- DYNAMIC FLOATING NOTIFICATION: NEW QR TABLE ORDER     -->
+    <!-- ===================================================== -->
+    <div x-show="latestQrNotification"
+         x-cloak
+         x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-500 transform"
+         x-transition:enter-start="-translate-y-12 opacity-0 scale-95"
+         x-transition:enter-end="translate-y-0 opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-250 transform"
+         x-transition:leave-start="translate-y-0 opacity-100 scale-100"
+         x-transition:leave-end="-translate-y-8 opacity-0 scale-95"
+         class="fixed top-4 left-1/2 -translate-x-1/2 z-[150] w-full max-w-lg px-4 pointer-events-none"
+         @mouseenter="pauseNotificationTimer()"
+         @mouseleave="resumeNotificationTimer()">
+        <div class="pointer-events-auto backdrop-blur-2xl bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/10 dark:border-white/15 rounded-2xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-black dark:text-white relative overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
+            
+            <!-- Subtle Top Accent Glow Gradient -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#007AFF] via-[#34C759] to-[#007AFF]"></div>
+
+            <div class="flex items-start gap-3.5 pt-1">
+                <!-- Pulsing Bell Icon Tile -->
+                <div class="relative shrink-0 mt-0.5">
+                    <div class="w-10 h-10 rounded-xl bg-[#007AFF]/15 dark:bg-[#007AFF]/25 text-[#007AFF] flex items-center justify-center">
+                        <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                        </svg>
+                    </div>
+                    <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#34C759] opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-[#34C759]"></span>
+                    </span>
+                </div>
+
+                <!-- Content Area -->
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-[#007AFF]/15 text-[#007AFF]">
+                                Order Masuk via QR
+                            </span>
+                            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]"
+                                  x-text="'Meja ' + (latestQrNotification?.table_number || latestQrNotification?.pos_table?.table_number || latestQrNotification?.table_or_reference || '-')">
+                            </span>
+                            <template x-if="latestQrNotification?.totalNewCount > 1">
+                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FF9500]/20 text-[#FF9500]"
+                                      x-text="'+' + (latestQrNotification.totalNewCount - 1) + ' antrean'">
+                                </span>
+                            </template>
+                        </div>
+                        <!-- Close button -->
+                        <button type="button" @click="dismissQrNotification()" class="w-6 h-6 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white flex items-center justify-center transition">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Customer and Items Summary -->
+                    <div class="mt-1.5 flex items-baseline justify-between gap-2">
+                        <div class="min-w-0">
+                            <div class="text-sm font-bold text-black dark:text-white truncate" x-text="latestQrNotification?.customer_name || latestQrNotification?.customer_name_guest || 'Tamu / Pelanggan'"></div>
+                            <div class="text-xs text-black/60 dark:text-white/60 truncate mt-0.5" x-text="formatNotificationItems(latestQrNotification)"></div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs font-semibold text-black/45 dark:text-white/45 block text-[10px]">Total</span>
+                            <span class="text-sm font-extrabold text-[#007AFF] tabular-nums" x-text="formatRupiah(latestQrNotification?.total_amount)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-3 flex items-center justify-end gap-2">
+                        <button type="button"
+                                @click="openIncomingOrdersModal(); dismissQrNotification();"
+                                class="h-8 px-3 rounded-lg bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] text-xs font-semibold text-black/75 dark:text-white/80 transition flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-[#FF9500]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                            <span>Lihat Antrean (<span x-text="pendingQrCount"></span>)</span>
+                        </button>
+
+                        <button type="button"
+                                @click="acceptAndLoadToCart(latestQrNotification.id); dismissQrNotification();"
+                                class="h-8 px-3.5 rounded-lg bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                            </svg>
+                            <span>Buka di Kasir</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auto-dismiss Progress Bar -->
+            <div class="mt-2.5 h-1 w-full bg-black/[0.05] dark:bg-white/[0.08] rounded-full overflow-hidden">
+                <div class="h-full bg-[#007AFF] transition-all duration-100 ease-linear rounded-full"
+                     :style="'width: ' + notificationProgressPercent + '%'"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="pos-shell h-screen flex flex-col overflow-hidden">
 
         <!-- ===================================================== -->
@@ -278,15 +376,23 @@
 
                 <!-- QR Table Orders Button with Live Pulse Indicator -->
                 <button @click="openIncomingOrdersModal()"
-                        class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
+                        :class="pendingQrCount > 0 ? 'bg-[#007AFF]/15 dark:bg-[#007AFF]/25 text-[#007AFF] dark:text-[#0A84FF] ring-2 ring-[#007AFF]/50' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'"
+                        class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] active:scale-[0.97] text-[12px] font-medium transition flex items-center gap-1.5 relative"
                         title="Pesanan Masuk dari Meja QR">
-                    <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
-                    </svg>
+                    <div class="relative flex items-center justify-center">
+                        <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
+                        </svg>
+                        <span x-show="pendingQrCount > 0" class="absolute -top-1 -right-1 flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#007AFF] opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#007AFF]"></span>
+                        </span>
+                    </div>
                     <span class="hidden xl:inline">Order QR</span>
-                    <span x-show="pendingQrCount > 0" x-text="pendingQrCount" class="px-1.5 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] flex items-center justify-center tabular-nums animate-pulse"></span>
+                    <span x-show="pendingQrCount > 0" x-text="pendingQrCount" class="px-1.5 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
                 </button>
 
+                @if(\App\Support\Context::hasPermission('pos.tables'))
                 <!-- Resto Meja Selector Button -->
                 <button @click="openTablesModal()"
                         class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
@@ -299,7 +405,9 @@
                         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#34C759]/20 text-[#34C759]" x-text="'M-' + selectedTable.table_number"></span>
                     </template>
                 </button>
+                @endif
 
+                @if(\App\Support\Context::hasPermission('pos.kitchen'))
                 <!-- Kitchen Display Quick Link -->
                 <a href="{{ route('pos.kitchen.index') }}"
                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
@@ -309,6 +417,7 @@
                     </svg>
                     <span class="hidden 2xl:inline">Dapur</span>
                 </a>
+                @endif
 
                 <!-- Antrean Hold Button -->
                 <button @click="showHeldOrdersModal = true"
@@ -321,6 +430,7 @@
                     <span x-show="heldOrders.length > 0" x-text="heldOrders.length" class="w-4 h-4 rounded-full bg-[#FF9500] text-black font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
                 </button>
 
+                @if(\App\Support\Context::hasPermission('finance.cash_bank'))
                 <!-- Kas Masuk / Keluar Button -->
                 <button @click="showCashMovementModal = true"
                         class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
@@ -330,6 +440,7 @@
                     </svg>
                     <span class="hidden xl:inline">Kas</span>
                 </button>
+                @endif
 
                 <!-- Fullscreen Toggle -->
                 <div x-data="{
@@ -697,13 +808,37 @@
                         </select>
                     </div>
 
-                    <!-- Selected Table Indicator -->
-                    <div x-show="selectedTable" class="px-2.5 py-1.5 rounded-[10px] bg-[#34C759]/10 border border-[#34C759]/25 flex items-center justify-between text-xs text-[#34C759]">
-                        <div class="flex items-center gap-1.5 font-semibold">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
-                            <span x-text="'Meja ' + (selectedTable ? selectedTable.table_number : '') + (selectedTable && selectedTable.name ? ' (' + selectedTable.name + ')' : '')"></span>
+                    <!-- Active Restaurant Table Card (Apple HIG Styled) -->
+                    <div x-show="selectedTable" class="p-2.5 rounded-[12px] bg-[#007AFF]/[0.08] dark:bg-[#007AFF]/15 border border-[#007AFF]/25 space-y-1.5 transition">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="w-7 h-7 rounded-[8px] bg-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-[13px] text-black dark:text-white truncate" x-text="'Meja ' + (selectedTable ? selectedTable.table_number : '') + (selectedTable && selectedTable.name ? ' • ' + selectedTable.name : '')"></span>
+                                        <span x-show="activeTableOrderId" class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] uppercase">QR Aktif</span>
+                                    </div>
+                                    <div class="text-[11px] text-black/60 dark:text-white/60 truncate">
+                                        <span x-show="activeTableCustomerName" x-text="activeTableCustomerName + ' • '"></span>
+                                        <span x-show="activeTableOrderNumber" class="font-mono text-[#007AFF]" x-text="'#' + activeTableOrderNumber"></span>
+                                        <span x-show="!activeTableOrderId" class="italic">Meja Dine In Baru</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button type="button" @click="refreshTableCart()" x-show="activeTableOrderId" class="p-1 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 text-black/60 dark:text-white/60 hover:text-[#007AFF] transition" title="Segarkan pesanan meja">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                                </button>
+                                <button type="button" @click="openTablesModal()" class="px-2 py-0.5 rounded-[6px] bg-black/5 dark:bg-white/10 hover:bg-black/10 text-[11px] font-semibold text-black/70 dark:text-white/80 transition">
+                                    Ganti
+                                </button>
+                                <button type="button" @click="detachTableFromCart()" class="p-1 rounded-[6px] text-black/40 hover:text-[#FF3B30] transition" title="Lepas meja dari keranjang">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
                         </div>
-                        <button type="button" @click="selectedTable = null" class="text-[10px] text-black/50 dark:text-white/50 hover:text-[#FF3B30] transition font-medium">Batal Meja</button>
                     </div>
 
                     <!-- Member Loyalty Card Preview -->
@@ -1050,58 +1185,195 @@
     </div>
 
     <!-- ===================================================== -->
-    <!-- 5. MODAL: PAYMENT SUCCESS & RECEIPT (Apple Modal)    -->
+    <!-- 5. MODAL: PAYMENT SUCCESS & RECEIPT (Bento UI Grid)  -->
     <!-- ===================================================== -->
     <div x-show="showSuccessModal"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4"
-         style="display: none;">
-        <div class="pos-modal-panel w-full max-w-md bg-white dark:bg-[#2C2C2E] rounded-[16px] border border-black/10 dark:border-white/10 p-6 text-center space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)] text-black dark:text-white">
-            <div class="w-14 h-14 rounded-full bg-[#34C759]/15 border border-[#34C759]/30 text-[#34C759] flex items-center justify-center mx-auto shadow-md">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-            </div>
-            <div>
-                <h3 class="font-bold text-[18px] text-black dark:text-white">Transaksi Berhasil!</h3>
-                <div class="text-[12px] text-black/50 dark:text-white/50 mt-0.5 tabular-nums" x-text="'No. Struk: ' + (lastCompletedOrder ? lastCompletedOrder.order_number : '')"></div>
-            </div>
+         x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[3px] p-4"
+         @keydown.escape.window="if(showSuccessModal) resetForNewOrder()">
+        <div class="pos-modal-panel w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/10 dark:border-white/15 p-5 sm:p-6 space-y-4 shadow-[0_25px_60px_rgba(0,0,0,0.35)] text-black dark:text-white relative overflow-hidden"
+             @click.outside="resetForNewOrder()">
 
-            <div class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 space-y-2 text-[12px]">
-                <div class="flex justify-between text-black/60 dark:text-white/60">
-                    <span>Total Pembelian:</span>
-                    <span class="font-semibold text-black dark:text-white tabular-nums" x-text="formatRupiah(lastCompletedOrder ? lastCompletedOrder.total_amount : 0)"></span>
+            <!-- Top Header Row -->
+            <div class="flex items-center justify-between gap-3 border-b border-black/[0.06] dark:border-white/[0.08] pb-3.5">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-11 h-11 rounded-2xl bg-[#34C759]/15 text-[#34C759] border border-[#34C759]/25 flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="font-extrabold text-[17px] text-black dark:text-white tracking-tight leading-snug">Transaksi Berhasil!</h3>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="font-mono text-[11px] font-bold px-1.5 py-0.2 rounded bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70"
+                                  x-text="lastCompletedOrder ? ('#' + lastCompletedOrder.order_number) : ''"></span>
+                            <span class="text-[11px] font-medium text-[#34C759]">Lunas</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-between text-black/60 dark:text-white/60">
-                    <span>Total Bayar:</span>
-                    <span class="font-semibold text-black dark:text-white tabular-nums" x-text="formatRupiah(lastCompletedOrder ? lastCompletedOrder.paid_amount : 0)"></span>
-                </div>
-                <div class="flex justify-between text-[#34C759] font-bold border-t border-black/5 dark:border-white/5 pt-2 text-[14px]">
-                    <span>Kembalian:</span>
-                    <span class="tabular-nums" x-text="formatRupiah(lastCompletedOrder ? lastCompletedOrder.change_amount : 0)"></span>
-                </div>
-            </div>
-
-            <!-- Action Buttons: WhatsApp & Print Thermal -->
-            <div class="space-y-2 pt-1">
-                <!-- Bot WhatsApp Direct Send -->
-                <button type="button" @click="sendWhatsAppBotReceipt()" :disabled="sendingWaBot"
-                    class="w-full h-10 rounded-[10px] bg-[#25D366] hover:bg-[#22c55e] active:scale-[0.97] text-white font-semibold text-[13px] flex items-center justify-center gap-2 transition shadow-sm disabled:opacity-50">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
-                    <span x-text="sendingWaBot ? 'Mengirim Struk ke WA...' : (waBotSent ? '✓ Struk Terkirim ke WhatsApp' : 'Kirim Bot WhatsApp (Otomatis)')"></span>
+                <button type="button" @click="resetForNewOrder()"
+                        class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white flex items-center justify-center transition shrink-0"
+                        title="Tutup (Esc)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div x-show="waBotFeedback" class="text-[11px] font-semibold py-1 px-2 rounded-[8px]" :class="waBotFeedbackSuccess ? 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]'" x-text="waBotFeedback"></div>
+            </div>
 
-                <a :href="lastReceiptUrl" target="_blank" class="w-full h-10 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white font-semibold text-[13px] flex items-center justify-center gap-2 transition shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+            <!-- Financial Summary Bento Strip -->
+            <div class="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 text-center">
+                <div class="px-2 py-1">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-black/45 dark:text-white/45 block">Total Belanja</span>
+                    <span class="text-[13px] sm:text-[14px] font-bold text-black dark:text-white tabular-nums block mt-0.5 truncate"
+                          x-text="formatRupiah(lastCompletedOrder ? lastCompletedOrder.total_amount : 0)"></span>
+                </div>
+                <div class="px-2 py-1 border-x border-black/5 dark:border-white/5">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-black/45 dark:text-white/45 block">Total Bayar</span>
+                    <span class="text-[13px] sm:text-[14px] font-bold text-black dark:text-white tabular-nums block mt-0.5 truncate"
+                          x-text="formatRupiah(lastCompletedOrder ? lastCompletedOrder.paid_amount : 0)"></span>
+                </div>
+                <div class="px-2 py-1">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-[#34C759] block">Kembalian</span>
+                    <span class="text-[13px] sm:text-[14px] font-extrabold text-[#34C759] tabular-nums block mt-0.5 truncate"
+                          x-text="formatRupiah(lastCompletedOrder ? lastCompletedOrder.change_amount : 0)"></span>
+                </div>
+            </div>
+
+            <!-- WhatsApp Feedback Toast (If Triggered) -->
+            <div x-show="waBotFeedback" x-cloak
+                 class="text-xs font-semibold py-2 px-3 rounded-xl border flex items-center justify-between gap-2"
+                 :class="waBotFeedbackSuccess ? 'bg-[#34C759]/12 border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF3B30]/12 border-[#FF3B30]/30 text-[#C41E17] dark:text-[#FF453A]'">
+                <div class="flex items-center gap-2">
+                    <svg x-show="waBotFeedbackSuccess" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    <svg x-show="!waBotFeedbackSuccess" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+                    <span x-text="waBotFeedback"></span>
+                </div>
+                <button type="button" @click="waBotFeedback = ''" class="text-xs opacity-60 hover:opacity-100">✕</button>
+            </div>
+
+            <!-- BENTO ACTIONS GRID -->
+            <div class="space-y-2.5">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 px-0.5">
+                    Aksi Tagihan &amp; Struk
+                </div>
+
+                <!-- Primary Row: Thermal Print & WhatsApp Bot -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    
+                    <!-- Bento Tile 1: Cetak Struk Thermal (Hero Blue) -->
+                    <a :href="lastReceiptUrl" target="_blank"
+                       class="group rounded-2xl p-4 bg-gradient-to-br from-[#007AFF] to-[#0058C6] hover:from-[#0071E3] hover:to-[#004EB5] active:scale-[0.98] text-white flex flex-col justify-between shadow-md shadow-[#007AFF]/20 transition relative overflow-hidden min-h-[120px]">
+                        <!-- Top Row: Icon + Badge -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xs">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+                                </svg>
+                            </div>
+                            <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-xs">
+                                58 &amp; 80mm
+                            </span>
+                        </div>
+                        <!-- Bottom Info & CTA -->
+                        <div class="mt-3">
+                            <div class="font-extrabold text-[14px] leading-tight">Cetak Struk Thermal</div>
+                            <div class="text-[11px] text-white/80 mt-0.5 flex items-center justify-between">
+                                <span>Kirim ke printer kasir</span>
+                                <span class="font-bold group-hover:translate-x-0.5 transition">Cetak ↗</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Bento Tile 2: WhatsApp Bot Otomatis (Hero Emerald) -->
+                    <button type="button" @click.stop="!sendingWaBot && sendWhatsAppBotReceipt()" :disabled="sendingWaBot"
+                            class="group rounded-2xl p-4 bg-[#25D366]/10 hover:bg-[#25D366]/18 dark:bg-[#25D366]/15 dark:hover:bg-[#25D366]/22 border border-[#25D366]/30 dark:border-[#25D366]/40 active:scale-[0.98] text-black dark:text-white flex flex-col justify-between transition shadow-xs disabled:opacity-50 text-left min-h-[120px]"
+                            :class="sendingWaBot ? 'pointer-events-none opacity-60' : ''">
+                        <!-- Top Row: Icon + Badge -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="w-9 h-9 rounded-xl bg-[#25D366] text-white flex items-center justify-center shadow-xs">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/>
+                                </svg>
+                            </div>
+                            <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                                  :class="waBotSent ? 'bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158]' : (sendingWaBot ? 'bg-[#FF9500]/20 text-[#FF9500]' : 'bg-[#25D366]/20 text-[#25D366]')">
+                                <span x-text="sendingWaBot ? 'Mengirim...' : (waBotSent ? '✓ Terkirim' : 'Bot Otomatis')"></span>
+                            </span>
+                        </div>
+                        <!-- Bottom Info & CTA -->
+                        <div class="mt-3">
+                            <div class="font-extrabold text-[14px] text-black dark:text-white leading-tight">Kirim WhatsApp</div>
+                            <div class="text-[11px] text-black/60 dark:text-white/60 mt-0.5 flex items-center justify-between">
+                                <span>Kirim e-struk ke pelanggan</span>
+                                <span class="font-bold text-[#25D366] group-hover:translate-x-0.5 transition">
+                                    <span x-text="waBotSent ? 'Kirim Ulang ➔' : 'Kirim ➔'"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Secondary Row: WhatsApp Manual Web, Gambar Struk PNG & Lihat Struk Web -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <!-- Bento Tile 3: Manual WhatsApp Web -->
+                    <a :href="lastWhatsAppUrl" target="_blank"
+                       class="p-2.5 sm:p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-black/5 dark:border-white/10 active:scale-[0.98] transition flex items-center justify-between group">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 flex items-center justify-center shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-.814-.814 6.002 6.002 0 011.057-3.035C4.646 15.688 4 13.928 4 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] font-bold text-black dark:text-white truncate">Manual WA</div>
+                                <div class="text-[9px] text-black/45 dark:text-white/45 truncate">Chat browser</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Bento Tile 4: Gambar Struk PNG HD -->
+                    <a :href="lastReceiptImageUrl" target="_blank"
+                       class="p-2.5 sm:p-3 rounded-xl bg-[#007AFF]/8 hover:bg-[#007AFF]/15 border border-[#007AFF]/25 active:scale-[0.98] transition flex items-center justify-between group shadow-2xs">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] font-bold text-[#007AFF] truncate">Gambar Struk</div>
+                                <div class="text-[9px] text-[#007AFF]/70 truncate">Foto PNG WA</div>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-[#007AFF] group-hover:translate-x-0.5 transition shrink-0">↗</span>
+                    </a>
+
+                    <!-- Bento Tile 5: Lihat E-Bill Web -->
+                    <a :href="lastReceiptUrl" target="_blank"
+                       class="p-2.5 sm:p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-black/5 dark:border-white/10 active:scale-[0.98] transition flex items-center justify-between group">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 flex items-center justify-center shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] font-bold text-black dark:text-white truncate">E-Bill Web</div>
+                                <div class="text-[9px] text-black/45 dark:text-white/45 truncate">Pratinjau HTML</div>
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-black/30 dark:text-white/30 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 transition shrink-0">↗</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bottom Action: Transaksi Baru -->
+            <div class="pt-1">
+                <button type="button" @click="resetForNewOrder()"
+                        class="w-full h-11 sm:h-12 rounded-2xl bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] active:scale-[0.98] text-black dark:text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition border border-black/5 dark:border-white/10">
+                    <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                     </svg>
-                    <span>Cetak Struk Thermal (58mm/80mm)</span>
-                </a>
-                <a :href="lastWhatsAppUrl" target="_blank" class="w-full h-9 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 font-medium text-[12px] flex items-center justify-center gap-1.5 transition">
-                    <span>Kirim Manual via WhatsApp Web</span>
-                </a>
-                <button @click="resetForNewOrder()" class="w-full h-9 rounded-[10px] text-[#007AFF] hover:bg-[#007AFF]/8 font-medium text-[13px] transition">
-                    Transaksi Baru
+                    <span>Selesai &amp; Transaksi Baru</span>
+                    <span class="text-[10px] text-black/40 dark:text-white/40 font-normal px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 ml-1">Esc</span>
                 </button>
             </div>
         </div>
@@ -1375,16 +1647,16 @@
                                         <label class="flex items-center justify-between p-2 rounded-[8px] border transition cursor-pointer text-xs select-none"
                                                :class="isModifierSelected(group.id, opt.id)
                                                    ? 'bg-[#007AFF]/10 border-[#007AFF] text-[#007AFF] font-semibold'
-                                                   : (opt.is_in_stock ? 'border-black/[0.06] dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] text-black dark:text-white' : 'opacity-40 cursor-not-allowed border-dashed')">
+                                                   : ((opt.is_in_stock ?? opt.is_available ?? true) ? 'border-black/[0.06] dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] text-black dark:text-white' : 'opacity-40 cursor-not-allowed border-dashed')">
                                             <div class="flex items-center gap-2">
                                                 <input :type="group.selection_type === 'single' ? 'radio' : 'checkbox'"
                                                        :name="'mod_group_' + group.id"
-                                                       :disabled="!opt.is_in_stock"
+                                                       :disabled="!(opt.is_in_stock ?? opt.is_available ?? true)"
                                                        :checked="isModifierSelected(group.id, opt.id)"
                                                        @change="toggleModifierOption(group, opt)"
                                                        class="w-4 h-4 text-[#007AFF] focus:ring-0 rounded">
                                                 <span x-text="opt.name"></span>
-                                                <span x-show="!opt.is_in_stock" class="text-[9px] text-[#FF3B30] font-bold bg-[#FF3B30]/15 px-1 py-0.2 rounded">Stok Habis</span>
+                                                <span x-show="!(opt.is_in_stock ?? opt.is_available ?? true)" class="text-[9px] text-[#FF3B30] font-bold bg-[#FF3B30]/15 px-1 py-0.2 rounded">Stok Habis</span>
                                             </div>
                                             <span class="tabular-nums font-medium" x-text="opt.price_delta > 0 ? ('+' + formatRupiah(opt.price_delta)) : 'Gratis'"></span>
                                         </label>
@@ -1511,9 +1783,13 @@
                                 <button type="button" @click="promptRejectOrder(order)" class="h-9 px-3 rounded-[10px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] text-xs font-bold transition">
                                     Tolak
                                 </button>
-                                <button type="button" @click="acceptIncomingOrder(order.id)" class="h-9 px-4 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                <button type="button" @click="acceptIncomingOrder(order.id)" class="h-9 px-3.5 rounded-[10px] bg-[#34C759]/15 hover:bg-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-xs font-bold transition flex items-center gap-1.5" title="Terima dan teruskan ke dapur">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                                    <span>Terima Pesanan</span>
+                                    <span>Terima Saja</span>
+                                </button>
+                                <button type="button" @click="acceptAndLoadToCart(order.id)" class="h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5" title="Terima pesanan dan langsung muat ke keranjang kasir">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>
+                                    <span>Buka di Kasir</span>
                                 </button>
                             </div>
                         </div>
@@ -1572,10 +1848,12 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
+                    @if(\App\Support\Context::hasPermission('pos.tables'))
                     <a href="{{ route('pos.tables.index') }}" target="_blank" class="text-xs font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
                         <span>Kelola Meja &amp; QR</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
                     </a>
+                    @endif
                     <button type="button" @click="showTablesModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
@@ -1605,12 +1883,20 @@
 
                         <!-- Card Actions -->
                         <div class="mt-3 pt-2 border-t border-black/5 dark:border-white/5 flex flex-col gap-1.5">
-                            <button type="button" @click="selectTableForCart(tbl)" class="w-full h-7 rounded-[7px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] text-black dark:text-white text-[11px] font-semibold transition">
-                                Pilih Meja Ini
-                            </button>
                             <template x-if="tbl.active_session && tbl.active_session.orders && tbl.active_session.orders.length > 0">
-                                <button type="button" @click="openPayTableOrder(tbl)" class="w-full h-7 rounded-[7px] bg-[#34C759] hover:bg-[#28A745] text-white text-[11px] font-bold transition">
-                                    Bayar Tagihan
+                                <div class="flex flex-col gap-1.5">
+                                    <button type="button" @click="loadTableOrderToCart(tbl)" class="w-full h-8 rounded-[8px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[11px] font-bold transition flex items-center justify-center gap-1.5 shadow-sm" title="Muat seluruh pesanan meja ke keranjang kasir">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>
+                                        <span>Cek &amp; Muat ke Keranjang</span>
+                                    </button>
+                                    <button type="button" @click="loadTableOrderToCart(tbl, true)" class="w-full h-7 rounded-[7px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-[11px] font-bold transition flex items-center justify-center gap-1">
+                                        <span>Bayar Cepat</span>
+                                    </button>
+                                </div>
+                            </template>
+                            <template x-if="!tbl.active_session || !tbl.active_session.orders || tbl.active_session.orders.length === 0">
+                                <button type="button" @click="selectTableForCart(tbl)" class="w-full h-8 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] text-black dark:text-white text-[11px] font-semibold transition">
+                                    Pilih Meja Ini (Dine In)
                                 </button>
                             </template>
                         </div>
@@ -1740,6 +2026,9 @@
                 pendingQrCount: {{ $pendingQrOrdersCount ?? 0 }},
                 incomingQrOrders: [],
                 selectedTable: null,
+                activeTableOrderId: null,
+                activeTableOrderNumber: null,
+                activeTableCustomerName: null,
                 showIncomingOrdersModal: false,
                 showTablesModal: false,
                 showRejectReasonModal: false,
@@ -1747,6 +2036,14 @@
                 rejectionReason: '',
                 incomingPollInterval: null,
                 audioCtx: null,
+
+                // Realtime QR Notification state
+                latestQrNotification: null,
+                notificationProgressInterval: null,
+                notificationProgressPercent: 100,
+                isNotificationPaused: false,
+                knownIncomingOrderIds: new Set(),
+                isInitialIncomingFetch: true,
 
                 // Cashier Modifier Modal state
                 showModifierModal: false,
@@ -1789,6 +2086,7 @@
                 isProcessing: false,
                 lastCompletedOrder: null,
                 lastReceiptUrl: '#',
+                lastReceiptImageUrl: '#',
                 lastWhatsAppUrl: '#',
                 sendingWaBot: false,
                 waBotSent: false,
@@ -1815,6 +2113,14 @@
                     this.$nextTick(() => {
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     });
+
+                    // Request desktop notification permission if supported
+                    this.requestNotificationPermission();
+
+                    // Unlock Web Audio API on first user interaction anywhere
+                    this.setupAudioUnlock();
+
+                    // Initial fetch & polling
                     this.fetchIncomingOrders();
                     this.incomingPollInterval = setInterval(() => {
                         this.fetchIncomingOrders();
@@ -2248,9 +2554,11 @@
                             { payment_method: this.selectedPayMethod, amount: this.currentTenderAmount }
                         ],
                         customer_id: this.selectedCustomerId || null,
+                        customer_name_guest: this.activeTableCustomerName || null,
                         order_type: this.orderType,
                         pos_table_id: this.selectedTable?.id || null,
                         pos_table_session_id: this.selectedTable?.active_session?.id || null,
+                        existing_order_id: this.activeTableOrderId || null,
                         discount_type: this.discountType,
                         discount_value: Number(this.discountValue || 0),
                         voucher_code: this.voucherCode || null,
@@ -2273,6 +2581,7 @@
                         if (data.success) {
                             this.lastCompletedOrder = data.order;
                             this.lastReceiptUrl = data.receipt_url;
+                            this.lastReceiptImageUrl = data.receipt_image_url || ('/receipt/' + data.order.id + '/image');
                             this.lastWhatsAppUrl = data.whatsapp_url;
                             this.waBotSent = data.whatsapp_bot_sent || false;
                             this.waBotFeedback = this.waBotSent ? '✓ Struk otomatis terkirim ke WhatsApp!' : '';
@@ -2281,6 +2590,11 @@
                             this.showSuccessModal = true;
                             this.cart = [];
                             this.selectedTable = null;
+                            this.activeTableOrderId = null;
+                            this.activeTableOrderNumber = null;
+                            this.activeTableCustomerName = null;
+                            this.fetchTables();
+                            this.fetchIncomingOrders();
                             this.voucherCode = '';
                             this.voucherDiscount = 0;
                             this.discountValue = 0;
@@ -2308,9 +2622,10 @@
                 },
 
                 sendWhatsAppBotReceipt() {
-                    if (!this.lastCompletedOrder) return;
+                    if (!this.lastCompletedOrder || this.sendingWaBot) return;
                     this.sendingWaBot = true;
                     this.waBotFeedback = '';
+                    const isResend = !!this.waBotSent;
                     const customer = this.customers.find(c => c.id === this.selectedCustomerId);
                     fetch("{{ url('/whatsapp/orders') }}/" + this.lastCompletedOrder.id + "/receipt", {
                         method: 'POST',
@@ -2320,7 +2635,8 @@
                             'Accept': 'application/json'
                         },
                         body: JSON.stringify({
-                            phone: customer ? customer.phone : ''
+                            phone: (customer ? customer.phone : '') || this.lastCompletedOrder?.customer_phone_guest || '',
+                            force: isResend
                         })
                     })
                     .then(res => res.json())
@@ -2518,7 +2834,7 @@
                     // Pre-select default or first available option if single choice
                     product.modifier_groups.forEach(group => {
                         if (group.selection_type === 'single') {
-                            const firstAvailable = group.options.find(o => o.is_in_stock);
+                            const firstAvailable = group.options.find(o => (o.is_in_stock ?? o.is_available ?? true));
                             if (firstAvailable) {
                                 this.selectedModifiers[group.id] = firstAvailable.id;
                             }
@@ -2539,7 +2855,7 @@
                 },
 
                 toggleModifierOption(group, option) {
-                    if (!option.is_in_stock) return;
+                    if (!(option.is_in_stock ?? option.is_available ?? true)) return;
 
                     if (group.selection_type === 'single') {
                         this.selectedModifiers[group.id] = option.id;
@@ -2652,12 +2968,34 @@
                         });
                         const data = await res.json();
                         if (data.success) {
-                            const prevCount = this.pendingQrCount;
-                            this.incomingQrOrders = data.orders;
-                            this.pendingQrCount = data.orders.length;
-                            if (this.pendingQrCount > prevCount) {
-                                this.playIncomingChime();
+                            const fetchedOrders = data.orders || [];
+                            
+                            if (this.isInitialIncomingFetch) {
+                                // Seed known IDs without triggering notifications on initial load
+                                this.knownIncomingOrderIds = new Set(fetchedOrders.map(o => o.id));
+                                this.isInitialIncomingFetch = false;
+                                this.incomingQrOrders = fetchedOrders;
+                                this.pendingQrCount = fetchedOrders.length;
+                                return;
                             }
+
+                            // Detect truly new orders by ID
+                            const newOrders = fetchedOrders.filter(o => !this.knownIncomingOrderIds.has(o.id));
+
+                            this.incomingQrOrders = fetchedOrders;
+                            this.pendingQrCount = fetchedOrders.length;
+
+                            if (newOrders.length > 0) {
+                                // Update known set
+                                newOrders.forEach(o => this.knownIncomingOrderIds.add(o.id));
+                                
+                                // Trigger chime, floating island banner & desktop notification
+                                this.triggerQrOrderNotification(newOrders[0], newOrders.length);
+                            }
+
+                            // Prune removed orders from known set
+                            const currentIds = new Set(fetchedOrders.map(o => o.id));
+                            this.knownIncomingOrderIds = currentIds;
                         }
                     } catch (e) {
                         console.error('Fetch incoming orders error:', e);
@@ -2745,10 +3083,158 @@
                     }
                 },
 
-                selectTableForCart(table) {
+                loadTableOrderToCart(table, autoOpenPayment = false) {
+                    if (!table) return;
+
+                    const session = table.active_session;
+                    const unpaidOrders = session?.orders?.filter(o => !['completed', 'voided', 'rejected'].includes(o.status)) || [];
+
+                    if (unpaidOrders.length === 0) {
+                        // Meja kosong / belum ada order: jadikan meja aktif untuk pesanan baru
+                        this.selectedTable = table;
+                        this.orderType = 'dine_in';
+                        this.activeTableOrderId = null;
+                        this.activeTableOrderNumber = null;
+                        this.activeTableCustomerName = null;
+                        this.showTablesModal = false;
+                        AppAlert.info(`Meja ${table.table_number} dipilih. Silakan tambahkan menu ke keranjang.`);
+                        return;
+                    }
+
+                    // Ambil order aktif pertama pada meja ini
+                    const order = unpaidOrders[0];
                     this.selectedTable = table;
+                    this.orderType = 'dine_in';
+                    this.activeTableOrderId = order.id;
+                    this.activeTableOrderNumber = order.order_number;
+                    this.activeTableCustomerName = order.customer_name_guest || session?.customer_name || ('Pelanggan Meja ' + table.table_number);
+
+                    // Konversi item order dari meja ke format keranjang kasir POS
+                    const newCart = [];
+                    (order.items || []).forEach(item => {
+                        newCart.push({
+                            cart_item_id: item.id || (Date.now() + Math.random()),
+                            product_id: item.product_id || null,
+                            product_name: item.product_name || item.name || 'Menu',
+                            unit_price: Number(item.unit_price || 0),
+                            unit_symbol: item.unit_symbol || '',
+                            quantity: Number(item.quantity || 1),
+                            selected_modifiers: item.selected_modifiers || [],
+                            modifiers_summary: item.modifiers_summary || item.modifiers || '',
+                            notes: item.notes || '',
+                            discount_amount: 0,
+                            from_table_order: true
+                        });
+                    });
+
+                    this.cart = newCart;
                     this.showTablesModal = false;
-                    AppAlert.success(`Meja ${table.table_number} dipilih untuk transaksi kasir ini.`);
+                    this.showIncomingOrdersModal = false;
+
+                    // Cocokkan data pelanggan jika ada nomor HP
+                    if (session?.customer_phone) {
+                        const found = this.customers.find(c => c.phone === session.customer_phone);
+                        if (found) {
+                            this.selectCustomer(found);
+                        }
+                    }
+
+                    AppAlert.success(`Pesanan Meja ${table.table_number} (${this.activeTableCustomerName}) berhasil dimuat ke keranjang.`);
+
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        if (autoOpenPayment) {
+                            this.openPaymentModal();
+                        }
+                    });
+                },
+
+                selectTableForCart(table) {
+                    if (table.active_session && table.active_session.orders && table.active_session.orders.length > 0) {
+                        this.loadTableOrderToCart(table);
+                    } else {
+                        this.selectedTable = table;
+                        this.orderType = 'dine_in';
+                        this.activeTableOrderId = null;
+                        this.activeTableOrderNumber = null;
+                        this.activeTableCustomerName = null;
+                        this.showTablesModal = false;
+                        AppAlert.success(`Meja ${table.table_number} dipilih untuk transaksi kasir ini.`);
+                    }
+                },
+
+                detachTableFromCart() {
+                    this.selectedTable = null;
+                    this.activeTableOrderId = null;
+                    this.activeTableOrderNumber = null;
+                    this.activeTableCustomerName = null;
+                    AppAlert.info('Koneksi meja dilepas dari keranjang.');
+                },
+
+                async refreshTableCart() {
+                    if (!this.selectedTable) return;
+                    try {
+                        const res = await fetch(`/pos/tables/${this.selectedTable.id}/details`, {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        const data = await res.json();
+                        if (data.success && data.table) {
+                            const tbl = data.table;
+                            const idx = this.tables.findIndex(t => t.id === tbl.id);
+                            const enriched = {
+                                ...tbl,
+                                active_session: tbl.session ? {
+                                    id: tbl.session.id,
+                                    session_number: tbl.session.session_number,
+                                    customer_name: tbl.session.customer_name,
+                                    customer_phone: tbl.session.customer_phone,
+                                    total_amount: tbl.session.total_amount,
+                                    orders: tbl.session.unpaid_orders
+                                } : null
+                            };
+                            if (idx !== -1) {
+                                this.tables[idx] = enriched;
+                            }
+                            this.loadTableOrderToCart(enriched);
+                        }
+                    } catch (e) {
+                        console.error('Refresh table cart error:', e);
+                    }
+                },
+
+                async acceptAndLoadToCart(orderId) {
+                    this.isProcessing = true;
+                    try {
+                        const res = await fetch(`/pos/incoming-orders/${orderId}/accept`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            await this.fetchTables();
+                            this.incomingQrOrders = this.incomingQrOrders.filter(o => o.id !== orderId);
+                            this.pendingQrCount = this.incomingQrOrders.length;
+                            this.showIncomingOrdersModal = false;
+
+                            const order = data.order;
+                            const targetTable = this.tables.find(t => t.id === order?.pos_table_id || t.table_number == order?.table_or_reference);
+                            if (targetTable) {
+                                this.loadTableOrderToCart(targetTable);
+                            } else {
+                                AppAlert.success(data.message || 'Pesanan diterima.');
+                            }
+                        } else {
+                            AppAlert.error(data.message || 'Gagal menerima pesanan');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Terjadi kesalahan saat menerima pesanan');
+                    } finally {
+                        this.isProcessing = false;
+                    }
                 },
 
                 openPayTableOrder(table) {
@@ -2791,6 +3277,7 @@
                             this.showTablePaymentModal = false;
                             this.lastCompletedOrder = data.order;
                             this.lastReceiptUrl = data.receipt_url;
+                            this.lastReceiptImageUrl = data.receipt_image_url || ('/receipt/' + data.order.id + '/image');
                             this.lastWhatsAppUrl = data.whatsapp_url;
                             this.showSuccessModal = true;
                             this.fetchIncomingOrders();
@@ -2804,6 +3291,114 @@
                     }
                 },
 
+                setupAudioUnlock() {
+                    const unlock = () => {
+                        try {
+                            if (!this.audioCtx) {
+                                this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                            }
+                            if (this.audioCtx.state === 'suspended') {
+                                this.audioCtx.resume();
+                            }
+                        } catch (e) {}
+                    };
+                    ['click', 'touchstart', 'keydown'].forEach(evt => {
+                        window.addEventListener(evt, unlock, { once: true, passive: true });
+                    });
+                },
+
+                requestNotificationPermission() {
+                    try {
+                        if ('Notification' in window && Notification.permission === 'default') {
+                            Notification.requestPermission().catch(() => {});
+                        }
+                    } catch (e) {}
+                },
+
+                triggerQrOrderNotification(latestOrder, totalNewCount = 1) {
+                    // 1. Play audible sound chime
+                    this.playIncomingChime();
+
+                    // 2. Launch floating dynamic notification card with auto-dismiss progress
+                    this.dismissQrNotification();
+                    this.latestQrNotification = latestOrder;
+                    this.latestQrNotification.totalNewCount = totalNewCount;
+                    this.notificationProgressPercent = 100;
+                    this.isNotificationPaused = false;
+
+                    const durationMs = 12000;
+                    const stepMs = 100;
+                    const decrement = (stepMs / durationMs) * 100;
+
+                    this.notificationProgressInterval = setInterval(() => {
+                        if (!this.isNotificationPaused) {
+                            this.notificationProgressPercent -= decrement;
+                            if (this.notificationProgressPercent <= 0) {
+                                this.dismissQrNotification();
+                            }
+                        }
+                    }, stepMs);
+
+                    // 3. Dispatch OS/Browser native notification
+                    this.sendDesktopNotification(latestOrder, totalNewCount);
+
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                },
+
+                pauseNotificationTimer() {
+                    this.isNotificationPaused = true;
+                },
+
+                resumeNotificationTimer() {
+                    this.isNotificationPaused = false;
+                },
+
+                dismissQrNotification() {
+                    if (this.notificationProgressInterval) {
+                        clearInterval(this.notificationProgressInterval);
+                        this.notificationProgressInterval = null;
+                    }
+                    this.latestQrNotification = null;
+                    this.notificationProgressPercent = 100;
+                    this.isNotificationPaused = false;
+                },
+
+                formatNotificationItems(order) {
+                    if (!order || !order.items || order.items.length === 0) return 'Tidak ada rincian item';
+                    const firstItem = order.items[0];
+                    const firstText = `${firstItem.quantity}x ${firstItem.product_name || firstItem.name}`;
+                    if (order.items.length === 1) return firstText;
+                    return `${firstText}, +${order.items.length - 1} item lainnya`;
+                },
+
+                sendDesktopNotification(order, totalNewCount = 1) {
+                    try {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            const tableNum = order.table_number || order.pos_table?.table_number || order.table_or_reference || '-';
+                            const custName = order.customer_name || order.customer_name_guest || 'Pelanggan';
+                            const title = `🛎️ Pesanan QR Masuk - Meja ${tableNum}` + (totalNewCount > 1 ? ` (+${totalNewCount - 1} pesanan)` : '');
+                            const body = `${custName} memesan ${order.items?.length || 0} item • Total: ${this.formatRupiah(order.total_amount)}. Klik untuk buka di kasir.`;
+
+                            const notif = new Notification(title, {
+                                body: body,
+                                icon: '/favicon.ico',
+                                tag: 'pos-qr-order-' + order.id
+                            });
+
+                            notif.onclick = () => {
+                                window.focus();
+                                this.acceptAndLoadToCart(order.id);
+                                this.dismissQrNotification();
+                                notif.close();
+                            };
+                        }
+                    } catch (e) {
+                        console.warn('Desktop notification error:', e);
+                    }
+                },
+
                 playIncomingChime() {
                     try {
                         if (!this.audioCtx) {
@@ -2812,23 +3407,46 @@
                         if (this.audioCtx.state === 'suspended') {
                             this.audioCtx.resume();
                         }
+
                         const now = this.audioCtx.currentTime;
-                        const osc = this.audioCtx.createOscillator();
-                        const gain = this.audioCtx.createGain();
 
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(523.25, now);
-                        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.12);
-                        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.24);
+                        // Chime Note 1: High crisp bell (D5 - 587.33 Hz)
+                        const osc1 = this.audioCtx.createOscillator();
+                        const gain1 = this.audioCtx.createGain();
+                        osc1.type = 'triangle';
+                        osc1.frequency.setValueAtTime(587.33, now);
+                        gain1.gain.setValueAtTime(0.3, now);
+                        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                        osc1.connect(gain1);
+                        gain1.connect(this.audioCtx.destination);
+                        osc1.start(now);
+                        osc1.stop(now + 0.4);
 
-                        gain.gain.setValueAtTime(0.25, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                        // Chime Note 2: Higher shimmer bell (A5 - 880.00 Hz) at +120ms
+                        const osc2 = this.audioCtx.createOscillator();
+                        const gain2 = this.audioCtx.createGain();
+                        osc2.type = 'sine';
+                        osc2.frequency.setValueAtTime(880.00, now + 0.12);
+                        gain2.gain.setValueAtTime(0.001, now);
+                        gain2.gain.setValueAtTime(0.35, now + 0.12);
+                        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
+                        osc2.connect(gain2);
+                        gain2.connect(this.audioCtx.destination);
+                        osc2.start(now + 0.12);
+                        osc2.stop(now + 0.85);
 
-                        osc.connect(gain);
-                        gain.connect(this.audioCtx.destination);
-
-                        osc.start(now);
-                        osc.stop(now + 0.6);
+                        // Chime Note 3: Harmonic overtone (E6 - 1318.51 Hz) for Apple-like pleasant shimmer
+                        const osc3 = this.audioCtx.createOscillator();
+                        const gain3 = this.audioCtx.createGain();
+                        osc3.type = 'sine';
+                        osc3.frequency.setValueAtTime(1318.51, now + 0.12);
+                        gain3.gain.setValueAtTime(0.001, now);
+                        gain3.gain.setValueAtTime(0.12, now + 0.12);
+                        gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.7);
+                        osc3.connect(gain3);
+                        gain3.connect(this.audioCtx.destination);
+                        osc3.start(now + 0.12);
+                        osc3.stop(now + 0.7);
                     } catch (e) {
                         console.warn('Audio chime error:', e);
                     }

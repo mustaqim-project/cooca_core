@@ -39,6 +39,21 @@
         $durationTiers = array_values($durationTiers);
     }
 
+    if ($type === 'subscription' && empty($durationTiers)) {
+        $durationTiers = [
+            [
+                'days'  => 30,
+                'label' => '1 Bulan',
+                'price' => (float) $monthlyPrice,
+            ],
+            [
+                'days'  => 365,
+                'label' => '1 Tahun',
+                'price' => (float) $annualPrice,
+            ],
+        ];
+    }
+
     // Also include free/promo packages (price = 0)
     $freePackages = array_values(array_filter($packagesData, fn($p) => $p['price'] <= 0));
     $hasFreePackages = count($freePackages) > 0;

@@ -24,7 +24,11 @@ final class PosTableService
     public function getTables(Business $business, ?string $locationId = null): Collection
     {
         $query = PosTable::where('business_id', $business->id)
-            ->with(['activeSession.orders.items.modifiers', 'location'])
+            ->with([
+                'activeSession.orders.items.modifiers',
+                'activeSession.orders.items.product.outputUnit',
+                'location'
+            ])
             ->orderBy('table_number');
 
         if ($locationId) {

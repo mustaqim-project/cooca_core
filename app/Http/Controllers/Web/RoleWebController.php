@@ -56,16 +56,30 @@ final class RoleWebController extends Controller
     {
         $business = Context::requireBusiness();
         $this->authorizeManage();
-        $this->assertCustomRole($role, $business->id);
+
+        $isCustom = $role->business_id === $business->id;
+        $isPreset = is_null($role->business_id);
+
+        // Hanya custom role milik bisnis ini, atau preset role sistem yang boleh diedit
+        abort_unless($isCustom || $isPreset, 403, 'Role tidak dapat diedit.');
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:500'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['string', 'exists:permissions,slug'],
         ]);
-        $role->update(['name' => $validated['name'], 'description' => $validated['description'] ?? null]);
+
+        if ($isCustom) {
+            // Custom role: boleh update nama, deskripsi, dan permissions
+            $role->update(['name' => $validated['name'], 'description' => $validated['description'] ?? null]);
+        }
+        // Preset role: hanya update permissions (nama & slug terlindungi)
         $role->permissions()->sync(Permission::whereIn('slug', $validated['permissions'] ?? [])->pluck('id'));
-        return back()->with('success', 'Role dan permission berhasil diperbarui.');
+
+        return back()->with('success', $isPreset
+            ? 'Hak akses preset role berhasil diperbarui.'
+            : 'Role dan permission berhasil diperbarui.');
     }
 
     public function destroy(Role $role): RedirectResponse
@@ -92,6 +106,7 @@ final class RoleWebController extends Controller
 
     private function assertCustomRole(Role $role, string $businessId): void
     {
-        abort_unless($role->business_id === $businessId, 403, 'Role tidak berada pada bisnis aktif.');
+        // Hanya custom role (business_id sesuai) yang bisa dihapus
+        abort_unless($role->business_id === $businessId, 403, 'Hanya role custom milik bisnis ini yang dapat dihapus. Preset role sistem tidak dapat dihapus.');
     }
 }

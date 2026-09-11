@@ -11,6 +11,7 @@ use App\Models\WhatsAppBroadcastCampaign;
 use App\Models\WhatsAppBroadcastRecipient;
 use App\Models\WhatsAppMessageLog;
 use App\Models\WhatsAppSession;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -34,12 +35,11 @@ class WhatsAppGatewayService
     }
 
     /**
-     * Create an authenticated HTTP client with resilient timeout for Render.com.
+     * Create an authenticated HTTP client.
      */
-    protected function client(int $timeout = 25)
+    protected function client(int $timeout = 15)
     {
         return Http::timeout($timeout)
-            ->retry(2, 600, throw: false)
             ->withHeaders([
                 'Authorization'  => 'Bearer ' . $this->token,
                 'x-worker-token' => $this->token,
@@ -68,80 +68,112 @@ class WhatsAppGatewayService
             return $response->json() ?? [];
         } catch (\Throwable $e) {
             Log::error("[WA] startSession error ({$sessionId}): " . $e->getMessage());
-            return ['success' => false, 'status' => 'connecting', 'error' => $e->getMessage()];
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
     /**
-     * Return the current QR code (base64 data URL) and connection status from wa-server.
+     * Disconnect and clear the WhatsApp session.
      */
-    public function getQrCode(Business $business): array
+    public function disconnectSession(Business $business): array
     {
         $sessionId = $this->sessionId($business);
 
         try {
-            $response = $this->client(15)->get("{$this->baseUrl}/api/sessions/{$sessionId}/qr");
+            $response = $this->client(15)->delete("{$this->baseUrl}/api/sessions/{$sessionId}");
+
+            $waSession = WhatsAppSession::where('business_id', $business->id)->first();
+            if ($waSession) {
+                $waSession->status            = 'disconnected';
+                $waSession->phone_number      = null;
+                $waSession->device_name       = null;
+                $waSession->last_connected_at = null;
+                $waSession->save();
+            }
+
+            return $response->json() ?? [];
         } catch (\Throwable $e) {
-            return ['success' => false, 'status' => 'disconnected', 'qrDataUrl' => null, 'error' => $e->getMessage()];
+            Log::error("[WA] disconnectSession error ({$sessionId}): " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
         }
-
-        $data = $response->json() ?? [];
-
-        // Sync local session record with live status
-        $this->syncStatus($business, $data['status'] ?? 'disconnected', $data);
-
-        return $data;
     }
 
     /**
-     * Check & sync current session status.
+     * Alias for disconnectSession().
+     */
+    public function disconnect(Business $business): array
+    {
+        return $this->disconnectSession($business);
+    }
+
+    /**
+     * Get live session status from the microservice.
+     */
+    public function getSessionStatus(Business $business): array
+    {
+        $sessionId = $this->sessionId($business);
+
+        try {
+            $response = $this->client(10)->get("{$this->baseUrl}/api/sessions/{$sessionId}/status");
+            return $response->json() ?? [];
+        } catch (\Throwable $e) {
+            Log::warning("[WA] getSessionStatus error ({$sessionId}): " . $e->getMessage());
+            return ['status' => 'error', 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Alias for getSessionStatus().
      */
     public function getStatus(Business $business): array
     {
-        $sessionId = $this->sessionId($business);
-
-        try {
-            $response = $this->client(15)->get("{$this->baseUrl}/api/sessions/{$sessionId}/status");
-            $data     = $response->json() ?? [];
-        } catch (\Throwable $e) {
-            return ['success' => false, 'status' => 'disconnected'];
-        }
-
-        $this->syncStatus($business, $data['status'] ?? 'disconnected', $data);
-
-        return $data;
+        return $this->getSessionStatus($business);
     }
 
     /**
-     * Disconnect and delete the session from wa-server, clean local record.
+     * Get live QR code and session metadata.
      */
-    public function disconnect(Business $business): void
+    public function getQrData(Business $business): array
     {
         $sessionId = $this->sessionId($business);
 
         try {
-            $this->client(15)->delete("{$this->baseUrl}/api/sessions/{$sessionId}");
-        } catch (\Throwable $e) {
-            Log::warning("[WA] disconnect failed for {$sessionId}: " . $e->getMessage());
-        }
+            $response = $this->client(10)->get("{$this->baseUrl}/api/sessions/{$sessionId}/qr");
 
-        WhatsAppSession::where('business_id', $business->id)->update([
-            'status'       => 'disconnected',
-            'phone_number' => null,
-            'device_name'  => null,
-        ]);
+            if ($response->status() === 404) {
+                // Session belum dibuat di wa-server.
+                // Kembalikan disconnected agar user harus klik tombol secara eksplisit.
+                return ['status' => 'disconnected', 'qrDataUrl' => null];
+            }
+
+            $data = $response->json();
+            return is_array($data) ? $data : ['status' => 'disconnected', 'qrDataUrl' => null];
+        } catch (\Throwable $e) {
+            Log::warning("[WA] getQrData error ({$sessionId}): " . $e->getMessage());
+            return ['status' => 'disconnected', 'qrDataUrl' => null, 'error' => $e->getMessage()];
+        }
     }
 
     /**
-     * Send a plain text or media message via wa-server.
+     * Get live QR code for the session (string only).
+     */
+    public function getQrCode(Business $business): ?string
+    {
+        $data = $this->getQrData($business);
+        return $data['qrDataUrl'] ?? null;
+    }
+
+    /**
+     * Send a WhatsApp message via the microservice for a given business session.
      */
     public function sendMessage(Business $business, string $phone, string $message, array $options = []): array
     {
-        return $this->sendRawMessage($this->sessionId($business), $phone, $message, $options);
+        $sessionId = $this->sessionId($business);
+        return $this->sendRawMessage($sessionId, $phone, $message, $options);
     }
 
     /**
-     * Send message using any raw session ID (e.g. admin_platform).
+     * Send a raw message using any sessionId directly.
      */
     public function sendRawMessage(string $sessionId, string $phone, string $message, array $options = []): array
     {
@@ -152,7 +184,7 @@ class WhatsAppGatewayService
                 'message' => $message,
             ], $options);
 
-            $response = $this->client(30)->post("{$this->baseUrl}/send-message", $payload);
+            $response = $this->client(15)->post("{$this->baseUrl}/send-message", $payload);
 
             return $response->json() ?? [];
         } catch (\Throwable $e) {
@@ -162,12 +194,13 @@ class WhatsAppGatewayService
     }
 
     /**
-     * Format and send a POS receipt via bot WA to the customer's phone.
+     * Format and send a POS receipt via bot WA to the customer's phone as an image receipt.
+     * Prevents duplicate sending on double-click or rapid re-clicks.
      */
-    public function sendReceipt(PosOrder $order, ?string $customPhone = null): bool
+    public function sendReceipt(PosOrder $order, ?string $customPhone = null, bool $force = false): bool
     {
         $business = $order->business;
-        $phone    = $customPhone ?? $order->customer?->phone ?? '';
+        $phone    = $customPhone ?? $order->customer?->phone ?? $order->customer_phone_guest ?? '';
 
         if (! $phone) {
             return false;
@@ -178,81 +211,119 @@ class WhatsAppGatewayService
             return false;
         }
 
-        $message = $this->buildReceiptMessage($order);
+        // 1. Anti Double-Click: Atomic lock to prevent simultaneous execution
+        $lockKey = "wa_receipt_sending_{$order->id}";
+        if (! Cache::add($lockKey, true, 15)) {
+            Log::info("[WA] Double-click terdeteksi untuk pesanan #{$order->order_number}. Mengabaikan kiriman duplikat.");
+            return true;
+        }
 
-        $result = $this->sendMessage($business, $phone, $message);
+        try {
+            // 2. Anti-Duplicate: Check if receipt was already sent successfully recently (within 60s)
+            if (! $force) {
+                $recentlySent = WhatsAppMessageLog::where('order_id', $order->id)
+                    ->where('type', 'receipt')
+                    ->where('status', 'sent')
+                    ->where('created_at', '>=', now()->subSeconds(60))
+                    ->exists();
 
-        WhatsAppMessageLog::create([
-            'business_id'    => $business->id,
-            'type'           => 'receipt',
-            'recipient_phone' => $phone,
-            'recipient_name' => $order->customer?->name ?? $order->customer_name_guest ?? 'Pelanggan',
-            'message'        => $message,
-            'status'         => ($result['success'] ?? false) ? 'sent' : 'failed',
-            'order_id'       => $order->id,
-            'error_message'  => $result['error'] ?? null,
-        ]);
+                if ($recentlySent) {
+                    Log::info("[WA] Struk pesanan #{$order->order_number} sudah berhasil dikirim. Menghindari pengiriman duplikat.");
+                    return true;
+                }
+            }
 
-        return $result['success'] ?? false;
+            $message = $this->buildReceiptMessage($order);
+
+            $options = [];
+            try {
+                /** @var \App\Domain\Pos\PosReceiptImageService $imageService */
+                $imageService = app(\App\Domain\Pos\PosReceiptImageService::class);
+                $relativePath = $imageService->generateAndStore($order);
+                $imageUrl     = asset('storage/' . $relativePath);
+
+                $localFile    = storage_path('app/public/' . $relativePath);
+                if (! file_exists($localFile)) {
+                    $localFile = public_path('storage/' . $relativePath);
+                }
+
+                $options = [
+                    'url'      => $imageUrl,
+                    'mediaUrl' => $imageUrl,
+                    'filePath' => file_exists($localFile) ? $localFile : null,
+                    'type'     => 'image',
+                    'filename' => "struk-{$order->order_number}.png",
+                ];
+            } catch (\Throwable $e) {
+                Log::warning('[WhatsAppGatewayService] Gagal membuat gambar struk: ' . $e->getMessage());
+            }
+
+            $result = $this->sendMessage($business, $phone, $message, $options);
+
+            WhatsAppMessageLog::create([
+                'business_id'     => $business->id,
+                'type'            => 'receipt',
+                'recipient_phone' => $phone,
+                'recipient_name'  => $order->customer?->name ?? $order->customer_name_guest ?? 'Pelanggan',
+                'message'         => $message,
+                'status'          => ($result['success'] ?? false) ? 'sent' : 'failed',
+                'order_id'        => $order->id,
+                'error_message'   => $result['error'] ?? null,
+            ]);
+
+            return $result['success'] ?? false;
+        } finally {
+            Cache::forget($lockKey);
+        }
     }
 
     /**
-     * Build a formatted receipt message string from a PosOrder.
+     * Build the receipt message caption for WhatsApp using the CMS template or default template.
+     * Supports dynamic tags: {business_name}, {customer_name}, {order_number}, {date}, {cashier_name}, {receipt_link}, {footer_note}.
      */
     public function buildReceiptMessage(PosOrder $order): string
     {
-        $business       = $order->business;
-        $currencySymbol = $business?->currency_symbol ?? 'Rp';
-        $bizName        = $business?->name ?? 'COOCA POS';
+        $business    = $order->business;
+        $bizName     = $business?->name ?? 'COOCA POS';
+        $custName    = $order->customer?->name ?? $order->customer_name_guest ?? null;
+        $cashierName = $order->user?->name ?? 'Kasir';
+        $orderDate   = $order->order_date ? $order->order_date->format('d/m/Y H:i') : now()->format('d/m/Y H:i');
+        $receiptUrl  = route('public.receipt', $order->id);
+        $footerNote  = $business?->pos_receipt_footer_note ?? '';
 
-        $order->loadMissing(['items', 'payments', 'customer', 'user']);
-
-        $text  = "🧾 *STRUK PEMBELIAN DIGITAL*\n";
-        $text .= "📍 *{$bizName}*\n";
-        $text .= "--------------------------------\n";
-        $text .= "No. Order : #{$order->order_number}\n";
-        $text .= "Tanggal   : " . $order->order_date->format('d/m/Y H:i') . "\n";
-        $text .= "Kasir     : " . ($order->user?->name ?? 'Kasir') . "\n";
-        if ($order->customer) {
-            $text .= "Pelanggan : {$order->customer->name} ({$order->customer->membership_tier})\n";
-        }
-        $text .= "--------------------------------\n";
-
-        foreach ($order->items as $item) {
-            $qty      = rtrim(rtrim((string) $item->quantity, '0'), '.');
-            $subtotal = number_format($item->total_price, 0, ',', '.');
-            $price    = number_format($item->unit_price, 0, ',', '.');
-            $text .= "{$item->product_name}\n";
-            $text .= "  {$qty} x {$currencySymbol}{$price} = {$currencySymbol}{$subtotal}\n";
+        $template = $business?->pos_receipt_wa_template;
+        if (! $template) {
+            $session  = WhatsAppSession::where('business_id', $business->id)->first();
+            $template = $session?->receipt_template;
         }
 
-        $text .= "--------------------------------\n";
-        $text .= "Subtotal   : {$currencySymbol}" . number_format($order->subtotal, 0, ',', '.') . "\n";
+        if (! empty(trim((string) $template))) {
+            $replacements = [
+                '{business_name}' => $bizName,
+                '{customer_name}' => $custName ?? 'Pelanggan',
+                '{order_number}'  => $order->order_number,
+                '{date}'          => $orderDate,
+                '{cashier_name}'  => $cashierName,
+                '{receipt_link}'  => $receiptUrl,
+                '{footer_note}'   => $footerNote,
+            ];
 
-        if ($order->discount_amount > 0 || $order->voucher_discount_amount > 0) {
-            $disc  = $order->discount_amount + $order->voucher_discount_amount;
-            $text .= "Diskon     : -{$currencySymbol}" . number_format($disc, 0, ',', '.') . "\n";
+            return strtr($template, $replacements);
         }
 
-        if ($order->tax_amount > 0) {
-            $text .= "Pajak PPN  : {$currencySymbol}" . number_format($order->tax_amount, 0, ',', '.') . "\n";
+        $greeting = $custName ? "Halo Kak *{$custName}*! 🙏\n" : "Halo! 🙏\n";
+
+        $text  = "🧾 *STRUK PEMBELIAN*\n";
+        $text .= "*{$bizName}*\n\n";
+        $text .= $greeting;
+        $text .= "Terima kasih banyak telah berbelanja di *{$bizName}*.\n\n";
+        $text .= "Terlampir gambar struk digital untuk transaksi Anda.\n\n";
+
+        if ($footerNote) {
+            $text .= $footerNote . "\n\n";
         }
 
-        $text .= "*TOTAL     : {$currencySymbol}" . number_format($order->total_amount, 0, ',', '.') . "*\n";
-        $text .= "Bayar      : {$currencySymbol}" . number_format($order->paid_amount, 0, ',', '.') . "\n";
-        $text .= "Kembalian  : {$currencySymbol}" . number_format($order->change_amount, 0, ',', '.') . "\n";
-
-        if ($order->points_earned > 0) {
-            $text .= "Poin Baru  : +{$order->points_earned} Poin 🎉\n";
-        }
-
-        $text .= "--------------------------------\n";
-
-        if ($business?->pos_receipt_footer_note) {
-            $text .= $business->pos_receipt_footer_note . "\n";
-        } else {
-            $text .= "Terima kasih atas kunjungan Anda! 🙏\n";
-        }
+        $text .= "Semoga hari Anda menyenangkan! ✨";
 
         return $text;
     }

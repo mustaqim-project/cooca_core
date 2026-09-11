@@ -43,6 +43,7 @@
 
         <!-- Toolbar Actions -->
         <div class="flex items-center gap-2 w-full sm:w-auto">
+            @if(\App\Support\Context::hasPermission('purchasing.manage'))
             <button type="button" @click="instantModalOpen = true"
                     class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-[#FF9500] dark:text-[#FF9F0A] bg-[#FF9500]/10 hover:bg-[#FF9500]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -58,6 +59,7 @@
                 </svg>
                 <span>Buat PO Baru</span>
             </a>
+            @endif
         </div>
     </header>
 
@@ -240,7 +242,7 @@
                                     </svg>
                                 </a>
 
-                                @if($po->po_type === 'customer' && $po->status !== 'fully_invoiced' && $po->status !== 'cancelled')
+                                @if(\App\Support\Context::hasPermission('invoices.create') && $po->po_type === 'customer' && $po->status !== 'fully_invoiced' && $po->status !== 'cancelled')
                                 <form method="POST" action="{{ route('purchase-orders.generate-invoice', $po->id) }}" class="inline">
                                     @csrf
                                     <button type="submit" class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#34C759] hover:bg-[#34C759]/10 transition-colors inline-flex items-center" title="Generate Faktur Langsung">
@@ -249,13 +251,13 @@
                                 </form>
                                 @endif
 
-                                @if($po->po_type === 'supplier' && $po->status === 'confirmed')
+                                @if((\App\Support\Context::hasPermission('receiving.manage') || \App\Support\Context::hasPermission('purchasing.manage')) && $po->po_type === 'supplier' && $po->status === 'confirmed')
                                 <a href="{{ route('purchasing.receipts.create', $po->id) }}" class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF9500] hover:bg-[#FF9500]/10 transition-colors inline-flex items-center" title="Terima Barang Masuk ke Gudang">
                                     Terima
                                 </a>
                                 @endif
 
-                                @if($po->status === 'draft')
+                                @if(\App\Support\Context::hasPermission('purchasing.manage') && $po->status === 'draft')
                                 <button type="button" @click="openDelete({{ $po->id }}, '{{ addslashes($po->po_number) }}')" class="h-7 w-7 rounded-[6px] text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors inline-flex items-center justify-center" title="Hapus Draft">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -338,6 +340,7 @@
     </div>
     @endif
 
+    @if(\App\Support\Context::hasPermission('purchasing.manage'))
     <!-- ===================================================== -->
     <!-- 7. INSTANT STOCK-IN SHEET MODAL                       -->
     <!-- ===================================================== -->
@@ -436,7 +439,9 @@
             </form>
         </div>
     </div>
+    @endif
 
+    @if(\App\Support\Context::hasPermission('purchasing.manage'))
     <!-- ===================================================== -->
     <!-- 8. APPLE ALERT DIALOG (Hapus Draft PO)                 -->
     <!-- ===================================================== -->
@@ -476,5 +481,6 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection

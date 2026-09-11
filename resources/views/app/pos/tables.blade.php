@@ -46,11 +46,14 @@
         </div>
 
         <div class="flex items-center gap-2">
+            @if(\App\Support\Context::hasPermission('pos.kitchen'))
             <a href="{{ route('pos.kitchen.index') }}" class="h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-xs font-semibold flex items-center gap-2 transition">
                 <svg class="w-4 h-4 text-[#FF9500]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span>Kitchen Display</span>
             </a>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('pos.tables'))
             <a href="{{ route('pos.tables.qr-cards') }}" target="_blank" class="h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-xs font-semibold flex items-center gap-2 transition">
                 <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"/></svg>
                 <span>Cetak Kartu QR</span>
@@ -60,6 +63,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 <span>Tambah Meja Baru</span>
             </button>
+            @endif
         </div>
     </div>
 
@@ -119,9 +123,11 @@
         </div>
         <div class="font-semibold text-base text-black dark:text-white">Belum Ada Meja Terdaftar</div>
         <p class="text-xs text-black/50 dark:text-white/50 max-w-sm mx-auto">Tambahkan unit meja restoran Anda untuk mulai mencetak kartu QR meja dan melayani pemesanan mandiri oleh pelanggan.</p>
+        @if(\App\Support\Context::hasPermission('pos.tables'))
         <button type="button" @click="showAddModal = true" class="h-9 px-4 rounded-[10px] bg-[#007AFF] text-white text-xs font-semibold inline-flex items-center gap-2">
             <span>Tambah Meja Pertama</span>
         </button>
+        @endif
     </div>
     @else
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -235,6 +241,7 @@
                     </a>
                 </div>
 
+                @if(\App\Support\Context::hasPermission('pos.tables'))
                 <div class="flex items-center justify-between gap-1 pt-1">
                     <button type="button" @click="openEdit({{ json_encode($table) }})" class="text-[11px] text-[#007AFF] hover:underline font-medium">
                         Edit Meja
@@ -253,6 +260,7 @@
                     </form>
                     @endif
                 </div>
+                @endif
             </div>
         </div>
         @endforeach
@@ -262,6 +270,7 @@
     <!-- ========================================================= -->
     <!-- MODAL: TAMBAH MEJA BARU                                   -->
     <!-- ========================================================= -->
+    @if(\App\Support\Context::hasPermission('pos.tables'))
     <div x-show="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4" style="display: none;">
         <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[18px] border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4 text-black dark:text-white" @click.outside="showAddModal = false">
             <div class="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
@@ -309,10 +318,12 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ========================================================= -->
     <!-- MODAL: EDIT MEJA                                          -->
     <!-- ========================================================= -->
+    @if(\App\Support\Context::hasPermission('pos.tables'))
     <div x-show="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4" style="display: none;">
         <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[18px] border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4 text-black dark:text-white" @click.outside="showEditModal = false">
             <div class="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
@@ -374,10 +385,12 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ========================================================= -->
     <!-- MODAL: REGENERATE QR CONFIRMATION                         -->
     <!-- ========================================================= -->
+    @if(\App\Support\Context::hasPermission('pos.tables'))
     <div x-show="showRegenModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4" style="display: none;">
         <div class="w-full max-w-sm bg-white dark:bg-[#1C1C1E] rounded-[18px] border border-black/10 dark:border-white/10 p-6 shadow-2xl text-center space-y-4 text-black dark:text-white" @click.outside="showRegenModal = false">
             <div class="w-12 h-12 rounded-full bg-[#FF9500]/15 text-[#FF9500] flex items-center justify-center mx-auto">
@@ -397,5 +410,6 @@
             </form>
         </div>
     </div>
+    @endif
 </div>
 @endsection

@@ -196,6 +196,7 @@ final class PosTerminalWebController extends Controller
             'table_or_reference' => ['nullable', 'string', 'max:100'],
             'pos_table_id' => ['nullable', 'string'],
             'pos_table_session_id' => ['nullable', 'string'],
+            'existing_order_id' => ['nullable', 'string'],
             'discount_type' => ['nullable', 'string', 'in:fixed,percentage'],
             'discount_value' => ['nullable', 'numeric', 'min:0'],
             'voucher_code' => ['nullable', 'string'],
@@ -227,6 +228,7 @@ final class PosTerminalWebController extends Controller
                     'order_source' => PosOrder::SOURCE_POS,
                     'pos_table_id' => $validated['pos_table_id'] ?? null,
                     'pos_table_session_id' => $validated['pos_table_session_id'] ?? null,
+                    'existing_order_id' => $validated['existing_order_id'] ?? null,
                     'table_or_reference' => $validated['table_or_reference'] ?? null,
                     'discount_type' => $validated['discount_type'] ?? 'fixed',
                     'discount_value' => (float) ($validated['discount_value'] ?? 0),
@@ -272,6 +274,7 @@ final class PosTerminalWebController extends Controller
                 'whatsapp_url' => $whatsappUrl,
                 'whatsapp_bot_sent' => $botSent,
                 'receipt_url' => route('pos.receipt', $order->id),
+                'receipt_image_url' => route('public.receipt.image', $order->id),
             ]);
         } catch (Throwable $e) {
             return response()->json([
@@ -383,6 +386,20 @@ final class PosTerminalWebController extends Controller
     }
 
     /**
+     * Stream high-res thermal receipt image (PNG) for printing or sharing.
+     */
+    public function receiptImage(PosOrder $order, \App\Domain\Pos\PosReceiptImageService $receiptService): \Illuminate\Http\Response
+    {
+        $png = $receiptService->generate($order);
+
+        return response($png, 200, [
+            'Content-Type' => 'image/png',
+            'Content-Disposition' => 'inline; filename="struk-' . $order->order_number . '.png"',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
+    /**
      * Verify supervisor PIN for sensitive overrides (AJAX).
      */
     public function verifySupervisorPin(Request $request): JsonResponse
@@ -409,7 +426,7 @@ final class PosTerminalWebController extends Controller
         $orders = PosOrder::where('business_id', $business->id)
             ->where('order_source', PosOrder::SOURCE_QR_TABLE)
             ->where('status', PosOrder::STATUS_PENDING)
-            ->with(['items.modifiers', 'posTable'])
+            ->with(['items.modifiers', 'items.product.outputUnit', 'posTable'])
             ->latest()
             ->get()
             ->map(function ($o) {
@@ -424,12 +441,17 @@ final class PosTerminalWebController extends Controller
                     'notes' => $o->notes,
                     'items' => $o->items->map(fn ($item) => [
                         'id' => $item->id,
+                        'product_id' => $item->product_id,
+                        'product_name' => $item->product_name,
                         'name' => $item->product_name,
                         'quantity' => (float) $item->quantity,
                         'unit_price' => (float) $item->unit_price,
                         'total_price' => (float) $item->total_price,
+                        'unit_symbol' => $item->product?->outputUnit?->symbol ?? '',
                         'notes' => $item->notes,
                         'modifiers' => $item->modifiers_display_text,
+                        'modifiers_summary' => $item->modifiers_display_text,
+                        'selected_modifiers' => $item->modifiers->pluck('modifier_option_id')->filter()->values()->all(),
                     ]),
                 ];
             });
@@ -495,7 +517,7 @@ final class PosTerminalWebController extends Controller
             abort(403);
         }
 
-        $table->load(['activeSession.orders.items.modifiers']);
+        $table->load(['activeSession.orders.items.modifiers', 'activeSession.orders.items.product.outputUnit']);
         $session = $table->activeSession;
         $unpaidOrders = $session ? $session->orders->whereNotIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_VOIDED, PosOrder::STATUS_REJECTED])->values() : collect();
 
@@ -513,19 +535,27 @@ final class PosTerminalWebController extends Controller
                     'session_number' => $session->session_number,
                     'customer_name' => $session->customer_name,
                     'customer_phone' => $session->customer_phone,
-                    'opened_at' => $session->opened_at->format('H:i'),
-                    'total_amount' => $session->total_amount,
+                    'opened_at' => $session->opened_at?->format('H:i') ?? '',
+                    'total_amount' => (float) $session->total_amount,
                     'unpaid_orders' => $unpaidOrders->map(fn ($o) => [
                         'id' => $o->id,
                         'order_number' => $o->order_number,
                         'status' => $o->status,
                         'total_amount' => (float) $o->total_amount,
+                        'customer_name_guest' => $o->customer_name_guest,
+                        'notes' => $o->notes,
                         'items' => $o->items->map(fn ($item) => [
+                            'id' => $item->id,
+                            'product_id' => $item->product_id,
+                            'product_name' => $item->product_name,
                             'name' => $item->product_name,
                             'quantity' => (float) $item->quantity,
                             'unit_price' => (float) $item->unit_price,
                             'total_price' => (float) $item->total_price,
+                            'unit_symbol' => $item->product?->outputUnit?->symbol ?? '',
                             'modifiers' => $item->modifiers_display_text,
+                            'modifiers_summary' => $item->modifiers_display_text,
+                            'selected_modifiers' => $item->modifiers->pluck('modifier_option_id')->filter()->values()->all(),
                             'notes' => $item->notes,
                         ]),
                     ]),
@@ -573,6 +603,7 @@ final class PosTerminalWebController extends Controller
                     'change_amount' => $completed->change_amount,
                 ],
                 'receipt_url' => route('pos.receipt', $completed->id),
+                'receipt_image_url' => route('public.receipt.image', $completed->id),
                 'whatsapp_url' => $whatsappUrl,
             ]);
         } catch (Throwable $e) {

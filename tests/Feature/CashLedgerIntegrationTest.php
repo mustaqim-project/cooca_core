@@ -59,4 +59,65 @@ final class CashLedgerIntegrationTest extends TestCase
         $this->assertSame(80000.0, $bank->fresh()->current_balance);
         $this->assertSame(2, CashTransaction::where('type', CashTransaction::TYPE_TRANSFER)->count());
     }
+
+    public function test_transfer_creates_balanced_journal_entry(): void
+    {
+        $service = new CashLedgerService;
+        $cash = $service->accountFor($this->business, 'cash');
+        $bank = $service->accountFor($this->business, 'bank_transfer');
+        $service->recordInflow($this->business, 150000, 'test', 'seed-journal', 'Modal', 'cash', $this->user->id);
+        $service->transfer($cash, $bank, 50000, 'Setoran tunai ke bank', $this->user->id);
+
+        $journal = \App\Models\JournalEntry::where('business_id', $this->business->id)
+            ->where('reference_type', \App\Models\JournalEntry::REF_CASH_TRANSFER)
+            ->first();
+
+        $this->assertNotNull($journal);
+        $this->assertSame(50000.0, (float) $journal->total_debit);
+        $this->assertSame(50000.0, (float) $journal->total_credit);
+        $this->assertCount(2, $journal->lines);
+    }
+
+    public function test_expense_store_creates_record_journal_and_outflow_atomically(): void
+    {
+        $ledger = new CashLedgerService;
+        $cash = $ledger->accountFor($this->business, 'cash');
+        $ledger->recordInflow($this->business, 500000, 'test', 'seed-exp', 'Saldo kas', 'cash', $this->user->id);
+
+        $response = $this->actingAs($this->user)->post(route('finance.expenses.store'), [
+            'expense_date' => now()->toDateString(),
+            'category' => 'utilities',
+            'amount' => 125000,
+            'payment_method' => 'cash',
+            'cash_account_id' => $cash->id,
+            'description' => 'Tagihan listrik kantor',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('expenses', [
+            'business_id' => $this->business->id,
+            'category' => 'utilities',
+            'amount' => 125000,
+        ]);
+
+        $this->assertSame(375000.0, $cash->fresh()->current_balance);
+    }
+
+    public function test_finance_aging_views_render_successfully_with_filters(): void
+    {
+        $responseAP = $this->actingAs($this->user)->get(route('finance.payables', ['bucket' => 'not_due', 'search' => 'INV']));
+        $responseAP->assertOk();
+
+        $responseAR = $this->actingAs($this->user)->get(route('finance.receivables', ['bucket' => 'all']));
+        $responseAR->assertOk();
+
+        $responseLedger = $this->actingAs($this->user)->get(route('finance.cash-bank.ledger', ['type' => 'in']));
+        $responseLedger->assertOk();
+
+        $responseJournals = $this->actingAs($this->user)->get(route('finance.journals.index'));
+        $responseJournals->assertOk();
+    }
 }
+

@@ -6,6 +6,7 @@ namespace App\Domain\Pos;
 
 use App\Domain\Accounting\AutoJournalService;
 use App\Domain\Crm\LoyaltyService;
+use App\Domain\Finance\CashLedgerService;
 use App\Domain\Inventory\StockService;
 use App\Models\Business;
 use App\Models\Customer;
@@ -33,7 +34,8 @@ final class PosOrderService
         private readonly AutoJournalService $journalService = new AutoJournalService,
         private readonly LoyaltyService $loyaltyService = new LoyaltyService,
         private readonly ModifierService $modifierService = new ModifierService,
-        private readonly PosTableService $tableService = new PosTableService
+        private readonly PosTableService $tableService = new PosTableService,
+        private readonly CashLedgerService $cashLedgerService = new CashLedgerService
     ) {}
 
     /**
@@ -104,7 +106,15 @@ final class PosOrderService
         }
 
         return DB::transaction(function () use ($business, $cashier, $itemsData, $paymentsData, $attributes, $shift) {
-            $orderNumber = $attributes['order_number'] ?? $this->generateOrderNumber($business);
+            $existingOrder = null;
+            if (! empty($attributes['existing_order_id'])) {
+                $existingOrder = PosOrder::where('business_id', $business->id)
+                    ->whereNotIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_VOIDED])
+                    ->with('items.modifiers')
+                    ->find($attributes['existing_order_id']);
+            }
+
+            $orderNumber = $existingOrder ? $existingOrder->order_number : ($attributes['order_number'] ?? $this->generateOrderNumber($business));
             $locationId = $attributes['location_id'] ?? $shift?->location_id ?? Location::where('business_id', $business->id)->where('is_primary', true)->value('id') ?? Location::where('business_id', $business->id)->value('id');
             $customerId = ! empty($attributes['customer_id']) ? (string) $attributes['customer_id'] : null;
             $customer = $customerId ? Customer::find($customerId) : null;
@@ -237,41 +247,83 @@ final class PosOrderService
             }
             $changeAmount = max(0.0, $totalPaid - $finalTotal);
 
-            // 6. Create PosOrder
-            $order = PosOrder::create([
-                'business_id' => $business->id,
-                'location_id' => $locationId,
-                'pos_shift_id' => $shift?->id,
-                'user_id' => $cashier->id,
-                'customer_id' => $customer?->id,
-                'order_number' => $orderNumber,
-                'order_date' => Carbon::today()->toDateString(),
-                'status' => PosOrder::STATUS_COMPLETED,
-                'order_type' => $attributes['order_type'] ?? 'takeaway',
-                'order_source' => $attributes['order_source'] ?? PosOrder::SOURCE_POS,
-                'pos_table_id' => $attributes['pos_table_id'] ?? null,
-                'pos_table_session_id' => $attributes['pos_table_session_id'] ?? null,
-                'table_or_reference' => $attributes['table_or_reference'] ?? null,
-                'customer_name_guest' => $attributes['customer_name_guest'] ?? ($customer?->name ?? 'Pelanggan Umum'),
-                'customer_phone_guest' => $attributes['customer_phone_guest'] ?? null,
-                'subtotal' => $subtotal,
-                'discount_type' => $discountType,
-                'discount_value' => $discountValue,
-                'discount_amount' => $discountAmount,
-                'voucher_code' => $voucherCode,
-                'voucher_discount_amount' => $voucherDiscount,
-                'tax_percentage' => $taxPercent,
-                'tax_amount' => $taxAmount,
-                'service_charge_percentage' => $servicePercent,
-                'service_charge_amount' => $serviceChargeAmount,
-                'rounding_amount' => $roundingAmount,
-                'total_amount' => $finalTotal,
-                'paid_amount' => $totalPaid,
-                'change_amount' => $changeAmount,
-                'total_hpp_cost' => $totalHpp,
-                'total_gross_profit' => max(0.0, ($subtotal - $discountAmount - $voucherDiscount) - $totalHpp),
-                'notes' => $attributes['notes'] ?? null,
-            ]);
+            // 6. Create or Update PosOrder (Settle Table Order)
+            if ($existingOrder) {
+                // Delete previous unpaid items and their modifiers before saving finalized items
+                foreach ($existingOrder->items as $oldItem) {
+                    $oldItem->modifiers()->delete();
+                    $oldItem->delete();
+                }
+
+                $existingOrder->update([
+                    'location_id' => $locationId,
+                    'pos_shift_id' => $shift?->id,
+                    'user_id' => $cashier->id,
+                    'customer_id' => $customer?->id,
+                    'order_date' => Carbon::today()->toDateString(),
+                    'status' => PosOrder::STATUS_COMPLETED,
+                    'order_type' => $attributes['order_type'] ?? ($existingOrder->order_type ?? 'dine_in'),
+                    'pos_table_id' => $attributes['pos_table_id'] ?? $existingOrder->pos_table_id,
+                    'pos_table_session_id' => $attributes['pos_table_session_id'] ?? $existingOrder->pos_table_session_id,
+                    'table_or_reference' => $attributes['table_or_reference'] ?? $existingOrder->table_or_reference,
+                    'customer_name_guest' => $attributes['customer_name_guest'] ?? $existingOrder->customer_name_guest,
+                    'customer_phone_guest' => $attributes['customer_phone_guest'] ?? $existingOrder->customer_phone_guest,
+                    'subtotal' => $subtotal,
+                    'discount_type' => $discountType,
+                    'discount_value' => $discountValue,
+                    'discount_amount' => $discountAmount,
+                    'voucher_code' => $voucherCode,
+                    'voucher_discount_amount' => $voucherDiscount,
+                    'tax_percentage' => $taxPercent,
+                    'tax_amount' => $taxAmount,
+                    'service_charge_percentage' => $servicePercent,
+                    'service_charge_amount' => $serviceChargeAmount,
+                    'rounding_amount' => $roundingAmount,
+                    'total_amount' => $finalTotal,
+                    'paid_amount' => $totalPaid,
+                    'change_amount' => $changeAmount,
+                    'total_hpp_cost' => $totalHpp,
+                    'total_gross_profit' => max(0.0, ($subtotal - $discountAmount - $voucherDiscount) - $totalHpp),
+                    'notes' => $attributes['notes'] ?? $existingOrder->notes,
+                ]);
+
+                $order = $existingOrder;
+            } else {
+                $order = PosOrder::create([
+                    'business_id' => $business->id,
+                    'location_id' => $locationId,
+                    'pos_shift_id' => $shift?->id,
+                    'user_id' => $cashier->id,
+                    'customer_id' => $customer?->id,
+                    'order_number' => $orderNumber,
+                    'order_date' => Carbon::today()->toDateString(),
+                    'status' => PosOrder::STATUS_COMPLETED,
+                    'order_type' => $attributes['order_type'] ?? 'takeaway',
+                    'order_source' => $attributes['order_source'] ?? PosOrder::SOURCE_POS,
+                    'pos_table_id' => $attributes['pos_table_id'] ?? null,
+                    'pos_table_session_id' => $attributes['pos_table_session_id'] ?? null,
+                    'table_or_reference' => $attributes['table_or_reference'] ?? null,
+                    'customer_name_guest' => $attributes['customer_name_guest'] ?? ($customer?->name ?? 'Pelanggan Umum'),
+                    'customer_phone_guest' => $attributes['customer_phone_guest'] ?? null,
+                    'subtotal' => $subtotal,
+                    'discount_type' => $discountType,
+                    'discount_value' => $discountValue,
+                    'discount_amount' => $discountAmount,
+                    'voucher_code' => $voucherCode,
+                    'voucher_discount_amount' => $voucherDiscount,
+                    'tax_percentage' => $taxPercent,
+                    'tax_amount' => $taxAmount,
+                    'service_charge_percentage' => $servicePercent,
+                    'service_charge_amount' => $serviceChargeAmount,
+                    'rounding_amount' => $roundingAmount,
+                    'total_amount' => $finalTotal,
+                    'paid_amount' => $totalPaid,
+                    'change_amount' => $changeAmount,
+                    'total_hpp_cost' => $totalHpp,
+                    'total_gross_profit' => max(0.0, ($subtotal - $discountAmount - $voucherDiscount) - $totalHpp),
+                    'notes' => $attributes['notes'] ?? null,
+                ]);
+            }
 
             // 7. Save Line Items, Modifiers and Deduct Inventory Stock
             foreach ($processedItems as $itemInfo) {
@@ -344,7 +396,8 @@ final class PosOrderService
                 }
             }
 
-            // 8. Save Payments
+            // 8. Save Payments & Inflow Tracking
+            $remainingChange = (float) $order->change_amount;
             foreach ($paymentsData as $p) {
                 $payMethod = (string) ($p['payment_method'] ?? 'cash');
                 $payAmount = (float) ($p['amount'] ?? 0.0);
@@ -352,7 +405,7 @@ final class PosOrderService
                     continue;
                 }
 
-                PosOrderPayment::create([
+                $payment = PosOrderPayment::create([
                     'pos_order_id' => $order->id,
                     'payment_method' => $payMethod,
                     'amount' => $payAmount,
@@ -365,6 +418,34 @@ final class PosOrderService
                 // Handle Customer Store Credit (Piutang)
                 if ($payMethod === PosOrderPayment::METHOD_CUSTOMER_CREDIT && $customer) {
                     $this->loyaltyService->recordCustomerCreditCharge($customer, $order, $payAmount, $cashier);
+                } elseif ($payMethod !== PosOrderPayment::METHOD_LOYALTY_POINTS) {
+                    $netCashIn = $payAmount;
+                    if ($payMethod === PosOrderPayment::METHOD_CASH && $remainingChange > 0) {
+                        $deduct = min($payAmount, $remainingChange);
+                        $netCashIn -= $deduct;
+                        $remainingChange -= $deduct;
+                    }
+
+                    if ($netCashIn > 0) {
+                        $methodLabel = match ($payMethod) {
+                            PosOrderPayment::METHOD_CASH => 'Tunai',
+                            PosOrderPayment::METHOD_QRIS => 'QRIS',
+                            PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
+                            PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit',
+                            PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit',
+                            default => ucfirst(str_replace('_', ' ', $payMethod)),
+                        };
+
+                        $this->cashLedgerService->recordInflow(
+                            business: $business,
+                            amount: $netCashIn,
+                            referenceType: 'pos_order',
+                            referenceId: $payment->id,
+                            description: "Penerimaan POS #{$order->order_number} ({$methodLabel})",
+                            method: $payMethod,
+                            userId: $cashier->id
+                        );
+                    }
                 }
             }
 
@@ -376,8 +457,11 @@ final class PosOrderService
             // 10. Automatic Accounting Journal
             $this->journalService->recordPosSaleJournal($order);
 
-            // 11. Sync Table Status if table is associated
-            if ($order->pos_table_id && $order->posTable) {
+            // 11. Sync Table Status & Close Session if all orders completed
+            $session = $order->tableSession;
+            if ($session && $session->canBeClosed()) {
+                $this->tableService->closeSession($session);
+            } elseif ($order->pos_table_id && $order->posTable) {
                 $this->tableService->syncTableStatus($order->posTable);
             }
 
@@ -716,20 +800,52 @@ final class PosOrderService
                 }
             }
 
-            // Save payments
+            // Save payments & Inflow Tracking
+            $remainingChange = (float) $order->change_amount;
             foreach ($paymentsData as $p) {
+                $payMethod = (string) ($p['payment_method'] ?? 'cash');
                 $amount = (float) ($p['amount'] ?? 0.0);
                 if ($amount <= 0) continue;
 
-                PosOrderPayment::create([
+                $payment = PosOrderPayment::create([
                     'pos_order_id' => $order->id,
-                    'payment_method' => (string) ($p['payment_method'] ?? 'cash'),
+                    'payment_method' => $payMethod,
                     'amount' => $amount,
                     'reference_number' => $p['reference_number'] ?? null,
                     'fee_amount' => 0.0,
                     'net_amount' => $amount,
                     'status' => 'paid',
                 ]);
+
+                if (! in_array($payMethod, [PosOrderPayment::METHOD_CUSTOMER_CREDIT, PosOrderPayment::METHOD_LOYALTY_POINTS], true)) {
+                    $netCashIn = $amount;
+                    if ($payMethod === PosOrderPayment::METHOD_CASH && $remainingChange > 0) {
+                        $deduct = min($amount, $remainingChange);
+                        $netCashIn -= $deduct;
+                        $remainingChange -= $deduct;
+                    }
+
+                    if ($netCashIn > 0) {
+                        $methodLabel = match ($payMethod) {
+                            PosOrderPayment::METHOD_CASH => 'Tunai',
+                            PosOrderPayment::METHOD_QRIS => 'QRIS',
+                            PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
+                            PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit',
+                            PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit',
+                            default => ucfirst(str_replace('_', ' ', $payMethod)),
+                        };
+
+                        $this->cashLedgerService->recordInflow(
+                            business: $business,
+                            amount: $netCashIn,
+                            referenceType: 'pos_order',
+                            referenceId: $payment->id,
+                            description: "Penerimaan POS #{$order->order_number} ({$methodLabel})",
+                            method: $payMethod,
+                            userId: $cashier->id
+                        );
+                    }
+                }
             }
 
             // Auto Journal

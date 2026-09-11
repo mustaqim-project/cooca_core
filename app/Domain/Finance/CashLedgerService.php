@@ -16,14 +16,14 @@ final class CashLedgerService
 {
     public function __construct(private readonly AutoJournalService $journalService = new AutoJournalService) {}
 
-    public function recordInflow(Business $business, float $amount, string $referenceType, string $referenceId, string $description, string $method = 'cash', ?string $userId = null): CashTransaction
+    public function recordInflow(Business $business, float $amount, string $referenceType, string $referenceId, string $description, string $method = 'cash', ?string $userId = null, ?CashAccount $account = null): CashTransaction
     {
-        return $this->record($business, CashTransaction::TYPE_IN, $amount, $referenceType, $referenceId, $description, $method, $userId);
+        return $this->record($business, CashTransaction::TYPE_IN, $amount, $referenceType, $referenceId, $description, $method, $userId, $account);
     }
 
-    public function recordOutflow(Business $business, float $amount, string $referenceType, string $referenceId, string $description, string $method = 'cash', ?string $userId = null): CashTransaction
+    public function recordOutflow(Business $business, float $amount, string $referenceType, string $referenceId, string $description, string $method = 'cash', ?string $userId = null, ?CashAccount $account = null): CashTransaction
     {
-        return $this->record($business, CashTransaction::TYPE_OUT, $amount, $referenceType, $referenceId, $description, $method, $userId);
+        return $this->record($business, CashTransaction::TYPE_OUT, $amount, $referenceType, $referenceId, $description, $method, $userId, $account);
     }
 
     public function transfer(CashAccount $from, CashAccount $to, float $amount, string $description, ?string $userId = null): array
@@ -42,9 +42,38 @@ final class CashLedgerService
             $source->current_balance -= $amount; $source->save();
             $destination->current_balance += $amount; $destination->save();
             $date = now()->toDateString();
+
+            // Record automated double-entry journal between both accounts
+            $this->journalService->recordCashTransferJournal($source, $destination, $amount, $description, $userId, $referenceId);
+
+            $sourceDesc = "Transfer ke {$destination->name}" . ($description ? ": {$description}" : '');
+            $destDesc = "Transfer dari {$source->name}" . ($description ? ": {$description}" : '');
+
             return [
-                CashTransaction::create(['business_id' => $source->business_id, 'cash_account_id' => $source->id, 'type' => CashTransaction::TYPE_TRANSFER, 'amount' => $amount, 'balance_after' => $source->current_balance, 'reference_type' => 'cash_transfer', 'reference_id' => $referenceId, 'description' => $description, 'transaction_date' => $date, 'created_by' => $userId]),
-                CashTransaction::create(['business_id' => $destination->business_id, 'cash_account_id' => $destination->id, 'type' => CashTransaction::TYPE_TRANSFER, 'amount' => $amount, 'balance_after' => $destination->current_balance, 'reference_type' => 'cash_transfer', 'reference_id' => $referenceId, 'description' => $description, 'transaction_date' => $date, 'created_by' => $userId]),
+                CashTransaction::create([
+                    'business_id' => $source->business_id,
+                    'cash_account_id' => $source->id,
+                    'type' => CashTransaction::TYPE_TRANSFER,
+                    'amount' => $amount,
+                    'balance_after' => $source->current_balance,
+                    'reference_type' => 'cash_transfer_out',
+                    'reference_id' => $referenceId,
+                    'description' => $sourceDesc,
+                    'transaction_date' => $date,
+                    'created_by' => $userId,
+                ]),
+                CashTransaction::create([
+                    'business_id' => $destination->business_id,
+                    'cash_account_id' => $destination->id,
+                    'type' => CashTransaction::TYPE_TRANSFER,
+                    'amount' => $amount,
+                    'balance_after' => $destination->current_balance,
+                    'reference_type' => 'cash_transfer_in',
+                    'reference_id' => $referenceId,
+                    'description' => $destDesc,
+                    'transaction_date' => $date,
+                    'created_by' => $userId,
+                ]),
             ];
         });
     }
@@ -58,18 +87,30 @@ final class CashLedgerService
         return CashAccount::firstOrCreate(['business_id' => $business->id, 'name' => $name], ['chart_of_account_id' => $coa?->id, 'type' => $type, 'current_balance' => 0, 'is_active' => true]);
     }
 
-    private function record(Business $business, string $type, float $amount, string $referenceType, string $referenceId, string $description, string $method, ?string $userId): CashTransaction
+    private function record(Business $business, string $type, float $amount, string $referenceType, string $referenceId, string $description, string $method, ?string $userId, ?CashAccount $account = null): CashTransaction
     {
         if ($amount <= 0) throw new InvalidArgumentException('Nominal kas harus lebih besar dari nol.');
-        return DB::transaction(function () use ($business, $type, $amount, $referenceType, $referenceId, $description, $method, $userId): CashTransaction {
+        return DB::transaction(function () use ($business, $type, $amount, $referenceType, $referenceId, $description, $method, $userId, $account): CashTransaction {
             $existing = CashTransaction::where('business_id', $business->id)->where('type', $type)->where('reference_type', $referenceType)->where('reference_id', $referenceId)->first();
             if ($existing) return $existing;
-            $account = $this->accountFor($business, $method);
-            $account = CashAccount::whereKey($account->id)->lockForUpdate()->firstOrFail();
-            $newBalance = (float) $account->current_balance + ($type === CashTransaction::TYPE_IN ? $amount : -$amount);
+            $targetAccount = $account ?? $this->accountFor($business, $method);
+            $targetAccount = CashAccount::whereKey($targetAccount->id)->lockForUpdate()->firstOrFail();
+            $newBalance = (float) $targetAccount->current_balance + ($type === CashTransaction::TYPE_IN ? $amount : -$amount);
             if ($newBalance < -0.005) throw new InvalidArgumentException('Saldo kas/bank tidak mencukupi.');
-            $account->update(['current_balance' => $newBalance]);
-            return CashTransaction::create(['business_id' => $business->id, 'cash_account_id' => $account->id, 'type' => $type, 'amount' => $amount, 'balance_after' => $newBalance, 'reference_type' => $referenceType, 'reference_id' => $referenceId, 'description' => $description, 'transaction_date' => now()->toDateString(), 'created_by' => $userId]);
+            $targetAccount->update(['current_balance' => $newBalance]);
+            return CashTransaction::create([
+                'business_id' => $business->id,
+                'cash_account_id' => $targetAccount->id,
+                'type' => $type,
+                'amount' => $amount,
+                'balance_after' => $newBalance,
+                'reference_type' => $referenceType,
+                'reference_id' => $referenceId,
+                'description' => $description,
+                'transaction_date' => now()->toDateString(),
+                'created_by' => $userId,
+            ]);
         });
     }
 }
+
