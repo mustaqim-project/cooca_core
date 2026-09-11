@@ -4,24 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
-use App\Domain\Template\BusinessTemplateService;
+use App\Domain\WhatsApp\AdminWhatsAppService;
 use App\Http\Controllers\Controller;
-use App\Models\Business;
-use App\Models\BusinessTypeTemplate;
 use App\Models\SystemSetting;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Laravel\Socialite\Facades\Socialite;
 
 final class GoogleAuthController extends Controller
 {
-    public function __construct(private readonly BusinessTemplateService $templateService = new BusinessTemplateService) {}
-
     /**
      * Redirect to Google OAuth provider.
      */
@@ -72,63 +69,84 @@ final class GoogleAuthController extends Controller
             ]);
         }
 
-        /** @var User $user */
-        $user = DB::transaction(function () use ($googleUser): User {
-            // Find user by google_id or email
-            $existingUser = User::where('google_id', $googleUser->getId())
-                ->orWhere('email', $googleUser->getEmail())
-                ->first();
+        // Existing Google users can continue signing in without a new OTP.
+        $existingUser = User::where('google_id', $googleUser->getId())
+            ->orWhere('email', $googleUser->getEmail())
+            ->first();
 
-            if ($existingUser) {
-                $existingUser->update([
-                    'google_id' => $googleUser->getId(),
-                    'avatar' => $googleUser->getAvatar(),
-                ]);
-
-                return $existingUser;
-            }
-
-            // Create new user
-            $newUser = User::create([
-                'name' => $googleUser->getName() ?? 'Pengguna Google',
-                'email' => $googleUser->getEmail(),
+        if ($existingUser) {
+            $existingUser->update([
                 'google_id' => $googleUser->getId(),
                 'avatar' => $googleUser->getAvatar(),
-                'email_verified_at' => now(),
-                'password' => Hash::make(Str::random(32)),
             ]);
 
-            // Create default starter business for new user
-            $business = Business::create([
-                'name' => 'Usaha '.($googleUser->getName() ?? 'Saya'),
-                'currency' => 'IDR',
-                'currency_precision' => 0,
-                'rounding_strategy' => Business::ROUNDING_ROUND_100,
-            ]);
+            return $this->loginUser($existingUser);
+        }
 
-            $business->users()->attach($newUser->id, [
-                'id' => (string) Str::uuid(),
-                'role' => 'owner',
-            ]);
+        request()->session()->put('pending_google_registration', [
+            'name' => $googleUser->getName() ?? 'Pengguna Google',
+            'email' => $googleUser->getEmail(),
+            'google_id' => $googleUser->getId(),
+            'avatar' => $googleUser->getAvatar(),
+        ]);
 
-            $newUser->update([
-                'active_business_id' => $business->id,
-            ]);
+        return redirect()->route('register.google');
+    }
 
-            // Apply default general template
-            $defaultTemplate = BusinessTypeTemplate::where('code', 'mfg_general')->first()
-                ?? BusinessTypeTemplate::first();
+    public function showGoogleRegistration(Request $request): View|RedirectResponse
+    {
+        $pending = $request->session()->get('pending_google_registration');
+        if (! is_array($pending) || empty($pending['email'])) {
+            return redirect()->route('register');
+        }
 
-            if ($defaultTemplate !== null) {
-                $this->templateService->apply($business, $defaultTemplate);
-            }
+        return view('auth.google-register', compact('pending'));
+    }
 
-            return $newUser;
-        });
+    public function beginGoogleRegistration(Request $request, AdminWhatsAppService $adminWa): RedirectResponse
+    {
+        $pendingGoogle = $request->session()->get('pending_google_registration');
+        if (! is_array($pendingGoogle) || empty($pendingGoogle['email'])) {
+            return redirect()->route('register');
+        }
 
+        $validated = $request->validate([
+            'business_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'min:10', 'max:20'],
+        ]);
+        $phone = $this->normalizePhone($validated['phone']);
+        if ($phone === null) {
+            return back()->withErrors(['phone' => 'Nomor WhatsApp tidak valid. Gunakan format 081234567890 atau 628123456789.'])->withInput();
+        }
+
+        $otp = (string) random_int(100000, 999999);
+        $result = $adminWa->sendMessage($phone, "Kode OTP pendaftaran Google Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        if (! ($result['success'] ?? false)) {
+            return back()->withErrors(['phone' => 'OTP gagal dikirim. Pastikan WhatsApp Admin Cooca sedang terhubung.'])->withInput();
+        }
+
+        $request->session()->put('pending_registration', [
+            ...$pendingGoogle,
+            'phone' => $phone,
+            'business_name' => $validated['business_name'],
+            'password' => Hash::make(Str::random(32)),
+            'otp_hash' => Hash::make($otp),
+            'expires_at' => now()->addMinutes(10)->timestamp,
+            'attempts' => 0,
+            'last_sent_at' => now()->timestamp,
+        ]);
+        $request->session()->forget('pending_google_registration');
+
+        return redirect()->route('register.verify')->with('status', 'Kode OTP telah dikirim ke WhatsApp pemilik bisnis.');
+    }
+
+    private function loginUser(User $user): RedirectResponse
+    {
         Auth::guard('web')->login($user, true);
 
         request()->session()->regenerate();
+        request()->session()->put('auth_wa_otp_verified_user_id', $user->id);
+        request()->session()->put('auth_wa_otp_verified_at', now()->timestamp);
 
         if (! $user->active_business_id) {
             $firstBusiness = $user->businesses()->first();
@@ -144,5 +162,15 @@ final class GoogleAuthController extends Controller
         }
 
         return redirect()->intended(route('dashboard'))->with('success', 'Selamat datang, '.$user->name.'!');
+    }
+
+    private function normalizePhone(string $phone): ?string
+    {
+        $phone = preg_replace('/\D+/', '', $phone) ?? '';
+        if (str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        return preg_match('/^62[1-9][0-9]{7,13}$/', $phone) ? $phone : null;
     }
 }

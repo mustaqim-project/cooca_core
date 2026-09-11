@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Web\AuthWebController;
+use App\Http\Controllers\Web\AuthOtpController;
 use App\Http\Controllers\Web\CalculatorWebController;
 use App\Http\Controllers\Web\DashboardWebController;
 use App\Http\Controllers\Web\LaborMachineWebController;
@@ -116,6 +117,11 @@ Route::middleware('guest:web')->group(function (): void {
     Route::post('/login', [AuthWebController::class, 'login']);
     Route::get('/register', [AuthWebController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthWebController::class, 'register']);
+    Route::get('/register/verify', [AuthWebController::class, 'showRegisterOtp'])->name('register.verify');
+    Route::post('/register/verify', [AuthWebController::class, 'verifyRegisterOtp'])->middleware('throttle:10,1')->name('register.verify.submit');
+    Route::post('/register/verify/resend', [AuthWebController::class, 'resendRegisterOtp'])->middleware('throttle:3,1')->name('register.verify.resend');
+    Route::get('/register/google', [GoogleAuthController::class, 'showGoogleRegistration'])->name('register.google');
+    Route::post('/register/google', [GoogleAuthController::class, 'beginGoogleRegistration'])->middleware('throttle:5,1')->name('register.google.submit');
 
     // Password Reset Flow
     Route::get('/forgot-password', [\App\Http\Controllers\Web\PasswordResetWebController::class, 'create'])->name('password.request');
@@ -129,8 +135,12 @@ Route::middleware('guest:web')->group(function (): void {
 | Authenticated User Workspace Panel (Guard: web)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth:web')->group(function (): void {
+Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
     Route::post('/logout', [AuthWebController::class, 'logout'])->name('logout');
+
+    Route::get('/auth/otp', [AuthOtpController::class, 'show'])->name('auth.otp');
+    Route::post('/auth/otp', [AuthOtpController::class, 'verify'])->middleware('throttle:10,1')->name('auth.otp.verify');
+    Route::post('/auth/otp/resend', [AuthOtpController::class, 'resend'])->middleware('throttle:3,1')->name('auth.otp.resend');
 
     Route::get('/email/verify', [\App\Http\Controllers\Web\EmailVerificationWebController::class, 'notice'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Web\EmailVerificationWebController::class, 'verify'])

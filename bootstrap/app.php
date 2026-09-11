@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Middleware\EnsureActiveBusiness;
 use App\Http\Middleware\RequireRole;
+use App\Http\Middleware\RequireWhatsAppOtp;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetActiveBusinessContext;
 use Illuminate\Foundation\Application;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'business.active' => EnsureActiveBusiness::class,
             'profile.complete' => \App\Http\Middleware\EnsureOwnerProfileComplete::class,
             'require.role' => RequireRole::class,
+            'wa.otp' => RequireWhatsAppOtp::class,
             'require.permission' => \App\Http\Middleware\RequirePermission::class,
             'entitlement' => \App\Http\Middleware\CheckResourceEntitlement::class,
         ]);
