@@ -3,20 +3,20 @@
     $currentUser = auth()->user();
 @endphp
 <!-- Topbar Header (Apple macOS Toolbar Architecture) -->
-<header class="app-topbar h-14 glass-header sticky top-0 z-30 flex items-center justify-between px-3.5 sm:px-6 lg:px-8 border-b border-black/5 dark:border-white/10 transition-all">
+<header class="app-topbar h-16 glass-header sticky top-0 z-30 flex items-center justify-between px-4 sm:px-7 lg:px-9 border-b border-black/5 dark:border-white/10 transition-all">
     <!-- Left Cluster: Mobile Trigger + Desktop Sidebar Toggle + Title -->
-    <div class="app-topbar-title flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+    <div class="app-topbar-title flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
         <!-- Mobile Drawer Toggle -->
         <button id="tour-mobile-menu-btn"
             @click="sidebarOpen = true; window.dispatchEvent(new CustomEvent('sidebar-opened'))"
-            class="lg:hidden p-2 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white rounded-[8px] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] active:scale-[0.97] shrink-0 transition-all cursor-pointer"
+            class="lg:hidden p-2.5 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white rounded-[9px] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] active:scale-[0.97] shrink-0 transition-all cursor-pointer"
             title="Buka Menu Navigasi" aria-label="Menu Navigasi">
             <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
 
         <!-- Desktop Sidebar Collapse Toggle Button (macOS Window Control Style) -->
         <button @click="toggleSidebarCollapse()" type="button"
-            class="hidden lg:flex items-center justify-center w-8 h-8 text-black/50 hover:text-black dark:text-white/50 dark:hover:text-white rounded-[8px] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] active:scale-[0.97] shrink-0 transition-all cursor-pointer"
+            class="hidden lg:flex items-center justify-center w-9 h-9 text-black/50 hover:text-black dark:text-white/50 dark:hover:text-white rounded-[9px] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] active:scale-[0.97] shrink-0 transition-all cursor-pointer"
             :title="sidebarCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'"
             aria-label="Toggle Sidebar">
             <i :data-lucide="sidebarCollapsed ? 'panel-left-open' : 'panel-left-close'" class="w-4 h-4"></i>
@@ -24,17 +24,17 @@
 
         <!-- Header Title & Subtitle Hierarchy -->
         <div class="min-w-0 flex-1">
-            <h1 class="text-[15px] font-semibold text-black dark:text-white truncate leading-tight tracking-tight">
+            <h1 class="text-[16px] font-semibold text-black dark:text-white truncate leading-tight tracking-tight">
                 {{ $headerTitle ?? 'Cooca UMKM' }}
             </h1>
-            <p class="text-[12px] text-black/50 dark:text-white/50 hidden sm:block truncate leading-none mt-0.5">
+            <p class="text-[12px] text-black/50 dark:text-white/50 hidden sm:block truncate leading-tight mt-1">
                 {{ $headerSubtitle ?? 'Sistem Perhitungan HPP & Manajemen Komersial Terintegrasi' }}
             </p>
         </div>
     </div>
 
     <!-- Right Cluster: Actions & Control Tools (Clean Apple HIG Layout) -->
-    <div class="app-topbar-actions flex items-center gap-2 sm:gap-3 shrink-0">
+    <div class="app-topbar-actions flex items-center gap-2.5 sm:gap-4 shrink-0">
         @if ($activeBiz)
             <!-- Active Currency Pill -->
             <div class="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/5 text-[11px] text-black/60 dark:text-white/60">

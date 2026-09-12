@@ -115,6 +115,68 @@
 
 {{-- Apple HIG (macOS Sonoma & iOS 18) Sidebar Rail Styles --}}
 <style>
+/* Calm Apple-style rhythm for the expanded navigation rail. */
+.sidebar-nav {
+    padding: 1rem 0.75rem !important;
+}
+
+.sidebar-nav .sidebar-item {
+    min-height: 2.5rem;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+.sidebar-nav > div {
+    margin-bottom: 0.75rem;
+}
+
+@media (max-width: 1023px) {
+    .app-sidebar {
+        width: 336px !important;
+    }
+
+    .sidebar-header {
+        height: 4rem !important;
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+
+    .sidebar-tenant-wrapper {
+        padding: 1rem 0.875rem !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .app-sidebar:not(.is-collapsed) {
+        width: 272px !important;
+    }
+
+    .app-sidebar:not(.is-collapsed) .sidebar-header {
+        height: 4rem !important;
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+
+    .app-sidebar:not(.is-collapsed) .sidebar-tenant-wrapper {
+        padding: 0.875rem 1rem !important;
+    }
+
+    .app-sidebar:not(.is-collapsed) .sidebar-nav {
+        padding: 0.875rem 0.75rem !important;
+    }
+
+    .app-sidebar:not(.is-collapsed) .sidebar-item {
+        min-height: 2.5rem !important;
+        padding-top: 0.625rem !important;
+        padding-bottom: 0.625rem !important;
+    }
+
+    .app-sidebar:not(.is-collapsed) .sidebar-nav > div > div[x-show="!sidebarCollapsed"] {
+        margin-top: 0.75rem !important;
+        margin-bottom: 0.375rem !important;
+    }
+}
+
 @media (min-width: 1024px) {
     /* 1. Collapsed Sidebar Container (Clean 76px Icon Rail) */
     .app-sidebar.is-collapsed {
@@ -388,9 +450,9 @@
         'translate-x-0': sidebarOpen,
         '-translate-x-full lg:translate-x-0': !sidebarOpen,
         'lg:w-[76px] is-collapsed': sidebarCollapsed,
-        'lg:w-[268px]': !sidebarCollapsed
+        'lg:w-[272px]': !sidebarCollapsed
     }"
-    class="app-sidebar fixed inset-y-0 left-0 z-50 w-[280px] h-screen max-h-screen glass-nav flex flex-col justify-between transition-all duration-300 ease-out max-lg:rounded-r-[20px] max-lg:shadow-[0_20px_50px_rgba(0,0,0,0.25)] select-none">
+    class="app-sidebar fixed inset-y-0 left-0 z-50 w-[336px] h-screen max-h-screen glass-nav flex flex-col justify-between transition-all duration-300 ease-out max-lg:rounded-r-[20px] max-lg:shadow-[0_20px_50px_rgba(0,0,0,0.25)] select-none">
 
     {{-- 1. Brand Logo Header (macOS Toolbar Height h-14) --}}
     <div class="sidebar-header h-14 flex items-center justify-between px-4 border-b border-black/5 dark:border-white/10 shrink-0">

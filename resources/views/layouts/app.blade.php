@@ -812,7 +812,7 @@
         @include('layouts.partials.sidebar', compact('activeBiz', 'navEntitlement', 'navUsage', 'isCorePlan', 'canAccessSales', 'canAccessPurchasing', 'canAccessInventory', 'canAccessCosting', 'canAccessFinance', 'canAccessReports', 'canAccessSettings', 'canAccessRoles', 'canAccessBilling', 'canAccessMasterData'))
 
         <!-- Main Content Area (macOS Window Canvas) -->
-        <div :class="sidebarCollapsed ? 'lg:pl-[76px]' : 'lg:pl-[268px]'"
+        <div :class="sidebarCollapsed ? 'lg:pl-[76px]' : 'lg:pl-[272px]'"
             class="flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-250 ease-out bg-[#F2F2F7] dark:bg-[#1E1E1E]">
 
             <!-- Topbar Header (Apple macOS Toolbar Architecture) -->
