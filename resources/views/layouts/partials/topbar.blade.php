@@ -31,6 +31,35 @@
             padding-right: 1rem !important;
         }
     }
+
+    /* One compact macOS toolbar geometry for every topbar control. */
+    .app-topbar-actions {
+        gap: 0.5rem !important;
+    }
+
+    .app-topbar-actions > a,
+    .app-topbar-actions > .relative > button,
+    .app-topbar-actions > .flex.items-center > div > button {
+        height: 2.25rem !important;
+        min-height: 2.25rem !important;
+        border-radius: 0.625rem !important;
+        box-sizing: border-box !important;
+    }
+
+    .app-topbar-actions > .flex.items-center {
+        height: 2.5rem !important;
+        min-height: 2.5rem !important;
+        border-radius: 0.75rem !important;
+    }
+
+    .app-topbar-actions > .relative > button {
+        padding: 0.25rem 0.5rem !important;
+    }
+
+    .app-topbar-actions > .relative > button > div:first-child {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
 </style>
 <!-- Topbar Header (Apple macOS Toolbar Architecture) -->
 <header class="app-topbar h-16 glass-header sticky top-0 z-30 flex items-center justify-between px-4 sm:px-7 lg:px-9 border-b border-black/5 dark:border-white/10 transition-all">

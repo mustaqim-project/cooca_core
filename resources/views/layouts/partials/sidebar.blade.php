@@ -198,6 +198,28 @@
     margin-top: 0.125rem;
 }
 
+/* Every actionable navigation row shares one touch target and type scale. */
+.sidebar-nav a:not(.sidebar-item),
+.sidebar-nav button:not(.sidebar-item) {
+    min-height: var(--sidebar-row) !important;
+    height: var(--sidebar-row);
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    border-radius: var(--sidebar-radius) !important;
+    font-size: 0.8125rem !important;
+    line-height: 1.25rem !important;
+    box-sizing: border-box;
+}
+
+.sidebar-nav a:not(.sidebar-item) > i,
+.sidebar-nav a:not(.sidebar-item) > svg,
+.sidebar-nav button:not(.sidebar-item) > i,
+.sidebar-nav button:not(.sidebar-item) > svg {
+    width: var(--sidebar-icon) !important;
+    height: var(--sidebar-icon) !important;
+    flex: 0 0 var(--sidebar-icon);
+}
+
 @media (max-width: 1023px) {
     .app-sidebar {
         width: 336px !important;
@@ -518,6 +540,48 @@
         display: block !important;
         width: 100% !important;
     }
+}
+
+/* Final source-list normalization: every expanded navigation row uses one geometry. */
+.app-sidebar:not(.is-collapsed) .sidebar-nav .sidebar-item,
+.app-sidebar:not(.is-collapsed) .sidebar-nav a:not(.sidebar-item),
+.app-sidebar:not(.is-collapsed) .sidebar-nav button:not(.sidebar-item) {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 2.5rem !important;
+    height: 2.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0.625rem !important;
+    font-size: 0.8125rem !important;
+    line-height: 1.25rem !important;
+    box-sizing: border-box !important;
+}
+
+.app-sidebar:not(.is-collapsed) .sidebar-nav .sidebar-item > i,
+.app-sidebar:not(.is-collapsed) .sidebar-nav .sidebar-item > svg,
+.app-sidebar:not(.is-collapsed) .sidebar-nav a:not(.sidebar-item) > i,
+.app-sidebar:not(.is-collapsed) .sidebar-nav a:not(.sidebar-item) > svg,
+.app-sidebar:not(.is-collapsed) .sidebar-nav button:not(.sidebar-item) > i,
+.app-sidebar:not(.is-collapsed) .sidebar-nav button:not(.sidebar-item) > svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    flex: 0 0 1rem !important;
+}
+
+.app-sidebar:not(.is-collapsed) .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+.app-sidebar:not(.is-collapsed) .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > div:not([x-show]) {
+    height: 1.5rem !important;
+    min-height: 1.5rem !important;
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+    font-size: 0.6875rem !important;
+    line-height: 1rem !important;
 }
 </style>
 
