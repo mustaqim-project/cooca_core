@@ -7,6 +7,7 @@ namespace App\Services\Seo;
 use App\Models\BusinessLandingPage;
 use App\Models\Post;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 final class SitemapService
 {
@@ -204,10 +205,10 @@ final class SitemapService
                 ->get();
 
             foreach ($businessLandings as $landing) {
-                if ($landing->business && $landing->business->slug) {
+                if ($landing->business && $landing->business->name) {
                     $landingDate = ($landing->updated_at ?? Carbon::now())->toIso8601String();
                     $urls[] = [
-                        'loc' => $baseUrl . '/b/' . $landing->business->slug,
+                        'loc' => $baseUrl . '/' . Str::slug($landing->business->name),
                         'lastmod' => $landingDate,
                         'changefreq' => 'weekly',
                         'priority' => '0.7',

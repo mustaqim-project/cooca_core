@@ -81,7 +81,7 @@ Route::get('/kontak', [PublicContactController::class, 'show'])->name('contact')
 Route::post('/kontak', [PublicContactController::class, 'submit'])->name('contact.submit');
 
 // 6. Public Business Single-Page Landing Pages
-Route::get('/b/{slug}', [PublicBusinessLandingController::class, 'show'])->name('public.business.landing');
+Route::get('/b/{slug}', [PublicBusinessLandingController::class, 'show'])->name('public.business.landing.legacy');
 
 // 7. Public Customer QR Table Ordering
 Route::get('/t/{qrToken}', [\App\Http\Controllers\Web\Pos\PublicQrOrderWebController::class, 'showMenu'])->name('public.qr.menu');
@@ -700,3 +700,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         });
     });
 });
+
+// Public business landing pages use the business name as the direct URL slug.
+Route::get('/{slug}', [PublicBusinessLandingController::class, 'show'])
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('public.business.landing');

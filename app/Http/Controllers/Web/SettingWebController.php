@@ -13,6 +13,7 @@ use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class SettingWebController extends Controller
@@ -62,7 +63,7 @@ final class SettingWebController extends Controller
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
+            'name' => ['nullable', 'string', 'max:255', Rule::unique('businesses', 'name')->ignore($business->id)],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:2048'],
             'remove_logo' => ['nullable', 'boolean'],
             'phone' => ['nullable', 'string', 'max:50'],

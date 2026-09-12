@@ -111,7 +111,7 @@ final class GoogleAuthController extends Controller
         }
 
         $validated = $request->validate([
-            'business_name' => ['required', 'string', 'max:255'],
+            'business_name' => ['required', 'string', 'max:255', 'unique:businesses,name'],
             'phone' => ['required', 'string', 'min:10', 'max:20'],
         ]);
         $phone = $this->normalizePhone($validated['phone']);

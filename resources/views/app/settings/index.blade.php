@@ -145,6 +145,7 @@
                         </label>
                         <input type="text" id="biz_name_input" name="name" value="{{ old('name', $business->name) }}" required
                             class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[15px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        <p class="mt-1 text-[11px] text-black/40 dark:text-white/40">Nama usaha harus unik dan menjadi bagian dari URL website publik.</p>
                     </div>
                     <div>
                         <label for="biz_tax_input" class="block text-[13px] font-medium text-black/70 dark:text-white/70 mb-1.5">

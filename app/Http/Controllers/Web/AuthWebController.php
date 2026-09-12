@@ -111,7 +111,7 @@ final class AuthWebController extends Controller
             'email' => ['required', 'email', 'unique:users,email'],
             'phone' => ['required', 'string', 'min:10', 'max:20'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'business_name' => ['required', 'string', 'max:255'],
+            'business_name' => ['required', 'string', 'max:255', 'unique:businesses,name'],
             'template_code' => ['nullable', 'string', 'exists:business_type_templates,code'],
         ]);
 
@@ -175,6 +175,13 @@ final class AuthWebController extends Controller
             $pending['attempts'] = $attempts;
             $request->session()->put('pending_registration', $pending);
             return back()->withErrors(['otp' => 'Kode OTP salah. Sisa percobaan: ' . (5 - $attempts) . '.']);
+        }
+
+        if (Business::where('name', $pending['business_name'])->exists()) {
+            $request->session()->forget('pending_registration');
+            return redirect()->route('register')->withErrors([
+                'business_name' => 'Nama bisnis sudah digunakan. Silakan gunakan nama bisnis lain.',
+            ])->withInput(['business_name' => $pending['business_name']]);
         }
 
         /** @var User $user */
@@ -294,7 +301,7 @@ final class AuthWebController extends Controller
     public function storeBusiness(Request $request, BusinessTemplateService $templateService): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', 'unique:businesses,name'],
             'template_code' => ['nullable', 'string', 'exists:business_type_templates,code'],
             'currency' => ['nullable', 'string', 'max:3'],
         ]);
@@ -383,7 +390,7 @@ final class AuthWebController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:50'],
-            'business_name' => ['required', 'string', 'max:255'],
+            'business_name' => ['required', 'string', 'max:255', 'unique:businesses,name,' . optional(Context::business())->id],
         ]);
 
         /** @var User $user */

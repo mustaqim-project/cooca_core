@@ -40,6 +40,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                         </svg>
                     </a>
+                    <span class="text-[11px] text-black/40 dark:text-white/40">URL mengikuti nama bisnis</span>
                     <button type="button" @click="copyLink('{{ $publicUrl }}')"
                         class="h-6 px-2 rounded-[6px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 font-medium active:scale-[0.97] transition inline-flex items-center gap-1 text-[11px]">
                         <svg class="w-3 h-3 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">

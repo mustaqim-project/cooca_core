@@ -10,6 +10,7 @@ use App\Models\BusinessLandingPage;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PublicBusinessLandingController extends Controller
@@ -21,7 +22,15 @@ class PublicBusinessLandingController extends Controller
     {
         $business = Business::where('slug', $slug)
             ->where('is_active', true)
-            ->firstOrFail();
+            ->first();
+
+        if (! $business) {
+            $business = Business::where('is_active', true)
+                ->get()
+                ->first(fn (Business $candidate): bool => Str::slug($candidate->name) === $slug);
+        }
+
+        abort_unless($business, 404);
 
         $landingPage = BusinessLandingPage::where('business_id', $business->id)->first();
 
