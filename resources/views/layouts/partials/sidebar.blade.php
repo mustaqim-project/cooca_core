@@ -139,6 +139,30 @@
     letter-spacing: 0.06em;
 }
 
+/* Nested source-list groups: consistent inset, row height, and breathing room. */
+.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
+    margin-left: 1rem !important;
+    padding: 0.5rem 0.25rem 0.5rem 0.875rem !important;
+    border-left-color: var(--border) !important;
+}
+
+.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > a {
+    min-height: 2.25rem;
+    margin: 0.125rem 0;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0.625rem !important;
+    gap: 0.625rem !important;
+    line-height: 1.25rem;
+}
+
+.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > div:not([x-show]) {
+    margin-top: 0.625rem;
+    margin-bottom: 0.25rem;
+    padding: 0.25rem 0.75rem !important;
+    min-height: 1.25rem;
+    line-height: 1rem;
+}
+
 @media (max-width: 1023px) {
     .app-sidebar {
         width: 336px !important;
@@ -292,6 +316,11 @@
 
     .app-sidebar.is-collapsed .sidebar-nav > div {
         margin-bottom: 0 !important;
+    }
+
+    .app-sidebar.is-collapsed .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
+        margin-left: 0 !important;
+        padding: 0 !important;
     }
 
     /* 5. Navigation Items (Links & Buttons): 40x40 Squircles centered at X=38px */
