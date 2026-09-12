@@ -2,6 +2,36 @@
     $activeBiz = $activeBiz ?? \App\Support\Context::business();
     $currentUser = auth()->user();
 @endphp
+<style>
+    .app-topbar {
+        min-height: 4rem;
+    }
+
+    .app-topbar-actions > a,
+    .app-topbar-actions > .relative > button,
+    .app-topbar-actions > .flex.items-center > div > button {
+        min-height: 2.25rem !important;
+    }
+
+    .app-topbar-actions > .relative > button,
+    .app-topbar-actions > .flex.items-center > div > button {
+        min-width: 2.25rem !important;
+        border-radius: 0.625rem !important;
+    }
+
+    .app-topbar-actions > .flex.items-center {
+        min-height: 2.5rem;
+        padding: 0.25rem !important;
+        border-radius: 0.75rem !important;
+    }
+
+    @media (max-width: 639px) {
+        .app-topbar {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+    }
+</style>
 <!-- Topbar Header (Apple macOS Toolbar Architecture) -->
 <header class="app-topbar h-16 glass-header sticky top-0 z-30 flex items-center justify-between px-4 sm:px-7 lg:px-9 border-b border-black/5 dark:border-white/10 transition-all">
     <!-- Left Cluster: Mobile Trigger + Desktop Sidebar Toggle + Title -->

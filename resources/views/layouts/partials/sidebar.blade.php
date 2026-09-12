@@ -130,6 +130,15 @@
     margin-bottom: 0.75rem;
 }
 
+.sidebar-nav > div > div[x-show="!sidebarCollapsed"] {
+    min-height: 1.25rem;
+    display: flex;
+    align-items: center;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    letter-spacing: 0.06em;
+}
+
 @media (max-width: 1023px) {
     .app-sidebar {
         width: 336px !important;
@@ -279,6 +288,10 @@
         padding-top: 0.625rem !important;
         padding-bottom: 0.625rem !important;
         overflow-x: hidden !important;
+    }
+
+    .app-sidebar.is-collapsed .sidebar-nav > div {
+        margin-bottom: 0 !important;
     }
 
     /* 5. Navigation Items (Links & Buttons): 40x40 Squircles centered at X=38px */
