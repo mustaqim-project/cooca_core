@@ -115,108 +115,205 @@
 
 {{-- Apple HIG (macOS Sonoma & iOS 18) Sidebar Rail Styles --}}
 <style>
-/* Calm Apple-style rhythm for the expanded navigation rail. */
-.sidebar-nav {
-    padding: 1rem 0.75rem !important;
-}
+/* ============================================================
+   SIDEBAR NAVIGATION — CONSISTENT SPACING & TYPOGRAPHY SYSTEM
+   ============================================================ */
 
-.sidebar-nav .sidebar-item {
-    min-height: 2.5rem;
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
+.sidebar-nav {
+    padding: 0.875rem 0.75rem !important;
 }
 
 .sidebar-nav > div {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem !important;
+    padding-top: 0 !important;
+}
+.sidebar-nav > div:last-child {
+    margin-bottom: 0.25rem !important;
 }
 
+/* Section headings */
 .sidebar-nav > div > div[x-show="!sidebarCollapsed"] {
+    min-height: 1.5rem;
+    display: flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem !important;
+    margin: 0 0 0.25rem 0 !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase;
+    color: rgba(60, 60, 67, 0.55) !important;
+    user-select: none;
+}
+.dark .sidebar-nav > div > div[x-show="!sidebarCollapsed"] {
+    color: rgba(235, 235, 245, 0.5) !important;
+}
+
+/* Collapsed separator */
+.sidebar-nav > div > div.sidebar-separator {
+    width: 1.75rem !important;
+    margin: 0.5rem auto !important;
+    border-top: 1px solid rgba(60, 60, 67, 0.1) !important;
+}
+.dark .sidebar-nav > div > div.sidebar-separator {
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Parent items */
+.sidebar-nav .sidebar-item {
+    min-height: 2.25rem !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 13px !important;
+    line-height: 1.25rem !important;
+    font-weight: 500 !important;
+    border-radius: 0.5rem !important;
+    margin: 0.0625rem 0 !important;
+    gap: 0.625rem !important;
+}
+
+/* Nested submenu container */
+.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
+    margin: 0.25rem 0 0.5rem 0.875rem !important;
+    padding: 0.25rem 0 0.25rem 0.75rem !important;
+    border-left: 1px solid rgba(60, 60, 67, 0.12) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.125rem !important;
+}
+.dark .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
+    border-left-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Nested items */
+.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > a {
+    min-height: 2rem !important;
+    padding: 0.4375rem 0.625rem !important;
+    font-size: 12px !important;
+    line-height: 1.125rem !important;
+    font-weight: 500 !important;
+    border-radius: 0.4375rem !important;
+    margin: 0 !important;
+    gap: 0.5rem !important;
+}
+
+/* Subsection labels */
+.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > div:not([x-show]) {
     min-height: 1.25rem;
     display: flex;
     align-items: center;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-    letter-spacing: 0.06em;
+    padding: 0.5rem 0.625rem 0.25rem 0.625rem !important;
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase;
+    color: rgba(60, 60, 67, 0.45) !important;
+    user-select: none;
+}
+.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > div:not([x-show]):first-child {
+    padding-top: 0.25rem !important;
+}
+.dark .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > div:not([x-show]) {
+    color: rgba(235, 235, 245, 0.4) !important;
 }
 
-/* Nested source-list groups: consistent inset, row height, and breathing room. */
-.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
-    margin-left: 1rem !important;
-    padding: 0.5rem 0.25rem 0.5rem 0.875rem !important;
-    border-left-color: var(--border) !important;
+/* Uniform icon sizing */
+.sidebar-nav .sidebar-item > svg:not([data-lucide="chevron-down"]):not(.lucide-chevron-down),
+.sidebar-nav .sidebar-item > i:not([data-lucide="chevron-down"]):not(.lucide-chevron-down),
+.sidebar-nav .sidebar-item-inner > svg,
+.sidebar-nav .sidebar-item-inner > i,
+.sidebar-nav .sidebar-item-inner > div > svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    flex-shrink: 0 !important;
+}
+.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > a > svg,
+.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > a > i {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+    flex-shrink: 0 !important;
+}
+.sidebar-nav .sidebar-item > [data-lucide="chevron-down"],
+.sidebar-nav .sidebar-item > .lucide-chevron-down {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+    flex-shrink: 0 !important;
 }
 
-.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > a {
-    min-height: 2.25rem;
-    margin: 0.125rem 0;
-    padding: 0.5rem 0.75rem !important;
-    border-radius: 0.625rem !important;
-    gap: 0.625rem !important;
-    line-height: 1.25rem;
-}
-
-.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > div:not([x-show]) {
-    margin-top: 0.625rem;
-    margin-bottom: 0.25rem;
-    padding: 0.25rem 0.75rem !important;
-    min-height: 1.25rem;
-    line-height: 1rem;
-}
-
+/* ============================================================
+   TABLET & MOBILE (<= 1023px) — Drawer
+   ============================================================ */
 @media (max-width: 1023px) {
     .app-sidebar {
-        width: 336px !important;
+        width: min(336px, 88vw) !important;
     }
-
     .sidebar-header {
-        height: 4rem !important;
-        padding-left: 1.25rem !important;
-        padding-right: 1.25rem !important;
+        height: 3.75rem !important;
+        padding-left: 1.125rem !important;
+        padding-right: 1.125rem !important;
     }
-
     .sidebar-tenant-wrapper {
-        padding: 1rem 0.875rem !important;
+        padding: 0.75rem 0.875rem !important;
+    }
+    .sidebar-nav {
+        padding: 0.75rem 0.75rem !important;
+    }
+    .sidebar-nav > div {
+        margin-bottom: 0.875rem !important;
+    }
+    .sidebar-nav .sidebar-item {
+        min-height: 2.5rem !important;
+        padding: 0.625rem 0.75rem !important;
+        font-size: 13.5px !important;
+    }
+    .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > a {
+        min-height: 2.25rem !important;
+        padding: 0.5rem 0.625rem !important;
+        font-size: 12.5px !important;
     }
 }
 
+/* Small mobile */
+@media (max-width: 480px) {
+    .app-sidebar {
+        width: 90vw !important;
+    }
+    .sidebar-nav {
+        padding: 0.625rem 0.625rem !important;
+    }
+}
+
+/* ============================================================
+   DESKTOP EXPANDED (>= 1024px)
+   ============================================================ */
 @media (min-width: 1024px) {
     .app-sidebar:not(.is-collapsed) {
         width: 272px !important;
     }
-
     .app-sidebar:not(.is-collapsed) .sidebar-header {
         height: 4rem !important;
         padding-left: 1.25rem !important;
         padding-right: 1.25rem !important;
     }
-
     .app-sidebar:not(.is-collapsed) .sidebar-tenant-wrapper {
         padding: 0.875rem 1rem !important;
     }
-
     .app-sidebar:not(.is-collapsed) .sidebar-nav {
         padding: 0.875rem 0.75rem !important;
     }
-
-    .app-sidebar:not(.is-collapsed) .sidebar-item {
-        min-height: 2.5rem !important;
-        padding-top: 0.625rem !important;
-        padding-bottom: 0.625rem !important;
-    }
-
-    .app-sidebar:not(.is-collapsed) .sidebar-nav > div > div[x-show="!sidebarCollapsed"] {
-        margin-top: 0.75rem !important;
-        margin-bottom: 0.375rem !important;
-    }
 }
 
+/* ============================================================
+   DESKTOP COLLAPSED RAIL (76px)
+   ============================================================ */
 @media (min-width: 1024px) {
-    /* 1. Collapsed Sidebar Container (Clean 76px Icon Rail) */
     .app-sidebar.is-collapsed {
         width: 76px !important;
     }
 
-    /* 2. Brand Logo Header: Perfectly Centered on X=38px Axis */
+    /* Header */
     .app-sidebar.is-collapsed .sidebar-header {
         padding-left: 0 !important;
         padding-right: 0 !important;
@@ -238,7 +335,7 @@
         overflow: hidden !important;
     }
 
-    /* 3. Tenant / Active Business Switcher: Uniform 40x40 Squircle Centered on X=38px */
+    /* Tenant switcher */
     .app-sidebar.is-collapsed .sidebar-tenant-wrapper {
         padding-left: 0 !important;
         padding-right: 0 !important;
@@ -248,8 +345,8 @@
         justify-content: center !important;
     }
     .app-sidebar.is-collapsed .sidebar-tenant-card {
-        width: 2.5rem !important;      /* 40px */
-        height: 2.5rem !important;     /* 40px */
+        width: 2.5rem !important;
+        height: 2.5rem !important;
         min-width: 2.5rem !important;
         min-height: 2.5rem !important;
         max-width: 2.5rem !important;
@@ -305,7 +402,7 @@
         overflow: hidden !important;
     }
 
-    /* 4. Navigation Container */
+    /* Nav container */
     .app-sidebar.is-collapsed .sidebar-nav {
         padding-left: 0 !important;
         padding-right: 0 !important;
@@ -313,20 +410,18 @@
         padding-bottom: 0.625rem !important;
         overflow-x: hidden !important;
     }
-
     .app-sidebar.is-collapsed .sidebar-nav > div {
         margin-bottom: 0 !important;
     }
-
     .app-sidebar.is-collapsed .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
         margin-left: 0 !important;
         padding: 0 !important;
     }
 
-    /* 5. Navigation Items (Links & Buttons): 40x40 Squircles centered at X=38px */
+    /* Items */
     .app-sidebar.is-collapsed .sidebar-item {
-        width: 2.5rem !important;      /* 40px */
-        height: 2.5rem !important;     /* 40px */
+        width: 2.5rem !important;
+        height: 2.5rem !important;
         min-width: 2.5rem !important;
         min-height: 2.5rem !important;
         max-width: 2.5rem !important;
@@ -356,29 +451,25 @@
         margin: 0 !important;
         padding: 0 !important;
     }
-
-    /* Center child div if wrapped (e.g. WhatsApp icon) */
     .app-sidebar.is-collapsed .sidebar-item-inner > div {
         margin: 0 auto !important;
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
     }
-
-    /* Primary Icons: strictly 18px block centered on X=38px */
     .app-sidebar.is-collapsed .sidebar-item > svg:not(.lucide-chevron-down):not([data-lucide="chevron-down"]):not(.sidebar-chevron),
     .app-sidebar.is-collapsed .sidebar-item > i:not(.lucide-chevron-down):not([data-lucide="chevron-down"]):not(.sidebar-chevron),
     .app-sidebar.is-collapsed .sidebar-item-inner > svg,
     .app-sidebar.is-collapsed .sidebar-item-inner > i,
     .app-sidebar.is-collapsed .sidebar-item-inner > div > svg {
         margin: 0 auto !important;
-        width: 1.125rem !important;     /* 18px */
-        height: 1.125rem !important;    /* 18px */
+        width: 1.125rem !important;
+        height: 1.125rem !important;
         flex-shrink: 0 !important;
         display: block !important;
     }
 
-    /* Strictly hide all dropdown chevrons in collapsed rail */
+    /* Hide chevrons */
     .app-sidebar.is-collapsed [data-lucide="chevron-down"],
     .app-sidebar.is-collapsed .lucide-chevron-down,
     .app-sidebar.is-collapsed svg.lucide-chevron-down,
@@ -395,7 +486,7 @@
         opacity: 0 !important;
     }
 
-    /* Strictly hide all text labels and badges in collapsed items */
+    /* Hide text */
     .app-sidebar.is-collapsed .sidebar-item > span,
     .app-sidebar.is-collapsed .sidebar-item-inner > span,
     .app-sidebar.is-collapsed .sidebar-item > div:not(.sidebar-item-inner) {
@@ -406,7 +497,7 @@
         overflow: hidden !important;
     }
 
-    /* Hide section titles and inline submenus in collapsed mode */
+    /* Hide titles & submenus */
     .app-sidebar.is-collapsed .sidebar-nav > div > div[x-show="!sidebarCollapsed"],
     .app-sidebar.is-collapsed .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
         display: none !important;
@@ -417,15 +508,15 @@
         overflow: hidden !important;
     }
 
-    /* 6. Active Squircle State (macOS Sonoma Selection) */
+    /* Active state */
     .app-sidebar.is-collapsed .sidebar-item[aria-current="page"] {
         border-radius: 10px !important;
         box-shadow: 0 1px 3px rgba(0, 122, 255, 0.35) !important;
     }
 
-    /* 7. Separator Lines: Subtle Hairline centered at X=38px */
+    /* Separator */
     .app-sidebar.is-collapsed .sidebar-separator {
-        width: 1.75rem !important;     /* 28px */
+        width: 1.75rem !important;
         margin-left: auto !important;
         margin-right: auto !important;
         margin-top: 0.5rem !important;
@@ -439,7 +530,7 @@
         border-color: rgba(255, 255, 255, 0.08) !important;
     }
 
-    /* 8. Bottom Plan Card Area: Strictly Toggle Collapsed vs Expanded */
+    /* Bottom plan card */
     .app-sidebar.is-collapsed .sidebar-bottom {
         padding: 0.625rem 0 !important;
         display: flex !important;
@@ -470,8 +561,6 @@
         position: absolute !important;
         pointer-events: none !important;
     }
-
-    /* Expanded Sidebar State for Plan Card */
     .app-sidebar:not(.is-collapsed) .sidebar-plan-collapsed {
         display: none !important;
         visibility: hidden !important;
@@ -496,7 +585,7 @@
     }"
     class="app-sidebar fixed inset-y-0 left-0 z-50 w-[336px] h-screen max-h-screen glass-nav flex flex-col justify-between transition-all duration-300 ease-out max-lg:rounded-r-[20px] max-lg:shadow-[0_20px_50px_rgba(0,0,0,0.25)] select-none">
 
-    {{-- 1. Brand Logo Header (macOS Toolbar Height h-14) --}}
+    {{-- 1. Brand Logo Header --}}
     <div class="sidebar-header h-14 flex items-center justify-between px-4 border-b border-black/5 dark:border-white/10 shrink-0">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group overflow-hidden">
             <div id="tour-active-business"
@@ -510,7 +599,6 @@
                 </div>
             </div>
         </a>
-        {{-- Mobile Drawer Close Button --}}
         <button @click="sidebarOpen = false" type="button" aria-label="Tutup Menu"
             class="lg:hidden text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white p-1.5 rounded-[8px] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] active:scale-95 transition-all cursor-pointer">
             <i data-lucide="x" class="w-4 h-4"></i>
@@ -559,7 +647,7 @@
         </div>
     @endif
 
-    {{-- 3. Navigation Links (Clean macOS Sidebar Architecture - No Card Boxes) --}}
+    {{-- 3. Navigation Links --}}
     <nav class="sidebar-nav flex-1 overflow-y-auto px-2.5 py-3 space-y-2.5 min-h-0 overscroll-contain text-xs"
         x-data="{
             salesOpen: {{ $isSalesRoute ? 'true' : 'false' }},
@@ -653,7 +741,6 @@
                             x-transition:enter="transition-all ease-out duration-150"
                             class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
 
-                            {{-- Subgroup: Operasional Kasir & Resto POS --}}
                             @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::isOwner())
                                 <div class="px-2 pt-1 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
                                     Kasir &amp; Resto POS
@@ -707,7 +794,6 @@
 
                             @endif
 
-                            {{-- Subgroup: Penjualan & Penagihan B2B --}}
                             @if (\App\Support\Context::hasPermission('sales.view') || \App\Support\Context::hasPermission('invoices.view') || \App\Support\Context::hasPermission('sales.returns'))
                                 <div class="px-2 pt-2 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
                                     Penjualan &amp; Penagihan
@@ -753,7 +839,6 @@
                                 </a>
                             @endif
 
-                            {{-- Subgroup: Pelanggan & Loyalitas CRM --}}
                             @if (\App\Support\Context::hasPermission('customers.view') || \App\Support\Context::hasPermission('crm.view'))
                                 <div class="px-2 pt-2 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
                                     Pelanggan &amp; Loyalitas
@@ -894,7 +979,6 @@
                             x-transition:enter="transition-all ease-out duration-150"
                             class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
 
-                            {{-- Subgroup: Katalog & Resep --}}
                             @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('materials.view'))
                                 <div class="px-2 pt-1 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
                                     Katalog &amp; Bahan
@@ -943,7 +1027,6 @@
                                 </a>
                             @endif
 
-                            {{-- Subgroup: Fisik & Pergudangan --}}
                             @if (\App\Support\Context::hasPermission('inventory.view') || \App\Support\Context::hasPermission('inventory.manage'))
                                 <div class="px-2 pt-2 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
                                     Stok &amp; Pergudangan
@@ -1757,9 +1840,8 @@
         </div>
     </nav>
 
-    {{-- 4. Subscription Plan Card (Apple HIG Special Design Card) --}}
+    {{-- 4. Subscription Plan Card --}}
     <div class="sidebar-bottom p-2.5 border-t border-black/5 dark:border-white/10 shrink-0 bg-white/75 dark:bg-[#1C1C1E]/75 backdrop-blur-md">
-        <!-- Collapsed Sidebar: Compact Squircle Action -->
         <div x-show="sidebarCollapsed" class="sidebar-plan-collapsed flex justify-center py-1">
             @if ($isCorePlan)
                 <a href="{{ route('billing.limits') }}"
@@ -1776,10 +1858,8 @@
             @endif
         </div>
 
-        <!-- Expanded Sidebar: Rich Apple HIG Card -->
         <div x-show="!sidebarCollapsed" class="sidebar-plan-expanded" x-transition.opacity>
             @if ($isCorePlan)
-                {{-- Active Core Plan Card --}}
                 <div class="relative overflow-hidden rounded-[12px] p-3 border border-[#34C759]/25 bg-gradient-to-br from-[#34C759]/10 via-[#30D158]/5 to-transparent dark:from-[#30D158]/15 dark:via-[#30D158]/5 dark:to-transparent space-y-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
                     <div class="flex items-center justify-between gap-1.5">
                         <div class="flex items-center gap-1.5 min-w-0">
@@ -1814,9 +1894,7 @@
                     </a>
                 </div>
             @else
-                {{-- Free Plan Upgrade Card (macOS Sonoma Frosted Glass + iOS Gradient) --}}
                 <div class="relative overflow-hidden rounded-[12px] p-3 border border-black/5 dark:border-white/10 bg-gradient-to-br from-[#007AFF]/10 via-[#5856D6]/5 to-transparent dark:from-[#007AFF]/15 dark:via-[#5856D6]/10 dark:to-transparent space-y-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
-                    {{-- Header Badge & Title --}}
                     <div class="flex items-center justify-between gap-1.5">
                         <span class="text-[12px] font-semibold text-black dark:text-white truncate">Paket Free (Solo)</span>
                         <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#FF9500] dark:text-[#FF9F0A] border border-[#FF9500]/25 shrink-0">
@@ -1824,9 +1902,7 @@
                         </span>
                     </div>
 
-                    {{-- Usage Meters --}}
                     <div class="space-y-1.5 text-[11px]">
-                        {{-- Katalog Produk --}}
                         <div class="space-y-0.5">
                             <div class="flex items-center justify-between text-[10.5px] text-black/60 dark:text-white/60">
                                 <span>Katalog Produk:</span>
@@ -1840,7 +1916,6 @@
                             </div>
                         </div>
 
-                        {{-- Resep / BOM --}}
                         <div class="space-y-0.5">
                             <div class="flex items-center justify-between text-[10.5px] text-black/60 dark:text-white/60">
                                 <span>Resep / BOM:</span>
@@ -1854,7 +1929,6 @@
                             </div>
                         </div>
 
-                        {{-- Invoice Bulan Ini --}}
                         <div class="space-y-0.5">
                             <div class="flex items-center justify-between text-[10.5px] text-black/60 dark:text-white/60">
                                 <span>Invoice Bulan Ini:</span>
@@ -1869,7 +1943,6 @@
                         </div>
                     </div>
 
-                    {{-- Action CTA Button --}}
                     <div class="space-y-1 pt-0.5">
                         <a href="{{ route('billing.patungan') }}"
                             class="w-full h-7.5 px-3 rounded-[8px] bg-gradient-to-r from-[#007AFF] to-[#5856D6] hover:opacity-95 text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-[0_2px_6px_rgba(0,122,255,0.25)] transition-all active:scale-[0.97] cursor-pointer">
