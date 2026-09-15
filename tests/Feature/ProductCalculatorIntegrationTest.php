@@ -27,11 +27,21 @@ class ProductCalculatorIntegrationTest extends TestCase
         parent::setUp();
         Context::flush();
 
-        $this->user = User::create(['name' => 'Owner Produk', 'email' => 'produk@cooca.id', 'password' => 'password123']);
+        $this->user = User::create([
+            'name' => 'Owner Produk',
+            'email' => 'produk@cooca.id',
+            'phone' => '081234567890',
+            'password' => 'password123',
+        ]);
+        $this->user->forceFill(['email_verified_at' => now()])->save();
         $this->business = Business::create(['name' => 'Toko Produk Maju']);
         $this->business->users()->attach($this->user->id, ['id' => (string) Str::uuid(), 'role' => 'owner']);
         $this->user->update(['active_business_id' => $this->business->id]);
         Context::setBusiness($this->business);
+        $this->withSession([
+            'auth_wa_otp_verified_user_id' => $this->user->id,
+            'active_business_id' => $this->business->id,
+        ]);
 
         $this->unit = Unit::create([
             'business_id' => $this->business->id,

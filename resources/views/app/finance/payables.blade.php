@@ -131,7 +131,7 @@
             <h2 class="text-[15px] font-semibold text-black dark:text-white">Daftar Tagihan Hutang Supplier</h2>
             <span class="text-[13px] text-black/45 dark:text-white/45 tabular-nums">{{ $invoices->total() }} Tagihan</span>
         </div>
-        <div class="overflow-x-auto">
+        <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-left text-[13px]">
                 <thead>
                     <tr class="border-b border-black/5 dark:border-white/10">
@@ -207,6 +207,67 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- MOBILE GROUPED INSET LIST (Apple iOS HIG) --}}
+        <div class="sm:hidden divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+            @forelse($invoices as $invoice)
+            @php
+                $daysDiff = $invoice->due_date ? (int) now()->startOfDay()->diffInDays($invoice->due_date, false) : 0;
+                $isOverdue = $daysDiff < 0;
+                $daysOverdue = abs($daysDiff);
+            @endphp
+            <div class="p-3.5 space-y-2.5 active:bg-black/[0.02] dark:active:bg-white/[0.03] transition-colors">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <div class="font-semibold text-[14px] text-black dark:text-white tabular-nums">
+                            {{ $invoice->invoice_number ?? $invoice->bill_number ?? '-' }}
+                        </div>
+                        <div class="text-[13px] font-medium text-black/80 dark:text-white/80 mt-0.5">
+                            {{ $invoice->supplier?->name ?? 'Supplier Umum' }}
+                        </div>
+                        <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 tabular-nums">
+                            Tgl: {{ $invoice->invoice_date?->format('d M Y') ?? $invoice->created_at?->format('d M Y') ?? '-' }}
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45">Sisa Hutang</div>
+                        <div class="tabular-nums font-bold text-[15px] text-[#FF9500] dark:text-[#FF9F0A] mt-0.5">
+                            Rp {{ number_format($invoice->balance_due, 0, ',', '.') }}
+                        </div>
+                        <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums mt-0.5">
+                            Total: Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-black/[0.03] dark:border-white/[0.04] text-[12px]">
+                    <div>
+                        @if($isOverdue)
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span> Lewat {{ $daysOverdue }} hr
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Sisa {{ $daysDiff }} hr
+                            </span>
+                        @endif
+                    </div>
+                    <div>
+                        @if(\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.manage') || \App\Support\Context::hasPermission('invoices.record_payment'))
+                        <a href="{{ route('purchasing.bills.index') }}" class="h-8 px-3 rounded-[8px] text-[12px] font-semibold text-white bg-[#FF9500] hover:bg-[#E08500] active:scale-[0.97] transition-all inline-flex items-center gap-1 shadow-xs">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18-3a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3h18V6z"/></svg>
+                            <span>Bayar</span>
+                        </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @empty
+            <div class="py-12 text-center text-[13px] text-black/40 dark:text-white/40">
+                Tidak ada hutang supplier terbuka
+            </div>
+            @endforelse
         </div>
 
         @if($invoices->hasPages())

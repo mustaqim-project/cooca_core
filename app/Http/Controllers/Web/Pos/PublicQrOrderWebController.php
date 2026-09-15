@@ -49,7 +49,8 @@ final class PublicQrOrderWebController extends Controller
             ->with(['category', 'outputUnit'])
             ->get()
             ->map(function (Product $p) use ($locationId): array {
-                $stock = $p->calculateEffectiveStock($locationId);
+                $isService = $p->isService();
+                $stock = $isService ? null : $p->calculateEffectiveStock($locationId);
                 return [
                     'id' => $p->id,
                     'name' => $p->name,
@@ -58,9 +59,11 @@ final class PublicQrOrderWebController extends Controller
                     'selling_price' => (float) $p->selling_price,
                     'category_id' => $p->category_id,
                     'image_url' => $p->image_url,
+                    'type' => $p->type ?? Product::TYPE_GOODS,
+                    'is_service' => $isService,
                     'stock' => $stock,
-                    'is_available' => $stock > 0,
-                    'unit_name' => $p->outputUnit?->name ?? 'Porsi',
+                    'is_available' => $isService ? true : ($stock > 0),
+                    'unit_name' => $p->outputUnit?->name ?? ($isService ? 'Layanan' : 'Porsi'),
                     'modifier_groups' => $p->getAvailableModifierGroupsWithStock($locationId),
                 ];
             })

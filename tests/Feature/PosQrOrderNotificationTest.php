@@ -38,8 +38,10 @@ final class PosQrOrderNotificationTest extends TestCase
         $this->cashier = User::create([
             'name' => 'Kasir Terminal',
             'email' => 'kasir.terminal@example.com',
+            'phone' => '081234567890',
             'password' => 'password123',
         ]);
+        $this->cashier->forceFill(['email_verified_at' => now()])->save();
 
         $this->business = Business::create([
             'name' => 'Resto Notifikasi Test',
@@ -131,6 +133,8 @@ final class PosQrOrderNotificationTest extends TestCase
 
         $response = $this->withSession([
             'current_business_id' => $this->business->id,
+            'active_business_id' => $this->business->id,
+            'auth_wa_otp_verified_user_id' => $this->cashier->id,
         ])->getJson(route('pos.incoming-orders'));
 
         $response->assertOk();
@@ -192,6 +196,8 @@ final class PosQrOrderNotificationTest extends TestCase
 
         $response = $this->withSession([
             'current_business_id' => $this->business->id,
+            'active_business_id' => $this->business->id,
+            'auth_wa_otp_verified_user_id' => $this->cashier->id,
         ])->postJson(route('pos.incoming-orders.accept', $order->id));
 
         $response->assertOk();

@@ -1,4 +1,4 @@
-# 🏪 COOCA CORE — Platform Ekosistem SaaS Manajemen Bisnis & POS UMKM
+# 🏪 COOCA CORE - Platform Ekosistem SaaS Manajemen Bisnis & POS UMKM
 
 [![Production](https://img.shields.io/badge/Production-umkm.cooca.id-emerald?style=flat-square&logo=googlechrome)](https://umkm.cooca.id)
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-red?style=flat-square&logo=laravel)](https://laravel.com)
@@ -32,7 +32,7 @@
 5. **CMS & Landing Page Bisnis Publik**:
    - Setiap tenant bisnis memiliki halaman katalog produk, slider menu/layanan, galeri foto, kontak sosial media, dan integrasi WhatsApp (`/b/{slug}`).
 6. **Sistem Notifikasi & Custom Popup (AppAlert)**:
-   - Zero native alert/confirm — 100% menggunakan custom popup modal dialog dan toast responsif modern yang aman dari XSS dan mendukung Dark/Light Mode.
+   - Zero native alert/confirm - 100% menggunakan custom popup modal dialog dan toast responsif modern yang aman dari XSS dan mendukung Dark/Light Mode.
 7. **Integrasi WhatsApp Gateway Otomatis**:
    - Kirim struk belanja otomatis, broadcast promo, dan reminder invoice yang terhubung dengan microservice Baileys di VPS / Cloud.
 

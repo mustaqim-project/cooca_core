@@ -39,8 +39,10 @@ final class PosReceiptImageTest extends TestCase
         $this->cashier = User::create([
             'name' => 'Kasir Struk',
             'email' => 'kasir.struk@example.com',
+            'phone' => '081234567890',
             'password' => 'password123',
         ]);
+        $this->cashier->forceFill(['email_verified_at' => now()])->save();
 
         $this->business = Business::create([
             'name' => 'Kopi Mantap Pos',
@@ -155,7 +157,10 @@ final class PosReceiptImageTest extends TestCase
         // Authenticated POS route
         Context::setBusiness($this->business);
         $posRes = $this->actingAs($this->cashier)
-            ->withSession(['active_business_id' => $this->business->id])
+            ->withSession([
+                'active_business_id' => $this->business->id,
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+            ])
             ->get(route('pos.receipt.image', $this->order->id));
         $posRes->assertOk();
         $posRes->assertHeader('Content-Type', 'image/png');

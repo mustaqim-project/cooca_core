@@ -303,9 +303,9 @@
             </div>
 
             <div class="rounded-[12px] border border-black/5 dark:border-white/10 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-[13px]">
-                        <thead>
+                <div class="overflow-x-auto sm:overflow-x-visible">
+                    <table class="block sm:table w-full text-left text-[13px]">
+                        <thead class="hidden sm:table-header-group">
                             <tr class="border-b border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] whitespace-nowrap">
                                 <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 w-2/5">Produk / Item *</th>
                                 <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 w-24">Satuan *</th>
@@ -316,43 +316,66 @@
                                 <th class="py-2.5 px-2 w-8 text-center"></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+                        <tbody class="block sm:table-row-group divide-y-0 sm:divide-y divide-black/[0.04] dark:divide-white/[0.06] space-y-3 sm:space-y-0 p-3 sm:p-0">
                             <template x-for="(item, index) in items" :key="index">
-                                <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
-                                    <td class="py-2.5 px-3">
+                                <tr class="block sm:table-row p-3.5 sm:p-0 rounded-[12px] sm:rounded-none bg-black/[0.02] sm:bg-transparent dark:bg-white/[0.02] sm:dark:bg-transparent border sm:border-0 border-black/5 dark:border-white/10 space-y-3 sm:space-y-0 hover:bg-black/[0.03] sm:hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                                    <td class="block sm:table-cell py-0 sm:py-2.5 px-0 sm:px-3">
+                                        <div class="flex sm:hidden items-center justify-between mb-2">
+                                            <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50" x-text="'Item #' + (index + 1)"></span>
+                                            <button type="button" @click="removeItem(index)" :disabled="items.length <= 1" class="h-6 px-2 rounded-[5px] text-[#FF3B30] bg-[#FF3B30]/10 text-[11px] font-medium disabled:opacity-30 flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                <span>Hapus</span>
+                                            </button>
+                                        </div>
+                                        <span class="block sm:hidden text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 mb-1">Pilih Produk</span>
                                         <select :name="'items[' + index + '][product_id]'" x-model="item.product_id" @change="onProductChange(index)" 
                                                 class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                                            <option value="">-- Pilih dari Katalog Produk --</option>
+                                            <option value="">-- Pilih Produk Fisik atau Layanan --</option>
                                             <template x-for="prod in products" :key="prod.id">
-                                                <option :value="prod.id" x-text="prod.name + (prod.selling_price > 0 ? ' (Rp ' + new Intl.NumberFormat('id-ID').format(prod.selling_price) + ')' : '')"></option>
+                                                <option :value="prod.id" x-text="(prod.type === 'service' ? '🛠️ [Jasa] ' : '📦 ') + prod.name + (prod.selling_price > 0 ? ' (Rp ' + new Intl.NumberFormat('id-ID').format(prod.selling_price) + ')' : '')"></option>
                                             </template>
                                         </select>
+                                        <div class="mt-0.5 flex items-center gap-1" x-show="item.product_id">
+                                            <template x-if="products.find(p => p.id === item.product_id)?.type === 'service'">
+                                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
+                                                    🛠️ Jasa / Layanan (Bebas Stok)
+                                                </span>
+                                            </template>
+                                        </div>
                                         <input type="text" :name="'items[' + index + '][item_name]'" x-model="item.item_name" required placeholder="Nama item pada faktur"
-                                            class="w-full h-7 bg-transparent border-b border-black/10 dark:border-white/10 px-1 text-[12px] text-black dark:text-white mt-1 placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:border-[#007AFF] transition">
+                                            class="w-full h-7 bg-transparent border-b border-black/10 dark:border-white/10 px-1 text-[12px] text-black dark:text-white mt-1.5 placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:border-[#007AFF] transition">
                                         <input type="hidden" :name="'items[' + index + '][sku]'" x-model="item.sku">
                                     </td>
-                                    <td class="py-2.5 px-3">
+                                    <td class="inline-block sm:table-cell w-[48%] sm:w-24 py-0 sm:py-2.5 px-0 sm:px-3 align-top">
+                                        <span class="block sm:hidden text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 mb-1">Satuan</span>
                                         <select :name="'items[' + index + '][unit_id]'" x-model="item.unit_id" required class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                             <template x-for="u in units" :key="u.id">
                                                 <option :value="u.id" x-text="u.name + ' (' + u.code + ')'"></option>
                                             </template>
                                         </select>
                                     </td>
-                                    <td class="py-2.5 px-3 text-right">
+                                    <td class="inline-block sm:table-cell w-[48%] sm:w-20 ml-[4%] sm:ml-0 text-left sm:text-right py-0 sm:py-2.5 px-0 sm:px-3 align-top">
+                                        <span class="block sm:hidden text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 mb-1 text-left">Jumlah Qty</span>
                                         <input type="number" step="any" min="0.0001" :name="'items[' + index + '][quantity]'" x-model="item.quantity" required
-                                            class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] text-right tabular-nums font-semibold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                            class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] text-left sm:text-right tabular-nums font-semibold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                     </td>
-                                    <td class="py-2.5 px-3 text-right">
+                                    <td class="inline-block sm:table-cell w-[48%] sm:w-32 text-left sm:text-right py-0 sm:py-2.5 px-0 sm:px-3 align-top">
+                                        <span class="block sm:hidden text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 mb-1 text-left">Harga Jual</span>
                                         <input type="number" step="any" min="0" :name="'items[' + index + '][unit_price]'" x-model="item.unit_price" required
-                                            class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] text-right tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                            class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] text-left sm:text-right tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                     </td>
-                                    <td class="py-2.5 px-3 text-right">
+                                    <td class="inline-block sm:table-cell w-[48%] sm:w-28 ml-[4%] sm:ml-0 text-left sm:text-right py-0 sm:py-2.5 px-0 sm:px-3 align-top">
+                                        <span class="block sm:hidden text-[10px] uppercase font-semibold text-[#FF9500] dark:text-[#FF9F0A] mb-1 text-left">HPP Modal</span>
                                         <input type="number" step="any" min="0" :name="'items[' + index + '][unit_hpp]'" x-model="item.unit_hpp" title="Snapshot HPP Modal"
-                                            class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] text-right tabular-nums text-[#FF9500] dark:text-[#FF9F0A] focus:outline-none focus:ring-2 focus:ring-[#FF9500]/50 transition">
+                                            class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] text-left sm:text-right tabular-nums text-[#FF9500] dark:text-[#FF9F0A] focus:outline-none focus:ring-2 focus:ring-[#FF9500]/50 transition">
                                     </td>
-                                    <td class="py-2.5 px-3 text-right tabular-nums font-semibold text-black dark:text-white text-[13px]" x-text="formatCurrency(item.quantity * item.unit_price)">
+                                    <td class="block sm:table-cell py-1.5 sm:py-2.5 px-0 sm:px-3 text-right tabular-nums font-semibold text-black dark:text-white text-[13px] border-t sm:border-0 border-black/[0.04] dark:border-white/[0.06]">
+                                        <div class="flex sm:block items-center justify-between">
+                                            <span class="block sm:hidden text-[11px] font-semibold text-black/50 dark:text-white/50">Subtotal Baris:</span>
+                                            <span class="text-[14px] sm:text-[13px] text-[#007AFF] sm:text-black dark:sm:text-white font-bold sm:font-semibold" x-text="formatCurrency(item.quantity * item.unit_price)"></span>
+                                        </div>
                                     </td>
-                                    <td class="py-2.5 px-2 text-center">
+                                    <td class="hidden sm:table-cell py-2.5 px-2 w-8 text-center">
                                         <button type="button" @click="removeItem(index)" :disabled="items.length <= 1" class="p-1 rounded-[6px] text-black/30 hover:text-[#FF3B30] dark:text-white/30 dark:hover:text-[#FF453A] disabled:opacity-20 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />

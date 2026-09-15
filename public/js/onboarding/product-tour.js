@@ -1,5 +1,5 @@
 /**
- * Cooca UMKM — Product Tour Engine (Multi-Device & High-Precision Mobile Support)
+ * Cooca UMKM - Product Tour Engine (Multi-Device & High-Precision Mobile Support)
  * Supports dynamic industry selection during onboarding, direct HPP simulation guide,
  * and high-precision target coordinate tracking with auto-drawer open/close.
  */

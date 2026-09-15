@@ -61,21 +61,21 @@
                 <span>Gudang &amp; Lokasi</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold bg-[#007AFF]/12 text-[#007AFF]">{{ $locations->count() }}</span>
             </a>
-            <a href="{{ route('inventory.index') }}"
+            <a href="{{ route('inventory.stocks') }}"
                class="px-3.5 py-1.5 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
                 </svg>
                 <span>Stok Inventori</span>
             </a>
-            <a href="{{ route('inventory.transfers') }}"
+            <a href="{{ route('inventory.transfers.index') }}"
                class="px-3.5 py-1.5 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                 </svg>
                 <span>Transfer Stok</span>
             </a>
-            <a href="{{ route('inventory.opnames') }}"
+            <a href="{{ route('inventory.opnames.index') }}"
                class="px-3.5 py-1.5 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
@@ -475,7 +475,8 @@
             </a>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Movements Table (Desktop) --}}
+        <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-left text-[13px]">
                 <thead>
                     <tr class="border-b border-black/5 dark:border-white/10 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
@@ -527,6 +528,59 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        {{-- Movements List (Mobile Only) --}}
+        <div class="sm:hidden divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+            @foreach($recentMovements as $mv)
+            @php
+                $mvLabels = [
+                    'goods_receipt'  => ['label' => 'Penerimaan PO', 'pill' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]'],
+                    'pos_sale'       => ['label' => 'Penjualan POS', 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
+                    'adjustment'     => ['label' => 'Penyesuaian', 'pill' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]'],
+                    'transfer_in'    => ['label' => 'Transfer Masuk', 'pill' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'],
+                    'transfer_out'   => ['label' => 'Transfer Keluar', 'pill' => 'bg-black/[0.06] dark:bg-white/[0.08] text-black/60 dark:text-white/60'],
+                    'opname'         => ['label' => 'Opname Fisik', 'pill' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]'],
+                ];
+                $mvInfo = $mvLabels[$mv->movement_type] ?? ['label' => ucfirst(str_replace('_', ' ', $mv->movement_type)), 'pill' => 'bg-black/[0.06] dark:bg-white/[0.08] text-black/60 dark:text-white/60'];
+            @endphp
+            <div class="p-3.5 space-y-2 active:bg-black/[0.02] dark:active:bg-white/[0.03] transition-colors">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <div class="font-semibold text-[13px] text-black dark:text-white">{{ $mv->product?->name ?? '-' }}</div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-black/50 dark:text-white/50 mt-0.5">
+                            <span class="font-mono tabular-nums">{{ $mv->product?->code ?? '-' }}</span>
+                            <span>·</span>
+                            <span>{{ $mv->location?->name ?? '-' }}</span>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $mvInfo['pill'] }} shrink-0">
+                        {{ $mvInfo['label'] }}
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between pt-1 text-[12px] bg-black/[0.02] dark:bg-white/[0.02] px-2.5 py-1.5 rounded-[8px]">
+                    <div>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Perubahan</span>
+                        <span class="tabular-nums font-bold {{ $mv->quantity_change >= 0 ? 'text-[#34C759] dark:text-[#30D158]' : 'text-[#FF3B30] dark:text-[#FF453A]' }}">
+                            {{ $mv->quantity_change >= 0 ? '+' : '' }}{{ number_format($mv->quantity_change, 2) }} {{ $mv->product?->outputUnit?->symbol }}
+                        </span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Saldo Akhir</span>
+                        <span class="tabular-nums font-bold text-black dark:text-white">
+                            {{ number_format($mv->balance_after, 2) }}
+                        </span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Waktu</span>
+                        <span class="text-[11px] text-black/50 dark:text-white/50 whitespace-nowrap">
+                            {{ $mv->created_at->diffForHumans() }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            @endforeach
         </div>
     </div>
     @endif

@@ -122,6 +122,49 @@
     </div>
 
     <!-- ===================================================== -->
+    <!-- 2b. KOMPOSISI OMZET: BARANG FISIK VS JASA / LAYANAN   -->
+    <!-- ===================================================== -->
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="space-y-1">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#007AFF]"></span>
+                <h3 class="text-[15px] font-bold text-black dark:text-white">Komposisi Omzet: Barang Fisik vs Jasa &amp; Layanan</h3>
+            </div>
+            <p class="text-[12px] text-black/55 dark:text-white/55">Pemisahan otomatis antara omzet penjualan barang berstok dan omzet jasa/layanan bebas stok.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <!-- Card Barang Fisik -->
+            <div class="flex-1 md:flex-none min-w-[170px] p-3 rounded-[12px] bg-blue-500/10 border border-blue-500/20">
+                <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
+                    <span>📦 Barang Fisik</span>
+                    <span class="text-[10.5px] px-1.5 py-0.5 rounded bg-blue-500/20 tabular-nums">{{ number_format($goodsQty, 0, ',', '.') }} unit</span>
+                </div>
+                <div class="mt-1 text-[17px] sm:text-[19px] font-bold tabular-nums text-blue-900 dark:text-blue-200">
+                    Rp {{ number_format($goodsRevenue, 0, ',', '.') }}
+                </div>
+                <div class="mt-0.5 text-[11px] text-blue-700/80 dark:text-blue-300/80">
+                    {{ $totalRevenue > 0 ? number_format(($goodsRevenue / $totalRevenue) * 100, 1) : 0 }}% dari total omzet
+                </div>
+            </div>
+
+            <!-- Card Jasa / Layanan -->
+            <div class="flex-1 md:flex-none min-w-[170px] p-3 rounded-[12px] bg-purple-500/10 border border-purple-500/20">
+                <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-purple-800 dark:text-purple-300 uppercase tracking-wider">
+                    <span>🛠️ Jasa &amp; Layanan</span>
+                    <span class="text-[10.5px] px-1.5 py-0.5 rounded bg-purple-500/20 tabular-nums">{{ number_format($servicesQty, 0, ',', '.') }} order</span>
+                </div>
+                <div class="mt-1 text-[17px] sm:text-[19px] font-bold tabular-nums text-purple-900 dark:text-purple-200">
+                    Rp {{ number_format($servicesRevenue, 0, ',', '.') }}
+                </div>
+                <div class="mt-0.5 text-[11px] text-purple-700/80 dark:text-purple-300/80">
+                    {{ $totalRevenue > 0 ? number_format(($servicesRevenue / $totalRevenue) * 100, 1) : 0 }}% dari total omzet
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
     <!-- 3. CHARTS ROW: TREN HARIAN & JAM RAMAI                -->
     <!-- ===================================================== -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -157,12 +200,14 @@
     <!-- ===================================================== -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <!-- Top 5 Products -->
-        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5">
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5">
             <h3 class="text-[15px] font-semibold text-black dark:text-white mb-3 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
                 <span>Top Produk Paling Laris</span>
             </h3>
-            <div class="overflow-x-auto">
+
+            {{-- Desktop Top Products Table --}}
+            <div class="hidden sm:block overflow-x-auto">
                 <table class="w-full text-left text-[13px]">
                     <thead>
                         <tr class="border-b border-black/5 dark:border-white/10">
@@ -175,7 +220,20 @@
                     <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                         @forelse($topProducts as $tp)
                         <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
-                            <td class="py-2.5 px-3 font-medium text-black dark:text-white">{{ $tp->product_name }}</td>
+                            <td class="py-2.5 px-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-medium text-black dark:text-white">{{ $tp->product_name }}</span>
+                                    @if(($tp->item_type ?? 'goods') === 'service')
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
+                                            🛠️ Jasa
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium text-black/50 dark:text-white/50 bg-black/[0.04] dark:bg-white/[0.06]">
+                                            📦 Barang
+                                        </span>
+                                    @endif
+                                </div>
+                            </td>
                             <td class="py-2.5 px-3 text-right tabular-nums text-black/70 dark:text-white/70">{{ rtrim(rtrim((string)$tp->total_qty, '0'), '.') }}</td>
                             <td class="py-2.5 px-3 text-right tabular-nums font-semibold text-black dark:text-white">Rp {{ number_format($tp->total_revenue, 0, ',', '.') }}</td>
                             <td class="py-2.5 px-3 text-right tabular-nums font-semibold text-[#34C759] dark:text-[#30D158]">Rp {{ number_format($tp->total_revenue - $tp->total_cost, 0, ',', '.') }}</td>
@@ -188,10 +246,47 @@
                     </tbody>
                 </table>
             </div>
+
+            {{-- Mobile Top Products Cards --}}
+            <div class="sm:hidden divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+                @forelse($topProducts as $tp)
+                <div class="py-3 space-y-1.5 first:pt-0 last:pb-0">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="font-semibold text-[13px] text-black dark:text-white">{{ $tp->product_name }}</span>
+                            @if(($tp->item_type ?? 'goods') === 'service')
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
+                                    🛠️ Jasa
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium text-black/50 dark:text-white/50 bg-black/[0.04] dark:bg-white/[0.06]">
+                                    📦 Barang
+                                </span>
+                            @endif
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] tabular-nums shrink-0">
+                            {{ rtrim(rtrim((string)$tp->total_qty, '0'), '.') }} Terjual
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between text-[12px] pt-1">
+                        <div>
+                            <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Omzet</span>
+                            <span class="font-semibold tabular-nums text-black dark:text-white">Rp {{ number_format($tp->total_revenue, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Laba Kotor</span>
+                            <span class="font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">Rp {{ number_format($tp->total_revenue - $tp->total_cost, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="py-6 text-center text-black/40 dark:text-white/40 text-[13px]">Belum ada data produk terjual.</div>
+                @endforelse
+            </div>
         </div>
 
         <!-- Payment Methods Breakdown -->
-        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5">
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5">
             <h3 class="text-[15px] font-semibold text-black dark:text-white mb-3 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#007AFF]"></span>
                 <span>Performa Metode Pembayaran</span>
@@ -226,7 +321,7 @@
     <!-- ===================================================== -->
     <!-- 5. AVERAGE HARGA SNAPSHOT TRANSAKSI                   -->
     <!-- ===================================================== -->
-    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5">
+    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
             <h3 class="text-[15px] font-semibold text-black dark:text-white flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#FF9500]"></span>
@@ -264,7 +359,8 @@
         </div>
 
         @if(! empty($productAveragePrices))
-        <div class="overflow-x-auto">
+        {{-- Desktop Snapshot Table --}}
+        <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-left text-[13px]">
                 <thead>
                     <tr class="border-b border-black/5 dark:border-white/10">
@@ -289,6 +385,38 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        {{-- Mobile Snapshot List --}}
+        <div class="sm:hidden divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+            @foreach($productAveragePrices as $prod)
+            <div class="py-3.5 space-y-2 first:pt-0 last:pb-0">
+                <div class="flex items-start justify-between gap-2">
+                    <span class="font-semibold text-[13px] text-black dark:text-white">{{ $prod['product_name'] }}</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] tabular-nums shrink-0">
+                        Margin {{ number_format($prod['margin_percentage'], 1) }}%
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[12px] bg-black/[0.02] dark:bg-white/[0.02] p-2.5 rounded-[8px]">
+                    <div>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Qty Terjual</span>
+                        <span class="tabular-nums font-semibold text-black dark:text-white">{{ number_format($prod['total_quantity'], 0, ',', '.') }} unit</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Avg Harga Jual</span>
+                        <span class="tabular-nums font-semibold text-black dark:text-white">Rp {{ number_format($prod['average_selling_price'], 0, ',', '.') }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Avg HPP Modal</span>
+                        <span class="tabular-nums text-black/60 dark:text-white/60">Rp {{ number_format($prod['average_cost_price'], 0, ',', '.') }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Gross Profit</span>
+                        <span class="tabular-nums font-bold text-[#34C759] dark:text-[#30D158]">Rp {{ number_format($prod['gross_profit'], 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+            @endforeach
         </div>
         @endif
     </div>

@@ -32,6 +32,22 @@
         </div>
     </header>
 
+    @unless($user->hasVerifiedEmail())
+    <div class="rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/25 p-4 flex items-start gap-3">
+        <svg class="w-5 h-5 text-[#B25E00] dark:text-[#FF9F0A] shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+        <div class="min-w-0 flex-1">
+            <p class="text-[13px] font-semibold text-[#B25E00] dark:text-[#FF9F0A]">Alamat email Anda belum diverifikasi</p>
+            <p class="text-[12px] text-black/55 dark:text-white/55 mt-0.5">Cek kotak masuk (atau spam) pada <span class="font-mono">{{ $user->email }}</span> lalu klik tautan verifikasinya, atau kirim ulang tautan verifikasi.</p>
+        </div>
+        <form method="POST" action="{{ route('verification.send') }}" class="shrink-0">
+            @csrf
+            <button type="submit" class="h-8 px-3 rounded-[8px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-semibold transition">Kirim Ulang</button>
+        </form>
+    </div>
+    @endunless
+
     <!-- Feedback Alerts (Apple HIG Banner Style) -->
     @if(session('success'))
     <div class="rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/20 p-4 flex items-center gap-3">
@@ -182,32 +198,109 @@
         </div>
 
         @if(\App\Support\Context::isOwner())
-        <div class="md:col-span-2 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-            <div class="flex items-center gap-3 border-b border-black/5 dark:border-white/10 pb-4 mb-5">
-                <div class="w-10 h-10 rounded-[10px] bg-[#34C759]/10 text-[#248A3D] flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75A2.25 2.25 0 014.5 4.5h15a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75zM2.25 7.5l9.75 6 9.75-6" /></svg>
+        <!-- Form Ganti Nomor WhatsApp (Verifikasi Terpisah via OTP WhatsApp) -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 space-y-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+            <div class="space-y-4">
+                <div class="flex items-center gap-3 border-b border-black/5 dark:border-white/10 pb-4">
+                    <div class="w-10 h-10 rounded-[10px] bg-[#34C759]/10 text-[#248A3D] flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75A2.25 2.25 0 014.5 4.5h15a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75zM2.25 7.5l9.75 6 9.75-6" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-[16px] font-semibold text-black dark:text-white">Ganti Nomor WhatsApp</h2>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">Verifikasi kepemilikan nomor baru dengan OTP WhatsApp</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-[16px] font-semibold text-black dark:text-white">Ganti Email &amp; Nomor WhatsApp</h2>
-                    <p class="text-[12px] text-black/50 dark:text-white/50">Perubahan dikonfirmasi dengan OTP WhatsApp dan verifikasi email baru</p>
+
+                <div class="rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] p-3 text-[12px] flex items-center justify-between">
+                    <span class="text-black/60 dark:text-white/60">Nomor Saat Ini:</span>
+                    <span class="font-mono font-bold text-black dark:text-white">{{ $user->phone ?: 'Belum diatur' }}</span>
                 </div>
+
+                <form id="form-update-phone" method="POST" action="{{ route('profile.phone.request') }}" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1.5">
+                            Nomor WhatsApp Baru <span class="text-[#FF3B30]">*</span>
+                        </label>
+                        <input type="text" name="phone" value="{{ old('phone') }}" inputmode="tel" required placeholder="Contoh: 081234567890"
+                               class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition">
+                        <p class="mt-1.5 text-[11px] text-black/50 dark:text-white/50">Kode OTP 6 digit akan dikirimkan langsung ke nomor WhatsApp baru ini.</p>
+                    </div>
+                </form>
             </div>
-            <form method="POST" action="{{ route('profile.contact.request') }}" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                @csrf
-                <div>
-                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1.5">Email Baru <span class="text-[#FF3B30]">*</span></label>
-                    <input type="email" name="email" value="{{ old('email', $user->email) }}" required class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition">
+
+            <div class="pt-4 border-t border-black/5 dark:border-white/10 flex justify-end">
+                <button type="submit" form="form-update-phone"
+                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#248A3D] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(52,199,89,0.25)] flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                    <span>Kirim OTP WhatsApp</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Form Ganti Alamat Email (Verifikasi Terpisah via Tautan Email) -->
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 space-y-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+            <div class="space-y-4">
+                <div class="flex items-center gap-3 border-b border-black/5 dark:border-white/10 pb-4">
+                    <div class="w-10 h-10 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-[16px] font-semibold text-black dark:text-white">Ganti Alamat Email</h2>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">Perbarui email akun dan kirim tautan verifikasi ke email baru</p>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1.5">Nomor WhatsApp Baru <span class="text-[#FF3B30]">*</span></label>
-                    <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" inputmode="tel" required placeholder="081234567890" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition">
+
+                <div class="rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] p-3 text-[12px] flex items-center justify-between">
+                    <span class="text-black/60 dark:text-white/60">Email Saat Ini:</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-mono font-bold text-black dark:text-white">{{ $user->email }}</span>
+                        @if($user->hasVerifiedEmail())
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#34C759]/10 text-[#248A3D] font-semibold">Aktif</span>
+                        @else
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#FF9500]/10 text-[#B25E00] font-semibold">Belum Verifikasi</span>
+                        @endif
+                    </div>
                 </div>
-                <div class="md:col-span-2 flex justify-end">
-                    <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#248A3D] active:scale-[0.97] transition-all flex items-center gap-1.5">
-                        <span>Kirim OTP &amp; Minta Verifikasi</span>
-                    </button>
-                </div>
-            </form>
+
+                <form id="form-update-email" method="POST" action="{{ route('profile.email.update') }}" class="space-y-4">
+                    @csrf
+                    @method('PUT')
+                    <div>
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1.5">
+                            Alamat Email Baru <span class="text-[#FF3B30]">*</span>
+                        </label>
+                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="nama@domain.com"
+                               class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    </div>
+
+                    @if(! $user->google_id && $user->password)
+                    <div>
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1.5">
+                            Konfirmasi Kata Sandi Saat Ini <span class="text-[#FF3B30]">*</span>
+                        </label>
+                        <input type="password" name="current_password" required placeholder="••••••••"
+                               class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    </div>
+                    @endif
+                </form>
+            </div>
+
+            <div class="pt-4 border-t border-black/5 dark:border-white/10 flex justify-end">
+                <button type="submit" form="form-update-email"
+                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)] flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <span>Ubah &amp; Verifikasi Email</span>
+                </button>
+            </div>
         </div>
         @endif
 

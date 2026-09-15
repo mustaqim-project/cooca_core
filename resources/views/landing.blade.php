@@ -1,962 +1,819 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark scroll-smooth" data-theme="dark">
+@extends('layouts.public_marketing')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Software Kasir & ERP Gratis untuk UMKM Indonesia | COOCA UMKM</title>
-    <meta name="description" content="COOCA UMKM: Software kasir, POS, HPP, inventori & AI Assistant 100% GRATIS selamanya. Digunakan 10.000+ UMKM Indonesia. Daftar gratis sekarang, tanpa kartu kredit.">
-    <meta name="keywords" content="software kasir gratis, erp umkm gratis, aplikasi toko gratis, pos gratis indonesia, software akuntansi gratis umkm, manajemen inventori gratis, ai assistant bisnis umkm, cooca umkm">
+@section('title', 'Software Kasir & ERP Gratis untuk UMKM Indonesia | COOCA UMKM')
+@section('description', 'COOCA UMKM: Software kasir POS, HPP, inventori, pembukuan & AI Assistant 100% GRATIS selamanya. Digunakan 10.000+ UMKM Indonesia. Tanpa biaya langganan, tanpa kartu kredit.')
+@section('keywords', 'software kasir gratis, erp umkm gratis, aplikasi toko gratis, pos gratis indonesia, software akuntansi gratis umkm, manajemen inventori gratis, ai assistant bisnis umkm, cooca umkm')
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="COOCA.ID">
-    <meta property="og:locale" content="id_ID">
-    <meta property="og:url" content="https://umkm.cooca.id">
-    <meta property="og:title" content="Software Kasir & ERP Gratis untuk UMKM Indonesia | COOCA UMKM">
-    <meta property="og:description" content="HPP presisi, AI Assistant, POS, inventori real-time, akuntansi otomatis — 100% gratis selamanya untuk UMKM Indonesia.">
-    <meta property="og:image" content="https://cooca.id/assets/image/cooca.png">
-    <meta property="og:image:secure_url" content="https://cooca.id/assets/image/cooca.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="https://cooca.id/assets/image/1785229034_favicon.png">
-    <link rel="alternate icon" type="image/png" href="https://cooca.id/favicon.png">
-
-    <!-- SEO Canonical & Robots -->
-    <link rel="canonical" href="https://umkm.cooca.id">
-    <meta name="robots" content="index, follow">
-
-    <!-- Structured Data JSON-LD -->
+@push('seo')
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
-        "@type": "SoftwareApplication",
+        "@@type": "SoftwareApplication",
         "name": "Cooca UMKM",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web, Cloud-based",
-        "description": "Business Operating System gratis selamanya untuk UMKM Indonesia: HPP presisi, AI Assistant, POS kasir, dan inventori.",
+        "description": "Business Operating System gratis selamanya untuk UMKM Indonesia: HPP presisi, AI Assistant, POS kasir, dan pembukuan otomatis.",
         "url": "https://umkm.cooca.id",
         "offers": {
-            "@type": "Offer",
+            "@@type": "Offer",
             "price": "0",
             "priceCurrency": "IDR",
             "availability": "https://schema.org/InStock"
         },
         "publisher": {
-            "@type": "Organization",
+            "@@type": "Organization",
             "name": "COOCA.ID",
             "url": "https://cooca.id"
         }
     }
     </script>
+@endpush
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+@section('content')
+<div class="relative overflow-hidden">
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com">
-    </script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366F1',
-                            600: '#4F46E5',
-                            700: '#4338CA',
-                        },
-                        cyan: {
-                            400: '#22D3EE',
-                            500: '#06B6D4',
-                        }
-                    },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'shimmer': 'shimmer 3s linear infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-12px)' },
-                        },
-                        shimmer: {
-                            '0%': { backgroundPosition: '-200% 0' },
-                            '100%': { backgroundPosition: '200% 0' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Alpine.js & Lucide -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js">
-    </script>
-    <script src="https://unpkg.com/lucide@latest">
-    </script>
-
-    <style>
-        /* ── DARK TOKENS ── */
-        :root,
-        [data-theme="dark"] {
-            --bg: #030712;
-            --bg-section: #0F172A;
-            --surface: #111827;
-            --card: #1E293B;
-            --primary: #6366F1;
-            --primary-glow: rgba(99, 102, 241, .35);
-            --accent: #22D3EE;
-            --text: #F8FAFC;
-            --border: rgba(255, 255, 255, .08);
-            --glass-bg: rgba(17, 24, 39, .75);
-            --glass-blur: blur(20px);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-        html {
-            scroll-behavior: smooth;
-        }
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-image:
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.14) 0px, transparent 50%),
-                radial-gradient(at 100% 20%, rgba(34, 211, 238, 0.10) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 60%);
-            background-attachment: fixed;
-        }
-
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .glass-card:hover {
-            border-color: rgba(99, 102, 241, 0.35);
-            transform: translateY(-3px);
-            box-shadow: 0 16px 40px -12px var(--primary-glow);
-        }
-
-        .glow-btn {
-            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
-            box-shadow: 0 4px 24px -2px var(--primary-glow);
-            transition: all 0.3s ease;
-        }
-        .glow-btn:hover {
-            box-shadow: 0 8px 40px 0px var(--primary-glow);
-            transform: translateY(-2px) scale(1.02);
-        }
-
-        .text-gradient-accent {
-            background: linear-gradient(135deg, #22D3EE 0%, #818CF8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .text-gradient-warm {
-            background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 50%, #F97316 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .shimmer-badge {
-            background: linear-gradient(90deg, rgba(99, 102, 241, 0.15) 25%, rgba(34, 211, 238, 0.25) 50%, rgba(99, 102, 241, 0.15) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 3s linear infinite;
-        }
-
-        .dashboard-glow {
-            box-shadow: 0 0 60px -10px rgba(99, 102, 241, 0.25);
-        }
-
-        input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            background: transparent;
-            cursor: pointer;
-        }
-        input[type="range"]::-webkit-slider-runnable-track {
-            height: 6px;
-            background: #1E293B;
-            border-radius: 999px;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            height: 18px;
-            width: 18px;
-            border-radius: 50%;
-            margin-top: -6px;
-            background: #6366F1;
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.7);
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0F172A;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #6366F1;
-            border-radius: 999px;
-        }
-        ::selection {
-            background: #6366F1;
-            color: #fff;
-        }
-    </style>
-</head>
-
-<body class="min-h-screen text-slate-100" x-data="{ mobileMenu: false, faqOpen: null }" x-init="lucide.createIcons()">
-
-    <!-- ═══ HEADER ═══ -->
-    <header class="sticky top-0 z-50 backdrop-blur-2xl bg-slate-950/70 border-b border-white/[0.06]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-
-            <!-- Logo dengan route landing -->
-            <a href="{{ route('landing') }}" class="flex items-center gap-3 group shrink-0">
-                <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="COOCA.ID" class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105">
-                <div class="border-l border-white/10 pl-3 hidden xs:block">
-                    <span class="font-extrabold text-sm sm:text-base tracking-tight text-white block leading-tight">Cooca UMKM</span>
-                    <span class="text-[8px] sm:text-[10px] uppercase font-bold text-emerald-400 tracking-[0.15em]">Business Operating System</span>
-                </div>
-            </a>
-
-            <nav class="hidden lg:flex items-center gap-6 xl:gap-8 text-xs font-semibold text-slate-400">
-                <a href="{{ route('kalkulator.index') }}" class="hover:text-white transition-colors">8 Kalkulator Bisnis</a>
-                <a href="{{ route('template.index') }}" class="hover:text-white transition-colors">Template Excel</a>
-                <a href="{{ route('blog.index') }}" class="hover:text-white transition-colors">Blog &amp; Edukasi</a>
-                <a href="#tiga-pilar" class="hover:text-white transition-colors">3 Pilar Utama</a>
-                <a href="{{ route('contact') }}" class="hover:text-white transition-colors">Kontak</a>
-            </nav>
-
-            <!-- Actions dengan route login & register -->
-            <div class="hidden sm:flex items-center gap-2">
-                <a href="{{ route('login') }}" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors rounded-xl hover:bg-slate-900/50">Masuk</a>
-                <a href="{{ route('register') }}" class="glow-btn px-5 py-2.5 rounded-xl text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-500/20">
-                    <span>Mulai Gratis</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
-            </div>
-
-            <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white transition-colors">
-                <i :data-lucide="mobileMenu ? 'x' : 'menu'" class="w-5 h-5"></i>
-            </button>
+    <!-- ═══ 1. HERO SECTION (Apple HIG Minimalist 2-Column Showcase) ═══ -->
+    <section class="relative pt-10 pb-16 md:pt-20 md:pb-24 overflow-hidden">
+        <!-- Apple Subtle Ambient Soft Glows (Strictly Monochromatic & Apple Blue / Green - Zero Purple) -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[520px] pointer-events-none opacity-40 dark:opacity-25 -z-10">
+            <div class="absolute top-12 left-12 w-96 h-96 bg-[#007AFF]/12 dark:bg-[#0A84FF]/15 rounded-full blur-[140px]"></div>
+            <div class="absolute top-24 right-16 w-80 h-80 bg-[#34C759]/10 dark:bg-[#30D158]/12 rounded-full blur-[130px]"></div>
         </div>
-
-        <!-- Mobile menu dengan route -->
-        <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2" class="lg:hidden p-5 bg-slate-950/98 backdrop-blur-2xl border-b border-slate-800/80 space-y-2 text-sm font-semibold" style="display: none;">
-            <a href="{{ route('kalkulator.index') }}" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">8 Kalkulator Bisnis</a>
-            <a href="{{ route('template.index') }}" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">Template Pembukuan Excel</a>
-            <a href="{{ route('blog.index') }}" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">Blog &amp; Edukasi UMKM</a>
-            <a href="{{ route('contact') }}" @click="mobileMenu = false" class="block py-3 px-4 rounded-xl text-slate-300 hover:bg-slate-900/80 hover:text-white">Hubungi Kami</a>
-            <div class="pt-4 border-t border-slate-800/80 grid grid-cols-2 gap-2 mt-2">
-                <a href="{{ route('login') }}" class="py-3 rounded-xl bg-slate-900/80 border border-slate-800 text-center text-white font-semibold">Masuk</a>
-                <a href="{{ route('register') }}" class="py-3 rounded-xl glow-btn text-center text-white font-bold shadow-lg shadow-indigo-500/20">Daftar</a>
-            </div>
-            <a href="{{ route('auth.google') }}" class="w-full py-3 rounded-xl bg-slate-900/80 border border-slate-800 text-white font-semibold text-sm flex items-center justify-center gap-2.5 hover:bg-slate-800/80">
-                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
-                <span>Masuk via Google</span>
-            </a>
-        </div>
-    </header>
-
-    <!-- ═══ HERO — 2 KOLOM ═══ -->
-    <section class="relative pt-10 pb-14 md:pt-20 md:pb-24 overflow-hidden">
-        <!-- Orbs -->
-        <div class="absolute top-1/4 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] animate-float pointer-events-none"></div>
-        <div class="absolute bottom-1/4 -right-32 w-96 h-96 bg-cyan-500/15 rounded-full blur-[120px] animate-float pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
-                <!-- Kiri: CTA -->
-                <div class="space-y-6 text-center lg:text-left">
-                    <!-- Badge -->
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card border-indigo-500/30 text-indigo-300 text-[11px] sm:text-xs font-semibold shimmer-badge mx-auto lg:mx-0">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>Gratis Selamanya • Untuk UMKM Indonesia</span>
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-400"></i>
-                    </div>
-
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
-                        <span class="block">Kelola Bisnis UMKM</span>
-                        <span class="text-gradient-accent">100% Gratis Selamanya</span>
-                    </h1>
-
-                    <p class="text-sm sm:text-base text-slate-400 max-w-xl leading-relaxed font-medium mx-auto lg:mx-0">
-                        <strong class="text-white">Cooca UMKM</strong> — Sistem operasi bisnis all-in-one: <span class="text-cyan-400 font-semibold">HPP presisi</span>, <span class="text-indigo-400 font-semibold">AI Assistant</span>, <span class="text-emerald-400 font-semibold">POS</span>, inventori real-time, dan akuntansi otomatis. <strong class="text-white">100% gratis</strong> untuk UMKM.
-                    </p>
-
-                    <!-- CTAs dengan route -->
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
-                        <a href="{{ route('register') }}" class="w-full sm:w-auto glow-btn px-8 py-3.5 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30">
-                            <span>Mulai Sekarang - Gratis</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
-                        <a href="{{ route('auth.google') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl glass-card hover:bg-slate-800/60 text-white font-semibold text-sm flex items-center justify-center gap-2.5 border-slate-700/50 transition-all">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
-                            <span>Google</span>
-                        </a>
-                    </div>
-
-                    <!-- Trust signals -->
-                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-[11px] font-semibold text-slate-500 pt-1">
-                        <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Gratis selamanya</span>
-                        <span class="flex items-center gap-1.5"><i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Setup 2 menit</span>
-                        <span class="flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5 text-indigo-400"></i> Data privat & aman</span>
-                    </div>
-
-                    <!-- Social proof -->
-                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-5 sm:gap-8 text-xs text-slate-400 pt-1">
-                        <div class="flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-cyan-400"></i> <span>1.200+ UMKM Pakai</span></div>
-                        <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> <span>Akurasi 99.8%</span></div>
-                        <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-indigo-400"></i> <span>Hemat 3-5 jam/minggu</span></div>
-                    </div>
-                </div>
-
-                <!-- Kanan: Ilustrasi Dashboard -->
-                <div class="flex justify-center lg:justify-end">
-                    <div class="relative w-full max-w-md lg:max-w-lg xl:max-w-xl">
-                        <div class="absolute -inset-8 bg-indigo-600/20 rounded-3xl blur-3xl opacity-60 animate-float pointer-events-none"></div>
-                        <div class="relative glass-card p-4 sm:p-6 rounded-2xl border border-indigo-500/20 dashboard-glow w-full bg-slate-950/90 backdrop-blur-xl">
-                            <!-- Fake dashboard UI -->
-                            <div class="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                                    </div>
-                                    <span class="text-xs font-bold text-white">Dashboard</span>
-                                </div>
-                                <div class="flex gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                                    <span class="w-2 h-2 rounded-full bg-rose-400"></span>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2 mb-4">
-                                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
-                                    <div class="text-[9px] text-slate-400 uppercase font-semibold">Omzet Hari Ini</div>
-                                    <div class="text-sm font-extrabold text-emerald-400 font-mono">Rp 4.2Jt</div>
-                                    <div class="text-[9px] text-emerald-400 flex items-center gap-0.5"><i data-lucide="trending-up" class="w-3 h-3"></i> +12%</div>
-                                </div>
-                                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
-                                    <div class="text-[9px] text-slate-400 uppercase font-semibold">Total Produk</div>
-                                    <div class="text-sm font-extrabold text-white font-mono">247</div>
-                                    <div class="text-[9px] text-slate-400">aktif 89%</div>
-                                </div>
-                                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
-                                    <div class="text-[9px] text-slate-400 uppercase font-semibold">Stok Menipis</div>
-                                    <div class="text-sm font-extrabold text-amber-400 font-mono">6 item</div>
-                                    <div class="text-[9px] text-amber-400 flex items-center gap-0.5"><i data-lucide="alert-triangle" class="w-3 h-3"></i> segera pesan</div>
-                                </div>
-                                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
-                                    <div class="text-[9px] text-slate-400 uppercase font-semibold">Laba Bulan Ini</div>
-                                    <div class="text-sm font-extrabold text-cyan-400 font-mono">Rp 18.5Jt</div>
-                                    <div class="text-[9px] text-cyan-400 flex items-center gap-0.5"><i data-lucide="arrow-up" class="w-3 h-3"></i> +8%</div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 mb-3">
-                                <div class="flex justify-between text-[9px] text-slate-400 mb-1.5">
-                                    <span>Penjualan 7 Hari Terakhir</span>
-                                    <span class="text-emerald-400">+23%</span>
-                                </div>
-                                <div class="flex items-end gap-1 h-12">
-                                    <div class="flex-1 bg-indigo-500/70 h-6 rounded-sm"></div>
-                                    <div class="flex-1 bg-indigo-500/70 h-8 rounded-sm"></div>
-                                    <div class="flex-1 bg-indigo-500/70 h-4 rounded-sm"></div>
-                                    <div class="flex-1 bg-indigo-500/70 h-10 rounded-sm"></div>
-                                    <div class="flex-1 bg-indigo-500/70 h-7 rounded-sm"></div>
-                                    <div class="flex-1 bg-indigo-500/70 h-12 rounded-sm"></div>
-                                    <div class="flex-1 bg-indigo-500/70 h-9 rounded-sm"></div>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-2 bg-slate-950/80 p-2 rounded-xl border border-slate-800">
-                                <i data-lucide="bot" class="w-4 h-4 text-cyan-400 shrink-0"></i>
-                                <span class="text-[10px] text-slate-300 truncate flex-1">AI: “Stok tepung tersisa 20% — pesan 50 kg”</span>
-                                <span class="text-[9px] text-cyan-400 font-bold uppercase">AI</span>
-                            </div>
-                        </div>
-
-                        <div class="absolute -bottom-3 -right-3 bg-emerald-500/10 backdrop-blur-md border border-emerald-500/30 rounded-full px-3 py-1.5 text-[9px] font-bold text-emerald-400 shadow-lg shadow-emerald-500/20 animate-float-delay">
-                            <i data-lucide="check-circle" class="w-3 h-3 inline mr-1"></i> 100% Gratis
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ SHOWCASE 3 PILAR UTAMA COOCA UMKM ═══ -->
-    <section id="tiga-pilar" class="py-16 md:py-24 border-t border-slate-800/60 bg-gradient-to-b from-slate-950 via-slate-900/40 to-slate-950">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-            <div class="text-center space-y-3 max-w-2xl mx-auto">
-                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold text-xs">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                    <span>Solusi Terpadu 100% Gratis</span>
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">3 Pilar Kekuatan Cooca UMKM</h2>
-                <p class="text-sm text-slate-400">Dirancang khusus untuk memberdayakan pelaku usaha mikro &amp; kecil agar dapat beroperasi secara profesional tanpa biaya lisensi.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Pilar 1: Kasir & POS Gratis -->
-                <div class="glass-card p-8 rounded-3xl space-y-5 border-emerald-500/30 hover:border-emerald-500/50 transition-all flex flex-col justify-between group">
-                    <div class="space-y-4">
-                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
-                            <i data-lucide="shopping-cart" class="w-7 h-7"></i>
-                        </div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Pilar 1 • Kasir Kilat</span>
-                        <h3 class="text-xl font-bold text-white leading-snug">Kasir &amp; POS Digital 100% Gratis</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            Cetak struk kasir Bluetooth, terima pembayaran QRIS, kelola pesanan meja, dan catat bon hutang pelanggan via WhatsApp tanpa batasan jumlah transaksi.
-                        </p>
-                        <div class="space-y-2 pt-2 text-xs text-slate-300">
-                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>Bisa via HP Android &amp; Tablet</span></div>
-                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>Mendukung Scan Barcode Kamera</span></div>
-                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>Cetak Struk Thermal &amp; Nota WA</span></div>
-                        </div>
-                    </div>
-                    <div class="pt-4 border-t border-slate-800">
-                        <a href="{{ route('register') }}" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5">
-                            <span>Buka Terminal Kasir Gratis</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Pilar 2: Pembukuan & Laba Rugi Otomatis -->
-                <div class="glass-card p-8 rounded-3xl space-y-5 border-indigo-500/30 hover:border-indigo-500/50 transition-all flex flex-col justify-between group">
-                    <div class="space-y-4">
-                        <div class="w-14 h-14 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform">
-                            <i data-lucide="book-open-check" class="w-7 h-7"></i>
-                        </div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400 block">Pilar 2 • Laporan Finansial</span>
-                        <h3 class="text-xl font-bold text-white leading-snug">Pembukuan &amp; Laba Rugi Otomatis</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            Lupakan stres mencatat buku kas manual atau rumus Excel yang rusak. Setiap penjualan dan belanja otomatis terangkum menjadi laporan laba rugi real-time.
-                        </p>
-                        <div class="space-y-2 pt-2 text-xs text-slate-300">
-                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>Buku Kas Masuk &amp; Keluar Harian</span></div>
-                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>Kartu Stok &amp; Restock Alert</span></div>
-                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>Laporan Laba Kotor vs Laba Bersih</span></div>
-                        </div>
-                    </div>
-                    <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
-                        <a href="{{ route('template.index') }}" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5">
-                            <span>Unduh Template Excel Gratis</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Pilar 3: Kalkulator Bisnis & AI Assistant -->
-                <div class="glass-card p-8 rounded-3xl space-y-5 border-cyan-500/30 hover:border-cyan-500/50 transition-all flex flex-col justify-between group">
-                    <div class="space-y-4">
-                        <div class="w-14 h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition-transform">
-                            <i data-lucide="sparkles" class="w-7 h-7"></i>
-                        </div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block">Pilar 3 • Intelijensi Bisnis</span>
-                        <h3 class="text-xl font-bold text-white leading-snug">Kalkulator Bisnis &amp; Asisten AI</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            Kalkulasi HPP 3-pilar presisi, hitung titik impas BEP, simulasi kenaikan harga bahan baku, dan dapatkan insight bisnis cerdas melalui asisten percakapan AI.
-                        </p>
-                        <div class="space-y-2 pt-2 text-xs text-slate-300">
-                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-400"></i><span>8 Alat Kalkulator Bisnis Terpadu</span></div>
-                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-400"></i><span>Simulasi Sensitivitas Biaya What-If</span></div>
-                            <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-400"></i><span>Tanya Jawab Strategi dengan AI</span></div>
-                        </div>
-                    </div>
-                    <div class="pt-4 border-t border-slate-800">
-                        <a href="{{ route('kalkulator.index') }}" class="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5">
-                            <span>Buka 8 Kalkulator Online</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ MODUL BISNIS ═══ -->
-    <section id="modul" class="py-12 md:py-20 border-t border-slate-800/60 bg-slate-950/40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-
-            <div class="text-center space-y-3 max-w-2xl mx-auto">
-                <span class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Modul Terintegrasi</span>
-                <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Semua yang Anda Butuhkan dalam Satu Platform</h2>
-                <p class="text-sm text-slate-400">Dari kalkulasi biaya hingga laporan keuangan — Cooca UMKM menyatukan seluruh operasi bisnis Anda.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-                <div class="glass-card p-6 rounded-3xl space-y-3 border-cyan-500/30 bg-cyan-950/10 hover:border-cyan-500/50 transition-all relative overflow-hidden">
-                    <div class="w-11 h-11 rounded-xl bg-cyan-500/15 flex items-center justify-center text-cyan-400">
-                        <i data-lucide="bot" class="w-5 h-5"></i>
-                    </div>
-                    <div class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold uppercase tracking-wider">USP #1 Cooca</div>
-                    <h3 class="text-base font-bold text-white">AI Assistant</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Tanya jawab bisnis langsung dengan AI: analisis tren, rekomendasi harga, dan deteksi anomali penjualan otomatis.</p>
-                </div>
-
-                <div class="glass-card p-6 rounded-3xl space-y-3 border-purple-500/20 hover:border-purple-500/40 transition-all">
-                    <div class="w-11 h-11 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
-                        <i data-lucide="calculator" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Kalkulator HPP &amp; 3-Pilar</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Hitung biaya pokok produksi dengan presisi tinggi. Dukung 3 pilar biaya: material, tenaga kerja, dan overhead.</p>
-                </div>
-
-                <div class="glass-card p-6 rounded-3xl space-y-3 border-blue-500/20 hover:border-blue-500/40 transition-all">
-                    <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Dashboard</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Lihat gambaran utuh bisnis Anda: omzet, laba, stok, piutang, dan KPI penting dalam satu layar.</p>
-                </div>
-
-                <div class="glass-card p-6 rounded-3xl space-y-3 border-emerald-500/20 hover:border-emerald-500/40 transition-all">
-                    <div class="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Kasir &amp; Penjualan</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Terminal POS, faktur & piutang, riwayat transaksi, shift, pelanggan CRM, dan pesanan/penawaran.</p>
-                </div>
-
-                <div class="glass-card p-6 rounded-3xl space-y-3 border-amber-500/20 hover:border-amber-500/40 transition-all">
-                    <div class="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
-                        <i data-lucide="package" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Produk &amp; Inventori</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Katalog produk & resep, bahan baku & harga, stok real-time & mutasi, PO & pemasok, upah kerja & mesin.</p>
-                </div>
-
-                <div class="glass-card p-6 rounded-3xl space-y-3 border-rose-500/20 hover:border-rose-500/40 transition-all">
-                    <div class="w-11 h-11 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400">
-                        <i data-lucide="trending-up" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Keuangan &amp; Analitik</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Laporan & analitik, BEP & profitabilitas, beban operasional, jurnal akuntansi otomatis, dan simulasi what-if.</p>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ BENTO GRID — FITUR UNGGULAN ═══ -->
-    <section id="bento" class="py-12 md:py-20 relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-
-            <div class="text-center space-y-3 max-w-2xl mx-auto">
-                <span class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">Fitur Unggulan</span>
-                <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Fitur yang Membuat Bisnis Anda Tumbuh</h2>
-                <p class="text-sm text-slate-400">Fitur-fitur andalan yang siap membantu Anda mengambil keputusan lebih cepat dan tepat.</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5" id="calculator">
-
-                <!-- Kalkulator HPP Interaktif -->
-                <div class="glass-card p-5 sm:p-7 rounded-3xl lg:col-span-8 flex flex-col space-y-6 relative overflow-hidden" x-data="{
-                        matCost: 25000,
-                        labCost: 6500,
-                        ovhCost: 8500,
-                        markup: 40,
-                        isMargin: false,
-                        get hpp() { return this.matCost + this.labCost + this.ovhCost; },
-                        get price() {
-                            if (this.isMargin) return Math.round(this.hpp / (1 - (this.markup / 100)));
-                            return Math.round(this.hpp * (1 + (this.markup / 100)));
-                        },
-                        get profit() { return this.price - this.hpp; },
-                        get marginPct() { return this.price > 0 ? Math.round((this.profit / this.price) * 100) : 0; }
-                    }">
-
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
-                        <div>
-                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 font-bold text-[10px] uppercase">
-                                <i data-lucide="play" class="w-3 h-3"></i>
-                                <span>Live Kalkulator HPP</span>
-                            </div>
-                            <h3 class="text-base sm:text-lg font-bold text-white mt-1">Hitung HPP &amp; Harga Jual Instan</h3>
-                        </div>
-                        <div class="flex items-center p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs shrink-0">
-                            <button @click="isMargin = false" :class="!isMargin ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-slate-400'" class="px-3 py-1 rounded-lg font-semibold transition-all duration-200">Markup</button>
-                            <button @click="isMargin = true" :class="isMargin ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-slate-400'" class="px-3 py-1 rounded-lg font-semibold transition-all duration-200">Margin</button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80">
-                            <span class="text-[10px] font-bold text-blue-400 uppercase">Material</span>
-                            <div class="font-mono font-bold text-white text-sm mt-1">Rp <span x-text="matCost.toLocaleString('id-ID')"></span></div>
-                            <input type="range" x-model.number="matCost" min="5000" max="60000" step="1000" class="w-full mt-2 accent-blue-500">
-                        </div>
-                        <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80">
-                            <span class="text-[10px] font-bold text-purple-400 uppercase">Tenaga Kerja</span>
-                            <div class="font-mono font-bold text-white text-sm mt-1">Rp <span x-text="labCost.toLocaleString('id-ID')"></span></div>
-                            <input type="range" x-model.number="labCost" min="1000" max="30000" step="500" class="w-full mt-2 accent-purple-500">
-                        </div>
-                        <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80">
-                            <span class="text-[10px] font-bold text-emerald-400 uppercase">Overhead</span>
-                            <div class="font-mono font-bold text-white text-sm mt-1">Rp <span x-text="ovhCost.toLocaleString('id-ID')"></span></div>
-                            <input type="range" x-model.number="ovhCost" min="1000" max="25000" step="500" class="w-full mt-2 accent-emerald-500">
-                        </div>
-                    </div>
-
-                    <div class="p-4 rounded-2xl bg-slate-950/90 border border-indigo-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div class="space-y-1 w-full sm:w-1/2">
-                            <div class="flex justify-between text-xs font-semibold">
-                                <span class="text-slate-300">Target <span x-text="isMargin ? 'Margin' : 'Markup'"></span>:</span>
-                                <span class="font-mono font-bold text-indigo-400" x-text="markup + '%'"></span>
-                            </div>
-                            <input type="range" x-model.number="markup" min="10" max="150" step="5" class="w-full accent-indigo-500">
-                        </div>
-                        <div class="flex items-center gap-5 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-800">
-                            <div>
-                                <div class="text-[10px] font-bold uppercase text-slate-400">Total HPP</div>
-                                <div class="text-base sm:text-lg font-extrabold text-white font-mono">Rp <span x-text="hpp.toLocaleString('id-ID')"></span></div>
-                            </div>
-                            <div>
-                                <div class="text-[10px] font-bold uppercase text-emerald-400">Harga Jual Rekomendasi</div>
-                                <div class="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono">Rp <span x-text="price.toLocaleString('id-ID')"></span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="text-[10px] text-slate-500 text-center border-t border-slate-800/60 pt-3 -mb-1">
-                        <span x-show="isMargin" class="text-emerald-400">Margin: <span x-text="marginPct"></span>% • Laba: Rp <span x-text="profit.toLocaleString('id-ID')"></span></span>
-                        <span x-show="!isMargin" class="text-indigo-400">Markup: <span x-text="markup"></span>% • Laba: Rp <span x-text="profit.toLocaleString('id-ID')"></span></span>
-                    </div>
-                </div>
-
-                <!-- AI Assistant -->
-                <div class="glass-card p-6 sm:p-7 rounded-3xl lg:col-span-4 flex flex-col justify-between space-y-4 border-cyan-500/20 hover:border-cyan-500/40 transition-all">
-                    <div>
-                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-3">
-                            <i data-lucide="bot" class="w-5 h-5"></i>
-                        </div>
-                        <h3 class="text-base sm:text-lg font-bold text-white">AI Assistant — Tanya Apa Saja</h3>
-                        <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Dapatkan wawasan bisnis instan: prediksi penjualan, analisis biaya, rekomendasi harga, dan deteksi anomali stok — semua melalui percakapan.</p>
-                    </div>
-                    <div class="space-y-2 text-xs">
-                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2.5">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>
-                            <span class="text-slate-300">“Prediksi penjualan bulan depan berdasarkan data historis?”</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2.5">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5"></i>
-                            <span class="text-slate-300">“Produk mana yang paling profitabel?”</span>
-                        </div>
-                    </div>
-                    <a href="#" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1.5 transition-colors">
-                        Coba AI Assistant <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                    </a>
-                </div>
-
-                <!-- POS Terminal -->
-                <div class="glass-card p-6 sm:p-7 rounded-3xl lg:col-span-4 space-y-4 border-emerald-500/20 hover:border-emerald-500/40 transition-all">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Terminal Kasir POS</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Transaksi cepat dengan antarmuka yang intuitif. Dukung berbagai metode pembayaran, cetak struk, dan kelola shift kasir.</p>
-                    <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs flex items-center justify-between">
-                        <span class="text-slate-400">Transaksi hari ini</span>
-                        <span class="font-mono font-bold text-emerald-400">Rp 2.450.000</span>
-                    </div>
-                </div>
-
-                <!-- Stok Real-Time -->
-                <div class="glass-card p-6 sm:p-7 rounded-3xl lg:col-span-4 space-y-4 border-amber-500/20 hover:border-amber-500/40 transition-all">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                        <i data-lucide="warehouse" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Stok Real-Time &amp; Mutasi</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Pantau stok barang dan bahan baku secara langsung. Ketahui mutasi masuk-keluar, nilai persediaan, dan notifikasi stok menipis.</p>
-                    <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs flex items-center justify-between">
-                        <span class="text-slate-400">Stok kritis</span>
-                        <span class="font-mono font-bold text-rose-400">3 item perlu dipesan</span>
-                    </div>
-                </div>
-
-                <!-- BEP & Profitabilitas -->
-                <div class="glass-card p-6 sm:p-7 rounded-3xl lg:col-span-4 space-y-4 border-rose-500/20 hover:border-rose-500/40 transition-all">
-                    <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
-                        <i data-lucide="target" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">BEP &amp; Profitabilitas</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Hitung titik impas (BEP) dalam unit dan rupiah. Ketahui margin kontribusi dan proyeksi laba untuk berbagai skenario penjualan.</p>
-                    <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs flex items-center justify-between">
-                        <span class="text-slate-400">BEP bulan ini</span>
-                        <span class="font-mono font-bold text-emerald-400">1.230 unit</span>
-                    </div>
-                </div>
-
-                <!-- Jurnal Akuntansi Otomatis -->
-                <div class="glass-card p-6 sm:p-7 rounded-3xl lg:col-span-4 space-y-4 border-indigo-500/20 hover:border-indigo-500/40 transition-all">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-                        <i data-lucide="book-open" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Jurnal Akuntansi Otomatis</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Setiap transaksi penjualan, pembelian, dan biaya langsung dicatat sebagai jurnal otomatis. Laporan keuangan siap kapan saja.</p>
-                    <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs flex items-center justify-between">
-                        <span class="text-slate-400">Saldo akhir</span>
-                        <span class="font-mono font-bold text-cyan-400">Rp 87.500.000</span>
-                    </div>
-                </div>
-
-                <!-- Simulasi What-If -->
-                <div class="glass-card p-6 sm:p-7 rounded-3xl lg:col-span-4 space-y-4 border-blue-500/20 hover:border-blue-500/40 transition-all">
-                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                        <i data-lucide="sliders" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Simulasi What-If</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Uji skenario perubahan harga bahan baku, upah, atau volume penjualan — lihat dampaknya pada laba dan arus kas tanpa merusak data asli.</p>
-                    <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs flex items-center justify-between">
-                        <span class="text-slate-400">Jika bahan naik 10%</span>
-                        <span class="font-mono font-bold text-amber-400">Laba turun 4.2%</span>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ 100% FREE CTA ═══ -->
-    <section class="py-12 md:py-20 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-indigo-600/5 via-transparent to-transparent pointer-events-none"></div>
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="glass-card p-6 sm:p-10 md:p-14 rounded-3xl text-center space-y-6 relative overflow-hidden border-indigo-500/30 shadow-2xl shadow-indigo-500/10">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-                <div class="relative z-10">
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
-                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                <!-- Kiri: Value Proposition & Conversion Funnel -->
+                <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+                    <!-- Apple Capsule Pill Badge -->
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] mx-auto lg:mx-0 shadow-sm backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
+                        <span class="text-[#007AFF] dark:text-[#0A84FF]">AI-Powered Management System</span>
+                        <span class="text-black/30 dark:text-white/30">•</span>
                         <span>100% Gratis Selamanya</span>
                     </div>
 
-                    <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-4">Mulai Kelola Bisnis Anda Hari Ini</h2>
-                    <p class="text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">Tanpa biaya langganan, tanpa batasan pengguna, tanpa trik. Cooca UMKM hadir untuk membantu UMKM Indonesia tumbuh.</p>
+                    <!-- Apple SF Pro Headline (High Contrast - No Tacky Gradients) -->
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] leading-[1.08]">
+                        <span class="block">Kelola Bisnis UMKM</span>
+                        <span class="text-[#007AFF] dark:text-[#0A84FF] block">Lebih Cerdas &amp; Presisi</span>
+                    </h1>
 
-                    <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-md mx-auto">
-                        <a href="{{ route('register') }}" class="w-full sm:w-auto glow-btn px-8 py-3.5 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30">
-                            <span>Daftar Gratis</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
-                        <a href="{{ route('auth.google') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl glass-card hover:bg-slate-800/60 text-white font-semibold text-sm flex items-center justify-center gap-2 border-slate-700/50 transition-all">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
-                            <span>Google</span>
-                        </a>
+                    <p class="text-base sm:text-lg text-[#6E6E73] dark:text-[#86868B] max-w-xl leading-relaxed font-normal mx-auto lg:mx-0">
+                        <strong class="font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">Cooca UMKM</strong> adalah sistem operasi bisnis terlengkap: <span class="text-[#007AFF] dark:text-[#0A84FF] font-medium">HPP presisi</span>, <span class="text-[#34C759] dark:text-[#30D158] font-medium">POS Kasir</span>, stok real-time, pembukuan otomatis, dan asisten AI tanpa biaya lisensi bulanan.
+                    </p>
+
+                    <!-- CTAs dengan State Terautentikasi / Tamu -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1">
+                        @if (auth('admin')->check())
+                            <a href="{{ route('admin.dashboard') }}" class="w-full sm:w-auto glow-btn px-7 py-3.5 rounded-[16px] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_2px_8px_rgba(0,122,255,0.3)] hover:shadow-[0_4px_16px_rgba(0,122,255,0.4)] active:scale-[0.98] transition-all">
+                                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                                <span>Buka Dashboard Admin</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                        @elseif (auth('web')->check())
+                            <a href="{{ route('dashboard') }}" class="w-full sm:w-auto glow-btn px-7 py-3.5 rounded-[16px] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_2px_8px_rgba(0,122,255,0.3)] hover:shadow-[0_4px_16px_rgba(0,122,255,0.4)] active:scale-[0.98] transition-all">
+                                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                                <span>Buka Dashboard Bisnis</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                        @else
+                            <a href="{{ route('register') }}" class="w-full sm:w-auto glow-btn px-7 py-3.5 rounded-[16px] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_2px_8px_rgba(0,122,255,0.3)] hover:shadow-[0_4px_16px_rgba(0,122,255,0.4)] active:scale-[0.98] transition-all">
+                                <span>Mulai Sekarang - Gratis</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                            <a href="{{ route('auth.google') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold text-sm flex items-center justify-center gap-2.5 hover:bg-black/[0.02] dark:hover:bg-white/[0.04] shadow-sm active:scale-[0.98] transition-all">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
+                                <span>Daftar via Google</span>
+                            </a>
+                        @endif
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- ═══ FAQ ═══ -->
-    <section id="faq" class="py-12 md:py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div class="text-center space-y-2">
-            <span class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">FAQ</span>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Pertanyaan yang Sering Diajukan</h2>
-            <p class="text-sm text-slate-400">Semua jawaban tentang Cooca UMKM, gratis, dan keamanan data.</p>
-        </div>
-
-        <div class="space-y-3 text-sm" x-data="{ open: null }">
-            <div class="glass-card rounded-2xl overflow-hidden border-slate-800/60">
-                <button @click="open = open === 1 ? null : 1" class="w-full p-4 sm:p-5 text-left font-bold text-white flex items-center justify-between gap-3 hover:bg-slate-900/30 transition-colors">
-                    <span>Apakah Cooca UMKM benar-benar gratis?</span>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300" :class="open === 1 ? 'rotate-180' : ''"></i>
-                </button>
-                <div x-show="open === 1" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-4 sm:p-5 pt-0 text-slate-400 leading-relaxed border-t border-slate-800/60">
-                    Ya! Semua fitur — Kalkulator HPP, AI Assistant, POS, inventori, akuntansi, dan analitik — dapat digunakan <strong class="text-cyan-400">100% gratis</strong> tanpa batasan waktu atau jumlah transaksi. Kami berkomitmen untuk UMKM Indonesia.
-                </div>
-            </div>
-
-            <div class="glass-card rounded-2xl overflow-hidden border-slate-800/60">
-                <button @click="open = open === 2 ? null : 2" class="w-full p-4 sm:p-5 text-left font-bold text-white flex items-center justify-between gap-3 hover:bg-slate-900/30 transition-colors">
-                    <span>Apakah data saya aman?</span>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300" :class="open === 2 ? 'rotate-180' : ''"></i>
-                </button>
-                <div x-show="open === 2" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-4 sm:p-5 pt-0 text-slate-400 leading-relaxed border-t border-slate-800/60">
-                    Data bisnis Anda dienkripsi dan hanya dapat diakses oleh akun Anda. Kami tidak menjual atau membagikan data ke pihak ketiga. Privasi adalah prioritas utama.
-                </div>
-            </div>
-
-            <div class="glass-card rounded-2xl overflow-hidden border-slate-800/60">
-                <button @click="open = open === 3 ? null : 3" class="w-full p-4 sm:p-5 text-left font-bold text-white flex items-center justify-between gap-3 hover:bg-slate-900/30 transition-colors">
-                    <span>Apakah cocok untuk usaha F&B atau manufaktur?</span>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300" :class="open === 3 ? 'rotate-180' : ''"></i>
-                </button>
-                <div x-show="open === 3" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-4 sm:p-5 pt-0 text-slate-400 leading-relaxed border-t border-slate-800/60">
-                    Sangat cocok. Cooca UMKM mendukung resep/recipe BOM, konversi satuan otomatis, yield factor, dan penghitungan biaya tenaga kerja & mesin — ideal untuk F&B, konveksi, skincare, dan manufaktur lainnya.
-                </div>
-            </div>
-
-            <div class="glass-card rounded-2xl overflow-hidden border-slate-800/60">
-                <button @click="open = open === 4 ? null : 4" class="w-full p-4 sm:p-5 text-left font-bold text-white flex items-center justify-between gap-3 hover:bg-slate-900/30 transition-colors">
-                    <span>Bagaimana cara menggunakan AI Assistant?</span>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300" :class="open === 4 ? 'rotate-180' : ''"></i>
-                </button>
-                <div x-show="open === 4" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-4 sm:p-5 pt-0 text-slate-400 leading-relaxed border-t border-slate-800/60">
-                    Cukup tanyakan pertanyaan bisnis Anda dalam bahasa Indonesia. AI akan menganalisis data real-time Anda dan memberikan jawaban, rekomendasi harga, serta analisis tren secara otomatis.
-                </div>
-            </div>
-
-            <div class="glass-card rounded-2xl overflow-hidden border-slate-800/60">
-                <button @click="open = open === 5 ? null : 5" class="w-full p-4 sm:p-5 text-left font-bold text-white flex items-center justify-between gap-3 hover:bg-slate-900/30 transition-colors">
-                    <span>Apakah bisa login dengan Google?</span>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300" :class="open === 5 ? 'rotate-180' : ''"></i>
-                </button>
-                <div x-show="open === 5" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-4 sm:p-5 pt-0 text-slate-400 leading-relaxed border-t border-slate-800/60">
-                    Ya, dukung Single Sign-On (SSO) Google. Anda dapat mendaftar atau masuk hanya dengan satu klik menggunakan akun Google Anda.
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ MIGRATION PATH KE PREMIUM ═══ -->
-    <section class="py-14 bg-gradient-to-b from-slate-950 to-[#030712] border-t border-indigo-500/20 relative overflow-hidden">
-        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card border-indigo-500/30 text-indigo-300 text-xs font-semibold">
-                <i data-lucide="trending-up" class="w-4 h-4 text-indigo-400"></i>
-                <span>Bisnis Anda Berkembang &amp; Butuh Multi-Cabang?</span>
-            </div>
-            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-                Upgrade ke <span class="text-gradient-accent">COOCA.ID Premium</span>
-            </h2>
-            <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                Tingkatkan skala bisnis Anda dengan modul ERP spesifik industri: Bengkel otomotif, Klinik &amp; Rekam Medis, Restoran multi-meja, dan Retail multi-cabang.
-            </p>
-            <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="https://cooca.id/products" target="_blank" rel="noopener noreferrer" class="glow-btn px-8 py-3.5 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30 w-full sm:w-auto">
-                    <span>Lihat Solusi ERP Premium</span>
-                    <i data-lucide="external-link" class="w-4 h-4"></i>
-                </a>
-                <a href="{{ route('register') }}" class="px-6 py-3.5 rounded-2xl glass-card hover:bg-slate-800/60 text-white font-semibold text-sm flex items-center justify-center gap-2 border-slate-700/50 transition-all w-full sm:w-auto">
-                    <span>Mulai Sekarang - Gratis di UMKM</span>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ FOOTER ═══ -->
-    <footer class="border-t border-white/[0.06] bg-[#030712] py-12 sm:py-16 text-xs text-slate-400" role="contentinfo">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
-
-                <div class="sm:col-span-2 lg:col-span-1 space-y-4">
-                    <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="COOCA.ID" class="h-8 w-auto object-contain">
-                    <p class="text-slate-400 leading-relaxed text-[12px]">Platform ERP enterprise untuk UMKM, klinik, bengkel, restoran, retail, dan semua skala bisnis. Cloud native, modular, dan selalu siap.</p>
-                    <div class="flex items-center gap-2 pt-1">
-                        <a href="#" class="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition-colors"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
-                        <a href="#" class="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition-colors"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
-                        <a href="#" class="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition-colors"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.95C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96C1 8.12 1 12 1 12s0 3.88.46 5.58a2.78 2.78 0 001.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 001.95-1.95C23 15.88 23 12 23 12s0-3.88-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg></a>
-                        <a href="#" class="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition-colors"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg></a>
+                    <!-- Trust Signals (Apple System Badges) -->
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs font-medium text-[#6E6E73] dark:text-[#86868B] pt-2">
+                        <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i> Tanpa Kartu Kredit</span>
+                        <span class="flex items-center gap-1.5"><i data-lucide="zap" class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A]"></i> Setup Cepat 2 Menit</span>
+                        <span class="flex items-center gap-1.5"><i data-lucide="lock" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"></i> Data Aman &amp; Terenkripsi</span>
                     </div>
-                </div>
 
-                <div class="space-y-3">
-                    <p class="font-bold text-white uppercase text-[11px] tracking-wider">Kalkulator Bisnis</p>
-                    <nav class="flex flex-col space-y-2 text-[12px]">
-                        <a href="{{ route('kalkulator.hpp') }}" class="hover:text-white transition-colors">Kalkulator HPP</a>
-                        <a href="{{ route('kalkulator.bep') }}" class="hover:text-white transition-colors">Kalkulator BEP</a>
-                        <a href="{{ route('kalkulator.harga-jual') }}" class="hover:text-white transition-colors">Kalkulator Harga Jual</a>
-                        <a href="{{ route('kalkulator.laba-bersih') }}" class="hover:text-white transition-colors">Kalkulator Laba Bersih</a>
-                        <a href="{{ route('kalkulator.index') }}" class="text-indigo-400 hover:underline">Semua 8 Kalkulator →</a>
-                    </nav>
-                </div>
-
-                <div class="space-y-3">
-                    <p class="font-bold text-white uppercase text-[11px] tracking-wider">Solusi Vertikal</p>
-                    <nav class="flex flex-col space-y-2 text-[12px]">
-                        <a href="{{ route('solusi.show', 'kasir-warung') }}" class="hover:text-white transition-colors">Kasir Warung &amp; Sembako</a>
-                        <a href="{{ route('solusi.show', 'kasir-cafe-kecil') }}" class="hover:text-white transition-colors">Kasir Kafe &amp; Kedai Kopi</a>
-                        <a href="{{ route('solusi.show', 'kasir-laundry') }}" class="hover:text-white transition-colors">Kasir Laundry</a>
-                        <a href="{{ route('solusi.show', 'kasir-bengkel-kecil') }}" class="hover:text-white transition-colors">Kasir Bengkel Motor</a>
-                        <a href="{{ route('template.index') }}" class="text-emerald-400 hover:underline">Template Excel Gratis →</a>
-                    </nav>
-                </div>
-
-                <div class="space-y-3">
-                    <p class="font-bold text-white uppercase text-[11px] tracking-wider">Edukasi &amp; Enterprise</p>
-                    <nav class="flex flex-col space-y-2 text-[12px]">
-                        <a href="{{ route('blog.index') }}" class="hover:text-white transition-colors">Blog &amp; Panduan UMKM</a>
-                        <a href="{{ route('contact') }}" class="hover:text-white transition-colors">Kontak Kami</a>
-                        <a href="https://cooca.id" target="_blank" rel="noopener" class="text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
-                            <span>Butuh Multi-Cabang? COOCA.ID</span>
-                            <i data-lucide="external-link" class="w-3 h-3"></i>
-                        </a>
-                        <a href="https://cooca.id/products" target="_blank" rel="noopener" class="hover:text-white transition-colors">Katalog ERP Enterprise</a>
-                    </nav>
-                </div>
-
-                <div class="space-y-4 sm:col-span-2 lg:col-span-1">
-                    <div>
-                        <p class="font-bold text-white uppercase text-[11px] tracking-wider">Kontak</p>
-                        <div class="space-y-1.5 text-[12px] mt-2">
-                            <span class="block text-slate-400">Jakarta Selatan, DKI Jakarta</span>
-                            <a href="https://wa.me/6282337499577" target="_blank" rel="noopener noreferrer" class="block hover:text-white transition-colors">0823 3749 9577</a>
-                            <a href="mailto:support@cooca.id" class="block hover:text-white transition-colors">support@cooca.id</a>
+                    <!-- Social Proof Stats Bento -->
+                    <div class="grid grid-cols-3 gap-3 pt-3 max-w-lg mx-auto lg:mx-0">
+                        <div class="p-3.5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                            <div class="text-xl sm:text-2xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">10.000+</div>
+                            <div class="text-[11px] font-medium text-[#6E6E73] dark:text-[#86868B] mt-0.5">UMKM Terdaftar</div>
+                        </div>
+                        <div class="p-3.5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                            <div class="text-xl sm:text-2xl font-extrabold text-[#34C759] dark:text-[#30D158] font-mono">99.8%</div>
+                            <div class="text-[11px] font-medium text-[#6E6E73] dark:text-[#86868B] mt-0.5">Akurasi Finansial</div>
+                        </div>
+                        <div class="p-3.5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                            <div class="text-xl sm:text-2xl font-extrabold text-[#007AFF] dark:text-[#0A84FF] font-mono">100%</div>
+                            <div class="text-[11px] font-medium text-[#6E6E73] dark:text-[#86868B] mt-0.5">Gratis Selamanya</div>
                         </div>
                     </div>
-                    <div>
-                        <p class="font-bold text-white uppercase text-[11px] tracking-wider">Newsletter</p>
-                        <form class="space-y-2 mt-2" action="#" method="POST">
-                            <div class="flex gap-2">
-                                <input type="email" name="email" placeholder="Email kamu..." required class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-indigo-500 focus:outline-none transition-colors">
-                                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-white font-bold text-xs shrink-0 transition-colors shadow-lg shadow-indigo-500/20">→</button>
+                </div>
+
+                <!-- Kanan: Apple macOS Realistic Window Mockup Showcase -->
+                <div class="lg:col-span-6 flex justify-center lg:justify-end">
+                    <div class="relative w-full max-w-lg xl:max-w-xl">
+                        <!-- macOS Inset Squircle Window -->
+                        <div class="relative rounded-[28px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] p-5 sm:p-6 backdrop-blur-2xl transition-all">
+                            <!-- macOS Window Header Bar -->
+                            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3.5 mb-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></div>
+                                    <div class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></div>
+                                    <div class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></div>
+                                    <span class="text-xs font-semibold text-[#6E6E73] dark:text-[#86868B] ml-2">Cooca OS • Executive Dashboard</span>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] text-[10px] font-bold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-ping"></span> Live Cloud
+                                </span>
                             </div>
-                        </form>
+
+                            <!-- 4 Key Performance Metrics (Bento 2x2) -->
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                                    <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Omzet Hari Ini</div>
+                                    <div class="text-base sm:text-lg font-bold text-[#34C759] dark:text-[#30D158] font-mono mt-0.5">Rp 4.250.000</div>
+                                    <div class="text-[10px] text-[#34C759] dark:text-[#30D158] font-medium flex items-center gap-0.5 mt-0.5">
+                                        <i data-lucide="trending-up" class="w-3 h-3"></i> +14.8% vs kemarin
+                                    </div>
+                                </div>
+                                <div class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                                    <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Margin Laba Bersih</div>
+                                    <div class="text-base sm:text-lg font-bold text-[#007AFF] dark:text-[#0A84FF] font-mono mt-0.5">32.4%</div>
+                                    <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] mt-0.5">Net Profit Rp 1.377.000</div>
+                                </div>
+                                <div class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                                    <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Stok Kritis Gudang</div>
+                                    <div class="text-base sm:text-lg font-bold text-[#FF9500] dark:text-[#FF9F0A] font-mono mt-0.5">3 Bahan</div>
+                                    <div class="text-[10px] text-[#FF9500] dark:text-[#FF9F0A] flex items-center gap-0.5 mt-0.5">
+                                        <i data-lucide="alert-circle" class="w-3 h-3"></i> Segera restock
+                                    </div>
+                                </div>
+                                <div class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                                    <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Transaksi POS</div>
+                                    <div class="text-base sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">142 Struk</div>
+                                    <div class="text-[10px] text-[#34C759] dark:text-[#30D158] mt-0.5">AOV Rp 29.900</div>
+                                </div>
+                            </div>
+
+                            <!-- Mini 7-Day Sales Dynamic Sparkline Chart -->
+                            <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] mb-3">
+                                <div class="flex items-center justify-between text-[11px] font-medium text-[#6E6E73] dark:text-[#86868B] mb-2">
+                                    <span>Tren Penjualan 7 Hari Terakhir</span>
+                                    <span class="text-[#34C759] dark:text-[#30D158] font-semibold">+23.5% minggu ini</span>
+                                </div>
+                                <div class="flex items-end gap-1.5 h-16 pt-2">
+                                    <div class="flex-1 bg-[#007AFF]/25 dark:bg-[#0A84FF]/30 hover:bg-[#007AFF] h-[45%] rounded-[6px] transition-all" title="Senin: Rp 2.8Jt"></div>
+                                    <div class="flex-1 bg-[#007AFF]/35 dark:bg-[#0A84FF]/40 hover:bg-[#007AFF] h-[60%] rounded-[6px] transition-all" title="Selasa: Rp 3.4Jt"></div>
+                                    <div class="flex-1 bg-[#007AFF]/30 dark:bg-[#0A84FF]/35 hover:bg-[#007AFF] h-[40%] rounded-[6px] transition-all" title="Rabu: Rp 2.5Jt"></div>
+                                    <div class="flex-1 bg-[#007AFF]/50 dark:bg-[#0A84FF]/55 hover:bg-[#007AFF] h-[75%] rounded-[6px] transition-all" title="Kamis: Rp 4.1Jt"></div>
+                                    <div class="flex-1 bg-[#007AFF]/45 dark:bg-[#0A84FF]/50 hover:bg-[#007AFF] h-[65%] rounded-[6px] transition-all" title="Jumat: Rp 3.7Jt"></div>
+                                    <div class="flex-1 bg-[#007AFF] dark:bg-[#0A84FF] h-[100%] rounded-[6px] shadow-sm transition-all" title="Sabtu: Rp 5.2Jt"></div>
+                                    <div class="flex-1 bg-[#007AFF]/75 dark:bg-[#0A84FF]/80 hover:bg-[#007AFF] h-[85%] rounded-[6px] transition-all" title="Minggu: Rp 4.6Jt"></div>
+                                </div>
+                            </div>
+
+                            <!-- AI Assistant Bubble (Clean Apple Inset) -->
+                            <div class="flex items-center gap-2.5 p-3 rounded-[16px] bg-[#007AFF]/10 dark:bg-[#0A84FF]/15 border border-[#007AFF]/20 text-xs">
+                                <div class="w-6 h-6 rounded-full bg-[#007AFF] text-white flex items-center justify-center shrink-0">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-[#1D1D1F] dark:text-[#F5F5F7] font-medium truncate flex-1">
+                                    AI: "Margin produk Kopi Susu naik 4% setelah revisi bahan baku."
+                                </span>
+                                <span class="px-2 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] uppercase shrink-0">Insight</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Apple Tag -->
+                        <div class="absolute -bottom-3 -right-3 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-full px-4 py-1.5 text-xs font-bold text-[#34C759] dark:text-[#30D158] shadow-lg flex items-center gap-1.5">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                            <span>Bebas Biaya Langganan</span>
+                        </div>
                     </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 2. BENTO SECTION: MODUL EKOSISTEM (Apple Bento Grid 4 & 6 Col) ═══ -->
+    <section id="modul" class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-[#121214]/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div class="text-center space-y-3 max-w-2xl mx-auto">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-xs">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                    <span>Ekosistem Modular Terpadu</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Semua Fitur Dalam Satu Ekosistem</h2>
+                <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Dari penetapan harga modal hingga pencatatan kas harian, seluruh modul saling terhubung otomatis.</p>
+            </div>
+
+            <!-- Bento Architecture: Desktop 6-col / Mobile Adaptif 2-col Bento Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
+
+                <!-- Hero Bento Card: Kasir POS & Food Costing (Spans 2-col on Mobile, 4-col on Desktop) -->
+                <div class="col-span-2 md:col-span-4 glass-card p-5 sm:p-8 rounded-[24px] sm:rounded-[28px] flex flex-col justify-between group hover:border-[#34C759]/30 transition-all">
+                    <div class="space-y-3.5 sm:space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center">
+                                <i data-lucide="shopping-cart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                            </div>
+                            <span class="px-2.5 sm:px-3 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                                Kasir Kilat &amp; POS
+                            </span>
+                        </div>
+                        <h3 class="text-lg sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Terminal POS Kasir &amp; HPP Terintegrasi</h3>
+                        <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] max-w-xl leading-relaxed">
+                            Cetak struk bluetooth thermal, terima pembayaran QRIS instan, scan barcode kamera, dan otomatis potong stok bahan resep saat transaksi berlangsung.
+                        </p>
+
+                        <!-- Inset Preview Strip (Apple 3-Item Bento Shelf on Mobile & Desktop) -->
+                        <div class="grid grid-cols-3 gap-2 sm:gap-3 pt-2">
+                            <div class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                                <div class="text-[10px] sm:text-[11px] font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
+                                    <i data-lucide="printer" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i> <span class="truncate">Struk Thermal</span>
+                                </div>
+                                <div class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">Bluetooth 58/80mm</div>
+                            </div>
+                            <div class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                                <div class="text-[10px] sm:text-[11px] font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
+                                    <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i> <span class="truncate">QRIS Dinamis</span>
+                                </div>
+                                <div class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">Scan cepat no fee</div>
+                            </div>
+                            <div class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                                <div class="text-[10px] sm:text-[11px] font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
+                                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#FF9500] shrink-0"></i> <span class="truncate">Bon WhatsApp</span>
+                                </div>
+                                <div class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">Kirim nota 1-klik</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                        <span class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B]">Bekerja offline &amp; sync otomatis</span>
+                        @if (auth('web')->check())
+                            <a href="{{ route('pos.terminal') }}" class="text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center gap-1">
+                                <span>Buka Kasir</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @elseif (auth('admin')->check())
+                            <a href="{{ route('admin.dashboard') }}" class="text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center gap-1">
+                                <span>Dashboard Admin</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @else
+                            <a href="{{ route('register') }}" class="text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center gap-1">
+                                <span>Coba Gratis</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Compact Bento Widget: Pembukuan & Laba Rugi (Spans 1-col on Mobile, 2-col on Desktop) -->
+                <div class="col-span-1 md:col-span-2 glass-card p-4 sm:p-7 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between group hover:border-[#007AFF]/30 transition-all">
+                    <div class="space-y-2.5 sm:space-y-4">
+                        <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[18px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                            <i data-lucide="book-open-check" class="w-4 h-4 sm:w-6 sm:h-6"></i>
+                        </div>
+                        <div>
+                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] block">Otomasi Akuntansi</span>
+                            <h3 class="text-sm sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5 leading-snug">Laba Rugi Riil</h3>
+                        </div>
+                        <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
+                            Buku kas dan laporan laba bersih otomatis tersusun saat transaksi kasir input.
+                        </p>
+
+                        <div class="p-3 sm:p-4 rounded-[16px] sm:rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                            <div class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Net Profit Akurat</div>
+                            <div class="text-base sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">Rp 18.4Jt</div>
+                            <div class="text-[9px] sm:text-[10px] text-[#34C759] dark:text-[#30D158] font-medium mt-0.5">+18.2% bulan ini</div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 sm:pt-4 border-t border-black/[0.06] dark:border-white/[0.08] mt-3 sm:mt-4">
+                        <a href="{{ route('template.index') }}" class="text-[11px] sm:text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center justify-between sm:justify-start gap-1">
+                            <span>Template Excel</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Compact Bento Widget: Inventori & Stok (Spans 1-col on Mobile, 3-col on Desktop) -->
+                <div class="col-span-1 md:col-span-3 glass-card p-4 sm:p-7 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between group hover:border-[#FF9500]/30 transition-all">
+                    <div class="space-y-2.5 sm:space-y-4">
+                        <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[18px] bg-[#FF9500]/10 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
+                            <i data-lucide="package" class="w-4 h-4 sm:w-6 sm:h-6"></i>
+                        </div>
+                        <div>
+                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] block">Gudang &amp; Stok</span>
+                            <h3 class="text-sm sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5 leading-snug">Mutasi Stok</h3>
+                        </div>
+                        <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
+                            Beli dus, jual sachet. Kartu stok otomatis memantau peringatan restock bahan.
+                        </p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                            <div class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                                <span class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Stok SKU</span>
+                                <div class="text-sm sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">1.240 Item</div>
+                            </div>
+                            <div class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+                                <span class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Menipis</span>
+                                <div class="text-sm sm:text-lg font-bold text-[#FF9500] dark:text-[#FF9F0A] font-mono mt-0.5">3 SKU</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 sm:pt-4 border-t border-black/[0.06] dark:border-white/[0.08] mt-3 sm:mt-4">
+                        <a href="{{ route('kalkulator.hpp') }}" class="text-[11px] sm:text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center justify-between sm:justify-start gap-1">
+                            <span>Hitung Resep HPP</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Wide Bento Card: AI Business Assistant (Spans 2-col on Mobile, 3-col on Desktop) -->
+                <div class="col-span-2 md:col-span-3 glass-card p-5 sm:p-7 rounded-[24px] sm:rounded-[28px] flex flex-col justify-between group hover:border-[#007AFF]/30 transition-all">
+                    <div class="space-y-3.5 sm:space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                                <i data-lucide="bot" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[10px] font-bold uppercase flex items-center gap-1">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i>
+                                <span>AI Assistant</span>
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Konsultan Bisnis Pintar</h3>
+                            <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed mt-1">
+                                Tanyakan strategi harga jual, simulasi harga bahan baku naik, atau deteksi produk penyedot modal tanpa return.
+                            </p>
+                        </div>
+
+                        <!-- Prompt Pills (Apple Intelligence Bubble Style) -->
+                        <div class="space-y-2">
+                            <div class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
+                                <span class="truncate">"Berapa harga jual ideal ayam geprek jika cabai naik 25%?"</span>
+                            </div>
+                            <div class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i>
+                                <span class="truncate">"Audit margin laba bersih produk terlaris minggu ini."</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 sm:pt-4 border-t border-black/[0.06] dark:border-white/[0.08] mt-3 sm:mt-4">
+                        <a href="{{ route('kalkulator.simulasi-what-if') }}" class="text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center gap-1">
+                            <span>Coba Simulasi AI What-If</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 3. BENTO SECTION: SOLUSI 20+ INDUSTRI (Responsive 2-Col Mobile Bento Grid) ═══ -->
+    <section id="industri" class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08]"
+        x-data="{
+            activeTab: 'all',
+            industries: [
+                { slug: 'kasir-warung', name: 'Warung & Kelontong', category: 'retail', icon: 'shopping-basket', badge: 'Grosir & Bon WA', desc: 'Jual eceran & dus, catat bon hutang langganan, dan scan barcode.' },
+                { slug: 'kasir-cafe-kecil', name: 'Kafe & Kedai Kopi', category: 'fnb', icon: 'coffee', badge: 'HPP Resep Cup', desc: 'Resep cup kopi, nomor meja, split bill, dan cetak tiket dapur.' },
+                { slug: 'kasir-kios', name: 'Konter HP & Pulsa', category: 'retail', icon: 'smartphone', badge: 'Barcode Kilat', desc: 'Pencarian casing, kabel data, voucher & nota servis HP.' },
+                { slug: 'kasir-laundry', name: 'Laundry Kiloan', category: 'service', icon: 'shirt', badge: 'Nota WA Otomatis', desc: 'Tracking status cuci, setrika, siap ambil, dan nomor rak.' },
+                { slug: 'kasir-salon', name: 'Salon & Spa', category: 'service', icon: 'sparkles', badge: 'Komisi Terapis', desc: 'Bagi hasil terapis, riwayat treatment, & paket bundling.' },
+                { slug: 'kasir-barbershop', name: 'Barbershop', category: 'service', icon: 'scissors', badge: 'Antrean Kursi', desc: 'Barberman favorit, komisi per kepala potong, & pomade.' },
+                { slug: 'kasir-bengkel-kecil', name: 'Bengkel Motor', category: 'service', icon: 'wrench', badge: 'Jasa + Part', desc: 'Gabungkan jasa montir dan sparepart, simpan riwayat nopol.' },
+                { slug: 'kasir-irt', name: 'Produsen Snack IRT', category: 'fnb', icon: 'cookie', badge: 'HPP 3-Pilar', desc: 'Modal bahan, gas & titip jual konsinyasi mitra.' }
+            ],
+            filtered() {
+                if (this.activeTab === 'all') return this.industries;
+                return this.industries.filter(i => i.category === this.activeTab);
+            }
+        }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            <div class="text-center space-y-3 max-w-2xl mx-auto">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-xs">
+                    <i data-lucide="store" class="w-3.5 h-3.5"></i>
+                    <span>Solusi 20+ Vertikal Industri</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Disesuaikan untuk Setiap Usaha</h2>
+                <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Setiap industri memiliki alur operasional unik. Cooca UMKM siap mengakomodasi kebutuhan Anda.</p>
+            </div>
+
+            <!-- Apple Segmented Filter Chips -->
+            <div class="flex items-center justify-center">
+                <div class="inline-flex p-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold overflow-x-auto max-w-full">
+                    <button type="button" @click="activeTab = 'all'" :class="activeTab === 'all' ? 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' : 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'" class="px-3 sm:px-4 py-1.5 rounded-full transition-all duration-150 whitespace-nowrap">Semua</button>
+                    <button type="button" @click="activeTab = 'fnb'" :class="activeTab === 'fnb' ? 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' : 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'" class="px-3 sm:px-4 py-1.5 rounded-full transition-all duration-150 whitespace-nowrap">F&amp;B</button>
+                    <button type="button" @click="activeTab = 'service'" :class="activeTab === 'service' ? 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' : 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'" class="px-3 sm:px-4 py-1.5 rounded-full transition-all duration-150 whitespace-nowrap">Jasa</button>
+                    <button type="button" @click="activeTab = 'retail'" :class="activeTab === 'retail' ? 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' : 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'" class="px-3 sm:px-4 py-1.5 rounded-full transition-all duration-150 whitespace-nowrap">Retail</button>
                 </div>
             </div>
 
-            <div class="border-t border-slate-900 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-                <p>© 2026 COOCA.ID. All rights reserved. Made with ❤️ in Indonesia.</p>
-                <a href="#" title="DMCA Compliance">
-                    <img src="https://images.dmca.com/Badges/dmca-badge-w100-2x1-03.png?ID=8a1fbcb5-5cdf-401c-8d19-df395c18212e" alt="DMCA compliant" width="100" height="25" loading="lazy" />
-                </a>
+            <!-- Apple Bento Grid 2-Col on Mobile / 4-Col on Desktop -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                <template x-for="ind in filtered()" :key="ind.slug">
+                    <a :href="'/solusi/' + ind.slug" class="glass-card p-3.5 sm:p-6 rounded-[20px] sm:rounded-[24px] flex flex-col justify-between group hover:border-[#007AFF]/30 active:scale-[0.98] transition-all">
+                        <div class="space-y-2.5 sm:space-y-3.5">
+                            <div class="flex items-center justify-between">
+                                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-[12px] sm:rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center group-hover:scale-105 transition-transform">
+                                    <i :data-lucide="ind.icon" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[9px] sm:text-[10px] font-bold truncate max-w-[100px]" x-text="ind.badge"></span>
+                            </div>
+
+                            <h3 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug line-clamp-2" x-text="ind.name"></h3>
+
+                            <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed line-clamp-2" x-text="ind.desc"></p>
+                        </div>
+
+                        <div class="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                            <span>Lihat Solusi</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </a>
+                </template>
             </div>
         </div>
-    </footer>
+    </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-        });
-    </script>
+    <!-- ═══ 4. BENTO SECTION: MULTI-DEVICE & BROWSER (Apple Hardware Ecosystem Bento) ═══ -->
+    <section class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-[#121214]/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div class="text-center space-y-3 max-w-2xl mx-auto">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] font-semibold text-xs">
+                    <i data-lucide="devices" class="w-3.5 h-3.5"></i>
+                    <span>Akses Fleksibel Tanpa Install</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Satu Akun di Semua Perangkat</h2>
+                <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Tanpa install aplikasi. Buka browser favorit Anda dan aplikasi langsung siap melayani transaksi.</p>
+            </div>
 
-</body>
+            <!-- Bento 3 Devices Cards: 2-Col Mobile Bento (1 Wide + 2 Compact) / 3-Col Desktop -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
 
-</html>
+                <!-- Device 1: Laptop & Desktop (Spans 2-col on Mobile, 1-col on Desktop) -->
+                <div class="col-span-2 md:col-span-1 glass-card p-5 sm:p-7 rounded-[22px] sm:rounded-[26px] space-y-3 sm:space-y-4 group">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                            <i data-lucide="monitor" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2.5 py-0.5 rounded-full bg-[#007AFF]/10">PC &amp; Mac</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Executive Workstation</h3>
+                    <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
+                        Layar lebar optimal untuk formula HPP resep, impor katalog barang via Excel, dan audit pembukuan bulanan.
+                    </p>
+                    <div class="grid grid-cols-2 sm:grid-cols-1 gap-1.5 pt-1 text-[11px] sm:text-xs font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
+                        <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i><span class="truncate">Shortcut keyboard kilat</span></div>
+                        <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i><span class="truncate">Export Excel &amp; PDF</span></div>
+                    </div>
+                </div>
+
+                <!-- Device 2: Tablet & iPad (Spans 1-col on Mobile, 1-col on Desktop) -->
+                <div class="col-span-1 md:col-span-1 glass-card p-4 sm:p-7 rounded-[22px] sm:rounded-[26px] space-y-2.5 sm:space-y-4 group">
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] text-[#34C759] dark:text-[#30D158] flex items-center justify-center">
+                        <i data-lucide="tablet" class="w-4 h-4 sm:w-6 sm:h-6"></i>
+                    </div>
+                    <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] block truncate">iPad &amp; Tablet</span>
+                    <h3 class="text-sm sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug">Kasir Meja</h3>
+                    <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
+                        Layar sentuh elegan untuk kafe, resto, dan salon. Grid foto menu sentuh cepat.
+                    </p>
+                    <div class="pt-1 text-[10px] sm:text-xs space-y-1 font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
+                        <div class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Split bill &amp; meja</span></div>
+                        <div class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Thermal Bluetooth</span></div>
+                    </div>
+                </div>
+
+                <!-- Device 3: Smartphone (Spans 1-col on Mobile, 1-col on Desktop) -->
+                <div class="col-span-1 md:col-span-1 glass-card p-4 sm:p-7 rounded-[22px] sm:rounded-[26px] space-y-2.5 sm:space-y-4 group">
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
+                        <i data-lucide="smartphone" class="w-4 h-4 sm:w-6 sm:h-6"></i>
+                    </div>
+                    <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] block truncate">iPhone &amp; Android</span>
+                    <h3 class="text-sm sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug">Pantau Mobile</h3>
+                    <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
+                        Cek omzet toko live dari mana saja. Kamera HP langsung berfungsi sebagai scanner barcode.
+                    </p>
+                    <div class="pt-1 text-[10px] sm:text-xs space-y-1 font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
+                        <div class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Scan kamera HP</span></div>
+                        <div class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Live notifikasi kas</span></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 5. BENTO PLAYGROUND: LIVE INTERACTIVE HPP & PRICING SIMULATOR ═══ -->
+    <section id="kalkulator-live" class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div class="text-center space-y-3 max-w-2xl mx-auto">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-xs">
+                    <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                    <span>Interactive Playground</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Coba Langsung di Browser Anda</h2>
+                <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Geser nilai biaya di bawah ini dan perhatikan bagaimana harga jual rekomendasi dan margin laba bereaksi secara real-time.</p>
+            </div>
+
+            <!-- Bento Playground (8-col input + 4-col sticky result) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6" x-data="{
+                    matCost: 25000,
+                    labCost: 6500,
+                    ovhCost: 8500,
+                    targetRate: 40,
+                    isMargin: true,
+                    get hpp() { return this.matCost + this.labCost + this.ovhCost; },
+                    get price() {
+                        if (this.isMargin) {
+                            let m = Math.min(this.targetRate, 95);
+                            return Math.round(this.hpp / (1 - (m / 100)));
+                        }
+                        return Math.round(this.hpp * (1 + (this.targetRate / 100)));
+                    },
+                    get profit() { return this.price - this.hpp; },
+                    get marginPct() { return this.price > 0 ? Math.round((this.profit / this.price) * 100) : 0; },
+                    get markupPct() { return this.hpp > 0 ? Math.round((this.profit / this.hpp) * 100) : 0; }
+                }">
+
+                <!-- Left: Apple Inset Controls (8 Kolom) -->
+                <div class="glass-card p-6 sm:p-8 rounded-[28px] lg:col-span-8 flex flex-col justify-between space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/[0.06] dark:border-white/[0.08] pb-4">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Simulasi HPP 3-Pilar</span>
+                            <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5">Komponen Modal Langsung</h3>
+                        </div>
+
+                        <!-- Segmented Switcher -->
+                        <div class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-full border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold shrink-0">
+                            <button type="button" @click="isMargin = true" :class="isMargin ? 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' : 'text-[#6E6E73] dark:text-[#86868B]'" class="px-4 py-1 rounded-full transition-all">Margin</button>
+                            <button type="button" @click="isMargin = false" :class="!isMargin ? 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' : 'text-[#6E6E73] dark:text-[#86868B]'" class="px-4 py-1 rounded-full transition-all">Markup</button>
+                        </div>
+                    </div>
+
+                    <!-- 3 Sliders Inset Containers (Mobile 2-Col Bento Layout) -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                        <div class="col-span-1 p-3.5 sm:p-4 rounded-[18px] sm:rounded-[20px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-1.5 sm:space-y-2">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs font-medium text-[#6E6E73] dark:text-[#86868B]">
+                                <span class="truncate">Bahan Baku</span>
+                                <span class="font-bold text-[#007AFF] dark:text-[#0A84FF] font-mono">Rp <span x-text="matCost.toLocaleString('id-ID')"></span></span>
+                            </div>
+                            <input type="range" x-model.number="matCost" min="5000" max="60000" step="1000" class="w-full accent-[#007AFF] cursor-pointer">
+                            <span class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] block truncate">Bahan per porsi</span>
+                        </div>
+                        <div class="col-span-1 p-3.5 sm:p-4 rounded-[18px] sm:rounded-[20px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-1.5 sm:space-y-2">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs font-medium text-[#6E6E73] dark:text-[#86868B]">
+                                <span class="truncate">Tenaga Kerja</span>
+                                <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">Rp <span x-text="labCost.toLocaleString('id-ID')"></span></span>
+                            </div>
+                            <input type="range" x-model.number="labCost" min="1000" max="30000" step="500" class="w-full accent-[#007AFF] cursor-pointer">
+                            <span class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] block truncate">Upah per unit</span>
+                        </div>
+                        <div class="col-span-2 sm:col-span-1 p-3.5 sm:p-4 rounded-[18px] sm:rounded-[20px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-1.5 sm:space-y-2">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs font-medium text-[#6E6E73] dark:text-[#86868B]">
+                                <span class="truncate">Overhead Listrik/Gas</span>
+                                <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">Rp <span x-text="ovhCost.toLocaleString('id-ID')"></span></span>
+                            </div>
+                            <input type="range" x-model.number="ovhCost" min="1000" max="25000" step="500" class="w-full accent-[#007AFF] cursor-pointer">
+                            <span class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] block truncate">Gas, listrik, operasional</span>
+                        </div>
+                    </div>
+
+                    <!-- Target Markup / Margin Slider & Result -->
+                    <div class="p-5 rounded-[22px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-5">
+                        <div class="space-y-1.5 w-full sm:w-1/2">
+                            <div class="flex justify-between text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">
+                                <span>Target <span x-text="isMargin ? 'Gross Margin' : 'Markup'"></span>:</span>
+                                <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]" x-text="targetRate + '%'"></span>
+                            </div>
+                            <input type="range" x-model.number="targetRate" min="10" max="80" step="5" class="w-full accent-[#007AFF] cursor-pointer">
+                        </div>
+
+                        <div class="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-black/[0.06] dark:border-white/[0.08]">
+                            <div>
+                                <div class="text-[10px] font-bold uppercase text-[#6E6E73] dark:text-[#86868B]">Total HPP Modal</div>
+                                <div class="text-base sm:text-lg font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">Rp <span x-text="hpp.toLocaleString('id-ID')"></span></div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] font-bold uppercase text-[#34C759] dark:text-[#30D158]">Harga Jual Saran</div>
+                                <div class="text-xl sm:text-2xl font-extrabold text-[#34C759] dark:text-[#30D158] font-mono">Rp <span x-text="price.toLocaleString('id-ID')"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-center text-[#6E6E73] dark:text-[#86868B] border-t border-black/[0.06] dark:border-white/[0.08] pt-3">
+                        <span x-show="isMargin">Gross Margin: <strong class="text-[#34C759] dark:text-[#30D158]" x-text="marginPct + '%'"></strong> • Keuntungan per Satuan: <strong class="text-[#1D1D1F] dark:text-[#F5F5F7]">Rp <span x-text="profit.toLocaleString('id-ID')"></span></strong></span>
+                        <span x-show="!isMargin">Markup Modal: <strong class="text-[#007AFF] dark:text-[#0A84FF]" x-text="markupPct + '%'"></strong> • Keuntungan per Satuan: <strong class="text-[#1D1D1F] dark:text-[#F5F5F7]">Rp <span x-text="profit.toLocaleString('id-ID')"></span></strong></span>
+                    </div>
+                </div>
+
+                <!-- Right: Sticky Bento Output Card (4 Kolom) -->
+                <div class="glass-card p-6 sm:p-7 rounded-[28px] lg:col-span-4 flex flex-col justify-between space-y-5">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">Rekomendasi Real-Time</span>
+                            <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
+                        </div>
+
+                        <div>
+                            <div class="text-xs text-[#6E6E73] dark:text-[#86868B]">Harga Jual Ideal:</div>
+                            <div class="text-3xl font-black text-[#34C759] dark:text-[#30D158] font-mono mt-1">
+                                Rp <span x-text="price.toLocaleString('id-ID')"></span>
+                            </div>
+                            <div class="text-xs text-[#6E6E73] dark:text-[#86868B] mt-1">
+                                Profit per porsi: <strong class="text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">Rp <span x-text="profit.toLocaleString('id-ID')"></span></strong>
+                            </div>
+                        </div>
+
+                        <!-- Mini breakdown table -->
+                        <div class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-2 text-xs">
+                            <div class="flex justify-between text-[#6E6E73] dark:text-[#86868B]">
+                                <span>Bahan Baku:</span>
+                                <span class="font-mono text-[#1D1D1F] dark:text-[#F5F5F7]">Rp <span x-text="matCost.toLocaleString('id-ID')"></span></span>
+                            </div>
+                            <div class="flex justify-between text-[#6E6E73] dark:text-[#86868B]">
+                                <span>Upah &amp; Overhead:</span>
+                                <span class="font-mono text-[#1D1D1F] dark:text-[#F5F5F7]">Rp <span x-text="(labCost + ovhCost).toLocaleString('id-ID')"></span></span>
+                            </div>
+                            <div class="flex justify-between font-semibold border-t border-black/[0.04] dark:border-white/[0.06] pt-1.5 text-[#1D1D1F] dark:text-[#F5F5F7]">
+                                <span>Total Modal HPP:</span>
+                                <span class="font-mono">Rp <span x-text="hpp.toLocaleString('id-ID')"></span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        @if (auth('web')->check())
+                            <a href="{{ route('dashboard') }}" class="w-full glow-btn py-3.5 rounded-[16px] text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+                                <span>Buka Dashboard Bisnis</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @elseif (auth('admin')->check())
+                            <a href="{{ route('admin.dashboard') }}" class="w-full glow-btn py-3.5 rounded-[16px] text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+                                <span>Buka Dashboard Admin</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @else
+                            <a href="{{ route('register') }}" class="w-full glow-btn py-3.5 rounded-[16px] text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+                                <span>Kunci HPP di Akun Kasir Anda</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @endif
+                        <a href="{{ route('kalkulator.hpp') }}" class="w-full py-2.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.05] hover:bg-black/[0.05] dark:hover:bg-white/[0.08] text-center text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] block transition-colors">
+                            Buka Versi Lengkap Detail HPP
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 6. FAQ ACCORDION + BENTO SUPPORT DESK 24/7 ═══ -->
+    <section id="faq" class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-[#121214]/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div class="text-center space-y-3 max-w-2xl mx-auto">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-xs">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                    <span>Tanya Jawab &amp; Layanan Dukungan</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Frequently Asked Questions</h2>
+                <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Jawaban transparan seputar komitmen gratis selamanya, keamanan data, dan integrasi perangkat.</p>
+            </div>
+
+            <!-- 2-Column: Left Accordion (7 Col) + Right Bento Support Desk (5 Col) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                <!-- Left: Apple Inset Accordion (7 Col) -->
+                <div class="lg:col-span-7 space-y-3" x-data="{ openFaq: 1 }">
+                    <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                        <button type="button" @click="openFaq = openFaq === 1 ? null : 1" class="w-full p-5 text-left font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm sm:text-base flex items-center justify-between gap-3 hover:bg-black/[0.01] dark:hover:bg-white/[0.02] transition-colors">
+                            <span>Apakah Cooca UMKM benar-benar 100% gratis selamanya?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#6E6E73] dark:text-[#86868B] shrink-0 transition-transform duration-200" :class="openFaq === 1 ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="openFaq === 1" x-cloak x-transition class="p-5 pt-0 text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06]">
+                            Ya! Seluruh fitur esensial seperti Kalkulator HPP, POS Kasir, mutasi inventori stok, pembukuan kas otomatis, dan konsultasi AI dapat digunakan <strong class="text-[#34C759] dark:text-[#30D158]">100% gratis</strong> tanpa batasan jumlah transaksi dan tanpa masa kadaluarsa.
+                        </div>
+                    </div>
+
+                    <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                        <button type="button" @click="openFaq = openFaq === 2 ? null : 2" class="w-full p-5 text-left font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm sm:text-base flex items-center justify-between gap-3 hover:bg-black/[0.01] dark:hover:bg-white/[0.02] transition-colors">
+                            <span>Apakah data keuangan dan pelanggan saya aman?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#6E6E73] dark:text-[#86868B] shrink-0 transition-transform duration-200" :class="openFaq === 2 ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="openFaq === 2" x-cloak x-transition class="p-5 pt-0 text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06]">
+                            Sangat aman. Seluruh data transaksi dienkripsi dengan standar perbankan (TLS 1.3 / SSL 256-bit). Kami tidak pernah menjual data pelanggan, omzet, atau resep kuliner Anda ke pihak mana pun.
+                        </div>
+                    </div>
+
+                    <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                        <button type="button" @click="openFaq = openFaq === 3 ? null : 3" class="w-full p-5 text-left font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm sm:text-base flex items-center justify-between gap-3 hover:bg-black/[0.01] dark:hover:bg-white/[0.02] transition-colors">
+                            <span>Apakah mendukung printer thermal Bluetooth dan scan barcode?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#6E6E73] dark:text-[#86868B] shrink-0 transition-transform duration-200" :class="openFaq === 3 ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="openFaq === 3" x-cloak x-transition class="p-5 pt-0 text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06]">
+                            Ya. Sistem kasir kami kompatibel dengan printer kasir thermal Bluetooth ukuran 58mm dan 80mm di Android, iOS, Windows, dan macOS, serta mendukung scan barcode langsung via kamera HP.
+                        </div>
+                    </div>
+
+                    <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                        <button type="button" @click="openFaq = openFaq === 4 ? null : 4" class="w-full p-5 text-left font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm sm:text-base flex items-center justify-between gap-3 hover:bg-black/[0.01] dark:hover:bg-white/[0.02] transition-colors">
+                            <span>Bagaimana jika koneksi internet di toko mendadak terputus?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#6E6E73] dark:text-[#86868B] shrink-0 transition-transform duration-200" :class="openFaq === 4 ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="openFaq === 4" x-cloak x-transition class="p-5 pt-0 text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06]">
+                            Cooca UMKM dilengkapi teknologi local storage cache offline. Transaksi kasir tetap bisa dicetak dan disimpan di browser, kemudian disinkronisasikan ke cloud saat internet kembali online.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Support Desk 24/7 (5 Col) -->
+                <div class="lg:col-span-5 glass-card p-6 sm:p-7 rounded-[28px] space-y-6">
+                    <div>
+                        <div class="w-12 h-12 rounded-[18px] bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center mb-3">
+                            <i data-lucide="headset" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Support Desk 24/7</h3>
+                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] mt-1 leading-relaxed">
+                            Butuh bantuan setup awal, cara hitung HPP resep produk Anda, atau konsultasi kendala printer? Konsultan kami siap mendampingi Anda.
+                        </p>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                        <div class="p-4 rounded-[18px] bg-[#34C759]/10 border border-[#34C759]/20 flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase text-[#34C759] dark:text-[#30D158] block">WhatsApp Resmi</span>
+                                <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm">0823 3749 9577</span>
+                            </div>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#34C759] text-white text-[10px] font-bold">
+                                &lt; 5 Menit
+                            </span>
+                        </div>
+
+                        <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Email Bantuan</span>
+                                <span class="font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">support@cooca.id</span>
+                            </div>
+                            <i data-lucide="mail" class="w-4 h-4 text-[#007AFF]"></i>
+                        </div>
+                    </div>
+
+                    <a href="https://wa.me/6282337499577?text=Halo%20Tim%20Cooca%20UMKM,%20saya%20ingin%20konsultasi%20penggunaan%20aplikasi" target="_blank" rel="noopener" class="w-full py-3.5 rounded-[16px] bg-[#34C759] hover:bg-[#2DB84D] text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        <span>Chat WhatsApp Konsultan Sekarang</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 7. ENTERPRISE BANNER (Apple Dark Slate Minimalist) ═══ -->
+    <section class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08]">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="rounded-[32px] bg-[#161618] border border-white/10 p-8 sm:p-14 text-center space-y-6 shadow-2xl text-white relative overflow-hidden">
+                <div class="relative z-10 space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 text-white/90 text-xs font-semibold">
+                        <i data-lucide="building" class="w-3.5 h-3.5 text-[#0A84FF]"></i>
+                        <span>Kebutuhan Korporasi Multi-Cabang</span>
+                    </div>
+
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
+                        Tingkatkan ke <span class="text-[#0A84FF]">COOCA.ID Enterprise</span>
+                    </h2>
+
+                    <p class="text-sm sm:text-base text-white/65 max-w-2xl mx-auto leading-relaxed font-normal">
+                        Kelola jaringan puluhan cabang gerai, konsolidasi inventori gudang pusat, integrasi ERP klinik apotek, dan laporan pajak holding terpusat.
+                    </p>
+
+                    <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-md mx-auto">
+                        <a href="https://cooca.id" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-8 py-3.5 rounded-[16px] bg-[#0A84FF] hover:bg-[#0077ED] text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-all">
+                            <span>Kunjungi Portal Enterprise</span>
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        </a>
+                        <a href="https://wa.me/6282337499577?text=Halo%20saya%20tertarik%20dengan%20COOCA%20Enterprise%20Multi-Cabang" target="_blank" rel="noopener" class="w-full sm:w-auto px-6 py-3.5 rounded-[16px] bg-white/10 hover:bg-white/15 border border-white/10 text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+                            <i data-lucide="message-circle" class="w-4 h-4 text-[#30D158]"></i>
+                            <span>Hubungi Sales Corporate</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+@endsection

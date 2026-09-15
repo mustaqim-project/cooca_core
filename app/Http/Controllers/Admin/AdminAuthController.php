@@ -39,6 +39,11 @@ final class AdminAuthController extends Controller
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
+            $intended = (string) $request->session()->get('url.intended', '');
+            if ($intended !== '' && str_contains($intended, '/admin/login')) {
+                $request->session()->forget('url.intended');
+            }
+
             return redirect()->intended(route('admin.dashboard'));
         }
 

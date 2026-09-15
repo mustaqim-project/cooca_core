@@ -417,7 +417,7 @@ Kontrol ini tidak diterapkan konsisten di semua controller/service.
 
 # 3. Findings
 
-## SEC-001 — POS Checkout Menerima Pembayaran Kurang dari Total
+## SEC-001 - POS Checkout Menerima Pembayaran Kurang dari Total
 
 **Severity:** CRITICAL  
 **CVSS v3.1:** 9.1  
@@ -480,7 +480,7 @@ Validasi total server-side sebelum membuat order. Validasi juga payment method, 
 
 ---
 
-## SEC-002 — POS API Financial Actions Tidak Memiliki Permission
+## SEC-002 - POS API Financial Actions Tidak Memiliki Permission
 
 **Severity:** HIGH  
 **CVSS v3.1:** 8.1  
@@ -522,7 +522,7 @@ Tambahkan permission middleware dan server-side policy/service authorization. Ja
 
 ---
 
-## SEC-003 — WhatsApp Webhook Terbuka pada Fallback Default
+## SEC-003 - WhatsApp Webhook Terbuka pada Fallback Default
 
 **Severity:** HIGH  
 **CVSS v3.1:** 8.1  
@@ -578,7 +578,7 @@ Hapus fallback secret, gunakan HMAC signature atau mTLS bila memungkinkan, valid
 
 ---
 
-## SEC-004 — Cross-Tenant Business Authorization pada Member API
+## SEC-004 - Cross-Tenant Business Authorization pada Member API
 
 **Severity:** HIGH  
 **CVSS v3.1:** 8.1  
@@ -625,7 +625,7 @@ Pastikan active context dan route business identik atau resolve membership langs
 
 ---
 
-## SEC-005 — AI Action Dapat Menggunakan Customer/Product Tenant Lain
+## SEC-005 - AI Action Dapat Menggunakan Customer/Product Tenant Lain
 
 **Severity:** HIGH  
 **CVSS v3.1:** 8.1  
@@ -664,7 +664,7 @@ Gunakan repository tenant-scoped dan authorization sebelum AI tool execution. Ta
 
 ---
 
-## SEC-006 — POS Product/Customer Lookup Tidak Tenant-Scoped
+## SEC-006 - POS Product/Customer Lookup Tidak Tenant-Scoped
 
 **Severity:** HIGH  
 **CVSS v3.1:** 7.5  
@@ -696,7 +696,7 @@ Resolve product/customer melalui query yang selalu memuat `business_id`, dan tol
 
 ---
 
-## SEC-007 — Foreign-Key Validation Lintas Tenant pada Inventory dan Finance
+## SEC-007 - Foreign-Key Validation Lintas Tenant pada Inventory dan Finance
 
 **Severity:** MEDIUM  
 **CVSS v3.1:** 6.5  
@@ -735,7 +735,7 @@ Gunakan `Rule::exists(...)->where('business_id', $business->id)` dan ulangi vali
 
 ---
 
-## SEC-008 — POS Supervisor PIN Default `1234` dan Tidak Di-throttle
+## SEC-008 - POS Supervisor PIN Default `1234` dan Tidak Di-throttle
 
 **Severity:** MEDIUM  
 **CVSS v3.1:** 6.5  
@@ -767,7 +767,7 @@ Wajibkan PIN unik, simpan hash, rate limit, lockout, audit log, dan gunakan auth
 
 ---
 
-## SEC-009 — Public Receipt Dapat Diakses Berbasis ID
+## SEC-009 - Public Receipt Dapat Diakses Berbasis ID
 
 **Severity:** MEDIUM  
 **CVSS v3.1:** 5.3  
@@ -794,7 +794,7 @@ Gunakan random receipt token, signed temporary URL, atau proof berupa QR token. 
 
 ---
 
-## SEC-010 — Login Web dan Admin Tidak Memiliki Throttling Khusus
+## SEC-010 - Login Web dan Admin Tidak Memiliki Throttling Khusus
 
 **Severity:** MEDIUM  
 **CVSS v3.1:** 6.5  
@@ -826,7 +826,7 @@ Gunakan limiter berbasis IP + email, exponential backoff, lockout sementara, dan
 
 ---
 
-## SEC-011 — Payment Proof Disimpan di Public Web Root
+## SEC-011 - Payment Proof Disimpan di Public Web Root
 
 **Severity:** MEDIUM  
 **CVSS v3.1:** 5.3  
@@ -1194,7 +1194,7 @@ Public receipt route
 
 # 21. Remediation Roadmap
 
-## P0 — Fix Immediately
+## P0 - Fix Immediately
 
 1. Tolak POS checkout jika pembayaran kurang dari total.
 2. Tambahkan authorization server-side untuk void, refund, cash ledger, expense, inventory transfer, dan AI action.
@@ -1202,7 +1202,7 @@ Public receipt route
 4. Cocokkan route business dengan active tenant pada member/business API.
 5. Tenant-scope seluruh Product, Customer, Location, Account, dan AI payload lookup.
 
-## P1 — Fix Before Production
+## P1 - Fix Before Production
 
 1. Hapus PIN default `1234`.
 2. Hash PIN, rate-limit, lockout, dan audit supervisor actions.
@@ -1213,7 +1213,7 @@ Public receipt route
 7. Tambahkan tenant-scoped `Rule::exists`.
 8. Pastikan semua approval workflow menggunakan valid state transition.
 
-## P2 — Fix Soon
+## P2 - Fix Soon
 
 1. Tambahkan audit trail komprehensif.
 2. Tambahkan token expiry, ability, rotation, dan revoke policy.
@@ -1222,7 +1222,7 @@ Public receipt route
 5. Tambahkan uniqueness constraint dan locking pada nomor invoice/order/transfer.
 6. Tambahkan `package-lock.json`.
 
-## P3 — Hardening
+## P3 - Hardening
 
 1. Database user production dengan least privilege.
 2. Monitoring failed login, webhook abuse, export, refund, dan stock adjustment.

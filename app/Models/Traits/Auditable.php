@@ -60,9 +60,12 @@ trait Auditable
             return;
         }
 
+        $user = Auth::user();
+        $userId = ($user instanceof \App\Models\User) ? $user->id : null;
+
         AuditLog::create([
             'business_id' => $businessId,
-            'user_id' => Auth::id(),
+            'user_id' => $userId,
             'auditable_type' => static::class,
             'auditable_id' => (string) $this->getKey(),
             'action' => $action,

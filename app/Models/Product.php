@@ -19,8 +19,13 @@ class Product extends Model
 {
     use Auditable, BelongsToBusiness, HasFactory, HasSlug, HasUuid, SoftDeletes;
 
+    public const TYPE_GOODS = 'goods';
+
+    public const TYPE_SERVICE = 'service';
+
     protected $fillable = [
         'business_id',
+        'type',
         'category_id',
         'output_unit_id',
         'direct_material_id',
@@ -37,16 +42,55 @@ class Product extends Model
     ];
 
     /**
+     * The model's default values for attributes.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'type' => self::TYPE_GOODS,
+        'is_active' => true,
+    ];
+
+    public function getTypeAttribute(?string $value): string
+    {
+        return $value ?: self::TYPE_GOODS;
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
+            'type' => 'string',
             'base_cost' => 'float',
             'selling_price' => 'float',
             'min_stock' => 'float',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function isService(): bool
+    {
+        return ($this->type ?? self::TYPE_GOODS) === self::TYPE_SERVICE;
+    }
+
+    public function isGoods(): bool
+    {
+        return ($this->type ?? self::TYPE_GOODS) !== self::TYPE_SERVICE;
+    }
+
+    public function scopeGoods($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('type', self::TYPE_GOODS)
+                ->orWhereNull('type');
+        });
+    }
+
+    public function scopeServices($query)
+    {
+        return $query->where('type', self::TYPE_SERVICE);
     }
 
     public function getImageUrlAttribute(): ?string
@@ -155,7 +199,7 @@ class Product extends Model
      */
     public function getMaterialDeductions(float $quantity = 1.0): array
     {
-        if ($quantity <= 0) {
+        if ($this->isService() || $quantity <= 0) {
             return [];
         }
 
@@ -226,8 +270,12 @@ class Product extends Model
     /**
      * Calculate effective stock based on Material master stock (Rule 01 & 21).
      */
-    public function calculateEffectiveStock(?string $locationId = null): float
+    public function calculateEffectiveStock(?string $locationId = null): ?float
     {
+        if ($this->isService()) {
+            return null;
+        }
+
         // If Direct Material
         if ($this->direct_material_id) {
             $query = InventoryStock::where('material_id', $this->direct_material_id);
@@ -272,7 +320,70 @@ class Product extends Model
      */
     public function getTotalStockAttribute(): float
     {
-        return $this->calculateEffectiveStock();
+        return $this->calculateEffectiveStock() ?? 0.0;
+    }
+
+    /**
+     * Calculate effective available stock (total quantity minus reserved_quantity)
+     * based on Material master stock or product stock.
+     */
+    public function calculateEffectiveAvailableStock(?string $locationId = null): ?float
+    {
+        if ($this->isService()) {
+            return null;
+        }
+
+        // If Direct Material
+        if ($this->direct_material_id) {
+            $query = InventoryStock::where('material_id', $this->direct_material_id);
+            if ($locationId) {
+                $query->where('location_id', $locationId);
+            }
+            $qty = (float) $query->sum('quantity');
+            $reserved = (float) $query->sum('reserved_quantity');
+            return max(0.0, $qty - $reserved);
+        }
+
+        // If Recipe/BOM: compute minimum producible batches based on available (unreserved) material
+        $deductions = $this->getMaterialDeductions(1.0);
+        if (!empty($deductions)) {
+            $minBatches = null;
+            foreach ($deductions as $d) {
+                $reqPerUnit = (float) $d['quantity'];
+                if ($reqPerUnit <= 0) continue;
+
+                $stockQuery = InventoryStock::where('material_id', $d['material_id']);
+                if ($locationId) {
+                    $stockQuery->where('location_id', $locationId);
+                }
+                $qty = (float) $stockQuery->sum('quantity');
+                $reserved = (float) $stockQuery->sum('reserved_quantity');
+                $avail = max(0.0, $qty - $reserved);
+                $batches = floor($avail / $reqPerUnit);
+
+                if ($minBatches === null || $batches < $minBatches) {
+                    $minBatches = max(0.0, (float) $batches);
+                }
+            }
+            return $minBatches ?? 0.0;
+        }
+
+        // Fallback for legacy product stock records
+        $query = $this->stocks();
+        if ($locationId) {
+            $query->where('location_id', $locationId);
+        }
+        $qty = (float) $query->sum('quantity');
+        $reserved = (float) $query->sum('reserved_quantity');
+        return max(0.0, $qty - $reserved);
+    }
+
+    /**
+     * Total available stock across all locations.
+     */
+    public function getTotalAvailableStockAttribute(): float
+    {
+        return $this->calculateEffectiveAvailableStock() ?? 0.0;
     }
 
     /**

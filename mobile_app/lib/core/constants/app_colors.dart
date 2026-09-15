@@ -1,123 +1,140 @@
 import 'package:flutter/material.dart';
 
-/// Cooca UMKM Mobile — Design Tokens
-/// Identik dengan web: bg-slate-950, emerald brand, Plus Jakarta Sans
+/// Cooca UMKM Mobile - Apple HIG v2.0 Design Tokens
+/// System Blue primary, Apple System Gray palette, Inter (SF Pro-compatible).
 class AppColors {
   AppColors._();
 
-  // ── Backgrounds (Tailwind Slate) ──────────────────────────────
-  static const Color background      = Color(0xFF020617); // slate-950
-  static const Color surfaceDeep     = Color(0xFF0F172A); // slate-900
-  static const Color surface         = Color(0xFF1E293B); // slate-800
-  static const Color surfaceElevated = Color(0xFF334155); // slate-700
-  static const Color surfaceHigh     = Color(0xFF475569); // slate-600
+  // ── Backgrounds (Apple System Gray ladder, dark) ───────────────
+  static const Color background =
+      Color(0xFF1E1E1E); // window background (Apple dark)
+  static const Color surfaceDeep =
+      Color(0xFF1C1C1E); // gray6 - secondary system background
+  static const Color surface =
+      Color(0xFF2C2C2E); // gray5 - tertiary / card surface
+  static const Color surfaceElevated =
+      Color(0xFF3A3A3C); // gray4 - elevated surface
+  static const Color surfaceHigh =
+      Color(0xFF48484A); // gray3 - high-contrast surface
 
-  // ── Brand: Emerald (sama seperti web) ─────────────────────────
-  static const Color primary         = Color(0xFF22C55E); // emerald-500
-  static const Color primaryLight    = Color(0xFF4ADE80); // emerald-400
-  static const Color primaryDark     = Color(0xFF16A34A); // emerald-600
-  static const Color primaryDeep     = Color(0xFF15803D); // emerald-700
-  static const Color primaryGlow     = Color(0x3322C55E); // emerald-500/20
-  static const Color badgeGreen      = Color(0xFF22C55E);
+  // ── Brand / Primary: System Blue (Apple HIG §3.1) ─────────────
+  static const Color primary = Color(0xFF007AFF); // System Blue (light)
+  static const Color primaryLight = Color(0xFF0A84FF); // System Blue (dark)
+  static const Color primaryDark =
+      Color(0xFF0062CC); // pressed/selected darker tone
+  static const Color primaryDeep = Color(0xFF004C99);
+  static const Color primaryGlow = Color(0x33007AFF); // System Blue /20
+  static const Color badgeGreen =
+      Color(0xFF34C759); // retro-compat: System Green (success only)
 
-  // ── Teal (POS/Kasir accent) ───────────────────────────────────
-  static const Color teal            = Color(0xFF2DD4BF); // teal-400
-  static const Color tealDark        = Color(0xFF0D9488); // teal-600
-  static const Color tealGlow        = Color(0x332DD4BF);
-  static const Color accent          = Color(0xFF2DD4BF); // alias for teal/accent
+  // ── Teal (POS/Kasir accent - Apple System Teal) ────────────────
+  static const Color teal = Color(0xFF30B0C7); // System Teal
+  static const Color tealDark = Color(0xFF2A8E9E);
+  static const Color tealGlow = Color(0x3330B0C7);
+  static const Color accent = Color(0xFF30B0C7); // alias teal/accent
 
-  // ── Purple (AI / Billing) ─────────────────────────────────────
-  static const Color purple          = Color(0xFFA855F7); // purple-500
-  static const Color purpleLight     = Color(0xFFC084FC); // purple-400
-  static const Color purpleGlow      = Color(0x33A855F7);
-  static const Color badgePurple     = Color(0xFFA855F7);
+  // ── Purple (AI / Billing - Apple System Purple) ────────────────
+  static const Color purple = Color(0xFFAF52DE);
+  static const Color purpleLight = Color(0xFFBF5AF2);
+  static const Color purpleGlow = Color(0x33AF52DE);
+  static const Color badgePurple = Color(0xFFAF52DE);
 
-  // ── Cyan (Inventory) ─────────────────────────────────────────
-  static const Color cyan            = Color(0xFF22D3EE); // cyan-400
-  static const Color cyanGlow        = Color(0x3322D3EE);
+  // ── Cyan / Teal-ALT (Inventory) ────────────────────────────────
+  static const Color cyan = Color(0xFF40C8E0); // System Teal (dark variant)
+  static const Color cyanGlow = Color(0x3340C8E0);
 
-  // ── Amber (Finance/Reports) ───────────────────────────────────
-  static const Color amber           = Color(0xFFFBBF24); // amber-400
-  static const Color amberDark       = Color(0xFFF59E0B); // amber-500
-  static const Color amberGlow       = Color(0x33F59E0B);
+  // ── Amber (Finance/Reports - Apple System Orange) ──────────────
+  static const Color amber = Color(0xFFFF9F0A); // System Orange (dark)
+  static const Color amberDark = Color(0xFFFF9500); // System Orange (light)
+  static const Color amberGlow = Color(0x33FF9F0A);
 
-  // ── Indigo (CRM) ─────────────────────────────────────────────
-  static const Color indigo          = Color(0xFF818CF8); // indigo-400
-  static const Color indigoDark      = Color(0xFF6366F1); // indigo-500
-  static const Color indigoGlow      = Color(0x336366F1);
+  // ── Indigo (CRM - Apple System Indigo) ─────────────────────────
+  static const Color indigo = Color(0xFF5E5CE6); // System Indigo (dark)
+  static const Color indigoDark = Color(0xFF5856D6); // System Indigo (light)
+  static const Color indigoGlow = Color(0x335E5CE6);
 
-  // ── Rose (Expense/Danger) ─────────────────────────────────────
-  static const Color rose            = Color(0xFFFB7185); // rose-400
-  static const Color roseDark        = Color(0xFFF43F5E); // rose-500
-  static const Color roseGlow        = Color(0x33F43F5E);
+  // ── Rose (Expense/Danger - Apple System Red) ───────────────────
+  static const Color rose = Color(0xFFFF6961); // System Red (light)
+  static const Color roseDark = Color(0xFFFF453A); // System Red (dark)
+  static const Color roseGlow = Color(0x33FF453A);
 
-  // ── Semantic ─────────────────────────────────────────────────
-  static const Color success         = Color(0xFF22C55E); // emerald = success
-  static const Color successBg       = Color(0x2222C55E);
-  static const Color warning         = Color(0xFFFBBF24); // amber
-  static const Color warningBg       = Color(0x22F59E0B);
-  static const Color danger          = Color(0xFFF43F5E); // rose
-  static const Color dangerBg        = Color(0x22F43F5E);
-  static const Color info            = Color(0xFF38BDF8); // sky-400
-  static const Color infoBg          = Color(0x2238BDF8);
+  // ── Semantic (one color = one meaning, Apple HIG §3.2) ─────────
+  static const Color success =
+      Color(0xFF34C759); // System Green - Success/Profit only
+  static const Color successBg = Color(0x2234C759);
+  static const Color warning =
+      Color(0xFFFF9F0A); // System Orange - Pending/Warning
+  static const Color warningBg = Color(0x22FF9F0A);
+  static const Color danger =
+      Color(0xFFFF453A); // System Red - Danger/Delete/Loss
+  static const Color dangerBg = Color(0x22FF453A);
+  static const Color info =
+      Color(0xFF5E5CE6); // System Indigo - Info/Processing
+  static const Color infoBg = Color(0x225E5CE6);
 
-  // ── Text (Tailwind Slate) ─────────────────────────────────────
-  static const Color textPrimary     = Color(0xFFF1F5F9); // slate-100
-  static const Color textSecondary   = Color(0xFFCBD5E1); // slate-300
-  static const Color textMuted       = Color(0xFF94A3B8); // slate-400
-  static const Color textDim         = Color(0xFF64748B); // slate-500
-  static const Color textOnDark      = Color(0xFFFFFFFF);
+  // ── Text (Apple label levels, dark) ────────────────────────────
+  static const Color textPrimary = Color(0xFFFFFFFF); // primary label
+  static const Color textSecondary =
+      Color(0xFFAEAEB2); // gray2 - secondary label (~white/60)
+  static const Color textMuted = Color(0xFF8E8E93); // gray - tertiary label
+  static const Color textDim =
+      Color(0xFF636366); // gray2 dark - disabled/hairline text
+  static const Color textOnDark = Color(0xFFFFFFFF);
 
-  // ── Border ───────────────────────────────────────────────────
-  static const Color border          = Color(0xFF1E293B); // slate-800
-  static const Color borderLight     = Color(0xFF334155); // slate-700
-  static const Color borderGlass     = Color(0x14FFFFFF); // white/8
+  // ── Border (separators) ───────────────────────────────────────
+  static const Color border = Color(0xFF48484A); // gray3 hairline separator
+  static const Color borderLight = Color(0xFF3A3A3C); // gray4
+  static const Color borderGlass = Color(0x14FFFFFF); // white/8
 
-  // ── Glass Morphism (sama seperti web) ─────────────────────────
-  static const Color glassNav        = Color(0xD90F172A); // rgba(15,23,42,0.85)
-  static const Color glassCard       = Color(0xB31E293B); // rgba(30,41,59,0.7)
-  static const Color glassBorder     = Color(0x0FFFFFFF); // white/6
+  // ── Glass Morphism (Apple materials §3.5) ──────────────────────
+  static const Color glassNav =
+      Color(0xD91C1C1E); // rgba(28,28,30,0.85) - regularMaterial
+  static const Color glassCard =
+      Color(0xB32C2C2E); // rgba(44,44,46,0.7) - thinMaterial
+  static const Color glassBorder = Color(0x0FFFFFFF); // white/6
 
-  // ── Gradients ────────────────────────────────────────────────
+  // ── Gradients ──────────────────────────────────────────────────
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF22C55E), Color(0xFF2DD4BF)], // emerald → teal (sama logo web)
+    colors: [Color(0xFF007AFF), Color(0xFF30B0C7)], // System Blue → System Teal
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient logoGradient = LinearGradient(
-    colors: [Color(0xFF16A34A), Color(0xFF2DD4BF)], // from-emerald-600 to-teal-400
+    colors: [
+      Color(0xFF0A84FF),
+      Color(0xFF30B0C7)
+    ], // System Blue (dark) → System Teal
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient purpleGradient = LinearGradient(
-    colors: [Color(0xFFA855F7), Color(0xFF6366F1)], // purple → indigo
+    colors: [Color(0xFFAF52DE), Color(0xFF5E5CE6)], // purple → indigo
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient amberGradient = LinearGradient(
-    colors: [Color(0xFFF59E0B), Color(0xFFFB7185)], // amber → rose
+    colors: [Color(0xFFFF9F0A), Color(0xFFFF453A)], // orange → red
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [Color(0xFF020617), Color(0xFF0F172A)], // slate-950 → slate-900
+    colors: [Color(0xFF1E1E1E), Color(0xFF17171A)], // window → deep
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
 
-  // ── Chart Colors ─────────────────────────────────────────────
+  // ── Chart Colors (Apple System palette) ────────────────────────
   static const List<Color> chartPalette = [
-    Color(0xFF22C55E), // emerald
-    Color(0xFF2DD4BF), // teal
-    Color(0xFFFBBF24), // amber
-    Color(0xFF818CF8), // indigo
-    Color(0xFFFB7185), // rose
-    Color(0xFF22D3EE), // cyan
-    Color(0xFFA855F7), // purple
+    Color(0xFF007AFF), // System Blue
+    Color(0xFF30B0C7), // System Teal
+    Color(0xFFFF9F0A), // System Orange
+    Color(0xFF5E5CE6), // System Indigo
+    Color(0xFFFF453A), // System Red
+    Color(0xFF40C8E0), // System Teal (alt)
+    Color(0xFFAF52DE), // System Purple
   ];
 }
-

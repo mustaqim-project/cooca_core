@@ -45,7 +45,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         backgroundColor: AppColors.glassNav,
         title: Text(
           'Printer Thermal Kasir',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
@@ -79,7 +79,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                         _printerService.isConnected
                             ? 'Terhubung: ${_printerService.connectedDeviceName}'
                             : 'Belum Terhubung ke Printer',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
                           fontSize: 14,
@@ -87,7 +87,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                       ),
                       Text(
                         'Mendukung Bluetooth / USB 58mm & 80mm',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           color: AppColors.textMuted,
                           fontSize: 12,
                         ),
@@ -132,7 +132,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
 
           Text(
             'Perangkat Bluetooth Ditemukan',
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
@@ -163,7 +163,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                     Expanded(
                       child: Text(
                         dev,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -185,7 +185,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                       ),
                       child: Text(
                         isConnected ? 'Putus' : 'Sambungkan',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700),
+                        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ],

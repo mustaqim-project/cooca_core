@@ -64,7 +64,7 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
               children: [
                 Text(
                   'AI Business Assistant',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
@@ -72,7 +72,7 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
                 ),
                 Text(
                   '10M Token Allowance / Bln',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.inter(
                     fontSize: 11,
                     color: AppColors.purpleLight,
                     fontWeight: FontWeight.w600,
@@ -109,7 +109,7 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
                     ),
                     child: Text(
                       msg['text'] ?? '',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.inter(
                         color: Colors.white,
                         fontSize: 13,
                         height: 1.4,
@@ -128,7 +128,7 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
                 children: [
                   const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.purpleLight)),
                   const SizedBox(width: 8),
-                  Text('AI sedang menganalisis data bisnis...', style: GoogleFonts.plusJakartaSans(color: AppColors.textMuted, fontSize: 12)),
+                  Text('AI sedang menganalisis data bisnis...', style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 12)),
                 ],
               ),
             ),
@@ -144,7 +144,7 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _messageController,
-                      style: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary, fontSize: 14),
+                      style: GoogleFonts.inter(color: AppColors.textPrimary, fontSize: 14),
                       decoration: const InputDecoration(
                         hintText: 'Tanyakan sesuatu tentang bisnismu...',
                         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),

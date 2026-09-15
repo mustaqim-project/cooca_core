@@ -66,12 +66,14 @@
                 <span>Saldo Stok</span>
             </a>
 
+            @if(\App\Support\Context::hasPermission('inventory.manage'))
             <button type="button" @click="showCreateModal = true" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
                 <span>Mulai Opname Baru</span>
             </button>
+            @endif
         </div>
     </header>
 
@@ -149,12 +151,14 @@
                         </td>
                         <td class="py-3 px-4 text-right">
                             @if($op->status !== 'reconciled')
+                                @if(\App\Support\Context::hasPermission('inventory.manage'))
                                 <button type="button" @click="openReconcile('{{ $op->id }}', '{{ $op->opname_number }}')" class="h-7 px-2.5 rounded-[6px] text-[12px] font-semibold text-white bg-[#34C759] hover:bg-[#2FB350] active:scale-[0.97] transition-all">
                                     Rekonsiliasi
                                 </button>
                                 <form id="form-reconcile-{{ $op->id }}" action="{{ route('inventory.opnames.reconcile', $op->id) }}" method="POST" class="hidden">
                                     @csrf
                                 </form>
+                                @endif
                             @else
                                 <span class="text-black/40 dark:text-white/40 text-[12px]">Selesai</span>
                             @endif
@@ -196,12 +200,14 @@
             </div>
             <div class="shrink-0">
                 @if($op->status !== 'reconciled')
+                    @if(\App\Support\Context::hasPermission('inventory.manage'))
                     <button type="button" @click="openReconcile('{{ $op->id }}', '{{ $op->opname_number }}')" class="h-8 px-3 rounded-[8px] text-[12px] font-semibold text-white bg-[#34C759] active:scale-[0.97] transition-all">
                         Rekonsiliasi
                     </button>
                     <form id="form-reconcile-{{ $op->id }}" action="{{ route('inventory.opnames.reconcile', $op->id) }}" method="POST" class="hidden">
                         @csrf
                     </form>
+                    @endif
                 @else
                     <span class="px-2 py-1 rounded-full text-[11px] font-medium bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
                         Selesai
@@ -223,6 +229,7 @@
     <!-- ===================================================== -->
     <!-- 4. APPLE SHEET: MULAI STOCK OPNAME BARU               -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('inventory.manage'))
     <div x-show="showCreateModal"
         x-cloak
         class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/25 backdrop-blur-[2px] p-0 sm:p-4"
@@ -327,10 +334,12 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- 5. APPLE ALERT DIALOG: REKONSILIASI OPNAME             -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('inventory.manage'))
     <div x-show="reconcileModalOpen"
         x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-[2px]"
@@ -367,6 +376,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

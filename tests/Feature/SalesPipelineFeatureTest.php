@@ -37,7 +37,11 @@ class SalesPipelineFeatureTest extends TestCase
             'name' => 'Owner Bakery',
             'email' => 'owner_bakery@example.com',
             'password' => 'password123',
+            'phone' => '081234567890',
         ]);
+        $this->user->forceFill([
+            'email_verified_at' => now(),
+        ])->save();
 
         $this->business = Business::create([
             'name' => 'Cooca Bakery',
@@ -191,7 +195,11 @@ class SalesPipelineFeatureTest extends TestCase
 
     public function test_quotations_and_orders_web_interface_is_accessible(): void
     {
-        $session = ['active_business_id' => $this->business->id];
+        $session = [
+            'active_business_id' => $this->business->id,
+            'current_business_id' => $this->business->id,
+            'auth_wa_otp_verified_user_id' => $this->user->id,
+        ];
 
         $responseIndex = $this->actingAs($this->user)
             ->withSession($session)

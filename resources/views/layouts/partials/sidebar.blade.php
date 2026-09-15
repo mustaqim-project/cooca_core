@@ -33,6 +33,7 @@
     $isWhatsAppRoute = request()->routeIs('whatsapp.*');
     $isFinanceRoute = request()->routeIs('finance.*');
     $isReportsRoute = request()->routeIs('reports.*') || request()->routeIs('pos.reports.*');
+    $isStorefrontRoute = request()->routeIs('storefront.*');
     $isSettingsRoute =
         request()->routeIs('settings.*') ||
         request()->routeIs('billing.*') ||
@@ -54,8 +55,7 @@
         \App\Support\Context::hasPermission('sales.returns');
 
     $canAccessCrm =
-        \App\Support\Context::hasPermission('customers.view') ||
-        \App\Support\Context::hasPermission('crm.view');
+        \App\Support\Context::hasPermission('customers.view') || \App\Support\Context::hasPermission('crm.view');
 
     $canAccessSales = $canAccessPos || $canAccessB2bSales || $canAccessCrm;
 
@@ -91,11 +91,15 @@
         \App\Support\Context::hasPermission('expenses.manage');
 
     $canAccessReports =
-        \App\Support\Context::hasPermission('reports.view') ||
-        \App\Support\Context::hasPermission('pos.reports');
+        \App\Support\Context::hasPermission('reports.view') || \App\Support\Context::hasPermission('pos.reports');
 
     $canAccessChannels =
-        \App\Support\Context::hasPermission('whatsapp.view');
+        \App\Support\Context::hasPermission('whatsapp.view') || \App\Support\Context::hasPermission('whatsapp.manage');
+
+    $canAccessStorefront =
+        \App\Support\Context::hasPermission('storefront.orders.view') ||
+        \App\Support\Context::hasPermission('storefront.manage') ||
+        \App\Support\Context::isOwner();
 
     $canAccessSettings = \App\Support\Context::hasPermission('settings.view') || \App\Support\Context::isOwner();
     $canAccessRoles = \App\Support\Context::hasPermission('roles.view') || \App\Support\Context::isOwner();
@@ -103,7 +107,8 @@
     $canAccessMasterData =
         \App\Support\Context::hasPermission('master_data.material_categories.view') ||
         \App\Support\Context::hasPermission('master_data.product_categories.view') ||
-        \App\Support\Context::hasPermission('master_data.units.view');
+        \App\Support\Context::hasPermission('master_data.units.view') ||
+        \App\Support\Context::hasPermission('master_data.suppliers.view');
 
     $canAccessSystem =
         $canAccessMasterData ||
@@ -115,474 +120,562 @@
 
 {{-- Apple HIG (macOS Sonoma & iOS 18) Sidebar Rail Styles --}}
 <style>
-/* Calm Apple-style rhythm for the expanded navigation rail. */
-:root {
-    --sidebar-row: 2.5rem;
-    --sidebar-subrow: 2.25rem;
-    --sidebar-icon: 1rem;
-    --sidebar-radius: 0.625rem;
-    --sidebar-group-gap: 0.75rem;
-}
-
-.sidebar-nav {
-    padding: 1rem 0.75rem !important;
-    line-height: 1.25rem;
-}
-
-.sidebar-nav .sidebar-item {
-    min-height: var(--sidebar-row) !important;
-    height: var(--sidebar-row);
-    padding: 0.5rem 0.75rem !important;
-    border-radius: var(--sidebar-radius) !important;
-    line-height: 1.25rem;
-    box-sizing: border-box;
-}
-
-.sidebar-nav > div {
-    margin-bottom: var(--sidebar-group-gap);
-}
-
-.sidebar-nav .sidebar-item > i,
-.sidebar-nav .sidebar-item-inner > i,
-.sidebar-nav .sidebar-item-inner > div > i,
-.sidebar-nav .sidebar-item > svg,
-.sidebar-nav .sidebar-item-inner > svg {
-    width: var(--sidebar-icon) !important;
-    height: var(--sidebar-icon) !important;
-    flex: 0 0 var(--sidebar-icon);
-}
-
-.sidebar-nav > div > div[x-show="!sidebarCollapsed"] {
-    min-height: 1.25rem;
-    display: flex;
-    align-items: center;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-    letter-spacing: 0.06em;
-}
-
-/* Nested source-list groups: consistent inset, row height, and breathing room. */
-.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
-    margin-left: 1rem !important;
-    padding: 0.5rem 0.25rem 0.5rem 0.875rem !important;
-    border-left-color: var(--border) !important;
-}
-
-.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > a {
-    min-height: var(--sidebar-subrow) !important;
-    height: var(--sidebar-subrow);
-    margin: 0.125rem 0;
-    padding: 0.5rem 0.75rem !important;
-    border-radius: var(--sidebar-radius) !important;
-    gap: 0.625rem !important;
-    line-height: 1.25rem;
-    box-sizing: border-box;
-}
-
-.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > a > i,
-.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > a > svg {
-    width: 0.875rem !important;
-    height: 0.875rem !important;
-    flex: 0 0 0.875rem;
-}
-
-.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > div:not([x-show]) {
-    margin-top: 0.625rem;
-    margin-bottom: 0.25rem;
-    padding: 0.25rem 0.75rem !important;
-    min-height: 1.25rem;
-    line-height: 1rem;
-}
-
-.sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > div:not([x-show]) + a {
-    margin-top: 0.125rem;
-}
-
-/* Every actionable navigation row shares one touch target and type scale. */
-.sidebar-nav a:not(.sidebar-item),
-.sidebar-nav button:not(.sidebar-item) {
-    min-height: var(--sidebar-row) !important;
-    height: var(--sidebar-row);
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
-    border-radius: var(--sidebar-radius) !important;
-    font-size: 0.8125rem !important;
-    line-height: 1.25rem !important;
-    box-sizing: border-box;
-}
-
-.sidebar-nav a:not(.sidebar-item) > i,
-.sidebar-nav a:not(.sidebar-item) > svg,
-.sidebar-nav button:not(.sidebar-item) > i,
-.sidebar-nav button:not(.sidebar-item) > svg {
-    width: var(--sidebar-icon) !important;
-    height: var(--sidebar-icon) !important;
-    flex: 0 0 var(--sidebar-icon);
-}
-
-@media (max-width: 1023px) {
-    .app-sidebar {
-        width: 336px !important;
+    /* Calm Apple-style rhythm for the expanded navigation rail. */
+    :root {
+        --sidebar-row: 2.75rem;
+        --sidebar-subrow: 2.5rem;
+        --sidebar-icon: 1rem;
+        --sidebar-radius: 0.625rem;
+        --sidebar-group-gap: 0.75rem;
     }
 
-    .sidebar-header {
-        height: 4rem !important;
-        padding-left: 1.25rem !important;
-        padding-right: 1.25rem !important;
+    .sidebar-nav {
+        padding: 1rem 0.75rem !important;
+        line-height: 1.25rem;
     }
 
-    .sidebar-tenant-wrapper {
-        padding: 1rem 0.875rem !important;
-    }
-}
-
-@media (min-width: 1024px) {
-    .app-sidebar:not(.is-collapsed) {
-        width: 272px !important;
-    }
-
-    .app-sidebar:not(.is-collapsed) .sidebar-header {
-        height: 4rem !important;
-        padding-left: 1.25rem !important;
-        padding-right: 1.25rem !important;
+    .sidebar-nav .sidebar-item {
+        min-height: var(--sidebar-row) !important;
+        height: var(--sidebar-row);
+        padding: 0.5rem 0.75rem !important;
+        border-radius: var(--sidebar-radius) !important;
+        line-height: 1.25rem;
+        box-sizing: border-box;
     }
 
-    .app-sidebar:not(.is-collapsed) .sidebar-tenant-wrapper {
-        padding: 0.875rem 1rem !important;
+    .sidebar-nav>div {
+        margin-bottom: var(--sidebar-group-gap);
     }
 
-    .app-sidebar:not(.is-collapsed) .sidebar-nav {
-        padding: 0.875rem 0.75rem !important;
+    .sidebar-nav .sidebar-item>i,
+    .sidebar-nav .sidebar-item-inner>i,
+    .sidebar-nav .sidebar-item-inner>div>i,
+    .sidebar-nav .sidebar-item>svg,
+    .sidebar-nav .sidebar-item-inner>svg {
+        width: var(--sidebar-icon) !important;
+        height: var(--sidebar-icon) !important;
+        flex: 0 0 var(--sidebar-icon);
     }
 
-    .app-sidebar:not(.is-collapsed) .sidebar-item {
-        min-height: 2.5rem !important;
-        padding-top: 0.625rem !important;
-        padding-bottom: 0.625rem !important;
+    .sidebar-nav>div>div[x-show="!sidebarCollapsed"] {
+        min-height: 1.25rem;
+        display: flex;
+        align-items: center;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        letter-spacing: 0.06em;
     }
 
-    .app-sidebar:not(.is-collapsed) .sidebar-nav > div > div[x-show="!sidebarCollapsed"] {
-        margin-top: 0.75rem !important;
-        margin-bottom: 0.375rem !important;
-    }
-}
-
-@media (min-width: 1024px) {
-    /* 1. Collapsed Sidebar Container (Clean 76px Icon Rail) */
-    .app-sidebar.is-collapsed {
-        width: 76px !important;
+    /* Nested source-list groups: consistent inset, row height, and breathing room. */
+    .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
+        margin-left: 1rem !important;
+        padding: 0.5rem 0.25rem 0.5rem 0.875rem !important;
+        border-left-color: var(--border) !important;
     }
 
-    /* 2. Brand Logo Header: Perfectly Centered on X=38px Axis */
-    .app-sidebar.is-collapsed .sidebar-header {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        justify-content: center !important;
-    }
-    .app-sidebar.is-collapsed .sidebar-header a {
-        justify-content: center !important;
-        width: 100% !important;
-        gap: 0 !important;
-    }
-    .app-sidebar.is-collapsed .sidebar-header #tour-active-business {
-        margin: 0 auto !important;
-    }
-    .app-sidebar.is-collapsed .sidebar-brand-text {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        overflow: hidden !important;
+    .sidebar-nav div[x-show*="Open && !sidebarCollapsed"]>a {
+        min-height: var(--sidebar-subrow) !important;
+        height: var(--sidebar-subrow);
+        margin: 0.125rem 0;
+        padding: 0.5rem 0.75rem !important;
+        border-radius: var(--sidebar-radius) !important;
+        gap: 0.625rem !important;
+        line-height: 1.25rem;
+        box-sizing: border-box;
     }
 
-    /* 3. Tenant / Active Business Switcher: Uniform 40x40 Squircle Centered on X=38px */
-    .app-sidebar.is-collapsed .sidebar-tenant-wrapper {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+    .sidebar-nav div[x-show*="Open && !sidebarCollapsed"]>a>i,
+    .sidebar-nav div[x-show*="Open && !sidebarCollapsed"]>a>svg {
+        width: 0.875rem !important;
+        height: 0.875rem !important;
+        flex: 0 0 0.875rem;
+    }
+
+    .sidebar-nav div[x-show*="Open && !sidebarCollapsed"]>div:not([x-show]) {
+        margin-top: 0.625rem;
+        margin-bottom: 0.25rem;
+        padding: 0.25rem 0.75rem !important;
+        min-height: 1.25rem;
+        line-height: 1rem;
+    }
+
+    .sidebar-nav div[x-show*="Open && !sidebarCollapsed"]>div:not([x-show])+a {
+        margin-top: 0.125rem;
+    }
+
+    /* Every actionable navigation row shares one touch target and type scale. */
+    .sidebar-nav a:not(.sidebar-item),
+    .sidebar-nav button:not(.sidebar-item) {
+        min-height: var(--sidebar-row) !important;
+        height: var(--sidebar-row);
         padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
-        display: flex !important;
-        justify-content: center !important;
+        border-radius: var(--sidebar-radius) !important;
+        font-size: 0.8125rem !important;
+        line-height: 1.25rem !important;
+        box-sizing: border-box;
     }
-    .app-sidebar.is-collapsed .sidebar-tenant-card {
-        width: 2.5rem !important;      /* 40px */
-        height: 2.5rem !important;     /* 40px */
-        min-width: 2.5rem !important;
-        min-height: 2.5rem !important;
-        max-width: 2.5rem !important;
-        max-height: 2.5rem !important;
-        padding: 0 !important;
-        margin: 0 auto !important;
-        border-radius: 10px !important;
+
+    .sidebar-nav a:not(.sidebar-item)>i,
+    .sidebar-nav a:not(.sidebar-item)>svg,
+    .sidebar-nav button:not(.sidebar-item)>i,
+    .sidebar-nav button:not(.sidebar-item)>svg {
+        width: var(--sidebar-icon) !important;
+        height: var(--sidebar-icon) !important;
+        flex: 0 0 var(--sidebar-icon);
+    }
+
+    @media (max-width: 1023px) {
+        .app-sidebar {
+            width: 336px !important;
+        }
+
+        .sidebar-header {
+            height: 4rem !important;
+            padding-left: 1.25rem !important;
+            padding-right: 1.25rem !important;
+        }
+
+        .sidebar-tenant-wrapper {
+            padding: 1rem 0.875rem !important;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .app-sidebar:not(.is-collapsed) {
+            width: 272px !important;
+        }
+
+        .app-sidebar:not(.is-collapsed) .sidebar-header {
+            height: 4rem !important;
+            padding-left: 1.25rem !important;
+            padding-right: 1.25rem !important;
+        }
+
+        .app-sidebar:not(.is-collapsed) .sidebar-tenant-wrapper {
+            padding: 0.875rem 1rem !important;
+        }
+
+        .app-sidebar:not(.is-collapsed) .sidebar-nav {
+            padding: 0.875rem 0.75rem !important;
+        }
+
+        .app-sidebar:not(.is-collapsed) .sidebar-item {
+            min-height: 2.75rem !important;
+            padding-top: 0.625rem !important;
+            padding-bottom: 0.625rem !important;
+        }
+
+        .app-sidebar:not(.is-collapsed) .sidebar-nav>div>div[x-show="!sidebarCollapsed"] {
+            margin-top: 0.75rem !important;
+            margin-bottom: 0.375rem !important;
+        }
+    }
+
+    @media (min-width: 1024px) {
+
+        /* 1. Collapsed Sidebar Container (Clean 76px Icon Rail) */
+        .app-sidebar.is-collapsed {
+            width: 76px !important;
+        }
+
+        /* 2. Brand Logo Header: Perfectly Centered on X=38px Axis */
+        .app-sidebar.is-collapsed .sidebar-header {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            justify-content: center !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-header a {
+            justify-content: center !important;
+            width: 100% !important;
+            gap: 0 !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-header #tour-active-business {
+            margin: 0 auto !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-brand-text {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
+
+        /* 3. Tenant / Active Business Switcher: Uniform 40x40 Squircle Centered on X=38px */
+        .app-sidebar.is-collapsed .sidebar-tenant-wrapper {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+            display: flex !important;
+            justify-content: center !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-tenant-card {
+            width: 2.5rem !important;
+            /* 40px */
+            height: 2.5rem !important;
+            /* 40px */
+            min-width: 2.5rem !important;
+            min-height: 2.5rem !important;
+            max-width: 2.5rem !important;
+            max-height: 2.5rem !important;
+            padding: 0 !important;
+            margin: 0 auto !important;
+            border-radius: 10px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            border-color: rgba(60, 60, 67, 0.08) !important;
+            box-sizing: border-box !important;
+        }
+
+        .dark .app-sidebar.is-collapsed .sidebar-tenant-card {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-tenant-inner {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            height: 100% !important;
+            gap: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-tenant-icon {
+            margin: 0 auto !important;
+            border: none !important;
+            background: transparent !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-tenant-icon img {
+            width: 1.5rem !important;
+            height: 1.5rem !important;
+            border-radius: 6px !important;
+            object-fit: contain !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-tenant-icon svg,
+        .app-sidebar.is-collapsed .sidebar-tenant-icon i {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            color: #007AFF !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-tenant-inner>div:not(.sidebar-tenant-icon),
+        .app-sidebar.is-collapsed #tour-switch-business {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
+
+        /* 4. Navigation Container */
+        .app-sidebar.is-collapsed .sidebar-nav {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding-top: 0.625rem !important;
+            padding-bottom: 0.625rem !important;
+            overflow-x: hidden !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-nav>div {
+            margin-bottom: 0 !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* 5. Navigation Items (Links & Buttons): 40x40 Squircles centered at X=38px */
+        .app-sidebar.is-collapsed .sidebar-item {
+            width: 2.5rem !important;
+            /* 40px */
+            height: 2.5rem !important;
+            /* 40px */
+            min-width: 2.5rem !important;
+            min-height: 2.5rem !important;
+            max-width: 2.5rem !important;
+            max-height: 2.5rem !important;
+            padding: 0 !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            margin-top: 3px !important;
+            margin-bottom: 3px !important;
+            border-radius: 10px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 0 !important;
+            box-sizing: border-box !important;
+            cursor: pointer !important;
+            position: relative !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-item .sidebar-item-inner {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-width: 0 !important;
+            gap: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Center child div if wrapped (e.g. WhatsApp icon) */
+        .app-sidebar.is-collapsed .sidebar-item-inner>div {
+            margin: 0 auto !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+
+        /* Primary Icons: strictly 18px block centered on X=38px */
+        .app-sidebar.is-collapsed .sidebar-item>svg:not(.lucide-chevron-down):not([data-lucide="chevron-down"]):not(.sidebar-chevron),
+        .app-sidebar.is-collapsed .sidebar-item>i:not(.lucide-chevron-down):not([data-lucide="chevron-down"]):not(.sidebar-chevron),
+        .app-sidebar.is-collapsed .sidebar-item-inner>svg,
+        .app-sidebar.is-collapsed .sidebar-item-inner>i,
+        .app-sidebar.is-collapsed .sidebar-item-inner>div>svg {
+            margin: 0 auto !important;
+            width: 1.125rem !important;
+            /* 18px */
+            height: 1.125rem !important;
+            /* 18px */
+            flex-shrink: 0 !important;
+            display: block !important;
+        }
+
+        /* Strictly hide all dropdown chevrons in collapsed rail */
+        .app-sidebar.is-collapsed [data-lucide="chevron-down"],
+        .app-sidebar.is-collapsed .lucide-chevron-down,
+        .app-sidebar.is-collapsed svg.lucide-chevron-down,
+        .app-sidebar.is-collapsed i[data-lucide="chevron-down"],
+        .app-sidebar.is-collapsed .sidebar-chevron {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            position: absolute !important;
+            pointer-events: none !important;
+            opacity: 0 !important;
+        }
+
+        /* Strictly hide all text labels and badges in collapsed items */
+        .app-sidebar.is-collapsed .sidebar-item>span,
+        .app-sidebar.is-collapsed .sidebar-item-inner>span,
+        .app-sidebar.is-collapsed .sidebar-item>div:not(.sidebar-item-inner) {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
+
+        /* Hide section titles and inline submenus in collapsed mode */
+        .app-sidebar.is-collapsed .sidebar-nav>div>div[x-show="!sidebarCollapsed"],
+        .app-sidebar.is-collapsed .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+
+        /* 6. Active Squircle State (macOS Sonoma Selection) */
+        .app-sidebar.is-collapsed .sidebar-item[aria-current="page"] {
+            border-radius: 10px !important;
+            box-shadow: 0 1px 3px rgba(0, 122, 255, 0.35) !important;
+        }
+
+        /* 7. Separator Lines: Subtle Hairline centered at X=38px */
+        .app-sidebar.is-collapsed .sidebar-separator {
+            width: 1.75rem !important;
+            /* 28px */
+            margin-left: auto !important;
+            margin-right: auto !important;
+            margin-top: 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+            height: 1px !important;
+            display: block !important;
+            border-top-width: 1px !important;
+            border-color: rgba(60, 60, 67, 0.08) !important;
+        }
+
+        .dark .app-sidebar.is-collapsed .sidebar-separator {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* 8. Bottom Plan Card Area: Strictly Toggle Collapsed vs Expanded */
+        .app-sidebar.is-collapsed .sidebar-bottom {
+            padding: 0.625rem 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            overflow: hidden !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-plan-collapsed {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            margin: 0 auto !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-plan-collapsed a {
+            margin: 0 auto !important;
+        }
+
+        .app-sidebar.is-collapsed .sidebar-plan-expanded {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden !important;
+            position: absolute !important;
+            pointer-events: none !important;
+        }
+
+        /* Expanded Sidebar State for Plan Card */
+        .app-sidebar:not(.is-collapsed) .sidebar-plan-collapsed {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
+
+        .app-sidebar:not(.is-collapsed) .sidebar-plan-expanded {
+            display: block !important;
+            width: 100% !important;
+        }
+    }
+
+    /* Final source-list normalization: every expanded navigation row uses one geometry. */
+    .app-sidebar:not(.is-collapsed) .sidebar-nav .sidebar-item,
+    .app-sidebar:not(.is-collapsed) .sidebar-nav a:not(.sidebar-item),
+    .app-sidebar:not(.is-collapsed) .sidebar-nav button:not(.sidebar-item) {
         display: flex !important;
-        justify-content: center !important;
         align-items: center !important;
-        border-color: rgba(60, 60, 67, 0.08) !important;
+        min-height: 2.75rem !important;
+        height: 2.75rem !important;
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 0.625rem !important;
+        font-size: 0.8125rem !important;
+        line-height: 1.25rem !important;
         box-sizing: border-box !important;
     }
-    .dark .app-sidebar.is-collapsed .sidebar-tenant-card {
-        border-color: rgba(255, 255, 255, 0.08) !important;
+
+    .app-sidebar:not(.is-collapsed) .sidebar-nav .sidebar-item>i,
+    .app-sidebar:not(.is-collapsed) .sidebar-nav .sidebar-item>svg,
+    .app-sidebar:not(.is-collapsed) .sidebar-nav a:not(.sidebar-item)>i,
+    .app-sidebar:not(.is-collapsed) .sidebar-nav a:not(.sidebar-item)>svg,
+    .app-sidebar:not(.is-collapsed) .sidebar-nav button:not(.sidebar-item)>i,
+    .app-sidebar:not(.is-collapsed) .sidebar-nav button:not(.sidebar-item)>svg {
+        width: 1rem !important;
+        height: 1rem !important;
+        flex: 0 0 1rem !important;
     }
-    .app-sidebar.is-collapsed .sidebar-tenant-inner {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-        height: 100% !important;
-        gap: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
+
+    .app-sidebar:not(.is-collapsed) .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
     }
-    .app-sidebar.is-collapsed .sidebar-tenant-icon {
-        margin: 0 auto !important;
-        border: none !important;
-        background: transparent !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-    }
-    .app-sidebar.is-collapsed .sidebar-tenant-icon img {
-        width: 1.5rem !important;
+
+    .app-sidebar:not(.is-collapsed) .sidebar-nav div[x-show*="Open && !sidebarCollapsed"]>div:not([x-show]) {
         height: 1.5rem !important;
-        border-radius: 6px !important;
-        object-fit: contain !important;
+        min-height: 1.5rem !important;
+        padding-top: 0.25rem !important;
+        padding-bottom: 0.25rem !important;
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.25rem !important;
+        font-size: 0.6875rem !important;
+        line-height: 1rem !important;
     }
-    .app-sidebar.is-collapsed .sidebar-tenant-icon svg,
-    .app-sidebar.is-collapsed .sidebar-tenant-icon i {
-        width: 1.25rem !important;
-        height: 1.25rem !important;
+
+    /* ====== Apple HIG polish & responsive hardening (added) ====== */
+    /* 1. Seleksi sidebar ala Apple: tinted translusen, bukan pill solid + shadow */
+    .sidebar-nav a[aria-current="page"],
+    .sidebar-nav button[aria-current="page"] {
+        background-color: rgba(0, 122, 255, 0.12) !important;
+        color: #007AFF !important;
+        box-shadow: none !important;
+    }
+
+    .dark .sidebar-nav a[aria-current="page"],
+    .dark .sidebar-nav button[aria-current="page"] {
+        background-color: rgba(10, 132, 255, 0.18) !important;
+        color: #0A84FF !important;
+    }
+
+    .sidebar-nav a[aria-current="page"]>i,
+    .sidebar-nav a[aria-current="page"]>svg {
         color: #007AFF !important;
     }
-    .app-sidebar.is-collapsed .sidebar-tenant-inner > div:not(.sidebar-tenant-icon),
-    .app-sidebar.is-collapsed #tour-switch-business {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        overflow: hidden !important;
+
+    .dark .sidebar-nav a[aria-current="page"]>i,
+    .dark .sidebar-nav a[aria-current="page"]>svg {
+        color: #0A84FF !important;
     }
 
-    /* 4. Navigation Container */
-    .app-sidebar.is-collapsed .sidebar-nav {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        padding-top: 0.625rem !important;
-        padding-bottom: 0.625rem !important;
-        overflow-x: hidden !important;
+    .sidebar-nav a[aria-current="page"]>span[class*="ml-auto"] {
+        background-color: rgba(0, 122, 255, 0.14) !important;
+        color: #007AFF !important;
     }
 
-    .app-sidebar.is-collapsed .sidebar-nav > div {
-        margin-bottom: 0 !important;
+    .dark .sidebar-nav a[aria-current="page"]>span[class*="ml-auto"] {
+        background-color: rgba(10, 132, 255, 0.2) !important;
+        color: #0A84FF !important;
     }
 
-    .app-sidebar.is-collapsed .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
-        margin-left: 0 !important;
-        padding: 0 !important;
+    /* 2. Focus ring ala Apple untuk navigasi keyboard */
+    .app-sidebar a:focus-visible,
+    .app-sidebar button:focus-visible {
+        outline: 2px solid rgba(0, 122, 255, 0.65) !important;
+        outline-offset: 2px !important;
+        border-radius: 0.5rem !important;
     }
 
-    /* 5. Navigation Items (Links & Buttons): 40x40 Squircles centered at X=38px */
-    .app-sidebar.is-collapsed .sidebar-item {
-        width: 2.5rem !important;      /* 40px */
-        height: 2.5rem !important;     /* 40px */
-        min-width: 2.5rem !important;
-        min-height: 2.5rem !important;
-        max-width: 2.5rem !important;
-        max-height: 2.5rem !important;
-        padding: 0 !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        margin-top: 3px !important;
-        margin-bottom: 3px !important;
-        border-radius: 10px !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 0 !important;
-        box-sizing: border-box !important;
-        cursor: pointer !important;
-        position: relative !important;
+    .dark .app-sidebar a:focus-visible,
+    .dark .app-sidebar button:focus-visible {
+        outline-color: rgba(10, 132, 255, 0.85) !important;
     }
-    .app-sidebar.is-collapsed .sidebar-item .sidebar-item-inner {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-        height: 100% !important;
+
+    /* 3. Samsung-galaxy & lanskap pendek: sembunyikan kartu paket agar nav tetap terlihat */
+    @media (max-height: 640px) {
+        .sidebar-bottom {
+            display: none !important;
+        }
+    }
+
+    /* 4. Pastikan konten tenant wrapper tidak meluber di drawer sempit */
+    .sidebar-tenant-wrapper {
         min-width: 0 !important;
-        gap: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
 
-    /* Center child div if wrapped (e.g. WhatsApp icon) */
-    .app-sidebar.is-collapsed .sidebar-item-inner > div {
-        margin: 0 auto !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
+    .sidebar-tenant-inner {
+        min-width: 0 !important;
     }
-
-    /* Primary Icons: strictly 18px block centered on X=38px */
-    .app-sidebar.is-collapsed .sidebar-item > svg:not(.lucide-chevron-down):not([data-lucide="chevron-down"]):not(.sidebar-chevron),
-    .app-sidebar.is-collapsed .sidebar-item > i:not(.lucide-chevron-down):not([data-lucide="chevron-down"]):not(.sidebar-chevron),
-    .app-sidebar.is-collapsed .sidebar-item-inner > svg,
-    .app-sidebar.is-collapsed .sidebar-item-inner > i,
-    .app-sidebar.is-collapsed .sidebar-item-inner > div > svg {
-        margin: 0 auto !important;
-        width: 1.125rem !important;     /* 18px */
-        height: 1.125rem !important;    /* 18px */
-        flex-shrink: 0 !important;
-        display: block !important;
-    }
-
-    /* Strictly hide all dropdown chevrons in collapsed rail */
-    .app-sidebar.is-collapsed [data-lucide="chevron-down"],
-    .app-sidebar.is-collapsed .lucide-chevron-down,
-    .app-sidebar.is-collapsed svg.lucide-chevron-down,
-    .app-sidebar.is-collapsed i[data-lucide="chevron-down"],
-    .app-sidebar.is-collapsed .sidebar-chevron {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        position: absolute !important;
-        pointer-events: none !important;
-        opacity: 0 !important;
-    }
-
-    /* Strictly hide all text labels and badges in collapsed items */
-    .app-sidebar.is-collapsed .sidebar-item > span,
-    .app-sidebar.is-collapsed .sidebar-item-inner > span,
-    .app-sidebar.is-collapsed .sidebar-item > div:not(.sidebar-item-inner) {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* Hide section titles and inline submenus in collapsed mode */
-    .app-sidebar.is-collapsed .sidebar-nav > div > div[x-show="!sidebarCollapsed"],
-    .app-sidebar.is-collapsed .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* 6. Active Squircle State (macOS Sonoma Selection) */
-    .app-sidebar.is-collapsed .sidebar-item[aria-current="page"] {
-        border-radius: 10px !important;
-        box-shadow: 0 1px 3px rgba(0, 122, 255, 0.35) !important;
-    }
-
-    /* 7. Separator Lines: Subtle Hairline centered at X=38px */
-    .app-sidebar.is-collapsed .sidebar-separator {
-        width: 1.75rem !important;     /* 28px */
-        margin-left: auto !important;
-        margin-right: auto !important;
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
-        height: 1px !important;
-        display: block !important;
-        border-top-width: 1px !important;
-        border-color: rgba(60, 60, 67, 0.08) !important;
-    }
-    .dark .app-sidebar.is-collapsed .sidebar-separator {
-        border-color: rgba(255, 255, 255, 0.08) !important;
-    }
-
-    /* 8. Bottom Plan Card Area: Strictly Toggle Collapsed vs Expanded */
-    .app-sidebar.is-collapsed .sidebar-bottom {
-        padding: 0.625rem 0 !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        overflow: hidden !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    .app-sidebar.is-collapsed .sidebar-plan-collapsed {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-        margin: 0 auto !important;
-    }
-    .app-sidebar.is-collapsed .sidebar-plan-collapsed a {
-        margin: 0 auto !important;
-    }
-    .app-sidebar.is-collapsed .sidebar-plan-expanded {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow: hidden !important;
-        position: absolute !important;
-        pointer-events: none !important;
-    }
-
-    /* Expanded Sidebar State for Plan Card */
-    .app-sidebar:not(.is-collapsed) .sidebar-plan-collapsed {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        overflow: hidden !important;
-    }
-    .app-sidebar:not(.is-collapsed) .sidebar-plan-expanded {
-        display: block !important;
-        width: 100% !important;
-    }
-}
-
-/* Final source-list normalization: every expanded navigation row uses one geometry. */
-.app-sidebar:not(.is-collapsed) .sidebar-nav .sidebar-item,
-.app-sidebar:not(.is-collapsed) .sidebar-nav a:not(.sidebar-item),
-.app-sidebar:not(.is-collapsed) .sidebar-nav button:not(.sidebar-item) {
-    display: flex !important;
-    align-items: center !important;
-    min-height: 2.5rem !important;
-    height: 2.5rem !important;
-    padding: 0.5rem 0.75rem !important;
-    border-radius: 0.625rem !important;
-    font-size: 0.8125rem !important;
-    line-height: 1.25rem !important;
-    box-sizing: border-box !important;
-}
-
-.app-sidebar:not(.is-collapsed) .sidebar-nav .sidebar-item > i,
-.app-sidebar:not(.is-collapsed) .sidebar-nav .sidebar-item > svg,
-.app-sidebar:not(.is-collapsed) .sidebar-nav a:not(.sidebar-item) > i,
-.app-sidebar:not(.is-collapsed) .sidebar-nav a:not(.sidebar-item) > svg,
-.app-sidebar:not(.is-collapsed) .sidebar-nav button:not(.sidebar-item) > i,
-.app-sidebar:not(.is-collapsed) .sidebar-nav button:not(.sidebar-item) > svg {
-    width: 1rem !important;
-    height: 1rem !important;
-    flex: 0 0 1rem !important;
-}
-
-.app-sidebar:not(.is-collapsed) .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] {
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
-}
-
-.app-sidebar:not(.is-collapsed) .sidebar-nav div[x-show*="Open && !sidebarCollapsed"] > div:not([x-show]) {
-    height: 1.5rem !important;
-    min-height: 1.5rem !important;
-    padding-top: 0.25rem !important;
-    padding-bottom: 0.25rem !important;
-    margin-top: 0.5rem !important;
-    margin-bottom: 0.25rem !important;
-    font-size: 0.6875rem !important;
-    line-height: 1rem !important;
-}
 </style>
 
 {{-- Sidebar Navigation (Apple HIG / macOS Sonoma Style) --}}
@@ -593,16 +686,19 @@
         'lg:w-[76px] is-collapsed': sidebarCollapsed,
         'lg:w-[272px]': !sidebarCollapsed
     }"
-    class="app-sidebar fixed inset-y-0 left-0 z-50 w-[336px] h-screen max-h-screen glass-nav flex flex-col justify-between transition-all duration-300 ease-out max-lg:rounded-r-[20px] max-lg:shadow-[0_20px_50px_rgba(0,0,0,0.25)] select-none">
+    @keydown.esc.window="sidebarOpen = false"
+    class="app-sidebar fixed inset-y-0 left-0 z-50 w-[min(336px,92vw)] h-screen max-h-screen glass-nav flex flex-col justify-between transition-all duration-300 ease-out max-lg:rounded-r-[20px] max-lg:shadow-[0_20px_50px_rgba(0,0,0,0.25)]">
 
     {{-- 1. Brand Logo Header (macOS Toolbar Height h-14) --}}
-    <div class="sidebar-header h-14 flex items-center justify-between px-4 border-b border-black/5 dark:border-white/10 shrink-0">
+    <div
+        class="sidebar-header h-14 flex items-center justify-between px-4 border-b border-black/5 dark:border-white/10 shrink-0">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group overflow-hidden">
             <div id="tour-active-business"
                 class="w-8 h-8 rounded-[9px] bg-[#007AFF] text-white flex items-center justify-center shadow-[0_1px_2px_rgba(0,122,255,0.3)] group-hover:scale-105 active:scale-95 transition-all shrink-0">
                 <i data-lucide="boxes" class="w-4 h-4 text-white"></i>
             </div>
-            <div x-show="!sidebarCollapsed" x-transition.opacity class="sidebar-brand-text overflow-hidden whitespace-nowrap">
+            <div x-show="!sidebarCollapsed" x-transition.opacity
+                class="sidebar-brand-text overflow-hidden whitespace-nowrap">
                 <div class="font-semibold text-[15px] text-black dark:text-white tracking-tight leading-none">Cooca UMKM
                 </div>
                 <div class="text-[10px] text-black/45 dark:text-white/45 font-medium tracking-wide mt-0.5">Business OS
@@ -621,8 +717,9 @@
         <div class="sidebar-tenant-wrapper px-3 py-2 border-b border-black/5 dark:border-white/10 shrink-0">
             <div class="relative group"
                 :title="sidebarCollapsed ? '{{ $activeBiz->name }} (Klik untuk Ganti Bisnis)' : ''">
-                <div
-                    class="sidebar-tenant-card p-2 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between transition-all hover:border-[#007AFF]/30">
+                <a href="{{ route('businesses.select') }}" id="tour-switch-business"
+                    aria-label="Ganti Bisnis: {{ $activeBiz->name }}"
+                    class="sidebar-tenant-card group/card p-2 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between transition-all hover:border-[#007AFF]/40 hover:bg-[#007AFF]/[0.04] dark:hover:bg-white/[0.06] cursor-pointer">
                     <div class="sidebar-tenant-inner flex items-center gap-2.5 overflow-hidden">
                         @if ($activeBiz->logo_url)
                             <div
@@ -638,18 +735,17 @@
                         @endif
                         <div class="overflow-hidden" x-show="!sidebarCollapsed" x-transition.opacity>
                             <div
-                                class="text-[9px] text-black/40 dark:text-white/40 font-medium uppercase tracking-wider">
+                                class="text-[10px] text-black/40 dark:text-white/40 font-medium uppercase tracking-wider">
                                 Bisnis Aktif</div>
                             <div class="text-[12px] font-semibold text-black dark:text-white truncate">
                                 {{ $activeBiz->name }}</div>
                         </div>
                     </div>
-                    <a href="{{ route('businesses.select') }}" id="tour-switch-business" title="Ganti Bisnis"
-                        x-show="!sidebarCollapsed"
-                        class="p-1 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] rounded-[6px] text-black/40 hover:text-[#007AFF] dark:text-white/40 dark:hover:text-[#007AFF] transition-all active:scale-95 shrink-0">
+                    <span aria-hidden="true" x-show="!sidebarCollapsed"
+                        class="p-1.5 rounded-[7px] text-black/40 dark:text-white/40 group-hover/card:text-[#007AFF] dark:group-hover/card:text-[#0A84FF] transition-colors shrink-0">
                         <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
-                    </a>
-                </div>
+                    </span>
+                </a>
                 <template x-if="sidebarCollapsed">
                     <a href="{{ route('businesses.select') }}" class="absolute inset-0 z-10"
                         title="Ganti Bisnis: {{ $activeBiz->name }}"></a>
@@ -659,8 +755,10 @@
     @endif
 
     {{-- 3. Navigation Links (Clean macOS Sidebar Architecture - No Card Boxes) --}}
-    <nav class="sidebar-nav flex-1 overflow-y-auto px-2.5 py-3 space-y-2.5 min-h-0 overscroll-contain text-xs"
+    <nav aria-label="Navigasi utama"
+        class="sidebar-nav flex-1 overflow-y-auto px-2.5 py-3 space-y-2.5 min-h-0 overscroll-contain text-xs"
         x-data="{
+            storefrontOpen: {{ $isStorefrontRoute ? 'true' : 'false' }},
             salesOpen: {{ $isSalesRoute ? 'true' : 'false' }},
             whatsappOpen: {{ $isWhatsAppRoute ? 'true' : 'false' }},
             purchasingOpen: {{ $isPurchasingRoute ? 'true' : 'false' }},
@@ -676,7 +774,7 @@
         {{-- ======================================================== --}}
         <div class="space-y-0.5">
             <div x-show="!sidebarCollapsed"
-                class="px-2.5 pt-1 pb-1 text-[11px] font-semibold tracking-wide uppercase text-black/40 dark:text-white/40 select-none">
+                class="px-2.5 pt-1 pb-1 text-[11px] font-semibold tracking-wide uppercase text-black/55 dark:text-white/55 select-none">
                 Ringkasan &amp; Inti
             </div>
 
@@ -705,7 +803,7 @@
             {{-- Komunitas Owner --}}
             @if (\App\Support\Context::isOwner())
                 <a href="#" id="tour-nav-community"
-                    @click.prevent="openComingSoon({ title: 'Komunitas Owner', icon: 'users', desc: 'Forum diskusi eksklusif khusus para owner UMKM Cooca — berbagi tips, trik, dan strategi bisnis bersama.', color: 'amber' })"
+                    @click.prevent="openComingSoon({ title: 'Komunitas Owner', icon: 'users', desc: 'Forum diskusi eksklusif khusus para owner UMKM Cooca - berbagi tips, trik, dan strategi bisnis bersama.', color: 'amber' })"
                     {{ request()->routeIs('community.*') ? 'aria-current="page"' : '' }}
                     :title="sidebarCollapsed ? 'Komunitas Owner (Segera)' : ''"
                     class="sidebar-item flex items-center gap-2.5 px-2.5 py-1.5 rounded-[8px] text-[13px] font-medium transition-all active:scale-[0.97] {{ request()->routeIs('community.*') ? 'bg-[#FF9500] text-white shadow-[0_1px_2px_rgba(255,149,0,0.25)]' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.05] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
@@ -713,7 +811,7 @@
                         class="w-4 h-4 {{ request()->routeIs('community.*') ? 'text-white' : 'text-[#FF9500] dark:text-[#FF9F0A]' }} shrink-0"></i>
                     <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Komunitas Owner</span>
                     <span x-show="!sidebarCollapsed"
-                        class="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] font-semibold shrink-0">Segera</span>
+                        class="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] font-semibold shrink-0">Segera</span>
                 </a>
             @endif
         </div>
@@ -721,27 +819,85 @@
         {{-- ======================================================== --}}
         {{-- SEKSI 2: OPERASIONAL BISNIS                              --}}
         {{-- ======================================================== --}}
-        @if ($canAccessSales || $canAccessInventory || $canAccessPurchasing || $canAccessCosting)
+        @if ($canAccessStorefront || $canAccessSales || $canAccessInventory || $canAccessPurchasing || $canAccessCosting)
             <div class="space-y-0.5 pt-1.5">
                 <div x-show="!sidebarCollapsed"
-                    class="px-2.5 pt-1 pb-1 text-[11px] font-semibold tracking-wide uppercase text-black/40 dark:text-white/40 select-none">
+                    class="px-2.5 pt-1 pb-1 text-[11px] font-semibold tracking-wide uppercase text-black/55 dark:text-white/55 select-none">
                     Operasional Bisnis
                 </div>
-                <div x-show="sidebarCollapsed" class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/10">
+                <div x-show="sidebarCollapsed"
+                    class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/10">
                 </div>
+
+                {{-- 0. TOKO ONLINE (STOREFRONT) --}}
+                @if ($canAccessStorefront)
+                    <div class="relative group" x-data="{ flyoutOpen: false }"
+                        @mouseenter="if(sidebarCollapsed) flyoutOpen = true" @mouseleave="flyoutOpen = false">
+                        <button type="button" id="tour-group-storefront" data-tour-group="storefront"
+                            @click="storefrontOpen = !storefrontOpen" role="button"
+                            :aria-expanded="storefrontOpen ? 'true' : 'false'"
+                            :title="sidebarCollapsed ? 'Toko Online' : ''"
+                            class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isStorefrontRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                            <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
+                                <i data-lucide="store"
+                                    class="w-4 h-4 {{ $isStorefrontRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Toko
+                                    Online</span>
+                            </div>
+                            <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
+                                class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
+                                :class="storefrontOpen ? 'rotate-180 text-black/70 dark:text-white/70' : ''"></i>
+                        </button>
+
+                        <div x-show="storefrontOpen && !sidebarCollapsed"
+                            x-transition:enter="transition-all ease-out duration-150"
+                            class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
+                            @if (\App\Support\Context::hasPermission('storefront.orders.view') || \App\Support\Context::isOwner())
+                                <a href="{{ route('storefront.orders.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.orders.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
+                                    <i data-lucide="shopping-bag" class="w-3.5 h-3.5 shrink-0"></i>
+                                    <span class="truncate">Pesanan Masuk</span>
+                                </a>
+                            @endif
+                            @if (\App\Support\Context::hasPermission('storefront.manage') || \App\Support\Context::isOwner())
+                                <a href="{{ route('storefront.settings.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.settings.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
+                                    <i data-lucide="settings-2" class="w-3.5 h-3.5 shrink-0"></i>
+                                    <span class="truncate">Pengaturan Toko</span>
+                                </a>
+                            @endif
+                            @if (\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isOwner())
+                                <a href="{{ route('storefront.shipping.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.shipping.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
+                                    <i data-lucide="truck" class="w-3.5 h-3.5 shrink-0"></i>
+                                    <span class="truncate">Ongkir &amp; Pengiriman</span>
+                                </a>
+                            @endif
+                            @if (\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner())
+                                <a href="{{ route('storefront.reservations.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.reservations.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
+                                    <i data-lucide="calendar-check" class="w-3.5 h-3.5 shrink-0"></i>
+                                    <span class="truncate">Reservasi &amp; Booking</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
 
                 {{-- 1. KASIR & PENJUALAN --}}
                 @if ($canAccessSales)
                     <div class="relative group" x-data="{ flyoutOpen: false }"
                         @mouseenter="if(sidebarCollapsed) flyoutOpen = true" @mouseleave="flyoutOpen = false">
                         <button type="button" id="tour-group-sales" data-tour-group="sales"
-                            @click="salesOpen = !salesOpen" role="button" :aria-expanded="salesOpen ? 'true' : 'false'"
+                            @click="salesOpen = !salesOpen" role="button"
+                            :aria-expanded="salesOpen ? 'true' : 'false'"
                             :title="sidebarCollapsed ? 'Kasir & Penjualan' : ''"
                             class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isSalesRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                             <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                                 <i data-lucide="shopping-cart"
                                     class="w-4 h-4 {{ $isSalesRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Kasir &amp; Penjualan</span>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Kasir &amp;
+                                    Penjualan</span>
                             </div>
                             <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
                                 class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
@@ -754,7 +910,8 @@
 
                             {{-- Subgroup: Operasional Kasir & Resto POS --}}
                             @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::isOwner())
-                                <div class="px-2 pt-1 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
+                                <div
+                                    class="px-2 pt-1 pb-0.5 text-[11px] font-bold tracking-wider uppercase text-black/55 dark:text-white/55 select-none">
                                     Kasir &amp; Resto POS
                                 </div>
                             @endif
@@ -769,7 +926,10 @@
                                 </a>
                             @endif
 
-                            @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.reports') || \App\Support\Context::hasPermission('pos.orders'))
+                            @if (
+                                \App\Support\Context::hasPermission('pos.terminal') ||
+                                    \App\Support\Context::hasPermission('pos.reports') ||
+                                    \App\Support\Context::hasPermission('pos.orders'))
                                 <a href="{{ route('pos.orders.index') }}" id="tour-nav-pos-orders"
                                     {{ request()->routeIs('pos.orders.*') || request()->routeIs('pos.shifts.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.orders.*') || request()->routeIs('pos.shifts.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -779,7 +939,7 @@
                                 </a>
                             @endif
 
-                            @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::isOwner())
+                            @if (\App\Support\Context::hasPermission('pos.kitchen'))
                                 <a href="{{ route('pos.kitchen.index') }}" id="tour-nav-pos-kitchen"
                                     {{ request()->routeIs('pos.kitchen.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.kitchen.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -787,7 +947,9 @@
                                         class="w-3.5 h-3.5 {{ request()->routeIs('pos.kitchen.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                     <span class="truncate">Kitchen Display (KDS)</span>
                                 </a>
+                            @endif
 
+                            @if (\App\Support\Context::hasPermission('pos.tables'))
                                 <a href="{{ route('pos.tables.index') }}" id="tour-nav-pos-tables"
                                     {{ request()->routeIs('pos.tables.index') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.tables.index') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -796,19 +958,23 @@
                                     <span class="truncate">Manajemen Meja &amp; QR</span>
                                 </a>
 
-                                <a href="{{ route('pos.tables.qr-cards') }}" id="tour-nav-pos-qr-cards" target="_blank"
+                                <a href="{{ route('pos.tables.qr-cards') }}" id="tour-nav-pos-qr-cards"
+                                    target="_blank"
                                     {{ request()->routeIs('pos.tables.qr-cards') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.tables.qr-cards') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                                     <i data-lucide="qr-code"
                                         class="w-3.5 h-3.5 {{ request()->routeIs('pos.tables.qr-cards') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                     <span class="truncate">Cetak Kartu QR Meja</span>
                                 </a>
-
                             @endif
 
                             {{-- Subgroup: Penjualan & Penagihan B2B --}}
-                            @if (\App\Support\Context::hasPermission('sales.view') || \App\Support\Context::hasPermission('invoices.view') || \App\Support\Context::hasPermission('sales.returns'))
-                                <div class="px-2 pt-2 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
+                            @if (
+                                \App\Support\Context::hasPermission('sales.view') ||
+                                    \App\Support\Context::hasPermission('invoices.view') ||
+                                    \App\Support\Context::hasPermission('sales.returns'))
+                                <div
+                                    class="px-2 pt-2 pb-0.5 text-[11px] font-bold tracking-wider uppercase text-black/55 dark:text-white/55 select-none">
                                     Penjualan &amp; Penagihan
                                 </div>
                             @endif
@@ -827,7 +993,8 @@
                                 <a href="{{ route('sales.quotations.index') }}" id="tour-nav-sales-quotations"
                                     {{ request()->routeIs('sales.quotations.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('sales.quotations.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                    <i data-lucide="file-signature" class="w-3.5 h-3.5 {{ request()->routeIs('sales.quotations.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <i data-lucide="file-signature"
+                                        class="w-3.5 h-3.5 {{ request()->routeIs('sales.quotations.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                     <span class="truncate">Penawaran</span>
                                 </a>
                             @endif
@@ -854,36 +1021,37 @@
 
                             {{-- Subgroup: Pelanggan & Loyalitas CRM --}}
                             @if (\App\Support\Context::hasPermission('customers.view') || \App\Support\Context::hasPermission('crm.view'))
-                                <div class="px-2 pt-2 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
+                                <div
+                                    class="px-2 pt-2 pb-0.5 text-[11px] font-bold tracking-wider uppercase text-black/55 dark:text-white/55 select-none">
                                     Pelanggan &amp; Loyalitas
                                 </div>
 
                                 @if (\App\Support\Context::hasPermission('customers.view'))
-                                <a href="{{ route('customers.index') }}" id="tour-nav-customers"
-                                    {{ request()->routeIs('customers.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('customers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                    <i data-lucide="users"
-                                        class="w-3.5 h-3.5 {{ request()->routeIs('customers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                    <span class="truncate">Pelanggan</span>
-                                </a>
+                                    <a href="{{ route('customers.index') }}" id="tour-nav-customers"
+                                        {{ request()->routeIs('customers.*') ? 'aria-current="page"' : '' }}
+                                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('customers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                        <i data-lucide="users"
+                                            class="w-3.5 h-3.5 {{ request()->routeIs('customers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                        <span class="truncate">Pelanggan</span>
+                                    </a>
                                 @endif
 
                                 @if (\App\Support\Context::hasPermission('crm.view'))
-                                <a href="{{ route('crm.members.index') }}" id="tour-nav-crm-members"
-                                    {{ request()->routeIs('crm.members.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('crm.members.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                    <i data-lucide="award"
-                                        class="w-3.5 h-3.5 {{ request()->routeIs('crm.members.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                    <span class="truncate">CRM &amp; Loyalitas</span>
-                                </a>
+                                    <a href="{{ route('crm.members.index') }}" id="tour-nav-crm-members"
+                                        {{ request()->routeIs('crm.members.*') ? 'aria-current="page"' : '' }}
+                                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('crm.members.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                        <i data-lucide="award"
+                                            class="w-3.5 h-3.5 {{ request()->routeIs('crm.members.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                        <span class="truncate">CRM &amp; Loyalitas</span>
+                                    </a>
 
-                                <a href="{{ route('crm.vouchers.index') }}" id="tour-nav-crm-vouchers"
-                                    {{ request()->routeIs('crm.vouchers.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('crm.vouchers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                    <i data-lucide="ticket"
-                                        class="w-3.5 h-3.5 {{ request()->routeIs('crm.vouchers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                    <span class="truncate">Voucher Diskon Promosi</span>
-                                </a>
+                                    <a href="{{ route('crm.vouchers.index') }}" id="tour-nav-crm-vouchers"
+                                        {{ request()->routeIs('crm.vouchers.*') ? 'aria-current="page"' : '' }}
+                                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('crm.vouchers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                        <i data-lucide="ticket"
+                                            class="w-3.5 h-3.5 {{ request()->routeIs('crm.vouchers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                        <span class="truncate">Voucher Diskon Promosi</span>
+                                    </a>
                                 @endif
                             @endif
                         </div>
@@ -892,7 +1060,8 @@
                         <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
                             class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                             style="display: none;">
-                            <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                            <div
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                                 Kasir &amp; Penjualan
                             </div>
                             @if (\App\Support\Context::hasPermission('pos.terminal'))
@@ -902,19 +1071,25 @@
                                     <span>Terminal Kasir POS</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.reports') || \App\Support\Context::hasPermission('pos.orders'))
+                            @if (
+                                \App\Support\Context::hasPermission('pos.terminal') ||
+                                    \App\Support\Context::hasPermission('pos.reports') ||
+                                    \App\Support\Context::hasPermission('pos.orders'))
                                 <a href="{{ route('pos.orders.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                     <span>Riwayat Shift &amp; Transaksi</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::isOwner())
+                            @if (\App\Support\Context::hasPermission('pos.kitchen'))
                                 <a href="{{ route('pos.kitchen.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="chef-hat" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                                     <span>Kitchen Display (KDS)</span>
                                 </a>
+                            @endif
+
+                            @if (\App\Support\Context::hasPermission('pos.tables'))
                                 <a href="{{ route('pos.tables.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-[#007AFF]"></i>
@@ -982,7 +1157,8 @@
                             <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                                 <i data-lucide="package"
                                     class="w-4 h-4 {{ $isInventoryRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Produk &amp; Inventori</span>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Produk &amp;
+                                    Inventori</span>
                             </div>
                             <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
                                 class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
@@ -995,30 +1171,38 @@
 
                             {{-- Subgroup: Katalog & Resep --}}
                             @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('materials.view'))
-                                <div class="px-2 pt-1 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
+                                <div
+                                    class="px-2 pt-1 pb-0.5 text-[11px] font-bold tracking-wider uppercase text-black/55 dark:text-white/55 select-none">
                                     Katalog &amp; Bahan
                                 </div>
                             @endif
 
                             @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('pos.modifiers'))
                                 @if (\App\Support\Context::hasPermission('products.view'))
-                                <a href="{{ route('products.index') }}" id="tour-nav-products"
-                                    {{ request()->routeIs('products.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('products.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                    <i data-lucide="package"
-                                        class="w-3.5 h-3.5 {{ request()->routeIs('products.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                    <span class="truncate">Katalog Produk &amp; Resep</span>
-                                </a>
+                                    <a href="{{ route('products.index') }}" id="tour-nav-products"
+                                        {{ request()->routeIs('products.*') ? 'aria-current="page"' : '' }}
+                                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('products.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                        <i data-lucide="package"
+                                            class="w-3.5 h-3.5 {{ request()->routeIs('products.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                        <span class="truncate">Katalog Produk &amp; Resep</span>
+                                    </a>
+                                    <a href="{{ route('services.index') }}" id="tour-nav-services"
+                                        {{ request()->routeIs('services.*') ? 'aria-current="page"' : '' }}
+                                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('services.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                        <i data-lucide="wrench"
+                                            class="w-3.5 h-3.5 {{ request()->routeIs('services.*') ? 'text-white' : 'text-purple-500' }} shrink-0"></i>
+                                        <span class="truncate">Jasa &amp; Layanan</span>
+                                    </a>
                                 @endif
 
                                 @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('pos.modifiers'))
-                                <a href="{{ route('pos.modifiers.index') }}" id="tour-nav-product-modifiers"
-                                    {{ request()->routeIs('pos.modifiers.*') ? 'aria-current="page"' : '' }}
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('pos.modifiers.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                    <i data-lucide="sliders"
-                                        class="w-3.5 h-3.5 {{ request()->routeIs('pos.modifiers.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                    <span class="truncate">Modifier &amp; Varian Produk</span>
-                                </a>
+                                    <a href="{{ route('pos.modifiers.index') }}" id="tour-nav-product-modifiers"
+                                        {{ request()->routeIs('pos.modifiers.*') ? 'aria-current="page"' : '' }}
+                                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('pos.modifiers.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                        <i data-lucide="sliders"
+                                            class="w-3.5 h-3.5 {{ request()->routeIs('pos.modifiers.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                        <span class="truncate">Modifier &amp; Varian Produk</span>
+                                    </a>
                                 @endif
                             @endif
 
@@ -1032,7 +1216,10 @@
                                 </a>
                             @endif
 
-                            @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('materials.view') || \App\Support\Context::isOwner())
+                            @if (
+                                \App\Support\Context::hasPermission('products.view') ||
+                                    \App\Support\Context::hasPermission('materials.view') ||
+                                    \App\Support\Context::isOwner())
                                 <a href="{{ route('import.index') }}" id="tour-nav-import"
                                     {{ request()->routeIs('import.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('import.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1044,7 +1231,8 @@
 
                             {{-- Subgroup: Fisik & Pergudangan --}}
                             @if (\App\Support\Context::hasPermission('inventory.view') || \App\Support\Context::hasPermission('inventory.manage'))
-                                <div class="px-2 pt-2 pb-0.5 text-[9.5px] font-bold tracking-wider uppercase text-black/35 dark:text-white/35 select-none">
+                                <div
+                                    class="px-2 pt-2 pb-0.5 text-[11px] font-bold tracking-wider uppercase text-black/55 dark:text-white/55 select-none">
                                     Stok &amp; Pergudangan
                                 </div>
                             @endif
@@ -1092,7 +1280,11 @@
                                 </a>
                             @endif
 
-                            @if (\App\Support\Context::hasPermission('inventory.view') || \App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::hasPermission('warehouse.view') || \App\Support\Context::hasPermission('warehouse.manage'))
+                            @if (
+                                \App\Support\Context::hasPermission('inventory.view') ||
+                                    \App\Support\Context::hasPermission('inventory.manage') ||
+                                    \App\Support\Context::hasPermission('warehouse.view') ||
+                                    \App\Support\Context::hasPermission('warehouse.manage'))
                                 <a href="{{ route('warehouse.index') }}" id="tour-nav-warehouse"
                                     {{ request()->routeIs('warehouse.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('warehouse.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1107,23 +1299,29 @@
                         <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
                             class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                             style="display: none;">
-                            <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                            <div
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                                 Produk &amp; Inventori
                             </div>
                             @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('pos.modifiers'))
                                 @if (\App\Support\Context::hasPermission('products.view'))
-                                <a href="{{ route('products.index') }}"
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                    <i data-lucide="package" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                    <span>Katalog Produk</span>
-                                </a>
+                                    <a href="{{ route('products.index') }}"
+                                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                        <i data-lucide="package" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                        <span>Katalog Produk</span>
+                                    </a>
+                                    <a href="{{ route('services.index') }}"
+                                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                        <i data-lucide="wrench" class="w-3.5 h-3.5 text-purple-500"></i>
+                                        <span>Jasa &amp; Layanan</span>
+                                    </a>
                                 @endif
                                 @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('pos.modifiers'))
-                                <a href="{{ route('pos.modifiers.index') }}"
-                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                    <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
-                                    <span>Modifier &amp; Varian</span>
-                                </a>
+                                    <a href="{{ route('pos.modifiers.index') }}"
+                                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                        <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                                        <span>Modifier &amp; Varian</span>
+                                    </a>
                                 @endif
                             @endif
                             @if (\App\Support\Context::hasPermission('materials.view'))
@@ -1133,7 +1331,10 @@
                                     <span>Bahan Baku &amp; Harga</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('materials.view') || \App\Support\Context::isOwner())
+                            @if (
+                                \App\Support\Context::hasPermission('products.view') ||
+                                    \App\Support\Context::hasPermission('materials.view') ||
+                                    \App\Support\Context::isOwner())
                                 <a href="{{ route('import.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-[#34C759]"></i>
@@ -1164,7 +1365,10 @@
                                     <span>Stock Opname Fisik</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('inventory.view') || \App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::hasPermission('warehouse.view'))
+                            @if (
+                                \App\Support\Context::hasPermission('inventory.view') ||
+                                    \App\Support\Context::hasPermission('inventory.manage') ||
+                                    \App\Support\Context::hasPermission('warehouse.view'))
                                 <a href="{{ route('warehouse.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="warehouse" class="w-3.5 h-3.5 text-[#8E8E93]"></i>
@@ -1187,7 +1391,8 @@
                             <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                                 <i data-lucide="truck"
                                     class="w-4 h-4 {{ $isPurchasingRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Pembelian &amp; Vendor</span>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Pembelian &amp;
+                                    Vendor</span>
                             </div>
                             <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
                                 class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
@@ -1197,7 +1402,7 @@
                         <div x-show="purchasingOpen && !sidebarCollapsed"
                             x-transition:enter="transition-all ease-out duration-150"
                             class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
-                            @if (\App\Support\Context::hasPermission('purchasing.view'))
+                            @if (\App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
                                 <a href="{{ route('purchase-orders.index') }}" id="tour-nav-purchase-orders"
                                     {{ request()->routeIs('purchase-orders.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('purchase-orders.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1205,7 +1410,9 @@
                                         class="w-3.5 h-3.5 {{ request()->routeIs('purchase-orders.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                                     <span class="truncate">Purchase Order (PO)</span>
                                 </a>
+                            @endif
 
+                            @if (\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.view'))
                                 <a href="{{ route('purchasing.bills.index') }}" id="tour-nav-purchasing-bills"
                                     {{ request()->routeIs('purchasing.bills.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('purchasing.bills.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1213,7 +1420,9 @@
                                         class="w-3.5 h-3.5 {{ request()->routeIs('purchasing.bills.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                                     <span class="truncate">Tagihan &amp; Hutang Supplier</span>
                                 </a>
+                            @endif
 
+                            @if (\App\Support\Context::hasPermission('purchase.returns') || \App\Support\Context::hasPermission('purchasing.view'))
                                 <a href="{{ route('purchase.returns.index') }}" id="tour-nav-purchase-returns"
                                     {{ request()->routeIs('purchase.returns.*') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('purchase.returns.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1229,20 +1438,27 @@
                         <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
                             class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                             style="display: none;">
-                            <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                            <div
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                                 Pembelian &amp; Vendor
                             </div>
-                            @if (\App\Support\Context::hasPermission('purchasing.view'))
+                            @if (\App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
                                 <a href="{{ route('purchase-orders.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                     <span>Purchase Order (PO)</span>
                                 </a>
+                            @endif
+
+                            @if (\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.view'))
                                 <a href="{{ route('purchasing.bills.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="receipt" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                     <span>Tagihan Supplier</span>
                                 </a>
+                            @endif
+
+                            @if (\App\Support\Context::hasPermission('purchase.returns') || \App\Support\Context::hasPermission('purchasing.view'))
                                 <a href="{{ route('purchase.returns.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="corner-up-left" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
@@ -1265,7 +1481,8 @@
                             <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                                 <i data-lucide="calculator"
                                     class="w-4 h-4 {{ $isCostingRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>HPP &amp; Produksi</span>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>HPP &amp;
+                                    Produksi</span>
                             </div>
                             <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
                                 class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
@@ -1324,7 +1541,8 @@
                         <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
                             class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                             style="display: none;">
-                            <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                            <div
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                                 HPP &amp; Produksi
                             </div>
                             @if (\App\Support\Context::hasPermission('costing.view_margin'))
@@ -1334,14 +1552,18 @@
                                     <span>Kalkulator HPP 3-Pilar</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('labor_machines.view') || \App\Support\Context::hasPermission('costing.view_margin'))
+                            @if (
+                                \App\Support\Context::hasPermission('labor_machines.view') ||
+                                    \App\Support\Context::hasPermission('costing.view_margin'))
                                 <a href="{{ route('labor-machines.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="users-2" class="w-3.5 h-3.5 text-[#5856D6]"></i>
                                     <span>Upah Kerja &amp; Mesin</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('costing.view_margin') || \App\Support\Context::hasPermission('reports.costing'))
+                            @if (
+                                \App\Support\Context::hasPermission('costing.view_margin') ||
+                                    \App\Support\Context::hasPermission('reports.costing'))
                                 <a href="{{ route('profitability.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="target" class="w-3.5 h-3.5 text-[#34C759]"></i>
@@ -1370,7 +1592,8 @@
                     class="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold tracking-wider uppercase text-black/40 dark:text-white/40 select-none">
                     Keuangan &amp; Analitik
                 </div>
-                <div x-show="sidebarCollapsed" class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/5">
+                <div x-show="sidebarCollapsed"
+                    class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/5">
                 </div>
 
                 {{-- 1. KEUANGAN & KAS --}}
@@ -1385,7 +1608,8 @@
                             <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                                 <i data-lucide="landmark"
                                     class="w-4 h-4 {{ $isFinanceRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Keuangan &amp; Kas</span>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Keuangan &amp;
+                                    Kas</span>
                             </div>
                             <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
                                 class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
@@ -1395,7 +1619,10 @@
                         <div x-show="financeOpen && !sidebarCollapsed"
                             x-transition:enter="transition-all ease-out duration-150"
                             class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
-                            @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('expenses.view'))
+                            @if (
+                                \App\Support\Context::hasPermission('accounting.view') ||
+                                    \App\Support\Context::hasPermission('finance.cash_bank') ||
+                                    \App\Support\Context::hasPermission('expenses.view'))
                                 <a href="{{ route('finance.cash-bank.index') }}" id="tour-nav-cash-bank"
                                     {{ request()->routeIs('finance.cash-bank.index') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('finance.cash-bank.index') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1423,7 +1650,10 @@
                                 </a>
                             @endif
 
-                            @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('finance.receivables') || \App\Support\Context::hasPermission('invoices.view'))
+                            @if (
+                                \App\Support\Context::hasPermission('accounting.view') ||
+                                    \App\Support\Context::hasPermission('finance.receivables') ||
+                                    \App\Support\Context::hasPermission('invoices.view'))
                                 <a href="{{ route('finance.receivables') }}" id="tour-nav-receivables"
                                     {{ request()->routeIs('finance.receivables') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('finance.receivables') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1433,7 +1663,10 @@
                                 </a>
                             @endif
 
-                            @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('finance.payables') || \App\Support\Context::hasPermission('purchasing.view'))
+                            @if (
+                                \App\Support\Context::hasPermission('accounting.view') ||
+                                    \App\Support\Context::hasPermission('finance.payables') ||
+                                    \App\Support\Context::hasPermission('purchasing.view'))
                                 <a href="{{ route('finance.payables') }}" id="tour-nav-payables"
                                     {{ request()->routeIs('finance.payables') ? 'aria-current="page"' : '' }}
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('finance.payables') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1458,10 +1691,14 @@
                         <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
                             class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                             style="display: none;">
-                            <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                            <div
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                                 Keuangan &amp; Kas
                             </div>
-                            @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('expenses.view'))
+                            @if (
+                                \App\Support\Context::hasPermission('accounting.view') ||
+                                    \App\Support\Context::hasPermission('finance.cash_bank') ||
+                                    \App\Support\Context::hasPermission('expenses.view'))
                                 <a href="{{ route('finance.cash-bank.index') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="landmark" class="w-3.5 h-3.5 text-[#007AFF]"></i>
@@ -1480,14 +1717,20 @@
                                     <span>Beban Operasional</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('finance.receivables') || \App\Support\Context::hasPermission('invoices.view'))
+                            @if (
+                                \App\Support\Context::hasPermission('accounting.view') ||
+                                    \App\Support\Context::hasPermission('finance.receivables') ||
+                                    \App\Support\Context::hasPermission('invoices.view'))
                                 <a href="{{ route('finance.receivables') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 text-[#34C759]"></i>
                                     <span>Piutang Usaha</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('finance.payables') || \App\Support\Context::hasPermission('purchasing.view'))
+                            @if (
+                                \App\Support\Context::hasPermission('accounting.view') ||
+                                    \App\Support\Context::hasPermission('finance.payables') ||
+                                    \App\Support\Context::hasPermission('purchasing.view'))
                                 <a href="{{ route('finance.payables') }}"
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
@@ -1517,7 +1760,8 @@
                             <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                                 <i data-lucide="bar-chart-3"
                                     class="w-4 h-4 {{ $isReportsRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Laporan &amp; Analitik</span>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Laporan &amp;
+                                    Analitik</span>
                             </div>
                             <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
                                 class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
@@ -1552,7 +1796,8 @@
                         <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
                             class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                             style="display: none;">
-                            <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                            <div
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                                 Laporan &amp; Analitik
                             </div>
                             @if (\App\Support\Context::hasPermission('reports.view'))
@@ -1579,107 +1824,111 @@
         {{-- SEKSI 4: SALURAN & PROMOSI (CHANNELS)                    --}}
         {{-- ======================================================== --}}
         @if ($canAccessChannels || \App\Support\Context::hasPermission('cms.manage'))
-        <div class="space-y-0.5 pt-1.5">
-            <div x-show="!sidebarCollapsed"
-                class="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold tracking-wider uppercase text-black/40 dark:text-white/40 select-none">
-                Saluran &amp; CMS
-            </div>
-            <div x-show="sidebarCollapsed" class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/5"></div>
+            <div class="space-y-0.5 pt-1.5">
+                <div x-show="!sidebarCollapsed"
+                    class="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold tracking-wider uppercase text-black/40 dark:text-white/40 select-none">
+                    Saluran &amp; CMS
+                </div>
+                <div x-show="sidebarCollapsed"
+                    class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/5"></div>
 
-            {{-- WhatsApp Gateway --}}
-            @if ($canAccessChannels)
-            <div class="relative group" x-data="{ flyoutOpen: false }" @mouseenter="if(sidebarCollapsed) flyoutOpen = true"
-                @mouseleave="flyoutOpen = false">
-                <button type="button" @click="whatsappOpen = !whatsappOpen" role="button"
-                    :aria-expanded="whatsappOpen ? 'true' : 'false'"
-                    :title="sidebarCollapsed ? 'WhatsApp Gateway' : ''"
-                    class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.97] active:opacity-80 {{ $isWhatsAppRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                    <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
-                        <div class="w-4 h-4 rounded-[4px] flex items-center justify-center text-[#25D366] shrink-0">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z" />
-                            </svg>
+                {{-- WhatsApp Gateway --}}
+                @if ($canAccessChannels)
+                    <div class="relative group" x-data="{ flyoutOpen: false }"
+                        @mouseenter="if(sidebarCollapsed) flyoutOpen = true" @mouseleave="flyoutOpen = false">
+                        <button type="button" @click="whatsappOpen = !whatsappOpen" role="button"
+                            :aria-expanded="whatsappOpen ? 'true' : 'false'"
+                            :title="sidebarCollapsed ? 'WhatsApp Gateway' : ''"
+                            class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.97] active:opacity-80 {{ $isWhatsAppRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                            <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
+                                <div
+                                    class="w-4 h-4 rounded-[4px] flex items-center justify-center text-[#25D366] shrink-0">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z" />
+                                    </svg>
+                                </div>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>WhatsApp
+                                    Gateway</span>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0" x-show="!sidebarCollapsed">
+                                <span
+                                    class="text-[10px] px-1.5 py-0.2 rounded-full bg-[#25D366]/15 text-[#1b8742] dark:text-[#25D366] font-semibold border border-[#25D366]/30">Scan
+                                    WA</span>
+                                <i data-lucide="chevron-down"
+                                    class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
+                                    :class="whatsappOpen ? 'rotate-180 text-[#25D366]' : ''"></i>
+                            </div>
+                        </button>
+
+                        <div x-show="whatsappOpen && !sidebarCollapsed"
+                            x-transition:enter="transition-all ease-out duration-150"
+                            class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
+                            <a href="{{ route('whatsapp.index') }}"
+                                {{ request()->routeIs('whatsapp.index') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('whatsapp.index') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="qr-code"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('whatsapp.index') ? 'text-white' : 'text-[#25D366]' }} shrink-0"></i>
+                                <span class="truncate">Scan QR / Status</span>
+                            </a>
+                            <a href="{{ route('whatsapp.broadcast.index') }}"
+                                {{ request()->routeIs('whatsapp.broadcast.*') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('whatsapp.broadcast.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="send"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('whatsapp.broadcast.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                <span class="truncate">Blast Promosi</span>
+                            </a>
+                            <a href="{{ route('whatsapp.logs.index') }}"
+                                {{ request()->routeIs('whatsapp.logs.*') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('whatsapp.logs.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="list"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('whatsapp.logs.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                <span class="truncate">Log Pesan Struk</span>
+                            </a>
                         </div>
-                        <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>WhatsApp Gateway</span>
-                    </div>
-                    <div class="flex items-center gap-1 shrink-0" x-show="!sidebarCollapsed">
-                        <span
-                            class="text-[9px] px-1.5 py-0.2 rounded-full bg-[#25D366]/15 text-[#1b8742] dark:text-[#25D366] font-semibold border border-[#25D366]/30">Scan
-                            WA</span>
-                        <i data-lucide="chevron-down"
-                            class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
-                            :class="whatsappOpen ? 'rotate-180 text-[#25D366]' : ''"></i>
-                    </div>
-                </button>
 
-                <div x-show="whatsappOpen && !sidebarCollapsed"
-                    x-transition:enter="transition-all ease-out duration-150"
-                    class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
-                    <a href="{{ route('whatsapp.index') }}"
-                        {{ request()->routeIs('whatsapp.index') ? 'aria-current="page"' : '' }}
-                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('whatsapp.index') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                        <i data-lucide="qr-code"
-                            class="w-3.5 h-3.5 {{ request()->routeIs('whatsapp.index') ? 'text-white' : 'text-[#25D366]' }} shrink-0"></i>
-                        <span class="truncate">Scan QR / Status</span>
-                    </a>
-                    <a href="{{ route('whatsapp.broadcast.index') }}"
-                        {{ request()->routeIs('whatsapp.broadcast.*') ? 'aria-current="page"' : '' }}
-                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('whatsapp.broadcast.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                        <i data-lucide="send"
-                            class="w-3.5 h-3.5 {{ request()->routeIs('whatsapp.broadcast.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                        <span class="truncate">Blast Promosi</span>
-                    </a>
-                    <a href="{{ route('whatsapp.logs.index') }}"
-                        {{ request()->routeIs('whatsapp.logs.*') ? 'aria-current="page"' : '' }}
-                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('whatsapp.logs.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                        <i data-lucide="list"
-                            class="w-3.5 h-3.5 {{ request()->routeIs('whatsapp.logs.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                        <span class="truncate">Log Pesan Struk</span>
-                    </a>
-                </div>
-
-                {{-- Flyout on Collapsed Hover --}}
-                <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
-                    class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
-                    style="display: none;">
-                    <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
-                        WhatsApp Gateway
+                        {{-- Flyout on Collapsed Hover --}}
+                        <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
+                            class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                            style="display: none;">
+                            <div
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                                WhatsApp Gateway
+                            </div>
+                            <a href="{{ route('whatsapp.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#25D366]"></i>
+                                <span>Scan QR / Status</span>
+                            </a>
+                            <a href="{{ route('whatsapp.broadcast.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="send" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Blast Promosi</span>
+                            </a>
+                            <a href="{{ route('whatsapp.logs.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="list" class="w-3.5 h-3.5 text-[#8E8E93]"></i>
+                                <span>Log Pesan Struk</span>
+                            </a>
+                        </div>
                     </div>
-                    <a href="{{ route('whatsapp.index') }}"
-                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                        <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#25D366]"></i>
-                        <span>Scan QR / Status</span>
+                @endif
+
+                {{-- Landing Page CMS --}}
+                @if (\App\Support\Context::hasPermission('cms.manage'))
+                    <a href="{{ route('landing-page.edit') }}" id="tour-nav-landing-page"
+                        {{ request()->routeIs('landing-page.*') ? 'aria-current="page"' : '' }}
+                        :title="sidebarCollapsed ? 'Landing Page' : ''"
+                        class="sidebar-item flex items-center gap-2.5 px-2.5 py-1.5 rounded-[8px] text-[13px] font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('landing-page.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                        <i data-lucide="globe"
+                            class="w-4 h-4 {{ request()->routeIs('landing-page.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                        <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Landing Page</span>
+                        <span x-show="!sidebarCollapsed"
+                            class="ml-auto text-[10px] px-1.5 py-0.2 rounded-full {{ request()->routeIs('landing-page.*') ? 'bg-white/20 text-white' : 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' }} font-semibold shrink-0">Live
+                            CMS</span>
                     </a>
-                    <a href="{{ route('whatsapp.broadcast.index') }}"
-                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                        <i data-lucide="send" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                        <span>Blast Promosi</span>
-                    </a>
-                    <a href="{{ route('whatsapp.logs.index') }}"
-                        class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                        <i data-lucide="list" class="w-3.5 h-3.5 text-[#8E8E93]"></i>
-                        <span>Log Pesan Struk</span>
-                    </a>
-                </div>
+                @endif
             </div>
-            @endif
-
-            {{-- Landing Page CMS --}}
-            @if (\App\Support\Context::hasPermission('cms.manage'))
-            <a href="{{ route('landing-page.edit') }}" id="tour-nav-landing-page"
-                {{ request()->routeIs('landing-page.*') ? 'aria-current="page"' : '' }}
-                :title="sidebarCollapsed ? 'Landing Page' : ''"
-                class="sidebar-item flex items-center gap-2.5 px-2.5 py-1.5 rounded-[8px] text-[13px] font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('landing-page.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                <i data-lucide="globe"
-                    class="w-4 h-4 {{ request()->routeIs('landing-page.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Landing Page</span>
-                <span x-show="!sidebarCollapsed"
-                    class="ml-auto text-[9px] px-1.5 py-0.2 rounded-full {{ request()->routeIs('landing-page.*') ? 'bg-white/20 text-white' : 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' }} font-semibold shrink-0">Live
-                    CMS</span>
-            </a>
-            @endif
-        </div>
         @endif
 
         {{-- ======================================================== --}}
@@ -1690,7 +1939,8 @@
                 class="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold tracking-wider uppercase text-black/40 dark:text-white/40 select-none">
                 Sistem &amp; Pengaturan
             </div>
-            <div x-show="sidebarCollapsed" class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/5"></div>
+            <div x-show="sidebarCollapsed"
+                class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/5"></div>
 
             {{-- Master Data --}}
             @if ($canAccessMasterData)
@@ -1759,7 +2009,8 @@
                     <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
                         class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                         style="display: none;">
-                        <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                        <div
+                            class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Master Data
                         </div>
                         @if (\App\Support\Context::hasPermission('master_data.product_categories.view'))
@@ -1799,7 +2050,8 @@
                 {{ request()->routeIs('profile.edit') ? 'aria-current="page"' : '' }}
                 :title="sidebarCollapsed ? 'Profil Saya' : ''"
                 class="sidebar-item flex items-center gap-2.5 px-2.5 py-1.5 rounded-[8px] text-[13px] font-medium transition-all active:scale-[0.97] {{ request()->routeIs('profile.edit') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                <i data-lucide="user-round" class="w-4 h-4 {{ request()->routeIs('profile.edit') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                <i data-lucide="user-round"
+                    class="w-4 h-4 {{ request()->routeIs('profile.edit') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                 <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Profil Saya</span>
             </a>
 
@@ -1822,7 +2074,8 @@
                     class="sidebar-item flex items-center gap-2.5 px-2.5 py-1.5 rounded-[8px] text-[13px] font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('roles.*') || request()->routeIs('settings.roles.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                     <i data-lucide="shield-check"
                         class="w-4 h-4 {{ request()->routeIs('roles.*') || request()->routeIs('settings.roles.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                    <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Kontrol Akses &amp; Role</span>
+                    <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Kontrol Akses &amp;
+                        Role</span>
                 </a>
             @endif
 
@@ -1836,7 +2089,7 @@
                         class="w-4 h-4 {{ request()->routeIs('billing*') || request()->is('billing*') ? 'text-white' : 'text-[#AF52DE]' }} shrink-0"></i>
                     <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Paket &amp; Kuota</span>
                     <span x-show="!sidebarCollapsed"
-                        class="ml-auto text-[9px] px-1.5 py-0.2 rounded-full {{ request()->routeIs('billing*') || request()->is('billing*') ? 'bg-white/20 text-white' : ($isCorePlan ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A]') }} font-semibold uppercase shrink-0">
+                        class="ml-auto text-[10px] px-1.5 py-0.2 rounded-full {{ request()->routeIs('billing*') || request()->is('billing*') ? 'bg-white/20 text-white' : ($isCorePlan ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A]') }} font-semibold uppercase shrink-0">
                         {{ $isCorePlan ? 'Core' : 'Free' }}
                     </span>
                 </a>
@@ -1856,132 +2109,143 @@
         </div>
     </nav>
 
-    {{-- 4. Subscription Plan Card (Apple HIG Special Design Card) --}}
-    <div class="sidebar-bottom p-2.5 border-t border-black/5 dark:border-white/10 shrink-0 bg-white/75 dark:bg-[#1C1C1E]/75 backdrop-blur-md">
-        <!-- Collapsed Sidebar: Compact Squircle Action -->
-        <div x-show="sidebarCollapsed" class="sidebar-plan-collapsed flex justify-center py-1">
-            @if ($isCorePlan)
-                <a href="{{ route('billing.limits') }}"
-                    title="Cooca UMKM (∞ Unlimited) - Kelola Kuota"
-                    class="w-10 h-10 rounded-[10px] bg-[#34C759]/12 border border-[#34C759]/30 text-[#34C759] dark:text-[#30D158] flex items-center justify-center hover:bg-[#34C759]/20 active:scale-95 transition-all shadow-2xs">
-                    <i data-lucide="shield-check" class="w-5 h-5"></i>
-                </a>
-            @else
-                <a href="{{ route('billing.patungan') }}"
-                    title="Paket Free (Solo) - Tingkatkan ke Cooca UMKM"
-                    class="w-10 h-10 rounded-[10px] bg-gradient-to-br from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-[0_2px_8px_rgba(0,122,255,0.3)]">
-                    <i data-lucide="sparkles" class="w-5 h-5"></i>
-                </a>
-            @endif
-        </div>
-
-        <!-- Expanded Sidebar: Rich Apple HIG Card -->
-        <div x-show="!sidebarCollapsed" class="sidebar-plan-expanded" x-transition.opacity>
-            @if ($isCorePlan)
-                {{-- Active Core Plan Card --}}
-                <div class="relative overflow-hidden rounded-[12px] p-3 border border-[#34C759]/25 bg-gradient-to-br from-[#34C759]/10 via-[#30D158]/5 to-transparent dark:from-[#30D158]/15 dark:via-[#30D158]/5 dark:to-transparent space-y-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                    <div class="flex items-center justify-between gap-1.5">
-                        <div class="flex items-center gap-1.5 min-w-0">
-                            <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse shrink-0"></span>
-                            <span class="text-[12px] font-semibold text-black dark:text-white truncate">Cooca UMKM</span>
-                        </div>
-                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158] border border-[#34C759]/25 shrink-0">
-                            Aktif
-                        </span>
-                    </div>
-
-                    <div class="space-y-1 text-[11px] text-black/60 dark:text-white/60">
-                        <div class="flex items-center justify-between">
-                            <span>Akses Fitur:</span>
-                            <span class="font-semibold text-[#34C759] dark:text-[#30D158] flex items-center gap-1">
-                                <i data-lucide="infinity" class="w-3 h-3"></i>
-                                <span>∞ Unlimited</span>
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-between text-[10.5px]">
-                            <span>Token AI (Top-up):</span>
-                            <span class="font-medium text-black/80 dark:text-white/80 tabular-nums">
-                                {{ number_format($navUsage['ai_tokens']['remaining'] ?? 0) }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <a href="{{ route('billing.limits') }}"
-                        class="w-full h-7 px-2.5 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black/75 dark:text-white/75 text-[11px] font-medium flex items-center justify-center gap-1 transition-all active:scale-[0.97]">
-                        <span>Kelola Kuota &amp; Detail</span>
-                        <i data-lucide="chevron-right" class="w-3 h-3 text-black/40 dark:text-white/40"></i>
+    @if ($canAccessBilling)
+        {{-- 4. Subscription Plan Card (Apple HIG Special Design Card) --}}
+        <div
+            class="sidebar-bottom p-2.5 border-t border-black/5 dark:border-white/10 shrink-0 bg-white/75 dark:bg-[#1C1C1E]/75 backdrop-blur-md">
+            <!-- Collapsed Sidebar: Compact Squircle Action -->
+            <div x-show="sidebarCollapsed" class="sidebar-plan-collapsed flex justify-center py-1">
+                @if ($isCorePlan)
+                    <a href="{{ route('billing.limits') }}" title="Cooca UMKM (∞ Unlimited) - Kelola Kuota"
+                        class="w-10 h-10 rounded-[10px] bg-[#34C759]/12 border border-[#34C759]/30 text-[#34C759] dark:text-[#30D158] flex items-center justify-center hover:bg-[#34C759]/20 active:scale-95 transition-all shadow-2xs">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
                     </a>
-                </div>
-            @else
-                {{-- Free Plan Upgrade Card (macOS Sonoma Frosted Glass + iOS Gradient) --}}
-                <div class="relative overflow-hidden rounded-[12px] p-3 border border-black/5 dark:border-white/10 bg-gradient-to-br from-[#007AFF]/10 via-[#5856D6]/5 to-transparent dark:from-[#007AFF]/15 dark:via-[#5856D6]/10 dark:to-transparent space-y-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
-                    {{-- Header Badge & Title --}}
-                    <div class="flex items-center justify-between gap-1.5">
-                        <span class="text-[12px] font-semibold text-black dark:text-white truncate">Paket Free (Solo)</span>
-                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#FF9500] dark:text-[#FF9F0A] border border-[#FF9500]/25 shrink-0">
-                            Free
-                        </span>
-                    </div>
+                @else
+                    <a href="{{ route('billing.patungan') }}" title="Paket Free (Solo) - Tingkatkan ke Cooca UMKM"
+                        class="w-10 h-10 rounded-[10px] bg-gradient-to-br from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-[0_2px_8px_rgba(0,122,255,0.3)]">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </a>
+                @endif
+            </div>
 
-                    {{-- Usage Meters --}}
-                    <div class="space-y-1.5 text-[11px]">
-                        {{-- Katalog Produk --}}
-                        <div class="space-y-0.5">
-                            <div class="flex items-center justify-between text-[10.5px] text-black/60 dark:text-white/60">
-                                <span>Katalog Produk:</span>
-                                <span class="font-medium text-black/80 dark:text-white/80 tabular-nums">
-                                    {{ $navUsage['products']['used'] ?? 0 }} / 50
+            <!-- Expanded Sidebar: Rich Apple HIG Card -->
+            <div x-show="!sidebarCollapsed" class="sidebar-plan-expanded" x-transition.opacity>
+                @if ($isCorePlan)
+                    {{-- Active Core Plan Card --}}
+                    <div
+                        class="relative overflow-hidden rounded-[12px] p-3 border border-[#34C759]/25 bg-gradient-to-br from-[#34C759]/10 via-[#30D158]/5 to-transparent dark:from-[#30D158]/15 dark:via-[#30D158]/5 dark:to-transparent space-y-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                        <div class="flex items-center justify-between gap-1.5">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse shrink-0"></span>
+                                <span class="text-[12px] font-semibold text-black dark:text-white truncate">Cooca
+                                    UMKM</span>
+                            </div>
+                            <span
+                                class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158] border border-[#34C759]/25 shrink-0">
+                                Aktif
+                            </span>
+                        </div>
+
+                        <div class="space-y-1 text-[11px] text-black/60 dark:text-white/60">
+                            <div class="flex items-center justify-between">
+                                <span>Akses Fitur:</span>
+                                <span class="font-semibold text-[#34C759] dark:text-[#30D158] flex items-center gap-1">
+                                    <i data-lucide="infinity" class="w-3 h-3"></i>
+                                    <span>∞ Unlimited</span>
                                 </span>
                             </div>
-                            <div class="w-full h-1 bg-black/5 dark:bg-white/10 rounded-full overflow-hidden">
-                                <div class="h-full bg-[#007AFF] rounded-full transition-all duration-300"
-                                    style="width: {{ min(100, $navUsage['products']['percent'] ?? 0) }}%"></div>
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span>Token AI (Top-up):</span>
+                                <span class="font-medium text-black/80 dark:text-white/80 tabular-nums">
+                                    {{ number_format($navUsage['ai_tokens']['remaining'] ?? 0) }}
+                                </span>
                             </div>
                         </div>
 
-                        {{-- Resep / BOM --}}
-                        <div class="space-y-0.5">
-                            <div class="flex items-center justify-between text-[10.5px] text-black/60 dark:text-white/60">
-                                <span>Resep / BOM:</span>
-                                <span class="font-medium text-black/80 dark:text-white/80 tabular-nums">
-                                    {{ $navUsage['recipes']['used'] ?? 0 }} / 20
-                                </span>
-                            </div>
-                            <div class="w-full h-1 bg-black/5 dark:bg-white/10 rounded-full overflow-hidden">
-                                <div class="h-full bg-[#5856D6] rounded-full transition-all duration-300"
-                                    style="width: {{ min(100, $navUsage['recipes']['percent'] ?? 0) }}%"></div>
-                            </div>
-                        </div>
-
-                        {{-- Invoice Bulan Ini --}}
-                        <div class="space-y-0.5">
-                            <div class="flex items-center justify-between text-[10.5px] text-black/60 dark:text-white/60">
-                                <span>Invoice Bulan Ini:</span>
-                                <span class="font-medium text-black/80 dark:text-white/80 tabular-nums">
-                                    {{ $navUsage['invoices_this_month']['used'] ?? 0 }} / 10
-                                </span>
-                            </div>
-                            <div class="w-full h-1 bg-black/5 dark:bg-white/10 rounded-full overflow-hidden">
-                                <div class="h-full bg-[#AF52DE] rounded-full transition-all duration-300"
-                                    style="width: {{ min(100, $navUsage['invoices_this_month']['percent'] ?? 0) }}%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Action CTA Button --}}
-                    <div class="space-y-1 pt-0.5">
-                        <a href="{{ route('billing.patungan') }}"
-                            class="w-full h-7.5 px-3 rounded-[8px] bg-gradient-to-r from-[#007AFF] to-[#5856D6] hover:opacity-95 text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-[0_2px_6px_rgba(0,122,255,0.25)] transition-all active:scale-[0.97] cursor-pointer">
-                            <i data-lucide="sparkles" class="w-3.5 h-3.5 shrink-0"></i>
-                            <span>Upgrade</span>
-                        </a>
                         <a href="{{ route('billing.limits') }}"
-                            class="block text-center text-[10px] text-black/50 dark:text-white/50 hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition">
-                            Tingkatkan ke Cooca UMKM ›
+                            class="w-full h-7 px-2.5 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black/75 dark:text-white/75 text-[11px] font-medium flex items-center justify-center gap-1 transition-all active:scale-[0.97]">
+                            <span>Kelola Kuota &amp; Detail</span>
+                            <i data-lucide="chevron-right" class="w-3 h-3 text-black/40 dark:text-white/40"></i>
                         </a>
                     </div>
-                </div>
-            @endif
+                @else
+                    {{-- Free Plan Upgrade Card (macOS Sonoma Frosted Glass + iOS Gradient) --}}
+                    <div
+                        class="relative overflow-hidden rounded-[12px] p-3 border border-black/5 dark:border-white/10 bg-gradient-to-br from-[#007AFF]/10 via-[#5856D6]/5 to-transparent dark:from-[#007AFF]/15 dark:via-[#5856D6]/10 dark:to-transparent space-y-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+                        {{-- Header Badge & Title --}}
+                        <div class="flex items-center justify-between gap-1.5">
+                            <span class="text-[12px] font-semibold text-black dark:text-white truncate">Paket Free
+                                (Solo)</span>
+                            <span
+                                class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#FF9500] dark:text-[#FF9F0A] border border-[#FF9500]/25 shrink-0">
+                                Free
+                            </span>
+                        </div>
+
+                        {{-- Usage Meters --}}
+                        <div class="space-y-1.5 text-[11px]">
+                            {{-- Katalog Produk --}}
+                            <div class="space-y-0.5">
+                                <div
+                                    class="flex items-center justify-between text-[11px] text-black/60 dark:text-white/60">
+                                    <span>Katalog Produk:</span>
+                                    <span class="font-medium text-black/80 dark:text-white/80 tabular-nums">
+                                        {{ $navUsage['products']['used'] ?? 0 }} / 50
+                                    </span>
+                                </div>
+                                <div class="w-full h-1 bg-black/5 dark:bg-white/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#007AFF] rounded-full transition-all duration-300"
+                                        style="width: {{ min(100, $navUsage['products']['percent'] ?? 0) }}%"></div>
+                                </div>
+                            </div>
+
+                            {{-- Resep / BOM --}}
+                            <div class="space-y-0.5">
+                                <div
+                                    class="flex items-center justify-between text-[11px] text-black/60 dark:text-white/60">
+                                    <span>Resep / BOM:</span>
+                                    <span class="font-medium text-black/80 dark:text-white/80 tabular-nums">
+                                        {{ $navUsage['recipes']['used'] ?? 0 }} / 20
+                                    </span>
+                                </div>
+                                <div class="w-full h-1 bg-black/5 dark:bg-white/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#5856D6] rounded-full transition-all duration-300"
+                                        style="width: {{ min(100, $navUsage['recipes']['percent'] ?? 0) }}%"></div>
+                                </div>
+                            </div>
+
+                            {{-- Invoice Bulan Ini --}}
+                            <div class="space-y-0.5">
+                                <div
+                                    class="flex items-center justify-between text-[11px] text-black/60 dark:text-white/60">
+                                    <span>Invoice Bulan Ini:</span>
+                                    <span class="font-medium text-black/80 dark:text-white/80 tabular-nums">
+                                        {{ $navUsage['invoices_this_month']['used'] ?? 0 }} / 10
+                                    </span>
+                                </div>
+                                <div class="w-full h-1 bg-black/5 dark:bg-white/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#AF52DE] rounded-full transition-all duration-300"
+                                        style="width: {{ min(100, $navUsage['invoices_this_month']['percent'] ?? 0) }}%">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Action CTA Button --}}
+                        <div class="space-y-1 pt-0.5">
+                            <a href="{{ route('billing.patungan') }}"
+                                class="w-full h-7.5 px-3 rounded-[8px] bg-gradient-to-r from-[#007AFF] to-[#5856D6] hover:opacity-95 text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-[0_2px_6px_rgba(0,122,255,0.25)] transition-all active:scale-[0.97] cursor-pointer">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5 shrink-0"></i>
+                                <span>Upgrade</span>
+                            </a>
+                            <a href="{{ route('billing.limits') }}"
+                                class="block text-center text-[11px] text-black/55 dark:text-white/55 hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition">
+                                Tingkatkan ke Cooca UMKM ›
+                            </a>
+                        </div>
+                    </div>
+                @endif
+            </div>
         </div>
-    </div>
+    @endif
 </aside>

@@ -60,6 +60,31 @@
         width: 2rem !important;
         height: 2rem !important;
     }
+
+    /* Apple focus ring untuk navigasi keyboard */
+    .app-topbar a:focus-visible,
+    .app-topbar button:focus-visible {
+        outline: 2px solid rgba(0, 122, 255, 0.65) !important;
+        outline-offset: 2px !important;
+        border-radius: 0.5rem !important;
+    }
+    .dark .app-topbar a:focus-visible,
+    .dark .app-topbar button:focus-visible {
+        outline-color: rgba(10, 132, 255, 0.85) !important;
+    }
+
+    /* Breathing room ekstra di layar sempit (>= 320px tetap muat) */
+    @media (max-width: 639px) {
+        .app-topbar-actions {
+            gap: 0.375rem !important;
+        }
+        .app-topbar-title {
+            gap: 0.75rem !important;
+        }
+        .app-topbar h1 {
+            font-size: 15px !important;
+        }
+    }
 </style>
 <!-- Topbar Header (Apple macOS Toolbar Architecture) -->
 <header class="app-topbar h-16 glass-header sticky top-0 z-30 flex items-center justify-between px-4 sm:px-7 lg:px-9 border-b border-black/5 dark:border-white/10 transition-all">
@@ -83,10 +108,10 @@
 
         <!-- Header Title & Subtitle Hierarchy -->
         <div class="min-w-0 flex-1">
-            <h1 class="text-[16px] font-semibold text-black dark:text-white truncate leading-tight tracking-tight">
+            <h1 title="{{ $headerTitle ?? 'Cooca UMKM' }}" class="text-[16px] font-semibold text-black dark:text-white truncate leading-tight tracking-tight">
                 {{ $headerTitle ?? 'Cooca UMKM' }}
             </h1>
-            <p class="text-[12px] text-black/50 dark:text-white/50 hidden sm:block truncate leading-tight mt-1">
+            <p title="{{ $headerSubtitle ?? '' }}" class="text-[12px] text-black/55 dark:text-white/55 hidden sm:block truncate leading-tight mt-1">
                 {{ $headerSubtitle ?? 'Sistem Perhitungan HPP & Manajemen Komersial Terintegrasi' }}
             </p>
         </div>
@@ -96,12 +121,13 @@
     <div class="app-topbar-actions flex items-center gap-2.5 sm:gap-4 shrink-0">
         @if ($activeBiz)
             <!-- Active Currency Pill -->
-            <div class="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/5 text-[11px] text-black/60 dark:text-white/60">
+            <div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/5 text-[11px] text-black/60 dark:text-white/60">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
                 <span class="tabular-nums font-medium">{{ $activeBiz->currency_code }} ({{ $activeBiz->currency_symbol }})</span>
             </div>
         @endif
 
+        @if(\App\Support\Context::hasPermission('costing.view_margin'))
         <!-- Primary Action CTA: Hitung HPP -->
         <a href="{{ route('calculator.index') }}"
             class="hidden sm:flex h-8 px-3 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-semibold shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 items-center gap-1.5 transition-all shrink-0 cursor-pointer"
@@ -109,6 +135,13 @@
             <i data-lucide="plus" class="w-3.5 h-3.5 shrink-0"></i>
             <span>Hitung HPP</span>
         </a>
+
+        <!-- Primary Action CTA (Mobile: icon-only agar satu aksi utama tetap ada) -->
+        <a href="{{ route('calculator.index') }}" aria-label="Hitung HPP" title="Hitung HPP"
+            class="sm:hidden h-8 w-9 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 inline-flex items-center justify-center transition-all shrink-0 cursor-pointer">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+        </a>
+        @endif
 
         <!-- Unified System Controls Capsule (Fullscreen & Theme Switcher) -->
         <div class="flex items-center p-0.5 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] gap-0.5">
@@ -186,8 +219,9 @@
                         }
                     });
                 }
-            }" class="relative" @click.outside="themeDropdownOpen = false">
+            }" class="relative" @click.outside="themeDropdownOpen = false" @keydown.esc.window="themeDropdownOpen = false">
                 <button type="button" @click="themeDropdownOpen = !themeDropdownOpen"
+                    :aria-expanded="themeDropdownOpen ? 'true' : 'false'" aria-haspopup="menu" aria-controls="theme-menu"
                     :title="'Ganti Tema: ' + (theme === 'dark' ? 'Gelap' : (theme === 'system' ? 'Sistem' : 'Terang'))"
                     aria-label="Theme Switcher"
                     class="h-7 w-7 rounded-[6px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10 transition-all flex items-center justify-center shrink-0 active:scale-[0.97] cursor-pointer">
@@ -203,26 +237,29 @@
                 </button>
 
                 <!-- Theme Dropdown Menu (Apple Glass Squircle) -->
-                <div x-show="themeDropdownOpen" x-transition
-                    class="absolute right-0 mt-2 w-36 rounded-[12px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-1 z-50 space-y-0.5 text-[13px]"
+                <div id="theme-menu" x-show="themeDropdownOpen" x-transition role="menu" aria-label="Pilihan Tema"
+                    class="absolute right-0 mt-2 w-40 rounded-[12px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-1 z-50 space-y-0.5 text-[13px]"
                     style="display: none;">
-                    <button type="button" @click="setTheme('light')"
-                        class="w-full px-2.5 py-1.5 rounded-[7px] flex items-center gap-2 text-left font-medium transition active:scale-[0.98] cursor-pointer"
+                    <button type="button" @click="setTheme('light')" role="menuitem"
+                        class="w-full px-2.5 py-1.5 rounded-[7px] flex items-center justify-between gap-2 text-left font-medium transition active:scale-[0.98] cursor-pointer"
                         :class="theme === 'light' ? 'bg-[#FF9500]/10 text-[#FF9500] font-semibold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'">
                         <i data-lucide="sun" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                         <span>Terang</span>
+                        <span x-show="theme === 'light'" class="ml-auto"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>
                     </button>
-                    <button type="button" @click="setTheme('dark')"
-                        class="w-full px-2.5 py-1.5 rounded-[7px] flex items-center gap-2 text-left font-medium transition active:scale-[0.98] cursor-pointer"
+                    <button type="button" @click="setTheme('dark')" role="menuitem"
+                        class="w-full px-2.5 py-1.5 rounded-[7px] flex items-center justify-between gap-2 text-left font-medium transition active:scale-[0.98] cursor-pointer"
                         :class="theme === 'dark' ? 'bg-[#5856D6]/10 text-[#5856D6] font-semibold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'">
                         <i data-lucide="moon" class="w-3.5 h-3.5 text-[#5856D6]"></i>
                         <span>Gelap</span>
+                        <span x-show="theme === 'dark'" class="ml-auto"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>
                     </button>
-                    <button type="button" @click="setTheme('system')"
-                        class="w-full px-2.5 py-1.5 rounded-[7px] flex items-center gap-2 text-left font-medium transition active:scale-[0.98] cursor-pointer"
+                    <button type="button" @click="setTheme('system')" role="menuitem"
+                        class="w-full px-2.5 py-1.5 rounded-[7px] flex items-center justify-between gap-2 text-left font-medium transition active:scale-[0.98] cursor-pointer"
                         :class="theme === 'system' ? 'bg-[#007AFF]/10 text-[#007AFF] font-semibold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'">
                         <i data-lucide="monitor" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                        <span>Sistem OS</span>
+                        <span>Sistem</span>
+                        <span x-show="theme === 'system'" class="ml-auto"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>
                     </button>
                 </div>
             </div>
@@ -232,8 +269,9 @@
         <div class="h-5 w-px bg-black/10 dark:bg-white/10 hidden sm:block"></div>
 
         <!-- User Profile Dropdown (Transferred from Sidebar - Apple macOS Account Menu) -->
-        <div class="relative" x-data="{ profileOpen: false }" @click.outside="profileOpen = false">
+        <div class="relative" x-data="{ profileOpen: false }" @click.outside="profileOpen = false" @keydown.esc.window="profileOpen = false">
             <button type="button" @click="profileOpen = !profileOpen"
+                :aria-expanded="profileOpen ? 'true' : 'false'" aria-haspopup="menu" aria-controls="profile-menu"
                 class="flex items-center gap-2 p-1 pl-1 pr-2 sm:pr-2.5 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-all active:scale-[0.97] cursor-pointer"
                 :title="'Akun: ' + '{{ $currentUser->name ?? 'User' }}'">
                 <!-- Squircle Avatar -->
@@ -244,7 +282,7 @@
                     <div class="text-[13px] font-semibold text-black dark:text-white truncate leading-tight">
                         {{ $currentUser->name ?? 'User' }}
                     </div>
-                    <div class="text-[10px] text-black/45 dark:text-white/45 truncate leading-tight">
+                    <div class="text-[11px] text-black/55 dark:text-white/55 truncate leading-tight">
                         {{ $activeBiz->name ?? 'Owner' }}
                     </div>
                 </div>
@@ -258,6 +296,7 @@
                 x-transition:leave="transition ease-in duration-100"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                id="profile-menu" role="menu" aria-label="Menu Akun"
                 class="absolute right-0 mt-2 w-64 rounded-[14px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-1.5 z-50 space-y-1 text-[13px]"
                 style="display: none;">
 

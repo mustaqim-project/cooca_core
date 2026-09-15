@@ -136,6 +136,7 @@
 
         <!-- Export & Print Actions -->
         <div class="flex items-center gap-2">
+            @if(\App\Support\Context::hasPermission('reports.export'))
             <!-- Export Excel (.xlsx) -->
             <a :href="'{{ route('reports.export-excel') }}?format=xlsx&start_date={{ $startDate->toDateString() }}&end_date={{ $endDate->toDateString() }}'"
                 id="btnExportExcel"
@@ -145,7 +146,9 @@
                 </svg>
                 <span>Export Excel</span>
             </a>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('reports.export') || \App\Support\Context::hasPermission('reports.view'))
             <!-- Tombol Cetak -->
             <button type="button" onclick="window.print()" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -153,6 +156,7 @@
                 </svg>
                 <span class="hidden sm:inline">Cetak</span>
             </button>
+            @endif
         </div>
     </header>
 
@@ -161,6 +165,7 @@
     <!-- ===================================================== -->
     <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-1.5 overflow-x-auto print:hidden">
         <div class="inline-flex p-0.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] text-[13px] font-medium min-w-full sm:min-w-0">
+            @if(\App\Support\Context::hasPermission('reports.financial') || \App\Support\Context::hasPermission('reports.view'))
             <button type="button" @click="activeTab = 'income_statement'"
                 :class="activeTab === 'income_statement' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                 class="px-3.5 py-1.5 rounded-[8px] flex items-center gap-2 transition-all whitespace-nowrap">
@@ -169,7 +174,9 @@
                 </svg>
                 <span>1. Laba Rugi (P&amp;L)</span>
             </button>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('reports.financial') || \App\Support\Context::hasPermission('reports.view'))
             <button type="button" @click="activeTab = 'cash_flow'"
                 :class="activeTab === 'cash_flow' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                 class="px-3.5 py-1.5 rounded-[8px] flex items-center gap-2 transition-all whitespace-nowrap">
@@ -178,7 +185,9 @@
                 </svg>
                 <span>2. Arus Kas (Cash Flow)</span>
             </button>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('finance.receivables') || \App\Support\Context::hasPermission('finance.payables') || \App\Support\Context::hasPermission('reports.financial') || \App\Support\Context::hasPermission('reports.view'))
             <button type="button" @click="activeTab = 'aging'"
                 :class="activeTab === 'aging' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                 class="px-3.5 py-1.5 rounded-[8px] flex items-center gap-2 transition-all whitespace-nowrap">
@@ -187,7 +196,9 @@
                 </svg>
                 <span>3. Umur Piutang &amp; Hutang (AR/AP)</span>
             </button>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('inventory.view') || \App\Support\Context::hasPermission('reports.view'))
             <button type="button" @click="activeTab = 'stock_valuation'"
                 :class="activeTab === 'stock_valuation' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                 class="px-3.5 py-1.5 rounded-[8px] flex items-center gap-2 transition-all whitespace-nowrap">
@@ -196,7 +207,9 @@
                 </svg>
                 <span>4. Valuasi &amp; Perputaran Stok</span>
             </button>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('reports.costing') || \App\Support\Context::hasPermission('costing.view_margin') || \App\Support\Context::hasPermission('reports.view'))
             <button type="button" @click="activeTab = 'hpp'"
                 :class="activeTab === 'hpp' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                 class="px-3.5 py-1.5 rounded-[8px] flex items-center gap-2 transition-all whitespace-nowrap">
@@ -206,6 +219,7 @@
                 </svg>
                 <span>5. Struktur HPP &amp; Biaya</span>
             </button>
+            @endif
         </div>
     </div>
 

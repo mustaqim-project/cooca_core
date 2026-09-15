@@ -63,19 +63,23 @@ final class PosTerminalController extends Controller
             }])
             ->get()
             ->map(function (Product $p) {
+                $isService = $p->isService();
                 $locStock = $p->stocks->first();
                 return [
                     'id' => $p->id,
                     'name' => $p->name,
                     'code' => $p->code,
                     'slug' => $p->slug,
+                    'type' => $p->type ?? Product::TYPE_GOODS,
+                    'is_service' => $isService,
+                    'track_inventory' => ! $isService,
                     'category_id' => $p->category_id,
                     'category_name' => $p->category?->name,
                     'unit_id' => $p->output_unit_id,
-                    'unit_code' => $p->outputUnit?->code ?? 'satuan',
+                    'unit_code' => $p->outputUnit?->code ?? ($isService ? 'jasa' : 'satuan'),
                     'selling_price' => (float) $p->selling_price,
                     'base_cost' => (float) $p->base_cost,
-                    'stock' => $locStock ? (float) $locStock->quantity : 0.0,
+                    'stock' => $isService ? null : ($locStock ? (float) $locStock->quantity : 0.0),
                     'min_stock' => (float) $p->min_stock,
                     'image_url' => $p->image_url,
                 ];
@@ -164,16 +168,20 @@ final class PosTerminalController extends Controller
             ->limit(50)
             ->get()
             ->map(function (Product $p) {
+                $isService = $p->isService();
                 $locStock = $p->stocks->first();
                 return [
                     'id' => $p->id,
                     'name' => $p->name,
                     'code' => $p->code,
+                    'type' => $p->type ?? Product::TYPE_GOODS,
+                    'is_service' => $isService,
+                    'track_inventory' => ! $isService,
                     'selling_price' => (float) $p->selling_price,
                     'base_cost' => (float) $p->base_cost,
-                    'unit_code' => $p->outputUnit?->code ?? 'pcs',
+                    'unit_code' => $p->outputUnit?->code ?? ($isService ? 'jasa' : 'pcs'),
                     'category_name' => $p->category?->name,
-                    'stock' => $locStock ? (float) $locStock->quantity : 0.0,
+                    'stock' => $isService ? null : ($locStock ? (float) $locStock->quantity : 0.0),
                 ];
             });
 
@@ -409,10 +417,9 @@ final class PosTerminalController extends Controller
     public function verifySupervisorPin(Request $request): JsonResponse
     {
         $business = Context::requireBusiness();
-        $pin = (string) $request->get('pin', '');
-        $validPin = $business->pos_supervisor_pin ?? '1234';
+        $validPin = (string) ($business->pos_supervisor_pin ?? '1234');
 
-        if ($pin === $validPin) {
+        if ($pin !== '' && (\Illuminate\Support\Facades\Hash::check($pin, $validPin) || hash_equals($validPin, $pin))) {
             return response()->json([
                 'verified' => true,
                 'message' => 'Otorisasi Supervisor Terverifikasi.',

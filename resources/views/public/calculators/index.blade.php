@@ -5,187 +5,251 @@
 @section('keywords', 'kalkulator bisnis umkm, kalkulator hpp online, kalkulator bep gratis, hitung harga jual margin, simulasi laba rugi, kalkulator pph 0.5')
 
 @section('content')
-<div class="pt-12 pb-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="pt-10 pb-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
-        <!-- Hero Section -->
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold text-xs mb-4">
+        <!-- Header -->
+        <div class="text-center max-w-3xl mx-auto space-y-3">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-bold text-xs">
                 <i data-lucide="calculator" class="w-4 h-4"></i>
                 <span>Interactive Business Tools</span>
             </div>
-            <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-                Koleksi <span class="text-gradient-accent">Kalkulator Bisnis</span> UMKM
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-tight">
+                Koleksi <span class="text-[#007AFF] dark:text-[#0A84FF]">Kalkulator Bisnis</span> UMKM
             </h1>
-            <p class="text-sm sm:text-base text-slate-400 mt-4 leading-relaxed">
-                Ambil keputusan bisnis lebih cepat, akurat, dan berbasis data. Semua tools dapat Anda gunakan secara instan tanpa perlu registrasi atau berlangganan.
+            <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B] max-w-2xl mx-auto leading-relaxed">
+                Ambil keputusan bisnis lebih cepat, akurat, dan berbasis data standar akuntansi. Semua tools dapat Anda gunakan secara instan tanpa perlu registrasi atau berlangganan.
             </p>
         </div>
 
-        <!-- Grid 8 Kalkulator -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Bento Grid 8 Kalkulator (Apple Asymmetric Bento Layout) -->
+        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
 
-            <!-- 1. HPP -->
-            <a href="{{ route('kalkulator.hpp') }}" class="glass-card p-6 rounded-3xl group flex flex-col justify-between">
-                <div>
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="layers" class="w-6 h-6"></i>
+            <!-- 1. HPP (Hero Bento: Spans 2-col on Mobile, 2-col on Desktop) -->
+            <a href="{{ route('kalkulator.hpp') }}" class="col-span-2 lg:col-span-2 glass-card p-5 sm:p-7 rounded-[24px] sm:rounded-[28px] group flex flex-col justify-between hover:border-[#007AFF]/40 active:scale-[0.98] transition-all">
+                <div class="space-y-3.5">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <i data-lucide="layers" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                        </div>
+                        <span class="px-2.5 sm:px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1">
+                            <i data-lucide="star" class="w-3 h-3"></i>
+                            <span>Paling Populer • 3-Pilar</span>
+                        </span>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Harga Pokok Penjualan</span>
-                    <h2 class="text-lg font-bold text-white mt-1 group-hover:text-indigo-400 transition-colors">Kalkulator HPP</h2>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Hitung biaya bahan baku, tenaga kerja, dan overhead per porsi/produk untuk mengunci harga jual aman.
-                    </p>
+
+                    <div>
+                        <h2 class="text-base sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
+                            Kalkulator HPP &amp; Harga Jual
+                        </h2>
+                        <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed mt-1">
+                            Hitung biaya bahan baku, upah kerja, dan overhead per porsi untuk mengunci modal aman.
+                        </p>
+                    </div>
+
+                    <!-- Apple Inset Formula Pill -->
+                    <div class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs font-mono text-[#6E6E73] dark:text-[#86868B]">
+                        <span>[Bahan] + [Tenaga Kerja] + [Overhead]</span>
+                        <span class="font-bold text-[#007AFF] dark:text-[#0A84FF]">= HPP Murni</span>
+                    </div>
                 </div>
-                <div class="mt-6 flex items-center gap-2 text-xs font-bold text-indigo-400">
-                    <span>Gunakan Tool</span>
+
+                <div class="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-xs font-bold text-[#007AFF] dark:text-[#0A84FF]">
+                    <span>Hitung HPP Sekarang</span>
                     <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
-            <!-- 2. BEP -->
-            <a href="{{ route('kalkulator.bep') }}" class="glass-card p-6 rounded-3xl group flex flex-col justify-between">
-                <div>
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="scale" class="w-6 h-6"></i>
+            <!-- 2. BEP (Compact Bento Widget: Spans 1-col) -->
+            <a href="{{ route('kalkulator.bep') }}" class="col-span-1 lg:col-span-1 glass-card p-4 sm:p-6 rounded-[22px] sm:rounded-[26px] group flex flex-col justify-between hover:border-[#34C759]/40 active:scale-[0.98] transition-all">
+                <div class="space-y-2.5 sm:space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-[14px] sm:rounded-[16px] bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <i data-lucide="scale" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] px-2 py-0.5 rounded-full bg-[#34C759]/10">Titik Impas</span>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Titik Impas Usaha</span>
-                    <h2 class="text-lg font-bold text-white mt-1 group-hover:text-emerald-400 transition-colors">Kalkulator BEP</h2>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Ketahui berapa nominal omzet dan jumlah unit yang harus terjual agar usaha tidak merugi.
-                    </p>
+                    <div>
+                        <h2 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#34C759] dark:group-hover:text-[#30D158] transition-colors leading-snug">Kalkulator BEP</h2>
+                        <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">Target unit &amp; omzet impas anti-rugi.</p>
+                    </div>
+                    <div class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#34C759] dark:text-[#30D158] font-semibold text-center truncate">
+                        Unit &amp; Rupiah
+                    </div>
                 </div>
-                <div class="mt-6 flex items-center gap-2 text-xs font-bold text-emerald-400">
-                    <span>Gunakan Tool</span>
+                <div class="mt-3 sm:mt-5 pt-2.5 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-bold text-[#34C759] dark:text-[#30D158]">
+                    <span>Buka Tool</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+            <!-- 3. Harga Jual (Compact Bento Widget: Spans 1-col) -->
+            <a href="{{ route('kalkulator.harga-jual') }}" class="col-span-1 lg:col-span-1 glass-card p-4 sm:p-6 rounded-[22px] sm:rounded-[26px] group flex flex-col justify-between hover:border-[#FF9500]/40 active:scale-[0.98] transition-all">
+                <div class="space-y-2.5 sm:space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-[14px] sm:rounded-[16px] bg-[#FF9500]/10 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <i data-lucide="tag" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] px-2 py-0.5 rounded-full bg-[#FF9500]/10">Margin</span>
+                    </div>
+                    <div>
+                        <h2 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#FF9500] dark:group-hover:text-[#FF9F0A] transition-colors leading-snug">Harga Jual</h2>
+                        <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">Perbandingan markup vs margin kotor.</p>
+                    </div>
+                    <div class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#FF9500] dark:text-[#FF9F0A] font-semibold text-center truncate">
+                        Markup vs Margin
+                    </div>
+                </div>
+                <div class="mt-3 sm:mt-5 pt-2.5 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-bold text-[#FF9500] dark:text-[#FF9F0A]">
+                    <span>Buka Tool</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+            <!-- 4. Laba Bersih (Hero Bento: Spans 2-col on Mobile, 2-col on Desktop) -->
+            <a href="{{ route('kalkulator.laba-bersih') }}" class="col-span-2 lg:col-span-2 glass-card p-5 sm:p-7 rounded-[24px] sm:rounded-[28px] group flex flex-col justify-between hover:border-[#007AFF]/40 active:scale-[0.98] transition-all">
+                <div class="space-y-3.5">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <i data-lucide="pie-chart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                        </div>
+                        <span class="px-2.5 sm:px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                            Waterfall Finansial
+                        </span>
+                    </div>
+
+                    <div>
+                        <h2 class="text-base sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
+                            Kalkulator Laba Bersih &amp; Rugi Riil
+                        </h2>
+                        <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed mt-1">
+                            Simulasikan omzet, beban operasional, gaji, listrik, dan pajak hingga menemukan laba bersih riil.
+                        </p>
+                    </div>
+
+                    <!-- Apple Inset Waterfall Pill -->
+                    <div class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs font-mono text-[#6E6E73] dark:text-[#86868B]">
+                        <span>Omzet - HPP - Operasional - Pajak</span>
+                        <span class="font-bold text-[#34C759] dark:text-[#30D158]">= Net Profit</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-xs font-bold text-[#007AFF] dark:text-[#0A84FF]">
+                    <span>Audit Laba Bersih</span>
                     <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
-            <!-- 3. Harga Jual -->
-            <a href="{{ route('kalkulator.harga-jual') }}" class="glass-card p-6 rounded-3xl group flex flex-col justify-between">
-                <div>
-                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="tag" class="w-6 h-6"></i>
+            <!-- 5. Gaji Karyawan (Compact Bento Widget: Spans 1-col) -->
+            <a href="{{ route('kalkulator.gaji-karyawan') }}" class="col-span-1 lg:col-span-1 glass-card p-4 sm:p-6 rounded-[22px] sm:rounded-[26px] group flex flex-col justify-between hover:border-[#007AFF]/40 active:scale-[0.98] transition-all">
+                <div class="space-y-2.5 sm:space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-[14px] sm:rounded-[16px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">Payroll</span>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Markup vs Margin</span>
-                    <h2 class="text-lg font-bold text-white mt-1 group-hover:text-amber-400 transition-colors">Kalkulator Harga Jual</h2>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Hindari salah hitung persentase markup vs gross margin untuk menetapkan harga retail ideal.
-                    </p>
+                    <div>
+                        <h2 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">Gaji Karyawan</h2>
+                        <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">Upah harian, bulanan &amp; tunjangan.</p>
+                    </div>
+                    <div class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#007AFF] dark:text-[#0A84FF] font-semibold text-center truncate">
+                        Lembur &amp; Bonus
+                    </div>
                 </div>
-                <div class="mt-6 flex items-center gap-2 text-xs font-bold text-amber-400">
-                    <span>Gunakan Tool</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                <div class="mt-3 sm:mt-5 pt-2.5 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-bold text-[#007AFF] dark:text-[#0A84FF]">
+                    <span>Buka Tool</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
-            <!-- 4. Laba Bersih -->
-            <a href="{{ route('kalkulator.laba-bersih') }}" class="glass-card p-6 rounded-3xl group flex flex-col justify-between">
-                <div>
-                    <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="pie-chart" class="w-6 h-6"></i>
+            <!-- 6. PPh Final 0.5% (Compact Bento Widget: Spans 1-col) -->
+            <a href="{{ route('kalkulator.pph-final') }}" class="col-span-1 lg:col-span-1 glass-card p-4 sm:p-6 rounded-[22px] sm:rounded-[26px] group flex flex-col justify-between hover:border-[#FF3B30]/40 active:scale-[0.98] transition-all">
+                <div class="space-y-2.5 sm:space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-[14px] sm:rounded-[16px] bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#FF453A] flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <i data-lucide="receipt" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FF3B30] dark:text-[#FF453A] px-2 py-0.5 rounded-full bg-[#FF3B30]/10">PP 55</span>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400">Net Profit Margin</span>
-                    <h2 class="text-lg font-bold text-white mt-1 group-hover:text-blue-400 transition-colors">Kalkulator Laba Bersih</h2>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Simulasikan omzet kotor, beban operasional, gaji, listrik, dan pajak hingga menemukan laba bersih riil.
-                    </p>
+                    <div>
+                        <h2 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#FF3B30] dark:group-hover:text-[#FF453A] transition-colors leading-snug">PPh Final 0.5%</h2>
+                        <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">Pajak UMKM dengan batas 500 juta.</p>
+                    </div>
+                    <div class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#FF3B30] dark:text-[#FF453A] font-semibold text-center truncate">
+                        Bebas &lt; 500Jt
+                    </div>
                 </div>
-                <div class="mt-6 flex items-center gap-2 text-xs font-bold text-blue-400">
-                    <span>Gunakan Tool</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                <div class="mt-3 sm:mt-5 pt-2.5 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-bold text-[#FF3B30] dark:text-[#FF453A]">
+                    <span>Buka Tool</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
-            <!-- 5. Gaji Karyawan -->
-            <a href="{{ route('kalkulator.gaji-karyawan') }}" class="glass-card p-6 rounded-3xl group flex flex-col justify-between">
-                <div>
-                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="users" class="w-6 h-6"></i>
+            <!-- 7. Target Omzet Harian (Compact Bento Widget: Spans 1-col) -->
+            <a href="{{ route('kalkulator.omzet-harian') }}" class="col-span-1 lg:col-span-1 glass-card p-4 sm:p-6 rounded-[22px] sm:rounded-[26px] group flex flex-col justify-between hover:border-[#007AFF]/40 active:scale-[0.98] transition-all">
+                <div class="space-y-2.5 sm:space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-[14px] sm:rounded-[16px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">Target</span>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400">Payroll & Upah</span>
-                    <h2 class="text-lg font-bold text-white mt-1 group-hover:text-purple-400 transition-colors">Gaji Karyawan</h2>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Hitung gaji harian/bulanan, tunjangan makan, uang lembur, dan total take-home-pay staf Anda.
-                    </p>
+                    <div>
+                        <h2 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">Omzet Harian</h2>
+                        <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">Target transaksi harian &amp; struk kasir.</p>
+                    </div>
+                    <div class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#007AFF] dark:text-[#0A84FF] font-semibold text-center truncate">
+                        AOV &amp; Struk
+                    </div>
                 </div>
-                <div class="mt-6 flex items-center gap-2 text-xs font-bold text-purple-400">
-                    <span>Gunakan Tool</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                <div class="mt-3 sm:mt-5 pt-2.5 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-bold text-[#007AFF] dark:text-[#0A84FF]">
+                    <span>Buka Tool</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
-            <!-- 6. PPh Final 0.5% -->
-            <a href="{{ route('kalkulator.pph-final') }}" class="glass-card p-6 rounded-3xl group flex flex-col justify-between">
-                <div>
-                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="receipt" class="w-6 h-6"></i>
+            <!-- 8. What-If Simulation (Compact / Accent Bento Widget: Spans 1-col on Mobile, 1-col on Desktop) -->
+            <a href="{{ route('kalkulator.simulasi-what-if') }}" class="col-span-1 lg:col-span-1 glass-card p-4 sm:p-6 rounded-[22px] sm:rounded-[26px] group flex flex-col justify-between hover:border-[#007AFF]/40 active:scale-[0.98] transition-all">
+                <div class="space-y-2.5 sm:space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-[14px] sm:rounded-[16px] bg-[#007AFF]/15 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <i data-lucide="sparkles" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">AI Tool</span>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400">PP 55 / 2022</span>
-                    <h2 class="text-lg font-bold text-white mt-1 group-hover:text-rose-400 transition-colors">PPh Final UMKM 0.5%</h2>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Simulasikan pajak UMKM orang pribadi dengan batas omzet kumulatif 500 juta bebas pajak per tahun.
-                    </p>
-                </div>
-                <div class="mt-6 flex items-center gap-2 text-xs font-bold text-rose-400">
-                    <span>Gunakan Tool</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                </div>
-            </a>
-
-            <!-- 7. Target Omzet -->
-            <a href="{{ route('kalkulator.omzet-harian') }}" class="glass-card p-6 rounded-3xl group flex flex-col justify-between">
-                <div>
-                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="target" class="w-6 h-6"></i>
+                    <div>
+                        <h2 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">Simulasi What-If</h2>
+                        <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">Dampak kenaikan bahan baku terhadap laba.</p>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-400">Sales Breakdown</span>
-                    <h2 class="text-lg font-bold text-white mt-1 group-hover:text-cyan-400 transition-colors">Target Omzet Harian</h2>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Ubah target omzet bulanan menjadi target transaksi harian dan rata-rata belanja (average basket size).
-                    </p>
-                </div>
-                <div class="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400">
-                    <span>Gunakan Tool</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                </div>
-            </a>
-
-            <!-- 8. What-If Simulation -->
-            <a href="{{ route('kalkulator.simulasi-what-if') }}" class="glass-card p-6 rounded-3xl group flex flex-col justify-between border-cyan-500/30">
-                <div>
-                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="sparkles" class="w-6 h-6"></i>
+                    <div class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#007AFF] dark:text-[#0A84FF] font-semibold text-center truncate">
+                        Sensitivitas Biaya
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-400">Sensitivitas Biaya</span>
-                    <h2 class="text-lg font-bold text-white mt-1 group-hover:text-cyan-400 transition-colors">Simulasi What-If</h2>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Cek dampak seketika jika harga bahan baku naik 10% atau diskon promo 20% terhadap sisa laba bersih Anda.
-                    </p>
                 </div>
-                <div class="mt-6 flex items-center gap-2 text-xs font-bold text-cyan-400">
+                <div class="mt-3 sm:mt-5 pt-2.5 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-bold text-[#007AFF] dark:text-[#0A84FF]">
                     <span>Mulai Simulasi</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
         </div>
 
-        <!-- Banner Conversion to App -->
-        <div class="mt-20 p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-indigo-900/40 to-slate-900 border border-indigo-500/20 flex flex-col lg:flex-row items-center justify-between gap-8">
+        <!-- Inset Conversion Card (Clean Apple Inset - No Purple Gradient) -->
+        <div class="p-8 sm:p-12 rounded-[28px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex flex-col lg:flex-row items-center justify-between gap-8 shadow-sm">
             <div class="space-y-3 max-w-xl text-center lg:text-left">
-                <span class="text-xs font-bold uppercase text-indigo-400 tracking-wider">Otomatiskan Semuanya</span>
-                <h3 class="text-2xl sm:text-3xl font-black text-white">Capek Hitung Manual Terus di Excel?</h3>
-                <p class="text-sm text-slate-300 leading-relaxed">
-                    Daftar di Cooca UMKM sekarang. Setiap transaksi kasir secara otomatis memotong stok bahan, menghitung HPP riil, dan mencatat laporan laba rugi. <strong>100% Gratis Selamanya</strong>.
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] text-xs font-bold uppercase tracking-wider">
+                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                    <span>Otomasi Tanpa Ribet</span>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7]">Otomatiskan Perhitungan di Kasir Anda</h3>
+                <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
+                    Setiap transaksi kasir otomatis memotong stok bahan, menghitung HPP riil, dan menyusun laporan laba rugi. Bebas biaya selamanya tanpa kartu kredit.
                 </p>
             </div>
-            <div class="shrink-0 flex flex-col sm:flex-row gap-3">
-                <a href="{{ route('register') }}" class="glow-btn px-8 py-3.5 rounded-xl text-white font-bold text-sm shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2">
-                    <span>Daftar Gratis Sekarang</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
-            </div>
+            <a href="{{ route('register') }}" class="glow-btn px-8 py-3.5 rounded-[16px] text-white font-semibold text-xs flex items-center gap-2 shrink-0 active:scale-[0.98] transition-transform">
+                <span>Daftar Akun Gratis Sekarang</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
         </div>
 
     </div>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purchase Order {{ $purchaseOrder->po_number }} — {{ $business->name }}</title>
+    <title>Purchase Order {{ $purchaseOrder->po_number }} - {{ $business->name }}</title>
 
     <!-- System Font & Fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +18,9 @@
     <script src="{{ asset('vendor/html2pdf.bundle.min.js') }}"></script>
     <script>
         if (typeof html2pdf === 'undefined') {
-            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>');
+            document.write(
+                '<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>'
+                );
         }
     </script>
 
@@ -42,6 +44,7 @@
         }
 
         @media print {
+
             html,
             body {
                 background-color: #ffffff !important;
@@ -105,11 +108,13 @@
 <body class="py-6 px-4 sm:px-6 bg-[#F2F2F7] dark:bg-[#000000]">
 
     <!-- Floating Top Print Action Bar (macOS Sonoma Floating Toolbar) -->
-    <div class="no-print max-w-4xl mx-auto mb-6 backdrop-blur-md bg-white/90 dark:bg-[#1C1C1E]/90 border border-black/10 dark:border-white/10 p-4 rounded-[14px] shadow-[0_4px_24px_rgba(0,0,0,0.06)] space-y-3">
+    <div
+        class="no-print max-w-4xl mx-auto mb-6 backdrop-blur-md bg-white/90 dark:bg-[#1C1C1E]/90 border border-black/10 dark:border-white/10 p-4 rounded-[14px] shadow-[0_4px_24px_rgba(0,0,0,0.06)] space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#34C759]"></span>
-                <span class="text-[13px] font-semibold text-black dark:text-white tracking-tight">Dokumen Purchase Order (Format A4 Resmi)</span>
+                <span class="text-[13px] font-semibold text-black dark:text-white tracking-tight">Dokumen Purchase Order
+                    (Format A4 Resmi)</span>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="window.history.back()"
@@ -118,8 +123,9 @@
                 </button>
                 <button onclick="window.print()"
                     class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-black/60 dark:text-white/60" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-black/60 dark:text-white/60"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                         <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
                         <rect x="6" y="14" width="12" height="8" rx="1" />
@@ -138,17 +144,20 @@
                 </button>
             </div>
         </div>
-        <div class="pt-2 border-t border-black/5 dark:border-white/10 flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50">
+        <div
+            class="pt-2 border-t border-black/5 dark:border-white/10 flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#007AFF] shrink-0" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <span>Klik <strong>"Download PDF Langsung"</strong> untuk mengunduh berkas <code>.pdf</code> resmi tanpa dialog cetak peramban.</span>
+            <span>Klik <strong>"Download PDF Langsung"</strong> untuk mengunduh berkas <code>.pdf</code> resmi tanpa
+                dialog cetak peramban.</span>
         </div>
     </div>
 
     <!-- Paper Sheet (Standard A4 Flat Container) -->
-    <div class="print-sheet max-w-4xl mx-auto bg-white p-8 sm:p-12 border border-black/10 shadow-sm rounded-[14px] text-black space-y-6">
+    <div
+        class="print-sheet max-w-4xl mx-auto bg-white p-8 sm:p-12 border border-black/10 shadow-sm rounded-[14px] text-black space-y-6">
 
         <!-- Header / Kop Surat -->
         <div class="flex justify-between items-start border-b-2 border-black pb-5">
@@ -160,7 +169,8 @@
                     </div>
                 @endif
                 <div class="space-y-0.5">
-                    <h1 class="text-[16px] font-bold text-black uppercase tracking-wide leading-tight">{{ $business->name }}</h1>
+                    <h1 class="text-[16px] font-bold text-black uppercase tracking-wide leading-tight">
+                        {{ $business->name }}</h1>
                     <p class="text-[12px] text-black/70">{{ $business->address ?? 'Alamat Kantor Operasional' }}</p>
                     <p class="text-[12px] text-black/70">
                         @if ($business->email)
@@ -171,7 +181,8 @@
                         @endif
                     </p>
                     @if ($business->tax_identification_number)
-                        <p class="text-[12px] text-black/70 tabular-nums">NPWP: {{ $business->tax_identification_number }}</p>
+                        <p class="text-[12px] text-black/70 tabular-nums">NPWP:
+                            {{ $business->tax_identification_number }}</p>
                     @endif
                 </div>
             </div>
@@ -182,10 +193,12 @@
                 </div>
                 <div class="text-[14px] font-bold tabular-nums text-black/80">{{ $purchaseOrder->po_number }}</div>
                 @if ($purchaseOrder->reference_number)
-                    <div class="text-[12px] text-black/60 tabular-nums">No. Ref: {{ $purchaseOrder->reference_number }}</div>
+                    <div class="text-[12px] text-black/60 tabular-nums">No. Ref: {{ $purchaseOrder->reference_number }}
+                    </div>
                 @endif
                 <div class="text-[11px] font-semibold uppercase tracking-wider text-black/60 mt-1">
-                    STATUS: <span class="font-bold text-black">{{ strtoupper(str_replace('_', ' ', $purchaseOrder->status)) }}</span>
+                    STATUS: <span
+                        class="font-bold text-black">{{ strtoupper(str_replace('_', ' ', $purchaseOrder->status)) }}</span>
                 </div>
             </div>
         </div>
@@ -212,7 +225,8 @@
                 @elseif($purchaseOrder->supplier)
                     <div class="text-[14px] font-bold text-black">{{ $purchaseOrder->supplier->name }}</div>
                     <div class="text-black/70">PIC: {{ $purchaseOrder->supplier->contact_person ?? '-' }}</div>
-                    <div class="text-black/70 whitespace-pre-line leading-relaxed">{{ $purchaseOrder->supplier->address ?? '-' }}
+                    <div class="text-black/70 whitespace-pre-line leading-relaxed">
+                        {{ $purchaseOrder->supplier->address ?? '-' }}
                     </div>
                     <div class="text-black/70 tabular-nums">Kontak:
                         {{ $purchaseOrder->supplier->phone ?? ($purchaseOrder->supplier->email ?? '-') }}</div>
@@ -224,17 +238,20 @@
             <div class="space-y-1.5 text-right">
                 <div class="flex justify-end gap-4">
                     <span class="text-black/50">Tanggal Order:</span>
-                    <span class="tabular-nums font-semibold text-black">{{ $purchaseOrder->order_date?->translatedFormat('d F Y') }}</span>
+                    <span
+                        class="tabular-nums font-semibold text-black">{{ $purchaseOrder->order_date?->translatedFormat('d F Y') }}</span>
                 </div>
                 @if ($purchaseOrder->expected_delivery_date)
                     <div class="flex justify-end gap-4">
                         <span class="text-black/50">Target Pengiriman:</span>
-                        <span class="tabular-nums font-semibold text-black">{{ $purchaseOrder->expected_delivery_date?->translatedFormat('d F Y') }}</span>
+                        <span
+                            class="tabular-nums font-semibold text-black">{{ $purchaseOrder->expected_delivery_date?->translatedFormat('d F Y') }}</span>
                     </div>
                 @endif
                 <div class="flex justify-end gap-4">
                     <span class="text-black/50">Mata Uang:</span>
-                    <span class="font-semibold text-black/80">{{ $business->currency_code }} ({{ $business->currency_symbol }})</span>
+                    <span class="font-semibold text-black/80">{{ $business->currency_code }}
+                        ({{ $business->currency_symbol }})</span>
                 </div>
             </div>
         </div>
@@ -259,10 +276,12 @@
                             <td class="py-2 px-2.5">
                                 <div class="font-bold text-black leading-tight">{{ $item->item_name }}</div>
                                 @if ($item->sku)
-                                    <div class="text-[10px] text-black/50 tabular-nums mt-0.5">Kode: {{ $item->sku }}</div>
+                                    <div class="text-[10px] text-black/50 tabular-nums mt-0.5">Kode:
+                                        {{ $item->sku }}</div>
                                 @endif
                                 @if ($item->notes)
-                                    <div class="text-[10px] text-black/60 mt-0.5 leading-snug">{{ $item->notes }}</div>
+                                    <div class="text-[10px] text-black/60 mt-0.5 leading-snug">{{ $item->notes }}
+                                    </div>
                                 @endif
                             </td>
                             <td class="py-2 px-2.5 text-center tabular-nums text-black/70 uppercase">
@@ -272,10 +291,12 @@
                                 {{ (float) $item->quantity == (int) $item->quantity ? number_format((float) $item->quantity, 0, ',', '.') : rtrim(rtrim(number_format((float) $item->quantity, 2, ',', '.'), '0'), ',') }}
                             </td>
                             <td class="py-2 px-2.5 text-right tabular-nums text-black/80 whitespace-nowrap">
-                                {{ $business->currency_symbol }} {{ number_format((float) $item->unit_price, 0, ',', '.') }}
+                                {{ $business->currency_symbol }}
+                                {{ number_format((float) $item->unit_price, 0, ',', '.') }}
                             </td>
                             <td class="py-2 px-2.5 text-right tabular-nums font-bold text-black whitespace-nowrap">
-                                {{ $business->currency_symbol }} {{ number_format((float) $item->subtotal, 0, ',', '.') }}
+                                {{ $business->currency_symbol }}
+                                {{ number_format((float) $item->subtotal, 0, ',', '.') }}
                             </td>
                         </tr>
                     @endforeach
@@ -291,14 +312,16 @@
                     @if ($purchaseOrder->terms_and_conditions)
                         <div>
                             <div class="font-bold text-black mb-0.5">Syarat & Ketentuan Pengiriman:</div>
-                            <div class="text-black/70 whitespace-pre-line leading-relaxed">{{ $purchaseOrder->terms_and_conditions }}</div>
+                            <div class="text-black/70 whitespace-pre-line leading-relaxed">
+                                {{ $purchaseOrder->terms_and_conditions }}</div>
                         </div>
                     @endif
 
                     @if ($purchaseOrder->notes)
                         <div>
                             <div class="font-bold text-black mb-0.5">Catatan:</div>
-                            <div class="text-black/70 whitespace-pre-line leading-relaxed">{{ $purchaseOrder->notes }}</div>
+                            <div class="text-black/70 whitespace-pre-line leading-relaxed">{{ $purchaseOrder->notes }}
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -307,7 +330,8 @@
                     <div class="flex justify-between text-black/70">
                         <span>Subtotal Item:</span>
                         <span class="tabular-nums font-semibold text-black">
-                            {{ $business->currency_symbol }} {{ number_format((float) $purchaseOrder->subtotal, 0, ',', '.') }}
+                            {{ $business->currency_symbol }}
+                            {{ number_format((float) $purchaseOrder->subtotal, 0, ',', '.') }}
                         </span>
                     </div>
 
@@ -315,7 +339,8 @@
                         <div class="flex justify-between text-black/70">
                             <span>Potongan Diskon:</span>
                             <span class="tabular-nums font-semibold text-[#FF3B30]">
-                                - {{ $business->currency_symbol }} {{ number_format((float) $purchaseOrder->discount_amount, 0, ',', '.') }}
+                                - {{ $business->currency_symbol }}
+                                {{ number_format((float) $purchaseOrder->discount_amount, 0, ',', '.') }}
                             </span>
                         </div>
                     @endif
@@ -324,15 +349,18 @@
                         <div class="flex justify-between text-black/70">
                             <span>PPN ({{ $purchaseOrder->tax_percentage }}%):</span>
                             <span class="tabular-nums font-semibold text-black">
-                                + {{ $business->currency_symbol }} {{ number_format((float) $purchaseOrder->tax_amount, 0, ',', '.') }}
+                                + {{ $business->currency_symbol }}
+                                {{ number_format((float) $purchaseOrder->tax_amount, 0, ',', '.') }}
                             </span>
                         </div>
                     @endif
 
-                    <div class="pt-2 border-t-2 border-black flex justify-between items-center text-[14px] font-bold text-black">
+                    <div
+                        class="pt-2 border-t-2 border-black flex justify-between items-center text-[14px] font-bold text-black">
                         <span>Total Nilai PO:</span>
                         <span class="tabular-nums text-[16px]">
-                            {{ $business->currency_symbol }} {{ number_format((float) $purchaseOrder->total_amount, 0, ',', '.') }}
+                            {{ $business->currency_symbol }}
+                            {{ number_format((float) $purchaseOrder->total_amount, 0, ',', '.') }}
                         </span>
                     </div>
                 </div>
@@ -387,12 +415,26 @@
             const filename = 'PO-{{ $purchaseOrder->po_number }}.pdf';
 
             const opt = {
-                margin:       [15, 16, 15, 16],
-                filename:     filename,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, scrollY: 0 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                margin: [15, 16, 15, 16],
+                filename: filename,
+                image: {
+                    type: 'jpeg',
+                    quality: 0.98
+                },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    scrollY: 0
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                },
+                pagebreak: {
+                    mode: ['avoid-all', 'css', 'legacy']
+                }
             };
 
             if (typeof html2pdf !== 'undefined') {

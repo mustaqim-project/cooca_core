@@ -95,12 +95,33 @@ final class GoogleAuthController extends Controller
 
     public function showGoogleRegistration(Request $request): View|RedirectResponse
     {
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('dashboard');
+        }
+
         $pending = $request->session()->get('pending_google_registration');
         if (! is_array($pending) || empty($pending['email'])) {
             return redirect()->route('register');
         }
 
-        return view('auth.google-register', compact('pending'));
+        if (User::where('email', $pending['email'])->exists()) {
+            $request->session()->forget('pending_google_registration');
+            return redirect()->route('login')->with('info', 'Akun dengan email Google ini sudah terdaftar. Silakan masuk.');
+        }
+
+        $templates = \App\Models\BusinessTypeTemplate::all();
+        $templateSummaries = [];
+        foreach ($templates as $tmpl) {
+            $summary = \App\Domain\Template\ModuleRegistry::getFeaturesSummaryForTemplate($tmpl->code);
+            $templateSummaries[$tmpl->code] = [
+                'name' => $tmpl->name,
+                'category' => strtoupper($tmpl->industry_category),
+                'enabled' => $summary['enabled'],
+                'disabled' => $summary['disabled'],
+            ];
+        }
+
+        return view('auth.google-register', compact('pending', 'templates', 'templateSummaries'));
     }
 
     public function beginGoogleRegistration(Request $request, AdminWhatsAppService $adminWa): RedirectResponse
@@ -113,6 +134,7 @@ final class GoogleAuthController extends Controller
         $validated = $request->validate([
             'business_name' => ['required', 'string', 'max:255', 'unique:businesses,name'],
             'phone' => ['required', 'string', 'min:10', 'max:20'],
+            'template_code' => ['nullable', 'string', 'exists:business_type_templates,code'],
         ]);
         $phone = $this->normalizePhone($validated['phone']);
         if ($phone === null) {
@@ -122,13 +144,14 @@ final class GoogleAuthController extends Controller
         $otp = (string) random_int(100000, 999999);
         $result = $adminWa->sendMessage($phone, "Kode OTP pendaftaran Google Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
         if (! ($result['success'] ?? false)) {
-            return back()->withErrors(['phone' => 'OTP gagal dikirim. Pastikan WhatsApp Admin Cooca sedang terhubung.'])->withInput();
+            return back()->withErrors(['phone' => 'OTP gagal dikirim. Coba lagi.'])->withInput();
         }
 
         $request->session()->put('pending_registration', [
             ...$pendingGoogle,
             'phone' => $phone,
             'business_name' => $validated['business_name'],
+            'template_code' => $validated['template_code'] ?? null,
             'password' => Hash::make(Str::random(32)),
             'otp_hash' => Hash::make($otp),
             'expires_at' => now()->addMinutes(10)->timestamp,
@@ -159,6 +182,11 @@ final class GoogleAuthController extends Controller
 
         if ($user->active_business_id) {
             request()->session()->put('active_business_id', $user->active_business_id);
+        }
+
+        $intended = (string) request()->session()->get('url.intended', '');
+        if ($intended !== '' && (str_contains($intended, '/auth/otp') || str_contains($intended, '/login'))) {
+            request()->session()->forget('url.intended');
         }
 
         return redirect()->intended(route('dashboard'))->with('success', 'Selamat datang, '.$user->name.'!');

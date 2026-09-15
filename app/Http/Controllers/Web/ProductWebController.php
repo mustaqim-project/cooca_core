@@ -32,7 +32,8 @@ final class ProductWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $query = Product::with(['category', 'outputUnit', 'costModels.latestVersion'])
+        $query = Product::goods()
+            ->with(['category', 'outputUnit', 'costModels.latestVersion'])
             ->latest();
 
         if ($request->filled('search')) {
@@ -51,7 +52,7 @@ final class ProductWebController extends Controller
         $categories = ProductCategory::where('business_id', $business->id)->get();
         $units = Unit::available()->orderBy('name')->get();
 
-        // Optional preselect for edit modal (?edit=<id>) — used when arriving from calculator.
+        // Optional preselect for edit modal (?edit=<id>) - used when arriving from calculator.
         $editProductId = $request->get('edit');
         $editProduct = null;
         if ($editProductId) {
@@ -114,8 +115,10 @@ final class ProductWebController extends Controller
             'product_category_id' => ['nullable', 'exists:product_categories,id'],
             'output_unit_id' => ['required', 'exists:units,id'],
             'sku' => [
-                'nullable', 'string', 'max:100',
-                Rule::unique('products', 'code')->where(fn ($query) => $query->where('business_id', $business->id)),
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('products', 'code')->where(fn($query) => $query->where('business_id', $business->id)),
             ],
             'selling_price' => ['nullable', 'numeric', 'gte:0'],
             'base_cost' => ['nullable', 'numeric', 'gte:0'],
@@ -129,6 +132,7 @@ final class ProductWebController extends Controller
         /** @var Product $product */
         $product = Product::create([
             'business_id' => $business->id,
+            'type' => Product::TYPE_GOODS,
             'category_id' => $validated['category_id'] ?? $validated['product_category_id'] ?? null,
             'output_unit_id' => $validated['output_unit_id'],
             'code' => $validated['sku'] ?? null,
@@ -187,10 +191,12 @@ final class ProductWebController extends Controller
             'category_id' => ['nullable', 'exists:product_categories,id'],
             'output_unit_id' => ['required', 'exists:units,id'],
             'sku' => [
-                'nullable', 'string', 'max:100',
+                'nullable',
+                'string',
+                'max:100',
                 Rule::unique('products', 'code')
                     ->ignore($product->id)
-                    ->where(fn ($query) => $query->where('business_id', $product->business_id)),
+                    ->where(fn($query) => $query->where('business_id', $product->business_id)),
             ],
             'base_cost' => ['nullable', 'numeric', 'gte:0'],
             'selling_price' => ['nullable', 'numeric', 'gte:0'],
@@ -245,6 +251,7 @@ final class ProductWebController extends Controller
     public function bom(Product $product): View
     {
         $business = Context::requireBusiness();
+        abort_unless($product->business_id === $business->id, 403);
 
         $costModel = $product->costModels()->firstOrCreate(
             ['is_active' => true],
@@ -266,8 +273,11 @@ final class ProductWebController extends Controller
 
         $bomHeader->load(['items.material.prices', 'items.material.unit', 'items.unit']);
 
-        $materials = Material::with(['unit', 'prices'])->get();
-        $units = Unit::all();
+        // Scope materials to current business only - prevents cross-tenant data leakage
+        $materials = Material::with(['unit', 'prices'])
+            ->where('business_id', $business->id)
+            ->get();
+        $units = Unit::available()->orderBy('name')->get();
 
         // Calculate rolled-up BOM explosion
         $explosion = $this->bomService->explode($bomHeader);
@@ -280,8 +290,21 @@ final class ProductWebController extends Controller
      */
     public function addBomItem(Request $request, BomHeader $bomHeader): RedirectResponse
     {
+        $business = Context::requireBusiness();
+
+        // IDOR guard: ensure BomHeader belongs to current business via CostModel
+        abort_unless(
+            $bomHeader->costModel?->business_id === $business->id,
+            403
+        );
+
         $validated = $request->validate([
-            'material_id' => ['required', 'exists:materials,id'],
+            'material_id' => [
+                'required',
+                'exists:materials,id',
+                // Ensure the selected material belongs to this business
+                Rule::exists('materials', 'id')->where('business_id', $business->id),
+            ],
             'quantity' => ['required', 'numeric', 'gt:0'],
             'unit_id' => ['required', 'exists:units,id'],
             'waste_percentage' => ['nullable', 'numeric', 'gte:0', 'lte:100'],
@@ -305,6 +328,14 @@ final class ProductWebController extends Controller
      */
     public function removeBomItem(BomItem $bomItem): RedirectResponse
     {
+        $business = Context::requireBusiness();
+
+        // IDOR guard: traverse BomItem → BomHeader → CostModel → business_id
+        abort_unless(
+            $bomItem->header?->costModel?->business_id === $business->id,
+            403
+        );
+
         $bomItem->delete();
 
         return back()->with('success', 'Komponen berhasil dihapus dari BOM.');

@@ -12,7 +12,7 @@ use Throwable;
 
 /**
  * Propagar perubahan harga material ke HPP produk terkait (via BOM) dan
- * memperbarui product.base_cost — biaya transaksi HISTORIS tidak pernah disentuh.
+ * memperbarui product.base_cost - biaya transaksi HISTORIS tidak pernah disentuh.
  *
  * Dipicu dari:
  * - MaterialWebController::storePrice (harga material diubah)
@@ -36,7 +36,7 @@ final class HppPropagationService
         $costModels = BomItem::where('material_id', $materialId)
             ->with(['header.costModel', 'header.costModel.product'])
             ->get()
-            ->map(fn (BomItem $item) => $item->header?->costModel)
+            ->map(fn(BomItem $item) => $item->header?->costModel)
             ->filter()
             ->unique('id');
 

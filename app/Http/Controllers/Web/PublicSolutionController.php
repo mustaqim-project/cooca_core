@@ -17,7 +17,7 @@ final class PublicSolutionController extends Controller
             'slug' => 'kasir-warung',
             'title' => 'Software Kasir Toko Kelontong & Warung Sembako',
             'badge' => 'Solusi Toko Kelontong',
-            'headline' => 'Kelola Penjualan Warung, Catat Bon Hutang, & Pantau Stok Kulakan — 100% Gratis',
+            'headline' => 'Kelola Penjualan Warung, Catat Bon Hutang, & Pantau Stok Kulakan - 100% Gratis',
             'subheadline' => 'Aplikasi kasir warung sembako paling praktis. Bisa jual eceran maupun grosir (renceng/dus), catat hutang pelanggan via WhatsApp, dan pantau laba harian tanpa kalkulator manual.',
             'pain_points' => [
                 'Uang kas toko sering tekor karena bon hutang pelanggan hilang atau lupa dicatat.',

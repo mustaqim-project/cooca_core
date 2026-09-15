@@ -46,12 +46,14 @@ final class QuotationWebController extends Controller
 
     public function create(): View
     {
-        $business = Context::requireBusiness();
-        $customers = Customer::where('business_id', $business->id)->orderBy('name')->get();
-        $products = Product::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
-        $nextNumber = $this->salesPipelineService->generateQuotationNumber($business);
+        $business        = Context::requireBusiness();
+        $customers       = Customer::where('business_id', $business->id)->orderBy('name')->get();
+        $products        = Product::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
+        $goodsProducts   = Product::where('business_id', $business->id)->where('is_active', true)->goods()->orderBy('name')->get();
+        $serviceProducts = Product::where('business_id', $business->id)->where('is_active', true)->services()->orderBy('name')->get();
+        $nextNumber      = $this->salesPipelineService->generateQuotationNumber($business);
 
-        return view('app.quotations.create', compact('business', 'customers', 'products', 'nextNumber'));
+        return view('app.quotations.create', compact('business', 'customers', 'products', 'goodsProducts', 'serviceProducts', 'nextNumber'));
     }
 
     public function store(Request $request): RedirectResponse

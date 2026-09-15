@@ -44,8 +44,10 @@ final class PosTableOrderToCartTest extends TestCase
         $this->cashier = User::create([
             'name' => 'Kasir Resto',
             'email' => 'kasir.resto@example.com',
+            'phone' => '081234567890',
             'password' => 'password123',
         ]);
+        $this->cashier->forceFill(['email_verified_at' => now()])->save();
 
         $this->business = Business::create([
             'name' => 'Restoran Nusantara Rasa Test',
@@ -152,7 +154,11 @@ final class PosTableOrderToCartTest extends TestCase
 
     public function test_tables_json_returns_rich_item_details_for_pos_cart(): void
     {
-        $this->actingAs($this->cashier);
+        $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ]);
 
         $orderService = new PosOrderService();
         $qrOrder = $orderService->createQrOrder(
@@ -191,7 +197,11 @@ final class PosTableOrderToCartTest extends TestCase
 
     public function test_cashier_can_checkout_table_order_with_existing_order_id_and_close_session(): void
     {
-        $this->actingAs($this->cashier);
+        $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ]);
 
         // Open cashier shift
         $this->postJson(route('pos.shifts.open'), [

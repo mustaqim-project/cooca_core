@@ -38,7 +38,7 @@ class _BusinessSelectScreenState extends State<BusinessSelectScreen> {
       appBar: AppBar(
         title: Text(
           'Pilih Bisnis / Outlet',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
@@ -65,7 +65,7 @@ class _BusinessSelectScreenState extends State<BusinessSelectScreen> {
                     const SizedBox(height: 16),
                     Text(
                       'Belum ada data bisnis.',
-                      style: GoogleFonts.plusJakartaSans(color: AppColors.textMuted, fontSize: 16),
+                      style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 16),
                     ),
                   ],
                 ),
@@ -109,7 +109,7 @@ class _BusinessSelectScreenState extends State<BusinessSelectScreen> {
                               children: [
                                 Text(
                                   biz.name,
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.inter(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textPrimary,
@@ -118,7 +118,7 @@ class _BusinessSelectScreenState extends State<BusinessSelectScreen> {
                                 if (biz.slug != null)
                                   Text(
                                     '@${biz.slug}',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.inter(
                                       fontSize: 13,
                                       color: AppColors.textMuted,
                                     ),

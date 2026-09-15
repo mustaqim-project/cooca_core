@@ -57,10 +57,10 @@ class ProductCard extends StatelessWidget {
                             color: AppColors.primary.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(
-                            Icons.fastfood_rounded,
+                          child: Icon(
+                            product.isService ? Icons.design_services_rounded : Icons.fastfood_rounded,
                             size: 20,
-                            color: AppColors.primaryLight,
+                            color: product.isService ? const Color(0xFF5856D6) : AppColors.primaryLight,
                           ),
                         ),
                         if (product.trackInventory)
@@ -80,6 +80,22 @@ class ProductCard extends StatelessWidget {
                                 color: product.stockQuantity > 5
                                     ? AppColors.badgeGreen
                                     : AppColors.danger,
+                              ),
+                            ),
+                          )
+                        else if (product.isService)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF5856D6).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'Layanan',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF5856D6),
                               ),
                             ),
                           ),

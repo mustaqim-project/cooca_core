@@ -35,6 +35,7 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', 'https://umkm.cooca.id/auth/google/callback'),
+        'customer_redirect' => env('GOOGLE_CUSTOMER_REDIRECT_URI', rtrim(env('APP_URL', 'http://localhost'), '/') . '/customer/auth/google/callback'),
     ],
 
     'wa_server' => [

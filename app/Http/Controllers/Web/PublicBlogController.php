@@ -60,8 +60,12 @@ final class PublicBlogController extends Controller
     {
         $post = Post::published()->where('slug', $slug)->firstOrFail();
 
-        // Increment views count safely
-        $post->increment('views_count');
+        // Increment views only once per visitor per post (guards against bot inflation)
+        $viewKey = 'post_viewed_' . $post->id;
+        if (! session()->has($viewKey)) {
+            $post->increment('views_count');
+            session()->put($viewKey, true);
+        }
 
         $relatedPosts = Post::published()
             ->where('id', '!=', $post->id)

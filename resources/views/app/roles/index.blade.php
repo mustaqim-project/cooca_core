@@ -538,6 +538,18 @@
             </div>
         </div>
 
+        @if(($hiddenPermissionsCount ?? 0) > 0)
+        <div class="rounded-[12px] bg-[#007AFF]/10 border border-[#007AFF]/20 p-3.5 flex items-start gap-3 text-[12px] text-[#007AFF] dark:text-[#64D2FF]">
+            <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+            <div class="flex-1">
+                <span class="font-semibold">{{ $hiddenPermissionsCount }} hak akses disembunyikan otomatis</span> sesuai profil industri bisnis Anda saat ini agar menu tidak menumpuk. Anda dapat mengaktifkan modul kapan saja di
+                <a href="{{ route('settings.index', ['tab' => 'modules']) }}" class="font-semibold underline hover:opacity-80">Pengaturan &rsaquo; Kelola Modul &amp; Fitur</a>.
+            </div>
+        </div>
+        @endif
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($permissions as $category => $categoryPermissions)
             <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 space-y-3">
@@ -649,6 +661,13 @@
                             <label class="text-[13px] font-semibold text-black dark:text-white">Pilih Hak Akses (Permissions) <span class="text-[#FF3B30]">*</span></label>
                             <span class="text-[12px] font-semibold text-[#007AFF] tabular-nums" x-text="selectedPermissions.length + ' hak akses dipilih'"></span>
                         </div>
+
+                        @if(($hiddenPermissionsCount ?? 0) > 0)
+                        <div class="rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 p-2.5 text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between gap-2">
+                            <span>Modul yang dinonaktifkan untuk bisnis ini disembunyikan dari daftar izin.</span>
+                            <a href="{{ route('settings.index', ['tab' => 'modules']) }}" target="_blank" class="text-[#007AFF] hover:underline font-medium shrink-0">Buka Pengaturan Modul &rarr;</a>
+                        </div>
+                        @endif
 
                         <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
                             @foreach($permissions as $category => $categoryPermissions)

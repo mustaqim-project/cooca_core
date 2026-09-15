@@ -22,16 +22,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
-    <title>{{ $title ?? 'Cooca UMKM' }} — cooca.id</title>
+    <title>{{ $title ?? 'Cooca UMKM' }} - cooca.id</title>
 
-    <style>[x-cloak] { display: none !important; }</style>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 
     <!-- Google Fonts (Inter fallback, JetBrains Mono fallback) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,7 +43,9 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', 'Inter', 'system-ui', 'sans-serif'],
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', 'Inter',
+                            'system-ui', 'sans-serif'
+                        ],
                     },
                     colors: {
                         apple: {
@@ -114,28 +118,35 @@
             width: 290px !important;
             padding: 1.25rem !important;
         }
+
         .dark .swal2-popup {
             background: rgba(44, 44, 46, 0.95) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             color: #FFFFFF !important;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
         }
+
         .swal2-title {
             color: inherit !important;
-            font-size: 1.0625rem !important; /* 17px Headline */
+            font-size: 1.0625rem !important;
+            /* 17px Headline */
             font-weight: 600 !important;
             margin: 0.25rem 0 !important;
             letter-spacing: -0.015em !important;
         }
+
         .swal2-html-container {
             color: rgba(60, 60, 67, 0.6) !important;
-            font-size: 0.8125rem !important; /* 13px Footnote */
+            font-size: 0.8125rem !important;
+            /* 13px Footnote */
             line-height: 1.35 !important;
             margin: 0.25rem 0 1rem 0 !important;
         }
+
         .dark .swal2-html-container {
             color: rgba(235, 235, 245, 0.6) !important;
         }
+
         .swal2-actions {
             width: 100% !important;
             margin: 0 !important;
@@ -145,13 +156,16 @@
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 0.5rem !important;
         }
+
         .dark .swal2-actions {
             border-top-color: rgba(255, 255, 255, 0.1) !important;
         }
+
         .swal2-confirm {
             background-color: #007AFF !important;
             color: #ffffff !important;
-            font-size: 0.875rem !important; /* 14px */
+            font-size: 0.875rem !important;
+            /* 14px */
             font-weight: 600 !important;
             border-radius: 8px !important;
             padding: 0.5rem 0.75rem !important;
@@ -159,10 +173,12 @@
             box-shadow: none !important;
             transition: opacity 0.15s ease !important;
         }
+
         .swal2-confirm:active {
             opacity: 0.8 !important;
             transform: scale(0.97) !important;
         }
+
         .swal2-cancel {
             background-color: rgba(0, 0, 0, 0.05) !important;
             color: #007AFF !important;
@@ -173,10 +189,12 @@
             min-height: 36px !important;
             transition: opacity 0.15s ease !important;
         }
+
         .dark .swal2-cancel {
             background-color: rgba(255, 255, 255, 0.08) !important;
             color: #0A84FF !important;
         }
+
         .swal2-cancel:active {
             opacity: 0.8 !important;
             transform: scale(0.97) !important;
@@ -187,155 +205,174 @@
         /* === COOCA DESIGN SYSTEM v2.0 TOKENS (APPLE HIG STANDARD) === */
         :root {
             /* Surface & Background */
-            --bg:          #F2F2F7;   /* Secondary system background (grouped/macOS container) */
-            --surface:     #FFFFFF;   /* Primary system background / cards */
-            --surface-2:   #F2F2F7;   /* System Gray 6 */
-            --surface-3:   #E5E5EA;   /* System Gray 5 (elevated hover surface) */
+            --bg: #F2F2F7;
+            /* Secondary system background (grouped/macOS container) */
+            --surface: #FFFFFF;
+            /* Primary system background / cards */
+            --surface-2: #F2F2F7;
+            /* System Gray 6 */
+            --surface-3: #E5E5EA;
+            /* System Gray 5 (elevated hover surface) */
 
             /* Typography */
-            --text-1:      #000000;             /* Primary label */
-            --text-2:      rgba(60, 60, 67, 0.6);   /* Secondary label (60%) */
-            --text-3:      rgba(60, 60, 67, 0.3);   /* Tertiary label (30%) */
-            --text-dis:    rgba(60, 60, 67, 0.18);  /* Quaternary label (18%) */
+            --text-1: #000000;
+            /* Primary label */
+            --text-2: rgba(60, 60, 67, 0.6);
+            /* Secondary label (60%) */
+            --text-3: rgba(60, 60, 67, 0.3);
+            /* Tertiary label (30%) */
+            --text-dis: rgba(60, 60, 67, 0.18);
+            /* Quaternary label (18%) */
 
             /* Borders (Hairline Separators) */
-            --border:      rgba(60, 60, 67, 0.08);  /* Hairline border */
-            --border-sub:  rgba(60, 60, 67, 0.04);
-            --border-str:  rgba(60, 60, 67, 0.18);
+            --border: rgba(60, 60, 67, 0.08);
+            /* Hairline border */
+            --border-sub: rgba(60, 60, 67, 0.04);
+            --border-str: rgba(60, 60, 67, 0.18);
 
             /* Brand Colors (System Blue Master Accent) */
-            --brand:       #007AFF;   /* Primary System Blue */
+            --brand: #007AFF;
+            /* Primary System Blue */
             --brand-hover: #0071E3;
             --brand-light: rgba(0, 122, 255, 0.1);
-            --brand-text:  #007AFF;
+            --brand-text: #007AFF;
 
             /* Apple Semantic Status Tokens */
-            --color-accent:    #007AFF;
-            --color-success:   #34C759;
-            --color-warning:   #FF9500;
-            --color-danger:    #FF3B30;
-            --color-ai:        #AF52DE;
-            --color-info:      #5856D6;
-            --color-teal:      #30B0C7;
+            --color-accent: #007AFF;
+            --color-success: #34C759;
+            --color-warning: #FF9500;
+            --color-danger: #FF3B30;
+            --color-ai: #AF52DE;
+            --color-info: #5856D6;
+            --color-teal: #30B0C7;
 
-            --success:        #34C759;
-            --success-bg:     rgba(52, 199, 89, 0.12);
+            --success: #34C759;
+            --success-bg: rgba(52, 199, 89, 0.12);
             --success-border: rgba(52, 199, 89, 0.25);
-            --success-text:   #248A3D;
+            --success-text: #248A3D;
 
-            --warn:           #FF9500;
-            --warn-bg:        rgba(255, 149, 0, 0.12);
-            --warn-border:    rgba(255, 149, 0, 0.25);
-            --warn-text:      #B25E00;
+            --warn: #FF9500;
+            --warn-bg: rgba(255, 149, 0, 0.12);
+            --warn-border: rgba(255, 149, 0, 0.25);
+            --warn-text: #B25E00;
 
-            --danger:         #FF3B30;
-            --danger-bg:      rgba(255, 59, 48, 0.12);
-            --danger-border:  rgba(255, 59, 48, 0.25);
-            --danger-text:    #C41E17;
+            --danger: #FF3B30;
+            --danger-bg: rgba(255, 59, 48, 0.12);
+            --danger-border: rgba(255, 59, 48, 0.25);
+            --danger-text: #C41E17;
 
-            --info:           #5856D6;
-            --info-bg:        rgba(88, 86, 214, 0.12);
-            --info-border:    rgba(88, 86, 214, 0.25);
-            --info-text:      #413FA6;
+            --info: #5856D6;
+            --info-bg: rgba(88, 86, 214, 0.12);
+            --info-border: rgba(88, 86, 214, 0.25);
+            --info-text: #413FA6;
 
             /* Input Controls */
-            --input-bg:       rgba(0, 0, 0, 0.04);
-            --input-border:   transparent;
-            --input-focus:    #007AFF;
+            --input-bg: rgba(0, 0, 0, 0.04);
+            --input-border: transparent;
+            --input-focus: #007AFF;
 
             /* Navigation & Sidebar (macOS Source List Vibrancy) */
-            --nav-bg:             rgba(242, 242, 247, 0.8);
-            --nav-border:         rgba(60, 60, 67, 0.08);
-            --nav-active:         #007AFF;
-            --nav-active-text:    #FFFFFF;
-            --nav-active-border:  transparent;
+            --nav-bg: rgba(242, 242, 247, 0.8);
+            --nav-border: rgba(60, 60, 67, 0.08);
+            --nav-active: #007AFF;
+            --nav-active-text: #FFFFFF;
+            --nav-active-border: transparent;
 
             /* Overlays & Shadows (Subtle Diffused Elevation) */
-            --overlay:    rgba(0, 0, 0, 0.25);
-            --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.04);
-            --shadow-md:  0 2px 8px rgba(0, 0, 0, 0.05);
-            --shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.06);
-            --shadow-xl:  0 20px 50px rgba(0, 0, 0, 0.15);
+            --overlay: rgba(0, 0, 0, 0.25);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.06);
+            --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.15);
 
             /* Apple Squircle Radius Hierarchy */
-            --r-sm:  8px;    /* Small buttons, inline badges */
-            --r-md:  10px;   /* Regular buttons, form inputs */
-            --r-lg:  14px;   /* Data cards, KPI tiles */
-            --r-xl:  16px;   /* Modals, large panels */
-            --r-2xl: 20px;   /* Sheet headers, big containers */
+            --r-sm: 8px;
+            /* Small buttons, inline badges */
+            --r-md: 10px;
+            /* Regular buttons, form inputs */
+            --r-lg: 14px;
+            /* Data cards, KPI tiles */
+            --r-xl: 16px;
+            /* Modals, large panels */
+            --r-2xl: 20px;
+            /* Sheet headers, big containers */
         }
 
         .dark {
             /* Surface & Background */
-            --bg:          #1E1E1E;   /* macOS desktop window background */
-            --surface:     #1C1C1E;   /* Secondary system background (dark) */
-            --surface-2:   #2C2C2E;   /* Tertiary system background (elevated card) */
-            --surface-3:   #3A3A3C;   /* System Gray 4 */
+            --bg: #1E1E1E;
+            /* macOS desktop window background */
+            --surface: #1C1C1E;
+            /* Secondary system background (dark) */
+            --surface-2: #2C2C2E;
+            /* Tertiary system background (elevated card) */
+            --surface-3: #3A3A3C;
+            /* System Gray 4 */
 
             /* Typography */
-            --text-1:      #FFFFFF;
-            --text-2:      rgba(235, 235, 245, 0.6);
-            --text-3:      rgba(235, 235, 245, 0.3);
-            --text-dis:    rgba(235, 235, 245, 0.18);
+            --text-1: #FFFFFF;
+            --text-2: rgba(235, 235, 245, 0.6);
+            --text-3: rgba(235, 235, 245, 0.3);
+            --text-dis: rgba(235, 235, 245, 0.18);
 
             /* Borders */
-            --border:      rgba(255, 255, 255, 0.08);
-            --border-sub:  rgba(255, 255, 255, 0.04);
-            --border-str:  rgba(255, 255, 255, 0.15);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-sub: rgba(255, 255, 255, 0.04);
+            --border-str: rgba(255, 255, 255, 0.15);
 
             /* Brand Colors (System Blue Dark) */
-            --brand:       #0A84FF;
+            --brand: #0A84FF;
             --brand-hover: #007AFF;
             --brand-light: rgba(10, 132, 255, 0.15);
-            --brand-text:  #0A84FF;
+            --brand-text: #0A84FF;
 
             /* Apple Semantic Status Tokens */
-            --color-accent:    #0A84FF;
-            --color-success:   #30D158;
-            --color-warning:   #FF9F0A;
-            --color-danger:    #FF453A;
-            --color-ai:        #BF5AF2;
-            --color-info:      #5E5CE6;
-            --color-teal:      #40C8E0;
+            --color-accent: #0A84FF;
+            --color-success: #30D158;
+            --color-warning: #FF9F0A;
+            --color-danger: #FF453A;
+            --color-ai: #BF5AF2;
+            --color-info: #5E5CE6;
+            --color-teal: #40C8E0;
 
-            --success:        #30D158;
-            --success-bg:     rgba(48, 209, 88, 0.14);
+            --success: #30D158;
+            --success-bg: rgba(48, 209, 88, 0.14);
             --success-border: rgba(48, 209, 88, 0.28);
-            --success-text:   #30D158;
+            --success-text: #30D158;
 
-            --warn:           #FF9F0A;
-            --warn-bg:        rgba(255, 159, 10, 0.14);
-            --warn-border:    rgba(255, 159, 10, 0.28);
-            --warn-text:      #FF9F0A;
+            --warn: #FF9F0A;
+            --warn-bg: rgba(255, 159, 10, 0.14);
+            --warn-border: rgba(255, 159, 10, 0.28);
+            --warn-text: #FF9F0A;
 
-            --danger:         #FF453A;
-            --danger-bg:      rgba(255, 69, 58, 0.14);
-            --danger-border:  rgba(255, 69, 58, 0.28);
-            --danger-text:    #FF453A;
+            --danger: #FF453A;
+            --danger-bg: rgba(255, 69, 58, 0.14);
+            --danger-border: rgba(255, 69, 58, 0.28);
+            --danger-text: #FF453A;
 
-            --info:           #5E5CE6;
-            --info-bg:        rgba(94, 92, 230, 0.14);
-            --info-border:    rgba(94, 92, 230, 0.28);
-            --info-text:      #5E5CE6;
+            --info: #5E5CE6;
+            --info-bg: rgba(94, 92, 230, 0.14);
+            --info-border: rgba(94, 92, 230, 0.28);
+            --info-text: #5E5CE6;
 
             /* Input Controls */
-            --input-bg:       rgba(255, 255, 255, 0.06);
-            --input-border:   transparent;
-            --input-focus:    #0A84FF;
+            --input-bg: rgba(255, 255, 255, 0.06);
+            --input-border: transparent;
+            --input-focus: #0A84FF;
 
             /* Navigation & Sidebar (Dark Vibrancy) */
-            --nav-bg:             rgba(28, 28, 30, 0.8);
-            --nav-border:         rgba(255, 255, 255, 0.08);
-            --nav-active:         #0A84FF;
-            --nav-active-text:    #FFFFFF;
-            --nav-active-border:  transparent;
+            --nav-bg: rgba(28, 28, 30, 0.8);
+            --nav-border: rgba(255, 255, 255, 0.08);
+            --nav-active: #0A84FF;
+            --nav-active-text: #FFFFFF;
+            --nav-active-border: transparent;
 
             /* Overlays & Shadows */
-            --overlay:    rgba(0, 0, 0, 0.65);
-            --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.3);
-            --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.4);
-            --shadow-lg:  0 12px 30px rgba(0, 0, 0, 0.5);
-            --shadow-xl:  0 20px 50px rgba(0, 0, 0, 0.6);
+            --overlay: rgba(0, 0, 0, 0.65);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.5);
+            --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.6);
         }
 
         /* Responsive root foundation */
@@ -349,7 +386,9 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
         }
 
-        *, *:before, *:after {
+        *,
+        *:before,
+        *:after {
             box-sizing: inherit;
         }
 
@@ -383,21 +422,27 @@
             -webkit-overflow-scrolling: touch;
             overscroll-behavior-x: contain;
         }
+
         .table-responsive table {
             min-width: 580px;
             width: 100%;
         }
+
         .table-responsive-wide table {
             min-width: 760px;
             width: 100%;
         }
+
         .table-responsive th,
         .table-responsive td.cell-nowrap {
             white-space: nowrap;
         }
 
         /* Touch & form controls optimization */
-        input, select, textarea, button {
+        input,
+        select,
+        textarea,
+        button {
             touch-action: manipulation;
         }
 
@@ -441,11 +486,13 @@
 
         /* Standardized Apple Button Utility Classes (§6.3 & §23) */
         .btn-apple-filled {
-            height: 2.25rem; /* 36px desktop */
+            height: 2.25rem;
+            /* 36px desktop */
             padding-left: 1rem;
             padding-right: 1rem;
             border-radius: var(--r-md);
-            font-size: 0.8125rem; /* 13px */
+            font-size: 0.8125rem;
+            /* 13px */
             font-weight: 600;
             color: #ffffff;
             background-color: #007AFF;
@@ -457,9 +504,11 @@
             transition: all 0.15s ease-out;
             cursor: pointer;
         }
+
         .btn-apple-filled:hover {
             background-color: #0071E3;
         }
+
         .btn-apple-filled:active {
             transform: scale(0.97);
             opacity: 0.8;
@@ -481,17 +530,21 @@
             transition: all 0.15s ease-out;
             cursor: pointer;
         }
+
         .btn-apple-tinted:hover {
             background-color: rgba(0, 122, 255, 0.15);
         }
+
         .btn-apple-tinted:active {
             transform: scale(0.97);
             opacity: 0.7;
         }
+
         .dark .btn-apple-tinted {
             color: #0A84FF;
             background-color: rgba(10, 132, 255, 0.15);
         }
+
         .dark .btn-apple-tinted:hover {
             background-color: rgba(10, 132, 255, 0.22);
         }
@@ -512,17 +565,21 @@
             transition: all 0.15s ease-out;
             cursor: pointer;
         }
+
         .btn-apple-gray:hover {
             background-color: rgba(0, 0, 0, 0.09);
         }
+
         .btn-apple-gray:active {
             transform: scale(0.97);
             opacity: 0.8;
         }
+
         .dark .btn-apple-gray {
             color: rgba(255, 255, 255, 0.85);
             background-color: rgba(255, 255, 255, 0.08);
         }
+
         .dark .btn-apple-gray:hover {
             background-color: rgba(255, 255, 255, 0.12);
         }
@@ -542,13 +599,16 @@
             transition: all 0.15s ease-out;
             cursor: pointer;
         }
+
         .btn-apple-plain:hover {
             background-color: rgba(0, 122, 255, 0.08);
         }
+
         .btn-apple-plain:active {
             transform: scale(0.97);
             opacity: 0.8;
         }
+
         .dark .btn-apple-plain {
             color: #0A84FF;
         }
@@ -570,9 +630,11 @@
             transition: all 0.15s ease-out;
             cursor: pointer;
         }
+
         .btn-apple-danger:hover {
             background-color: #E0352B;
         }
+
         .btn-apple-danger:active {
             transform: scale(0.97);
             opacity: 0.8;
@@ -593,9 +655,11 @@
             box-shadow: 0 1px 2px rgba(0, 122, 255, 0.25);
             transition: all 0.15s ease-out;
         }
+
         .btn-brand-primary:hover {
             background: #0071E3;
         }
+
         .btn-brand-primary:active {
             transform: scale(0.97);
             opacity: 0.8;
@@ -614,13 +678,16 @@
             gap: 0.375rem;
             transition: all 0.15s ease-out;
         }
+
         .dark .btn-brand-secondary {
             background: rgba(255, 255, 255, 0.08);
             color: rgba(255, 255, 255, 0.85);
         }
+
         .btn-brand-secondary:hover {
             background: rgba(0, 0, 0, 0.09);
         }
+
         .dark .btn-brand-secondary:hover {
             background: rgba(255, 255, 255, 0.12);
         }
@@ -630,19 +697,24 @@
             width: 6px;
             height: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: transparent;
         }
+
         ::-webkit-scrollbar-thumb {
             background: rgba(60, 60, 67, 0.2);
             border-radius: 999px;
         }
+
         .dark ::-webkit-scrollbar-thumb {
             background: rgba(235, 235, 245, 0.2);
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(60, 60, 67, 0.35);
         }
+
         .dark ::-webkit-scrollbar-thumb:hover {
             background: rgba(235, 235, 245, 0.35);
         }
@@ -658,7 +730,8 @@
         /* Topbar Header Responsive Base (Apple macOS Toolbar Architecture) */
         @media (min-width: 1024px) {
             .app-topbar {
-                height: 3.5rem; /* 56px macOS standard toolbar height */
+                height: 3.5rem;
+                /* 56px macOS standard toolbar height */
             }
         }
 
@@ -722,37 +795,39 @@
     </style>
 </head>
 
-<body class="h-full bg-[#F2F2F7] dark:bg-[#1E1E1E] text-black dark:text-white antialiased selection:bg-[#007AFF]/20 selection:text-[#007AFF]" x-data="{
-    sidebarOpen: false,
-    sidebarCollapsed: localStorage.getItem('cooca-sidebar-collapsed') === 'true',
-    toggleSidebarCollapse() {
-        this.sidebarCollapsed = !this.sidebarCollapsed;
-        localStorage.setItem('cooca-sidebar-collapsed', this.sidebarCollapsed);
-        window.dispatchEvent(new CustomEvent('sidebar-collapsed-changed', { detail: { collapsed: this.sidebarCollapsed } }));
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        });
-    },
-    comingSoonOpen: false,
-    comingSoonFeature: { title: '', icon: 'sparkles', desc: '', color: 'purple' },
-    openComingSoon(feature) {
-        this.comingSoonFeature = {
-            title: feature?.title || 'Fitur Baru',
-            icon: feature?.icon || 'sparkles',
-            desc: feature?.desc || '',
-            color: feature?.color || 'purple'
-        };
-        this.comingSoonOpen = true;
-    },
-    init() {
-        window.addEventListener('tour-open-sidebar', () => {
-            this.sidebarOpen = true;
-            this.sidebarCollapsed = false;
-        });
-        window.addEventListener('tour-close-sidebar', () => { this.sidebarOpen = false; });
-        window.addEventListener('cooca-coming-soon', (e) => { this.openComingSoon(e.detail); });
-    }
-}">
+<body
+    class="h-full bg-[#F2F2F7] dark:bg-[#1E1E1E] text-black dark:text-white antialiased selection:bg-[#007AFF]/20 selection:text-[#007AFF]"
+    x-data="{
+        sidebarOpen: false,
+        sidebarCollapsed: localStorage.getItem('cooca-sidebar-collapsed') === 'true',
+        toggleSidebarCollapse() {
+            this.sidebarCollapsed = !this.sidebarCollapsed;
+            localStorage.setItem('cooca-sidebar-collapsed', this.sidebarCollapsed);
+            window.dispatchEvent(new CustomEvent('sidebar-collapsed-changed', { detail: { collapsed: this.sidebarCollapsed } }));
+            this.$nextTick(() => {
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        },
+        comingSoonOpen: false,
+        comingSoonFeature: { title: '', icon: 'sparkles', desc: '', color: 'purple' },
+        openComingSoon(feature) {
+            this.comingSoonFeature = {
+                title: feature?.title || 'Fitur Baru',
+                icon: feature?.icon || 'sparkles',
+                desc: feature?.desc || '',
+                color: feature?.color || 'purple'
+            };
+            this.comingSoonOpen = true;
+        },
+        init() {
+            window.addEventListener('tour-open-sidebar', () => {
+                this.sidebarOpen = true;
+                this.sidebarCollapsed = false;
+            });
+            window.addEventListener('tour-close-sidebar', () => { this.sidebarOpen = false; });
+            window.addEventListener('cooca-coming-soon', (e) => { this.openComingSoon(e.detail); });
+        }
+    }">
     @php
         $activeBiz = \App\Support\Context::business();
         $navEntitlement = app(\App\Domain\Billing\EntitlementService::class);
@@ -780,19 +855,14 @@
             \App\Support\Context::hasPermission('accounting.view') ||
             \App\Support\Context::hasPermission('expenses.view');
         $canAccessReports =
-            \App\Support\Context::hasPermission('reports.view') ||
-            \App\Support\Context::hasPermission('pos.reports');
+            \App\Support\Context::hasPermission('reports.view') || \App\Support\Context::hasPermission('pos.reports');
         $canAccessSettings =
             \App\Support\Context::hasPermission('settings.view') ||
             \App\Support\Context::hasPermission('roles.view') ||
             \App\Support\Context::hasPermission('billing.view') ||
             \App\Support\Context::isOwner();
-        $canAccessRoles =
-            \App\Support\Context::hasPermission('roles.view') ||
-            \App\Support\Context::isOwner();
-        $canAccessBilling =
-            \App\Support\Context::hasPermission('billing.view') ||
-            \App\Support\Context::isOwner();
+        $canAccessRoles = \App\Support\Context::hasPermission('roles.view') || \App\Support\Context::isOwner();
+        $canAccessBilling = \App\Support\Context::hasPermission('billing.view') || \App\Support\Context::isOwner();
         $canAccessMasterData =
             \App\Support\Context::hasPermission('master_data.suppliers.view') ||
             \App\Support\Context::hasPermission('master_data.material_categories.view') ||
@@ -809,22 +879,43 @@
             @click="sidebarOpen = false" style="display: none;"></div>
 
         <!-- Sidebar Navigation (Apple HIG / macOS Sonoma Edition) -->
-        @include('layouts.partials.sidebar', compact('activeBiz', 'navEntitlement', 'navUsage', 'isCorePlan', 'canAccessSales', 'canAccessPurchasing', 'canAccessInventory', 'canAccessCosting', 'canAccessFinance', 'canAccessReports', 'canAccessSettings', 'canAccessRoles', 'canAccessBilling', 'canAccessMasterData'))
+        @include(
+            'layouts.partials.sidebar',
+            compact(
+                'activeBiz',
+                'navEntitlement',
+                'navUsage',
+                'isCorePlan',
+                'canAccessSales',
+                'canAccessPurchasing',
+                'canAccessInventory',
+                'canAccessCosting',
+                'canAccessFinance',
+                'canAccessReports',
+                'canAccessSettings',
+                'canAccessRoles',
+                'canAccessBilling',
+                'canAccessMasterData'))
 
         <!-- Main Content Area (macOS Window Canvas) -->
         <div :class="sidebarCollapsed ? 'lg:pl-[76px]' : 'lg:pl-[272px]'"
             class="flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-250 ease-out bg-[#F2F2F7] dark:bg-[#1E1E1E]">
 
             <!-- Topbar Header (Apple macOS Toolbar Architecture) -->
-            @include('layouts.partials.topbar', compact('activeBiz', 'navEntitlement', 'navUsage', 'isCorePlan'))
+            @include(
+                'layouts.partials.topbar',
+                compact('activeBiz', 'navEntitlement', 'navUsage', 'isCorePlan'))
 
             <!-- Main Page Content -->
-            <main class="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-7 space-y-5 sm:space-y-6 min-w-0 pb-28 lg:pb-10 max-w-[1400px] w-full mx-auto">
+            <main
+                class="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-7 space-y-5 sm:space-y-6 min-w-0 pb-28 lg:pb-10 max-w-[1400px] w-full mx-auto">
                 {{-- Flash success & error notifications are handled by AppAlert floating toasts in footer scripts to avoid duplicate UI banners --}}
                 @if (isset($errors) && $errors->any())
-                    <div class="p-3.5 rounded-[12px] bg-[#FF3B30]/10 dark:bg-[#FF453A]/15 border border-[#FF3B30]/20 text-[#C41E17] dark:text-[#FF453A] space-y-1">
+                    <div
+                        class="p-3.5 rounded-[12px] bg-[#FF3B30]/10 dark:bg-[#FF453A]/15 border border-[#FF3B30]/20 text-[#C41E17] dark:text-[#FF453A] space-y-1">
                         <div class="flex items-center gap-2 font-semibold text-[13px]">
-                            <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A] shrink-0"></i>
+                            <i data-lucide="alert-circle"
+                                class="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A] shrink-0"></i>
                             <span>Terdapat kesalahan input:</span>
                         </div>
                         <ul class="list-disc list-inside text-[12px] space-y-0.5 pl-2 opacity-90">
@@ -851,7 +942,7 @@
                 stockInForm: { material_id: '', product_id: '', quantity: 1, unit_cost: '', supplier_name: '', notes: '' },
                 materialForm: { name: '', cost_per_unit: '', unit_id: '', category_id: '', sku: '' },
                 isSubmitting: false,
-
+            
                 init() {
                     window.addEventListener('cooca-toast', (e) => {
                         this.addToast(e.detail.message, e.detail.type || 'success');
@@ -861,7 +952,7 @@
                     window.addEventListener('open-quick-material', () => { this.showMaterialModal = true; });
                     window.addEventListener('open-mobile-actions', () => { this.showMobileActionSheet = true; });
                 },
-
+            
                 addToast(msg, type = 'success') {
                     const id = Date.now();
                     this.toastList.push({ id, msg, type });
@@ -869,7 +960,7 @@
                         this.toastList = this.toastList.filter(t => t.id !== id);
                     }, 4000);
                 },
-
+            
                 async submitQuickExpense() {
                     if (!this.expenseForm.name || !this.expenseForm.amount) return;
                     this.isSubmitting = true;
@@ -898,7 +989,7 @@
                         this.isSubmitting = false;
                     }
                 },
-
+            
                 async submitQuickStockIn() {
                     if (!this.stockInForm.quantity || !this.stockInForm.unit_cost) return;
                     this.isSubmitting = true;
@@ -927,7 +1018,7 @@
                         this.isSubmitting = false;
                     }
                 },
-
+            
                 async submitQuickMaterial() {
                     if (!this.materialForm.name || !this.materialForm.cost_per_unit) return;
                     this.isSubmitting = true;
@@ -959,7 +1050,8 @@
             }">
 
                 <!-- Floating Toasts Container (Apple Centered Top Banner) -->
-                <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-sm px-4">
+                <div
+                    class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-sm px-4">
                     <template x-for="t in toastList" :key="t.id">
                         <div x-transition:enter="transition ease-out duration-250"
                             x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
@@ -984,14 +1076,18 @@
                     style="display: none;">
                     <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
                         @click.outside="showExpenseModal = false">
-                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
+                        <div
+                            class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
+                                <div
+                                    class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
                                     <i data-lucide="receipt" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">Catat Pengeluaran Cepat</h3>
-                                    <p class="text-[12px] text-black/50 dark:text-white/50">Jurnal otomatis operasional bisnis</p>
+                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">
+                                        Catat Pengeluaran Cepat</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Jurnal otomatis operasional
+                                        bisnis</p>
                                 </div>
                             </div>
                             <button type="button" @click="showExpenseModal = false"
@@ -1002,7 +1098,8 @@
 
                         <form @submit.prevent="submitQuickExpense" class="space-y-3 text-[13px]">
                             <div>
-                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama / Keterangan Biaya *</label>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama
+                                    / Keterangan Biaya *</label>
                                 <input type="text" x-model="expenseForm.name" required
                                     placeholder="Contoh: Gas Elpiji 3kg, Plastik Kresek"
                                     class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
@@ -1010,13 +1107,17 @@
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nominal (Rp) *</label>
+                                    <label
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nominal
+                                        (Rp) *</label>
                                     <input type="number" x-model.number="expenseForm.amount" required min="100"
                                         placeholder="25000"
                                         class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                 </div>
                                 <div>
-                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Metode Bayar</label>
+                                    <label
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Metode
+                                        Bayar</label>
                                     <select x-model="expenseForm.payment_method"
                                         class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                         <option value="cash">Kas Tunai (Laci)</option>
@@ -1027,7 +1128,9 @@
                             </div>
 
                             <div>
-                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Kategori Biaya</label>
+                                <label
+                                    class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Kategori
+                                    Biaya</label>
                                 <select x-model="expenseForm.category"
                                     class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                     <option value="Operasional Toko">Operasional Toko</option>
@@ -1059,14 +1162,18 @@
                     style="display: none;">
                     <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
                         @click.outside="showStockInModal = false">
-                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
+                        <div
+                            class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
+                                <div
+                                    class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
                                     <i data-lucide="package-plus" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">Beli Stok Masuk Cepat</h3>
-                                    <p class="text-[12px] text-black/50 dark:text-white/50">Tambah persediaan &amp; valuasi aset</p>
+                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">
+                                        Beli Stok Masuk Cepat</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Tambah persediaan &amp;
+                                        valuasi aset</p>
                                 </div>
                             </div>
                             <button type="button" @click="showStockInModal = false"
@@ -1077,23 +1184,34 @@
 
                         <form @submit.prevent="submitQuickStockIn" class="space-y-3 text-[13px]">
                             <div>
-                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Bahan Baku / Produk *</label>
+                                <label
+                                    class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Bahan
+                                    Baku / Produk *</label>
                                 <select x-model="stockInForm.material_id" required
                                     class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                     <option value="">-- Pilih Bahan Baku --</option>
                                     @php
-                                        $modalMaterials = $activeBiz ? \Illuminate\Support\Facades\Cache::remember("layout_modal_mat_{$activeBiz->id}", 60, function () use ($activeBiz) {
-                                            return \App\Models\Material::where('business_id', $activeBiz->id)
-                                                ->with('latestPrice')
-                                                ->orderBy('name')
-                                                ->get()
-                                                ->map(fn ($m) => [
-                                                    'id' => (string) $m->id,
-                                                    'name' => (string) $m->name,
-                                                    'price' => (float) ($m->latestPrice?->purchase_price ?? 0),
-                                                ])
-                                                ->all();
-                                        }) : [];
+                                        $modalMaterials = $activeBiz
+                                            ? \Illuminate\Support\Facades\Cache::remember(
+                                                "layout_modal_mat_{$activeBiz->id}",
+                                                60,
+                                                function () use ($activeBiz) {
+                                                    return \App\Models\Material::where('business_id', $activeBiz->id)
+                                                        ->with('latestPrice')
+                                                        ->orderBy('name')
+                                                        ->get()
+                                                        ->map(
+                                                            fn($m) => [
+                                                                'id' => (string) $m->id,
+                                                                'name' => (string) $m->name,
+                                                                'price' =>
+                                                                    (float) ($m->latestPrice?->purchase_price ?? 0),
+                                                            ],
+                                                        )
+                                                        ->all();
+                                                },
+                                            )
+                                            : [];
                                     @endphp
                                     @foreach ($modalMaterials as $m)
                                         <option value="{{ $m['id'] }}">{{ $m['name'] }} (HPP: Rp
@@ -1104,13 +1222,17 @@
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Jumlah Masuk *</label>
+                                    <label
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Jumlah
+                                        Masuk *</label>
                                     <input type="number" x-model.number="stockInForm.quantity" required
                                         min="0.01" step="any" placeholder="10"
                                         class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                 </div>
                                 <div>
-                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Harga Beli / Satuan (Rp) *</label>
+                                    <label
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Harga
+                                        Beli / Satuan (Rp) *</label>
                                     <input type="number" x-model.number="stockInForm.unit_cost" required
                                         min="0" placeholder="15000"
                                         class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
@@ -1118,7 +1240,8 @@
                             </div>
 
                             <div>
-                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama Pemasok / Toko Beli</label>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama
+                                    Pemasok / Toko Beli</label>
                                 <input type="text" x-model="stockInForm.supplier_name"
                                     placeholder="Contoh: Pasar Induk, Toko Bahan Kue Maju"
                                     class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
@@ -1145,14 +1268,18 @@
                     style="display: none;">
                     <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
                         @click.outside="showMaterialModal = false">
-                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
+                        <div
+                            class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                                <div
+                                    class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
                                     <i data-lucide="boxes" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">Tambah Bahan Baku Cepat</h3>
-                                    <p class="text-[12px] text-black/50 dark:text-white/50">Daftarkan bahan baku baru tanpa pindah layar</p>
+                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">
+                                        Tambah Bahan Baku Cepat</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Daftarkan bahan baku baru
+                                        tanpa pindah layar</p>
                                 </div>
                             </div>
                             <button type="button" @click="showMaterialModal = false"
@@ -1163,7 +1290,8 @@
 
                         <form @submit.prevent="submitQuickMaterial" class="space-y-3 text-[13px]">
                             <div>
-                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama Bahan Baku *</label>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama
+                                    Bahan Baku *</label>
                                 <input type="text" x-model="materialForm.name" required
                                     placeholder="Contoh: Tepung Terigu Segitiga Biru"
                                     class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
@@ -1171,33 +1299,46 @@
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Harga Beli Dasar (Rp) *</label>
+                                    <label
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Harga
+                                        Beli Dasar (Rp) *</label>
                                     <input type="number" x-model.number="materialForm.cost_per_unit" required
                                         min="0" placeholder="12000"
                                         class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                 </div>
                                 <div>
-                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Satuan Ukur</label>
+                                    <label
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Satuan
+                                        Ukur</label>
                                     <select x-model="materialForm.unit_id"
                                         class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
                                         <option value="">Pilih Satuan</option>
                                         @php
-                                            $modalUnits = $activeBiz ? \Illuminate\Support\Facades\Cache::remember("layout_modal_units_{$activeBiz->id}", 300, function () use ($activeBiz) {
-                                                return \App\Models\Unit::where('business_id', $activeBiz->id)
-                                                    ->orWhereNull('business_id')
-                                                    ->orderBy('name')
-                                                    ->get()
-                                                    ->map(fn ($u) => [
-                                                        'id' => (string) $u->id,
-                                                        'name' => (string) $u->name,
-                                                        'code' => (string) $u->code,
-                                                    ])
-                                                    ->all();
-                                            }) : [];
+                                            $modalUnits = $activeBiz
+                                                ? \Illuminate\Support\Facades\Cache::remember(
+                                                    "layout_modal_units_{$activeBiz->id}",
+                                                    300,
+                                                    function () use ($activeBiz) {
+                                                        return \App\Models\Unit::where('business_id', $activeBiz->id)
+                                                            ->orWhereNull('business_id')
+                                                            ->orderBy('name')
+                                                            ->get()
+                                                            ->map(
+                                                                fn($u) => [
+                                                                    'id' => (string) $u->id,
+                                                                    'name' => (string) $u->name,
+                                                                    'code' => (string) $u->code,
+                                                                ],
+                                                            )
+                                                            ->all();
+                                                    },
+                                                )
+                                                : [];
                                         @endphp
                                         @foreach ($modalUnits as $u)
                                             <option value="{{ $u['id'] }}">{{ $u['name'] }}
-                                                ({{ $u['code'] }})</option>
+                                                ({{ $u['code'] }})
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -1218,23 +1359,22 @@
                 <!-- Modal 4: Mobile Action Sheet Bottom Modal (iOS 18 Sheet) -->
                 <div x-show="showMobileActionSheet" x-transition:enter="transition-opacity ease-out duration-200"
                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                    x-transition:leave="transition-opacity ease-in duration-150" x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0"
+                    x-transition:leave="transition-opacity ease-in duration-150"
+                    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                     class="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-[2px] lg:hidden"
                     style="display: none;">
                     <div class="rounded-t-[20px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl w-full border-t border-black/5 dark:border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.15)] p-5 pt-3 space-y-3 max-h-[85vh] overflow-y-auto"
                         @click.outside="showMobileActionSheet = false"
                         x-transition:enter="transition ease-out duration-250"
-                        x-transition:enter-start="translate-y-full"
-                        x-transition:enter-end="translate-y-0"
-                        x-transition:leave="transition ease-in duration-200"
-                        x-transition:leave-start="translate-y-0"
+                        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+                        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
                         x-transition:leave-end="translate-y-full">
 
                         <!-- Grabber Bar -->
                         <div class="w-9 h-1 rounded-full bg-black/20 dark:bg-white/20 mx-auto"></div>
 
-                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-2">
+                        <div
+                            class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-2">
                             <h3 class="text-[15px] font-semibold text-black dark:text-white">Aksi Cepat Instan</h3>
                             <button type="button" @click="showMobileActionSheet = false"
                                 class="text-black/40 dark:text-white/40 p-1">
@@ -1245,7 +1385,8 @@
                         <div class="grid grid-cols-2 gap-2.5 text-[13px]">
                             <button type="button" @click="showMobileActionSheet = false; showExpenseModal = true"
                                 class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
-                                <div class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
+                                <div
+                                    class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
                                     <i data-lucide="receipt" class="w-4 h-4"></i>
                                 </div>
                                 <div>
@@ -1256,7 +1397,8 @@
 
                             <button type="button" @click="showMobileActionSheet = false; showStockInModal = true"
                                 class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
-                                <div class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
+                                <div
+                                    class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
                                     <i data-lucide="package-plus" class="w-4 h-4"></i>
                                 </div>
                                 <div>
@@ -1267,7 +1409,8 @@
 
                             <button type="button" @click="showMobileActionSheet = false; showMaterialModal = true"
                                 class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
-                                <div class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                                <div
+                                    class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
                                     <i data-lucide="boxes" class="w-4 h-4"></i>
                                 </div>
                                 <div>
@@ -1278,7 +1421,8 @@
 
                             <a href="{{ route('calculator.index') }}"
                                 class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
-                                <div class="w-8 h-8 rounded-[8px] bg-[#AF52DE]/12 text-[#AF52DE] dark:text-[#BF5AF2] flex items-center justify-center">
+                                <div
+                                    class="w-8 h-8 rounded-[8px] bg-[#AF52DE]/12 text-[#AF52DE] dark:text-[#BF5AF2] flex items-center justify-center">
                                     <i data-lucide="sparkles" class="w-4 h-4"></i>
                                 </div>
                                 <div>
@@ -1289,7 +1433,8 @@
 
                             <a href="{{ route('pos.kitchen.index') }}"
                                 class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
-                                <div class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
+                                <div
+                                    class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
                                     <i data-lucide="chef-hat" class="w-4 h-4"></i>
                                 </div>
                                 <div>
@@ -1300,7 +1445,8 @@
 
                             <a href="{{ route('pos.tables.index') }}"
                                 class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
-                                <div class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                                <div
+                                    class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
                                     <i data-lucide="layout-grid" class="w-4 h-4"></i>
                                 </div>
                                 <div>
@@ -1396,7 +1542,8 @@
                 for (const m of mutations) {
                     if (m.addedNodes && m.addedNodes.length > 0) {
                         for (const node of m.addedNodes) {
-                            if (node.nodeType === 1 && (node.matches?.('i[data-lucide]') || node.querySelector?.('i[data-lucide]'))) {
+                            if (node.nodeType === 1 && (node.matches?.('i[data-lucide]') || node.querySelector?.(
+                                    'i[data-lucide]'))) {
                                 hasNewIcons = true;
                                 break;
                             }
@@ -1407,7 +1554,10 @@
                 if (hasNewIcons) {
                     window.createCoocaIcons();
                 }
-            }).observe(document.body, { childList: true, subtree: true });
+            }).observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         }
         window.coocaToast = function(msg, type = 'success') {
             window.dispatchEvent(new CustomEvent('cooca-toast', {
@@ -1420,44 +1570,42 @@
     </script>
 
     <!-- Coming Soon Modal -->
-    <div x-show="comingSoonOpen"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-[200] flex items-center justify-center p-4"
-         style="display: none;"
-         @click.self="comingSoonOpen = false"
-         @keydown.escape.window="comingSoonOpen = false">
+    <div x-show="comingSoonOpen" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" class="fixed inset-0 z-[200] flex items-center justify-center p-4"
+        style="display: none;" @click.self="comingSoonOpen = false" @keydown.escape.window="comingSoonOpen = false">
 
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
 
         <!-- Modal Panel -->
-        <div x-show="comingSoonOpen"
-             x-transition:enter="transition ease-out duration-250"
-             x-transition:enter-start="opacity-0 scale-90 translate-y-4"
-             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-             x-transition:leave-end="opacity-0 scale-90 translate-y-4"
-             class="relative w-full max-w-md mx-auto rounded-3xl overflow-hidden shadow-2xl"
-             style="display: none;">
+        <div x-show="comingSoonOpen" x-transition:enter="transition ease-out duration-250"
+            x-transition:enter-start="opacity-0 scale-90 translate-y-4"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-90 translate-y-4"
+            class="relative w-full max-w-md mx-auto rounded-3xl overflow-hidden shadow-2xl" style="display: none;">
 
             <!-- Gradient top strip -->
             <div class="h-1.5 w-full"
-                 :class="{
-                     'bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600': comingSoonFeature.color === 'purple',
-                     'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500':  comingSoonFeature.color === 'amber',
-                     'bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500': comingSoonFeature.color === 'emerald'
-                 }"></div>
+                :class="{
+                    'bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600': comingSoonFeature
+                        .color === 'purple',
+                    'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500': comingSoonFeature
+                        .color === 'amber',
+                    'bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500': comingSoonFeature
+                        .color === 'emerald'
+                }">
+            </div>
 
-            <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 border-t-0 rounded-b-3xl p-8 space-y-6">
+            <div
+                class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 border-t-0 rounded-b-3xl p-8 space-y-6">
 
                 <!-- Close button -->
-                <button @click="comingSoonOpen = false" class="absolute top-5 right-5 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <button @click="comingSoonOpen = false"
+                    class="absolute top-5 right-5 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
 
@@ -1466,76 +1614,97 @@
                     <!-- Animated icon ring -->
                     <div class="relative">
                         <div class="absolute inset-0 rounded-full animate-ping opacity-20"
-                             :class="{
-                                 'bg-purple-500': comingSoonFeature.color === 'purple',
-                                 'bg-amber-400':  comingSoonFeature.color === 'amber',
-                                 'bg-emerald-500': comingSoonFeature.color === 'emerald'
-                             }"></div>
+                            :class="{
+                                'bg-purple-500': comingSoonFeature.color === 'purple',
+                                'bg-amber-400': comingSoonFeature.color === 'amber',
+                                'bg-emerald-500': comingSoonFeature.color === 'emerald'
+                            }">
+                        </div>
                         <div class="relative w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
-                             :class="{
-                                 'bg-purple-500/20 border border-purple-500/40 shadow-purple-500/20': comingSoonFeature.color === 'purple',
-                                 'bg-amber-500/20 border border-amber-500/40 shadow-amber-500/20':   comingSoonFeature.color === 'amber',
-                                 'bg-emerald-500/20 border border-emerald-500/40 shadow-emerald-500/20': comingSoonFeature.color === 'emerald'
-                             }">
-                            <i :data-lucide="comingSoonFeature.icon"
-                               class="w-7 h-7"
-                               :class="{
-                                   'text-purple-600 dark:text-purple-400': comingSoonFeature.color === 'purple',
-                                   'text-amber-600 dark:text-amber-400':  comingSoonFeature.color === 'amber',
-                                   'text-emerald-600 dark:text-emerald-400': comingSoonFeature.color === 'emerald'
-                               }"
-                               x-init="$watch('comingSoonOpen', v => { if(v) { $nextTick(() => lucide.createIcons()); } })"></i>
+                            :class="{
+                                'bg-purple-500/20 border border-purple-500/40 shadow-purple-500/20': comingSoonFeature
+                                    .color === 'purple',
+                                'bg-amber-500/20 border border-amber-500/40 shadow-amber-500/20': comingSoonFeature
+                                    .color === 'amber',
+                                'bg-emerald-500/20 border border-emerald-500/40 shadow-emerald-500/20': comingSoonFeature
+                                    .color === 'emerald'
+                            }">
+                            <i :data-lucide="comingSoonFeature.icon" class="w-7 h-7"
+                                :class="{
+                                    'text-purple-600 dark:text-purple-400': comingSoonFeature.color === 'purple',
+                                    'text-amber-600 dark:text-amber-400': comingSoonFeature.color === 'amber',
+                                    'text-emerald-600 dark:text-emerald-400': comingSoonFeature.color === 'emerald'
+                                }"
+                                x-init="$watch('comingSoonOpen', v => { if (v) { $nextTick(() => lucide.createIcons()); } })"></i>
                         </div>
                     </div>
 
                     <!-- Badge -->
                     <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
-                          :class="{
-                              'bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30': comingSoonFeature.color === 'purple',
-                              'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30':   comingSoonFeature.color === 'amber',
-                              'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30': comingSoonFeature.color === 'emerald'
-                          }">
+                        :class="{
+                            'bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30': comingSoonFeature
+                                .color === 'purple',
+                            'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30': comingSoonFeature
+                                .color === 'amber',
+                            'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30': comingSoonFeature
+                                .color === 'emerald'
+                        }">
                         🚀 Segera Hadir
                     </span>
 
-                    <h2 class="text-xl font-black text-slate-900 dark:text-white" x-text="comingSoonFeature.title"></h2>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed" x-text="comingSoonFeature.desc"></p>
+                    <h2 class="text-xl font-black text-slate-900 dark:text-white" x-text="comingSoonFeature.title">
+                    </h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed"
+                        x-text="comingSoonFeature.desc"></p>
                 </div>
 
                 <!-- Countdown Timer -->
                 <div x-data="coocaCountdown()" x-init="start()" class="space-y-3">
-                    <p class="text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">Hitung Mundur Peluncuran</p>
+                    <p
+                        class="text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">
+                        Hitung Mundur Peluncuran</p>
                     <div class="grid grid-cols-4 gap-2">
                         <div class="flex flex-col items-center gap-1">
-                            <div class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white" x-text="String(days).padStart(2,'0')">00</span>
+                            <div
+                                class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white"
+                                    x-text="String(days).padStart(2,'0')">00</span>
                             </div>
-                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Hari</span>
+                            <span
+                                class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Hari</span>
                         </div>
                         <div class="flex flex-col items-center gap-1">
-                            <div class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white" x-text="String(hours).padStart(2,'0')">00</span>
+                            <div
+                                class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white"
+                                    x-text="String(hours).padStart(2,'0')">00</span>
                             </div>
-                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Jam</span>
+                            <span
+                                class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Jam</span>
                         </div>
                         <div class="flex flex-col items-center gap-1">
-                            <div class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white" x-text="String(minutes).padStart(2,'0')">00</span>
+                            <div
+                                class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white"
+                                    x-text="String(minutes).padStart(2,'0')">00</span>
                             </div>
-                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Menit</span>
+                            <span
+                                class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Menit</span>
                         </div>
                         <div class="flex flex-col items-center gap-1">
-                            <div class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white" x-text="String(seconds).padStart(2,'0')">00</span>
+                            <div
+                                class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white"
+                                    x-text="String(seconds).padStart(2,'0')">00</span>
                             </div>
-                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Detik</span>
+                            <span
+                                class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Detik</span>
                         </div>
                     </div>
                     <!-- Progress bar -->
                     <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r from-emerald-500 to-teal-400"
-                             :style="'width:' + progress + '%'"
-                                ></div>
+                        <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r from-emerald-500 to-teal-400"
+                            :style="'width:' + progress + '%'"></div>
                     </div>
                     <p class="text-center text-[10px] text-slate-500 dark:text-slate-400" x-text="launchDate"></p>
                 </div>
@@ -1543,12 +1712,12 @@
                 <!-- CTA -->
                 <div class="flex flex-col gap-2">
                     <a href="{{ route('billing.limits') }}"
-                       class="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-sm font-black shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-95">
+                        class="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-sm font-black shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-95">
                         <i data-lucide="sparkles" class="w-4 h-4"></i>
                         <span>Lihat Paket & Kuota Saya</span>
                     </a>
                     <button @click="comingSoonOpen = false"
-                            class="px-5 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-sm font-semibold transition hover:bg-slate-100 dark:hover:bg-slate-800">
+                        class="px-5 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-sm font-semibold transition hover:bg-slate-100 dark:hover:bg-slate-800">
                         Tutup
                     </button>
                 </div>
@@ -1574,23 +1743,30 @@
                 const totalDuration = launchTime - (launchTime - 30 * 24 * 60 * 60 * 1000); // 30 days in ms
 
                 return {
-                    days: 0, hours: 0, minutes: 0, seconds: 0,
+                    days: 0,
+                    hours: 0,
+                    minutes: 0,
+                    seconds: 0,
                     progress: 0,
                     launchDate: '',
                     _timer: null,
                     start() {
                         const ldate = new Date(launchTime);
-                        this.launchDate = 'Target peluncuran: ' + ldate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                        this.launchDate = 'Target peluncuran: ' + ldate.toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
                         this.tick();
                         this._timer = setInterval(() => this.tick(), 1000);
                     },
                     tick() {
                         const now = Date.now();
                         const diff = Math.max(0, launchTime - now);
-                        this.days    = Math.floor(diff / 86400000);
-                        this.hours   = Math.floor((diff % 86400000) / 3600000);
-                        this.minutes = Math.floor((diff % 3600000)  / 60000);
-                        this.seconds = Math.floor((diff % 60000)    / 1000);
+                        this.days = Math.floor(diff / 86400000);
+                        this.hours = Math.floor((diff % 86400000) / 3600000);
+                        this.minutes = Math.floor((diff % 3600000) / 60000);
+                        this.seconds = Math.floor((diff % 60000) / 1000);
                         const elapsed = totalDuration - diff;
                         this.progress = Math.min(100, Math.round((elapsed / totalDuration) * 100));
                     }
@@ -1647,7 +1823,7 @@
         $flashInfo = session()->pull('info');
     @endphp
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             @if ($flashSuccess)
                 AppAlert.success(@json($flashSuccess));
             @endif

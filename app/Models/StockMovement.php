@@ -38,6 +38,10 @@ class StockMovement extends Model
 
     public const TYPE_INITIAL = 'initial';
 
+    public const TYPE_ONLINE_SALE = 'online_sale';
+
+    public const TYPE_SALES = 'online_sale';
+
     protected $fillable = [
         'business_id',
         'location_id',

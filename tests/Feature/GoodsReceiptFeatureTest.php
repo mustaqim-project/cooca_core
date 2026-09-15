@@ -115,7 +115,7 @@ class GoodsReceiptFeatureTest extends TestCase
             'item_name' => $this->product->name,
             'unit_id' => $this->unit->id,
             'quantity' => 10,
-                'unit_price' => 32000,
+            'unit_price' => 32000,
             'subtotal' => 320000,
         ]);
 
@@ -206,7 +206,7 @@ class GoodsReceiptFeatureTest extends TestCase
         $this->actingAs($this->user);
         session(['active_business_id' => $this->business->id]);
 
-        // PO dengan item non-inventori (jasa / layanan) — tanpa product_id & material_id.
+        // PO dengan item non-inventori (jasa / layanan) - tanpa product_id & material_id.
         $po = PurchaseOrder::create([
             'business_id' => $this->business->id,
             'po_type' => PurchaseOrder::TYPE_SUPPLIER,

@@ -1,5 +1,5 @@
 /* ============================================================
- * Cooca Dashboard — Analytics Cockpit Renderer
+ * Cooca Dashboard - Analytics Cockpit Renderer
  * Dynamic period filter (AJAX), Chart.js Line & Donut charts,
  * KPI real-time update, table ranking updates, dark/light theme.
  * ============================================================ */
@@ -393,7 +393,7 @@
         if (kpiProfit) kpiProfit.textContent = money(kpis.profit);
 
         var kpiMargin = el('[data-kpi="margin_pct"]');
-        if (kpiMargin) kpiMargin.textContent = kpis.margin_pct !== null && kpis.margin_pct !== undefined ? kpis.margin_pct + '%' : '—';
+        if (kpiMargin) kpiMargin.textContent = kpis.margin_pct !== null && kpis.margin_pct !== undefined ? kpis.margin_pct + '%' : '-';
 
         var kpiNet = el('[data-kpi="net"]');
         if (kpiNet) {

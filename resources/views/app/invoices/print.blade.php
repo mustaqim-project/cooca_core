@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faktur {{ $invoice->invoice_number }} — {{ $business->name }}</title>
+    <title>Faktur {{ $invoice->invoice_number }} - {{ $business->name }}</title>
 
     <!-- Google Fonts / SF Pro Fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +18,9 @@
     <script src="{{ asset('vendor/html2pdf.bundle.min.js') }}"></script>
     <script>
         if (typeof html2pdf === 'undefined') {
-            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>');
+            document.write(
+                '<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>'
+                );
         }
     </script>
 
@@ -42,6 +44,7 @@
         }
 
         @media print {
+
             html,
             body {
                 background-color: #ffffff !important;
@@ -105,11 +108,13 @@
 <body class="py-6 px-4 sm:px-6 bg-[#F2F2F7]">
 
     <!-- Floating Top Print Action Bar (Apple HIG macOS Frosted Toolbar) -->
-    <div class="no-print max-w-4xl mx-auto mb-6 backdrop-blur-md bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/10 dark:border-white/10 p-4 rounded-[14px] shadow-[0_8px_24px_rgba(0,0,0,0.06)] space-y-3">
+    <div
+        class="no-print max-w-4xl mx-auto mb-6 backdrop-blur-md bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/10 dark:border-white/10 p-4 rounded-[14px] shadow-[0_8px_24px_rgba(0,0,0,0.06)] space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
-                <span class="text-[13px] font-semibold text-black dark:text-white tracking-tight">Dokumen Faktur Penjualan (A4 Ready)</span>
+                <span class="text-[13px] font-semibold text-black dark:text-white tracking-tight">Dokumen Faktur
+                    Penjualan (A4 Ready)</span>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="window.history.back()"
@@ -118,8 +123,9 @@
                 </button>
                 <button onclick="window.print()"
                     class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] flex items-center gap-1.5 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-black/60 dark:text-white/60" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-black/60 dark:text-white/60"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                         <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
                         <rect x="6" y="14" width="12" height="8" rx="1" />
@@ -138,12 +144,14 @@
                 </button>
             </div>
         </div>
-        <div class="pt-2 border-t border-black/5 dark:border-white/10 flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50">
+        <div
+            class="pt-2 border-t border-black/5 dark:border-white/10 flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#007AFF] shrink-0" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <span>Klik <strong>"Download PDF Langsung"</strong> untuk mengunduh dokumen secara instan tanpa dialog print peramban dan bebas header URL/tanggal.</span>
+            <span>Klik <strong>"Download PDF Langsung"</strong> untuk mengunduh dokumen secara instan tanpa dialog print
+                peramban dan bebas header URL/tanggal.</span>
         </div>
     </div>
 
@@ -188,7 +196,8 @@
                     </div>
                 @endif
                 <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 mt-1">
-                    STATUS: <span class="font-bold {{ $invoice->status === 'paid' ? 'text-emerald-700' : ($invoice->status === 'overdue' ? 'text-rose-700' : 'text-slate-900') }}">{{ strtoupper(str_replace('_', ' ', $invoice->status)) }}</span>
+                    STATUS: <span
+                        class="font-bold {{ $invoice->status === 'paid' ? 'text-emerald-700' : ($invoice->status === 'overdue' ? 'text-rose-700' : 'text-slate-900') }}">{{ strtoupper(str_replace('_', ' ', $invoice->status)) }}</span>
                 </div>
             </div>
         </div>
@@ -249,10 +258,12 @@
                             <td class="py-2 px-2.5">
                                 <div class="font-bold text-slate-950 leading-tight">{{ $item->item_name }}</div>
                                 @if ($item->sku)
-                                    <div class="text-[10px] text-slate-500 tabular-nums mt-0.5">Kode: {{ $item->sku }}</div>
+                                    <div class="text-[10px] text-slate-500 tabular-nums mt-0.5">Kode:
+                                        {{ $item->sku }}</div>
                                 @endif
                                 @if ($item->description)
-                                    <div class="text-[10px] text-slate-600 mt-0.5 leading-snug">{{ $item->description }}</div>
+                                    <div class="text-[10px] text-slate-600 mt-0.5 leading-snug">
+                                        {{ $item->description }}</div>
                                 @endif
                             </td>
                             <td class="py-2 px-2.5 text-center tabular-nums text-slate-700 uppercase">
@@ -262,10 +273,12 @@
                                 {{ (float) $item->quantity == (int) $item->quantity ? number_format((float) $item->quantity, 0, ',', '.') : rtrim(rtrim(number_format((float) $item->quantity, 2, ',', '.'), '0'), ',') }}
                             </td>
                             <td class="py-2 px-2.5 text-right tabular-nums text-slate-800 whitespace-nowrap">
-                                {{ $business->currency_symbol }} {{ number_format((float) $item->unit_price, 0, ',', '.') }}
+                                {{ $business->currency_symbol }}
+                                {{ number_format((float) $item->unit_price, 0, ',', '.') }}
                             </td>
                             <td class="py-2 px-2.5 text-right tabular-nums font-bold text-slate-950 whitespace-nowrap">
-                                {{ $business->currency_symbol }} {{ number_format((float) $item->subtotal, 0, ',', '.') }}
+                                {{ $business->currency_symbol }}
+                                {{ number_format((float) $item->subtotal, 0, ',', '.') }}
                             </td>
                         </tr>
                     @endforeach
@@ -287,26 +300,31 @@
 
                     <!-- Instruksi Transfer Bank Resmi -->
                     <div class="p-3 border-l-2 border-slate-400 bg-slate-50/70 space-y-1.5 text-slate-700">
-                        <div class="font-bold text-slate-950 text-[11px] uppercase tracking-wider">Instruksi Pembayaran Transfer:</div>
+                        <div class="font-bold text-slate-950 text-[11px] uppercase tracking-wider">Instruksi Pembayaran
+                            Transfer:</div>
                         <div class="text-xs text-slate-600">Silakan lakukan transfer ke rekening resmi berikut:</div>
                         <div class="pt-1 space-y-1 text-xs">
                             <div class="flex items-baseline gap-2">
                                 <span class="w-24 text-slate-500 shrink-0 font-medium">Bank</span>
                                 <span class="text-slate-400">:</span>
-                                <span class="font-bold text-slate-900">{{ str_starts_with(strtolower($business->bank_name ?? ''), 'bank') ? $business->bank_name : 'Bank ' . ($business->bank_name ?? 'BCA') }}</span>
+                                <span
+                                    class="font-bold text-slate-900">{{ str_starts_with(strtolower($business->bank_name ?? ''), 'bank') ? $business->bank_name : 'Bank ' . ($business->bank_name ?? 'BCA') }}</span>
                             </div>
                             <div class="flex items-baseline gap-2">
                                 <span class="w-24 text-slate-500 shrink-0 font-medium">No. Rekening</span>
                                 <span class="text-slate-400">:</span>
-                                <span class="tabular-nums font-bold text-slate-950 text-sm tracking-wider">{{ $business->bank_account_number ?? '123-456-7890' }}</span>
+                                <span
+                                    class="tabular-nums font-bold text-slate-950 text-sm tracking-wider">{{ $business->bank_account_number ?? '123-456-7890' }}</span>
                             </div>
                             <div class="flex items-baseline gap-2">
                                 <span class="w-24 text-slate-500 shrink-0 font-medium">Atas Nama</span>
                                 <span class="text-slate-400">:</span>
-                                <span class="font-bold text-slate-900">{{ $business->bank_account_holder ?? $business->name }}</span>
+                                <span
+                                    class="font-bold text-slate-900">{{ $business->bank_account_holder ?? $business->name }}</span>
                             </div>
                         </div>
-                        <div class="text-[10px] text-slate-500 italic pt-0.5">* Cantumkan nomor faktur pada berita transfer.</div>
+                        <div class="text-[10px] text-slate-500 italic pt-0.5">* Cantumkan nomor faktur pada berita
+                            transfer.</div>
                     </div>
                 </div>
 
@@ -409,12 +427,26 @@
             const filename = 'Faktur-{{ $invoice->invoice_number }}.pdf';
 
             const opt = {
-                margin:       [15, 16, 15, 16],
-                filename:     filename,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, scrollY: 0 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                margin: [15, 16, 15, 16],
+                filename: filename,
+                image: {
+                    type: 'jpeg',
+                    quality: 0.98
+                },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    scrollY: 0
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                },
+                pagebreak: {
+                    mode: ['avoid-all', 'css', 'legacy']
+                }
             };
 
             if (typeof html2pdf !== 'undefined') {

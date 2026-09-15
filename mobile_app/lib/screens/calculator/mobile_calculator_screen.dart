@@ -52,7 +52,7 @@ class _MobileCalculatorScreenState extends State<MobileCalculatorScreen> {
         backgroundColor: AppColors.glassNav,
         title: Text(
           'Kalkulator HPP 3-Pilar',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
@@ -92,7 +92,7 @@ class _MobileCalculatorScreenState extends State<MobileCalculatorScreen> {
                         children: [
                           Text(
                             'Total HPP / Unit',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.inter(
                               color: AppColors.textSecondary,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -101,7 +101,7 @@ class _MobileCalculatorScreenState extends State<MobileCalculatorScreen> {
                           const SizedBox(height: 4),
                           Text(
                             currencyFormatter.format(_hppTotal),
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.inter(
                               color: Colors.white,
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
@@ -119,7 +119,7 @@ class _MobileCalculatorScreenState extends State<MobileCalculatorScreen> {
                         children: [
                           Text(
                             'Rekomendasi Harga Jual',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.inter(
                               color: AppColors.primaryLight,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -128,7 +128,7 @@ class _MobileCalculatorScreenState extends State<MobileCalculatorScreen> {
                           const SizedBox(height: 4),
                           Text(
                             currencyFormatter.format(_recommendedPrice),
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.inter(
                               color: AppColors.teal,
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
@@ -146,7 +146,7 @@ class _MobileCalculatorScreenState extends State<MobileCalculatorScreen> {
             // 3-Pilar Input Form
             Text(
               'Rincian Biaya Produksi',
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.inter(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -200,14 +200,14 @@ class _MobileCalculatorScreenState extends State<MobileCalculatorScreen> {
                     children: [
                       Text(
                         'Target Margin Keuntungan',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
                       ),
                       Text(
                         '${_targetMarginController.text}%',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800,
                           color: AppColors.primaryLight,
                           fontSize: 16,
@@ -271,7 +271,7 @@ class _MobileCalculatorScreenState extends State<MobileCalculatorScreen> {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                   fontSize: 13,
@@ -284,14 +284,14 @@ class _MobileCalculatorScreenState extends State<MobileCalculatorScreen> {
             controller: controller,
             keyboardType: TextInputType.number,
             onChanged: onChanged,
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
               fontSize: 16,
             ),
             decoration: InputDecoration(
               prefixText: 'Rp ',
-              prefixStyle: GoogleFonts.plusJakartaSans(color: AppColors.primaryLight, fontWeight: FontWeight.w700),
+              prefixStyle: GoogleFonts.inter(color: AppColors.primaryLight, fontWeight: FontWeight.w700),
               hintText: hint,
             ),
           ),

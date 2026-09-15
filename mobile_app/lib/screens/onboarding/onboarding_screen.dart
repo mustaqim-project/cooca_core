@@ -71,7 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   onPressed: _finish,
                   child: Text(
                     'Lewati',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.inter(
                       color: AppColors.textMuted,
                       fontSize: 14, fontWeight: FontWeight.w600,
                     ),
@@ -138,7 +138,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       ),
                       child: Text(
                         _currentPage < _pages.length - 1 ? 'Selanjutnya' : 'Mulai Sekarang',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           color: Colors.white, fontSize: 16,
                           fontWeight: FontWeight.w700,
                         ),
@@ -202,7 +202,7 @@ class _OnboardingPage extends StatelessWidget {
           Text(
             data.title,
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontSize: 30, fontWeight: FontWeight.w800,
               color: AppColors.textPrimary, letterSpacing: -0.8, height: 1.2,
             ),
@@ -213,7 +213,7 @@ class _OnboardingPage extends StatelessWidget {
           Text(
             data.subtitle,
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontSize: 15, fontWeight: FontWeight.w400,
               color: AppColors.textMuted, height: 1.6,
             ),

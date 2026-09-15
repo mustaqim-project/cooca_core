@@ -19,14 +19,20 @@ class WhatsAppWebhookController extends Controller
     public function handle(Request $request): JsonResponse
     {
         // 1. Verify Worker Token Security
-        $expectedToken = config('services.wa_server.token', 'secret-worker-token');
-        $authHeader    = $request->header('Authorization', '');
+        $expectedToken = (string) config('services.wa_server.token', 'secret-worker-token');
+        $authHeader    = (string) $request->header('Authorization', '');
         $bearerToken   = str_starts_with($authHeader, 'Bearer ') ? substr($authHeader, 7) : null;
-        $customToken   = $request->header('x-worker-token') ?? $request->header('x-device-token');
+        $customToken   = (string) ($request->header('x-worker-token') ?? $request->header('x-device-token') ?? '');
 
-        $providedToken = $bearerToken ?? $customToken ?? $request->input('token');
+        $providedToken = $bearerToken ?? ($customToken !== '' ? $customToken : (string) $request->input('token', ''));
 
-        if ($expectedToken !== 'secret-worker-token' && (! $providedToken || $providedToken !== $expectedToken)) {
+        if ($expectedToken === '' || $expectedToken === 'secret-worker-token') {
+            Log::critical('[WA Webhook] WA_WORKER_TOKEN is not configured or uses insecure default.');
+
+            return response()->json(['success' => false, 'error' => 'Server misconfiguration'], 500);
+        }
+
+        if ($providedToken === '' || ! hash_equals($expectedToken, (string) $providedToken)) {
             Log::warning('[WA Webhook] Unauthorized attempt with invalid token.');
 
             return response()->json(['success' => false, 'error' => 'Unauthorized'], 401);
@@ -38,7 +44,8 @@ class WhatsAppWebhookController extends Controller
         $fromMe    = (bool) $request->input('fromMe', false);
         $status    = $request->input('status');
 
-        Log::info("[WA Webhook] Received payload for session '{$sessionId}' from {$sender}: {$message}");
+        // Redact message content - may contain sensitive user data (PINs, account numbers, etc.)
+        Log::info("[WA Webhook] Received payload for session '{$sessionId}' from {$sender} [message redacted]");
 
         // 2. Update session status if status update payload
         if ($status && $sessionId) {

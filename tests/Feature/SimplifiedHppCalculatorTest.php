@@ -30,8 +30,10 @@ class SimplifiedHppCalculatorTest extends TestCase
         $this->user = User::create([
             'name' => 'Owner Kedai Kopi',
             'email' => 'kopi@cooca.id',
+            'phone' => '081234567890',
             'password' => 'password123',
         ]);
+        $this->user->forceFill(['email_verified_at' => now()])->save();
 
         $this->business = Business::create(['name' => 'Kedai Kopi Bahagia']);
 
@@ -43,6 +45,10 @@ class SimplifiedHppCalculatorTest extends TestCase
 
         $this->user->update(['active_business_id' => $this->business->id]);
         Context::setBusiness($this->business);
+        $this->withSession([
+            'auth_wa_otp_verified_user_id' => $this->user->id,
+            'active_business_id' => $this->business->id,
+        ]);
 
         $this->unit = Unit::create([
             'business_id' => $this->business->id,

@@ -41,9 +41,10 @@ final class InventoryWebController extends Controller
         $business = Context::requireBusiness();
 
         $locations = Location::where('business_id', $business->id)->where('is_active', true)->get();
-        $products = Product::where('business_id', $business->id)->where('is_active', true)->get();
+        $products = Product::goods()->where('business_id', $business->id)->where('is_active', true)->get();
 
         $query = InventoryStock::where('business_id', $business->id)
+            ->whereHas('product', fn ($q) => $q->goods())
             ->with(['product.outputUnit', 'location']);
 
         if ($request->filled('location_id')) {
@@ -127,7 +128,7 @@ final class InventoryWebController extends Controller
         $business = Context::requireBusiness();
 
         $locations = Location::where('business_id', $business->id)->where('is_active', true)->get();
-        $products = Product::where('business_id', $business->id)->where('is_active', true)->get();
+        $products = Product::goods()->where('business_id', $business->id)->where('is_active', true)->get();
 
         $query = StockMovement::where('business_id', $business->id)
             ->with(['product.outputUnit', 'location', 'creator'])
@@ -157,7 +158,7 @@ final class InventoryWebController extends Controller
     {
         $business = Context::requireBusiness();
         $locations = Location::where('business_id', $business->id)->where('is_active', true)->get();
-        $products = Product::where('business_id', $business->id)->where('is_active', true)->get();
+        $products = Product::goods()->where('business_id', $business->id)->where('is_active', true)->get();
         $materials = Material::where('business_id', $business->id)->with('unit')->get();
 
         $opnames = StockOpname::where('business_id', $business->id)
@@ -303,7 +304,7 @@ final class InventoryWebController extends Controller
     {
         $business = Context::requireBusiness();
         $locations = Location::where('business_id', $business->id)->where('is_active', true)->get();
-        $products = Product::where('business_id', $business->id)->where('is_active', true)->get();
+        $products = Product::goods()->where('business_id', $business->id)->where('is_active', true)->get();
 
         $transfers = StockTransfer::where('business_id', $business->id)
             ->with(['sourceLocation', 'destinationLocation', 'creator', 'receiver', 'items.product'])

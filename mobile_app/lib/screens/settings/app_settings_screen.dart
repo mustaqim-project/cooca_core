@@ -51,10 +51,13 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: AppColors.textPrimary, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('Pengaturan Aplikasi', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
+        title: const Text('Pengaturan Aplikasi',
+            style: TextStyle(
+                color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
@@ -72,14 +75,19 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                     padding: const EdgeInsets.only(top: 12),
                     child: TextField(
                       controller: _urlCtrl,
-                      style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+                      style: const TextStyle(
+                          color: AppColors.textPrimary, fontSize: 13),
                       decoration: InputDecoration(
                         hintText: 'https://umkm.cooca.id/api/v1',
-                        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                        hintStyle: const TextStyle(
+                            color: AppColors.textMuted, fontSize: 12),
                         filled: true,
                         fillColor: AppColors.border,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
                       ),
                     ),
                   ),
@@ -89,9 +97,13 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                     runSpacing: 8,
                     children: [
                       ActionChip(
-                        label: const Text('☁️ Production (umkm.cooca.id)', style: TextStyle(fontSize: 11, color: AppColors.primaryLight)),
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-                        side: const BorderSide(color: AppColors.primary, width: 0.5),
+                        label: const Text('☁️ Production (umkm.cooca.id)',
+                            style: TextStyle(
+                                fontSize: 11, color: AppColors.primaryLight)),
+                        backgroundColor:
+                            AppColors.primary.withValues(alpha: 0.15),
+                        side: const BorderSide(
+                            color: AppColors.primary, width: 0.5),
                         onPressed: () {
                           setState(() {
                             _urlCtrl.text = 'https://umkm.cooca.id/api/v1';
@@ -99,7 +111,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                         },
                       ),
                       ActionChip(
-                        label: const Text('💻 Local Emulator (10.0.2.2)', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        label: const Text('💻 Local Emulator (10.0.2.2)',
+                            style: TextStyle(
+                                fontSize: 11, color: AppColors.textSecondary)),
                         backgroundColor: AppColors.surfaceElevated,
                         side: BorderSide.none,
                         onPressed: () {
@@ -109,7 +123,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                         },
                       ),
                       ActionChip(
-                        label: const Text('🏠 Localhost', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        label: const Text('🏠 Localhost',
+                            style: TextStyle(
+                                fontSize: 11, color: AppColors.textSecondary)),
                         backgroundColor: AppColors.surfaceElevated,
                         side: BorderSide.none,
                         onPressed: () {
@@ -137,14 +153,19 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                 child: TextField(
                   controller: _printerIpCtrl,
                   keyboardType: TextInputType.number,
-                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+                  style: const TextStyle(
+                      color: AppColors.textPrimary, fontSize: 13),
                   decoration: InputDecoration(
                     hintText: '192.168.1.100',
-                    hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    hintStyle: const TextStyle(
+                        color: AppColors.textMuted, fontSize: 12),
                     filled: true,
                     fillColor: AppColors.border,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
                   ),
                 ),
               ),
@@ -166,15 +187,21 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.primary : AppColors.border,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.border,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               '${size}mm',
                               style: TextStyle(
-                                color: isSelected ? Colors.white : AppColors.textSecondary,
-                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.textSecondary,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.normal,
                               ),
                             ),
                           ),
@@ -198,7 +225,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _settingTile(
               icon: Icons.business_center_outlined,
               title: 'Powered By',
-              subtitle: 'Cooca UMKM — Platform Bisnis UMKM Indonesia',
+              subtitle: 'Cooca UMKM - Platform Bisnis UMKM Indonesia',
             ),
           ]),
           const SizedBox(height: 32),
@@ -213,21 +240,30 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                   ? ElevatedButton.icon(
                       key: const ValueKey('saved'),
                       onPressed: null,
-                      icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
-                      label: const Text('Pengaturan Disimpan!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                      icon: const Icon(Icons.check_circle_rounded,
+                          color: Colors.white),
+                      label: const Text('Pengaturan Disimpan!',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.success,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                       ),
                     )
                   : ElevatedButton.icon(
                       key: const ValueKey('save'),
                       onPressed: _save,
                       icon: const Icon(Icons.save_rounded, color: Colors.white),
-                      label: const Text('Simpan Pengaturan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                      label: const Text('Simpan Pengaturan',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                       ),
                     ),
             ),
@@ -241,7 +277,11 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600, fontSize: 13)),
+        Text(title,
+            style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+                fontSize: 13)),
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
@@ -255,7 +295,11 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     );
   }
 
-  Widget _settingTile({required IconData icon, required String title, required String subtitle, Widget? child}) {
+  Widget _settingTile(
+      {required IconData icon,
+      required String title,
+      required String subtitle,
+      Widget? child}) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -268,8 +312,14 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
-                  Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  Text(title,
+                      style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14)),
+                  Text(subtitle,
+                      style: const TextStyle(
+                          color: AppColors.textMuted, fontSize: 11)),
                 ],
               ),
             ],
@@ -280,4 +330,3 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     );
   }
 }
-

@@ -19,7 +19,7 @@ use Illuminate\View\View;
 final class WarehouseWebController extends Controller
 {
     /**
-     * Warehouse Management Hub — semua gudang/lokasi dalam satu dashboard.
+     * Warehouse Management Hub - semua gudang/lokasi dalam satu dashboard.
      */
     public function index(): View
     {
@@ -115,7 +115,7 @@ final class WarehouseWebController extends Controller
     }
 
     /**
-     * Detail gudang — stok produk, riwayat penerimaan, dan aktivitas terkini.
+     * Detail gudang - stok produk, riwayat penerimaan, dan aktivitas terkini.
      */
     public function show(Location $location): View
     {
@@ -208,7 +208,7 @@ final class WarehouseWebController extends Controller
     }
 
     /**
-     * Hapus gudang — hanya jika tidak ada stok aktif.
+     * Hapus gudang - hanya jika tidak ada stok aktif.
      */
     public function destroy(Location $location): RedirectResponse|JsonResponse
     {

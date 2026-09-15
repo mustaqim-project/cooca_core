@@ -104,13 +104,47 @@
                         <template x-for="(item, idx) in items" :key="idx">
                             <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
                                 <td class="px-3 py-2.5">
-                                    <select :name="'items['+idx+'][product_id]'" x-model="item.product_id" @change="productSelected(idx)"
-                                            class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                                        <option value="">-- Pilih dari Katalog --</option>
-                                        @foreach($products as $p)
-                                        <option value="{{ $p->id }}" data-price="{{ $p->selling_price }}" data-name="{{ $p->name }}">{{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})</option>
-                                        @endforeach
+                                    <select :name="'items['+idx+'][product_id]'" x-model="item.product_id" @change="productSelected(idx, $event)"
+                                            class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition font-medium">
+                                        <option value="">-- Pilih Produk Fisik atau Layanan --</option>
+                                        @if(isset($goodsProducts) && $goodsProducts->isNotEmpty())
+                                            <optgroup label="📦 Produk / Barang Fisik">
+                                                @foreach($goodsProducts as $p)
+                                                <option value="{{ $p->id }}" data-price="{{ $p->selling_price }}" data-name="{{ $p->name }}" data-type="goods">
+                                                    📦 {{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})
+                                                </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endif
+                                        @if(isset($serviceProducts) && $serviceProducts->isNotEmpty())
+                                            <optgroup label="🛠️ Jasa & Layanan (Bebas Stok)">
+                                                @foreach($serviceProducts as $p)
+                                                <option value="{{ $p->id }}" data-price="{{ $p->selling_price }}" data-name="{{ $p->name }}" data-type="service">
+                                                    🛠️ {{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})
+                                                </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endif
+                                        @if(!isset($goodsProducts) || ($goodsProducts->isEmpty() && (!isset($serviceProducts) || $serviceProducts->isEmpty())))
+                                            @foreach($products as $p)
+                                            <option value="{{ $p->id }}" data-price="{{ $p->selling_price }}" data-name="{{ $p->name }}" data-type="{{ $p->type ?? 'goods' }}">
+                                                {{ $p->isService() ? '🛠️ ' : '📦 ' }}{{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})
+                                            </option>
+                                            @endforeach
+                                        @endif
                                     </select>
+                                    <div class="mt-1 flex items-center gap-1.5">
+                                        <template x-if="item.is_service">
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10.5px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
+                                                🛠️ Jasa / Layanan (Bebas Stok)
+                                            </span>
+                                        </template>
+                                        <template x-if="item.product_id && !item.is_service">
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10.5px] font-medium text-black/50 dark:text-white/50">
+                                                📦 Produk Fisik
+                                            </span>
+                                        </template>
+                                    </div>
                                     <input type="hidden" :name="'items['+idx+'][product_name]'" x-model="item.product_name">
                                 </td>
                                 <td class="px-3 py-2.5 text-right">
@@ -185,7 +219,7 @@
     function quotationForm() {
         return {
             items: [
-                { product_id: '', product_name: '', unit_price: 0, quantity: 1 }
+                { product_id: '', product_name: '', unit_price: 0, quantity: 1, is_service: false }
             ],
             subtotal: 0,
             discountAmount: 0,
@@ -197,7 +231,7 @@
             },
 
             addItem() {
-                this.items.push({ product_id: '', product_name: '', unit_price: 0, quantity: 1 });
+                this.items.push({ product_id: '', product_name: '', unit_price: 0, quantity: 1, is_service: false });
             },
 
             removeItem(idx) {
@@ -207,12 +241,17 @@
                 }
             },
 
-            productSelected(idx) {
-                const sel = event.target;
-                const opt = sel.options[sel.selectedIndex];
+            productSelected(idx, ev) {
+                const sel = ev ? ev.target : event.target;
+                const opt = sel ? sel.options[sel.selectedIndex] : null;
                 if (opt && opt.value) {
                     this.items[idx].unit_price = parseFloat(opt.dataset.price || 0);
                     this.items[idx].product_name = opt.dataset.name || '';
+                    this.items[idx].is_service = opt.dataset.type === 'service';
+                } else {
+                    this.items[idx].unit_price = 0;
+                    this.items[idx].product_name = '';
+                    this.items[idx].is_service = false;
                 }
                 this.calculateTotals();
             },

@@ -124,9 +124,9 @@
     </div>
 
     {{-- ========================================================== --}}
-    {{-- AR TABLE --}}
+    {{-- AR TABLE (DESKTOP) --}}
     {{-- ========================================================== --}}
-    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden">
+    <div class="hidden sm:block rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
         <div class="px-4 py-3 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
             <h2 class="text-[15px] font-semibold text-black dark:text-white">Daftar Piutang Faktur Pelanggan</h2>
             <span class="text-[13px] text-black/45 dark:text-white/45 tabular-nums">{{ $invoices->total() }} Faktur</span>
@@ -229,6 +229,117 @@
                     <a href="{{ $invoices->nextPageUrl() }}" class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center">Selanjutnya ›</a>
                 @else
                     <span class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-black/30 dark:text-white/30 cursor-not-allowed">Selanjutnya ›</span>
+                @endif
+            </div>
+        </div>
+        @endif
+    </div>
+
+    {{-- ========================================================== --}}
+    {{-- AR LIST CARDS (MOBILE ONLY) --}}
+    {{-- ========================================================== --}}
+    <div class="sm:hidden space-y-3">
+        <div class="flex items-center justify-between px-1">
+            <h2 class="text-[14px] font-semibold text-black dark:text-white">Daftar Piutang Faktur</h2>
+            <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">{{ $invoices->total() }} Faktur</span>
+        </div>
+
+        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden divide-y divide-black/[0.04] dark:divide-white/[0.06] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            @forelse($invoices as $invoice)
+            @php
+                $daysDiff = $invoice->due_date ? (int) now()->startOfDay()->diffInDays($invoice->due_date, false) : 0;
+                $isOverdue = $daysDiff < 0;
+                $daysOverdue = abs($daysDiff);
+            @endphp
+            <div class="p-3.5 space-y-2.5 active:bg-black/[0.02] dark:active:bg-white/[0.03] transition-colors">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        @if(\App\Support\Context::hasPermission('invoices.view'))
+                        <a href="{{ route('invoices.show', $invoice) }}" class="tabular-nums font-semibold text-[14px] text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center gap-1">
+                            {{ $invoice->invoice_number }}
+                            <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </a>
+                        @else
+                        <span class="tabular-nums font-semibold text-[14px] text-black dark:text-white">{{ $invoice->invoice_number }}</span>
+                        @endif
+                        <p class="text-[13px] font-medium text-black dark:text-white mt-0.5">{{ $invoice->customer?->name ?? 'Pelanggan Umum' }}</p>
+                        @if($invoice->customer?->phone)
+                        <p class="text-[11px] text-black/45 dark:text-white/45 tabular-nums flex items-center gap-1 mt-0.5">
+                            <svg class="w-3 h-3 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+                            {{ $invoice->customer->phone }}
+                        </p>
+                        @endif
+                    </div>
+                    <div>
+                        @if($isOverdue)
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span> Lewat {{ $daysOverdue }} hr
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Sisa {{ $daysDiff }} hr
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-[12px] bg-black/[0.02] dark:bg-white/[0.02] p-2.5 rounded-[10px]">
+                    <div>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Tgl. Terbit</span>
+                        <span class="text-black/70 dark:text-white/70">{{ $invoice->invoice_date?->format('d M Y') ?? '-' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Jatuh Tempo</span>
+                        <span class="{{ $isOverdue ? 'text-[#FF3B30] dark:text-[#FF453A] font-medium' : 'text-black/70 dark:text-white/70' }}">
+                            {{ $invoice->due_date?->format('d M Y') ?? '-' }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Total Faktur</span>
+                        <span class="tabular-nums text-black/60 dark:text-white/60">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Sisa Piutang</span>
+                        <span class="tabular-nums font-bold text-[#34C759] dark:text-[#30D158] text-[13px]">Rp {{ number_format($invoice->balance_due, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                @if(\App\Support\Context::hasPermission('invoices.view'))
+                <div class="flex items-center justify-end pt-1">
+                    <a href="{{ route('invoices.show', $invoice) }}" class="h-8 px-3.5 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-colors inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>Lihat Faktur & Catat Pembayaran</span>
+                    </a>
+                </div>
+                @endif
+            </div>
+            @empty
+            <div class="py-12 px-4 text-center">
+                <div class="flex flex-col items-center gap-2.5">
+                    <svg class="w-10 h-10 text-black/20 dark:text-white/20" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div>
+                        <p class="text-[14px] font-semibold text-black/60 dark:text-white/60">Semua Piutang Pelanggan Telah Lunas!</p>
+                        <p class="text-[12px] text-black/40 dark:text-white/40 mt-0.5">Tidak ada saldo piutang yang menunggu pembayaran</p>
+                    </div>
+                </div>
+            </div>
+            @endforelse
+        </div>
+
+        @if($invoices->hasPages())
+        <div class="p-3 bg-white dark:bg-[#1C1C1E] rounded-[14px] border border-black/5 dark:border-white/5 flex items-center justify-between text-[12px]">
+            <span class="text-black/50 dark:text-white/50">{{ $invoices->total() }} faktur</span>
+            <div class="flex items-center gap-1.5">
+                @if($invoices->onFirstPage())
+                    <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-black/30 dark:text-white/30 cursor-not-allowed flex items-center text-[12px]">‹ Prev</span>
+                @else
+                    <a href="{{ $invoices->previousPageUrl() }}" class="h-8 px-2.5 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-medium flex items-center text-[12px]">‹ Prev</a>
+                @endif
+                <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-medium flex items-center tabular-nums text-[12px]">{{ $invoices->currentPage() }}</span>
+                @if($invoices->hasMorePages())
+                    <a href="{{ $invoices->nextPageUrl() }}" class="h-8 px-2.5 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-medium flex items-center text-[12px]">Next ›</a>
+                @else
+                    <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-black/30 dark:text-white/30 cursor-not-allowed flex items-center text-[12px]">Next ›</span>
                 @endif
             </div>
         </div>

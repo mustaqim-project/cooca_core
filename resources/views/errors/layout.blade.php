@@ -1,56 +1,71 @@
-<!DOCTYPE html>
-<html lang="id" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <title>{{ $title ?? 'Terjadi Kesalahan' }} - Cooca</title>
-    <script>
-        (function () {
-            try {
-                var theme = localStorage.getItem('cooca-theme') || 'light';
-                var dark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                document.documentElement.classList.toggle('dark', dark);
-            } catch (error) {}
-        }());
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { darkMode: 'class' };
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    </style>
-</head>
-<body class="min-h-full bg-[#F2F2F7] text-[#1C1C1E] dark:bg-[#111111] dark:text-white">
-    <main class="min-h-screen flex items-center justify-center p-5 sm:p-8">
-        <section class="w-full max-w-xl text-center">
-            <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#007AFF]/10 text-[#007AFF] dark:bg-[#0A84FF]/15 dark:text-[#0A84FF]">
-                <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="9"></circle>
-                    <path d="M12 8v4"></path>
-                    <path d="M12 16h.01"></path>
-                </svg>
-            </div>
-            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-[#007AFF]">Cooca</p>
-            <h1 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{{ $code }}</h1>
-            <h2 class="mt-2 text-xl font-semibold sm:text-2xl">{{ $title }}</h2>
-            <p class="mx-auto mt-3 max-w-md text-sm leading-6 text-black/55 dark:text-white/55">{{ $message }}</p>
+@extends('layouts.public_marketing', [
+    'title' => ($code ?? '404') . ' - ' . ($title ?? 'Halaman Tidak Ditemukan') . ' | Cooca UMKM',
+    'noindex' => true,
+])
 
-            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-                <button type="button" onclick="history.back()" class="h-10 rounded-[10px] bg-black/[0.06] px-5 text-sm font-semibold text-black/75 transition hover:bg-black/[0.1] dark:bg-white/[0.1] dark:text-white/80 dark:hover:bg-white/[0.15]">
-                    Kembali
-                </button>
-                <a href="{{ $homeUrl }}" class="inline-flex h-10 items-center justify-center rounded-[10px] bg-[#007AFF] px-5 text-sm font-semibold text-white transition hover:bg-[#0071E3]">
-                    {{ $homeLabel }}
-                </a>
-            </div>
+@section('content')
+    <div class="min-h-[calc(100vh-16rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-lg mx-auto text-center">
+            <!-- Apple Inset Error Card -->
+            <div
+                class="glass-card bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-2xl border border-black/5 dark:border-white/10 rounded-[28px] shadow-2xl p-8 sm:p-12 relative overflow-hidden transition-colors">
 
-            <p class="mt-8 text-xs text-black/35 dark:text-white/35">Kode referensi: {{ $reference }}</p>
-        </section>
-    </main>
-</body>
-</html>
+                <!-- Ambient Glow for Error Type -->
+                @php
+                    $isServerErr = isset($code) && (int) $code >= 500;
+                    $accentColor = $isServerErr ? '#FF3B30' : '#007AFF';
+                @endphp
+                <div
+                    class="absolute -top-24 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none opacity-20 {{ $isServerErr ? 'bg-[#FF3B30]' : 'bg-[#007AFF]' }}">
+                </div>
+
+                <!-- Apple System Icon Badge -->
+                <div
+                    class="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl {{ $isServerErr ? 'bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/15 dark:text-[#FF453A]' : 'bg-[#007AFF]/10 text-[#007AFF] dark:bg-[#0A84FF]/15 dark:text-[#0A84FF]' }} shadow-sm">
+                    @if ($isServerErr)
+                        <i data-lucide="server-crash" class="w-8 h-8"></i>
+                    @else
+                        <i data-lucide="compass" class="w-8 h-8"></i>
+                    @endif
+                </div>
+
+                <!-- Error Code & Header -->
+                <p
+                    class="text-xs font-bold uppercase tracking-[0.2em] {{ $isServerErr ? 'text-[#FF3B30] dark:text-[#FF453A]' : 'text-[#007AFF] dark:text-[#0A84FF]' }}">
+                    HTTP {{ $code ?? '404' }}
+                </p>
+                <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white">
+                    {{ $title ?? 'Terjadi Kesalahan' }}
+                </h1>
+                <p class="mt-3 text-sm text-black/60 dark:text-white/60 leading-relaxed max-w-sm mx-auto">
+                    {{ $message ?? 'Halaman yang Anda tuju tidak ditemukan atau sistem sedang mengalami kendala sementara.' }}
+                </p>
+
+                <!-- Apple HIG Actions -->
+                <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button type="button" onclick="history.back()"
+                        class="w-full sm:w-auto h-11 px-6 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/90 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <span>Kembali</span>
+                    </button>
+                    <a href="{{ $homeUrl ?? url('/') }}"
+                        class="w-full sm:w-auto h-11 px-6 rounded-[14px] glow-btn bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-sm transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="home" class="w-4 h-4"></i>
+                        <span>{{ $homeLabel ?? 'Ke Beranda' }}</span>
+                    </a>
+                </div>
+
+                <!-- Tracking / Reference Badge -->
+                @if (!empty($reference))
+                    <div class="mt-8 pt-6 border-t border-black/5 dark:border-white/10">
+                        <span
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/[0.03] dark:bg-white/[0.05] text-[11px] font-mono text-black/40 dark:text-white/40">
+                            <i data-lucide="hash" class="w-3 h-3"></i>
+                            <span>Ref ID: {{ $reference }}</span>
+                        </span>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+@endsection

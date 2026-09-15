@@ -223,6 +223,9 @@ final class StockService
         if ($productModel->business_id !== $businessId) {
             return [];
         }
+        if ($productModel->isService()) {
+            return [];
+        }
 
         $deductions = $productModel->getMaterialDeductions($productQuantity);
         $movements = [];
@@ -266,6 +269,354 @@ final class StockService
             referenceNumber: $orderNumber,
             notes: $notes ?? "Penjualan Produk {$productModel->name} #{$orderNumber}",
             userId: $userId
+        );
+
+        return $movements;
+    }
+
+    /**
+     * Reserve stock for a specific material or product.
+     * Checks availability against available_quantity (quantity - reserved_quantity)
+     * and uses pessimistic locking to prevent overselling race conditions.
+     *
+     * @throws InsufficientStockException
+     */
+    public function reserveStock(
+        string $businessId,
+        string $locationId,
+        ?string $productId = null,
+        float $quantity = 0.0,
+        ?string $materialId = null
+    ): InventoryStock {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('Jumlah reservasi stok harus lebih dari 0.');
+        }
+
+        return DB::transaction(function () use ($businessId, $locationId, $productId, $quantity, $materialId) {
+            $stock = $this->getOrCreateStock(
+                businessId: $businessId,
+                locationId: $locationId,
+                productId: $productId,
+                lock: true,
+                materialId: $materialId
+            );
+
+            $available = max(0.0, (float) $stock->quantity - (float) $stock->reserved_quantity);
+
+            $business = Business::find($businessId);
+            $allowNegative = (bool) ($business?->allow_negative_stock ?? false);
+
+            if ($available < $quantity && ! $allowNegative) {
+                $itemLabel = 'Item ID: ' . ($materialId ?? $productId ?? '');
+                if ($materialId) {
+                    $mat = \App\Models\Material::find($materialId);
+                    if ($mat) $itemLabel = "Bahan Baku: {$mat->name} ({$mat->code})";
+                } elseif ($productId) {
+                    $prod = Product::find($productId);
+                    if ($prod) $itemLabel = "Produk: {$prod->name} ({$prod->code})";
+                }
+
+                $location = Location::find($locationId);
+
+                throw new InsufficientStockException(
+                    productName: $itemLabel,
+                    availableStock: $available,
+                    requestedQuantity: $quantity,
+                    locationName: $location?->name ?? ''
+                );
+            }
+
+            $stock->reserved_quantity = (float) $stock->reserved_quantity + $quantity;
+            $stock->save();
+
+            return $stock;
+        });
+    }
+
+    /**
+     * Release reserved stock back into available pool when order is cancelled or expired.
+     */
+    public function releaseReservedStock(
+        string $businessId,
+        string $locationId,
+        ?string $productId = null,
+        float $quantity = 0.0,
+        ?string $materialId = null
+    ): InventoryStock {
+        if ($quantity <= 0) {
+            return $this->getOrCreateStock(
+                businessId: $businessId,
+                locationId: $locationId,
+                productId: $productId,
+                materialId: $materialId
+            );
+        }
+
+        return DB::transaction(function () use ($businessId, $locationId, $productId, $quantity, $materialId) {
+            $stock = $this->getOrCreateStock(
+                businessId: $businessId,
+                locationId: $locationId,
+                productId: $productId,
+                lock: true,
+                materialId: $materialId
+            );
+
+            $newReserved = max(0.0, (float) $stock->reserved_quantity - $quantity);
+            $stock->reserved_quantity = $newReserved;
+            $stock->save();
+
+            return $stock;
+        });
+    }
+
+    /**
+     * Commit previously reserved stock when payment is verified or order fulfilled.
+     * Decreases reserved_quantity and records actual stock reduction movement.
+     */
+    public function commitReservedStock(
+        string $businessId,
+        string $locationId,
+        ?string $productId = null,
+        float $quantity = 0.0,
+        float $unitCost = 0.0,
+        ?string $referenceId = null,
+        ?string $referenceNumber = null,
+        ?string $notes = null,
+        ?string $userId = null,
+        ?string $materialId = null,
+        string $movementType = StockMovement::TYPE_ONLINE_SALE
+    ): StockMovement {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('Jumlah komitmen stok harus lebih dari 0.');
+        }
+
+        return DB::transaction(function () use (
+            $businessId,
+            $locationId,
+            $productId,
+            $quantity,
+            $unitCost,
+            $referenceId,
+            $referenceNumber,
+            $notes,
+            $userId,
+            $materialId,
+            $movementType
+        ) {
+            // Lock and reduce the reserved quantity
+            $stock = $this->getOrCreateStock(
+                businessId: $businessId,
+                locationId: $locationId,
+                productId: $productId,
+                lock: true,
+                materialId: $materialId
+            );
+
+            $stock->reserved_quantity = max(0.0, (float) $stock->reserved_quantity - $quantity);
+            $stock->save();
+
+            // Record actual stock movement deduction
+            return $this->recordMovement(
+                businessId: $businessId,
+                locationId: $locationId,
+                productId: $productId,
+                movementType: $movementType,
+                quantityChange: -abs($quantity),
+                unitCost: $unitCost,
+                referenceId: $referenceId,
+                referenceNumber: $referenceNumber,
+                notes: $notes,
+                userId: $userId,
+                materialId: $materialId
+            );
+        });
+    }
+
+    /**
+     * Reserve product stock, handling Recipe/BOM materials, direct materials, or finished goods.
+     * Bypasses stock reservation for service products.
+     *
+     * @return array<int, InventoryStock>
+     */
+    public function reserveProductStock(
+        string $businessId,
+        string $locationId,
+        Product|string $product,
+        float $productQuantity
+    ): array {
+        if ($productQuantity <= 0) {
+            return [];
+        }
+
+        $productModel = is_string($product)
+            ? Product::withoutGlobalScopes()->find($product)
+            : $product;
+
+        if (! $productModel || $productModel->business_id !== $businessId || $productModel->isService()) {
+            return [];
+        }
+
+        $deductions = $productModel->getMaterialDeductions($productQuantity);
+        $reservedStocks = [];
+
+        if (!empty($deductions)) {
+            foreach ($deductions as $d) {
+                $matId = $d['material_id'];
+                $matQty = (float) $d['quantity'];
+                $materialUnit = $d['material']?->unit;
+                $bomUnit = $d['unit_id'] ? ($d['unit'] ?? $d['unit_id']) : $materialUnit;
+                if ($materialUnit && $bomUnit) {
+                    $matQty = $this->unitConversionService->convert($matQty, $bomUnit, $materialUnit);
+                }
+
+                $reservedStocks[] = $this->reserveStock(
+                    businessId: $businessId,
+                    locationId: $locationId,
+                    productId: $productModel->id,
+                    quantity: $matQty,
+                    materialId: $matId
+                );
+            }
+            return $reservedStocks;
+        }
+
+        $reservedStocks[] = $this->reserveStock(
+            businessId: $businessId,
+            locationId: $locationId,
+            productId: $productModel->id,
+            quantity: $productQuantity
+        );
+
+        return $reservedStocks;
+    }
+
+    /**
+     * Release reserved product stock back to available pool.
+     *
+     * @return array<int, InventoryStock>
+     */
+    public function releaseProductReservedStock(
+        string $businessId,
+        string $locationId,
+        Product|string $product,
+        float $productQuantity
+    ): array {
+        if ($productQuantity <= 0) {
+            return [];
+        }
+
+        $productModel = is_string($product)
+            ? Product::withoutGlobalScopes()->find($product)
+            : $product;
+
+        if (! $productModel || $productModel->business_id !== $businessId || $productModel->isService()) {
+            return [];
+        }
+
+        $deductions = $productModel->getMaterialDeductions($productQuantity);
+        $releasedStocks = [];
+
+        if (!empty($deductions)) {
+            foreach ($deductions as $d) {
+                $matId = $d['material_id'];
+                $matQty = (float) $d['quantity'];
+                $materialUnit = $d['material']?->unit;
+                $bomUnit = $d['unit_id'] ? ($d['unit'] ?? $d['unit_id']) : $materialUnit;
+                if ($materialUnit && $bomUnit) {
+                    $matQty = $this->unitConversionService->convert($matQty, $bomUnit, $materialUnit);
+                }
+
+                $releasedStocks[] = $this->releaseReservedStock(
+                    businessId: $businessId,
+                    locationId: $locationId,
+                    productId: $productModel->id,
+                    quantity: $matQty,
+                    materialId: $matId
+                );
+            }
+            return $releasedStocks;
+        }
+
+        $releasedStocks[] = $this->releaseReservedStock(
+            businessId: $businessId,
+            locationId: $locationId,
+            productId: $productModel->id,
+            quantity: $productQuantity
+        );
+
+        return $releasedStocks;
+    }
+
+    /**
+     * Commit reserved product stock into actual stock deduction movement.
+     *
+     * @return array<int, StockMovement>
+     */
+    public function commitProductReservedStock(
+        string $businessId,
+        string $locationId,
+        Product|string $product,
+        float $productQuantity,
+        float $unitCost,
+        string $referenceId,
+        string $referenceNumber,
+        ?string $userId = null,
+        ?string $notes = null,
+        string $movementType = StockMovement::TYPE_ONLINE_SALE
+    ): array {
+        if ($productQuantity <= 0) {
+            return [];
+        }
+
+        $productModel = is_string($product)
+            ? Product::withoutGlobalScopes()->find($product)
+            : $product;
+
+        if (! $productModel || $productModel->business_id !== $businessId || $productModel->isService()) {
+            return [];
+        }
+
+        $deductions = $productModel->getMaterialDeductions($productQuantity);
+        $movements = [];
+
+        if (!empty($deductions)) {
+            foreach ($deductions as $d) {
+                $matId = $d['material_id'];
+                $matQty = (float) $d['quantity'];
+                $materialUnit = $d['material']?->unit;
+                $bomUnit = $d['unit_id'] ? ($d['unit'] ?? $d['unit_id']) : $materialUnit;
+                if ($materialUnit && $bomUnit) {
+                    $matQty = $this->unitConversionService->convert($matQty, $bomUnit, $materialUnit);
+                }
+
+                $movements[] = $this->commitReservedStock(
+                    businessId: $businessId,
+                    locationId: $locationId,
+                    productId: $productModel->id,
+                    quantity: $matQty,
+                    unitCost: $unitCost,
+                    referenceId: $referenceId,
+                    referenceNumber: $referenceNumber,
+                    notes: $notes ?? "Komitmen Stok Penjualan {$productModel->name} #{$referenceNumber}",
+                    userId: $userId,
+                    materialId: $matId,
+                    movementType: $movementType
+                );
+            }
+            return $movements;
+        }
+
+        $movements[] = $this->commitReservedStock(
+            businessId: $businessId,
+            locationId: $locationId,
+            productId: $productModel->id,
+            quantity: $productQuantity,
+            unitCost: $unitCost,
+            referenceId: $referenceId,
+            referenceNumber: $referenceNumber,
+            notes: $notes ?? "Komitmen Stok Penjualan {$productModel->name} #{$referenceNumber}",
+            userId: $userId,
+            movementType: $movementType
         );
 
         return $movements;
@@ -316,7 +667,7 @@ final class StockService
     ): array {
         $effectiveProduct = $product ?? $productId;
         $productModel = is_string($effectiveProduct) ? Product::find($effectiveProduct) : $effectiveProduct;
-        if (! $productModel) return [];
+        if (! $productModel || $productModel->isService()) return [];
 
         $deductions = $productModel->getMaterialDeductions($quantity);
         $movements = [];

@@ -23,9 +23,18 @@ final class RoleWebController extends Controller
             ->where(function ($query) use ($business): void {
                 $query->whereNull('business_id')->orWhere('business_id', $business->id);
             })->orderBy('business_id')->orderBy('name')->get();
-        $permissions = Permission::orderBy('category')->orderBy('name')->get()->groupBy('category');
+
+        $rawPermissions = Permission::orderBy('category')->orderBy('name')->get();
+        $totalRawCount = $rawPermissions->count();
+
+        // Filter out permissions belonging to disabled modules on the active business
+        $enabledPermissions = $rawPermissions->filter(fn (Permission $p): bool => $business->isPermissionEnabled($p->slug));
+        $hiddenPermissionsCount = $totalRawCount - $enabledPermissions->count();
+
+        $permissions = $enabledPermissions->groupBy('category');
         $members = $business->memberships()->with(['user', 'customRole'])->get();
-        return view('app.roles.index', compact('business', 'roles', 'permissions', 'members'));
+
+        return view('app.roles.index', compact('business', 'roles', 'permissions', 'members', 'hiddenPermissionsCount'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -48,7 +57,13 @@ final class RoleWebController extends Controller
             'slug' => $slug,
             'description' => $validated['description'] ?? null,
         ]);
-        $role->permissions()->sync(Permission::whereIn('slug', $validated['permissions'] ?? [])->pluck('id'));
+
+        $allowedIds = Permission::whereIn('slug', $validated['permissions'] ?? [])
+            ->get()
+            ->filter(fn (Permission $p): bool => $business->isPermissionEnabled($p->slug))
+            ->pluck('id');
+        $role->permissions()->sync($allowedIds);
+
         return back()->with('success', 'Role custom berhasil dibuat.');
     }
 
@@ -74,8 +89,12 @@ final class RoleWebController extends Controller
             // Custom role: boleh update nama, deskripsi, dan permissions
             $role->update(['name' => $validated['name'], 'description' => $validated['description'] ?? null]);
         }
-        // Preset role: hanya update permissions (nama & slug terlindungi)
-        $role->permissions()->sync(Permission::whereIn('slug', $validated['permissions'] ?? [])->pluck('id'));
+
+        $allowedIds = Permission::whereIn('slug', $validated['permissions'] ?? [])
+            ->get()
+            ->filter(fn (Permission $p): bool => $business->isPermissionEnabled($p->slug))
+            ->pluck('id');
+        $role->permissions()->sync($allowedIds);
 
         return back()->with('success', $isPreset
             ? 'Hak akses preset role berhasil diperbarui.'

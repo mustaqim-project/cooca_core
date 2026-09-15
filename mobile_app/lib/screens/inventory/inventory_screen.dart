@@ -46,7 +46,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             'Penyesuaian Stok',
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
@@ -58,7 +58,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
             children: [
               Text(
                 item['name'] ?? 'Item',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
                   color: AppColors.cyan,
                   fontSize: 14,
@@ -152,7 +152,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
         backgroundColor: AppColors.glassNav,
         title: Text(
           'Inventori & Gudang',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
@@ -204,7 +204,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                           ? Center(
                               child: Text(
                                 'Tidak ada data stok.',
-                                style: GoogleFonts.plusJakartaSans(color: AppColors.textMuted),
+                                style: GoogleFonts.inter(color: AppColors.textMuted),
                               ),
                             )
                           : ListView.separated(
@@ -246,7 +246,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                                           children: [
                                             Text(
                                               item['name'] ?? 'Nama Produk',
-                                              style: GoogleFonts.plusJakartaSans(
+                                              style: GoogleFonts.inter(
                                                 fontWeight: FontWeight.w700,
                                                 color: AppColors.textPrimary,
                                                 fontSize: 14,
@@ -254,7 +254,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                                             ),
                                             Text(
                                               'Min. Stok: $minQty ${item['unit'] ?? 'pcs'}',
-                                              style: GoogleFonts.plusJakartaSans(
+                                              style: GoogleFonts.inter(
                                                 color: AppColors.textMuted,
                                                 fontSize: 12,
                                               ),
@@ -267,7 +267,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                                         children: [
                                           Text(
                                             '$qty ${item['unit'] ?? 'pcs'}',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.inter(
                                               fontWeight: FontWeight.w800,
                                               color: isLow ? AppColors.rose : AppColors.textPrimary,
                                               fontSize: 16,
@@ -284,7 +284,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                                               ),
                                               child: Text(
                                                 'Sesuaikan',
-                                                style: GoogleFonts.plusJakartaSans(
+                                                style: GoogleFonts.inter(
                                                   fontSize: 10,
                                                   fontWeight: FontWeight.w600,
                                                   color: AppColors.cyan,
@@ -312,7 +312,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                 ? Center(
                     child: Text(
                       'Belum ada riwayat mutasi stok.',
-                      style: GoogleFonts.plusJakartaSans(color: AppColors.textMuted),
+                      style: GoogleFonts.inter(color: AppColors.textMuted),
                     ),
                   )
                 : ListView.separated(
@@ -342,14 +342,14 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                                 children: [
                                   Text(
                                     mov['product_name'] ?? 'Mutasi',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.inter(
                                       fontWeight: FontWeight.w700,
                                       color: AppColors.textPrimary,
                                     ),
                                   ),
                                   Text(
                                     mov['created_at'] ?? '-',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.inter(
                                       color: AppColors.textMuted,
                                       fontSize: 11,
                                     ),
@@ -359,7 +359,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
                             ),
                             Text(
                               '${isPlus ? "+" : "-"}${mov['quantity'] ?? 0}',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w800,
                                 color: isPlus ? AppColors.primary : AppColors.rose,
                                 fontSize: 15,

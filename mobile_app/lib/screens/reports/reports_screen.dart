@@ -40,7 +40,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         backgroundColor: AppColors.glassNav,
         title: Text(
           'Laporan & Analitik Keuangan',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
@@ -93,7 +93,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       children: [
                         Text(
                           'Ringkasan Laba Rugi (P&L)',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.inter(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textSecondary,
@@ -114,7 +114,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       children: [
                         Text(
                           'Laba Bersih (Net Profit)',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.inter(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
@@ -122,7 +122,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         ),
                         Text(
                           currencyFormatter.format(netProfit),
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
                             color: netProfit >= 0 ? AppColors.primaryLight : AppColors.rose,
@@ -138,7 +138,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               // Transaction Stats
               Text(
                 'Statistik Transaksi Kasir',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -183,7 +183,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       label: Text(label),
       selected: isSelected,
       selectedColor: AppColors.amberGlow,
-      labelStyle: GoogleFonts.plusJakartaSans(
+      labelStyle: GoogleFonts.inter(
         color: isSelected ? AppColors.amber : AppColors.textMuted,
         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
       ),
@@ -197,14 +197,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 13,
             color: AppColors.textMuted,
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: isNegative ? AppColors.rose : AppColors.textPrimary,
@@ -236,7 +236,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             fit: BoxFit.scaleDown,
             child: Text(
               val,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.inter(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
@@ -246,7 +246,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           const SizedBox(height: 2),
           Text(
             label,
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontSize: 11,
               color: AppColors.textMuted,
             ),

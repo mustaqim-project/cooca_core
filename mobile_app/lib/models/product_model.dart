@@ -11,6 +11,8 @@ class ProductModel {
   final String? imageUrl;
   final double stockQuantity;
   final bool trackInventory;
+  final String type;
+  final bool isService;
 
   ProductModel({
     required this.id,
@@ -25,9 +27,15 @@ class ProductModel {
     this.imageUrl,
     this.stockQuantity = 0.0,
     this.trackInventory = false,
+    this.type = 'goods',
+    this.isService = false,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
+    final typeStr = json['type']?.toString() ?? 'goods';
+    final isSrv = json['is_service'] == true || typeStr == 'service';
+    final shouldTrack = isSrv ? false : (json['track_inventory'] == true || json['track_inventory'] == 1);
+
     return ProductModel(
       id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
@@ -37,10 +45,12 @@ class ProductModel {
       baseCost: (json['base_cost'] as num?)?.toDouble() ?? 0.0,
       categoryId: json['category_id']?.toString(),
       categoryName: json['category'] is Map ? json['category']['name'] : json['category_name']?.toString(),
-      unitName: json['output_unit'] is Map ? json['output_unit']['symbol'] ?? json['output_unit']['name'] : json['unit_name']?.toString() ?? 'pcs',
+      unitName: json['output_unit'] is Map ? json['output_unit']['symbol'] ?? json['output_unit']['name'] : json['unit_name']?.toString() ?? (isSrv ? 'jasa' : 'pcs'),
       imageUrl: json['image_url']?.toString(),
-      stockQuantity: (json['stock_quantity'] ?? json['current_stock'] as num?)?.toDouble() ?? 0.0,
-      trackInventory: json['track_inventory'] == true || json['track_inventory'] == 1,
+      stockQuantity: (json['stock_quantity'] ?? json['current_stock'] ?? json['stock'] as num?)?.toDouble() ?? 0.0,
+      trackInventory: shouldTrack,
+      type: typeStr,
+      isService: isSrv,
     );
   }
 }

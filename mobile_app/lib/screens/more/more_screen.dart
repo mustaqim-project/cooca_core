@@ -46,7 +46,7 @@ class _MoreScreenState extends State<MoreScreen> {
             const SizedBox(height: 16),
             Text(
               'Upgrade ke Cooca UMKM',
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.inter(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
@@ -56,7 +56,7 @@ class _MoreScreenState extends State<MoreScreen> {
             Text(
               'Akses fitur bisnis tanpa batas: Multi-bisnis, AI Token 10M/bulan, WhatsApp, dan Transaksi Tanpa Batas.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.inter(
                 fontSize: 13,
                 color: AppColors.textMuted,
               ),
@@ -95,7 +95,7 @@ class _MoreScreenState extends State<MoreScreen> {
         backgroundColor: AppColors.glassNav,
         title: Text(
           'Menu & Pengaturan',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
@@ -132,7 +132,7 @@ class _MoreScreenState extends State<MoreScreen> {
                       children: [
                         Text(
                           biz?.name ?? 'Bisnis Aktif',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
@@ -140,7 +140,7 @@ class _MoreScreenState extends State<MoreScreen> {
                         ),
                         Text(
                           user?.email ?? 'user@cooca.id',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.inter(
                             fontSize: 12,
                             color: AppColors.textMuted,
                           ),
@@ -154,7 +154,7 @@ class _MoreScreenState extends State<MoreScreen> {
                           ),
                           child: Text(
                             sub.isCore ? 'PLAN: CORE' : 'PLAN: FREE',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: sub.isCore ? AppColors.primaryLight : AppColors.amber,
@@ -202,7 +202,7 @@ class _MoreScreenState extends State<MoreScreen> {
                           children: [
                             Text(
                               'Upgrade ke Cooca UMKM',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
                                 fontSize: 14,
@@ -210,7 +210,7 @@ class _MoreScreenState extends State<MoreScreen> {
                             ),
                             Text(
                               'Buka kuota tak terbatas & fitur AI',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.inter(
                                 color: AppColors.textSecondary,
                                 fontSize: 11,
                               ),
@@ -311,7 +311,7 @@ class _MoreScreenState extends State<MoreScreen> {
               leading: const Icon(Icons.logout_rounded, color: AppColors.rose),
               title: Text(
                 'Keluar dari Akun',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.w700,
                   color: AppColors.rose,
                 ),
@@ -336,7 +336,7 @@ class _MoreScreenState extends State<MoreScreen> {
         padding: const EdgeInsets.only(bottom: 8, left: 4),
         child: Text(
           title,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             color: AppColors.textDim,
@@ -374,7 +374,7 @@ class _MoreScreenState extends State<MoreScreen> {
         ),
         title: Text(
           title,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontWeight: FontWeight.w700,
             fontSize: 14,
             color: AppColors.textPrimary,
@@ -382,7 +382,7 @@ class _MoreScreenState extends State<MoreScreen> {
         ),
         subtitle: Text(
           subtitle,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 11,
             color: AppColors.textMuted,
           ),

@@ -45,6 +45,9 @@ class Business extends Model
         'currency',
         'rounding_strategy',
         'currency_precision',
+        'industry_category',
+        'template_code',
+        'disabled_modules',
         'allow_negative_stock',
         'is_active',
         'suspended_reason',
@@ -79,6 +82,7 @@ class Business extends Model
             'is_active' => 'boolean',
             'suspended_at' => 'datetime',
             'currency_precision' => 'integer',
+            'disabled_modules' => 'array',
             'pos_max_cashier_discount_percent' => 'float',
             'pos_require_pin_for_void' => 'boolean',
             'pos_require_pin_for_refund' => 'boolean',
@@ -145,6 +149,36 @@ class Business extends Model
         return $this->hasOne(BusinessLandingPage::class);
     }
 
+    public function commerceStoreSetting(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(CommerceStoreSetting::class);
+    }
+
+    public function storeSetting(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(CommerceStoreSetting::class);
+    }
+
+    public function paymentMethods(): HasMany
+    {
+        return $this->hasMany(CommercePaymentMethod::class)->orderBy('sort_order');
+    }
+
+    public function commercePaymentMethods(): HasMany
+    {
+        return $this->hasMany(CommercePaymentMethod::class)->orderBy('sort_order');
+    }
+
+    public function shippingRules(): HasMany
+    {
+        return $this->hasMany(CommerceShippingRule::class);
+    }
+
+    public function commerceOrders(): HasMany
+    {
+        return $this->hasMany(CommerceOrder::class);
+    }
+
     public function subscriptions(): HasMany
     {
         return $this->hasMany(BusinessSubscription::class);
@@ -198,5 +232,61 @@ class Business extends Model
     public function storageFiles(): HasMany
     {
         return $this->hasMany(StorageFile::class, 'business_id');
+    }
+
+
+    /**
+     * Determine if a functional module is enabled for this business.
+     */
+    public function isModuleEnabled(string $moduleKey): bool
+    {
+        $disabled = $this->disabled_modules ?? [];
+
+        return ! in_array($moduleKey, $disabled, true);
+    }
+
+    /**
+     * Determine if a functional module is disabled for this business.
+     */
+    public function isModuleDisabled(string $moduleKey): bool
+    {
+        return ! $this->isModuleEnabled($moduleKey);
+    }
+
+    /**
+     * Check whether a specific permission slug is permitted by active business modules.
+     */
+    public function isPermissionEnabled(string $permissionSlug): bool
+    {
+        $moduleKey = \App\Domain\Template\ModuleRegistry::getModuleForPermission($permissionSlug);
+
+        // If permission doesn't belong to any toggleable module (core permission), it's always enabled
+        if ($moduleKey === null) {
+            return true;
+        }
+
+        return $this->isModuleEnabled($moduleKey);
+    }
+
+    /**
+     * Enable a functional module for this business.
+     */
+    public function enableModule(string $moduleKey): void
+    {
+        $disabled = $this->disabled_modules ?? [];
+        $disabled = array_values(array_filter($disabled, fn (string $m): bool => $m !== $moduleKey));
+        $this->update(['disabled_modules' => $disabled]);
+    }
+
+    /**
+     * Disable a functional module for this business.
+     */
+    public function disableModule(string $moduleKey): void
+    {
+        $disabled = $this->disabled_modules ?? [];
+        if (! in_array($moduleKey, $disabled, true)) {
+            $disabled[] = $moduleKey;
+            $this->update(['disabled_modules' => $disabled]);
+        }
     }
 }

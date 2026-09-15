@@ -16,17 +16,22 @@
             <p class="text-sm text-slate-400 mt-1">Analisis prediktif omzet, peramalan kehabisan stok, deteksi fraud, matriks profitabilitas BCG, dan rekomendasi harga pintar.</p>
         </div>
         <div class="flex items-center gap-2">
+            @if(\App\Support\Context::hasPermission('pos.terminal'))
             <a href="{{ route('pos.terminal') }}" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-2">
                 <i data-lucide="layout-grid" class="w-4 h-4 text-emerald-400"></i>
                 <span>Terminal Kasir</span>
             </a>
+            @endif
+            @if(\App\Support\Context::hasPermission('pos.reports'))
             <a href="{{ route('pos.reports.index') }}" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
                 <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
                 <span>Laporan Kasir</span>
             </a>
+            @endif
         </div>
     </div>
 
+    @if(\App\Support\Context::hasPermission('ai.access'))
     <!-- 1. Interactive Natural Language Assistant: "Tanya AI POS" -->
     <div class="glass-card rounded-3xl p-6 border border-emerald-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20 shadow-2xl relative overflow-hidden">
         <div class="flex items-start gap-4">
@@ -133,6 +138,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- 2. Sales Forecasting & Predictive Trend Section -->
     <div class="space-y-4">

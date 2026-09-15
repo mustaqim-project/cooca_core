@@ -30,19 +30,22 @@ final class PosReportWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $startDate = $request->filled('start_date') ? Carbon::parse($request->get('start_date')) : Carbon::today()->subDays(29);
-        $endDate = $request->filled('end_date') ? Carbon::parse($request->get('end_date')) : Carbon::today();
+        $startDate = $request->filled('start_date') ? Carbon::parse($request->get('start_date'))->startOfDay() : Carbon::today()->subDays(29)->startOfDay();
+        $endDate = $request->filled('end_date') ? Carbon::parse($request->get('end_date'))->endOfDay() : Carbon::today()->endOfDay();
 
         if ($startDate->gt($endDate)) {
             [$startDate, $endDate] = [$endDate, $startDate];
         }
+
+        $startStr = $startDate->toDateTimeString();
+        $endStr = $endDate->toDateTimeString();
 
         $baseOrdersQuery = PosOrder::where('business_id', $business->id)
             ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND]);
 
         // Filtered range
         $rangeOrders = (clone $baseOrdersQuery)
-            ->whereBetween('order_date', [$startDate->toDateString(), $endDate->toDateString()]);
+            ->whereBetween('order_date', [$startStr, $endStr]);
 
         // Key KPI metrics
         $totalRevenue = (float) (clone $rangeOrders)->sum('total_amount');
@@ -93,25 +96,43 @@ final class PosReportWebController extends Controller
             ->get();
 
         // 3. Payment Method Breakdown
-        $paymentMethods = PosOrderPayment::whereHas('order', function ($q) use ($business, $startDate, $endDate) {
+        $paymentMethods = PosOrderPayment::whereHas('order', function ($q) use ($business, $startStr, $endStr) {
             $q->where('business_id', $business->id)
                 ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
-                ->whereBetween('order_date', [$startDate->toDateString(), $endDate->toDateString()]);
+                ->whereBetween('order_date', [$startStr, $endStr]);
         })
             ->selectRaw('payment_method, SUM(amount) as total_amount, COUNT(*) as tx_count')
             ->groupBy('payment_method')
             ->get();
 
-        // 4. Top 5 Selling Products
-        $topProducts = PosOrderItem::whereHas('order', function ($q) use ($business, $startDate, $endDate) {
+        // 4a. Komposisi Omzet: Barang Fisik vs Jasa / Layanan
+        $salesByType = PosOrderItem::whereHas('order', function ($q) use ($business, $startStr, $endStr) {
             $q->where('business_id', $business->id)
                 ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
-                ->whereBetween('order_date', [$startDate->toDateString(), $endDate->toDateString()]);
+                ->whereBetween('order_date', [$startStr, $endStr]);
         })
-            ->selectRaw('product_name, SUM(quantity) as total_qty, SUM(total_price) as total_revenue, SUM(total_hpp) as total_cost')
-            ->groupBy('product_name')
+            ->leftJoin('products', 'pos_order_items.product_id', '=', 'products.id')
+            ->selectRaw("COALESCE(products.type, 'goods') as item_type, SUM(pos_order_items.total_price) as revenue, SUM(pos_order_items.quantity) as qty")
+            ->groupBy(DB::raw("COALESCE(products.type, 'goods')"))
+            ->get()
+            ->keyBy('item_type');
+
+        $goodsRevenue = (float) ($salesByType->get('goods')?->revenue ?? 0);
+        $goodsQty = (float) ($salesByType->get('goods')?->qty ?? 0);
+        $servicesRevenue = (float) ($salesByType->get('service')?->revenue ?? 0);
+        $servicesQty = (float) ($salesByType->get('service')?->qty ?? 0);
+
+        // 4b. Top Selling Products & Services (termasuk tipe item)
+        $topProducts = PosOrderItem::whereHas('order', function ($q) use ($business, $startStr, $endStr) {
+            $q->where('business_id', $business->id)
+                ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
+                ->whereBetween('order_date', [$startStr, $endStr]);
+        })
+            ->leftJoin('products', 'pos_order_items.product_id', '=', 'products.id')
+            ->selectRaw("pos_order_items.product_name, COALESCE(products.type, 'goods') as item_type, SUM(pos_order_items.quantity) as total_qty, SUM(pos_order_items.total_price) as total_revenue, SUM(pos_order_items.total_hpp) as total_cost")
+            ->groupBy('pos_order_items.product_name', DB::raw("COALESCE(products.type, 'goods')"))
             ->orderByDesc('total_revenue')
-            ->limit(5)
+            ->limit(10)
             ->get();
 
         // 5. Sales by Cashier
@@ -126,6 +147,10 @@ final class PosReportWebController extends Controller
             'startDate',
             'endDate',
             'totalRevenue',
+            'goodsRevenue',
+            'goodsQty',
+            'servicesRevenue',
+            'servicesQty',
             'totalSubtotal',
             'totalDiscount',
             'totalVoucherDiscount',

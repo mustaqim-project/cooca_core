@@ -57,7 +57,7 @@ final class AdminWhatsAppController extends Controller
             'free_tier'          => $this->adminWa->resolveBlastRecipients('free_tier')->count(),
         ];
 
-        // Hanya ambil status existing — jangan preload QR saat halaman dibuka.
+        // Hanya ambil status existing - jangan preload QR saat halaman dibuka.
         // QR akan diambil via AJAX (/qr endpoint) hanya saat user klik tombol "Tampilkan QR Code".
         $liveStatus = strtolower($waStatus['status'] ?? 'disconnected');
         $qrDataUrl  = null;

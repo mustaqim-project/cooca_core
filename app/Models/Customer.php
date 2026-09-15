@@ -9,13 +9,14 @@ use App\Models\Traits\BelongsToBusiness;
 use App\Models\Traits\HasSlug;
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Customer extends Model
+class Customer extends Authenticatable
 {
-    use Auditable, BelongsToBusiness, HasFactory, HasSlug, HasUuid, SoftDeletes;
+    use Auditable, BelongsToBusiness, HasFactory, HasSlug, HasUuid, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'business_id',
@@ -24,7 +25,11 @@ class Customer extends Model
         'slug',
         'company_name',
         'email',
+        'password',
+        'avatar_url',
         'phone',
+        'phone_verified_at',
+        'email_verified_at',
         'billing_address',
         'shipping_address',
         'tax_identification_number',
@@ -43,11 +48,22 @@ class Customer extends Model
     ];
 
     /**
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
+            'password' => 'hashed',
+            'phone_verified_at' => 'datetime',
+            'email_verified_at' => 'datetime',
             'payment_terms_days' => 'integer',
             'points_balance' => 'integer',
             'total_spent' => 'float',
@@ -68,6 +84,16 @@ class Customer extends Model
         return $this->where('id', $value)
             ->orWhere('slug', $value)
             ->firstOrFail();
+    }
+
+    public function getLoyaltyPointsAttribute(): int
+    {
+        return (int) ($this->points_balance ?? 0);
+    }
+
+    public function setLoyaltyPointsAttribute($value): void
+    {
+        $this->attributes['points_balance'] = (int) $value;
     }
 
     /**
@@ -108,5 +134,23 @@ class Customer extends Model
     public function creditTransactions(): HasMany
     {
         return $this->hasMany(CustomerCreditTransaction::class);
+    }
+
+    /**
+     * @return HasMany<CommerceOrder, $this>
+     */
+    public function commerceOrders(): HasMany
+    {
+        return $this->hasMany(CommerceOrder::class, 'customer_id')->latest();
+    }
+
+    public function isProfileComplete(): bool
+    {
+        return ! empty($this->name) && ! empty($this->phone);
+    }
+
+    public function isPhoneVerified(): bool
+    {
+        return ! empty($this->phone_verified_at);
     }
 }

@@ -1,5 +1,5 @@
 @extends('layouts.admin', [
-    'title' => 'Dashboard — Admin Console',
+    'title' => 'Dashboard - Admin Console',
     'headerTitle' => 'Statistik & Ringkasan Platform SaaS',
     'headerSubtitle' => 'Pantau pertumbuhan tenant UMKM, pendapatan MRR, langganan Core, dan konsumsi token AI'
 ])

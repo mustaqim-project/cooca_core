@@ -23,7 +23,7 @@ Dokumen ini merupakan panduan komprehensif mengenai arsitektur, cara kerja (work
 
 ## 1. Ringkasan Eksekutif & Prinsip Desain
 
-Modul Keuangan COOCA dirancang untuk menghubungkan seluruh aktivitas operasional bisnis—mulai dari transaksi kasir POS, pengadaan bahan/stok dari supplier, penagihan pelanggan B2B, hingga beban operasional harian—ke dalam satu ekosistem pembukuan yang **otomatis, akurat, dan berimbang**.
+Modul Keuangan COOCA dirancang untuk menghubungkan seluruh aktivitas operasional bisnis-mulai dari transaksi kasir POS, pengadaan bahan/stok dari supplier, penagihan pelanggan B2B, hingga beban operasional harian-ke dalam satu ekosistem pembukuan yang **otomatis, akurat, dan berimbang**.
 
 ### Tiga Pilar Utama Keuangan COOCA:
 1. **Real-Time Integration (Integrasi Langsung):**  

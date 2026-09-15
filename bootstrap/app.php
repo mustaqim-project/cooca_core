@@ -25,19 +25,39 @@ return Application::configure(basePath: dirname(__DIR__))
                 return route('admin.login');
             }
 
+            if ($request->is('customer') || $request->is('customer/*') || $request->is('b/*')) {
+                return route('customer.login');
+            }
+
             return route('login');
         });
 
+        $middleware->redirectUsersTo(function (Request $request) {
+            if (auth('admin')->check()) {
+                return route('admin.dashboard');
+            }
+
+            if (auth('customer')->check()) {
+                return route('customer.dashboard');
+            }
+
+            return route('dashboard');
+        });
+
         $middleware->alias([
-            'business.context' => SetActiveBusinessContext::class,
-            'business.active' => EnsureActiveBusiness::class,
-            'profile.complete' => \App\Http\Middleware\EnsureOwnerProfileComplete::class,
-            'require.role' => RequireRole::class,
-            'wa.otp' => RequireWhatsAppOtp::class,
+            'business.context'   => SetActiveBusinessContext::class,
+            'business.active'    => EnsureActiveBusiness::class,
+            'profile.complete'   => \App\Http\Middleware\EnsureOwnerProfileComplete::class,
+            'require.role'       => RequireRole::class,
+            'wa.otp'             => RequireWhatsAppOtp::class,
             'require.permission' => \App\Http\Middleware\RequirePermission::class,
-            'entitlement' => \App\Http\Middleware\CheckResourceEntitlement::class,
+            'entitlement'        => \App\Http\Middleware\CheckResourceEntitlement::class,
+            // Customer portal gates
+            'customer.profile'   => \App\Http\Middleware\RequireCustomerProfile::class,
+            'customer.otp'       => \App\Http\Middleware\RequireCustomerOtp::class,
         ]);
         $middleware->web(append: [
+            \App\Http\Middleware\WebSecurityHeaders::class,
             SetActiveBusinessContext::class,
         ]);
         $middleware->api(append: [

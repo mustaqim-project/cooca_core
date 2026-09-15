@@ -246,7 +246,7 @@ final class InvoiceService
             'discount_type' => $po->discount_type,
             'discount_value' => $po->discount_value,
             'tax_percentage' => $po->tax_percentage,
-            'notes' => "Diterbitkan dari PO: {$po->po_number}" . ($po->notes ? " — {$po->notes}" : ''),
+            'notes' => "Diterbitkan dari PO: {$po->po_number}" . ($po->notes ? " - {$po->notes}" : ''),
             'terms_conditions' => $po->terms_and_conditions,
         ], $attributes);
 

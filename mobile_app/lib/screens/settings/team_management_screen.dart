@@ -99,7 +99,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                 children: [
                   Text(
                     'Tambah Anggota Tim',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
@@ -158,7 +158,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
               const SizedBox(height: 16),
               Text(
                 'Peran & Hak Akses (Role)',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textSecondary,
@@ -236,7 +236,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                       )
                     : Text(
                         'Simpan Karyawan',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                         ),
@@ -274,7 +274,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             Text(
               'Tambah Karyawan Tanpa Batas',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.inter(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
@@ -284,7 +284,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             Text(
               'Paket Free Plan dibatasi 1 pengguna (Solo Owner). Tingkatkan ke Cooca UMKM untuk menambahkan kasir, staf gudang, dan tim tanpa batas.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.inter(
                 fontSize: 13,
                 color: AppColors.textMuted,
                 height: 1.4,
@@ -305,7 +305,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
               ),
               child: Text(
                 'Upgrade Cooca UMKM (Rp 129.000/bln)',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                 ),
@@ -353,7 +353,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             children: [
               Text(
                 'Ubah Peran: ${member['name']}',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
@@ -417,7 +417,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                       )
                     : Text(
                         'Simpan Perubahan',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                         ),
@@ -445,7 +445,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Hapus Anggota?',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
           ),
@@ -496,7 +496,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
         backgroundColor: AppColors.glassNav,
         title: Text(
           'Manajemen Tim & Karyawan',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
@@ -555,7 +555,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                               children: [
                                 Text(
                                   'Paket: ${_quota!['plan_name']}',
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.inter(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
@@ -566,7 +566,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                                   _quota!['is_core'] == true
                                       ? 'Karyawan Aktif: ${_quota!['used_users']} (Tanpa Batas)'
                                       : 'Karyawan: ${_quota!['used_users']} / 1 User (Solo Owner)',
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.inter(
                                     fontSize: 12,
                                     color: Colors.white.withValues(alpha: 0.8),
                                   ),
@@ -584,7 +584,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                               ),
                               child: Text(
                                 'Upgrade',
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.inter(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
@@ -599,7 +599,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
 
                   Text(
                     'Daftar Anggota (${_members.length})',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textSecondary,
@@ -617,7 +617,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                           const SizedBox(height: 12),
                           Text(
                             'Belum ada anggota tim tambahan.',
-                            style: GoogleFonts.plusJakartaSans(color: AppColors.textMuted),
+                            style: GoogleFonts.inter(color: AppColors.textMuted),
                           ),
                         ],
                       ),
@@ -649,7 +649,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                               backgroundColor: badgeColor.withValues(alpha: 0.2),
                               child: Text(
                                 (m['name']?.toString() ?? 'U').substring(0, 1).toUpperCase(),
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w800,
                                   color: badgeColor,
                                 ),
@@ -665,7 +665,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                                       Flexible(
                                         child: Text(
                                           m['name']?.toString() ?? 'User',
-                                          style: GoogleFonts.plusJakartaSans(
+                                          style: GoogleFonts.inter(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,
                                             color: AppColors.textPrimary,
@@ -682,7 +682,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                                         ),
                                         child: Text(
                                           roleLabel,
-                                          style: GoogleFonts.plusJakartaSans(
+                                          style: GoogleFonts.inter(
                                             fontSize: 10,
                                             fontWeight: FontWeight.w800,
                                             color: badgeColor,
@@ -694,7 +694,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                                   const SizedBox(height: 3),
                                   Text(
                                     m['email']?.toString() ?? '',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.inter(
                                       fontSize: 12,
                                       color: AppColors.textMuted,
                                     ),

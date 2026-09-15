@@ -1,15 +1,34 @@
 <!DOCTYPE html>
 <html lang="id" class="h-full">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Menu Meja {{ $table->table_number }} — {{ $business->name }}</title>
+    <title>Menu Meja {{ $table->table_number }} - {{ $business->name }}</title>
 
     <!-- Google Fonts (Inter as Apple SF Pro fallback) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Anti-FOUC Theme Bootstrap Script -->
+    <script>
+        (function() {
+            try {
+                var stored = localStorage.getItem('cooca-theme');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (stored === 'dark' || (!stored && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +38,9 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', '"Inter"', 'system-ui', 'sans-serif'],
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', '"Inter"',
+                            'system-ui', 'sans-serif'
+                        ],
                         mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
@@ -40,63 +61,126 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
-        html, body {
+        html,
+        body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
         }
+
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(128, 128, 128, 0.2);
+            border-radius: 4px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
-<body class="bg-[#F2F2F7] text-black min-h-full flex flex-col antialiased select-none pb-24" x-data="qrOrderApp()">
+
+<body
+    class="bg-[#F2F2F7] dark:bg-[#000000] text-black dark:text-white min-h-full flex flex-col antialiased select-none pb-28 transition-colors duration-200"
+    x-data="qrOrderApp()">
 
     <!-- Top Sticky Header (Apple Navigation Bar) -->
-    <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-black/10 transition-all">
+    <header
+        class="sticky top-0 z-30 bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-2xl border-b border-black/10 dark:border-white/10 transition-all">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-                @if($business->logo_url)
-                    <img src="{{ $business->logo_url }}" alt="{{ $business->name }}" class="w-8 h-8 rounded-full object-contain border border-black/5 p-0.5">
+                @if ($business->logo_url)
+                    <img src="{{ $business->logo_url }}" alt="{{ $business->name }}"
+                        class="w-8 h-8 rounded-full object-contain border border-black/5 dark:border-white/10 p-0.5">
                 @else
-                    <div class="w-8 h-8 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                    <div
+                        class="w-8 h-8 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-xs shadow-sm">
                         {{ substr($business->name, 0, 2) }}
                     </div>
                 @endif
                 <div>
-                    <h1 class="font-bold text-[15px] tracking-tight text-black truncate max-w-[180px] leading-tight">{{ $business->name }}</h1>
-                    <div class="text-[11px] font-medium text-black/50 flex items-center gap-1">
+                    <h1
+                        class="font-bold text-[15px] tracking-tight text-black dark:text-white truncate max-w-[170px] leading-tight">
+                        {{ $business->name }}</h1>
+                    <div class="text-[11px] font-medium text-black/50 dark:text-white/50 flex items-center gap-1">
                         <span>Pesan dari Meja</span>
-                        <span class="w-1 h-1 rounded-full bg-black/30"></span>
-                        <span class="text-[#007AFF] font-bold">{{ $table->table_number }}</span>
+                        <span class="w-1 h-1 rounded-full bg-black/30 dark:bg-white/30"></span>
+                        <span class="text-[#007AFF] dark:text-[#0A84FF] font-bold">{{ $table->table_number }}</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Customer Identity Pill -->
-            <button type="button" @click="showCustomerModal = true" class="h-8 px-3 rounded-full bg-black/[0.04] hover:bg-black/[0.08] active:scale-95 border border-black/5 text-xs font-semibold flex items-center gap-1.5 transition">
-                <svg class="w-3.5 h-3.5 text-black/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
-                <span x-text="customerName ? customerName : 'Nama & HP'"></span>
-            </button>
+            <!-- Action buttons: Theme Toggle & Customer Identity Pill -->
+            <div class="flex items-center gap-1.5">
+                <!-- Apple Theme Switcher Button -->
+                <button type="button" @click="toggleTheme()"
+                    class="w-8 h-8 rounded-full bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-95 border border-black/5 dark:border-white/10 flex items-center justify-center transition text-black/70 dark:text-white/80"
+                    title="Ganti Mode Tampilan">
+                    <svg x-show="!isDarkMode" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                    </svg>
+                    <svg x-show="isDarkMode" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                    </svg>
+                </button>
+
+                <!-- Customer Identity Pill -->
+                <button type="button" @click="showCustomerModal = true"
+                    class="h-8 px-3 rounded-full bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-95 border border-black/5 dark:border-white/10 text-xs font-semibold text-black dark:text-white flex items-center gap-1.5 transition">
+                    <svg class="w-3.5 h-3.5 text-black/60 dark:text-white/60" fill="none" stroke="currentColor"
+                        stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    <span class="truncate max-w-[80px]" x-text="customerName ? customerName : 'Nama & HP'"></span>
+                </button>
+            </div>
         </div>
 
         <!-- Search Bar -->
         <div class="max-w-md mx-auto px-4 pb-2.5">
             <div class="relative">
-                <input type="text" x-model="searchQuery" @input="filterProducts()" placeholder="Cari makanan atau minuman..." class="w-full h-9 pl-9 pr-4 rounded-[10px] bg-black/[0.05] border border-transparent focus:border-black/15 focus:bg-white text-xs text-black placeholder:text-black/40 focus:outline-none transition">
-                <svg class="w-4 h-4 text-black/40 absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                <input type="text" x-model="searchQuery" @input="filterProducts()"
+                    placeholder="Cari makanan atau minuman..."
+                    class="w-full h-9 pl-9 pr-4 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] border border-transparent focus:border-black/15 dark:focus:border-white/20 focus:bg-white dark:focus:bg-[#2C2C2E] text-xs text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none transition">
+                <svg class="w-4 h-4 text-black/40 dark:text-white/40 absolute left-3 top-2.5" fill="none"
+                    stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
             </div>
         </div>
 
         <!-- Category Pills (Horizontal Scroll) -->
         <div class="max-w-md mx-auto px-4 pb-2.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-            <button type="button" @click="selectCategory('all')" :class="selectedCategory === 'all' ? 'bg-black text-white' : 'bg-black/[0.04] text-black/70 hover:bg-black/[0.08]'" class="h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition">
+            <button type="button" @click="selectCategory('all')"
+                :class="selectedCategory === 'all' ? 'bg-black dark:bg-white text-white dark:text-black shadow-sm' :
+                    'bg-black/[0.04] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'"
+                class="h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition">
                 Semua Menu
             </button>
-            @foreach($categories as $cat)
-            <button type="button" @click="selectCategory('{{ $cat->id }}')" :class="selectedCategory === '{{ $cat->id }}' ? 'bg-black text-white' : 'bg-black/[0.04] text-black/70 hover:bg-black/[0.08]'" class="h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition">
-                {{ $cat->name }}
-            </button>
+            @foreach ($categories as $cat)
+                <button type="button" @click="selectCategory('{{ $cat->id }}')"
+                    :class="selectedCategory === '{{ $cat->id }}' ?
+                        'bg-black dark:bg-white text-white dark:text-black shadow-sm' :
+                        'bg-black/[0.04] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'"
+                    class="h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition">
+                    {{ $cat->name }}
+                </button>
             @endforeach
         </div>
     </header>
@@ -106,12 +190,16 @@
 
         <!-- Active Orders Alert Banner (if user already submitted orders in this session) -->
         <template x-if="recentOrders.length > 0">
-            <div class="p-3 rounded-[14px] bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-center justify-between">
+            <div
+                class="p-3.5 rounded-[16px] bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-center justify-between shadow-sm">
                 <div>
-                    <div class="text-[11px] font-bold text-[#007AFF] uppercase tracking-wider">Status Meja Anda</div>
-                    <div class="text-xs font-semibold text-black mt-0.5" x-text="recentOrders.length + ' Pesanan sedang diproses' "></div>
+                    <div class="text-[11px] font-bold text-[#007AFF] dark:text-[#0A84FF] uppercase tracking-wider">
+                        Status Meja Anda</div>
+                    <div class="text-xs font-semibold text-black dark:text-white mt-0.5"
+                        x-text="recentOrders.length + ' Pesanan sedang diproses' "></div>
                 </div>
-                <button type="button" @click="showTrackingModal = true" class="h-7 px-2.5 rounded-[8px] bg-[#007AFF] text-white text-[11px] font-bold transition shadow-sm">
+                <button type="button" @click="showTrackingModal = true"
+                    class="h-7 px-3 rounded-[8px] bg-[#007AFF] text-white text-[11px] font-bold transition shadow-sm active:scale-95">
                     Lacak Status
                 </button>
             </div>
@@ -120,17 +208,24 @@
         <!-- Product List Cards -->
         <div class="space-y-3">
             <template x-for="product in filteredProducts" :key="product.id">
-                <div @click="openCustomization(product)" class="p-3.5 rounded-[16px] bg-white border border-black/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex gap-3.5 cursor-pointer active:scale-[0.99] transition hover:border-[#007AFF]/40">
+                <div @click="openCustomization(product)"
+                    class="p-3.5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex gap-3.5 cursor-pointer active:scale-[0.99] transition hover:border-[#007AFF]/40 dark:hover:border-[#0A84FF]/40">
                     <!-- Thumbnail -->
-                    <div class="w-20 h-20 rounded-[12px] bg-black/[0.04] overflow-hidden flex-shrink-0 flex items-center justify-center relative">
+                    <div
+                        class="w-20 h-20 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] overflow-hidden flex-shrink-0 flex items-center justify-center relative border border-black/5 dark:border-white/10">
                         <template x-if="product.image_url">
                             <img :src="product.image_url" :alt="product.name" class="w-full h-full object-cover">
                         </template>
                         <template x-if="!product.image_url">
-                            <svg class="w-8 h-8 text-black/20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                            <svg class="w-8 h-8 text-black/20 dark:text-white/20" fill="none" stroke="currentColor"
+                                stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
                         </template>
                         <!-- Sold out badge -->
-                        <div x-show="!product.is_available" class="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center text-white text-[10px] font-bold tracking-wider uppercase">
+                        <div x-show="!product.is_available"
+                            class="absolute inset-0 bg-black/70 backdrop-blur-[1px] flex items-center justify-center text-white text-[10px] font-bold tracking-wider uppercase">
                             Habis
                         </div>
                     </div>
@@ -139,15 +234,20 @@
                     <div class="flex-1 flex flex-col justify-between min-w-0">
                         <div>
                             <div class="flex items-start justify-between gap-1">
-                                <h3 class="font-bold text-[14px] text-black truncate" x-text="product.name"></h3>
+                                <h3 class="font-bold text-[14px] text-black dark:text-white truncate"
+                                    x-text="product.name"></h3>
                             </div>
-                            <p class="text-[11px] text-black/50 line-clamp-2 mt-0.5 leading-relaxed" x-text="product.description || 'Pilihan lezat favorit pelanggan.'"></p>
+                            <p class="text-[11px] text-black/50 dark:text-white/50 line-clamp-2 mt-0.5 leading-relaxed"
+                                x-text="product.description || 'Pilihan lezat favorit pelanggan.'"></p>
                         </div>
 
-                        <div class="flex items-center justify-between mt-2 pt-1 border-t border-black/5">
-                            <div class="font-extrabold text-[13px] text-black tabular-nums" x-text="formatRupiah(product.selling_price)"></div>
+                        <div
+                            class="flex items-center justify-between mt-2 pt-1.5 border-t border-black/5 dark:border-white/10">
+                            <div class="font-extrabold text-[13px] text-black dark:text-white tabular-nums"
+                                x-text="formatRupiah(product.selling_price)"></div>
 
-                            <button type="button" :disabled="!product.is_available" class="h-7 px-3 rounded-full bg-[#007AFF] disabled:bg-black/10 text-white disabled:text-black/30 text-xs font-semibold flex items-center gap-1 shadow-sm transition">
+                            <button type="button" :disabled="!product.is_available"
+                                class="h-7 px-3 rounded-full bg-[#007AFF] hover:bg-[#0062CC] active:scale-95 disabled:bg-black/10 dark:disabled:bg-white/10 text-white disabled:text-black/30 dark:disabled:text-white/30 text-xs font-semibold flex items-center gap-1 shadow-sm transition">
                                 <span x-show="product.is_available">Tambah</span>
                                 <span x-show="!product.is_available">Habis</span>
                             </button>
@@ -157,7 +257,8 @@
             </template>
 
             <!-- Empty Search State -->
-            <div x-show="filteredProducts.length === 0" class="py-12 text-center text-xs text-black/40 space-y-1">
+            <div x-show="filteredProducts.length === 0"
+                class="py-12 text-center text-xs text-black/40 dark:text-white/40 space-y-1">
                 <div>Tidak ada menu yang sesuai dengan pencarian Anda.</div>
             </div>
         </div>
@@ -166,19 +267,27 @@
     <!-- ========================================================= -->
     <!-- STICKY FLOATING CART BAR                                  -->
     <!-- ========================================================= -->
-    <div x-show="cartTotalItems > 0" class="fixed bottom-4 inset-x-0 z-40 px-4 max-w-md mx-auto" style="display: none;">
-        <div @click="openCartReview()" class="p-3.5 rounded-[20px] bg-black text-white shadow-[0_12px_30px_rgba(0,0,0,0.3)] flex items-center justify-between cursor-pointer active:scale-[0.98] transition">
+    <div x-show="cartTotalItems > 0" class="fixed bottom-5 inset-x-0 z-40 px-4 max-w-md mx-auto"
+        style="display: none;">
+        <div @click="openCartReview()"
+            class="p-3.5 rounded-[22px] bg-black/90 dark:bg-white/95 text-white dark:text-black backdrop-blur-xl border border-white/20 dark:border-black/10 shadow-[0_12px_36px_rgba(0,0,0,0.35)] flex items-center justify-between cursor-pointer active:scale-[0.98] transition">
             <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs tabular-nums" x-text="cartTotalItems"></div>
+                <div class="w-8 h-8 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-xs tabular-nums shadow-sm"
+                    x-text="cartTotalItems"></div>
                 <div>
-                    <div class="text-[10px] text-white/60 uppercase tracking-wider font-semibold">Keranjang Pesanan</div>
+                    <div class="text-[10px] text-white/70 dark:text-black/60 uppercase tracking-wider font-semibold">
+                        Keranjang Pesanan</div>
                     <div class="font-bold text-sm tabular-nums" x-text="formatRupiah(cartTotalAmount)"></div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-1 text-xs font-bold text-[#007AFF] bg-white rounded-full px-3.5 py-1.5 shadow-sm">
+            <div
+                class="flex items-center gap-1 text-xs font-bold text-[#007AFF] bg-white dark:bg-black rounded-full px-4 py-1.5 shadow-sm">
                 <span>Lihat Pesanan</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
             </div>
         </div>
     </div>
@@ -186,49 +295,73 @@
     <!-- ========================================================= -->
     <!-- MODAL: PRODUCT CUSTOMIZATION & MODIFIERS (Apple Sheet)    -->
     <!-- ========================================================= -->
-    <div x-show="showCustomizationModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-[3px] p-0 sm:p-4" style="display: none;">
-        <div class="w-full max-w-md bg-white rounded-t-[28px] sm:rounded-[24px] border border-black/10 p-5 shadow-2xl space-y-4 max-h-[85vh] flex flex-col" @click.outside="showCustomizationModal = false">
+    <div x-show="showCustomizationModal"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-[4px] p-0 sm:p-4"
+        style="display: none;">
+        <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] border border-black/10 dark:border-white/10 p-5 shadow-2xl space-y-4 max-h-[85vh] flex flex-col transition-all"
+            @click.outside="showCustomizationModal = false">
             <!-- Sheet Header -->
-            <div class="flex items-start justify-between pb-2 border-b border-black/10">
+            <div class="flex items-start justify-between pb-2 border-b border-black/10 dark:border-white/10">
                 <div>
-                    <h3 class="font-bold text-[17px] text-black" x-text="activeProduct ? activeProduct.name : ''"></h3>
-                    <div class="text-xs font-extrabold text-[#007AFF] tabular-nums mt-0.5" x-text="formatRupiah(activeProduct ? activeProduct.selling_price : 0)"></div>
+                    <h3 class="font-bold text-[17px] text-black dark:text-white"
+                        x-text="activeProduct ? activeProduct.name : ''"></h3>
+                    <div class="text-xs font-extrabold text-[#007AFF] dark:text-[#0A84FF] tabular-nums mt-0.5"
+                        x-text="formatRupiah(activeProduct ? activeProduct.selling_price : 0)"></div>
                 </div>
-                <button type="button" @click="showCustomizationModal = false" class="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center text-black/50 hover:text-black">✕</button>
+                <button type="button" @click="showCustomizationModal = false"
+                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/60 hover:text-black dark:hover:text-white transition">✕</button>
             </div>
 
             <!-- Scrollable Modifier Groups -->
             <div class="flex-1 overflow-y-auto space-y-4 pr-1">
                 <template x-for="group in (activeProduct ? activeProduct.modifier_groups : [])" :key="group.id">
-                    <div class="p-3.5 rounded-[14px] bg-black/[0.02] border border-black/5 space-y-2.5">
+                    <div
+                        class="p-3.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2.5">
                         <div class="flex items-center justify-between">
-                            <div class="font-bold text-xs text-black flex items-center gap-1.5">
+                            <div class="font-bold text-xs text-black dark:text-white flex items-center gap-1.5">
                                 <span x-text="group.name"></span>
                                 <span x-show="group.is_required" class="text-[#FF3B30] font-black text-xs">*</span>
                             </div>
-                            <span class="text-[10px] text-black/40 font-semibold" x-text="group.selection_type === 'single' ? 'Pilih 1' : 'Pilihan bebas'"></span>
+                            <span class="text-[10px] text-black/40 dark:text-white/40 font-semibold"
+                                x-text="group.selection_type === 'single' ? 'Pilih 1' : 'Pilihan bebas'"></span>
                         </div>
 
                         <!-- Options List -->
                         <div class="space-y-1.5">
                             <template x-for="opt in group.options" :key="opt.id">
-                                <label :class="!opt.is_available ? 'opacity-40 pointer-events-none' : 'cursor-pointer hover:bg-black/5'" class="p-2 rounded-[10px] border border-black/5 flex items-center justify-between transition">
+                                <label
+                                    :class="!opt.is_available ? 'opacity-40 pointer-events-none' :
+                                        'cursor-pointer hover:bg-black/5 dark:hover:bg-white/5'"
+                                    class="p-2.5 rounded-[12px] border border-black/5 dark:border-white/10 flex items-center justify-between transition">
                                     <div class="flex items-center gap-2.5">
                                         <!-- Single Choice: Radio -->
                                         <template x-if="group.selection_type === 'single'">
-                                            <input type="radio" :name="'mod_group_' + group.id" :value="opt.id" @change="selectSingleModifier(group.id, opt.id)" :checked="selectedModifiers[group.id] && selectedModifiers[group.id].includes(opt.id)" class="text-[#007AFF] focus:ring-[#007AFF]/50">
+                                            <input type="radio" :name="'mod_group_' + group.id"
+                                                :value="opt.id"
+                                                @change="selectSingleModifier(group.id, opt.id)"
+                                                :checked="selectedModifiers[group.id] && selectedModifiers[group.id].includes(opt
+                                                    .id)"
+                                                class="text-[#007AFF] focus:ring-[#007AFF]/50">
                                         </template>
                                         <!-- Multiple Choice: Checkbox -->
                                         <template x-if="group.selection_type === 'multiple'">
-                                            <input type="checkbox" :value="opt.id" @change="toggleMultipleModifier(group.id, opt.id, group.max_selection)" :checked="selectedModifiers[group.id] && selectedModifiers[group.id].includes(opt.id)" class="rounded text-[#007AFF] focus:ring-[#007AFF]/50">
+                                            <input type="checkbox" :value="opt.id"
+                                                @change="toggleMultipleModifier(group.id, opt.id, group.max_selection)"
+                                                :checked="selectedModifiers[group.id] && selectedModifiers[group.id].includes(opt
+                                                    .id)"
+                                                class="rounded text-[#007AFF] focus:ring-[#007AFF]/50">
                                         </template>
-                                        <span class="text-xs font-semibold text-black" x-text="opt.name"></span>
+                                        <span class="text-xs font-semibold text-black dark:text-white"
+                                            x-text="opt.name"></span>
                                     </div>
 
                                     <div class="text-xs font-bold tabular-nums">
-                                        <span x-show="opt.price_delta > 0" class="text-[#34C759]" x-text="'+ ' + formatRupiah(opt.price_delta)"></span>
-                                        <span x-show="opt.price_delta <= 0" class="text-black/40">+Rp 0</span>
-                                        <span x-show="!opt.is_available" class="ml-1.5 text-[10px] text-[#FF3B30] uppercase">Habis</span>
+                                        <span x-show="opt.price_delta > 0" class="text-[#34C759] dark:text-[#30D158]"
+                                            x-text="'+ ' + formatRupiah(opt.price_delta)"></span>
+                                        <span x-show="opt.price_delta <= 0"
+                                            class="text-black/40 dark:text-white/40">+Rp 0</span>
+                                        <span x-show="!opt.is_available"
+                                            class="ml-1.5 text-[10px] text-[#FF3B30] uppercase">Habis</span>
                                     </div>
                                 </label>
                             </template>
@@ -238,20 +371,28 @@
 
                 <!-- Item Note Input -->
                 <div class="space-y-1">
-                    <label class="block text-xs font-semibold text-black/70">Catatan Khusus Menu Ini (Opsional)</label>
-                    <input type="text" x-model="customItemNote" placeholder="Contoh: Less ice, gula pisah, pedas sedang..." class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] border border-black/10 text-xs text-black placeholder:text-black/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                    <label class="block text-xs font-semibold text-black/70 dark:text-white/70">Catatan Khusus Menu Ini
+                        (Opsional)</label>
+                    <input type="text" x-model="customItemNote"
+                        placeholder="Contoh: Less ice, gula pisah, pedas sedang..."
+                        class="w-full h-10 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
             </div>
 
             <!-- Stepper and Submit -->
-            <div class="pt-2 border-t border-black/10 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2 bg-black/[0.05] rounded-full p-1 border border-black/5">
-                    <button type="button" @click="customQty = Math.max(1, customQty - 1)" class="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center shadow-sm active:scale-95 transition">-</button>
-                    <span class="w-6 text-center text-xs font-bold tabular-nums" x-text="customQty"></span>
-                    <button type="button" @click="customQty++" class="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center shadow-sm active:scale-95 transition">+</button>
+            <div class="pt-2 border-t border-black/10 dark:border-white/10 flex items-center justify-between gap-3">
+                <div
+                    class="flex items-center gap-2 bg-black/[0.05] dark:bg-white/[0.08] rounded-full p-1 border border-black/5 dark:border-white/10">
+                    <button type="button" @click="customQty = Math.max(1, customQty - 1)"
+                        class="w-8 h-8 rounded-full bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold flex items-center justify-center shadow-sm active:scale-95 transition">-</button>
+                    <span class="w-6 text-center text-xs font-bold tabular-nums text-black dark:text-white"
+                        x-text="customQty"></span>
+                    <button type="button" @click="customQty++"
+                        class="w-8 h-8 rounded-full bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold flex items-center justify-center shadow-sm active:scale-95 transition">+</button>
                 </div>
 
-                <button type="button" @click="commitCustomizationToCart()" class="flex-1 h-11 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-xs font-bold flex items-center justify-between shadow-sm transition">
+                <button type="button" @click="commitCustomizationToCart()"
+                    class="flex-1 h-11 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] text-white text-xs font-bold flex items-center justify-between shadow-sm transition">
                     <span>Tambahkan Pesanan</span>
                     <span class="tabular-nums" x-text="formatRupiah(calculatedItemTotal)"></span>
                 </button>
@@ -262,29 +403,40 @@
     <!-- ========================================================= -->
     <!-- MODAL: CART REVIEW & SUBMIT SHEET (Apple Sheet)           -->
     <!-- ========================================================= -->
-    <div x-show="showCartModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-[3px] p-0 sm:p-4" style="display: none;">
-        <div class="w-full max-w-md bg-white rounded-t-[28px] sm:rounded-[24px] border border-black/10 p-5 shadow-2xl space-y-4 max-h-[90vh] flex flex-col" @click.outside="showCartModal = false">
-            <div class="flex items-center justify-between pb-2 border-b border-black/10">
+    <div x-show="showCartModal"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-[4px] p-0 sm:p-4"
+        style="display: none;">
+        <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] border border-black/10 dark:border-white/10 p-5 shadow-2xl space-y-4 max-h-[90vh] flex flex-col transition-all"
+            @click.outside="showCartModal = false">
+            <div class="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
                 <div>
-                    <h3 class="font-bold text-[17px] text-black">Konfirmasi Pesanan</h3>
-                    <div class="text-xs text-black/50" x-text="'Meja ' + '{{ $table->table_number }}' + ' • ' + (customerName || 'Tamu')"></div>
+                    <h3 class="font-bold text-[17px] text-black dark:text-white">Konfirmasi Pesanan</h3>
+                    <div class="text-xs text-black/50 dark:text-white/50"
+                        x-text="'Meja ' + '{{ $table->table_number }}' + ' • ' + (customerName || 'Tamu')"></div>
                 </div>
-                <button type="button" @click="showCartModal = false" class="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center text-black/50 hover:text-black">✕</button>
+                <button type="button" @click="showCartModal = false"
+                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/60 hover:text-black dark:hover:text-white transition">✕</button>
             </div>
 
             <!-- Cart Items List -->
-            <div class="flex-1 overflow-y-auto space-y-2.5 pr-1 divide-y divide-black/5">
+            <div class="flex-1 overflow-y-auto space-y-2.5 pr-1 divide-y divide-black/5 dark:divide-white/5">
                 <template x-for="(item, idx) in cart" :key="idx">
                     <div class="pt-2.5 first:pt-0 flex items-start justify-between gap-2">
                         <div class="flex-1">
-                            <div class="font-bold text-xs text-black" x-text="item.product_name"></div>
-                            <div class="text-[11px] text-[#007AFF] font-medium" x-show="item.modifiers_text" x-text="item.modifiers_text"></div>
-                            <div class="text-[11px] text-black/50 italic" x-show="item.notes" x-text="'Catatan: ' + item.notes"></div>
-                            <div class="text-xs text-black/60 mt-1 tabular-nums" x-text="item.quantity + ' × ' + formatRupiah(item.unit_price) + ' = ' + formatRupiah(item.quantity * item.unit_price)"></div>
+                            <div class="font-bold text-xs text-black dark:text-white" x-text="item.product_name">
+                            </div>
+                            <div class="text-[11px] text-[#007AFF] dark:text-[#0A84FF] font-medium"
+                                x-show="item.modifiers_text" x-text="item.modifiers_text"></div>
+                            <div class="text-[11px] text-black/50 dark:text-white/50 italic" x-show="item.notes"
+                                x-text="'Catatan: ' + item.notes"></div>
+                            <div class="text-xs text-black/60 dark:text-white/60 mt-1 tabular-nums"
+                                x-text="item.quantity + ' × ' + formatRupiah(item.unit_price) + ' = ' + formatRupiah(item.quantity * item.unit_price)">
+                            </div>
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <button type="button" @click="removeFromCart(idx)" class="w-7 h-7 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center text-xs font-bold">
+                            <button type="button" @click="removeFromCart(idx)"
+                                class="w-7 h-7 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center text-xs font-bold active:scale-90 transition">
                                 ✕
                             </button>
                         </div>
@@ -293,31 +445,39 @@
             </div>
 
             <!-- Order Notes & Customer Info Confirmation -->
-            <div class="space-y-2.5 pt-2 border-t border-black/10">
+            <div class="space-y-2.5 pt-2 border-t border-black/10 dark:border-white/10">
                 <div>
-                    <label class="block text-[11px] font-semibold text-black/60 mb-1">Catatan Keseluruhan Meja</label>
-                    <input type="text" x-model="orderGeneralNotes" placeholder="Contoh: Tolong diantar bersamaan..." class="w-full h-9 px-3 rounded-[8px] bg-black/[0.04] border border-black/10 text-xs text-black placeholder:text-black/35 focus:outline-none">
+                    <label class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-1">Catatan
+                        Keseluruhan Meja</label>
+                    <input type="text" x-model="orderGeneralNotes"
+                        placeholder="Contoh: Tolong diantar bersamaan..."
+                        class="w-full h-10 px-3.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
-                <div class="p-3 rounded-[12px] bg-black/[0.03] border border-black/5 space-y-1.5 text-xs">
-                    <div class="flex justify-between text-black/60">
+                <div
+                    class="p-3.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-1.5 text-xs">
+                    <div class="flex justify-between text-black/60 dark:text-white/60">
                         <span>Pemesan:</span>
-                        <span class="font-semibold text-black" x-text="customerName + ' (' + customerPhone + ')'"></span>
+                        <span class="font-semibold text-black dark:text-white"
+                            x-text="customerName + ' (' + customerPhone + ')'"></span>
                     </div>
-                    <div class="flex justify-between text-black/60">
+                    <div class="flex justify-between text-black/60 dark:text-white/60">
                         <span>Nomor Meja:</span>
-                        <span class="font-bold text-black">{{ $table->table_number }}</span>
+                        <span class="font-bold text-black dark:text-white">{{ $table->table_number }}</span>
                     </div>
-                    <div class="flex justify-between text-black font-extrabold border-t border-black/5 pt-1 text-sm">
+                    <div
+                        class="flex justify-between text-black dark:text-white font-extrabold border-t border-black/5 dark:border-white/10 pt-1.5 text-sm">
                         <span>Total Tagihan:</span>
-                        <span class="text-[#34C759] tabular-nums" x-text="formatRupiah(cartTotalAmount)"></span>
+                        <span class="text-[#34C759] dark:text-[#30D158] tabular-nums"
+                            x-text="formatRupiah(cartTotalAmount)"></span>
                     </div>
                 </div>
             </div>
 
             <!-- Submit Button with Double-Click Protection -->
             <div class="pt-2">
-                <button type="button" @click="submitOrderToCashier()" :disabled="isSubmitting" class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-md">
+                <button type="button" @click="submitOrderToCashier()" :disabled="isSubmitting"
+                    class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-md">
                     <span x-show="!isSubmitting">Kirim Pesanan ke Kasir</span>
                     <span x-show="isSubmitting">Mengirim Pesanan...</span>
                 </button>
@@ -328,30 +488,43 @@
     <!-- ========================================================= -->
     <!-- MODAL: INPUT CUSTOMER NAME & PHONE (Required)             -->
     <!-- ========================================================= -->
-    <div x-show="showCustomerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[3px] p-4" style="display: none;">
-        <div class="w-full max-w-sm bg-white rounded-[24px] border border-black/10 p-6 shadow-2xl space-y-4" @click.outside="if(customerName && customerPhone) showCustomerModal = false;">
+    <div x-show="showCustomerModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[4px] p-4"
+        style="display: none;">
+        <div class="w-full max-w-sm bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4"
+            @click.outside="if(customerName && customerPhone) showCustomerModal = false;">
             <div class="text-center space-y-1">
-                <div class="w-12 h-12 rounded-full bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center mx-auto">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                <div
+                    class="w-12 h-12 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center mx-auto">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
                 </div>
-                <h3 class="font-bold text-base text-black">Identitas Pemesan</h3>
-                <p class="text-xs text-black/50">Mohon isi data diri untuk konfirmasi pengantaran ke Meja {{ $table->table_number }}.</p>
+                <h3 class="font-bold text-base text-black dark:text-white">Identitas Pemesan</h3>
+                <p class="text-xs text-black/50 dark:text-white/50">Mohon isi data diri untuk konfirmasi pengantaran ke
+                    Meja {{ $table->table_number }}.</p>
             </div>
 
             <div class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold text-black/70 mb-1">Nama Lengkap *</label>
-                    <input type="text" x-model="customerName" placeholder="Contoh: Budi Santoso" class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] border border-black/10 text-xs text-black focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                    <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Nama Lengkap
+                        *</label>
+                    <input type="text" x-model="customerName" placeholder="Contoh: Budi Santoso"
+                        class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-black/70 mb-1">Nomor WhatsApp / HP *</label>
-                    <input type="tel" x-model="customerPhone" placeholder="Contoh: 08123456789" class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] border border-black/10 text-xs font-medium tabular-nums text-black focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                    <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Nomor WhatsApp /
+                        HP *</label>
+                    <input type="tel" x-model="customerPhone" placeholder="Contoh: 08123456789"
+                        class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs font-medium tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
             </div>
 
             <div class="pt-2">
-                <button type="button" @click="saveCustomerInfo()" class="w-full h-10 rounded-[10px] bg-[#007AFF] text-white font-bold text-xs shadow-sm">
+                <button type="button" @click="saveCustomerInfo()"
+                    class="w-full h-11 rounded-[12px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] text-white font-bold text-xs shadow-sm transition">
                     Mulai Pilih Menu
                 </button>
             </div>
@@ -361,33 +534,47 @@
     <!-- ========================================================= -->
     <!-- MODAL: LIVE ORDER TRACKING                                -->
     <!-- ========================================================= -->
-    <div x-show="showTrackingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[3px] p-4" style="display: none;">
-        <div class="w-full max-w-sm bg-white rounded-[24px] border border-black/10 p-6 shadow-2xl space-y-4 text-center" @click.outside="showTrackingModal = false">
-            <div class="w-12 h-12 rounded-full bg-[#34C759]/15 text-[#34C759] flex items-center justify-center mx-auto">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+    <div x-show="showTrackingModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[4px] p-4"
+        style="display: none;">
+        <div class="w-full max-w-sm bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4 text-center"
+            @click.outside="showTrackingModal = false">
+            <div
+                class="w-12 h-12 rounded-full bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158] flex items-center justify-center mx-auto">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
             </div>
 
             <div>
-                <h3 class="font-bold text-base text-black">Status Pesanan Meja {{ $table->table_number }}</h3>
-                <p class="text-xs text-black/50 mt-0.5">Pesanan Anda telah diterima oleh kasir &amp; dapur.</p>
+                <h3 class="font-bold text-base text-black dark:text-white">Status Pesanan Meja
+                    {{ $table->table_number }}</h3>
+                <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Pesanan Anda telah diterima oleh kasir &amp;
+                    dapur.</p>
             </div>
 
             <!-- Recent Orders Feed -->
             <div class="max-h-48 overflow-y-auto space-y-2 text-left pr-1">
                 <template x-for="ord in recentOrders" :key="ord.id">
-                    <div class="p-3 rounded-[12px] bg-black/[0.03] border border-black/5 text-xs space-y-1">
-                        <div class="flex justify-between font-bold text-black">
+                    <div
+                        class="p-3 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-xs space-y-1">
+                        <div class="flex justify-between font-bold text-black dark:text-white">
                             <span x-text="'#' + ord.order_number"></span>
-                            <span class="text-[#007AFF] uppercase text-[10px]" x-text="ord.status"></span>
+                            <span class="text-[#007AFF] dark:text-[#0A84FF] uppercase text-[10px]"
+                                x-text="ord.status"></span>
                         </div>
-                        <div class="text-[11px] text-black/60" x-text="ord.items ? ord.items.map(i => i.product_name + ' (' + i.quantity + ')').join(', ') : ''"></div>
-                        <div class="text-xs font-extrabold text-[#34C759] tabular-nums" x-text="formatRupiah(ord.total_amount)"></div>
+                        <div class="text-[11px] text-black/60 dark:text-white/60"
+                            x-text="ord.items ? ord.items.map(i => i.product_name + ' (' + i.quantity + ')').join(', ') : ''">
+                        </div>
+                        <div class="text-xs font-extrabold text-[#34C759] dark:text-[#30D158] tabular-nums"
+                            x-text="formatRupiah(ord.total_amount)"></div>
                     </div>
                 </template>
             </div>
 
             <div class="pt-2 space-y-2">
-                <button type="button" @click="showTrackingModal = false" class="w-full h-10 rounded-[10px] bg-[#007AFF] text-white font-bold text-xs shadow-sm">
+                <button type="button" @click="showTrackingModal = false"
+                    class="w-full h-11 rounded-[12px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] text-white font-bold text-xs shadow-sm transition">
                     Pesan Menu Tambahan
                 </button>
             </div>
@@ -407,6 +594,9 @@
                 customerName: localStorage.getItem('cooca_qr_customer_name') || '',
                 customerPhone: localStorage.getItem('cooca_qr_customer_phone') || '',
                 showCustomerModal: false,
+
+                // Theme state
+                isDarkMode: document.documentElement.classList.contains('dark'),
 
                 // Customization modal state
                 showCustomizationModal: false,
@@ -429,6 +619,18 @@
                     }
                 },
 
+                toggleTheme() {
+                    if (this.isDarkMode) {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('cooca-theme', 'light');
+                        this.isDarkMode = false;
+                    } else {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('cooca-theme', 'dark');
+                        this.isDarkMode = true;
+                    }
+                },
+
                 formatRupiah(val) {
                     return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
                 },
@@ -445,7 +647,8 @@
                     }
                     if (this.searchQuery.trim()) {
                         const q = this.searchQuery.toLowerCase();
-                        res = res.filter(p => p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q)));
+                        res = res.filter(p => p.name.toLowerCase().includes(q) || (p.description && p.description
+                            .toLowerCase().includes(q)));
                     }
                     this.filteredProducts = res;
                 },
@@ -544,7 +747,8 @@
                                 if (selectedIds.includes(opt.id)) {
                                     allSelectedOptionIds.push(opt.id);
                                     finalUnitPrice += Number(opt.price_delta || 0);
-                                    const deltaStr = opt.price_delta > 0 ? ' (+Rp ' + Number(opt.price_delta).toLocaleString('id-ID') + ')' : '';
+                                    const deltaStr = opt.price_delta > 0 ? ' (+Rp ' + Number(opt
+                                        .price_delta).toLocaleString('id-ID') + ')' : '';
                                     selectedTextParts.push(opt.name + deltaStr);
                                 }
                             });
@@ -642,4 +846,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -32,7 +32,7 @@ class BusinessLandingPageWebController extends Controller
 
         // On first creation (or a completely empty record) auto-apply the default
         // industry preset so the CMS never shows a fully null landing page.
-        // NOTE: presets contain only text content — NO stock/unsplash images.
+        // NOTE: presets contain only text content - NO stock/unsplash images.
         if ($landingPage->wasRecentlyCreated || (blank($landingPage->headline) && blank($landingPage->values))) {
             $presetKey  = $landingPage->industry_preset ?: 'retail';
             $preset     = IndustryPresets::get($presetKey, $business->name);
@@ -73,10 +73,17 @@ class BusinessLandingPageWebController extends Controller
 
         $industries = IndustryPresets::forModal();
 
-        // Active POS products for showcase preview
+        // Active POS products (Barang Fisik) for showcase preview
         $posProducts = Product::where('business_id', $business->id)
             ->where('is_active', true)
+            ->goods()
             ->take(8)
+            ->get();
+
+        // Active services (Jasa & Layanan) for auto-sync preview
+        $serviceProducts = Product::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->services()
             ->get();
 
         $publicUrl = route('public.business.landing', Str::slug($business->name));
@@ -86,6 +93,7 @@ class BusinessLandingPageWebController extends Controller
             'landingPage',
             'industries',
             'posProducts',
+            'serviceProducts',
             'publicUrl'
         ));
     }
@@ -166,7 +174,7 @@ class BusinessLandingPageWebController extends Controller
             ->filter()
             ->merge($galleryFiles)
             ->merge(collect($request->file('service_images', []))->filter());
-        $uploadBytes = $uploads->sum(fn ($file) => (int) $file->getSize());
+        $uploadBytes = $uploads->sum(fn($file) => (int) $file->getSize());
         if ($owner && $uploadBytes > 0) {
             app(\App\Domain\Storage\StorageTrackingService::class)->assertCanUpload($owner, $uploadBytes, 'hero_image');
         }
@@ -175,15 +183,38 @@ class BusinessLandingPageWebController extends Controller
         // This protects against accidental data loss (missing/failed hidden inputs
         // must never wipe the saved landing page back to null).
         $scalarFields = [
-            'industry_preset', 'theme_color', 'headline', 'subheadline', 'announcement_badge',
-            'hero_image_url', 'logo_url', 'cta_primary_text', 'cta_primary_url',
-            'cta_secondary_text', 'cta_secondary_url', 'about_title', 'about_story',
-            'services_title', 'services_subtitle', 'whatsapp_number', 'custom_phone',
-            'whatsapp_welcome_message', 'custom_email', 'custom_address',
-            'google_maps_embed_url', 'gallery_title', 'gallery_subtitle',
-            'meta_title', 'meta_description', 'meta_keywords',
-            'footer_description', 'footer_navigation_title', 'footer_services_title',
-            'footer_contact_title', 'footer_cta_text', 'footer_copyright',
+            'industry_preset',
+            'theme_color',
+            'headline',
+            'subheadline',
+            'announcement_badge',
+            'hero_image_url',
+            'logo_url',
+            'cta_primary_text',
+            'cta_primary_url',
+            'cta_secondary_text',
+            'cta_secondary_url',
+            'about_title',
+            'about_story',
+            'services_title',
+            'services_subtitle',
+            'whatsapp_number',
+            'custom_phone',
+            'whatsapp_welcome_message',
+            'custom_email',
+            'custom_address',
+            'google_maps_embed_url',
+            'gallery_title',
+            'gallery_subtitle',
+            'meta_title',
+            'meta_description',
+            'meta_keywords',
+            'footer_description',
+            'footer_navigation_title',
+            'footer_services_title',
+            'footer_contact_title',
+            'footer_cta_text',
+            'footer_copyright',
         ];
 
         foreach ($scalarFields as $scalarField) {
@@ -203,7 +234,7 @@ class BusinessLandingPageWebController extends Controller
         $landingPage->dark_mode         = $request->boolean('dark_mode');
         $landingPage->show_pos_products = $request->boolean('show_pos_products');
 
-        // JSON collections — only replace when a valid (non-empty) JSON string was posted.
+        // JSON collections - only replace when a valid (non-empty) JSON string was posted.
         $jsonFields = [
             'values_json' => 'values',
             'operational_hours_json' => 'operational_hours',
@@ -230,12 +261,14 @@ class BusinessLandingPageWebController extends Controller
             $landingPage->social_links = $request->input('social_links');
         }
 
-        foreach ([
-            'hero_image' => 'hero_image_url',
-            'logo_image' => 'logo_url',
-            'about_image' => 'about_image_url',
-            'og_image' => 'og_image_url',
-        ] as $input => $column) {
+        foreach (
+            [
+                'hero_image' => 'hero_image_url',
+                'logo_image' => 'logo_url',
+                'about_image' => 'about_image_url',
+                'og_image' => 'og_image_url',
+            ] as $input => $column
+        ) {
             $removeField = 'remove_' . $input;
             if ($request->boolean($removeField) && $landingPage->{$column}) {
                 $this->deleteStoredBusinessImage($landingPage->{$column});
@@ -283,7 +316,7 @@ class BusinessLandingPageWebController extends Controller
         } elseif ($galleryFiles->isNotEmpty()) {
             $oldGallery = $landingPage->gallery_images ?? [];
             $landingPage->gallery_images = $galleryFiles
-                ->map(fn ($file) => [
+                ->map(fn($file) => [
                     'url' => $this->storeBusinessImage($file, $business->id, 'gallery'),
                     'caption' => '',
                 ])
@@ -379,7 +412,7 @@ class BusinessLandingPageWebController extends Controller
     }
 
     /**
-     * Toggle published status (form POST — returns redirect with flash).
+     * Toggle published status (form POST - returns redirect with flash).
      */
     public function togglePublish(Request $request): RedirectResponse|JsonResponse
     {

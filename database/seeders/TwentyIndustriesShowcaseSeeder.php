@@ -7,6 +7,14 @@ namespace Database\Seeders;
 use App\Domain\Template\BusinessTemplateService;
 use App\Models\Business;
 use App\Models\BusinessTypeTemplate;
+use App\Models\CommerceOrder;
+use App\Models\CommerceOrderBatch;
+use App\Models\CommerceOrderItem;
+use App\Models\CommercePaymentMethod;
+use App\Models\CommercePaymentProof;
+use App\Models\CommerceReservation;
+use App\Models\CommerceShippingRule;
+use App\Models\CommerceStoreSetting;
 use App\Models\CostCategory;
 use App\Models\CostComponent;
 use App\Models\CostModel;
@@ -23,6 +31,7 @@ use App\Models\PosOrderItem;
 use App\Models\PosOrderPayment;
 use App\Models\PosRegister;
 use App\Models\PosShift;
+use App\Models\PosTable;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\StockMovement;
@@ -53,7 +62,9 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
             $this->seedSingleIndustry($spec);
         }
 
-        $this->command?->info('✓ Sukses seeding 20 akun bisnis owner super lengkap!');
+        $this->seedDemoCustomerAccount();
+
+        $this->command?->info('✓ Sukses seeding 20 akun bisnis owner & akun demo customer portal!');
     }
 
     /**
@@ -64,18 +75,49 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
     private function seedSingleIndustry(array $spec): void
     {
         DB::transaction(function () use ($spec) {
-            // 1. User Owner
+            // 1. User Owner Industri
             $user = User::updateOrCreate(
                 ['email' => $spec['user']['email']],
                 [
                     'name' => $spec['user']['name'],
+                    'phone' => $spec['business']['phone'] ?? '081234567890',
                     'password' => Hash::make('password123'),
                     'email_verified_at' => now(),
+                    'onboarding_completed' => true,
+                    'onboarding_completed_at' => now(),
+                    'onboarding_current_step' => 0,
+                    'onboarding_version' => 1,
                 ]
             );
 
+            // 1b. Akun Testing Utama (Bisa Login & Switch ke SEMUA 20 Industri)
+            $superTestingAccounts = [
+                ['email' => 'testing@cooca.id', 'name' => 'Testing User (Semua Industri)', 'phone' => '081234567890'],
+                ['email' => 'demo@cooca.id', 'name' => 'Demo User (Semua Industri)', 'phone' => '081234567891'],
+            ];
+
+            $testingUserModels = [];
+            foreach ($superTestingAccounts as $acc) {
+                $testingUserModels[] = User::updateOrCreate(
+                    ['email' => $acc['email']],
+                    [
+                        'name' => $acc['name'],
+                        'phone' => $acc['phone'],
+                        'password' => Hash::make('password123'),
+                        'email_verified_at' => now(),
+                        'onboarding_completed' => true,
+                        'onboarding_completed_at' => now(),
+                        'onboarding_current_step' => 0,
+                        'onboarding_version' => 1,
+                    ]
+                );
+            }
+
             // 2. Business
             $bizData = $spec['business'];
+            $template = BusinessTypeTemplate::where('code', $spec['template_code'])->first();
+            $disabledModules = $template ? \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($template->code) : [];
+
             $business = Business::updateOrCreate(
                 ['slug' => $bizData['slug']],
                 [
@@ -93,15 +135,28 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
                     'bank_account_holder' => $bizData['name'],
                     'pos_enable_tax' => $bizData['pos_tax'] ?? false,
                     'pos_tax_percent' => $bizData['pos_tax_percent'] ?? 0,
+                    'template_code' => $spec['template_code'],
+                    'industry_category' => $template?->industry_category ?? explode('_', $spec['template_code'])[0],
+                    'disabled_modules' => $disabledModules,
                     'is_active' => true,
                 ]
             );
 
-            // Attach owner role
+            // Hubungkan owner spesifik industri
             $business->users()->syncWithoutDetaching([
                 $user->id => ['id' => (string) Str::uuid(), 'role' => 'owner'],
             ]);
             $user->update(['active_business_id' => $business->id]);
+
+            // Hubungkan Akun Testing Utama sebagai owner ke SETIAP bisnis industri
+            foreach ($testingUserModels as $tUser) {
+                $business->users()->syncWithoutDetaching([
+                    $tUser->id => ['id' => (string) Str::uuid(), 'role' => 'owner'],
+                ]);
+                if (! $tUser->active_business_id) {
+                    $tUser->update(['active_business_id' => $business->id]);
+                }
+            }
 
             // 3. Primary Location
             $locationName = $spec['location_name'] ?? 'Outlet & Gudang Utama';
@@ -417,7 +472,448 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
                     ]);
                 }
             }
+
+            // 10. Omnichannel Storefront, Rules & Orders
+            $this->seedCommerceDataForIndustry($business, $location, $productMap, $customer, $spec['template_code']);
         });
+    }
+
+    /**
+     * Seed complete Omnichannel Storefront & Commerce data for this industry showcase.
+     *
+     * @param array<string, Product> $productMap
+     */
+    private function seedCommerceDataForIndustry(
+        Business $business,
+        Location $location,
+        array $productMap,
+        ?Customer $customer,
+        string $templateCode
+    ): void {
+        // 0. Ensure all materials have stock for smooth checkout
+        $materials = \App\Models\Material::where('business_id', $business->id)->get();
+        foreach ($materials as $mat) {
+            InventoryStock::firstOrCreate(
+                [
+                    'business_id' => $business->id,
+                    'location_id' => $location->id,
+                    'material_id' => $mat->id,
+                ],
+                [
+                    'product_id' => null,
+                    'quantity' => 150.0,
+                    'reserved_quantity' => 0.0,
+                    'last_cost' => (float) ($mat->buy_price ?? 10000),
+                    'avg_purchase_cost' => (float) ($mat->buy_price ?? 10000),
+                ]
+            );
+        }
+
+        // 0.1 Business Landing Page
+        \App\Models\BusinessLandingPage::updateOrCreate(
+            ['business_id' => $business->id],
+            [
+                'headline' => $business->name,
+                'subheadline' => $business->description ?: "Solusi operasional terpercaya & terlengkap dari {$business->name}.",
+                'is_published' => true,
+                'show_pos_products' => true,
+                'theme_color' => '#007AFF',
+                'cta_primary_text' => 'Beli Sekarang',
+                'whatsapp_number' => $business->phone ?: '081234567890',
+            ]
+        );
+
+        // 1. Storefront Settings
+        CommerceStoreSetting::updateOrCreate(
+            ['business_id' => $business->id],
+            [
+                'is_storefront_enabled' => true,
+                'is_discoverable' => true,
+                'allow_pickup' => true,
+                'allow_delivery' => true,
+                'allow_request_order' => true,
+                'allow_scheduled_order' => true,
+                'allow_customer_po' => true,
+                'allow_reservation' => true,
+                'min_order_amount' => 10000,
+                'lead_time_hours' => 2,
+                'operating_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+                'available_slots' => ['09:00 - 11:00', '11:00 - 13:00', '14:00 - 16:00', '16:00 - 18:00', '19:00 - 21:00'],
+                'cut_off_time' => '17:00',
+                'max_capacity_per_slot' => 15,
+                'daily_order_quota' => 50,
+                'announcement_text' => "Official Online Store {$business->name}. Siap melayani pesanan instan, katering kustom, PO berkala & reservasi slot waktu.",
+            ]
+        );
+
+        // 2. Payment Methods (Bank Transfer & QRIS)
+        CommercePaymentMethod::updateOrCreate(
+            ['business_id' => $business->id, 'type' => CommercePaymentMethod::TYPE_BANK_TRANSFER, 'bank_name' => 'BCA'],
+            [
+                'account_holder' => $business->name,
+                'account_number' => $business->bank_account_number ?: '8800112233',
+                'instructions' => 'Transfer tepat sesuai nominal tagihan. Bukti transfer diverifikasi otomatis oleh tim merchant.',
+                'is_active' => true,
+                'sort_order' => 1,
+            ]
+        );
+
+        CommercePaymentMethod::updateOrCreate(
+            ['business_id' => $business->id, 'type' => CommercePaymentMethod::TYPE_QRIS],
+            [
+                'bank_name' => 'QRIS Cooca Pay',
+                'account_holder' => $business->name,
+                'account_number' => 'NMID-ID102030405060',
+                'instructions' => 'Scan QRIS menggunakan aplikasi perbankan atau e-wallet (BCA, Mandiri, GoPay, OVO, ShopeePay, DANA).',
+                'is_active' => true,
+                'sort_order' => 2,
+            ]
+        );
+
+        // 3. Shipping Rules
+        CommerceShippingRule::updateOrCreate(
+            ['business_id' => $business->id, 'name' => 'Kurir Toko / Pengantaran Langsung'],
+            [
+                'rule_type' => CommerceShippingRule::TYPE_FLAT,
+                'rate_amount' => 15000,
+                'min_order_for_free' => 150000,
+                'is_active' => true,
+                'sort_order' => 1,
+            ]
+        );
+
+        CommerceShippingRule::updateOrCreate(
+            ['business_id' => $business->id, 'name' => 'Gratis Ongkir (Belanja > Rp 150.000)'],
+            [
+                'rule_type' => CommerceShippingRule::TYPE_FREE_THRESHOLD,
+                'rate_amount' => 0,
+                'min_order_for_free' => 150000,
+                'is_active' => true,
+                'sort_order' => 2,
+            ]
+        );
+
+        // 4. POS Tables (for F&B and On-site Services)
+        $tableList = [];
+        if (in_array($templateCode, ['fnb_resto', 'fnb_cafe', 'fnb_bakery', 'fnb_cloud_kitchen', 'service_barbershop', 'service_workshop'])) {
+            $prefix = in_array($templateCode, ['service_barbershop', 'service_workshop']) ? 'Kursi / Bay #' : 'Meja #';
+            for ($t = 1; $t <= 5; $t++) {
+                $posTable = PosTable::firstOrCreate(
+                    ['business_id' => $business->id, 'table_number' => 'T-0' . $t],
+                    [
+                        'name' => $prefix . $t,
+                        'capacity' => $t * 2,
+                        'status' => 'available',
+                        'location_id' => $location->id,
+                        'is_active' => true,
+                    ]
+                );
+                $tableList[] = $posTable;
+            }
+        }
+
+        // 5. Sample Commerce Orders
+        if (! empty($productMap)) {
+            $firstProduct = reset($productMap);
+            $orderQty = 2;
+            $subtotal = (float) $firstProduct->selling_price * $orderQty;
+            $shippingCost = 15000;
+            $totalAmount = $subtotal + $shippingCost;
+
+            // Direct Checkout Order (Completed & Paid)
+            $directOrder = CommerceOrder::firstOrCreate(
+                ['business_id' => $business->id, 'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(4))],
+                [
+                    'location_id' => $location->id,
+                    'customer_id' => $customer?->id,
+                    'order_type' => CommerceOrder::TYPE_DIRECT_CHECKOUT,
+                    'status' => CommerceOrder::STATUS_COMPLETED,
+                    'payment_status' => CommerceOrder::PAYMENT_PAID,
+                    'fulfillment_type' => CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY,
+                    'customer_name' => $customer?->name ?? 'Pelanggan Online',
+                    'customer_phone' => $customer?->phone ?? '081299887766',
+                    'shipping_address' => 'Jl. Anggrek No. 12, Kompleks Perumahan Sejahtera',
+                    'subtotal' => $subtotal,
+                    'shipping_cost' => $shippingCost,
+                    'total_amount' => $totalAmount,
+                    'tracking_token' => Str::random(64),
+                    'notes' => 'Pesanan Direct Checkout sample showcase',
+                    'created_at' => Carbon::now()->subDays(1),
+                ]
+            );
+
+            CommerceOrderItem::firstOrCreate(
+                ['commerce_order_id' => $directOrder->id, 'product_id' => $firstProduct->id],
+                [
+                    'product_name' => $firstProduct->name,
+                    'product_type' => 'product',
+                    'unit_price' => $firstProduct->selling_price,
+                    'quantity' => $orderQty,
+                    'subtotal' => $subtotal,
+                ]
+            );
+
+            // B2B Customer PO Order with Multi-Drop Batches
+            $poOrder = CommerceOrder::firstOrCreate(
+                ['business_id' => $business->id, 'customer_po_number' => 'PO-' . strtoupper(Str::random(6))],
+                [
+                    'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+                    'location_id' => $location->id,
+                    'customer_id' => $customer?->id,
+                    'order_type' => CommerceOrder::TYPE_CUSTOMER_PO,
+                    'status' => CommerceOrder::STATUS_PROCESSING,
+                    'payment_status' => CommerceOrder::PAYMENT_PAID,
+                    'fulfillment_type' => CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY,
+                    'customer_name' => 'Bpk. Hendra Gunawan',
+                    'customer_phone' => '081233445566',
+                    'company_name' => 'PT Mitra Niaga Gemilang',
+                    'shipping_address' => 'Gudang Logistik Pusat, Jl. Daan Mogot KM 14, Jakarta Barat',
+                    'subtotal' => $subtotal * 5,
+                    'shipping_cost' => 0,
+                    'total_amount' => $subtotal * 5,
+                    'tracking_token' => Str::random(64),
+                    'notes' => 'Customer PO B2B dengan pengiriman terjadwal multi-drop',
+                ]
+            );
+
+            CommerceOrderItem::firstOrCreate(
+                ['commerce_order_id' => $poOrder->id, 'product_id' => $firstProduct->id],
+                [
+                    'product_name' => $firstProduct->name,
+                    'product_type' => 'product',
+                    'unit_price' => $firstProduct->selling_price,
+                    'quantity' => $orderQty * 5,
+                    'subtotal' => $subtotal * 5,
+                ]
+            );
+
+            // Batch Drops
+            CommerceOrderBatch::firstOrCreate(
+                ['commerce_order_id' => $poOrder->id, 'batch_number' => 1],
+                [
+                    'batch_code' => 'BATCH-01',
+                    'scheduled_date' => Carbon::today()->toDateString(),
+                    'status' => CommerceOrderBatch::STATUS_SHIPPED,
+                    'shipping_address' => 'Gudang Logistik Pusat, Jl. Daan Mogot KM 14',
+                    'quantity' => 4,
+                    'tracking_number' => 'RESI-LOKAL-001',
+                ]
+            );
+
+            CommerceOrderBatch::firstOrCreate(
+                ['commerce_order_id' => $poOrder->id, 'batch_number' => 2],
+                [
+                    'batch_code' => 'BATCH-02',
+                    'scheduled_date' => Carbon::today()->addDays(5)->toDateString(),
+                    'status' => CommerceOrderBatch::STATUS_SCHEDULED,
+                    'shipping_address' => 'Ruko BSD Boulevard No. 8, Serpong',
+                    'quantity' => 6,
+                ]
+            );
+        }
+
+        // 6. Sample Reservation (for F&B / Services with tables)
+        if (! empty($tableList)) {
+            $firstTable = $tableList[0];
+            CommerceReservation::firstOrCreate(
+                ['business_id' => $business->id, 'reservation_code' => 'RSV-' . strtoupper(Str::random(6))],
+                [
+                    'pos_table_id' => $firstTable->id,
+                    'customer_name' => 'Ibu Dian Safitri',
+                    'customer_phone' => '081377889900',
+                    'customer_email' => 'dian.safitri@example.com',
+                    'reservation_date' => Carbon::today()->toDateString(),
+                    'time_slot' => '19:00 - 21:00',
+                    'guest_count' => 4,
+                    'status' => CommerceReservation::STATUS_CONFIRMED,
+                    'notes' => 'Reservasi makan malam perayaan ulang tahun, mohon siapkan baby chair.',
+                ]
+            );
+        }
+    }
+
+    /**
+     * Seed a verified demonstration customer account with order history across various statuses.
+     */
+    private function seedDemoCustomerAccount(): void
+    {
+        $business = Business::where('slug', 'dapur-sedap-rasa')->first()
+            ?? Business::first();
+
+        if (! $business) {
+            return;
+        }
+
+        $location = Location::where('business_id', $business->id)->first();
+        $products = Product::where('business_id', $business->id)->take(3)->get();
+
+        $demoCustomer = Customer::updateOrCreate(
+            ['phone' => '081299887766'],
+            [
+                'business_id' => $business->id,
+                'name' => 'Budi Santoso (Customer Demo)',
+                'slug' => 'budi-santoso',
+                'email' => 'customer@cooca.id',
+                'password' => Hash::make('password123'),
+                'points_balance' => 450,
+                'membership_tier' => 'gold',
+                'phone_verified_at' => now(),
+                'email_verified_at' => now(),
+                'shipping_address' => 'Jl. Gatot Subroto No. 45, RT 02 / RW 04, Menteng Dalam, Tebet, Jakarta Selatan 12870',
+                'billing_address' => 'Jl. Gatot Subroto No. 45, RT 02 / RW 04, Menteng Dalam, Tebet, Jakarta Selatan 12870',
+                'notes' => 'Akun Customer Testing Terverifikasi',
+            ]
+        );
+
+        if ($products->isEmpty() || ! $location) {
+            return;
+        }
+
+        $firstProduct = $products->first();
+
+        // 1. Order: Pending Payment (Ready to test proof upload)
+        $orderPending = CommerceOrder::updateOrCreate(
+            ['order_number' => 'ORD-20260915-DEM1'],
+            [
+                'business_id' => $business->id,
+                'location_id' => $location->id,
+                'customer_id' => $demoCustomer->id,
+                'order_type' => CommerceOrder::TYPE_DIRECT_CHECKOUT,
+                'status' => CommerceOrder::STATUS_PENDING_PAYMENT,
+                'payment_status' => CommerceOrder::PAYMENT_UNPAID,
+                'fulfillment_type' => CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY,
+                'customer_name' => $demoCustomer->name,
+                'customer_phone' => $demoCustomer->phone,
+                'customer_email' => $demoCustomer->email,
+                'shipping_address' => $demoCustomer->shipping_address,
+                'subtotal' => (float) $firstProduct->selling_price * 2,
+                'shipping_cost' => 15000,
+                'total_amount' => ((float) $firstProduct->selling_price * 2) + 15000,
+                'tracking_token' => Str::random(64),
+                'notes' => 'Mohon dikirim sore hari sebelum jam 5',
+                'created_at' => Carbon::now()->subHours(2),
+            ]
+        );
+        CommerceOrderItem::firstOrCreate(
+            ['commerce_order_id' => $orderPending->id, 'product_id' => $firstProduct->id],
+            [
+                'product_name' => $firstProduct->name,
+                'quantity' => 2,
+                'unit_price' => $firstProduct->selling_price,
+                'subtotal' => (float) $firstProduct->selling_price * 2,
+            ]
+        );
+
+        // 2. Order: Waiting Verification (With Uploaded Payment Proof)
+        $orderVerif = CommerceOrder::updateOrCreate(
+            ['order_number' => 'ORD-20260915-DEM2'],
+            [
+                'business_id' => $business->id,
+                'location_id' => $location->id,
+                'customer_id' => $demoCustomer->id,
+                'order_type' => CommerceOrder::TYPE_DIRECT_CHECKOUT,
+                'status' => CommerceOrder::STATUS_PROOF_SUBMITTED,
+                'payment_status' => CommerceOrder::PAYMENT_VERIFYING,
+                'fulfillment_type' => CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY,
+                'customer_name' => $demoCustomer->name,
+                'customer_phone' => $demoCustomer->phone,
+                'customer_email' => $demoCustomer->email,
+                'shipping_address' => $demoCustomer->shipping_address,
+                'subtotal' => (float) $firstProduct->selling_price,
+                'shipping_cost' => 10000,
+                'total_amount' => (float) $firstProduct->selling_price + 10000,
+                'tracking_token' => Str::random(64),
+                'notes' => 'Sudah transfer lewat BCA m-banking',
+                'created_at' => Carbon::now()->subHours(6),
+            ]
+        );
+        CommerceOrderItem::firstOrCreate(
+            ['commerce_order_id' => $orderVerif->id, 'product_id' => $firstProduct->id],
+            [
+                'product_name' => $firstProduct->name,
+                'quantity' => 1,
+                'unit_price' => $firstProduct->selling_price,
+                'subtotal' => (float) $firstProduct->selling_price,
+            ]
+        );
+        CommercePaymentProof::firstOrCreate(
+            ['commerce_order_id' => $orderVerif->id],
+            [
+                'business_id' => $business->id,
+                'file_path' => 'commerce_proofs/sample_proof.jpg',
+                'file_size_kb' => 142,
+                'mime_type' => 'image/jpeg',
+                'sender_bank' => 'Bank Central Asia (BCA)',
+                'sender_account_name' => 'Budi Santoso',
+                'status' => CommercePaymentProof::STATUS_PENDING,
+            ]
+        );
+
+        // 3. Order: Processing (Payment Paid)
+        $orderProcessing = CommerceOrder::updateOrCreate(
+            ['order_number' => 'ORD-20260914-DEM3'],
+            [
+                'business_id' => $business->id,
+                'location_id' => $location->id,
+                'customer_id' => $demoCustomer->id,
+                'order_type' => CommerceOrder::TYPE_DIRECT_CHECKOUT,
+                'status' => CommerceOrder::STATUS_PROCESSING,
+                'payment_status' => CommerceOrder::PAYMENT_PAID,
+                'fulfillment_type' => CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY,
+                'customer_name' => $demoCustomer->name,
+                'customer_phone' => $demoCustomer->phone,
+                'customer_email' => $demoCustomer->email,
+                'shipping_address' => $demoCustomer->shipping_address,
+                'subtotal' => (float) $firstProduct->selling_price * 3,
+                'shipping_cost' => 0,
+                'total_amount' => (float) $firstProduct->selling_price * 3,
+                'tracking_token' => Str::random(64),
+                'notes' => 'Pesanan sedang disiapkan',
+                'created_at' => Carbon::now()->subDays(1),
+            ]
+        );
+        CommerceOrderItem::firstOrCreate(
+            ['commerce_order_id' => $orderProcessing->id, 'product_id' => $firstProduct->id],
+            [
+                'product_name' => $firstProduct->name,
+                'quantity' => 3,
+                'unit_price' => $firstProduct->selling_price,
+                'subtotal' => (float) $firstProduct->selling_price * 3,
+            ]
+        );
+
+        // 4. Order: Completed
+        $orderCompleted = CommerceOrder::updateOrCreate(
+            ['order_number' => 'ORD-20260910-DEM4'],
+            [
+                'business_id' => $business->id,
+                'location_id' => $location->id,
+                'customer_id' => $demoCustomer->id,
+                'order_type' => CommerceOrder::TYPE_DIRECT_CHECKOUT,
+                'status' => CommerceOrder::STATUS_COMPLETED,
+                'payment_status' => CommerceOrder::PAYMENT_PAID,
+                'fulfillment_type' => CommerceOrder::FULFILLMENT_PICKUP,
+                'customer_name' => $demoCustomer->name,
+                'customer_phone' => $demoCustomer->phone,
+                'customer_email' => $demoCustomer->email,
+                'shipping_address' => 'Ambil di Toko',
+                'subtotal' => (float) $firstProduct->selling_price * 2,
+                'shipping_cost' => 0,
+                'total_amount' => (float) $firstProduct->selling_price * 2,
+                'tracking_token' => Str::random(64),
+                'notes' => 'Pesanan selesai diambil pelanggan',
+                'created_at' => Carbon::now()->subDays(5),
+            ]
+        );
+        CommerceOrderItem::firstOrCreate(
+            ['commerce_order_id' => $orderCompleted->id, 'product_id' => $firstProduct->id],
+            [
+                'product_name' => $firstProduct->name,
+                'quantity' => 2,
+                'unit_price' => $firstProduct->selling_price,
+                'subtotal' => (float) $firstProduct->selling_price * 2,
+            ]
+        );
     }
 
     /**

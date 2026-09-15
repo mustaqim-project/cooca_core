@@ -19,9 +19,16 @@ final class EmailVerificationWebController extends Controller
      */
     public function notice(Request $request): View|RedirectResponse
     {
-        return $request->user()->hasVerifiedEmail()
-            ? redirect()->intended(route('dashboard'))
-            : view('auth.verify-email');
+        if ($request->user()->hasVerifiedEmail()) {
+            $intended = (string) $request->session()->get('url.intended', '');
+            if ($intended !== '' && (str_contains($intended, '/email/verify') || str_contains($intended, '/auth/otp'))) {
+                $request->session()->forget('url.intended');
+            }
+
+            return redirect()->intended(route('dashboard'));
+        }
+
+        return view('auth.verify-email');
     }
 
     /**
@@ -38,6 +45,11 @@ final class EmailVerificationWebController extends Controller
 
         if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
             abort(403, 'Tautan verifikasi tidak valid.');
+        }
+
+        $intended = (string) $request->session()->get('url.intended', '');
+        if ($intended !== '' && (str_contains($intended, '/email/verify') || str_contains($intended, '/auth/otp'))) {
+            $request->session()->forget('url.intended');
         }
 
         if ($user->hasVerifiedEmail()) {

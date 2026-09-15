@@ -13,6 +13,7 @@ use App\Models\SalesOrder;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class SalesOrderWebController extends Controller
@@ -49,9 +50,11 @@ final class SalesOrderWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $customers  = Customer::where('business_id', $business->id)->orderBy('name')->get();
-        $products   = Product::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
-        $nextNumber = $this->salesPipelineService->generateSalesOrderNumber($business);
+        $customers       = Customer::where('business_id', $business->id)->orderBy('name')->get();
+        $products        = Product::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
+        $goodsProducts   = Product::where('business_id', $business->id)->where('is_active', true)->goods()->orderBy('name')->get();
+        $serviceProducts = Product::where('business_id', $business->id)->where('is_active', true)->services()->orderBy('name')->get();
+        $nextNumber      = $this->salesPipelineService->generateSalesOrderNumber($business);
 
         // Quotations yang belum dikonversi ke SO
         $quotations = Quotation::with('customer', 'items')
@@ -70,7 +73,7 @@ final class SalesOrderWebController extends Controller
         }
 
         return view('app.sales-orders.create', compact(
-            'business', 'customers', 'products', 'nextNumber', 'quotations', 'prefillQuotation'
+            'business', 'customers', 'products', 'goodsProducts', 'serviceProducts', 'nextNumber', 'quotations', 'prefillQuotation'
         ));
     }
 
@@ -79,18 +82,30 @@ final class SalesOrderWebController extends Controller
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
-            'customer_id'             => ['required', 'exists:customers,id'],
+            'customer_id'             => [
+                'required',
+                // IDOR guard: customer must belong to this business
+                Rule::exists('customers', 'id')->where('business_id', $business->id),
+            ],
             'so_number'               => ['nullable', 'string', 'max:64'],
             'order_date'              => ['required', 'date'],
             'expected_delivery_date'  => ['nullable', 'date', 'after_or_equal:order_date'],
             'shipping_address'        => ['nullable', 'string', 'max:500'],
-            'quotation_id'            => ['nullable', 'exists:quotations,id'],
+            'quotation_id'            => [
+                'nullable',
+                // IDOR guard: quotation must belong to this business
+                Rule::exists('quotations', 'id')->where('business_id', $business->id),
+            ],
             'discount_amount'         => ['nullable', 'numeric', 'min:0'],
             'tax_percentage'         => ['nullable', 'numeric', 'min:0', 'max:100'],
             'tax_amount'              => ['nullable', 'numeric', 'min:0'],
             'notes'                   => ['nullable', 'string', 'max:1000'],
             'items'                   => ['required', 'array', 'min:1'],
-            'items.*.product_id'      => ['nullable', 'exists:products,id'],
+            'items.*.product_id'      => [
+                'nullable',
+                // IDOR guard: product must belong to this business if provided
+                Rule::exists('products', 'id')->where('business_id', $business->id),
+            ],
             'items.*.product_name'    => ['required_without:items.*.product_id', 'nullable', 'string'],
             'items.*.unit_price'      => ['required', 'numeric', 'min:0'],
             'items.*.quantity'        => ['required', 'numeric', 'min:0.01'],

@@ -135,14 +135,14 @@ class _RegisterScreenState extends State<RegisterScreen>
                         children: [
                           Text(
                             _step == 0 ? 'Buat Akun Baru' : 'Setup Bisnis',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.inter(
                               fontSize: 18, fontWeight: FontWeight.w800,
                               color: AppColors.textPrimary,
                             ),
                           ),
                           Text(
                             'Langkah ${_step + 1} dari 2',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.inter(
                               fontSize: 12, color: AppColors.textMuted,
                             ),
                           ),
@@ -276,7 +276,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Lanjutkan', style: GoogleFonts.plusJakartaSans(
+                    Text('Lanjutkan', style: GoogleFonts.inter(
                       color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700,
                     )),
                     const SizedBox(width: 8),
@@ -289,10 +289,10 @@ class _RegisterScreenState extends State<RegisterScreen>
             Center(child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Sudah punya akun? ', style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppColors.textMuted)),
+                Text('Sudah punya akun? ', style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted)),
                 GestureDetector(
                   onTap: () => Navigator.of(context).pushReplacementNamed('/login'),
-                  child: Text('Masuk', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primaryLight)),
+                  child: Text('Masuk', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primaryLight)),
                 ),
               ],
             )),
@@ -312,7 +312,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           children: [
             const SizedBox(height: 8),
             Text('Hampir selesai! Lengkapi data bisnis Anda.',
-              style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.textMuted)),
+              style: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted)),
             const SizedBox(height: 20),
 
             _buildGlassCard(children: [
@@ -327,7 +327,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ]),
 
             const SizedBox(height: 20),
-            Text('Jenis Bisnis', style: GoogleFonts.plusJakartaSans(
+            Text('Jenis Bisnis', style: GoogleFonts.inter(
               fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textMuted,
               letterSpacing: 0.3,
             )),
@@ -367,7 +367,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                         Text(
                           t['label'],
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.inter(
                             fontSize: 10, fontWeight: FontWeight.w600,
                             color: isSelected ? AppColors.primaryLight : AppColors.textMuted,
                           ),
@@ -396,7 +396,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                         children: [
                           const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
                           const SizedBox(width: 8),
-                          Text('Buat Akun & Mulai', style: GoogleFonts.plusJakartaSans(
+                          Text('Buat Akun & Mulai', style: GoogleFonts.inter(
                             color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700,
                           )),
                         ],
@@ -424,7 +424,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   Widget _buildFieldLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text(label, style: GoogleFonts.plusJakartaSans(
+      child: Text(label, style: GoogleFonts.inter(
         fontSize: 12, fontWeight: FontWeight.w600,
         color: AppColors.textMuted, letterSpacing: 0.3,
       )),
@@ -445,10 +445,10 @@ class _RegisterScreenState extends State<RegisterScreen>
       keyboardType: type,
       obscureText: obscure,
       validator: validator,
-      style: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary, fontSize: 14),
+      style: GoogleFonts.inter(color: AppColors.textPrimary, fontSize: 14),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textDim, fontSize: 14),
+        hintStyle: GoogleFonts.inter(color: AppColors.textDim, fontSize: 14),
         prefixIcon: Icon(icon, color: AppColors.textMuted, size: 20),
         suffixIcon: suffix,
         filled: true,
@@ -459,7 +459,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
         errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.danger)),
         focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.danger, width: 2)),
-        errorStyle: GoogleFonts.plusJakartaSans(color: AppColors.danger, fontSize: 11),
+        errorStyle: GoogleFonts.inter(color: AppColors.danger, fontSize: 11),
       ),
     );
   }

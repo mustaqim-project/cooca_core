@@ -56,7 +56,7 @@ class AdminPanelAndGoogleAuthTest extends TestCase
     }
 
     // ─────────────────────────────────────────────────
-    //  Admin Auth — Login Page
+    //  Admin Auth - Login Page
     // ─────────────────────────────────────────────────
 
     public function test_admin_login_page_is_accessible(): void
@@ -74,7 +74,7 @@ class AdminPanelAndGoogleAuthTest extends TestCase
     }
 
     // ─────────────────────────────────────────────────
-    //  Admin Auth — Successful Login
+    //  Admin Auth - Successful Login
     // ─────────────────────────────────────────────────
 
     public function test_admin_can_login_with_valid_credentials(): void
@@ -117,7 +117,7 @@ class AdminPanelAndGoogleAuthTest extends TestCase
     }
 
     // ─────────────────────────────────────────────────
-    //  Admin Auth — Logout
+    //  Admin Auth - Logout
     // ─────────────────────────────────────────────────
 
     public function test_admin_can_logout(): void
@@ -146,7 +146,7 @@ class AdminPanelAndGoogleAuthTest extends TestCase
     }
 
     // ─────────────────────────────────────────────────
-    //  Admin — User Management
+    //  Admin - User Management
     // ─────────────────────────────────────────────────
 
     public function test_admin_user_list_is_accessible(): void
@@ -187,7 +187,7 @@ class AdminPanelAndGoogleAuthTest extends TestCase
     }
 
     // ─────────────────────────────────────────────────
-    //  Admin — CSV Export
+    //  Admin - CSV Export
     // ─────────────────────────────────────────────────
 
     public function test_admin_can_export_users_as_csv(): void
@@ -226,7 +226,7 @@ class AdminPanelAndGoogleAuthTest extends TestCase
     }
 
     // ─────────────────────────────────────────────────
-    //  Admin — Settings
+    //  Admin - Settings
     // ─────────────────────────────────────────────────
 
     public function test_admin_settings_page_loads(): void
@@ -271,7 +271,7 @@ class AdminPanelAndGoogleAuthTest extends TestCase
     }
 
     // ─────────────────────────────────────────────────
-    //  Google OAuth — Redirect
+    //  Google OAuth - Redirect
     // ─────────────────────────────────────────────────
 
     public function test_google_auth_redirect_works(): void
@@ -302,7 +302,7 @@ class AdminPanelAndGoogleAuthTest extends TestCase
     }
 
     // ─────────────────────────────────────────────────
-    //  Separation of Guards — Cross-Guard Isolation
+    //  Separation of Guards - Cross-Guard Isolation
     // ─────────────────────────────────────────────────
 
     public function test_user_authenticated_via_web_cannot_reach_admin_dashboard(): void

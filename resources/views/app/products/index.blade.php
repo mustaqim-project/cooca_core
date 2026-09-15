@@ -232,6 +232,26 @@
 }">
 
     <!-- ===================================================== -->
+    <!-- 0. PANDUAN CEPAT LAYANAN JASA (UNTUK PENGGUNA JASA)    -->
+    <!-- ===================================================== -->
+    <div class="rounded-[14px] bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 border border-blue-200/80 dark:border-blue-900/50 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.32l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.32 4.486c.049.58.025 1.193-.139 1.743" /></svg>
+            </div>
+            <div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">Menjual Jasa Servis, Ongkos Kerja, atau Perawatan?</div>
+                <div class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Kelola tarif layanan jasa Anda tanpa repot mengatur stok gudang di menu khusus Jasa &amp; Layanan.</div>
+            </div>
+        </div>
+        <a href="{{ route('services.index') }}"
+           class="h-9 px-4 rounded-[10px] bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 shrink-0 active:scale-95">
+            <span>Buka Menu Jasa &amp; Layanan</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        </a>
+    </div>
+
+    <!-- ===================================================== -->
     <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
     <!-- ===================================================== -->
     <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

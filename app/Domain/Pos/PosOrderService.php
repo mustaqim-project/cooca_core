@@ -383,16 +383,19 @@ final class PosOrderService
 
                 // Base Product stock reduction
                 if ($itemInfo['product_id'] && $locationId) {
-                    $this->stockService->deductForPosSale(
-                        businessId: $business->id,
-                        locationId: $locationId,
-                        productId: $itemInfo['product_id'],
-                        quantity: $itemInfo['quantity'],
-                        unitCost: $itemInfo['unit_cost_hpp'],
-                        orderId: $order->id,
-                        orderNumber: $order->order_number,
-                        userId: $cashier->id
-                    );
+                    $itemProduct = $itemInfo['product'] ?? Product::find($itemInfo['product_id']);
+                    if (! $itemProduct || $itemProduct->isGoods()) {
+                        $this->stockService->deductForPosSale(
+                            businessId: $business->id,
+                            locationId: $locationId,
+                            productId: $itemInfo['product_id'],
+                            quantity: $itemInfo['quantity'],
+                            unitCost: $itemInfo['unit_cost_hpp'],
+                            orderId: $order->id,
+                            orderNumber: $order->order_number,
+                            userId: $cashier->id
+                        );
+                    }
                 }
             }
 
@@ -535,10 +538,12 @@ final class PosOrderService
                     ->where('is_active', true)
                     ->findOrFail($productId);
 
-                // Check product base availability
-                $stock = $product->calculateEffectiveStock($locationId);
-                if ($stock < $qty && ! $business->allow_negative_stock) {
-                    throw new DomainException("Stok produk '{$product->name}' tidak mencukupi (tersedia: {$stock}).");
+                // Check product base availability (only for physical goods)
+                if ($product->isGoods()) {
+                    $stock = $product->calculateEffectiveStock($locationId);
+                    if ($stock !== null && $stock < $qty && ! $business->allow_negative_stock) {
+                        throw new DomainException("Stok produk '{$product->name}' tidak mencukupi (tersedia: {$stock}).");
+                    }
                 }
 
                 $baseUnitPrice = (float) $product->selling_price;
@@ -785,18 +790,21 @@ final class PosOrderService
                     }
                 }
 
-                // Base product stock deduction
+                // Base product stock deduction (only for physical goods)
                 if ($item->product_id && $locationId) {
-                    $this->stockService->deductForPosSale(
-                        businessId: $business->id,
-                        locationId: $locationId,
-                        productId: $item->product_id,
-                        quantity: (float) $item->quantity,
-                        unitCost: (float) $item->unit_cost_hpp,
-                        orderId: $order->id,
-                        orderNumber: $order->order_number,
-                        userId: $cashier->id
-                    );
+                    $itemProduct = $item->product ?? Product::find($item->product_id);
+                    if (! $itemProduct || $itemProduct->isGoods()) {
+                        $this->stockService->deductForPosSale(
+                            businessId: $business->id,
+                            locationId: $locationId,
+                            productId: $item->product_id,
+                            quantity: (float) $item->quantity,
+                            unitCost: (float) $item->unit_cost_hpp,
+                            orderId: $order->id,
+                            orderNumber: $order->order_number,
+                            userId: $cashier->id
+                        );
+                    }
                 }
             }
 

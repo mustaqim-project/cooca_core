@@ -102,26 +102,34 @@ final class Context
             return [];
         }
 
+        $allPerms = [];
         if ($roleSlug === 'owner') {
-            return \App\Models\Permission::pluck('slug')->all();
+            $allPerms = \App\Models\Permission::pluck('slug')->all();
+        } else {
+            /** @var \App\Models\Role|null $role */
+            $role = self::$membership?->customRole;
+            if ($role === null) {
+                $role = \App\Models\Role::where('slug', $roleSlug)
+                ->where(function ($query) {
+                    if ($businessId = self::business()?->id) {
+                        $query->where('business_id', $businessId)->orWhereNull('business_id');
+                    } else {
+                        $query->whereNull('business_id');
+                    }
+                })
+                ->orderByRaw('business_id IS NULL')
+                ->first();
+            }
+
+            $allPerms = $role ? $role->permissions()->pluck('slug')->all() : [];
         }
 
-        /** @var \App\Models\Role|null $role */
-        $role = self::$membership?->customRole;
-        if ($role === null) {
-            $role = \App\Models\Role::where('slug', $roleSlug)
-            ->where(function ($query) {
-                if ($businessId = self::business()?->id) {
-                    $query->where('business_id', $businessId)->orWhereNull('business_id');
-                } else {
-                    $query->whereNull('business_id');
-                }
-            })
-            ->orderByRaw('business_id IS NULL')
-            ->first();
+        // Filter out permissions that are disabled by the active business profile
+        if ($business = self::business()) {
+            $allPerms = array_values(array_filter($allPerms, fn (string $p): bool => $business->isPermissionEnabled($p)));
         }
 
-        return $role ? $role->permissions()->pluck('slug')->all() : [];
+        return $allPerms;
     }
 
     /**
@@ -129,6 +137,14 @@ final class Context
      */
     public static function hasPermission(string $permission): bool
     {
+        // 1. If active business has disabled the module for this permission, access is denied even for Owner
+        if ($business = self::business()) {
+            if (! $business->isPermissionEnabled($permission)) {
+                return false;
+            }
+        }
+
+        // 2. Owner has access to all enabled modules
         if (self::isOwner()) {
             return true;
         }

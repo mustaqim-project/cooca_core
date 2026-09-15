@@ -440,21 +440,27 @@
             </div>
 
             <div class="flex items-center flex-wrap gap-2">
+                @if(\App\Support\Context::hasPermission('materials.view'))
                 <a href="{{ route('materials.index') }}"
                     class="h-9 px-3.5 rounded-[10px] text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-[#34C759]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3"/></svg>
                     <span>Master Bahan</span>
                 </a>
+                @endif
+                @if(\App\Support\Context::hasPermission('products.view'))
                 <a href="{{ route('products.index') }}"
                     class="h-9 px-3.5 rounded-[10px] text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg>
                     <span>Katalog Produk</span>
                 </a>
+                @endif
+                @if(\App\Support\Context::hasPermission('inventory.view'))
                 <a href="{{ route('inventory.stocks') }}"
                     class="h-9 px-3.5 rounded-[10px] text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-[#AF52DE]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
                     <span>Inventori</span>
                 </a>
+                @endif
             </div>
         </header>
 
@@ -494,6 +500,7 @@
                         </div>
                     </div>
 
+                    @if(\App\Support\Context::hasPermission('billing.manage'))
                     <div class="shrink-0">
                         <a href="{{ route('billing.limits') }}"
                             class="h-10 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#FF9500] hover:bg-[#E08500] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-[0_1px_2px_rgba(255,149,0,0.3)]">
@@ -501,6 +508,7 @@
                             <span>Upgrade ke Pro / Patungan</span>
                         </a>
                     </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -775,6 +783,7 @@
                             Batal
                         </button>
 
+                        @if(\App\Support\Context::hasPermission('materials.create'))
                         <button type="button" @click="executeMaterialImport()" :disabled="materialExecuting || (materialPreview && materialPreview.error_count > 0)"
                             class="h-9 px-5 rounded-[10px] bg-[#34C759] hover:bg-[#2DB34F] active:scale-[0.97] text-white font-semibold text-[13px] transition-all flex items-center gap-2 shadow-[0_1px_2px_rgba(52,199,89,0.25)] disabled:opacity-50 disabled:pointer-events-none">
                             <template x-if="materialExecuting">
@@ -783,6 +792,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!materialExecuting"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                             <span>Konfirmasi & Eksekusi Import Bahan</span>
                         </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1018,6 +1028,7 @@
                             Batal
                         </button>
 
+                        @if(\App\Support\Context::hasPermission('products.create'))
                         <button type="button" @click="executeProductImport()" :disabled="productExecuting"
                             class="h-9 px-5 rounded-[10px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.97] text-white font-semibold text-[13px] transition-all flex items-center gap-2 shadow-[0_1px_2px_rgba(0,122,255,0.25)] disabled:opacity-50 disabled:pointer-events-none">
                             <template x-if="productExecuting">
@@ -1026,6 +1037,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!productExecuting"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                             <span>Konfirmasi & Eksekusi Import Produk</span>
                         </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1261,6 +1273,7 @@
                             Batal
                         </button>
 
+                        @if(\App\Support\Context::hasPermission('products.manage') || \App\Support\Context::hasPermission('costing.manage'))
                         <button type="button" @click="executeRecipeImport()" :disabled="recipeExecuting"
                             class="h-9 px-5 rounded-[10px] bg-[#5856D6] hover:bg-[#4745C2] active:scale-[0.97] text-white font-semibold text-[13px] transition-all flex items-center gap-2 shadow-[0_1px_2px_rgba(88,86,214,0.25)] disabled:opacity-50 disabled:pointer-events-none">
                             <template x-if="recipeExecuting">
@@ -1269,6 +1282,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!recipeExecuting"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                             <span>Konfirmasi & Eksekusi Import Resep</span>
                         </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1530,6 +1544,7 @@
                             Batal
                         </button>
 
+                        @if(\App\Support\Context::hasPermission('inventory.manage'))
                         <button type="button" @click="executeInventoryImport()" :disabled="inventoryExecuting"
                             class="h-9 px-5 rounded-[10px] bg-[#AF52DE] hover:bg-[#9B38CA] active:scale-[0.97] text-white font-semibold text-[13px] transition-all flex items-center gap-2 shadow-[0_1px_2px_rgba(175,82,222,0.25)] disabled:opacity-50 disabled:pointer-events-none">
                             <template x-if="inventoryExecuting">
@@ -1538,6 +1553,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!inventoryExecuting"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                             <span>Konfirmasi & Catat Saldo Stok</span>
                         </button>
+                        @endif
                     </div>
                 </div>
             </div>

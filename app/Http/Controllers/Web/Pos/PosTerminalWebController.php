@@ -407,9 +407,9 @@ final class PosTerminalWebController extends Controller
         $business = Context::requireBusiness();
         $pin = (string) $request->get('pin', '');
 
-        $validPin = $business->pos_supervisor_pin ?? '1234';
+        $validPin = (string) ($business->pos_supervisor_pin ?? '1234');
 
-        if ($pin === $validPin) {
+        if ($pin !== '' && (\Illuminate\Support\Facades\Hash::check($pin, $validPin) || hash_equals($validPin, $pin))) {
             return response()->json(['success' => true, 'message' => 'Otorisasi Supervisor Terverifikasi.']);
         }
 

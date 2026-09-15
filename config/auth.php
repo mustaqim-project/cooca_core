@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Admin;
+use App\Models\GlobalCustomer;
 use App\Models\User;
 
 return [
@@ -33,6 +34,10 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'customers',
+        ],
     ],
 
     /*
@@ -49,6 +54,10 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => Admin::class,
+        ],
+        'customers' => [
+            'driver' => 'eloquent',
+            'model'  => GlobalCustomer::class,
         ],
     ],
 

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Domain\Template\BusinessTemplateService;
 use App\Domain\WhatsApp\AdminWhatsAppService;
+use App\Domain\WhatsApp\WhatsAppTrustedDeviceService;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\BusinessTypeTemplate;
@@ -15,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -36,7 +38,7 @@ final class AuthWebController extends Controller
     /**
      * Handle web login.
      */
-    public function login(Request $request): RedirectResponse
+    public function login(Request $request, WhatsAppTrustedDeviceService $trustedDevice): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -60,6 +62,25 @@ final class AuthWebController extends Controller
                 session(['active_business_id' => $user->active_business_id]);
             }
 
+            // Jika browser ini sudah terpercaya (Trusted Device 60 hari), set sesi terverifikasi
+            $userPhone = $this->normalizePhone((string) ($user->phone ?: $user->activeBusiness?->phone));
+            if ($userPhone && $trustedDevice->isTrusted($request, $user, $userPhone)) {
+                $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
+                $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
+            } elseif (app()->isLocal() && in_array($user->email, ['testing@cooca.id', 'demo@cooca.id'])) {
+                if ($userPhone) {
+                    $trustedDevice->trustDevice($user, $userPhone);
+                }
+                $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
+                $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
+            }
+
+            // Hindari redirect loop jika url.intended menunjuk ke halaman OTP atau login
+            $intended = (string) $request->session()->get('url.intended', '');
+            if ($intended !== '' && (str_contains($intended, '/auth/otp') || str_contains($intended, '/login'))) {
+                $request->session()->forget('url.intended');
+            }
+
             return redirect()->intended(route('dashboard'));
         }
 
@@ -78,8 +99,18 @@ final class AuthWebController extends Controller
         }
 
         $templates = BusinessTypeTemplate::all();
+        $templateSummaries = [];
+        foreach ($templates as $tmpl) {
+            $summary = \App\Domain\Template\ModuleRegistry::getFeaturesSummaryForTemplate($tmpl->code);
+            $templateSummaries[$tmpl->code] = [
+                'name' => $tmpl->name,
+                'category' => strtoupper($tmpl->industry_category),
+                'enabled' => $summary['enabled'],
+                'disabled' => $summary['disabled'],
+            ];
+        }
 
-        return view('auth.register', compact('templates'));
+        return view('auth.register', compact('templates', 'templateSummaries'));
     }
 
     /**
@@ -87,6 +118,10 @@ final class AuthWebController extends Controller
      */
     public function showRegisterOtp(Request $request): View|RedirectResponse
     {
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('dashboard');
+        }
+
         $pending = $request->session()->get('pending_registration');
 
         if (! is_array($pending) || empty($pending['phone'])) {
@@ -95,9 +130,17 @@ final class AuthWebController extends Controller
             ]);
         }
 
+        // Jika akun email atau nomor HP ini ternyata sudah berhasil didaftarkan, arahkan ke login
+        if (User::where('email', $pending['email'] ?? '')->orWhere('phone', $pending['phone'])->exists()) {
+            $request->session()->forget('pending_registration');
+            return redirect()->route('login')->with('info', 'Pendaftaran akun telah selesai. Silakan masuk dengan kata sandi Anda.');
+        }
+
         return view('auth.register-otp', [
             'phone' => $this->maskPhone((string) $pending['phone']),
             'expiresAt' => (int) ($pending['expires_at'] ?? 0),
+            'resendIn' => max(0, ((int) ($pending['last_sent_at'] ?? 0)) + 60 - now()->timestamp),
+            'deliveryError' => $pending['delivery_error'] ?? null,
         ]);
     }
 
@@ -136,9 +179,12 @@ final class AuthWebController extends Controller
 
         $result = $adminWa->sendMessage($phone, "Kode OTP pendaftaran Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
         if (! ($result['success'] ?? false)) {
-            return back()->withErrors([
-                'phone' => 'OTP gagal dikirim. Pastikan WhatsApp Admin Cooca sedang terhubung, lalu coba lagi.',
-            ])->withInput();
+            // Pola konsisten: tetap lanjut ke halaman OTP, user bisa mencoba "Kirim ulang OTP".
+            $pending['otp_hash'] = null;
+            $pending['delivery_error'] = 'OTP gagal dikirim. Coba lagi.';
+            $request->session()->put('pending_registration', $pending);
+
+            return redirect()->route('register.verify')->with('status', 'Data pendaftaran diterima, namun OTP belum terkirim. Silakan tekan "Kirim ulang OTP".');
         }
 
         $request->session()->put('pending_registration', $pending);
@@ -156,13 +202,26 @@ final class AuthWebController extends Controller
         ]);
         $pending = $request->session()->get('pending_registration');
 
-        if (! is_array($pending) || empty($pending['otp_hash'])) {
+        if (! is_array($pending) || empty($pending['phone'])) {
             return redirect()->route('register')->withErrors(['register' => 'Sesi OTP tidak ditemukan. Silakan daftar kembali.']);
+        }
+
+        if (empty($pending['otp_hash'])) {
+            return redirect()->route('register.verify')->withErrors(['otp' => 'OTP belum berhasil dikirim. Tekan "Kirim ulang OTP" terlebih dahulu.']);
         }
 
         if ((int) ($pending['expires_at'] ?? 0) < now()->timestamp) {
             $request->session()->forget('pending_registration');
             return redirect()->route('register')->withErrors(['otp' => 'Kode OTP sudah kedaluwarsa. Silakan daftar kembali.']);
+        }
+
+        // Defense-in-depth: batas percobaan global per nomor (tidak dapat di-reset via session baru).
+        $cacheKey = 'otp_attempts:register:' . $pending['phone'];
+        $cachedAttempts = ((int) Cache::get($cacheKey, 0)) + 1;
+        if ($cachedAttempts > 5) {
+            Cache::forget($cacheKey);
+            $request->session()->forget('pending_registration');
+            return redirect()->route('register')->withErrors(['otp' => 'Terlalu banyak percobaan OTP. Silakan daftar kembali.']);
         }
 
         $attempts = (int) ($pending['attempts'] ?? 0) + 1;
@@ -172,10 +231,13 @@ final class AuthWebController extends Controller
         }
 
         if (! Hash::check($validated['otp'], $pending['otp_hash'])) {
+            Cache::put($cacheKey, $cachedAttempts, now()->addMinutes(10));
             $pending['attempts'] = $attempts;
             $request->session()->put('pending_registration', $pending);
             return back()->withErrors(['otp' => 'Kode OTP salah. Sisa percobaan: ' . (5 - $attempts) . '.']);
         }
+
+        Cache::forget($cacheKey);
 
         if (Business::where('name', $pending['business_name'])->exists()) {
             $request->session()->forget('pending_registration');
@@ -196,12 +258,19 @@ final class AuthWebController extends Controller
                 'email_verified_at' => isset($pending['google_id']) ? now() : null,
             ]);
 
+            $templateCode = $pending['template_code'] ?? null;
+            $tmpl = ! empty($templateCode) ? BusinessTypeTemplate::where('code', $templateCode)->first() : null;
+            $disabledModules = $tmpl ? \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($tmpl->code) : [];
+
             $business = Business::create([
                 'name' => $pending['business_name'],
                 'phone' => $pending['phone'],
                 'currency' => 'IDR',
                 'currency_precision' => 0,
                 'rounding_strategy' => Business::ROUNDING_ROUND_100,
+                'industry_category' => $tmpl?->industry_category,
+                'template_code' => $tmpl?->code,
+                'disabled_modules' => $disabledModules,
             ]);
 
             $business->users()->attach($user->id, [
@@ -212,12 +281,8 @@ final class AuthWebController extends Controller
             $user->update(['active_business_id' => $business->id]);
 
             // Apply preset template if selected
-            if (! empty($pending['template_code'])) {
-                /** @var BusinessTypeTemplate $tmpl */
-                $tmpl = BusinessTypeTemplate::where('code', $pending['template_code'])->first();
-                if ($tmpl) {
-                    $templateService->apply($business, $tmpl);
-                }
+            if ($tmpl) {
+                $templateService->apply($business, $tmpl);
             }
 
             return $user;
@@ -233,7 +298,12 @@ final class AuthWebController extends Controller
         $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
         session(['active_business_id' => $user->active_business_id]);
 
-        return redirect()->route('dashboard')->with('success', 'Selamat datang! Bisnis Anda telah berhasil dibuat. Tautan verifikasi email telah dikirimkan ke alamat email Anda.');
+        $phone = $this->normalizePhone((string) $user->phone);
+        if ($phone) {
+            app(WhatsAppTrustedDeviceService::class)->trustDevice($user, $phone);
+        }
+
+        return redirect()->route('verification.notice')->with('status', 'Selamat datang! Bisnis Anda telah berhasil dibuat. Tautan verifikasi email telah dikirimkan ke alamat email Anda.');
     }
 
     /**
@@ -253,22 +323,68 @@ final class AuthWebController extends Controller
         $otp = (string) random_int(100000, 999999);
         $result = $adminWa->sendMessage((string) $pending['phone'], "Kode OTP pendaftaran Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
         if (! ($result['success'] ?? false)) {
-            return back()->withErrors(['otp' => 'OTP gagal dikirim. Pastikan WhatsApp Admin Cooca sedang terhubung.']);
+            return back()->withErrors(['otp' => 'OTP gagal dikirim. Coba lagi.']);
         }
 
         $pending['otp_hash'] = Hash::make($otp);
         $pending['expires_at'] = now()->addMinutes(10)->timestamp;
         $pending['attempts'] = 0;
         $pending['last_sent_at'] = now()->timestamp;
+        $pending['delivery_error'] = null;
+        Cache::forget('otp_attempts:register:' . $pending['phone']);
         $request->session()->put('pending_registration', $pending);
 
         return back()->with('status', 'OTP baru telah dikirim ke WhatsApp pemilik bisnis.');
     }
 
+    /**
+     * Change the WhatsApp number of a pending registration and send a fresh OTP.
+     */
+    public function changeRegisterPhone(Request $request, AdminWhatsAppService $adminWa): RedirectResponse
+    {
+        $validated = $request->validate([
+            'phone' => ['required', 'string', 'min:10', 'max:20'],
+        ]);
+
+        $pending = $request->session()->get('pending_registration');
+        if (! is_array($pending) || empty($pending['phone'])) {
+            return redirect()->route('register')->withErrors(['register' => 'Sesi OTP tidak ditemukan. Silakan daftar kembali.']);
+        }
+
+        $phone = $this->normalizePhone((string) $validated['phone']);
+        if ($phone === null) {
+            return back()->withErrors(['phone' => 'Nomor WhatsApp tidak valid. Gunakan format 081234567890 atau 628123456789.'])->withInput();
+        }
+        if ($phone === $pending['phone']) {
+            return back()->withErrors(['phone' => 'Nomor sama dengan nomor sebelumnya. Gunakan nomor lain.'])->withInput();
+        }
+
+        $otp = (string) random_int(100000, 999999);
+        $result = $adminWa->sendMessage($phone, "Kode OTP pendaftaran Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        $sent = (bool) ($result['success'] ?? false);
+
+        $pending['phone'] = $phone;
+        $pending['otp_hash'] = $sent ? Hash::make($otp) : null;
+        $pending['expires_at'] = now()->addMinutes(10)->timestamp;
+        $pending['attempts'] = 0;
+        $pending['last_sent_at'] = now()->timestamp;
+        $pending['delivery_error'] = $sent ? null : 'OTP gagal dikirim. Coba lagi.';
+        Cache::forget('otp_attempts:register:' . $phone);
+        $request->session()->put('pending_registration', $pending);
+
+        if (! $sent) {
+            return back()->withErrors(['phone' => 'OTP gagal dikirim. Coba lagi.'])->withInput();
+        }
+
+        return back()->with('status', 'Nomor WhatsApp diperbarui. OTP baru telah dikirim ke nomor tersebut.');
+    }
+
     private function normalizePhone(string $phone): ?string
     {
         $phone = preg_replace('/\D+/', '', $phone) ?? '';
-        if (str_starts_with($phone, '0')) {
+        if (str_starts_with($phone, '8')) {
+            $phone = '62' . $phone;
+        } elseif (str_starts_with($phone, '0')) {
             $phone = '62' . substr($phone, 1);
         }
 
@@ -291,8 +407,18 @@ final class AuthWebController extends Controller
         $user = Auth::guard('web')->user();
         $businesses = $user->businesses()->get();
         $templates = BusinessTypeTemplate::all();
+        $templateSummaries = [];
+        foreach ($templates as $tmpl) {
+            $summary = \App\Domain\Template\ModuleRegistry::getFeaturesSummaryForTemplate($tmpl->code);
+            $templateSummaries[$tmpl->code] = [
+                'name' => $tmpl->name,
+                'category' => strtoupper($tmpl->industry_category),
+                'enabled' => $summary['enabled'],
+                'disabled' => $summary['disabled'],
+            ];
+        }
 
-        return view('auth.select-business', compact('businesses', 'templates'));
+        return view('auth.select-business', compact('businesses', 'templates', 'templateSummaries'));
     }
 
     /**
@@ -315,11 +441,18 @@ final class AuthWebController extends Controller
         }
 
         $business = DB::transaction(function () use ($user, $validated, $templateService): Business {
+            $templateCode = $validated['template_code'] ?? null;
+            $tmpl = ! empty($templateCode) ? BusinessTypeTemplate::where('code', $templateCode)->first() : null;
+            $disabledModules = $tmpl ? \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($tmpl->code) : [];
+
             $business = Business::create([
                 'name' => $validated['name'],
                 'currency' => $validated['currency'] ?? 'IDR',
                 'currency_precision' => 0,
                 'rounding_strategy' => Business::ROUNDING_ROUND_100,
+                'industry_category' => $tmpl?->industry_category,
+                'template_code' => $tmpl?->code,
+                'disabled_modules' => $disabledModules,
             ]);
 
             $business->users()->attach($user->id, [
@@ -330,12 +463,8 @@ final class AuthWebController extends Controller
             $user->update(['active_business_id' => $business->id]);
 
             // Apply preset template if selected
-            if (! empty($validated['template_code'])) {
-                /** @var BusinessTypeTemplate $tmpl */
-                $tmpl = BusinessTypeTemplate::where('code', $validated['template_code'])->first();
-                if ($tmpl) {
-                    $templateService->apply($business, $tmpl);
-                }
+            if ($tmpl) {
+                $templateService->apply($business, $tmpl);
             }
 
             return $business;
@@ -378,6 +507,15 @@ final class AuthWebController extends Controller
         /** @var User $user */
         $user = Auth::guard('web')->user();
         $business = Context::hasBusiness() ? Context::business() : $user->businesses()->first();
+
+        // Jika data profil & usaha sudah lengkap, cegah akses ulang dan langsung redirect ke dashboard
+        $userPhoneMissing = empty(trim((string) ($user->phone ?? '')));
+        $userNameMissing = empty(trim((string) ($user->name ?? '')));
+        $businessNameMissing = ! $business || empty(trim((string) ($business->name ?? ''))) || str_starts_with($business->name, 'Usaha Saya') || str_starts_with($business->name, 'Usaha Pengguna');
+
+        if (! $userPhoneMissing && ! $userNameMissing && ! $businessNameMissing) {
+            return redirect()->route('dashboard');
+        }
 
         return view('auth.complete-profile', compact('user', 'business'));
     }

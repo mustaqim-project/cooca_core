@@ -1,5 +1,5 @@
 /**
- * AppAlert — Centralized Custom Alert, Toast & Confirmation System
+ * AppAlert - Centralized Custom Alert, Toast & Confirmation System
  * Cooca SaaS Platform
  * 
  * Replaces native browser alert() and confirm() with modern, responsive,

@@ -69,7 +69,8 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navItem(0, Icons.point_of_sale_rounded, 'Kasir', badge: cartCount > 0 ? '$cartCount' : null),
+              _navItem(0, Icons.point_of_sale_rounded, 'Kasir',
+                  badge: cartCount > 0 ? '$cartCount' : null),
               _navItem(1, Icons.grid_view_rounded, 'Ringkasan'),
               _navItem(2, Icons.inventory_2_rounded, 'Inventori'),
               _navItem(3, Icons.bar_chart_rounded, 'Laporan'),
@@ -84,13 +85,13 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   Widget _navItem(int index, IconData icon, String label, {String? badge}) {
     final isActive = _currentIndex == index;
 
-    // Color accent per tab — sama seperti web nav
+    // Color accent per tab - sama seperti web nav
     final Color activeColor = switch (index) {
-      0 => AppColors.teal,     // POS = teal (seperti web)
-      1 => AppColors.primary,  // Dashboard = emerald
-      2 => AppColors.cyan,     // Inventori = cyan
-      3 => AppColors.amber,    // Laporan = amber
-      4 => AppColors.primary,  // Lainnya = emerald
+      0 => AppColors.teal, // POS = teal (seperti web)
+      1 => AppColors.primary, // Dashboard = emerald
+      2 => AppColors.cyan, // Inventori = cyan
+      3 => AppColors.amber, // Laporan = amber
+      4 => AppColors.primary, // Lainnya = emerald
       _ => AppColors.primary,
     };
 
@@ -103,7 +104,9 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
           curve: Curves.easeInOut,
           padding: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
-            color: isActive ? activeColor.withValues(alpha: 0.1) : Colors.transparent,
+            color: isActive
+                ? activeColor.withValues(alpha: 0.1)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -119,9 +122,11 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
                   ),
                   if (badge != null)
                     Positioned(
-                      top: -6, right: -8,
+                      top: -6,
+                      right: -8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
                           color: AppColors.danger,
                           borderRadius: BorderRadius.circular(10),
@@ -129,7 +134,8 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
                         child: Text(
                           badge,
                           style: const TextStyle(
-                            color: Colors.white, fontSize: 9,
+                            color: Colors.white,
+                            fontSize: 9,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -153,4 +159,3 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     );
   }
 }
-

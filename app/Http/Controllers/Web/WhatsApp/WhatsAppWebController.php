@@ -27,7 +27,7 @@ class WhatsAppWebController extends Controller
         $business  = Context::requireBusiness();
         $waSession = WhatsAppSession::where('business_id', $business->id)->first();
 
-        // Hanya baca status dari database lokal — jangan hit WA server saat halaman dibuka.
+        // Hanya baca status dari database lokal - jangan hit WA server saat halaman dibuka.
         // QR akan diambil via AJAX (/qr endpoint) hanya saat user klik tombol secara eksplisit.
         $qrDataUrl  = null;
         $liveStatus = strtolower($waSession?->status ?? 'disconnected');

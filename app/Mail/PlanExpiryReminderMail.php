@@ -31,7 +31,7 @@ class PlanExpiryReminderMail extends Mailable
         };
 
         return new Envelope(
-            subject: "[Penting] Langganan Cooca {$businessName} Berakhir dalam {$dayText} — Perpanjang Sekarang",
+            subject: "[Penting] Langganan Cooca {$businessName} Berakhir dalam {$dayText} - Perpanjang Sekarang",
         );
     }
 

@@ -11,11 +11,12 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
-  final _formKey    = GlobalKey<FormState>();
-  final _emailCtrl  = TextEditingController();
-  final _passCtrl   = TextEditingController();
-  bool _obscure     = true;
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+  bool _obscure = true;
   late AnimationController _animCtrl;
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
@@ -23,8 +24,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _animCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
-    _fadeAnim  = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _animCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 600));
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
         .animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
     _animCtrl.forward();
@@ -51,7 +53,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(auth.errorMessage ?? 'Login gagal. Periksa email dan password Anda.'),
+        content: Text(auth.errorMessage ??
+            'Login gagal. Periksa email dan password Anda.'),
         backgroundColor: AppColors.danger,
       ));
     }
@@ -82,20 +85,24 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       children: [
                         // Logo: from-emerald-600 to-teal-400 (exact web)
                         Container(
-                          width: 72, height: 72,
+                          width: 72,
+                          height: 72,
                           decoration: BoxDecoration(
                             gradient: AppColors.logoGradient,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.35),
-                                blurRadius: 28, offset: const Offset(0, 8),
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.35),
+                                blurRadius: 28,
+                                offset: const Offset(0, 8),
                               ),
                             ],
                           ),
                           child: const Icon(
                             Icons.inventory_2_rounded,
-                            size: 36, color: Colors.white,
+                            size: 36,
+                            color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -103,23 +110,28 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           'Cooca UMKM',
                           style: GoogleFonts.plusJakartaSans(
                             color: AppColors.textPrimary,
-                            fontSize: 28, fontWeight: FontWeight.w800,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
                             letterSpacing: -0.8,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        // Badge: "cooca.id • Business OS" — sama seperti web
+                        // Badge: "cooca.id • Business OS" - sama seperti web
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
                           decoration: BoxDecoration(
                             color: AppColors.primaryGlow,
-                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                            border: Border.all(
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.3)),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             'cooca.id  •  Business OS',
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 10, fontWeight: FontWeight.w700,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
                               color: AppColors.primaryLight,
                               letterSpacing: 0.8,
                             ),
@@ -132,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   const SizedBox(height: 48),
 
                   // ── Form ───────────────────────────────────────────
-                  // Glass card — sama seperti web .glass-card
+                  // Glass card - sama seperti web .glass-card
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -148,7 +160,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           Text(
                             'Masuk ke Akun',
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 20, fontWeight: FontWeight.w800,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
                               color: AppColors.textPrimary,
                             ),
                           ),
@@ -156,7 +169,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           Text(
                             'Gunakan email dan password Cooca UMKM Anda',
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13, color: AppColors.textMuted,
+                              fontSize: 13,
+                              color: AppColors.textMuted,
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -167,7 +181,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             icon: Icons.email_outlined,
                             type: TextInputType.emailAddress,
                             validator: (v) => (v == null || !v.contains('@'))
-                                ? 'Email tidak valid' : null,
+                                ? 'Email tidak valid'
+                                : null,
                           ),
                           const SizedBox(height: 14),
                           _buildField(
@@ -176,13 +191,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             icon: Icons.lock_outline_rounded,
                             obscure: _obscure,
                             validator: (v) => (v == null || v.length < 6)
-                                ? 'Minimal 6 karakter' : null,
+                                ? 'Minimal 6 karakter'
+                                : null,
                             suffix: IconButton(
                               icon: Icon(
-                                _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                color: AppColors.textMuted, size: 20,
+                                _obscure
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: AppColors.textMuted,
+                                size: 20,
                               ),
-                              onPressed: () => setState(() => _obscure = !_obscure),
+                              onPressed: () =>
+                                  setState(() => _obscure = !_obscure),
                             ),
                           ),
 
@@ -192,12 +212,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             child: TextButton(
                               onPressed: () {},
                               style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 4),
                               ),
                               child: Text(
                                 'Lupa Password?',
                                 style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 12, fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
                                   color: AppColors.primaryLight,
                                 ),
                               ),
@@ -207,7 +229,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                           // Login button
                           SizedBox(
-                            width: double.infinity, height: 52,
+                            width: double.infinity,
+                            height: 52,
                             child: ElevatedButton(
                               onPressed: isLoading ? null : _handleLogin,
                               style: ElevatedButton.styleFrom(
@@ -219,15 +242,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               ),
                               child: isLoading
                                   ? const SizedBox(
-                                      width: 20, height: 20,
+                                      width: 20,
+                                      height: 20,
                                       child: CircularProgressIndicator(
-                                        color: Colors.white, strokeWidth: 2.5,
+                                        color: Colors.white,
+                                        strokeWidth: 2.5,
                                       ),
                                     )
                                   : Text(
                                       'Masuk Sekarang',
                                       style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white, fontSize: 15,
+                                        color: Colors.white,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
@@ -248,15 +274,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         Text(
                           'Belum punya akun? ',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14, color: AppColors.textMuted,
+                            fontSize: 14,
+                            color: AppColors.textMuted,
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Navigator.of(context).pushNamed('/register'),
+                          onTap: () =>
+                              Navigator.of(context).pushNamed('/register'),
                           child: Text(
                             'Daftar Sekarang',
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14, fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
                               color: AppColors.primaryLight,
                             ),
                           ),
@@ -270,12 +299,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   // ── Settings link ──────────────────────────────────
                   Center(
                     child: TextButton.icon(
-                      onPressed: () => Navigator.of(context).pushNamed('/settings'),
-                      icon: const Icon(Icons.settings_outlined, size: 15, color: AppColors.textDim),
+                      onPressed: () =>
+                          Navigator.of(context).pushNamed('/settings'),
+                      icon: const Icon(Icons.settings_outlined,
+                          size: 15, color: AppColors.textDim),
                       label: Text(
                         'Pengaturan Server',
                         style: GoogleFonts.plusJakartaSans(
-                          color: AppColors.textDim, fontSize: 12,
+                          color: AppColors.textDim,
+                          fontSize: 12,
                         ),
                       ),
                     ),
@@ -304,12 +336,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       obscureText: obscure,
       validator: validator,
       style: GoogleFonts.plusJakartaSans(
-        color: AppColors.textPrimary, fontSize: 14,
+        color: AppColors.textPrimary,
+        fontSize: 14,
       ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: GoogleFonts.plusJakartaSans(
-          color: AppColors.textMuted, fontSize: 14,
+          color: AppColors.textMuted,
+          fontSize: 14,
         ),
         prefixIcon: Icon(icon, color: AppColors.textMuted, size: 20),
         suffixIcon: suffix,
@@ -335,9 +369,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.danger, width: 2),
         ),
-        errorStyle: GoogleFonts.plusJakartaSans(color: AppColors.danger, fontSize: 11),
+        errorStyle:
+            GoogleFonts.plusJakartaSans(color: AppColors.danger, fontSize: 11),
       ),
     );
   }
 }
-

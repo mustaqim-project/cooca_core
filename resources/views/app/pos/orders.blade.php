@@ -427,6 +427,16 @@
                     <input type="text" name="reason" required placeholder="Misal: Salah input kasir, pelanggan batal..."
                         class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]/50">
                 </div>
+                @if($business->pos_require_pin_for_void && !($canBypassSupervisor ?? false))
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-[#FF3B30] mb-1 flex items-center justify-between">
+                        <span>PIN Otorisasi Supervisor</span>
+                        <span class="text-[10px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
+                    </label>
+                    <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="Masukkan 4-8 digit PIN..."
+                        class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-3 text-[14px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]/50">
+                </div>
+                @endif
                 <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
                     <button type="button" @click="showVoidModal = false"
                         class="h-8 px-3.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
@@ -462,6 +472,16 @@
                     <input type="text" name="reason" required placeholder="Misal: Barang cacat, komplain rasa..."
                         class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]/50">
                 </div>
+                @if($business->pos_require_pin_for_refund && !($canBypassSupervisor ?? false))
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-[#FF9500] mb-1 flex items-center justify-between">
+                        <span>PIN Otorisasi Supervisor</span>
+                        <span class="text-[10px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
+                    </label>
+                    <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="Masukkan 4-8 digit PIN..."
+                        class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-3 text-[14px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]/50">
+                </div>
+                @endif
                 <div class="flex items-center gap-2 pt-1">
                     <input type="checkbox" name="restore_stock" value="1" checked id="restore_stock"
                         class="rounded-[4px] border-black/20 text-[#007AFF] focus:ring-[#007AFF]">

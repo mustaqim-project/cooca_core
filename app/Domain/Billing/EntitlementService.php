@@ -70,7 +70,7 @@ final class EntitlementService
             ->where('is_active', true)
             ->where(function ($q) {
                 $q->where('code', 'core-monthly')
-                  ->orWhere('duration_days', '<=', 31);
+                    ->orWhere('duration_days', '<=', 31);
             })
             ->orderBy('sort_order')
             ->value('price');
@@ -96,7 +96,7 @@ final class EntitlementService
             ->where('is_active', true)
             ->where(function ($q) {
                 $q->where('code', 'core-annual')
-                  ->orWhere('duration_days', '>=', 360);
+                    ->orWhere('duration_days', '>=', 360);
             })
             ->orderBy('sort_order')
             ->value('price');
@@ -256,8 +256,8 @@ final class EntitlementService
             'business_id',
             $owner->businesses()->pluck('businesses.id')
         )->where('status', BusinessSubscription::STATUS_ACTIVE)
-         ->whereIn('plan_code', [BusinessSubscription::PLAN_CORE_MONTHLY, BusinessSubscription::PLAN_CORE_ANNUAL])
-         ->exists();
+            ->whereIn('plan_code', [BusinessSubscription::PLAN_CORE_MONTHLY, BusinessSubscription::PLAN_CORE_ANNUAL])
+            ->exists();
 
         if ($hasCorePlan) {
             return true;
@@ -456,19 +456,34 @@ final class EntitlementService
                 $sub->decrement('ai_tokens_remaining', $remaining);
             }
             AiTokenUsage::create([
-                'business_id' => $business->id, 'user_id' => $user?->id,
-                'model_name' => 'gemini-2.5-flash', 'input_tokens' => (int) ($tokens * 0.7),
-                'output_tokens' => (int) ($tokens * 0.3), 'total_tokens' => $tokens,
+                'business_id' => $business->id,
+                'user_id' => $user?->id,
+                'model_name' => 'gemini-2.5-flash',
+                'input_tokens' => (int) ($tokens * 0.7),
+                'output_tokens' => (int) ($tokens * 0.3),
+                'total_tokens' => $tokens,
                 'intent' => $intent ?? 'general_query',
             ]);
             return true;
         });
     }
 
-    public function getTokenTopupAmount(): int { return max(0, (int) SystemSetting::get('ai_token_topup_amount', '1000000')); }
-    public function getTokenTopupPrice(): float { return max(0, (float) SystemSetting::get('ai_token_topup_price', '50000')); }
-    public function getStorageTopupBytes(): int { return max(0, (int) SystemSetting::get('storage_topup_gb', '1')) * 1024 * 1024 * 1024; }
-    public function getStorageTopupPrice(): float { return max(0, (float) SystemSetting::get('storage_topup_price', '50000')); }
+    public function getTokenTopupAmount(): int
+    {
+        return max(0, (int) SystemSetting::get('ai_token_topup_amount', '1000000'));
+    }
+    public function getTokenTopupPrice(): float
+    {
+        return max(0, (float) SystemSetting::get('ai_token_topup_price', '50000'));
+    }
+    public function getStorageTopupBytes(): int
+    {
+        return max(0, (int) SystemSetting::get('storage_topup_gb', '1')) * 1024 * 1024 * 1024;
+    }
+    public function getStorageTopupPrice(): float
+    {
+        return max(0, (float) SystemSetting::get('storage_topup_price', '50000'));
+    }
 
     public function createTokenTopupOrder(Business $business, User $user, string $paymentMethod = SubscriptionPayment::METHOD_BCA): SubscriptionPayment
     {
@@ -485,12 +500,19 @@ final class EntitlementService
         $uniqueCode = random_int(100, 999);
         $orderNumber = $this->nextOrderNumber('TOP-' . date('Ym') . '-');
         return SubscriptionPayment::create([
-            'business_id' => $business->id, 'user_id' => $user->id, 'payment_type' => $type,
+            'business_id' => $business->id,
+            'user_id' => $user->id,
+            'payment_type' => $type,
             'order_number' => $orderNumber,
-            'plan_code' => 'topup', 'cycle' => 'one_time', 'amount' => $amount,
-            'unique_code' => $uniqueCode, 'total_payable' => $amount + $uniqueCode,
-            'topup_quantity' => $quantity ?: null, 'topup_storage_bytes' => $storageBytes ?: null,
-            'payment_method' => $paymentMethod, 'status' => SubscriptionPayment::STATUS_PENDING,
+            'plan_code' => 'topup',
+            'cycle' => 'one_time',
+            'amount' => $amount,
+            'unique_code' => $uniqueCode,
+            'total_payable' => $amount + $uniqueCode,
+            'topup_quantity' => $quantity ?: null,
+            'topup_storage_bytes' => $storageBytes ?: null,
+            'payment_method' => $paymentMethod,
+            'status' => SubscriptionPayment::STATUS_PENDING,
         ]);
     }
 
@@ -552,7 +574,7 @@ final class EntitlementService
     }
 
     /**
-     * Usage summary for dashboard and limits meter — all 12+ resources.
+     * Usage summary for dashboard and limits meter - all 12+ resources.
      */
     public function getUsageSummary(Business $business, bool $forceFresh = false): array
     {
@@ -576,7 +598,7 @@ final class EntitlementService
         $customerCount = Customer::where('business_id', $business->id)->count();
         $supplierCount = Supplier::where('business_id', $business->id)->count();
         $outletCount   = Location::where('business_id', $business->id)->where('type', 'outlet')->count();
-        $warehouseCount= Location::where('business_id', $business->id)->where('type', 'warehouse')->count();
+        $warehouseCount = Location::where('business_id', $business->id)->where('type', 'warehouse')->count();
 
         $recipeCount = BomHeader::whereHas('costModel', function ($q) use ($business) {
             $q->where('business_id', $business->id);
@@ -606,7 +628,12 @@ final class EntitlementService
 
         // ── Storage ─────────────────────────────────────────────────────────
         $storage = $owner ? app(OwnerStorageQuotaService::class)->getSummary($owner) : [
-            'used_bytes' => 0, 'limit_bytes' => 0, 'used_mb' => 0, 'limit_gb' => 0, 'percentage' => 0, 'is_over_limit' => false,
+            'used_bytes' => 0,
+            'limit_bytes' => 0,
+            'used_mb' => 0,
+            'limit_gb' => 0,
+            'percentage' => 0,
+            'is_over_limit' => false,
         ];
 
         $buildStat = function (int $used, ?int $limit): array {
@@ -696,7 +723,7 @@ final class EntitlementService
         $uniqueCode = random_int(100, 999);
         $totalPayable = $baseAmount + $uniqueCode;
 
-        // Generate unique order number SUB-YYYYMM-XXXX (global — pencacah tak boleh ter-scope per-bisnis(
+        // Generate unique order number SUB-YYYYMM-XXXX (global - pencacah tak boleh ter-scope per-bisnis(
         $orderNumber = $this->nextOrderNumber('SUB-' . date('Ym') . '-');
 
         return SubscriptionPayment::create([
@@ -894,15 +921,20 @@ final class EntitlementService
                 $purchasedAt = Carbon::now();
                 $expiryDays = $payment->billingPackage?->token_expiry_days ?? 30;
                 AiTokenTopup::create([
-                    'business_id' => $payment->business_id, 'payment_id' => $payment->id,
-                    'purchased_tokens' => $payment->topup_quantity, 'remaining_tokens' => $payment->topup_quantity,
-                    'purchased_at' => $purchasedAt, 'expires_at' => $purchasedAt->copy()->addDays($expiryDays),
+                    'business_id' => $payment->business_id,
+                    'payment_id' => $payment->id,
+                    'purchased_tokens' => $payment->topup_quantity,
+                    'remaining_tokens' => $payment->topup_quantity,
+                    'purchased_at' => $purchasedAt,
+                    'expires_at' => $purchasedAt->copy()->addDays($expiryDays),
                 ]);
             } elseif ($payment->payment_type === 'storage') {
                 $owner = $payment->business->users()->wherePivot('role', 'owner')->firstOrFail();
                 OwnerStorageTopup::create([
-                    'owner_id' => $owner->id, 'payment_id' => $payment->id,
-                    'storage_bytes' => $payment->topup_storage_bytes, 'approved_at' => Carbon::now(),
+                    'owner_id' => $owner->id,
+                    'payment_id' => $payment->id,
+                    'storage_bytes' => $payment->topup_storage_bytes,
+                    'approved_at' => Carbon::now(),
                 ]);
             } elseif ($payment->billing_package_id && $payment->payment_type === BillingPackage::TYPE_SUBSCRIPTION) {
                 $subscription = $this->getSubscription($payment->business);

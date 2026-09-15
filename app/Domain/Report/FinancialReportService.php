@@ -117,7 +117,7 @@ final class FinancialReportService
             'period' => [
                 'start_date' => $startDate->toDateString(),
                 'end_date'   => $endDate->toDateString(),
-                'label'      => $startDate->format('d M Y') . ' — ' . $endDate->format('d M Y'),
+                'label'      => $startDate->format('d M Y') . ' - ' . $endDate->format('d M Y'),
             ],
             'revenues' => [
                 'pos_gross_sales'     => $posGrossRevenue,
@@ -171,15 +171,15 @@ final class FinancialReportService
         // POS Payments
         $posPayments = PosOrderPayment::whereHas('order', function ($q) use ($business, $startDate, $endDate) {
             $q->where('business_id', $business->id)
-              ->whereNotIn('status', [PosOrder::STATUS_VOIDED, PosOrder::STATUS_DRAFT_HELD])
-              ->whereBetween('order_date', [$startDate, $endDate]);
+                ->whereNotIn('status', [PosOrder::STATUS_VOIDED, PosOrder::STATUS_DRAFT_HELD])
+                ->whereBetween('order_date', [$startDate, $endDate]);
         })->sum('amount');
 
         // Invoice Customer Payments
         $invoicePayments = InvoicePayment::whereHas('invoice', function ($q) use ($business) {
             $q->where('business_id', $business->id);
         })->whereBetween('payment_date', [$startDate->startOfDay(), $endDate->endOfDay()])
-          ->sum('amount');
+            ->sum('amount');
 
         // General Cash In
         $cashInTransactions = (float) CashTransaction::where('business_id', $business->id)
@@ -218,7 +218,7 @@ final class FinancialReportService
 
         // 2.3 Current Balances from Tenant Cash & Bank Accounts
         // Catatan: `payment_accounts` adalah rekening platform/SaaS (lihat docs/implementation_plan.md),/
-        // bukan ledger kas tenant — saldo kas tenant hanya berasal dari `cash_accounts`.
+        // bukan ledger kas tenant - saldo kas tenant hanya berasal dari `cash_accounts`.
         $cashAccounts = CashAccount::where('business_id', $business->id)
             ->where('is_active', true)
             ->get();
@@ -228,7 +228,7 @@ final class FinancialReportService
             'period' => [
                 'start_date' => $startDate->toDateString(),
                 'end_date'   => $endDate->toDateString(),
-                'label'      => $startDate->format('d M Y') . ' — ' . $endDate->format('d M Y'),
+                'label'      => $startDate->format('d M Y') . ' - ' . $endDate->format('d M Y'),
             ],
             'inflows' => [
                 'pos_payments'     => (float) $posPayments,
@@ -383,7 +383,8 @@ final class FinancialReportService
      */
     public function getStockValuationAndTurnover(Business $business): array
     {
-        $products = Product::with(['category', 'outputUnit', 'stocks.location', 'costModels.latestVersion'])
+        $products = Product::goods()
+            ->with(['category', 'outputUnit', 'stocks.location', 'costModels.latestVersion'])
             ->where('business_id', $business->id)
             ->where('is_active', true)
             ->get();
@@ -495,7 +496,7 @@ final class FinancialReportService
             ->whereBetween('order_date', [$startDate, $endDate])
             ->orderBy('order_date')
             ->get()
-            ->map(fn (PosOrder $o) => [
+            ->map(fn(PosOrder $o) => [
                 'order_number' => $o->order_number,
                 'order_date'    => $o->order_date?->format('d/m/Y H:i'),
                 'customer'      => $o->customer?->name ?? $o->customer_name_guest ?? '-',
@@ -513,7 +514,7 @@ final class FinancialReportService
             ->whereBetween('invoice_date', [$startDate->toDateString(), $endDate->toDateString()])
             ->orderBy('invoice_date')
             ->get()
-            ->map(fn (Invoice $i) => [
+            ->map(fn(Invoice $i) => [
                 'invoice_number' => $i->invoice_number,
                 'invoice_date'    => $i->invoice_date?->format('d/m/Y'),
                 'customer'        => $i->customer?->name ?? 'Pelanggan Umum',
@@ -532,7 +533,7 @@ final class FinancialReportService
             ->whereBetween('return_date', [$startDate->toDateString(), $endDate->toDateString()])
             ->orderBy('return_date')
             ->get()
-            ->map(fn (SalesReturn $r) => [
+            ->map(fn(SalesReturn $r) => [
                 'return_number' => $r->return_number,
                 'return_date'    => $r->return_date?->format('d/m/Y'),
                 'status'         => $r->status,
@@ -545,7 +546,7 @@ final class FinancialReportService
             ->whereBetween('expense_date', [$startDate->toDateString(), $endDate->toDateString()])
             ->orderBy('expense_date')
             ->get()
-            ->map(fn (Expense $e) => [
+            ->map(fn(Expense $e) => [
                 'expense_number' => $e->expense_number ?? '-',
                 'expense_date'    => $e->expense_date?->format('d/m/Y'),
                 'category'        => $e->category ?? 'Lain-lain',
@@ -558,7 +559,7 @@ final class FinancialReportService
             'period' => [
                 'start_date' => $startDate->toDateString(),
                 'end_date'   => $endDate->toDateString(),
-                'label'      => $startDate->format('d M Y') . ' — ' . $endDate->format('d M Y'),
+                'label'      => $startDate->format('d M Y') . ' - ' . $endDate->format('d M Y'),
             ],
             'pos_orders' => $posOrders,
             'invoices' => $invoices,
@@ -583,8 +584,8 @@ final class FinancialReportService
         PosOrderPayment::with('order')
             ->whereHas('order', function ($q) use ($business, $startDate, $endDate) {
                 $q->where('business_id', $business->id)
-                  ->whereNotIn('status', [PosOrder::STATUS_VOIDED, PosOrder::STATUS_DRAFT_HELD])
-                  ->whereBetween('order_date', [$startDate, $endDate]);
+                    ->whereNotIn('status', [PosOrder::STATUS_VOIDED, PosOrder::STATUS_DRAFT_HELD])
+                    ->whereBetween('order_date', [$startDate, $endDate]);
             })
             ->get()
             ->each(function (PosOrderPayment $p) use (&$transactions): void {
@@ -675,7 +676,7 @@ final class FinancialReportService
         $cashAccounts = CashAccount::where('business_id', $business->id)
             ->where('is_active', true)
             ->get()
-            ->map(fn (CashAccount $ca) => [
+            ->map(fn(CashAccount $ca) => [
                 'name'    => $ca->name,
                 'type'    => $ca->type,
                 'balance' => (float) $ca->current_balance,
@@ -685,7 +686,7 @@ final class FinancialReportService
             'period' => [
                 'start_date' => $startDate->toDateString(),
                 'end_date'   => $endDate->toDateString(),
-                'label'      => $startDate->format('d M Y') . ' — ' . $endDate->format('d M Y'),
+                'label'      => $startDate->format('d M Y') . ' - ' . $endDate->format('d M Y'),
             ],
             'transactions' => $transactions,
             'accounts' => $cashAccounts,

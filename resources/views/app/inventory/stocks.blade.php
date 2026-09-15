@@ -42,33 +42,41 @@
 
         <!-- Quick Navigation Toolbar Actions -->
         <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            @if(\App\Support\Context::hasPermission('inventory.manage'))
             <a href="{{ route('import.index', ['tab' => 'inventory']) }}" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
                 <span>Import Stok</span>
             </a>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('inventory.view'))
             <a href="{{ route('inventory.movements') }}" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Kartu Stok</span>
             </a>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::hasPermission('inventory.view'))
             <a href="{{ route('inventory.opnames.index') }}" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <svg class="w-4 h-4 text-[#FF9500]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
                 </svg>
                 <span>Stock Opname</span>
             </a>
+            @endif
 
+            @if(\App\Support\Context::hasPermission('inventory.manage'))
             <a href="{{ route('inventory.transfers.index') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                 </svg>
                 <span>Transfer Stok</span>
             </a>
+            @endif
         </div>
     </header>
 
@@ -231,9 +239,11 @@
                             @endif
                         </td>
                         <td class="py-3 px-4 text-right">
+                            @if (\App\Support\Context::hasPermission('inventory.manage'))
                             <button type="button" @click="openAdjust('{{ $st->id }}')" class="h-7 px-2.5 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 active:scale-[0.97] transition-all">
                                 Sesuaikan
                             </button>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -281,9 +291,11 @@
                 </p>
             </div>
             <div class="shrink-0">
+                @if (\App\Support\Context::hasPermission('inventory.manage'))
                 <button type="button" @click="openAdjust('{{ $st->id }}')" class="h-8 px-3 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 active:scale-[0.97] transition-all">
                     Sesuaikan
                 </button>
+                @endif
             </div>
         </div>
         @empty
@@ -300,6 +312,7 @@
     <!-- ===================================================== -->
     <!-- 6. APPLE SHEET: PENYESUAIAN STOK CEPAT                -->
     <!-- ===================================================== -->
+    @if(\App\Support\Context::hasPermission('inventory.manage'))
     <div x-show="showAdjustModal"
         x-cloak
         class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/25 backdrop-blur-[2px] p-0 sm:p-4"
@@ -370,5 +383,6 @@
             </form>
         </div>
     </div>
+    @endif
 </div>
 @endsection

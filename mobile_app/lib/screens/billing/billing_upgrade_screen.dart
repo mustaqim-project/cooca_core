@@ -24,7 +24,7 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
         backgroundColor: AppColors.glassNav,
         title: Text(
           'Paket & Langganan',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
@@ -58,7 +58,7 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
                         child: Center(
                           child: Text(
                             'Bulanan (Monthly)',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.inter(
                               fontWeight: FontWeight.w700,
                               fontSize: 12,
                               color: _cycle == 'monthly' ? Colors.white : AppColors.textMuted,
@@ -83,7 +83,7 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
                           children: [
                             Text(
                               'Tahunan (Annual)',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 12,
                                 color: _cycle == 'annual' ? Colors.white : AppColors.textMuted,
@@ -183,7 +183,7 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
@@ -198,7 +198,7 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
                   ),
                   child: Text(
                     'PAKET AKTIF',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primaryLight,
@@ -210,7 +210,7 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
           const SizedBox(height: 8),
           Text(
             price,
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontSize: 22,
               fontWeight: FontWeight.w900,
               color: isHighlight ? AppColors.purpleLight : AppColors.textPrimary,
@@ -218,7 +218,7 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
           ),
           Text(
             subtitle,
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontSize: 12,
               color: AppColors.textMuted,
             ),
@@ -233,7 +233,7 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
                     Expanded(
                       child: Text(
                         f,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontSize: 13,
                           color: AppColors.textSecondary,
                         ),

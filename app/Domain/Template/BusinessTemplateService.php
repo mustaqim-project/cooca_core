@@ -249,6 +249,7 @@ final class BusinessTemplateService
                     'category_id' => isset($pData['category_key'], $prodCatMap[$pData['category_key']]) ? $prodCatMap[$pData['category_key']]->id : null,
                     'output_unit_id' => $pData['unit']->id,
                     'business_type_hint' => $template->industry_category,
+                    'type' => $pData['type'] ?? ($pData['method'] === CostModel::METHOD_SERVICE ? Product::TYPE_SERVICE : Product::TYPE_GOODS),
                     'selling_price' => (float) ($pData['selling_price'] ?? 35000),
                     'base_cost' => (float) ($pData['base_cost'] ?? 15000),
                 ]
@@ -407,6 +408,7 @@ final class BusinessTemplateService
                 'name' => 'Jasa Layanan / Konsultasi ' . $template->name . ' (per Jam)',
                 'code' => 'SRV-HRS-01',
                 'category_key' => 'service',
+                'type' => Product::TYPE_SERVICE,
                 'unit' => $u['hour'],
                 'method' => CostModel::METHOD_SERVICE,
                 'labor_key' => 'service_staff',

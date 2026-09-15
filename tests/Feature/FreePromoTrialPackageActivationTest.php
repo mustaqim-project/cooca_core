@@ -98,7 +98,7 @@ class FreePromoTrialPackageActivationTest extends TestCase
         $response->assertOk();
         $response->assertSee('Promo 15 Hari Trial Pro');
         $response->assertSee('PROMO TRIAL GRATIS');
-        $response->assertSee('Paket Bebas Biaya — Promo Trial Aktif Otomatis');
+        $response->assertSee('Paket Bebas Biaya - Promo Trial Aktif Otomatis');
     }
 
     public function test_tenant_can_instantly_activate_free_trial_package_without_payment(): void

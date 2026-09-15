@@ -48,10 +48,12 @@ final class SettingWebController extends Controller
             ->orderBy('name')
             ->get();
 
+        $allModules = \App\Domain\Template\ModuleRegistry::definitions();
+
         return view('app.settings.index', compact(
             'business', 'templates', 'currencies', 'locations', 'members',
             'suppliers', 'materialCategories', 'productCategories', 'customUnits', 'systemUnits', 'availableUnits',
-            'unitConversions', 'canAddMember', 'roles'
+            'unitConversions', 'canAddMember', 'roles', 'allModules'
         ));
     }
 
@@ -64,7 +66,7 @@ final class SettingWebController extends Controller
 
         $validated = $request->validate([
             'name' => ['nullable', 'string', 'max:255', Rule::unique('businesses', 'name')->ignore($business->id)],
-            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:2048'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'remove_logo' => ['nullable', 'boolean'],
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:150'],
@@ -75,6 +77,10 @@ final class SettingWebController extends Controller
             'pos_tax_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'pos_receipt_footer_note' => ['nullable', 'string', 'max:500'],
             'pos_receipt_wa_template' => ['nullable', 'string', 'max:2000'],
+            'pos_supervisor_pin' => ['nullable', 'string', 'min:4', 'max:8'],
+            'pos_max_cashier_discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'pos_require_pin_for_void' => ['nullable', 'boolean'],
+            'pos_require_pin_for_refund' => ['nullable', 'boolean'],
             'bank_name' => ['nullable', 'string', 'max:100'],
             'bank_account_number' => ['nullable', 'string', 'max:100'],
             'bank_account_holder' => ['nullable', 'string', 'max:150'],
@@ -133,6 +139,17 @@ final class SettingWebController extends Controller
         }
         if ($request->filled('rounding_strategy')) {
             $updateData['rounding_strategy'] = $validated['rounding_strategy'];
+        }
+        if ($request->filled('pos_supervisor_pin')) {
+            $updateData['pos_supervisor_pin'] = \Illuminate\Support\Facades\Hash::make($request->input('pos_supervisor_pin'));
+        }
+        if ($request->has('pos_max_cashier_discount_percent')) {
+            $discountVal = $request->input('pos_max_cashier_discount_percent');
+            $updateData['pos_max_cashier_discount_percent'] = ($discountVal !== null && $discountVal !== '') ? (float) $discountVal : null;
+        }
+        if ($request->input('_tab') === 'general') {
+            $updateData['pos_require_pin_for_void'] = $request->boolean('pos_require_pin_for_void');
+            $updateData['pos_require_pin_for_refund'] = $request->boolean('pos_require_pin_for_refund');
         }
 
         $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
@@ -195,7 +212,40 @@ final class SettingWebController extends Controller
 
         $result = $this->templateService->apply($business, $template);
 
-        return back()->with('success', "Template '{$template->name}' berhasil diterapkan ({$result['components_created']} komponen biaya ditambahkan).");
+        // Sync template profile and default disabled modules
+        $disabledModules = \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($template->code);
+        $business->update([
+            'template_code' => $template->code,
+            'industry_category' => $template->industry_category,
+            'disabled_modules' => $disabledModules,
+        ]);
+
+        return back()->with('success', "Template '{$template->name}' berhasil diterapkan ({$result['components_created']} komponen biaya ditambahkan). Modul fitur telah disesuaikan otomatis.");
+    }
+
+    /**
+     * Update functional module toggles for the active business.
+     */
+    public function updateModules(Request $request): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless(Context::isOwner(), 403, 'Hanya Business Owner yang berwenang mengatur modul fitur.');
+
+        $allModuleKeys = array_keys(\App\Domain\Template\ModuleRegistry::definitions());
+
+        $validated = $request->validate([
+            'enabled_modules' => ['nullable', 'array'],
+            'enabled_modules.*' => ['string', 'in:' . implode(',', $allModuleKeys)],
+        ]);
+
+        $enabled = $validated['enabled_modules'] ?? [];
+        $disabled = array_values(array_diff($allModuleKeys, $enabled));
+
+        $business->update([
+            'disabled_modules' => $disabled,
+        ]);
+
+        return back()->with('success', 'Konfigurasi modul fitur bisnis Anda berhasil diperbarui.')->with('active_tab', 'modules');
     }
 
     /**

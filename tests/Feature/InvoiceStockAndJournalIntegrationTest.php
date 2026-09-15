@@ -20,7 +20,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * FASE 2 — Integration Test
+ * FASE 2 - Integration Test
  *
  * Verifikasi alur end-to-end:
  *   Invoice Draft  →  Konfirmasi Rilis  →  Stok Berkurang  →  Jurnal Piutang & HPP Terbentuk
@@ -136,7 +136,7 @@ class InvoiceStockAndJournalIntegrationTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // Test 1: Invoice dibuat sebagai DRAFT — stok TIDAK dipotong
+    // Test 1: Invoice dibuat sebagai DRAFT - stok TIDAK dipotong
     // -------------------------------------------------------------------------
 
     public function test_draft_invoice_does_not_deduct_stock(): void

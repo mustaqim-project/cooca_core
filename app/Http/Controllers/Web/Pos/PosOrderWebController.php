@@ -52,8 +52,9 @@ final class PosOrderWebController extends Controller
         }
 
         $orders = $query->paginate(20)->withQueryString();
+        $canBypassSupervisor = app(\App\Domain\System\OperatingModeService::class)->canBypassSupervisor($business, auth()->user());
 
-        return view('app.pos.orders', compact('business', 'orders'));
+        return view('app.pos.orders', compact('business', 'orders', 'canBypassSupervisor'));
     }
 
     /**
@@ -70,7 +71,19 @@ final class PosOrderWebController extends Controller
      */
     public function void(Request $request, PosOrder $order): RedirectResponse|JsonResponse
     {
+        $business = Context::requireBusiness();
+        if ($order->business_id !== $business->id) {
+            abort(403);
+        }
+
         $user = auth()->user();
+
+        if ($business->pos_require_pin_for_void && ! $this->verifySupervisorAuthorization($request, $business, $user)) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'PIN Supervisor salah atau otorisasi tidak valid.'], 403);
+            }
+            return back()->withErrors(['void' => 'PIN Supervisor salah atau otorisasi tidak valid.']);
+        }
 
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:255'],
@@ -94,7 +107,19 @@ final class PosOrderWebController extends Controller
      */
     public function refund(Request $request, PosOrder $order): RedirectResponse|JsonResponse
     {
+        $business = Context::requireBusiness();
+        if ($order->business_id !== $business->id) {
+            abort(403);
+        }
+
         $user = auth()->user();
+
+        if ($business->pos_require_pin_for_refund && ! $this->verifySupervisorAuthorization($request, $business, $user)) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'PIN Supervisor salah atau otorisasi tidak valid.'], 403);
+            }
+            return back()->withErrors(['refund' => 'PIN Supervisor salah atau otorisasi tidak valid.']);
+        }
 
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:255'],
@@ -134,5 +159,24 @@ final class PosOrderWebController extends Controller
         }
 
         return redirect()->back()->with('success', "Transaksi #{$refunded->order_number} berhasil direfund!");
+    }
+
+    /**
+     * Verify supervisor authorization for void or refund overrides.
+     */
+    private function verifySupervisorAuthorization(Request $request, \App\Models\Business $business, ?\App\Models\User $user): bool
+    {
+        if (app(\App\Domain\System\OperatingModeService::class)->canBypassSupervisor($business, $user)) {
+            return true;
+        }
+
+        $pin = (string) $request->input('pin', '');
+        if ($pin === '') {
+            return false;
+        }
+
+        $validPin = (string) ($business->pos_supervisor_pin ?? '1234');
+
+        return \Illuminate\Support\Facades\Hash::check($pin, $validPin) || hash_equals($validPin, $pin);
     }
 }
