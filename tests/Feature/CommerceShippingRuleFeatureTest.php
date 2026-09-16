@@ -177,7 +177,16 @@ class CommerceShippingRuleFeatureTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson("/b/{$this->business->slug}/checkout", $payload);
+        $customer = \App\Models\GlobalCustomer::create([
+            'google_id' => 'google-user-shipping',
+            'name' => 'Budi Santoso',
+            'email' => 'budi@example.com',
+            'phone' => '081233334444',
+            'phone_verified_at' => now(),
+        ]);
+
+        $response = $this->actingAs($customer, 'customer')
+            ->postJson("/b/{$this->business->slug}/checkout", $payload);
 
         $response->assertOk();
         $response->assertJsonPath('success', true);

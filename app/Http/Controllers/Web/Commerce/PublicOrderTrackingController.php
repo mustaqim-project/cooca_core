@@ -43,8 +43,13 @@ final class PublicOrderTrackingController extends Controller
             'notes' => ['nullable', 'string', 'max:500'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'uuid', 'exists:products,id'],
-            'items.*.quantity' => ['required', 'numeric', 'min:0.01'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
             'items.*.notes' => ['nullable', 'string', 'max:255'],
+        ], [
+            'items.required' => 'Keranjang belanja tidak boleh kosong.',
+            'items.min' => 'Keranjang belanja minimal harus memiliki 1 item.',
+            'items.*.quantity.required' => 'Jumlah pesanan wajib diisi.',
+            'items.*.quantity.gt' => 'Jumlah item pesanan harus lebih dari 0.',
         ]);
 
         try {
@@ -134,9 +139,14 @@ final class PublicOrderTrackingController extends Controller
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['nullable', 'uuid', 'exists:products,id'],
             'items.*.product_name' => ['required', 'string', 'max:200'],
-            'items.*.quantity' => ['required', 'numeric', 'min:0.01'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
             'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
             'items.*.notes' => ['nullable', 'string', 'max:500'],
+        ], [
+            'items.required' => 'Daftar permintaan barang tidak boleh kosong.',
+            'items.min' => 'Daftar permintaan barang minimal harus memiliki 1 item.',
+            'items.*.quantity.required' => 'Jumlah permintaan wajib diisi.',
+            'items.*.quantity.gt' => 'Jumlah permintaan barang harus lebih dari 0.',
         ]);
 
         try {
@@ -272,15 +282,20 @@ final class PublicOrderTrackingController extends Controller
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['nullable', 'uuid', 'exists:products,id'],
             'items.*.product_name' => ['required', 'string', 'max:200'],
-            'items.*.quantity' => ['required', 'numeric', 'min:0.01'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
             'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
             'items.*.notes' => ['nullable', 'string', 'max:500'],
             'batches' => ['required', 'array', 'min:1'],
             'batches.*.scheduled_date' => ['required', 'date'],
             'batches.*.scheduled_time_slot' => ['nullable', 'string', 'max:50'],
-            'batches.*.quantity' => ['required', 'numeric', 'min:0.01'],
+            'batches.*.quantity' => ['required', 'numeric', 'gt:0'],
             'batches.*.shipping_address' => ['nullable', 'string', 'max:500'],
             'batches.*.notes' => ['nullable', 'string', 'max:500'],
+        ], [
+            'items.required' => 'Daftar item PO wajib diisi.',
+            'items.*.quantity.gt' => 'Jumlah unit produk PO harus lebih dari 0.',
+            'batches.required' => 'Jadwal batch pengiriman wajib ditentukan.',
+            'batches.*.quantity.gt' => 'Jumlah pengiriman pada setiap batch harus lebih dari 0.',
         ]);
 
         try {

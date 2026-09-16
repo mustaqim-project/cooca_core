@@ -17,7 +17,7 @@ final class PublicViewsProductionReadinessTest extends TestCase
     {
         $response = $this->get('/kontak');
         $response->assertOk();
-        $response->assertSee('Hubungi Kami');
+        $response->assertSee('Hubungi Tim Kami');
 
         $submitResponse = $this->post('/kontak', [
             'name' => 'Budi Santoso',

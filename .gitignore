@@ -33,6 +33,8 @@ _ide_helper_models.php
 /public/build
 /public/hot
 /public/storage
+/public/payment-proofs/*
+!/public/payment-proofs/.gitkeep
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

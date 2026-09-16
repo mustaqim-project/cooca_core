@@ -15,12 +15,16 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkSession();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkSession();
+    });
   }
 
   Future<void> _checkSession() async {
-    await context.read<SettingsProvider>().init();
+    if (!mounted) return;
+    final settings = context.read<SettingsProvider>();
     final auth = context.read<AuthProvider>();
+    await settings.init();
     await auth.checkAuthStatus();
 
     if (!mounted) return;

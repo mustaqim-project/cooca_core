@@ -36,6 +36,9 @@ class SaaSPlanAndEntitlementTest extends TestCase
             'name' => 'Owner SaaS',
             'email' => 'owner_saas@example.com',
             'password' => 'password123',
+            'email_verified_at' => now(),
+            'phone' => '6281234567899',
+            'phone_verified_at' => now(),
         ]);
 
         $this->business = Business::create(['name' => 'Cooca Bakery SaaS']);

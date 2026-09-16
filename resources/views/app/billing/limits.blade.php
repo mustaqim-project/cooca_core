@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 pb-12">
+    <div class="space-y-6 pb-28 lg:pb-10">
 
         <!-- 0. Standard Breadcrumb Bar -->
         <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
@@ -25,23 +25,23 @@
             </span>
         </nav>
 
-        <!-- 1. Top Header Banner (Seukuran Dashboard Penuh) -->
+        <!-- 1. Top Header Banner -->
         <div
-            class="bg-white dark:bg-slate-900/90 p-5 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 transition-colors">
-            <div class="space-y-1.5 max-w-3xl">
-                <div class="flex flex-wrap items-center gap-2">
+            class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 transition-colors">
+            <div class="space-y-2 max-w-3xl">
+                <div class="flex items-center gap-2">
                     <span
-                        class="rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold border inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                        <span>SaaS Resource Entitlement</span>
-                    </span>
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold border inline-flex items-center gap-1.5 font-mono uppercase tracking-wider {{ $usage['is_core'] ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700' }}">
+                        class="rounded-[10px] px-2.5 py-1 text-xs font-bold border inline-flex items-center gap-1.5 font-mono uppercase tracking-wider {{ $usage['is_core'] ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700' }}">
                         <span
-                            class="w-1.5 h-1.5 rounded-full {{ $usage['is_core'] ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400' }}"
+                            class="w-1.5 h-1.5 rounded-full {{ $usage['is_core'] ? 'bg-emerald-500' : 'bg-slate-400' }}"
                             aria-hidden="true"></span>
                         <span>{{ $usage['is_core'] ? 'Enterprise Pro' : 'Free Solo' }}</span>
                     </span>
+                    @if (!empty($usage['ends_at']))
+                        <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                            Aktif s/d {{ $usage['ends_at'] }}
+                        </span>
+                    @endif
                 </div>
                 <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                     Paket Langganan & Kuota Bisnis
@@ -53,20 +53,20 @@
             </div>
             <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
                 <a href="{{ route('billing.history') }}"
-                    class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition cursor-pointer shadow-2xs flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
+                    class="px-4 py-2.5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer shadow-2xs flex items-center justify-center gap-2 flex-1 sm:flex-none">
                     <i data-lucide="receipt" class="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
                     <span>Riwayat Tagihan</span>
                 </a>
                 @if (\App\Support\Context::hasPermission('billing.manage'))
                     @if ($usage['is_core'])
                         <a href="{{ route('billing.checkout') }}"
-                            class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
+                            class="px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 flex-1 sm:flex-none focus-visible:ring-2 focus-visible:ring-emerald-500">
                             <i data-lucide="refresh-cw" class="w-4 h-4" aria-hidden="true"></i>
                             <span>Perpanjang Masa Aktif</span>
                         </a>
                     @else
                         <a href="{{ route('billing.checkout') }}"
-                            class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
+                            class="px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 flex-1 sm:flex-none focus-visible:ring-2 focus-visible:ring-emerald-500">
                             <i data-lucide="sparkles" class="w-4 h-4" aria-hidden="true"></i>
                             <span>Ikut Patungan</span>
                         </a>
@@ -75,17 +75,17 @@
             </div>
         </div>
 
-        <!-- 2. 4 Command Pillars KPI Cards (Grid Penuh 4 Kolom) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- 2. 4 Command Pillars KPI Cards (Bento Metric Grid) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
             <!-- Pillar 1: Status Paket -->
             <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
+                class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Status
                             Paket</span>
                         <div
-                            class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                            class="w-9 h-9 rounded-[12px] bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                             <i data-lucide="shield-check" class="w-4 h-4"></i>
                         </div>
                     </div>
@@ -104,18 +104,18 @@
 
             <!-- Pillar 2: Masa Aktif -->
             <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
+                class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Masa
                             Aktif</span>
                         <div
-                            class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-800/80 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                            class="w-9 h-9 rounded-[12px] bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-800/80 flex items-center justify-center text-teal-600 dark:text-teal-400">
                             <i data-lucide="calendar" class="w-4 h-4"></i>
                         </div>
                     </div>
                     <div
-                        class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white truncate">
+                        class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white truncate tabular-nums">
                         @if (!empty($usage['ends_at']))
                             {{ $usage['ends_at'] }}
                         @else
@@ -138,18 +138,18 @@
                 $posLimit = $usage['is_core'] ? 'Unlimited' : (int) ($pos['limit'] ?? 100);
             @endphp
             <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
+                class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Kasir
                             POS Bulan Ini</span>
                         <div
-                            class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/80 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                            class="w-9 h-9 rounded-[12px] bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/80 flex items-center justify-center text-blue-600 dark:text-blue-400">
                             <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                         </div>
                     </div>
                     <div
-                        class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white truncate">
+                        class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white truncate tabular-nums">
                         {{ number_format($posUsed, 0, ',', '.') }} <span class="text-xs font-normal text-slate-500">/
                             {{ $posLimit }}</span>
                     </div>
@@ -164,18 +164,18 @@
 
             <!-- Pillar 4: Token AI & Storage -->
             <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
+                class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Token AI
                             &amp; Storage</span>
                         <div
-                            class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                            class="w-9 h-9 rounded-[12px] bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400">
                             <i data-lucide="bot" class="w-4 h-4"></i>
                         </div>
                     </div>
                     <div
-                        class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white truncate">
+                        class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white truncate tabular-nums">
                         {{ number_format(($usage['ai_tokens']['remaining'] ?? 0) / 1000, 1, ',', '.') }}k <span
                             class="text-xs font-normal text-slate-500">Token</span>
                     </div>
@@ -184,7 +184,7 @@
                     class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
                     <span>Storage Cloud</span>
                     <span
-                        class="font-bold text-slate-700 dark:text-slate-300 font-mono">{{ number_format($usage['storage']['used_mb'] ?? 0, 0) }}
+                        class="font-bold text-slate-700 dark:text-slate-300 font-mono tabular-nums">{{ number_format($usage['storage']['used_mb'] ?? 0, 0) }}
                         MB / {{ $usage['storage']['limit_gb'] ?? 1 }} GB</span>
                 </div>
             </div>
@@ -194,7 +194,7 @@
         @if ($usage['is_core'])
             <!-- Active Core Plan Executive Card -->
             <section aria-labelledby="active-plan-heading"
-                class="rounded-2xl p-6 sm:p-7 border border-emerald-200 dark:border-emerald-500/40 bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/50 dark:from-emerald-950/40 dark:via-slate-900/90 dark:to-slate-950 shadow-xs relative overflow-hidden backdrop-blur-xl">
+                class="rounded-[20px] p-6 sm:p-7 border border-emerald-200 dark:border-emerald-500/30 bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/50 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-950 shadow-xs relative overflow-hidden backdrop-blur-xl">
                 <div class="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"
                     aria-hidden="true"></div>
 
@@ -202,7 +202,7 @@
                     <div class="space-y-3 max-w-2xl">
                         <div class="flex flex-wrap items-center gap-2">
                             <span
-                                class="rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-1.5 shadow-2xs">
+                                class="rounded-[10px] px-2.5 py-1 text-xs font-bold uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-1.5 shadow-2xs">
                                 <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"
                                     aria-hidden="true"></i>
                                 <span>STATUS LANGGANAN AKTIF</span>
@@ -223,7 +223,7 @@
 
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                             Seluruh limit transaksi POS, faktur penjualan, katalog produk, resep BOM, dan multi-gudang telah
-                            terbuka penuh tanpa batas (*Unlimited*).
+                            terbuka penuh tanpa batas (Unlimited).
                         </p>
 
                         <div
@@ -258,13 +258,13 @@
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
                         @if (\App\Support\Context::hasPermission('billing.manage'))
                             <a href="{{ route('billing.checkout') }}"
-                                class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
+                                class="px-5 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
                                 <i data-lucide="refresh-cw" class="w-4 h-4" aria-hidden="true"></i>
                                 <span>Perpanjang Masa Aktif</span>
                             </a>
                         @endif
                         <a href="{{ route('billing.history') }}"
-                            class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition cursor-pointer shadow-2xs flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
+                            class="px-4 py-2.5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer shadow-2xs flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
                             <i data-lucide="receipt" class="w-4 h-4 text-slate-400" aria-hidden="true"></i>
                             <span>Lihat Invoice</span>
                         </a>
@@ -274,17 +274,17 @@
         @else
             <!-- Free Plan Upgrade Hero Banner -->
             <section aria-labelledby="upgrade-plan-heading"
-                class="rounded-2xl p-6 sm:p-7 border border-emerald-200 dark:border-emerald-500/40 bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/50 dark:from-emerald-950/40 dark:via-slate-900/90 dark:to-slate-950 shadow-xs relative overflow-hidden backdrop-blur-xl">
+                class="rounded-[20px] p-6 sm:p-7 border border-emerald-200 dark:border-emerald-500/30 bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/50 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-950 shadow-xs relative overflow-hidden backdrop-blur-xl">
                 <div class="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"
                     aria-hidden="true"></div>
 
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 relative z-10">
                     <div class="space-y-3 max-w-2xl">
                         <div
-                            class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 shadow-2xs">
+                            class="inline-flex items-center gap-2 rounded-[10px] px-2.5 py-1 text-xs font-bold uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 shadow-2xs">
                             <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"
                                 aria-hidden="true"></i>
-                            <span>PROGRAM PATUNGAN SAAS Cooca</span>
+                            <span>PROGRAM PATUNGAN SAAS COOCA</span>
                         </div>
 
                         <h2 id="upgrade-plan-heading"
@@ -295,7 +295,7 @@
 
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                             Tingkatkan dari Paket Free ke Cooca mulai dari <strong
-                                class="text-slate-900 dark:text-white font-mono">Rp
+                                class="text-slate-900 dark:text-white font-mono tabular-nums">Rp
                                 {{ number_format($monthlyPrice, 0, ',', '.') }}/bulan</strong>. Dapatkan produk &amp; resep
                             unlimited, multi-gudang, transaksi tanpa batas, serta integrasi ekspor Excel lengkap.
                         </p>
@@ -305,13 +305,13 @@
                         <div
                             class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
                             <a href="{{ route('billing.checkout', ['cycle' => 'monthly']) }}"
-                                class="px-5 py-3 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
+                                class="px-5 py-3 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
                                 <i data-lucide="zap" class="w-4 h-4" aria-hidden="true"></i>
                                 <span>Bulanan (Rp {{ number_format($monthlyPrice, 0, ',', '.') }}/bln)</span>
                             </a>
 
                             <a href="{{ route('billing.checkout', ['cycle' => 'annual']) }}"
-                                class="px-5 py-3 rounded-xl text-xs font-bold text-slate-800 dark:text-teal-300 bg-white dark:bg-slate-800 border border-teal-300 dark:border-teal-500/40 hover:bg-teal-50 dark:hover:bg-slate-700/80 transition cursor-pointer shadow-2xs flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
+                                class="px-5 py-3 rounded-[12px] text-xs font-bold text-slate-800 dark:text-teal-300 bg-white dark:bg-slate-800 border border-teal-300 dark:border-teal-500/40 hover:bg-teal-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer shadow-2xs flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
                                 <i data-lucide="sparkles" class="w-4 h-4 text-amber-500 dark:text-amber-300"
                                     aria-hidden="true"></i>
                                 <span>Tahunan ({{ $annualDiscountBadge }} · Rp
@@ -338,32 +338,32 @@
                     penyimpanan dokumen terproteksi</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                 <!-- 1. Cloud Storage Owner -->
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-5 sm:p-6 flex flex-col justify-between gap-5 relative overflow-hidden">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-5 sm:p-6 flex flex-col justify-between gap-5 relative overflow-hidden">
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <div
                                 class="flex items-center gap-2 text-cyan-700 dark:text-cyan-300 text-xs font-black uppercase tracking-wider">
-                                <div class="p-2 rounded-xl bg-cyan-100/80 dark:bg-cyan-500/15 text-cyan-600 dark:text-cyan-400"
+                                <div class="p-2 rounded-[10px] bg-cyan-100/80 dark:bg-cyan-500/15 text-cyan-600 dark:text-cyan-400"
                                     aria-hidden="true">
                                     <i data-lucide="hard-drive" class="w-4 h-4"></i>
                                 </div>
                                 <span>Penyimpanan Cloud Bisnis</span>
                             </div>
                             <span
-                                class="rounded-full px-2.5 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400 border-cyan-200/90 dark:border-cyan-800/90">
-                                Aset Terproteksi
+                                class="rounded-[8px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400 border-cyan-200/90 dark:border-cyan-800/90 font-mono">
+                                TERPROTEKSI
                             </span>
                         </div>
 
                         <div class="flex items-baseline gap-2 pt-1">
-                            <span class="text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white">
+                            <span class="text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white tabular-nums">
                                 {{ number_format($usage['storage']['used_mb'] ?? 0, 1, ',', '.') }} <span
                                     class="text-sm sm:text-base font-bold text-slate-500 dark:text-slate-400">MB</span>
                             </span>
-                            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
                                 / {{ number_format($usage['storage']['limit_gb'] ?? 1, 1, ',', '.') }} GB Kapasitas
                             </span>
                         </div>
@@ -379,9 +379,9 @@
                             </div>
                             <div class="flex justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                                 <span>Terpakai: <strong
-                                        class="text-slate-800 dark:text-slate-200 font-bold">{{ $storagePercent }}%</strong></span>
+                                        class="text-slate-800 dark:text-slate-200 font-bold tabular-nums">{{ $storagePercent }}%</strong></span>
                                 <span>Sisa: <strong
-                                        class="text-slate-800 dark:text-slate-200 font-bold">{{ max(0, 100 - $storagePercent) }}%</strong></span>
+                                        class="text-slate-800 dark:text-slate-200 font-bold tabular-nums">{{ max(0, 100 - $storagePercent) }}%</strong></span>
                             </div>
                         </div>
 
@@ -397,7 +397,7 @@
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Tambah kuota
                                 permanen</span>
                             <a href="{{ route('billing.checkout', ['type' => 'storage']) }}"
-                                class="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 shadow-sm shadow-cyan-600/20 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-cyan-500">
+                                class="px-3.5 py-2 rounded-[12px] text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 shadow-sm shadow-cyan-600/20 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-cyan-500">
                                 <i data-lucide="plus" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 <span>Top Up Storage</span>
                             </a>
@@ -407,25 +407,25 @@
 
                 <!-- 2. AI Tokens (Gemini Flash Intelligence) -->
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-5 sm:p-6 flex flex-col justify-between gap-5 relative overflow-hidden">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-5 sm:p-6 flex flex-col justify-between gap-5 relative overflow-hidden">
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <div
                                 class="flex items-center gap-2 text-amber-700 dark:text-amber-300 text-xs font-black uppercase tracking-wider">
-                                <div class="p-2 rounded-xl bg-amber-100/80 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                                <div class="p-2 rounded-[10px] bg-amber-100/80 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400"
                                     aria-hidden="true">
                                     <i data-lucide="bot" class="w-4 h-4"></i>
                                 </div>
                                 <span>Token Asisten AI Bisnis</span>
                             </div>
                             <span
-                                class="rounded-full px-2.5 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200/90 dark:border-amber-800/90">
-                                Gemini 2.5 Engine
+                                class="rounded-[8px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200/90 dark:border-amber-800/90 font-mono">
+                                GEMINI 2.5
                             </span>
                         </div>
 
                         <div class="flex items-baseline gap-2 pt-1">
-                            <span class="text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white">
+                            <span class="text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white tabular-nums">
                                 {{ number_format($usage['ai_tokens']['remaining'] ?? 0, 0, ',', '.') }}
                             </span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Token Tersisa</span>
@@ -442,7 +442,7 @@
                             </div>
                             <div class="flex justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                                 <span>Terpakai: <strong
-                                        class="text-slate-800 dark:text-slate-200 font-bold">{{ $tokenPercent }}%</strong></span>
+                                        class="text-slate-800 dark:text-slate-200 font-bold tabular-nums">{{ $tokenPercent }}%</strong></span>
                                 <span class="text-amber-600 dark:text-amber-400 font-semibold">Asisten Otomatis
                                     Aktif</span>
                             </div>
@@ -460,7 +460,7 @@
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Beli paket isi
                                 ulang</span>
                             <a href="{{ route('billing.checkout', ['type' => 'ai_token']) }}"
-                                class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 shadow-sm shadow-amber-400/20 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-amber-400">
+                                class="px-3.5 py-2 rounded-[12px] text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 shadow-sm shadow-amber-400/20 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-amber-400">
                                 <i data-lucide="sparkles" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 <span>Top Up Token AI</span>
                             </a>
@@ -490,7 +490,7 @@
                         </h2>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono">
+                        <span class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
                             {{ $storageDetails['total_files_count'] }} file aktif · {{ $storageDetails['used_mb'] }} MB /
                             {{ $storageDetails['limit_gb'] }} GB
                         </span>
@@ -500,7 +500,7 @@
                                 @csrf
                                 <button type="submit"
                                     onclick="return confirm('Recalculate akan memindai ulang seluruh file di disk dan menyinkronkan database. Lanjutkan?')"
-                                    class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:ring-2 focus-visible:ring-cyan-500">
+                                    class="px-2.5 py-1.5 rounded-[8px] text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:ring-2 focus-visible:ring-cyan-500">
                                     <i data-lucide="refresh-cw" class="w-3 h-3 text-cyan-600 dark:text-cyan-400"
                                         aria-hidden="true"></i>
                                     <span>Recalculate</span>
@@ -510,12 +510,12 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
 
                     <!-- Per-Business Breakdown -->
                     @if (!empty($storageDetails['business_breakdown']))
                         <div
-                            class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-5 space-y-4">
+                            class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-5 space-y-4">
                             <div
                                 class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                                 <i data-lucide="building-2" class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400"
@@ -537,7 +537,7 @@
                                                 {{ $biz['name'] }}
                                             </span>
                                             <span
-                                                class="font-mono text-slate-500 dark:text-slate-400 text-[11px] shrink-0 ml-2">
+                                                class="font-mono text-slate-500 dark:text-slate-400 text-[11px] shrink-0 ml-2 tabular-nums">
                                                 {{ $biz['used_mb'] }} MB ({{ $bizPct }}%) ·
                                                 {{ $biz['files_count'] }} file
                                             </span>
@@ -557,7 +557,7 @@
                     <!-- Category Breakdown -->
                     @if (!empty($storageDetails['category_breakdown']))
                         <div
-                            class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-5 space-y-4">
+                            class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-5 space-y-4">
                             <div
                                 class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                                 <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"
@@ -574,10 +574,10 @@
                                         </div>
                                         <div class="flex items-center gap-2 shrink-0 ml-2">
                                             <span
-                                                class="font-mono text-slate-500 dark:text-slate-400 text-[11px]">{{ $cat['used_mb'] }}
+                                                class="font-mono text-slate-500 dark:text-slate-400 text-[11px] tabular-nums">{{ $cat['used_mb'] }}
                                                 MB</span>
                                             <span
-                                                class="rounded-full px-1.5 py-0.5 text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">{{ $cat['percentage'] }}%</span>
+                                                class="rounded-[6px] px-1.5 py-0.5 text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono tabular-nums">{{ $cat['percentage'] }}%</span>
                                         </div>
                                     </div>
                                 @endforeach
@@ -586,60 +586,89 @@
                     @endif
                 </div>
 
-                <!-- Largest Files (Top 10) -->
+                <!-- Largest Files (Top 10): Table-to-Card Pattern -->
                 @if (!empty($storageDetails['largest_files']))
                     <div
-                        class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-5 space-y-3">
+                        class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-4 sm:p-5 space-y-3">
                         <div
                             class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                             <i data-lucide="file-search" class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400"
                                 aria-hidden="true"></i>
                             <span>10 File Terbesar</span>
                         </div>
-                        <div class="overflow-x-auto -mx-5 px-5">
+
+                        <!-- Desktop Table View -->
+                        <div class="hidden md:block overflow-x-auto -mx-5 px-5">
                             <table class="w-full text-xs min-w-[540px]" aria-label="Tabel 10 File Terbesar">
                                 <thead>
                                     <tr
                                         class="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
-                                        <th scope="col" class="py-2 text-left font-semibold">Nama File</th>
-                                        <th scope="col" class="py-2 text-left font-semibold">Bisnis</th>
-                                        <th scope="col" class="py-2 text-left font-semibold">Kategori</th>
-                                        <th scope="col" class="py-2 text-right font-semibold">Ukuran</th>
-                                        <th scope="col" class="py-2 text-right font-semibold">Diunggah</th>
+                                        <th scope="col" class="py-2.5 text-left font-semibold">Nama File</th>
+                                        <th scope="col" class="py-2.5 text-left font-semibold">Bisnis</th>
+                                        <th scope="col" class="py-2.5 text-left font-semibold">Kategori</th>
+                                        <th scope="col" class="py-2.5 text-right font-semibold">Ukuran</th>
+                                        <th scope="col" class="py-2.5 text-right font-semibold">Diunggah</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
                                     @foreach ($storageDetails['largest_files'] as $lf)
                                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                                            <td class="py-2 pr-3 font-medium text-slate-800 dark:text-slate-200 truncate max-w-[160px]"
+                                            <td class="py-2.5 pr-3 font-medium text-slate-800 dark:text-slate-200 truncate max-w-[180px]"
                                                 title="{{ $lf['file_name'] }}">
                                                 {{ $lf['file_name'] }}
                                             </td>
                                             <td
-                                                class="py-2 pr-3 text-slate-600 dark:text-slate-400 truncate max-w-[120px]">
+                                                class="py-2.5 pr-3 text-slate-600 dark:text-slate-400 truncate max-w-[140px]">
                                                 {{ $lf['business_name'] }}</td>
-                                            <td class="py-2 pr-3">
+                                            <td class="py-2.5 pr-3">
                                                 <span
-                                                    class="rounded-full px-2 py-0.5 text-[9px] font-bold bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/60 font-mono">
+                                                    class="rounded-[6px] px-2 py-0.5 text-[9px] font-bold bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/60 font-mono">
                                                     {{ $lf['category_label'] }}
                                                 </span>
                                             </td>
                                             <td
-                                                class="py-2 text-right font-mono font-bold text-slate-800 dark:text-slate-200">
+                                                class="py-2.5 text-right font-mono font-bold text-slate-800 dark:text-slate-200 tabular-nums">
                                                 {{ $lf['formatted_size'] }}</td>
-                                            <td class="py-2 text-right text-slate-500 dark:text-slate-400 font-mono">
+                                            <td class="py-2.5 text-right text-slate-500 dark:text-slate-400 font-mono tabular-nums">
                                                 {{ $lf['uploaded_at'] }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Mobile Card List View -->
+                        <div class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/80 -mx-4">
+                            @foreach ($storageDetails['largest_files'] as $lf)
+                                <div class="p-3.5 space-y-2">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="font-semibold text-xs text-slate-900 dark:text-white truncate"
+                                            title="{{ $lf['file_name'] }}">
+                                            {{ $lf['file_name'] }}
+                                        </div>
+                                        <span class="font-mono font-bold text-xs text-slate-900 dark:text-white shrink-0 tabular-nums">
+                                            {{ $lf['formatted_size'] }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                                        <span class="truncate">{{ $lf['business_name'] }}</span>
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <span
+                                                class="rounded-[6px] px-1.5 py-0.2 text-[9px] font-bold bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/60 font-mono">
+                                                {{ $lf['category_label'] }}
+                                            </span>
+                                            <span class="font-mono tabular-nums">{{ $lf['uploaded_at'] }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 @endif
 
                 @if ($sdIsOver)
                     <div
-                        class="flex items-start gap-3 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-500/30 text-xs">
+                        class="flex items-start gap-3 p-4 rounded-[16px] bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-500/30 text-xs">
                         <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5"
                             aria-hidden="true"></i>
                         <div>
@@ -661,7 +690,6 @@
         @endif
 
         <!-- 5. SECTION 2: Monthly Commercial Quotas (POS, B2B Invoices, Purchase Orders) -->
-
         <section aria-labelledby="monthly-quotas-heading" class="space-y-4">
             <div
                 class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -677,7 +705,7 @@
                     tanggal 1 awal bulan (00:00 WIB)</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
                 <!-- 1. POS Orders -->
                 @php
                     $pos = $usage['pos_this_month'] ?? [];
@@ -685,11 +713,11 @@
                     $posReached = $pos['is_reached'] ?? false;
                 @endphp
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border {{ $posReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-slate-200/90 dark:border-slate-800/90' }} shadow-xs p-5 space-y-3 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $posReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Transaksi Kasir POS</span>
-                            <div class="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                            <div class="p-1.5 rounded-[8px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                                 aria-hidden="true">
                                 <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                             </div>
@@ -697,7 +725,7 @@
 
                         <div class="mt-2 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono {{ $posReached ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
+                                class="text-2xl font-black font-mono tabular-nums {{ $posReached ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
                                 {{ number_format($pos['used'] ?? 0, 0, ',', '.') }}
                             </span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -720,7 +748,7 @@
                             class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas transaksi kasir' : 'Maks. 100 struk/bln (Free)' }}</span>
                         @if ($posReached)
                             <span
-                                class="rounded-full px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90">Batas
+                                class="rounded-[6px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90">Batas
                                 Tercapai</span>
                         @elseif($usage['is_core'])
                             <span class="text-emerald-600 dark:text-emerald-400 font-bold font-mono">UNLIMITED</span>
@@ -735,11 +763,11 @@
                     $invReached = $inv['is_reached'] ?? false;
                 @endphp
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border {{ $invReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-slate-200/90 dark:border-slate-800/90' }} shadow-xs p-5 space-y-3 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $invReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Faktur Penjualan (B2B)</span>
-                            <div class="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                            <div class="p-1.5 rounded-[8px] bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400"
                                 aria-hidden="true">
                                 <i data-lucide="receipt" class="w-4 h-4"></i>
                             </div>
@@ -747,7 +775,7 @@
 
                         <div class="mt-2 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono {{ $invReached ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
+                                class="text-2xl font-black font-mono tabular-nums {{ $invReached ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
                                 {{ number_format($inv['used'] ?? 0, 0, ',', '.') }}
                             </span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -770,7 +798,7 @@
                             class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas cetak faktur digital' : 'Maks. 10 faktur/bln (Free)' }}</span>
                         @if ($invReached)
                             <span
-                                class="rounded-full px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90">Batas
+                                class="rounded-[6px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90">Batas
                                 Tercapai</span>
                         @elseif($usage['is_core'])
                             <span class="text-purple-600 dark:text-purple-400 font-bold font-mono">UNLIMITED</span>
@@ -785,11 +813,11 @@
                     $poReached = $po['is_reached'] ?? false;
                 @endphp
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border {{ $poReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-slate-200/90 dark:border-slate-800/90' }} shadow-xs p-5 space-y-3 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $poReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Purchase Order (PO)</span>
-                            <div class="p-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
+                            <div class="p-1.5 rounded-[8px] bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
                                 aria-hidden="true">
                                 <i data-lucide="clipboard-list" class="w-4 h-4"></i>
                             </div>
@@ -797,7 +825,7 @@
 
                         <div class="mt-2 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono {{ $poReached ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
+                                class="text-2xl font-black font-mono tabular-nums {{ $poReached ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
                                 {{ number_format($po['used'] ?? 0, 0, ',', '.') }}
                             </span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -819,7 +847,7 @@
                             class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas order supplier' : 'Maks. 10 PO/bln (Free)' }}</span>
                         @if ($poReached)
                             <span
-                                class="rounded-full px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90">Batas
+                                class="rounded-[6px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90">Batas
                                 Tercapai</span>
                         @elseif($usage['is_core'])
                             <span class="text-cyan-600 dark:text-cyan-400 font-bold font-mono">UNLIMITED</span>
@@ -845,11 +873,11 @@
                     operasional terstruktur</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
                 <!-- 1. Katalog Produk -->
                 @php $prd = $usage['products'] ?? []; @endphp
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border {{ $prd['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-slate-200/90 dark:border-slate-800/90' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $prd['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Katalog Produk</span>
@@ -858,7 +886,7 @@
                         </div>
                         <div class="mt-1.5 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono {{ $prd['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $prd['used'] ?? 0 }}</span>
+                                class="text-2xl font-black font-mono tabular-nums {{ $prd['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $prd['used'] ?? 0 }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
                                 {{ $prd['limit'] ? $prd['limit'] . ' item' : '∞ Unlimited' }}</span>
                         </div>
@@ -877,7 +905,7 @@
                 <!-- 2. Bahan Baku -->
                 @php $mat = $usage['materials'] ?? []; @endphp
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border {{ $mat['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-slate-200/90 dark:border-slate-800/90' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $mat['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Bahan Baku</span>
@@ -886,7 +914,7 @@
                         </div>
                         <div class="mt-1.5 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono {{ $mat['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $mat['used'] ?? 0 }}</span>
+                                class="text-2xl font-black font-mono tabular-nums {{ $mat['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $mat['used'] ?? 0 }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
                                 {{ $mat['limit'] ? $mat['limit'] . ' item' : '∞ Unlimited' }}</span>
                         </div>
@@ -905,7 +933,7 @@
                 <!-- 3. Resep HPP (BOM) -->
                 @php $rcp = $usage['recipes'] ?? []; @endphp
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border {{ $rcp['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-slate-200/90 dark:border-slate-800/90' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $rcp['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Resep HPP (BOM)</span>
@@ -914,7 +942,7 @@
                         </div>
                         <div class="mt-1.5 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono {{ $rcp['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $rcp['used'] ?? 0 }}</span>
+                                class="text-2xl font-black font-mono tabular-nums {{ $rcp['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $rcp['used'] ?? 0 }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
                                 {{ $rcp['limit'] ? $rcp['limit'] . ' resep' : '∞ Unlimited' }}</span>
                         </div>
@@ -933,7 +961,7 @@
                 <!-- 4. Pelanggan CRM -->
                 @php $cst = $usage['customers'] ?? []; @endphp
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border {{ $cst['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-slate-200/90 dark:border-slate-800/90' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $cst['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Pelanggan CRM</span>
@@ -942,7 +970,7 @@
                         </div>
                         <div class="mt-1.5 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono {{ $cst['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $cst['used'] ?? 0 }}</span>
+                                class="text-2xl font-black font-mono tabular-nums {{ $cst['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $cst['used'] ?? 0 }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
                                 {{ $cst['limit'] ? $cst['limit'] . ' kontak' : '∞ Unlimited' }}</span>
                         </div>
@@ -961,7 +989,7 @@
                 <!-- 5. Pemasok / Supplier -->
                 @php $sup = $usage['suppliers'] ?? []; @endphp
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border {{ $sup['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-slate-200/90 dark:border-slate-800/90' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $sup['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Pemasok / Vendor</span>
@@ -970,7 +998,7 @@
                         </div>
                         <div class="mt-1.5 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono {{ $sup['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $sup['used'] ?? 0 }}</span>
+                                class="text-2xl font-black font-mono tabular-nums {{ $sup['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $sup['used'] ?? 0 }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
                                 {{ $sup['limit'] ? $sup['limit'] . ' vendor' : '∞ Unlimited' }}</span>
                         </div>
@@ -988,7 +1016,7 @@
 
                 <!-- 6. Outlet & Gudang -->
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Outlet &amp; Gudang</span>
@@ -997,7 +1025,7 @@
                         </div>
                         <div class="mt-1.5 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono text-slate-900 dark:text-white">{{ ($usage['outlets']['used'] ?? 0) + ($usage['warehouses']['used'] ?? 0) }}</span>
+                                class="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">{{ ($usage['outlets']['used'] ?? 0) + ($usage['warehouses']['used'] ?? 0) }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
                                 {{ $usage['is_core'] ? '∞ Unlimited' : '1 Toko + 1 Gudang' }}</span>
                         </div>
@@ -1016,7 +1044,7 @@
 
                 <!-- 7. Pengguna / Karyawan -->
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Karyawan / Kasir</span>
@@ -1025,7 +1053,7 @@
                         </div>
                         <div class="mt-1.5 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono text-slate-900 dark:text-white">{{ $usage['users']['used'] ?? 0 }}</span>
+                                class="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">{{ $usage['users']['used'] ?? 0 }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
                                 {{ $usage['is_core'] ? '∞ Unlimited' : 'Solo Owner' }}</span>
                         </div>
@@ -1044,7 +1072,7 @@
 
                 <!-- 8. Entitas Bisnis -->
                 <div
-                    class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
                             <span class="text-xs font-bold uppercase tracking-wider">Entitas Bisnis</span>
@@ -1053,7 +1081,7 @@
                         </div>
                         <div class="mt-1.5 flex items-baseline gap-1.5">
                             <span
-                                class="text-2xl font-black font-mono text-slate-900 dark:text-white">{{ $usage['businesses']['used'] ?? 1 }}</span>
+                                class="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">{{ $usage['businesses']['used'] ?? 1 }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
                                 {{ $usage['is_core'] ? '∞ Unlimited' : '1 Bisnis' }}</span>
                         </div>
@@ -1074,7 +1102,7 @@
 
         <!-- 7. SECTION 4: Feature Comparison Matrix (SaaS Enterprise Grade) -->
         <section aria-labelledby="matrix-heading"
-            class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-5 sm:p-6 space-y-6">
+            class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-5 sm:p-6 space-y-6">
             <div
                 class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
                 <div>
@@ -1090,7 +1118,7 @@
                 @if (!$usage['is_core'])
                     @if (\App\Support\Context::hasPermission('billing.manage'))
                         <a href="{{ route('billing.checkout') }}"
-                            class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer self-start sm:self-auto flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-emerald-500">
+                            class="px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer self-start sm:self-auto flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-emerald-500">
                             <i data-lucide="zap" class="w-3.5 h-3.5" aria-hidden="true"></i>
                             <span>Upgrade Sekarang</span>
                         </a>
@@ -1108,7 +1136,7 @@
                             <th scope="col" class="py-3 px-4 w-1/2">Fitur &amp; Kemampuan Utama</th>
                             <th scope="col" class="py-3 px-4 text-center w-1/4">Paket Free (Solo)</th>
                             <th scope="col"
-                                class="py-3 px-4 text-center w-1/4 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 rounded-t-xl font-bold border-t border-x border-emerald-200 dark:border-emerald-500/30">
+                                class="py-3 px-4 text-center w-1/4 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 rounded-t-[14px] font-bold border-t border-x border-emerald-200 dark:border-emerald-500/30">
                                 Cooca (Patungan)
                             </th>
                         </tr>
@@ -1218,8 +1246,8 @@
 
         <!-- 8. SECTION 5: Trust, Continuity & Privacy Commitment -->
         <section aria-labelledby="commitment-heading"
-            class="rounded-2xl p-5 sm:p-6 border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50/80 dark:bg-emerald-950/20 flex flex-col sm:flex-row items-start sm:items-center gap-4 backdrop-blur-md">
-            <div class="p-3 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 shrink-0"
+            class="rounded-[20px] p-5 sm:p-6 border border-emerald-500/20 dark:border-emerald-500/30 bg-emerald-50/70 dark:bg-emerald-950/20 flex flex-col sm:flex-row items-start sm:items-center gap-4 backdrop-blur-md">
+            <div class="p-3 rounded-[16px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 shrink-0"
                 aria-hidden="true">
                 <i data-lucide="heart-handshake" class="w-6 h-6"></i>
             </div>

@@ -74,6 +74,22 @@ final class CustomerPoBatchService
             throw new InvalidArgumentException('Daftar item PO tidak boleh kosong.');
         }
 
+        foreach ($itemsData as $item) {
+            $qty = (float) ($item['quantity'] ?? 0);
+            if ($qty <= 0.0) {
+                throw new InvalidArgumentException('Jumlah unit produk pada Purchase Order (PO) harus lebih dari 0.');
+            }
+        }
+
+        if (! empty($batchesData)) {
+            foreach ($batchesData as $bData) {
+                $bQty = (float) ($bData['quantity'] ?? 0);
+                if ($bQty <= 0.0) {
+                    throw new InvalidArgumentException('Jumlah unit pada setiap jadwal batch pengiriman harus lebih dari 0.');
+                }
+            }
+        }
+
         return DB::transaction(function () use ($business, $customerData, $itemsData, $batchesData, $paymentMethodId, $options): CommerceOrder {
             $isMultiBatch = count($batchesData) > 1;
             $orderType = $isMultiBatch ? CommerceOrder::TYPE_PO_BATCH : CommerceOrder::TYPE_CUSTOMER_PO;
@@ -88,6 +104,7 @@ final class CustomerPoBatchService
             $order->business_id = $business->id;
             $order->location_id = null;
             $order->customer_id = null;
+            $order->global_customer_id = auth('customer')->id() ?? null;
             $order->payment_method_id = $paymentMethodId;
             $order->shipping_rule_id = $options['shipping_rule_id'] ?? null;
             $order->order_number = $orderNumber;

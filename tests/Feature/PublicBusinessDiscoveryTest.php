@@ -234,4 +234,69 @@ class PublicBusinessDiscoveryTest extends TestCase
         $this->assertStringContainsString('Kopi Senja Nusantara', $content);
         $this->assertStringContainsString('Jl. Senopati No. 45', $content);
     }
+
+    public function test_business_landing_supports_light_and_dark_mode_and_live_catalog_search(): void
+    {
+        // 1. Test Light Mode default
+        $landingPage = \App\Models\BusinessLandingPage::where('business_id', $this->discoverableStore->id)->first();
+        $landingPage->dark_mode = false;
+        $landingPage->show_pos_products = true;
+        $landingPage->save();
+
+        $response = $this->get(route('public.business.landing', $this->discoverableStore->slug));
+        $response->assertOk();
+        $content = $response->getContent();
+
+        // Body must have synchronized light & dark utility classes
+        $this->assertStringContainsString('bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#FFFFFF]', $content);
+        // Anti-FOUC script must initialize with isLandingDark = false
+        $this->assertStringContainsString('var isLandingDark = false;', $content);
+        // Theme switcher button must be present in header
+        $this->assertStringContainsString('toggleTheme()', $content);
+
+        // Live search inputs must be present on single page
+        $this->assertStringContainsString('x-model="serviceSearch"', $content);
+        $this->assertStringContainsString('x-model="productSearch"', $content);
+
+        // "Lihat Semua" popup modal triggers must be present
+        $this->assertStringContainsString('openAllServicesModal()', $content);
+        $this->assertStringContainsString('openAllProductsModal()', $content);
+
+        // Category pills on single page
+        $this->assertStringContainsString('setProductCategory(', $content);
+
+        // 2. Test Dark Mode configuration
+        $landingPage->dark_mode = true;
+        $landingPage->save();
+
+        $darkResponse = $this->get(route('public.business.landing', $this->discoverableStore->slug));
+        $darkResponse->assertOk();
+        $darkContent = $darkResponse->getContent();
+        $this->assertStringContainsString('var isLandingDark = true;', $darkContent);
+    }
+
+    public function test_product_image_url_accessor_handles_external_and_storage_urls(): void
+    {
+        $product = new \App\Models\Product();
+
+        // Null check
+        $product->image_path = null;
+        $this->assertNull($product->image_url);
+
+        // External HTTPS check
+        $product->image_path = 'https://images.unsplash.com/photo-1558655146-d09347e92766';
+        $this->assertEquals('https://images.unsplash.com/photo-1558655146-d09347e92766', $product->image_url);
+
+        // External HTTP check
+        $product->image_path = 'http://example.com/item.png';
+        $this->assertEquals('http://example.com/item.png', $product->image_url);
+
+        // Storage relative check
+        $product->image_path = 'products/shoes.jpg';
+        $this->assertEquals(asset('storage/products/shoes.jpg'), $product->image_url);
+
+        // Storage already prefixed check
+        $product->image_path = 'storage/products/shoes.jpg';
+        $this->assertEquals(asset('storage/products/shoes.jpg'), $product->image_url);
+    }
 }

@@ -1,9 +1,16 @@
+@php
+    // Normalize CMS booleans, including string "false" / "0"; default to light.
+    $initialDarkMode = filter_var($landingPage->dark_mode ?? false, FILTER_VALIDATE_BOOLEAN);
+@endphp
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" class="scroll-smooth {{ $initialDarkMode ? 'dark' : '' }}">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="{{ $initialDarkMode ? '#000000' : '#F2F2F7' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- SEO METADATA --}}
@@ -24,18 +31,21 @@
     @endif
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:site_name" content="{{ $business->name }}">
-    @if ($landingPage->og_image_url || $landingPage->hero_image_url || $business->logo_url)
+    @php
+        $canonicalBrandLogo = $business->logo_url ?: $landingPage->logo_url;
+    @endphp
+    @if ($landingPage->og_image_url || $landingPage->hero_image_url || $canonicalBrandLogo)
         <meta property="og:image"
-            content="{{ $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: $business->logo_url) }}">
+            content="{{ $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: $canonicalBrandLogo) }}">
     @endif
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $landingPage->meta_title ?: $business->name }}">
     @if ($landingPage->meta_description ?: $landingPage->subheadline)
         <meta name="twitter:description" content="{{ $landingPage->meta_description ?: $landingPage->subheadline }}">
     @endif
-    @if ($landingPage->og_image_url || $landingPage->hero_image_url || $business->logo_url)
+    @if ($landingPage->og_image_url || $landingPage->hero_image_url || $canonicalBrandLogo)
         <meta name="twitter:image"
-            content="{{ $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: $business->logo_url) }}">
+            content="{{ $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: $canonicalBrandLogo) }}">
     @endif
 
     {{-- Schema.org JSON-LD LocalBusiness Structured Data --}}
@@ -67,8 +77,8 @@
             ],
         ];
 
-        if ($business->logo_url || $landingPage->hero_image_url) {
-            $localBusinessSchema['image'] = $business->logo_url ?: $landingPage->hero_image_url;
+        if ($canonicalBrandLogo || $landingPage->hero_image_url) {
+            $localBusinessSchema['image'] = $canonicalBrandLogo ?: $landingPage->hero_image_url;
         }
 
         if (!empty($landingPage->opening_hours) && is_array($landingPage->opening_hours)) {
@@ -87,30 +97,43 @@
         {!! json_encode(array_filter($localBusinessSchema), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
     </script>
 
-    {{-- Fonts: System Fonts & Inter fallback --}}
+    {{-- Fonts: System Fonts & Custom Google Fonts --}}
+    @php
+        $configuredFont = $landingPage->font_family ?: 'Inter';
+    @endphp
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family={{ urlencode($configuredFont) }}:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    {{-- Anti-FOUC Theme Script --}}
+    {{-- Anti-FOUC Theme Script (Strictly synchronized with Website & Toko CMS Settings) --}}
     <script>
         (function() {
             try {
-                var isLandingDark = @json((bool) ($landingPage->dark_mode ?? false));
-                var stored = localStorage.getItem('cooca-theme');
-                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (isLandingDark || stored === 'dark' || (!stored && prefersDark)) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
+                // Clear any legacy client overrides to ensure Website & Toko CMS is the authoritative Single Source of Truth
+                try {
+                    localStorage.removeItem('cooca_storefront_theme_{{ $business->id }}');
+                    localStorage.removeItem('cooca_storefront_theme');
+                } catch (e) {}
+
+                window.storefrontTheme = {
+                    initialDark: @json($initialDarkMode),
+                    apply(isDark) {
+                        const dark = isDark === true;
+                        const root = document.documentElement;
+                        root.classList.toggle('dark', dark);
+                        root.style.colorScheme = dark ? 'dark' : 'light';
+                        const browserTheme = document.querySelector('meta[name="theme-color"]');
+                        if (browserTheme) browserTheme.content = dark ? '#000000' : '#F2F2F7';
+                    }
+                };
+                // Backend is authoritative on every load; device preference is not an override.
+                window.storefrontTheme.apply(window.storefrontTheme.initialDark);
             } catch (e) {}
         })();
     </script>
 
-    {{-- Tailwind CSS --}}
-    <script src="https://cdn.tailwindcss.com"></script>
     <?php
     $themeColor = $landingPage->theme_color ?: '#007AFF';
     $hex = ltrim($themeColor, '#');
@@ -128,6 +151,1247 @@
         $b = 255;
     }
     $themeRgb = "{$r}, {$g}, {$b}";
+    ?>
+
+    {{-- Load the CDN before assigning config so class-based dark mode is registered. --}}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"{{ $configuredFont }}"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"',
+                            '"SF Pro Text"', '"Inter"',
+                            'system-ui', 'sans-serif'
+                        ],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            DEFAULT: '{{ $themeColor }}',
+                            primary: '{{ $themeColor }}',
+                            50: 'rgba({{ $themeRgb }}, 0.05)',
+                            100: 'rgba({{ $themeRgb }}, 0.1)',
+                            200: 'rgba({{ $themeRgb }}, 0.2)',
+                            500: '{{ $themeColor }}',
+                            600: '{{ $themeColor }}',
+                        },
+                        apple: {
+                            blue: '#007AFF',
+                            green: '#34C759',
+                            orange: '#FF9500',
+                            red: '#FF3B30',
+                            purple: '#AF52DE',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    {{-- Anti-FOUC, Cloak, and Core Bento Styling --}}
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        :root {
+            --primary: {{ $themeColor }};
+            --primary-color: {{ $themeColor }};
+            --primary-rgb: {{ $themeRgb }};
+            --brand-primary: {{ $themeColor }};
+            --brand-rgb: {{ $themeRgb }};
+        }
+
+        body {
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .bg-brand-primary {
+            background-color: var(--primary-color) !important;
+        }
+
+        .text-brand-primary {
+            color: var(--primary-color) !important;
+        }
+
+        .border-brand-primary {
+            border-color: var(--primary-color) !important;
+        }
+
+        .focus\:ring-brand-primary:focus {
+            --tw-ring-color: var(--primary-color) !important;
+        }
+
+        /* Apple Modular UI Design System */
+        .bento-card {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 12px 28px -4px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dark .bento-card,
+        html.dark .bento-card {
+            background-color: rgba(28, 28, 30, 0.85) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 14px 32px -4px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        .no-scrollbar::-webkit-scrollbar,
+        .scrollbar-none::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        .no-scrollbar,
+        .scrollbar-none {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+
+        .bento-card-interactive {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .bento-card-interactive:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 20px 40px -8px rgba(0, 0, 0, 0.08);
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        .dark .bento-card-interactive:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 24px 48px -8px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+
+        .marquee-track {
+            display: inline-flex;
+            white-space: nowrap;
+            will-change: transform;
+            animation: marquee 28s linear infinite;
+        }
+
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes marquee {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+            }
+        }
+
+        /* STOREFRONT REFINEMENT START
+   Presentation only. Keep Blade, Alpine state, routes and slider geometry intact.
+   Brand variables are supplied by the existing template; no industry is hardcoded.
+*/
+        :root {
+            --sf-canvas: #f2f2f7;
+            --sf-surface: #ffffff;
+            --sf-subtle: #eaeaef;
+            --sf-ink: #1d1d1f;
+            --sf-muted: #626268;
+            --sf-border: #dedee5;
+            --sf-header: rgba(250, 250, 252, .92);
+            --sf-field: #f2f2f7;
+            --sf-shadow: 0 2px 4px rgba(24, 33, 47, .025), 0 12px 32px -20px rgba(24, 33, 47, .16);
+            --sf-shadow-hover: 0 16px 36px -20px rgba(24, 33, 47, .25);
+            --sf-radius: 20px;
+        }
+
+        html.dark {
+            color-scheme: dark;
+            --sf-canvas: #000000;
+            --sf-surface: #1c1c1e;
+            --sf-subtle: #252528;
+            --sf-ink: #f5f5f7;
+            --sf-muted: #b5b5bd;
+            --sf-border: #38383d;
+            --sf-header: rgba(28, 28, 30, .92);
+            --sf-field: #2c2c2e;
+            --sf-shadow: 0 4px 20px -12px rgba(0, 0, 0, .45);
+            --sf-shadow-hover: 0 20px 36px -20px rgba(0, 0, 0, .65);
+        }
+
+        html:not(.dark) {
+            color-scheme: light;
+        }
+
+        html {
+            scroll-padding-top: 100px;
+        }
+
+        body[x-data] {
+            background-color: var(--sf-canvas);
+            color: var(--sf-ink);
+            line-height: 1.65;
+            text-rendering: optimizeLegibility;
+        }
+
+        body>section[id] {
+            scroll-margin-top: 100px;
+        }
+
+        body>section.py-12 {
+            padding-block: clamp(3.25rem, 6vw, 5.5rem);
+        }
+
+        body>section> :is(.max-w-6xl, .max-w-7xl),
+        body>header>.max-w-6xl,
+        body>footer>.max-w-6xl {
+            max-width: 1200px;
+            padding-inline: clamp(1rem, 3.4vw, 2.5rem);
+        }
+
+        body>section :is(h1, h2, h3, h4),
+        body>footer :is(p, a),
+        body [role="dialog"] :is(h2, h3, p) {
+            overflow-wrap: anywhere;
+        }
+
+        body>section :is(h1, h2) {
+            text-wrap: balance;
+        }
+
+        body>section h2 {
+            font-size: clamp(1.65rem, 3vw, 2.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -.035em;
+        }
+
+        body>section :is(h1, h2, h3, h4).text-black {
+            color: var(--sf-ink);
+        }
+
+        html.dark body>section :is(h1, h2, h3, h4).text-black {
+            color: var(--sf-ink);
+        }
+
+        body>section>div>.text-center>span.uppercase {
+            color: var(--sf-muted);
+            font-size: 11px;
+            letter-spacing: .14em;
+            margin-bottom: 12px;
+        }
+
+        body>section>div>.text-center>p {
+            color: var(--sf-muted);
+            line-height: 1.8;
+            margin-top: 14px;
+        }
+
+        /* Navigation: same links, same breakpoints, quieter surfaces. */
+        body>header {
+            background-color: var(--sf-header) !important;
+            border-color: var(--sf-border) !important;
+            box-shadow: 0 4px 24px -20px rgba(24, 33, 47, .2);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+        }
+
+        body>header>div:first-child {
+            min-height: 72px;
+            height: auto;
+            padding-block: 12px;
+        }
+
+        body>header a[href="#hero"] {
+            min-width: 0;
+        }
+
+        body>header a[href="#hero"]> :is(img, div:first-child) {
+            flex-shrink: 0;
+        }
+
+        body>header a[href="#hero"]>div:last-child {
+            min-width: 0;
+        }
+
+        body>header a[href="#hero"]>div:last-child>span:first-child {
+            overflow-wrap: anywhere;
+        }
+
+        body>header nav a {
+            border-radius: 10px;
+            padding-block: 10px;
+            line-height: 1.4;
+        }
+
+        body>header>div:first-child>.flex:last-child {
+            flex-shrink: 0;
+        }
+
+        /* Hero: clean editorial hierarchy with the original media and CTA structure. */
+        body #hero {
+            padding-top: clamp(2.5rem, 5.5vw, 5rem);
+            padding-bottom: clamp(3rem, 6vw, 5.5rem);
+            background-image: radial-gradient(ellipse at 90% 10%, rgba(var(--primary-rgb), .065), transparent 58%);
+            border-bottom: 1px solid var(--sf-border);
+        }
+
+        body #hero h1 {
+            font-size: clamp(2.125rem, 4.6vw, 3.75rem);
+            font-weight: 750;
+            line-height: 1.1;
+            letter-spacing: -.045em;
+        }
+
+        body #hero h1+p {
+            color: var(--sf-muted);
+            font-size: clamp(1rem, 1.4vw, 1.125rem);
+            line-height: 1.85;
+            padding-top: 3px;
+        }
+
+        body #hero .inline-flex.uppercase {
+            font-size: 11px;
+            letter-spacing: .1em;
+            line-height: 1.6;
+        }
+
+        body #hero :is(a, button).h-12 {
+            min-height: 50px;
+            height: auto;
+            padding-block: 14px;
+            border-radius: 12px;
+            line-height: 1.45;
+            text-align: center;
+        }
+
+        body #hero :is(a, button).bg-brand-primary {
+            box-shadow: 0 6px 18px -9px rgba(var(--primary-rgb), .5);
+        }
+
+        body #hero .flex.flex-wrap {
+            gap: 12px 20px;
+            color: var(--sf-muted);
+            padding-top: 8px;
+        }
+
+        body #hero [class~="aspect-[4/3]"] {
+            border-radius: 24px;
+            border-color: var(--sf-border);
+            box-shadow: 0 24px 56px -30px rgba(24, 33, 47, .35);
+        }
+
+        /* Surface system. Never modify slider widths, gaps or transform bindings. */
+        body .bento-card,
+        body .bento-card-interactive,
+        html.dark body .bento-card,
+        html.dark body .bento-card-interactive {
+            background-color: var(--sf-surface) !important;
+            border-color: var(--sf-border) !important;
+            border-radius: var(--sf-radius);
+            box-shadow: var(--sf-shadow) !important;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            transition-property: border-color, box-shadow, background-color, transform;
+            transition-duration: 200ms;
+            transition-timing-function: ease;
+        }
+
+        body .bento-card :is(h3, h4) {
+            letter-spacing: -.02em;
+        }
+
+        body>section .bento-card>p {
+            font-size: 14px;
+            line-height: 1.85;
+        }
+
+        body #layanan .bento-card-interactive :is(h3, h4) {
+            font-size: 16px;
+            line-height: 1.45;
+        }
+
+        body #layanan .bento-card-interactive p {
+            line-height: 1.75;
+        }
+
+        body #layanan .bento-card-interactive [class~="aspect-[16/10]"] {
+            border-radius: 12px;
+        }
+
+        body #layanan .overflow-x-auto>button {
+            min-height: 40px;
+            padding-inline: 16px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        body #layanan input[type="search"] {
+            min-height: 44px;
+            background-color: var(--sf-surface);
+            border-color: var(--sf-border);
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        body #layanan button.whitespace-nowrap {
+            min-height: 40px;
+        }
+
+        body #galeri .bento-card {
+            padding: 8px;
+        }
+
+        body #galeri .bento-card>.overflow-hidden {
+            border-radius: 14px;
+        }
+
+        body #tentang .whitespace-pre-wrap {
+            line-height: 1.9;
+            color: var(--sf-muted);
+        }
+
+        body #tentang .divide-y {
+            background-color: var(--sf-canvas);
+            border-color: var(--sf-border);
+            border-radius: 14px;
+        }
+
+        body #tentang .divide-y>div {
+            gap: 12px;
+            padding-block: 13px;
+        }
+
+        body #lokasi .bento-card p {
+            color: var(--sf-muted);
+            line-height: 1.85;
+            overflow-wrap: anywhere;
+        }
+
+        body #lokasi .flex.items-start>div:last-child {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        body #faq>div {
+            max-width: 880px;
+        }
+
+        body #faq .bento-card {
+            padding: 4px 12px;
+        }
+
+        body #faq .bento-card button {
+            padding-block: 22px;
+            line-height: 1.6;
+        }
+
+        body #faq .bento-card button>div {
+            border-radius: 9px;
+        }
+
+        body #faq .bento-card [x-show] {
+            color: var(--sf-muted);
+            line-height: 1.85;
+        }
+
+        /* Shared input styling leaves validation, disabled and Alpine visibility intact. */
+        body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="color"]), select, textarea) {
+            border-radius: 12px;
+            accent-color: var(--primary-color);
+        }
+
+        body :is(input[type="checkbox"], input[type="radio"]) {
+            accent-color: var(--primary-color);
+        }
+
+        body textarea {
+            line-height: 1.75;
+        }
+
+        body :is(button, a, input, select, textarea, [tabindex]):focus-visible {
+            outline: 2px solid var(--primary-color) !important;
+            outline-offset: 4px;
+        }
+
+        body :is(button, input, select, textarea):disabled {
+            cursor: not-allowed;
+        }
+
+        body [role="dialog"] .bento-card {
+            border-radius: 24px;
+            box-shadow: 0 24px 80px -24px rgba(0, 0, 0, .35) !important;
+        }
+
+        body [role="dialog"] :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select) {
+            min-height: 44px;
+        }
+
+        body [role="dialog"] button[type="submit"] {
+            min-height: 48px;
+            border-radius: 12px;
+        }
+
+        body [role="dialog"] .overflow-y-auto {
+            overscroll-behavior-y: contain;
+        }
+
+        /* Footer keeps the configured column count and original visibility. */
+        body>footer {
+            background-color: var(--sf-subtle) !important;
+            border-color: var(--sf-border) !important;
+            color: var(--sf-muted);
+        }
+
+        body>footer .grid>div {
+            min-width: 0;
+        }
+
+        body>footer nav a {
+            line-height: 1.8;
+        }
+
+        body>nav[aria-label="Navigasi halaman"] {
+            background-color: var(--sf-header) !important;
+            border-color: var(--sf-border) !important;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px -12px rgba(0, 0, 0, .22);
+        }
+
+        body>nav[aria-label="Navigasi halaman"]>div> :is(a, button) {
+            min-height: 48px;
+            min-width: 0;
+            gap: 3px;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+
+            body .bento-card-interactive:hover,
+            html.dark body .bento-card-interactive:hover {
+                transform: translateY(-3px);
+                border-color: rgba(var(--primary-rgb), .35) !important;
+                box-shadow: var(--sf-shadow-hover) !important;
+            }
+
+            body>header nav a:hover {
+                background-color: var(--sf-subtle);
+            }
+
+            body #faq .bento-card button:hover {
+                background-color: rgba(var(--primary-rgb), .045);
+                border-radius: 10px;
+            }
+        }
+
+        @media (hover: none) {
+
+            body .bento-card-interactive:hover,
+            html.dark body .bento-card-interactive:hover {
+                transform: none;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            body #hero .lg\:col-span-7 {
+                padding-right: 12px;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1199px) {
+            body>header>div:first-child {
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            body>header>div:first-child>nav {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                border-top: 1px solid var(--sf-border);
+                padding-top: 8px;
+            }
+
+            html {
+                scroll-padding-top: 150px;
+            }
+
+            body>section[id] {
+                scroll-margin-top: 150px;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            body #hero h1+p {
+                margin-inline: auto;
+            }
+
+            body #hero .lg\:col-span-5 {
+                max-width: 640px;
+                width: 100%;
+                margin-inline: auto;
+            }
+        }
+
+        @media (max-width: 767px) {
+            body[x-data] {
+                padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+            }
+
+            body>header>div:first-child {
+                min-height: 64px;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            body>header a[href="#hero"] {
+                flex: 1 1 130px;
+            }
+
+            body>header a[href="#hero"]>div:last-child>span:first-child {
+                font-size: 13px;
+            }
+
+            body>header>div:first-child>.flex:last-child {
+                gap: 6px;
+            }
+
+            body>section.py-12 {
+                padding-block: 44px;
+            }
+
+            body #hero h1 {
+                font-size: clamp(2rem, 7.5vw, 3rem);
+                letter-spacing: -.035em;
+            }
+
+            body #hero .flex.flex-wrap {
+                font-size: 11px;
+                gap: 10px 14px;
+            }
+
+            body #hero [class~="aspect-[4/3]"] {
+                border-radius: 20px;
+            }
+
+            body #layanan input[type="search"],
+            body [role="dialog"] :is(input, select, textarea) {
+                font-size: 16px;
+            }
+
+            body #faq .bento-card {
+                padding-inline: 2px;
+            }
+
+            body #faq .bento-card button {
+                padding: 18px 14px;
+                font-size: 14px;
+            }
+
+            body #faq .bento-card [x-show] {
+                padding-inline: 14px;
+            }
+
+            body>nav[aria-label="Navigasi halaman"] {
+                bottom: 10px;
+                inset-inline: 10px;
+            }
+        }
+
+        @media (min-width: 640px) and (max-width: 1023px) {
+            body>footer>div>.grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            html,
+            body,
+            body *,
+            body *::before,
+            body *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+
+            body .bento-card-interactive:hover,
+            html.dark body .bento-card-interactive:hover {
+                transform: none;
+            }
+        }
+
+        /* APPLE-INSPIRED ADAPTIVE UI
+   Shared theme tokens apply to surfaces, not image overlays or status colors.
+   Visibility and slider transforms remain controlled by the original Alpine code.
+*/
+        body {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body :is(button, a, [role="button"]) {
+            touch-action: manipulation;
+        }
+
+        body :is(button, a)>svg {
+            flex-shrink: 0;
+        }
+
+        body>header>div:first-child>nav {
+            min-width: 0;
+        }
+
+        body .storefront-header-actions> :is(a, button),
+        body .storefront-header-actions>.relative>button {
+            min-height: 44px;
+            border-radius: 14px;
+        }
+
+        body .storefront-theme-toggle {
+            width: 44px;
+            height: 44px;
+            flex: 0 0 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--sf-field);
+            color: var(--sf-ink);
+            border: 1px solid var(--sf-border);
+            border-radius: 14px;
+            transition: background-color .2s, border-color .2s, transform .2s;
+        }
+
+        body .storefront-theme-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        body .storefront-theme-toggle:active {
+            transform: scale(.94);
+        }
+
+        body .storefront-theme-toggle[aria-checked="true"] {
+            border-color: rgba(var(--primary-rgb), .55);
+        }
+
+        body #storefront-mobile-menu {
+            background-color: var(--sf-surface);
+            border-color: var(--sf-border);
+            max-height: calc(100vh - 160px);
+            max-height: calc(100dvh - 160px - env(safe-area-inset-top, 0px));
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+        }
+
+        body #storefront-mobile-menu> :is(a, button) {
+            min-height: 48px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+
+        body #storefront-mobile-menu> :is(a, button).block {
+            background-color: var(--sf-field);
+        }
+
+        /* Only neutral primary / secondary text gets remapped; keep semantic colors. */
+        body :is(.bento-card, .bento-card-interactive, .storefront-sheet, #storefront-mobile-menu) .text-black {
+            color: var(--sf-ink);
+        }
+
+        body :is(.bento-card, .bento-card-interactive, .storefront-sheet, #storefront-mobile-menu):is([class~="text-black/40"], [class~="text-black/45"], [class~="text-black/50"], [class~="text-black/55"], [class~="text-black/60"], [class~="text-black/65"]) {
+            color: var(--sf-muted);
+        }
+
+        html.dark body :is(.bento-card, .bento-card-interactive, .storefront-sheet, #storefront-mobile-menu):is([class~="text-black/40"], [class~="text-black/45"], [class~="text-black/50"], [class~="text-black/55"], [class~="text-black/60"], [class~="text-black/65"]) {
+            color: var(--sf-muted);
+        }
+
+        body :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]), select, textarea) {
+            max-width: 100%;
+            min-width: 0;
+            color: var(--sf-ink);
+            caret-color: var(--primary-color);
+        }
+
+        body :is(input, textarea)::placeholder {
+            color: var(--sf-muted);
+            opacity: 1;
+        }
+
+        body select option {
+            color: var(--sf-ink);
+            background-color: var(--sf-surface);
+        }
+
+        body .storefront-sheet {
+            background-color: var(--sf-surface) !important;
+            color: var(--sf-ink);
+            border-color: var(--sf-border) !important;
+            border-radius: 26px;
+            max-height: calc(100vh - 48px);
+            max-height: calc(100dvh - 48px);
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            scrollbar-color: var(--sf-muted) transparent;
+        }
+
+        body .storefront-sheet :is(h2, h3, h4, p, label) {
+            overflow-wrap: anywhere;
+        }
+
+        body .storefront-sheet :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+            min-height: 46px;
+            background-color: var(--sf-field);
+            border-color: var(--sf-border);
+            border-radius: 12px;
+        }
+
+        body .storefront-sheet :is(.grid, .flex)>div {
+            min-width: 0;
+        }
+
+        body .storefront-sheet .flex-1 {
+            min-height: 0;
+        }
+
+        body .storefront-sheet button[type="submit"] {
+            min-height: 50px;
+        }
+
+        body .storefront-sheet button:has(> :is(svg, i)[data-lucide="x"]),
+            body .storefront-sheet button[aria-label="Tutup dialog"] {
+                width: 44px;
+                height: 44px;
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background-color: var(--sf-field);
+            }
+
+            body .storefront-sheet .overflow-y-auto {
+                overscroll-behavior: contain;
+            }
+
+            body .storefront-drawer {
+                border-radius: 0; max-height: 100%;
+            }
+
+            body .storefront-drawer > :first-child {
+                padding-top: max(20px, env(safe-area-inset-top, 0px)); flex-shrink: 0;
+            }
+
+            body .storefront-drawer > :last-child {
+                padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)); flex-shrink: 0;
+            }
+
+            @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+                body > header, body > nav[aria-label="Navigasi halaman"] {
+                    background-color: var(--sf-surface) !important;
+                }
+            }
+
+            @media (hover: hover) and (pointer: fine) {
+                body .storefront-theme-toggle:hover {
+                    background-color: var(--sf-subtle);
+                }
+
+                body #storefront-mobile-menu > .block:hover {
+                    background-color: var(--sf-subtle);
+                }
+            }
+
+            @media (max-width: 767px) {
+                body {
+                    --sf-radius: 22px;
+                }
+
+                body > header {
+                    padding-top: env(safe-area-inset-top, 0px);
+                }
+
+                body > header > div:first-child {
+                    flex-wrap: nowrap;
+                    padding: 8px 12px;
+                    gap: 6px;
+                }
+
+                body > header a[href="#hero"] {
+                    flex: 1 1 0%; gap: 8px;
+                }
+
+                body > header a[href="#hero"] > div:last-child > span:first-child {
+                    font-size: 13px;
+                    line-height: 1.35;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    overflow: hidden;
+                }
+
+                body > header .storefront-header-actions {
+                    gap: 2px !important;
+                }
+
+                body .storefront-header-actions > :is(a, button):not(.storefront-theme-toggle),
+                body .storefront-header-actions > .relative > button {
+                    width: 44px;
+                    padding-inline: 0;
+                    justify-content: center;
+                }
+
+                body .storefront-header-actions > .relative > button > .hidden,
+                body .storefront-header-actions > .relative > button > [data-lucide="chevron-down"],
+                body .storefront-header-actions > a[title="Masuk / Daftar Akun"] > span,
+                body .storefront-header-actions > :is(a, button)[title="Reservasi"],
+                    body .storefront-header-actions > :is(a, button)[title="Pesan PO"],
+                        body .storefront-header-actions > :is(a, button)[title="Pesan Pre-Order"],
+                            body .storefront-header-actions > :is(a, button)[title="Pesan"],
+                                body .storefront-header-actions > :is(a, button)[title="Hubungi WA"] {
+                                        display: none;
+                                    }
+
+                                    body .storefront-header-actions [title="Keranjang Belanja"] > span[x-show] {
+                                        position: absolute;
+                                        top: 1px;
+                                        right: 0;
+                                        min-width: 16px;
+                                        padding: 1px 4px;
+                                        line-height: 1.4;
+                                        border: 2px solid var(--sf-surface);
+                                    }
+
+                                    body > section > :is(.max-w-6xl, .max-w-7xl) {
+                                        padding-inline: 20px;
+                                    }
+
+                                    body #hero {
+                                        padding-top: 32px;
+                                        padding-bottom: 32px;
+                                        background-image: none;
+                                        border-bottom: 0;
+                                    }
+
+                                    body #hero h1 {
+                                        font-size: clamp(1.875rem, 7.8vw, 2.75rem); line-height: 1.12; font-weight: 700;
+                                    }
+
+                                    body #hero h1 + p {
+                                        font-size: 15px; line-height: 1.75;
+                                    }
+
+                                    body #hero :is(a, button).h-12 {
+                                        min-height: 52px; border-radius: 16px; font-size: 15px;
+                                    }
+
+                                    body #hero [class~="aspect-[4/3]"] {
+                                        border-radius: 24px; box-shadow: var(--sf-shadow);
+                                    }
+
+                                    body #hero .lg\:col-span-5 {
+                                        padding-top: 0;
+                                    }
+
+                                    body > section.py-12 {
+                                        padding-block: 28px;
+                                    }
+
+                                    body > section h2 {
+                                        font-size: clamp(1.5rem, 5.6vw, 1.875rem); letter-spacing: -.025em;
+                                    }
+
+                                    body > section > div > .text-center {
+                                        text-align: left;
+                                    }
+
+                                    body > section > div > .text-center > span.uppercase {
+                                        font-size: 10px; letter-spacing: .1em; margin-bottom: 8px;
+                                    }
+
+                                    body > section > div > .text-center > p {
+                                        font-size: 14px; margin-top: 10px; line-height: 1.7;
+                                    }
+
+                                    body #layanan > div.space-y-12 > :not([hidden]) ~ :not([hidden]) {
+                                        margin-top: 28px;
+                                    }
+
+                                    body #layanan .overflow-x-auto {
+                                        padding-block: 4px 8px; overscroll-behavior-x: contain;
+                                    }
+
+                                    body #layanan .overflow-x-auto > button {
+                                        min-height: 44px; border-radius: 12px;
+                                    }
+
+                                    body #layanan input[type="search"] {
+                                        background-color: var(--sf-surface); min-height: 46px; border-radius: 14px;
+                                    }
+
+                                    body #tentang .bento-card, body #lokasi .bento-card {
+                                        padding: 22px;
+                                    }
+
+                                    body #faq .bento-card {
+                                        border-radius: 20px;
+                                    }
+
+                                    body #faq .bento-card button {
+                                        min-height: 64px;
+                                    }
+
+                                    body #faq .bento-card button > span {
+                                        min-width: 0; overflow-wrap: anywhere;
+                                    }
+
+                                    body #galeri .bento-card {
+                                        border-radius: 22px;
+                                    }
+
+                                    body > nav[aria-label="Navigasi halaman"] {
+                                        bottom: 0;
+                                        inset-inline: 0;
+                                        border-radius: 0;
+                                        border-width: 1px 0 0;
+                                        padding: 7px max(8px, env(safe-area-inset-right, 0px)) calc(7px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+                                        box-shadow: 0 -8px 28px -24px rgba(0, 0, 0, .2);
+                                        -webkit-backdrop-filter: blur(24px) saturate(160%);
+                                        backdrop-filter: blur(24px) saturate(160%);
+                                    }
+
+                                    body > nav[aria-label="Navigasi halaman"] > div {
+                                        align-items: center; gap: 4px; max-width: 540px;
+                                    }
+
+                                    body > nav[aria-label="Navigasi halaman"] > div > :is(a, button) {
+                                        min-height: 52px;
+                                        margin-top: 0;
+                                        border-radius: 14px;
+                                        gap: 4px;
+                                        padding-block: 5px;
+                                        border-width: 0;
+                                        box-shadow: none;
+                                    }
+
+                                    body > nav[aria-label="Navigasi halaman"] > div > :is(a, button).text-brand-primary {
+                                        background-color: rgba(var(--primary-rgb), .08);
+                                    }
+
+                                    body > nav[aria-label="Navigasi halaman"] > div > :is(a, button) > span {
+                                        font-size: 10px; line-height: 1.3;
+                                    }
+
+                                    body > footer {
+                                        padding-bottom: 0;
+                                    }
+
+                                    body > footer > div {
+                                        padding-top: 32px; padding-bottom: 32px;
+                                    }
+
+                                    body > footer .grid {
+                                        gap: 28px;
+                                    }
+
+                                    body > footer nav a {
+                                        min-height: 40px;
+                                    }
+
+                                    body .storefront-sheet-overlay {
+                                        align-items: flex-end; padding: 0;
+                                    }
+
+                                    body .storefront-sheet-overlay > .storefront-sheet {
+                                        max-width: 100%;
+                                        max-height: calc(100vh - 16px);
+                                        max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px));
+                                        border-radius: 28px 28px 0 0;
+                                        border-width: 1px 0 0;
+                                        padding: 22px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+                                        box-shadow: 0 -16px 60px -20px rgba(0, 0, 0, .28);
+                                    }
+
+                                    body .storefront-sheet-overlay > .storefront-catalog-sheet {
+                                        padding: 0 0 env(safe-area-inset-bottom, 0px);
+                                    }
+
+                                    body .storefront-sheet :is(input, select, textarea) {
+                                        font-size: 16px;
+                                    }
+
+                                    body .storefront-drawer-frame {
+                                        padding-left: 0; width: 100%;
+                                    }
+
+                                    body .storefront-drawer {
+                                        max-width: 100%; width: 100%;
+                                    }
+                                }
+
+                                @media (max-width: 374px) {
+                                    body > header > div:first-child {
+                                        padding-inline: 8px; gap: 4px;
+                                    }
+
+                                    body > header a[href="#hero"] {
+                                        gap: 6px;
+                                    }
+
+                                    body > header a[href="#hero"] > :is(img, div:first-child) {
+                                        width: 26px; height: 26px;
+                                    }
+
+                                    body > header a[href="#hero"] > div:last-child > span:first-child {
+                                        font-size: 12px;
+                                    }
+
+                                    body > header a[href="#hero"] > div:last-child > .inline-flex {
+                                        font-size: 9px; gap: 3px;
+                                    }
+
+                                    body > section > :is(.max-w-6xl, .max-w-7xl) {
+                                        padding-inline: 16px;
+                                    }
+
+                                    body #hero .flex.flex-wrap {
+                                        gap: 8px; font-size: 10px;
+                                    }
+
+                                    body #tentang .grid.grid-cols-3 {
+                                        gap: 8px;
+                                    }
+
+                                    body .storefront-sheet-overlay > .storefront-sheet:not(.storefront-catalog-sheet) {
+                                        padding-inline: 16px;
+                                    }
+                                }
+
+                                @media (max-height: 500px) and (orientation: landscape) {
+                                    body .storefront-sheet-overlay {
+                                        align-items: center;
+                                    }
+
+                                    body .storefront-sheet-overlay > .storefront-sheet {
+                                        max-height: calc(100dvh - 12px);
+                                    }
+
+                                    body > header > div:first-child {
+                                        min-height: 56px; padding-block: 6px;
+                                    }
+                                }
+
+                                @media (prefers-reduced-motion: reduce) {
+                                    body .storefront-theme-toggle {
+                                        transition: none;
+                                    }
+
+                                    body .storefront-theme-toggle:active {
+                                        transform: none;
+                                    }
+                                }
+
+                                /* STOREFRONT REFINEMENT END */
+    </style>
+    <?php
+    
+    // Multi-Industry Context Detection (25 Official Industry Templates)
+    $industryPresetKey = (string) ($landingPage->industry_preset ?: ($business->template_code ?: 'retail_reseller'));
+    $industryGroup = match (true) {
+        str_starts_with($industryPresetKey, 'fnb') || in_array($industryPresetKey, ['resto', 'cafe', 'bakery', 'catering', 'frozen_food']) => 'fnb',
+        str_starts_with($industryPresetKey, 'mfg') || in_array($industryPresetKey, ['garment', 'furniture', 'percetakan', 'bengkel', 'precision', 'craft', 'cosmetics']) => 'manufacturing',
+        str_starts_with($industryPresetKey, 'service') || in_array($industryPresetKey, ['laundry', 'barbershop', 'salon', 'carwash', 'studio_foto', 'jasa', 'workshop', 'autodetailing', 'agency', 'contractor', 'event']) => 'service',
+        str_starts_with($industryPresetKey, 'retail') || in_array($industryPresetKey, ['retail', 'sembako', 'fashion', 'toko_hp', 'petshop', 'apotek', 'pharmacy', 'reseller']) => 'retail',
+        default => 'trading',
+    };
+    
+    // Adaptive Content Labels based on Industry Group
+    $industryLabels = match ($industryGroup) {
+        'fnb' => [
+            'catalog_overline' => 'Daftar Menu & Kuliner',
+            'catalog_title' => 'Menu & Kuliner Pilihan',
+            'services_title' => 'Menu Spesial',
+            'products_title' => 'Daftar Menu & Minuman',
+            'hero_primary' => 'Pesan Menu Sekarang',
+            'hero_secondary' => 'Lihat Menu',
+            'action_verb' => 'Pesan',
+            'booking_label' => 'Reservasi Meja',
+            'request_order_item_label' => 'Menu / Produk Katering / Kue',
+            'request_order_qty_label' => 'Jumlah Porsi / Box / Paket',
+            'request_order_date_label' => 'Tanggal Acara / Pengiriman',
+        ],
+        'manufacturing' => [
+            'catalog_overline' => 'Katalog Produk & Spesifikasi',
+            'catalog_title' => 'Katalog & Spesifikasi Produksi',
+            'services_title' => 'Layanan Fabrikasi & Custom',
+            'products_title' => 'Produk Jadi & Komponen',
+            'hero_primary' => 'Minta Penawaran / PO',
+            'hero_secondary' => 'Katalog Produk',
+            'action_verb' => 'Pesan',
+            'booking_label' => 'Konsultasi Teknis',
+            'request_order_item_label' => 'Nama Barang / Komponen / Spesifikasi',
+            'request_order_qty_label' => 'Jumlah Unit / Pcs / Lusin',
+            'request_order_date_label' => 'Target Tanggal Selesai / Deadline',
+        ],
+        'service' => [
+            'catalog_overline' => 'Pilihan Layanan & Tarif',
+            'catalog_title' => 'Katalog Layanan Profesional',
+            'services_title' => 'Paket Layanan',
+            'products_title' => 'Produk & Perlengkapan',
+            'hero_primary' => 'Booking Jadwal',
+            'hero_secondary' => 'Pilihan Layanan',
+            'action_verb' => 'Beli',
+            'booking_label' => 'Booking Jadwal',
+            'request_order_item_label' => 'Layanan / Kebutuhan Khusus',
+            'request_order_qty_label' => 'Jumlah Unit / Kendaraan / Tamu',
+            'request_order_date_label' => 'Target Tanggal Pengerjaan',
+        ],
+        'trading' => [
+            'catalog_overline' => 'Katalog Pasokan & Komoditas',
+            'catalog_title' => 'Distribusi & Komoditas Usaha',
+            'services_title' => 'Layanan Pasokan',
+            'products_title' => 'Katalog Komoditas',
+            'hero_primary' => 'Minta Penawaran',
+            'hero_secondary' => 'Katalog Pasokan',
+            'action_verb' => 'Pesan',
+            'booking_label' => 'Konsultasi Pasokan',
+            'request_order_item_label' => 'Nama Komoditas / Barang Pasokan',
+            'request_order_qty_label' => 'Volume / Ton / Sak / Karton',
+            'request_order_date_label' => 'Target Tanggal Pengiriman',
+        ],
+        default => [
+            'catalog_overline' => 'Etalase Produk Pilihan',
+            'catalog_title' => 'Katalog & Etalase Produk',
+            'services_title' => 'Layanan Unggulan',
+            'products_title' => 'Katalog Produk',
+            'hero_primary' => 'Belanja Sekarang',
+            'hero_secondary' => 'Lihat Etalase',
+            'action_verb' => 'Beli',
+            'booking_label' => 'Booking / Konsul',
+            'request_order_item_label' => 'Item / Produk yang Diminta',
+            'request_order_qty_label' => 'Perkiraan Jumlah / Pcs',
+            'request_order_date_label' => 'Target Tanggal Dibutuhkan',
+        ],
+    };
     
     $savedSectionVisibility = $landingPage->section_visibility ?? [];
     $services = isset($services) && $services instanceof \Illuminate\Support\Collection ? $services : collect($landingPage->custom_services ?? [])->map(fn(array $service): array => [...$service, 'description' => $service['description'] ?? ($service['desc'] ?? '')]);
@@ -159,8 +1423,10 @@
     $totalGalleryCount = $allGalleryImages->count();
     $extraGalleryCount = max(0, $totalGalleryCount - 5);
     
+    $normalizedOperationalHours = method_exists($landingPage, 'getNormalizedOperationalHours') ? $landingPage->getNormalizedOperationalHours() : (is_array($landingPage->operational_hours ?? null) ? $landingPage->operational_hours : []);
+    
     $hasHero = filled($landingPage->headline) || filled($landingPage->subheadline) || filled($landingPage->announcement_badge) || filled($landingPage->hero_image_url) || filled($landingPage->cta_primary_text) || filled($landingPage->cta_secondary_text);
-    $hasAbout = filled($landingPage->about_title) || filled($landingPage->about_story) || filled($landingPage->about_image_url) || !empty($landingPage->operational_hours);
+    $hasAbout = filled($landingPage->about_title) || filled($landingPage->about_story) || filled($landingPage->about_image_url) || !empty($normalizedOperationalHours);
     $hasServices = $services->isNotEmpty() || ($landingPage->show_pos_products && $posProducts->isNotEmpty());
     $hasContact = filled($landingPage->custom_address) || filled($business->address) || filled($landingPage->custom_phone) || filled($landingPage->whatsapp_number) || filled($business->phone) || filled($landingPage->custom_email) || filled($business->email) || filled($landingPage->google_maps_embed_url) || !empty($landingPage->social_links);
     $sectionVisibility = array_merge(
@@ -173,8 +1439,8 @@
             'testimonials' => $testimonials->isNotEmpty(),
             'faq' => $faqs->isNotEmpty(),
             'contact' => $hasContact,
-            'footer' => $hasContact || $services->isNotEmpty() || $landingPage->logo_url || $business->logo_url,
-            'footer_brand' => filled($business->name) || filled($landingPage->logo_url) || filled($business->logo_url),
+            'footer' => $hasContact || $services->isNotEmpty() || $business->logo_url || $landingPage->logo_url,
+            'footer_brand' => filled($business->name) || filled($business->logo_url) || filled($landingPage->logo_url),
             'footer_navigation' => true,
             'footer_services' => $services->isNotEmpty(),
             'footer_contact' => $hasContact,
@@ -226,40 +1492,182 @@
         ->values();
     
     $hasWhatsapp = filled($landingPage->whatsapp_number ?: ($landingPage->custom_phone ?: $business->phone));
-    ?>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Inter"',
-                            'system-ui', 'sans-serif'
-                        ],
-                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-                    },
-                    colors: {
-                        brand: {
-                            DEFAULT: '{{ $themeColor }}',
-                            primary: '{{ $themeColor }}',
-                            50: 'rgba({{ $themeRgb }}, 0.05)',
-                            100: 'rgba({{ $themeRgb }}, 0.1)',
-                            500: '{{ $themeColor }}',
-                            600: '{{ $themeColor }}',
-                        },
-                        apple: {
-                            blue: '#007AFF',
-                            green: '#34C759',
-                            orange: '#FF9500',
-                            red: '#FF3B30',
-                            purple: '#AF52DE',
-                        }
-                    }
-                }
-            }
+    
+    // Operational Capabilities & Industry Logic (Automated & Dynamic based on Owner Config)
+    $isReservableIndustry = in_array($industryPresetKey, ['fnb_resto', 'resto', 'fnb_cafe', 'cafe', 'klinik', 'gym']) || in_array($industryGroup, ['service']);
+    $isUmkmRumahan = in_array($industryPresetKey, ['fnb_bakery', 'bakery', 'fnb_katering', 'catering', 'frozen_food', 'manufaktur_konveksi', 'garment', 'manufaktur_percetakan', 'percetakan', 'craft', 'manufaktur_furniture', 'furniture']);
+    $isProductionB2b = in_array($industryGroup, ['manufacturing', 'trading']);
+    
+    // Storefront owner settings
+    $allowStorefront = (bool) ($storeSetting?->is_storefront_enabled ?? true);
+    $hasPosGoods = $posProducts->isNotEmpty();
+    $hasPricedServices = $services->contains(fn($s) => !empty($s['raw_price'] ?? null) && (float) ($s['raw_price'] ?? 0) > 0);
+    $allowCart = $allowStorefront && ($hasPosGoods || $hasPricedServices);
+    
+    // Reservation setting: can be dynamically toggled by owner in CommerceStoreSetting
+    $allowReservation = (bool) ($storeSetting?->allow_reservation ?? $isReservableIndustry);
+    
+    // Request Order / Customer PO: can be dynamically toggled by owner
+    $allowCustomerPo = (bool) ($storeSetting?->allow_customer_po ?? $isProductionB2b);
+    $allowRequestOrder = (bool) ($storeSetting?->allow_request_order ?? $isUmkmRumahan || $isProductionB2b);
+    // Storefront Operational & Delivery Rules
+    $dayMap = [
+        'monday' => 'Senin',
+        'tuesday' => 'Selasa',
+        'wednesday' => 'Rabu',
+        'thursday' => 'Kamis',
+        'friday' => 'Jumat',
+        'saturday' => 'Sabtu',
+        'sunday' => 'Minggu',
+    ];
+    $operatingDays = (array) ($storeSetting?->operating_days ?? []);
+    $currentDayOfWeek = strtolower(now()->format('l'));
+    $isStoreOpenToday = empty($operatingDays) || in_array($currentDayOfWeek, $operatingDays, true);
+    
+    // Free shipping threshold from active shipping rules
+    $freeShippingRule = isset($shippingRules) ? $shippingRules->first(fn($r) => (float) ($r->min_order_for_free ?? 0) > 0) : null;
+    $freeShippingThreshold = $freeShippingRule ? (float) $freeShippingRule->min_order_for_free : 0;
+    
+    // Minimum lead time date for scheduling
+    $leadTimeHours = (int) ($storeSetting?->lead_time_hours ?? 0);
+    $minLeadTimeDate = now()->addHours($leadTimeHours)->format('Y-m-d');
+    
+    // Stats config from landing page
+    $statsConfig = $landingPage->stats ?? data_get($landingPage->values, 'stats', []);
+    
+    // Determine Single Primary Action for the single page: 'reservation', 'order', or 'wa'
+    $pagePrimaryAction = match (true) {
+        $allowReservation => 'reservation',
+        $allowCart || $allowCustomerPo || $allowRequestOrder || $hasPosGoods => 'order',
+        $hasWhatsapp => 'wa',
+        default => 'order',
+    };
+    
+    // Dynamic 3 to 5 Buttons for Mobile Bottom Navigation
+    $bottomNavButtons = [];
+    
+    // Button 1: Home
+    $bottomNavButtons[] = [
+        'key' => 'home',
+        'label' => 'Beranda',
+        'type' => 'link',
+        'href' => '#hero',
+        'icon' => 'home',
+        'section' => 'hero',
+        'is_accent' => false,
+    ];
+    
+    // Button 2: Catalog / Menu / Layanan
+    $catIcon = match (true) {
+        $industryGroup === 'fnb' => 'utensils',
+        $industryGroup === 'manufacturing' => 'layers',
+        $industryGroup === 'trading' => 'boxes',
+        in_array($industryGroup, ['service']) => match (true) {
+            str_contains($industryPresetKey, 'salon') || str_contains($industryPresetKey, 'barber') => 'scissors',
+            str_contains($industryPresetKey, 'car') || str_contains($industryPresetKey, 'bengkel') => 'wrench',
+            str_contains($industryPresetKey, 'klinik') => 'activity',
+            default => 'sparkles',
+        },
+        default => 'package',
+    };
+    $catLabel = match (true) {
+        $industryGroup === 'fnb' => 'Menu',
+        in_array($industryGroup, ['service']) => 'Layanan',
+        $industryGroup === 'manufacturing' => 'Katalog',
+        $industryGroup === 'trading' => 'Pasokan',
+        default => 'Katalog',
+    };
+    $bottomNavButtons[] = [
+        'key' => 'catalog',
+        'label' => $catLabel,
+        'type' => 'link',
+        'href' => '#layanan',
+        'icon' => $catIcon,
+        'section' => 'services',
+        'is_accent' => false,
+    ];
+    
+    // Button 3: Prominent Center / Accent Action (Reservasi OR Pesan)
+    if ($allowReservation) {
+        $bottomNavButtons[] = [
+            'key' => 'reservation',
+            'label' => 'Reservasi',
+            'type' => 'reservation',
+            'icon' => 'calendar',
+            'is_accent' => true,
+        ];
+    } else {
+        $bottomNavButtons[] = [
+            'key' => 'order',
+            'label' => 'Pesan',
+            'type' => $allowCart ? 'cart' : ($allowRequestOrder ? 'request_order' : 'link_services'),
+            'icon' => 'shopping-bag',
+            'has_badge' => $allowCart,
+            'is_accent' => true,
+        ];
+    }
+    
+    // Button 4: Contextual Supporting Action (Pesan OR WA)
+    if ($allowReservation) {
+        if ($allowCart) {
+            $bottomNavButtons[] = [
+                'key' => 'cart',
+                'label' => 'Pesan',
+                'type' => 'cart',
+                'icon' => 'shopping-bag',
+                'has_badge' => true,
+                'is_accent' => false,
+            ];
+        } elseif ($hasWhatsapp) {
+            $bottomNavButtons[] = [
+                'key' => 'whatsapp',
+                'label' => 'WA',
+                'type' => 'whatsapp',
+                'icon' => 'message-circle',
+                'is_accent' => false,
+            ];
         }
-    </script>
-
+    } else {
+        if ($hasWhatsapp) {
+            $bottomNavButtons[] = [
+                'key' => 'whatsapp',
+                'label' => 'WA',
+                'type' => 'whatsapp',
+                'icon' => 'message-circle',
+                'is_accent' => false,
+            ];
+        }
+    }
+    
+    // Button 5: Location / Contact
+    $locLabel = match (true) {
+        in_array($industryGroup, ['service']) => 'Outlet',
+        $industryGroup === 'manufacturing' => 'Workshop',
+        $industryGroup === 'trading' => 'Gudang',
+        default => 'Lokasi',
+    };
+    $bottomNavButtons[] = [
+        'key' => 'location',
+        'label' => $locLabel,
+        'type' => 'link',
+        'href' => '#lokasi',
+        'icon' => 'map-pin',
+        'section' => 'contact',
+        'is_accent' => false,
+    ];
+    
+    // Ensure within 3 to 5 buttons
+    if (count($bottomNavButtons) > 5) {
+        $bottomNavButtons = array_slice($bottomNavButtons, 0, 5);
+    }
+    $navButtonCount = count($bottomNavButtons);
+    $bottomNavGridClass = match ($navButtonCount) {
+        3 => 'grid-cols-3',
+        4 => 'grid-cols-4',
+        default => 'grid-cols-5',
+    };
+    $hasBottomWa = collect($bottomNavButtons)->contains('type', 'whatsapp');
+    ?>
     {{-- Alpine.js & Lucide Icons --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -334,36 +1742,117 @@
                 activeModal: null,
                 activeItem: null,
                 activeSection: 'hero',
+                isDark: @json($initialDarkMode),
+                applyTheme(dark) {
+                    this.isDark = dark === true;
+                    window.storefrontTheme.apply(this.isDark);
+                },
+                toggleTheme() {
+                    this.applyTheme(!this.isDark);
+                },
+                init() {
+                    this.applyTheme(@json($initialDarkMode));
+                    this.$watch('isDark', (dark) => window.storefrontTheme.apply(dark));
+                    const sections = document.querySelectorAll('section[data-section]');
+                    if ('IntersectionObserver' in window && sections.length) {
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    this.activeSection = entry.target.dataset.section;
+                                }
+                            });
+                        }, {
+                            threshold: 0.25
+                        });
+                        sections.forEach(s => observer.observe(s));
+                    }
+                    this.$watch('activeModal', (val) => {
+                        if (val) {
+                            document.body.classList.add('overflow-hidden');
+                        } else {
+                            document.body.classList.remove('overflow-hidden');
+                        }
+                    });
+                },
                 productCategory: 'all',
                 productSearch: '',
                 products: {{ Js::from($productPayload) }},
                 filteredProducts: {{ Js::from($productPayload) }},
+                serviceCategory: 'all',
                 serviceSearch: '',
                 services: {{ Js::from($services) }},
                 filteredServices: {{ Js::from($services) }},
                 filterProducts() {
                     let products = this.products;
                     if (this.productCategory !== 'all') {
-                        products = products.filter(product => String(product.category_id) === this.productCategory);
+                        products = products.filter(product => String(product.category_id) === String(this
+                            .productCategory));
                     }
                     if (this.productSearch.trim()) {
                         const query = this.productSearch.trim().toLowerCase();
-                        products = products.filter(product => product.name.toLowerCase().includes(query) || (product
-                            .description || '').toLowerCase().includes(query));
+                        products = products.filter(product =>
+                            (product.name || '').toLowerCase().includes(query) ||
+                            ((product.description || '')).toLowerCase().includes(query) ||
+                            ((product.category || '')).toLowerCase().includes(query)
+                        );
                     }
                     this.filteredProducts = products;
                     this.$nextTick(() => {
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     });
                 },
+                setProductCategory(catId) {
+                    this.productCategory = String(catId);
+                    this.filterProducts();
+                },
+                clearProductFilter() {
+                    this.productCategory = 'all';
+                    this.productSearch = '';
+                    this.filterProducts();
+                },
                 filterServices() {
                     let list = this.services;
+                    if (this.serviceCategory !== 'all') {
+                        list = list.filter(s => String(s.category_id) === String(this.serviceCategory));
+                    }
                     if (this.serviceSearch.trim()) {
                         const query = this.serviceSearch.trim().toLowerCase();
-                        list = list.filter(s => (s.title || '').toLowerCase().includes(query) || (s.description || '')
-                            .toLowerCase().includes(query));
+                        list = list.filter(s =>
+                            (s.title || s.name || '').toLowerCase().includes(query) ||
+                            ((s.description || '')).toLowerCase().includes(query) ||
+                            ((s.category || '')).toLowerCase().includes(query)
+                        );
                     }
                     this.filteredServices = list;
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                },
+                setServiceCategory(catId) {
+                    this.serviceCategory = String(catId);
+                    this.filterServices();
+                },
+                clearServiceFilter() {
+                    this.serviceCategory = 'all';
+                    this.serviceSearch = '';
+                    this.filterServices();
+                },
+                openAllProductsModal(catId = null) {
+                    if (catId !== null) {
+                        this.productCategory = String(catId);
+                    }
+                    this.filterProducts();
+                    this.activeModal = 'all-products';
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                },
+                openAllServicesModal(catId = null) {
+                    if (catId !== null) {
+                        this.serviceCategory = String(catId);
+                    }
+                    this.filterServices();
+                    this.activeModal = 'all-services';
                     this.$nextTick(() => {
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     });
@@ -412,10 +1901,12 @@
                 allowScheduledOrder: {{ json_encode($storeSetting?->allow_scheduled_order ?? false) }},
                 allowRequestOrder: {{ json_encode($storeSetting?->allow_request_order ?? false) }},
                 allowReservation: {{ json_encode($storeSetting?->allow_reservation ?? true) }},
+                allowCustomerPo: {{ json_encode($storeSetting?->allow_customer_po ?? true) }},
                 cartDrawerOpen: false,
                 checkoutModalOpen: {{ json_encode($openCheckoutModal ?? false) }},
                 requestOrderModalOpen: false,
                 reservationModalOpen: false,
+                customerPoModalOpen: false,
                 isSubmittingReservation: false,
                 reservationSuccess: false,
                 reservationError: null,
@@ -458,13 +1949,42 @@
                     is_submitting: false,
                     error: null,
                 },
+                customerPoForm: {
+                    customer_name: @json($authCust?->name ?? ''),
+                    customer_phone: @json($authCust?->phone ?? ''),
+                    customer_email: @json($authCust?->email ?? ''),
+                    company_name: '',
+                    customer_po_number: '',
+                    shipping_address: @json($authCust?->shipping_address ?? ''),
+                    payment_method_id: '{{ $paymentMethods->first()?->id ?? '' }}',
+                    notes: '',
+                    items: [{
+                        product_id: '',
+                        product_name: '',
+                        quantity: 1,
+                        unit_price: 0,
+                        notes: ''
+                    }],
+                    batches: [{
+                        batch_number: 1,
+                        scheduled_date: '{{ date('Y-m-d', strtotime('+1 day')) }}',
+                        scheduled_time_slot: '09:00 - 12:00',
+                        quantity: 1,
+                        shipping_address: '',
+                        notes: ''
+                    }],
+                    is_submitting: false,
+                    error: null,
+                },
                 reservationForm: {
                     customer_name: @json($authCust?->name ?? ''),
                     customer_phone: @json($authCust?->phone ?? ''),
                     customer_email: @json($authCust?->email ?? ''),
-                    reservation_date: '{{ date('Y-m-d') }}',
-                    time_slot: '12:00 - 14:00',
+                    reservation_date: '{{ $minLeadTimeDate }}',
+                    time_slot: '{{ $storeSetting?->available_slots[0] ?? '12:00 - 14:00' }}',
                     guest_count: 2,
+                    pos_table_id: '',
+                    product_id: '',
                     notes: '',
                 },
                 saveCart() {
@@ -472,21 +1992,31 @@
                 },
                 directCheckout(product, qty = 1) {
                     if (!product) return;
-                    this.addToCart(product, qty, false);
+                    const parsedQty = Number(qty);
+                    if (isNaN(parsedQty) || parsedQty <= 0) {
+                        this.showToast('Jumlah pesanan harus lebih dari 0');
+                        return;
+                    }
+                    this.addToCart(product, parsedQty, false);
                     this.checkoutModalOpen = true;
                 },
                 addToCart(product, qty = 1, openDrawer = false) {
                     if (!product) return;
+                    const parsedQty = Number(qty);
+                    if (isNaN(parsedQty) || parsedQty <= 0) {
+                        this.showToast('Jumlah pesanan harus lebih dari 0');
+                        return;
+                    }
                     const existing = this.cart.find(item => item.id === product.id);
                     if (existing) {
-                        existing.quantity += qty;
+                        existing.quantity += parsedQty;
                     } else {
                         this.cart.push({
                             id: product.id,
                             name: product.name || product.title,
                             price: Number(product.price || product.raw_price || 0),
                             image_url: product.image_url || null,
-                            quantity: qty,
+                            quantity: parsedQty,
                             notes: ''
                         });
                     }
@@ -582,7 +2112,18 @@
                     }
                 },
                 async submitCheckout() {
-                    if (this.cart.length === 0) return;
+                    if (this.cart.length === 0) {
+                        this.checkoutError = 'Keranjang pesanan masih kosong.';
+                        return;
+                    }
+                    if (this.cart.some(it => !it.quantity || Number(it.quantity) <= 0)) {
+                        this.checkoutError = 'Jumlah item pesanan harus lebih dari 0.';
+                        return;
+                    }
+                    if (this.cartTotal <= 0) {
+                        this.checkoutError = 'Total belanja harus lebih dari Rp 0.';
+                        return;
+                    }
                     if (this.cartTotal < this.minOrderAmount) {
                         this.checkoutError = 'Total belanja minimal ' + this.formatPrice(this.minOrderAmount);
                         return;
@@ -616,15 +2157,15 @@
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
                             'content') || '';
                         const response = await fetch(
-                        '{{ route('public.storefront.checkout', $business->slug) }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken
-                            },
-                            body: JSON.stringify(payload)
-                        });
+                            '{{ route('public.storefront.checkout', $business->slug) }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken
+                                },
+                                body: JSON.stringify(payload)
+                            });
 
                         const data = await response.json();
                         if (response.ok && data.success) {
@@ -649,6 +2190,11 @@
                     }
                 },
                 async submitRequestOrder() {
+                    const reqQty = Number(this.requestOrderForm.item_qty || 0);
+                    if (isNaN(reqQty) || reqQty <= 0) {
+                        this.requestOrderForm.error = 'Jumlah pesanan harus lebih dari 0.';
+                        return;
+                    }
                     this.requestOrderForm.is_submitting = true;
                     this.requestOrderForm.error = null;
 
@@ -718,6 +2264,8 @@
                         reservation_date: this.reservationForm.reservation_date,
                         time_slot: this.reservationForm.time_slot,
                         guest_count: Number(this.reservationForm.guest_count || 2),
+                        pos_table_id: this.reservationForm.pos_table_id || null,
+                        product_id: this.reservationForm.product_id || null,
                         notes: this.reservationForm.notes || null,
                     };
 
@@ -772,6 +2320,162 @@
                     });
                 },
 
+                // Customer PO & Batch Dispatch Engine
+                addPoItem() {
+                    this.customerPoForm.items.push({
+                        product_id: '',
+                        product_name: '',
+                        quantity: 1,
+                        unit_price: 0,
+                        notes: ''
+                    });
+                },
+                removePoItem(idx) {
+                    if (this.customerPoForm.items.length > 1) {
+                        this.customerPoForm.items.splice(idx, 1);
+                    }
+                },
+                onPoProductChange(idx) {
+                    const selId = this.customerPoForm.items[idx].product_id;
+                    const prod = this.products.find(p => p.id === selId);
+                    if (prod) {
+                        this.customerPoForm.items[idx].product_name = prod.name;
+                        this.customerPoForm.items[idx].unit_price = Number(prod.price || 0);
+                    }
+                },
+                addPoBatch() {
+                    const num = this.customerPoForm.batches.length + 1;
+                    this.customerPoForm.batches.push({
+                        batch_number: num,
+                        scheduled_date: '{{ $minLeadTimeDate }}',
+                        scheduled_time_slot: '09:00 - 12:00',
+                        quantity: 1,
+                        shipping_address: this.customerPoForm.shipping_address || '',
+                        notes: ''
+                    });
+                },
+                removePoBatch(idx) {
+                    if (this.customerPoForm.batches.length > 1) {
+                        this.customerPoForm.batches.splice(idx, 1);
+                    }
+                },
+                get poTotalItemQty() {
+                    return this.customerPoForm.items.reduce((s, it) => s + (Number(it.quantity) || 0), 0);
+                },
+                get poTotalBatchQty() {
+                    return this.customerPoForm.batches.reduce((s, b) => s + (Number(b.quantity) || 0), 0);
+                },
+                get poEstimatedSubtotal() {
+                    return this.customerPoForm.items.reduce((s, it) => s + ((Number(it.quantity) || 0) * (Number(it
+                        .unit_price) || 0)), 0);
+                },
+                openCustomerPoModal(product = null) {
+                    if (product) {
+                        this.customerPoForm.items = [{
+                            product_id: product.id || '',
+                            product_name: product.name || product.title || '',
+                            quantity: 1,
+                            unit_price: Number(product.price || product.raw_price || 0),
+                            notes: ''
+                        }];
+                    }
+                    this.customerPoForm.error = null;
+                    this.customerPoModalOpen = true;
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                },
+                async submitCustomerPo() {
+                    this.customerPoForm.is_submitting = true;
+                    this.customerPoForm.error = null;
+
+                    if (!this.customerPoForm.customer_name || !this.customerPoForm.customer_phone) {
+                        this.customerPoForm.error = 'Nama pemesan dan nomor WhatsApp wajib diisi.';
+                        this.customerPoForm.is_submitting = false;
+                        return;
+                    }
+
+                    if (this.customerPoForm.items.length === 0 || this.customerPoForm.items.some(it => !it
+                            .product_name || !it.quantity || isNaN(Number(it.quantity)) || Number(it.quantity) <= 0
+                            )) {
+                        this.customerPoForm.error =
+                            'Lengkapi nama produk dan pastikan jumlah unit lebih dari 0 pada daftar item PO.';
+                        this.customerPoForm.is_submitting = false;
+                        return;
+                    }
+
+                    if (this.customerPoForm.batches.length === 0 || this.customerPoForm.batches.some(b => !b
+                            .scheduled_date || !b.quantity || isNaN(Number(b.quantity)) || Number(b.quantity) <= 0
+                            )) {
+                        this.customerPoForm.error =
+                            'Lengkapi tanggal target kirim dan pastikan jumlah unit lebih dari 0 pada setiap batch.';
+                        this.customerPoForm.is_submitting = false;
+                        return;
+                    }
+
+                    const payload = {
+                        customer_name: this.customerPoForm.customer_name,
+                        customer_phone: this.customerPoForm.customer_phone,
+                        customer_email: this.customerPoForm.customer_email || null,
+                        company_name: this.customerPoForm.company_name || null,
+                        customer_po_number: this.customerPoForm.customer_po_number || null,
+                        shipping_address: this.customerPoForm.shipping_address || null,
+                        payment_method_id: this.customerPoForm.payment_method_id || null,
+                        notes: this.customerPoForm.notes || null,
+                        items: this.customerPoForm.items.map(it => ({
+                            product_id: it.product_id || null,
+                            product_name: it.product_name,
+                            quantity: Number(it.quantity),
+                            unit_price: Number(it.unit_price || 0),
+                            notes: it.notes || null
+                        })),
+                        batches: this.customerPoForm.batches.map(b => ({
+                            scheduled_date: b.scheduled_date,
+                            scheduled_time_slot: b.scheduled_time_slot || null,
+                            quantity: Number(b.quantity),
+                            shipping_address: b.shipping_address || this.customerPoForm
+                                .shipping_address || null,
+                            notes: b.notes || null
+                        }))
+                    };
+
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') || '';
+                        const response = await fetch(
+                            '{{ route('public.storefront.customer_po', $business->slug) }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken
+                                },
+                                body: JSON.stringify(payload)
+                            });
+
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            this.customerPoModalOpen = false;
+                            window.location.href = data.order.tracking_url;
+                        } else {
+                            if (response.status === 401) {
+                                window.location.href = '{{ route('customer.auth.google') }}?redirect=' +
+                                    encodeURIComponent(window.location.href);
+                                return;
+                            }
+                            if (data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                                return;
+                            }
+                            this.customerPoForm.error = data.message || 'Gagal mengirim formulir Customer PO.';
+                        }
+                    } catch (e) {
+                        this.customerPoForm.error = 'Koneksi bermasalah. Silakan periksa jaringan Anda.';
+                    } finally {
+                        this.customerPoForm.is_submitting = false;
+                    }
+                },
+
                 // Gallery Lightbox & Modal Controls
                 galleryImages: {{ Js::from($allGalleryImages) }},
                 activeGalleryIndex: 0,
@@ -802,99 +2506,6 @@
         };
     </script>
 
-    <style>
-        [x-cloak] {
-            display: none !important;
-        }
-
-        :root {
-            --primary: {{ $themeColor }};
-            --primary-color: {{ $themeColor }};
-            --primary-rgb: {{ $themeRgb }};
-        }
-
-        body {
-            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .bg-brand-primary {
-            background-color: var(--primary-color);
-        }
-
-        .text-brand-primary {
-            color: var(--primary-color);
-        }
-
-        .border-brand-primary {
-            border-color: var(--primary-color);
-        }
-
-        /* Apple Modular UI Design System */
-        .bento-card {
-            background-color: rgba(255, 255, 255, 0.82);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            border-radius: 28px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 12px 28px -4px rgba(0, 0, 0, 0.04);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .dark .bento-card {
-            background-color: rgba(28, 28, 30, 0.82);
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 14px 32px -4px rgba(0, 0, 0, 0.35);
-        }
-
-        .bento-card-interactive {
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .bento-card-interactive:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 20px 40px -8px rgba(0, 0, 0, 0.08);
-            border-color: rgba(0, 0, 0, 0.12);
-        }
-
-        .dark .bento-card-interactive:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 24px 48px -8px rgba(0, 0, 0, 0.5);
-            border-color: rgba(255, 255, 255, 0.16);
-        }
-
-        .marquee-track {
-            display: inline-flex;
-            white-space: nowrap;
-            will-change: transform;
-            animation: marquee 28s linear infinite;
-        }
-
-        .marquee-track:hover {
-            animation-play-state: paused;
-        }
-
-        @keyframes marquee {
-            from {
-                transform: translateX(0);
-            }
-
-            to {
-                transform: translateX(-50%);
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-
-            *,
-            *::before,
-            *::after {
-                scroll-behavior: auto !important;
-                animation-duration: .01ms !important;
-            }
-        }
-    </style>
 
     {{-- JSON-LD LocalBusiness Schema for Google Search --}}
     <script type="application/ld+json">
@@ -904,7 +2515,7 @@
         "name": "{{ $business->name }}",
         "description": "{{ $landingPage->subheadline }}",
         "url": "{{ url()->current() }}",
-        "image": "{{ $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: $business->logo_url) }}",
+        "image": "{{ $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: $landingPage->logo_url)) }}",
         "telephone": "{{ $landingPage->whatsapp_number ?: $business->phone }}",
         "address": {
             "@@type": "PostalAddress",
@@ -921,8 +2532,28 @@
 </head>
 
 <body
-    class="{{ $landingPage->dark_mode ? 'dark bg-[#000000] text-[#FFFFFF]' : 'bg-[#F5F5F7] text-[#1D1D1F]' }} antialiased selection:bg-brand-primary selection:text-white pb-20 md:pb-0"
+    class="bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#FFFFFF] antialiased selection:bg-brand-primary selection:text-white pb-28 sm:pb-32 md:pb-28 transition-colors duration-300"
     x-data="landingPageState()">
+
+    {{-- Mode Preview Indicator (Hanya saat diakses preview oleh pemilik sebelum terbit) --}}
+    @if (!$landingPage->is_published)
+        <div
+            class="sticky top-0 z-[100] w-full bg-[#FF9500] text-black font-semibold text-[12px] sm:text-[12.5px] py-2 px-4 text-center flex items-center justify-center gap-2 shadow-sm">
+            <i data-lucide="eye" class="w-4 h-4 shrink-0"></i>
+            <span>Mode Preview Bisnis &mdash; Halaman ini masih berstatus draft privat dan belum dipublikasikan ke
+                umum.</span>
+        </div>
+    @endif
+
+    {{-- Hari Libur / Status Operasional Toko --}}
+    @if (!$isStoreOpenToday)
+        <div
+            class="bg-amber-500/10 border-b border-amber-500/20 py-2 px-4 text-amber-800 dark:text-amber-300 text-[12px] text-center flex items-center justify-center gap-2">
+            <i data-lucide="clock" class="w-4 h-4 text-amber-500 shrink-0"></i>
+            <span>Outlet toko libur hari ini ({{ $dayMap[$currentDayOfWeek] ?? '' }}). Pesanan online tetap dapat
+                dibuat dan akan diproses pada hari kerja berikutnya.</span>
+        </div>
+    @endif
 
     {{-- Dynamic Island Notification Toast --}}
     <div x-show="toastMessage" x-cloak x-transition:enter="transition ease-out duration-300 transform"
@@ -942,23 +2573,36 @@
     {{-- ========================================================================= --}}
     {{-- ANNOUNCEMENT MARQUEE (Apple Banner Style)                                  --}}
     {{-- ========================================================================= --}}
-    @if ($landingPage->announcement_badge)
+    @php
+        $announcementParts = array_filter([
+            $storeSetting?->announcement_text,
+            $landingPage->announcement_badge,
+            $storeSetting?->cut_off_time
+                ? 'Batas pesanan masuk hari ini: ' . substr((string) $storeSetting->cut_off_time, 0, 5) . ' WIB'
+                : null,
+            ($storeSetting?->daily_order_quota ?? 0) > 0
+                ? 'Kuota harian terbatas: maks. ' . $storeSetting->daily_order_quota . ' order/hari'
+                : null,
+        ]);
+        $announcementBanner = implode('  ✦  ', $announcementParts);
+    @endphp
+    @if ($announcementBanner)
         <aside
             class="relative overflow-hidden bg-brand-primary text-white text-[12px] font-medium leading-tight select-none">
             <div class="marquee-track py-2">
                 <span class="px-8 shrink-0 flex items-center gap-3">
-                    <span>{{ $landingPage->announcement_badge }}</span>
+                    <span>{{ $announcementBanner }}</span>
                     <span class="opacity-60 text-[10px]">✦</span>
-                    <span>{{ $landingPage->announcement_badge }}</span>
+                    <span>{{ $announcementBanner }}</span>
                     <span class="opacity-60 text-[10px]">✦</span>
-                    <span>{{ $landingPage->announcement_badge }}</span>
+                    <span>{{ $announcementBanner }}</span>
                 </span>
                 <span class="px-8 shrink-0 flex items-center gap-3" aria-hidden="true">
-                    <span>{{ $landingPage->announcement_badge }}</span>
+                    <span>{{ $announcementBanner }}</span>
                     <span class="opacity-60 text-[10px]">✦</span>
-                    <span>{{ $landingPage->announcement_badge }}</span>
+                    <span>{{ $announcementBanner }}</span>
                     <span class="opacity-60 text-[10px]">✦</span>
-                    <span>{{ $landingPage->announcement_badge }}</span>
+                    <span>{{ $announcementBanner }}</span>
                 </span>
             </div>
         </aside>
@@ -968,13 +2612,16 @@
     {{-- TOPBAR / NAVBAR (macOS Sonoma / Apple Store Frosted Glass Style)            --}}
     {{-- ========================================================================= --}}
     <header
-        class="sticky top-0 z-40 w-full backdrop-blur-xl {{ $landingPage->dark_mode ? 'bg-[#000000]/80 border-white/10' : 'bg-[#FFFFFF]/80 border-black/5' }} border-b transition-colors">
+        class="sticky top-0 z-40 w-full backdrop-blur-xl bg-white/80 dark:bg-[#000000]/80 border-black/5 dark:border-white/10 border-b transition-colors duration-300">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
 
             {{-- Brand / Logo (Apple Squircle Icon) --}}
             <a href="#hero" class="flex items-center gap-3 group select-none">
-                @if ($landingPage->logo_url ?: $business->logo_url)
-                    <img src="{{ $landingPage->logo_url ?: $business->logo_url }}" alt="{{ $business->name }}"
+                @php
+                    $headerBrandLogo = $business->logo_url ?: $landingPage->logo_url;
+                @endphp
+                @if ($headerBrandLogo)
+                    <img src="{{ $headerBrandLogo }}" alt="{{ $business->name }}"
                         class="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] object-contain border border-black/5 dark:border-white/10 bg-white dark:bg-[#1C1C1E] p-1 shadow-sm group-hover:scale-105 transition-transform"
                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div
@@ -989,9 +2636,9 @@
                 <div>
                     <span
                         class="font-semibold text-[14px] sm:text-[15px] tracking-tight block leading-tight text-black dark:text-white group-hover:opacity-80 transition">{{ $business->name }}</span>
-                    @if (collect($landingPage->operational_hours ?? [])->contains(fn($hours) => !empty($hours['is_open'])))
-                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-[#34C759]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse"></span>
+                    @if (collect($normalizedOperationalHours)->contains(fn($hours) => !empty($hours['is_open'])))
+                        <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#34C759]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
                             <span>Buka Hari Ini</span>
                         </span>
                     @endif
@@ -1027,17 +2674,19 @@
             </nav>
 
             {{-- CTA & Cart Navbar Actions --}}
-            <div class="flex items-center gap-2">
+            <div class="storefront-header-actions flex items-center gap-2">
                 {{-- Storefront Shopping Cart Button --}}
-                <button type="button" @click="cartDrawerOpen = true"
-                    class="relative h-9 px-3.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/80 dark:text-white/80 text-[13px] font-semibold flex items-center gap-1.5 transition active:scale-95"
-                    title="Keranjang Belanja">
-                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Keranjang</span>
-                    <span x-show="cartCount > 0"
-                        class="px-1.5 py-0.2 rounded-full text-[10.5px] font-extrabold bg-[#007AFF] text-white tabular-nums shadow-xs"
-                        x-text="cartCount"></span>
-                </button>
+                @if ($allowCart)
+                    <button type="button" @click="cartDrawerOpen = true"
+                        class="relative h-9 px-3 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/80 dark:text-white/80 text-[12.5px] font-semibold flex items-center gap-1.5 transition active:scale-95 border border-black/5 dark:border-white/10 cursor-pointer"
+                        title="Keranjang Belanja">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                        <span class="hidden lg:inline">Keranjang</span>
+                        <span x-show="cartCount > 0"
+                            class="px-1.5 py-0.2 rounded-full text-[10.5px] font-extrabold bg-brand-primary text-white tabular-nums shadow-xs"
+                            x-text="cartCount"></span>
+                    </button>
+                @endif
 
                 {{-- Customer Account Pill / Login Button --}}
                 @if (auth('customer')->check())
@@ -1049,7 +2698,7 @@
                             @click.outside="userMenuOpen = false"
                             class="h-9 pl-1.5 pr-3 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/80 dark:text-white/80 text-[12.5px] font-semibold flex items-center gap-2 transition active:scale-95 border border-black/5 dark:border-white/10">
                             <span
-                                class="w-6 h-6 rounded-full bg-[#007AFF] text-white text-[11px] font-bold flex items-center justify-center">
+                                class="w-6 h-6 rounded-full bg-brand-primary text-white text-[11px] font-bold flex items-center justify-center">
                                 {{ strtoupper(mb_substr($navCust->name, 0, 1)) }}
                             </span>
                             <span class="hidden sm:inline max-w-[90px] truncate">{{ $navCust->name }}</span>
@@ -1065,7 +2714,7 @@
                                 </p>
                                 <div class="mt-1.5 flex items-center justify-between text-[11px]">
                                     <span
-                                        class="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] font-bold capitalize">{{ $navCust->membership_tier ?? 'Bronze' }}</span>
+                                        class="px-2 py-0.5 rounded-full bg-brand-100 text-brand-primary font-bold capitalize">{{ $navCust->membership_tier ?? 'Bronze' }}</span>
                                     <span
                                         class="font-semibold text-black/70 dark:text-white/70">{{ number_format($navCust->loyalty_points ?? 0) }}
                                         Poin</span>
@@ -1073,7 +2722,7 @@
                             </div>
                             <a href="{{ route('customer.dashboard') }}"
                                 class="flex items-center gap-2.5 px-3 py-2 rounded-[12px] text-black/80 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 transition font-medium">
-                                <i data-lucide="layout-grid" class="w-4 h-4 text-[#007AFF]"></i>
+                                <i data-lucide="layout-grid" class="w-4 h-4 text-brand-primary"></i>
                                 <span>Dashboard Saya</span>
                             </a>
                             <a href="{{ route('customer.orders') }}"
@@ -1112,30 +2761,71 @@
                     </a>
                 @endif
 
-                @if ($storeSetting?->allow_reservation)
-                    <button type="button" @click="reservationModalOpen = true; reservationSuccess = false;"
-                        class="hidden sm:inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-[12.5px] font-semibold transition border border-[#34C759]/20 shadow-xs">
+                {{-- Adaptive Single Primary Action Button (Apple HIG Minimalist Bento) --}}
+                @if ($allowReservation)
+                    <button type="button" @click="openReservationModal()"
+                        class="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-primary text-white text-[12.5px] font-semibold hover:opacity-90 active:scale-95 transition shadow-xs cursor-pointer"
+                        title="Reservasi">
                         <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                        <span>Reservasi</span>
+                        <span>{{ $landingPage->cta_primary_text ?: 'Reservasi' }}</span>
                     </button>
-                @endif
-
-                @if ($landingPage->cta_primary_text && ($landingPage->whatsapp_number || $landingPage->custom_phone || $business->phone))
+                @elseif ($allowCustomerPo && $isProductionB2b)
+                    <button type="button" @click="openCustomerPoModal()"
+                        class="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-primary text-white text-[12.5px] font-semibold hover:opacity-90 active:scale-95 transition shadow-xs cursor-pointer"
+                        title="Pesan PO">
+                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                        <span>{{ $landingPage->cta_primary_text ?: 'Pesan' }}</span>
+                    </button>
+                @elseif ($allowRequestOrder && !in_array($industryGroup, ['retail', 'service']))
+                    <button type="button" @click="requestOrderModalOpen = true"
+                        class="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-primary text-white text-[12.5px] font-semibold hover:opacity-90 active:scale-95 transition shadow-xs cursor-pointer"
+                        title="Pesan Pre-Order">
+                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                        <span>{{ $landingPage->cta_primary_text ?: 'Pesan' }}</span>
+                    </button>
+                @elseif ($hasServices || $hasPosGoods)
+                    <a href="{{ $landingPage->cta_primary_url ?: '#layanan' }}"
+                        class="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-primary text-white text-[12.5px] font-semibold hover:opacity-90 active:scale-95 transition shadow-xs"
+                        title="Pesan">
+                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                        <span>{{ $landingPage->cta_primary_text ?: 'Pesan' }}</span>
+                    </a>
+                @elseif ($hasWhatsapp)
                     <a href="{{ $landingPage->cta_primary_url ?: $landingPage->getWhatsAppUrl() }}" target="_blank"
                         rel="noopener"
-                        class="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-primary text-white text-[13px] font-semibold hover:opacity-90 active:scale-[0.97] transition-all shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        class="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-[#25D366] text-white text-[12.5px] font-semibold hover:opacity-90 active:scale-95 transition shadow-xs"
+                        title="Hubungi WA">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                             <path
                                 d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                         </svg>
-                        <span>{{ $landingPage->cta_primary_text }}</span>
+                        <span>{{ $landingPage->cta_primary_text ?: 'WA' }}</span>
                     </a>
                 @endif
 
+
+                {{-- Theme control on every device; no persistent override of CMS settings. --}}
+                <button id="storefront-theme-toggle" type="button" class="storefront-theme-toggle"
+                    @click="toggleTheme()" role="switch" aria-label="Mode gelap"
+                    :aria-checked="isDark ? 'true' : 'false'"
+                    :title="isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'" x-cloak>
+                    <svg x-show="!isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20.8 13.1A9 9 0 0 1 10.9 3.2a9 9 0 1 0 9.9 9.9Z" />
+                    </svg>
+                    <svg x-show="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4" />
+                        <path
+                            d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+                    </svg>
+                </button>
+
                 {{-- Mobile Hamburger --}}
-                <button @click="mobileMenuOpen = !mobileMenuOpen"
+                <button type="button" @click="mobileMenuOpen = !mobileMenuOpen"
                     class="md:hidden w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/70 dark:text-white/70 active:scale-95 transition"
-                    aria-label="Toggle menu">
+                    aria-label="Menu navigasi" aria-controls="storefront-mobile-menu"
+                    :aria-expanded="mobileMenuOpen ? 'true' : 'false'">
                     <i data-lucide="menu" class="w-4 h-4" x-show="!mobileMenuOpen"></i>
                     <i data-lucide="x" class="w-4 h-4" x-show="mobileMenuOpen" style="display: none;"></i>
                 </button>
@@ -1143,9 +2833,10 @@
         </div>
 
         {{-- Mobile Menu Dropdown (Apple Sheet Dropdown) --}}
-        <div x-show="mobileMenuOpen" x-transition.opacity
-            class="md:hidden border-t {{ $landingPage->dark_mode ? 'bg-[#1C1C1E]/95 border-white/10' : 'bg-white/95 border-black/5' }} backdrop-blur-xl px-5 py-4 space-y-2 text-[14px] font-medium"
+        <div id="storefront-mobile-menu" x-show="mobileMenuOpen" x-transition.opacity
+            class="md:hidden border-t bg-white/95 dark:bg-[#1C1C1E]/95 border-black/5 dark:border-white/10 backdrop-blur-xl px-5 py-4 space-y-2 text-[14px] font-medium"
             style="display: none;">
+
 
             {{-- Mobile Customer Account Status --}}
             @if (auth('customer')->check())
@@ -1157,7 +2848,7 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2.5">
                             <div
-                                class="w-9 h-9 rounded-full bg-[#007AFF] text-white text-[13px] font-bold flex items-center justify-center">
+                                class="w-9 h-9 rounded-full bg-brand-primary text-white text-[13px] font-bold flex items-center justify-center">
                                 {{ strtoupper(mb_substr($mCust->name, 0, 1)) }}
                             </div>
                             <div>
@@ -1167,7 +2858,7 @@
                             </div>
                         </div>
                         <span
-                            class="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[11px] font-bold capitalize">{{ $mCust->membership_tier ?? 'Bronze' }}</span>
+                            class="px-2 py-0.5 rounded-full bg-brand-100 text-brand-primary text-[11px] font-bold capitalize">{{ $mCust->membership_tier ?? 'Bronze' }}</span>
                     </div>
                     <div class="grid grid-cols-3 gap-1.5 pt-1 text-center text-[12px]">
                         <a href="{{ route('customer.dashboard') }}"
@@ -1184,7 +2875,7 @@
             @else
                 <div class="mb-3">
                     <a href="{{ route('customer.login', ['store' => $business->slug]) }}"
-                        class="w-full h-11 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] font-bold text-[13.5px] flex items-center justify-center gap-2 hover:bg-[#007AFF]/15 transition">
+                        class="w-full h-11 rounded-[14px] bg-brand-100 text-brand-primary font-bold text-[13.5px] flex items-center justify-center gap-2 hover:bg-brand-200 transition">
                         <i data-lucide="user" class="w-4 h-4"></i>
                         <span>Masuk / Daftar Akun Pelanggan</span>
                     </a>
@@ -1193,16 +2884,18 @@
 
             @if ($sectionVisibility['services'] && $hasServices)
                 <a href="#layanan" @click="mobileMenuOpen = false"
-                    class="block py-2 text-black/80 dark:text-white/80">Menu &amp; Layanan</a>
+                    class="block py-2 text-black/80 dark:text-white/80">{{ $industryLabels['catalog_title'] ?? 'Menu & Layanan' }}</a>
             @endif
-            @if ($storeSetting?->allow_reservation)
+            @if ($allowReservation)
                 <button type="button"
                     @click="mobileMenuOpen = false; reservationModalOpen = true; reservationSuccess = false;"
-                    class="block w-full text-left py-2 text-[#34C759] font-semibold">Reservasi Meja / Booking</button>
+                    class="block w-full text-left py-2 text-[#34C759] font-semibold">Reservasi</button>
             @endif
-            <button type="button" @click="mobileMenuOpen = false; cartDrawerOpen = true;"
-                class="block w-full text-left py-2 text-[#007AFF] font-semibold">Keranjang Belanja (<span
-                    x-text="cartCount"></span>)</button>
+            @if ($allowRequestOrder || $allowCustomerPo || $allowCart || $hasPosGoods)
+                <button type="button"
+                    @click="mobileMenuOpen = false; @if ($allowCustomerPo && $isProductionB2b) openCustomerPoModal() @elseif($allowRequestOrder && !in_array($industryGroup, ['retail', 'service'])) requestOrderModalOpen = true @elseif($allowCart) cartDrawerOpen = true @else document.getElementById('layanan')?.scrollIntoView({behavior: 'smooth'}) @endif"
+                    class="block w-full text-left py-2 text-brand-primary font-semibold">Pesan</button>
+            @endif
             @if ($sectionVisibility['about'] && $hasAbout)
                 <a href="#tentang" @click="mobileMenuOpen = false"
                     class="block py-2 text-black/80 dark:text-white/80">Tentang Kami</a>
@@ -1219,134 +2912,181 @@
                 <a href="#lokasi" @click="mobileMenuOpen = false"
                     class="block py-2 text-black/80 dark:text-white/80">Lokasi &amp; Kontak</a>
             @endif
-            @if ($landingPage->whatsapp_number || $landingPage->custom_phone || $business->phone)
+            @if ($hasWhatsapp)
                 <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank"
                     class="w-full mt-3 h-11 rounded-full bg-brand-primary text-white text-center font-semibold text-[14px] flex items-center justify-center gap-2 shadow-sm">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path
                             d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                     </svg>
-                    <span>{{ $landingPage->cta_primary_text ?: 'Chat WhatsApp' }}</span>
+                    <span>WA</span>
                 </a>
             @endif
         </div>
     </header>
 
     {{-- ========================================================================= --}}
-    {{-- HERO SECTION (2-Grid Clean Apple HIG Architecture)                        --}}
+    {{-- HERO SECTION (Apple Hardware Spotlight Bento Banner)                     --}}
     {{-- ========================================================================= --}}
-    @if ($sectionVisibility['hero'] && $hasHero)
-        <section id="hero" data-section="hero" class="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24">
-            {{-- Ambient Depth Glow Mesh --}}
-            <div
-                class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-72 bg-brand-primary opacity-[0.12] dark:opacity-[0.18] blur-[120px] pointer-events-none rounded-full">
-            </div>
-
-            <div
-                class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 grid grid-cols-1 {{ $landingPage->hero_image_url ? 'lg:grid-cols-12 gap-10 lg:gap-16' : 'max-w-3xl' }} items-center">
-
-                {{-- Left Column: Brand, Badges, Headline, Subheadline, CTAs --}}
+    @if ($sectionVisibility['hero'])
+        @php
+            $heroDisplayImage = $landingPage->hero_image_url ?: ($business->logo_url ?: $landingPage->logo_url);
+        @endphp
+        <section id="hero" class="relative pt-6 sm:pt-8 pb-12 sm:pb-16 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div
-                    class="{{ $landingPage->hero_image_url ? 'lg:col-span-7' : 'w-full text-center' }} text-center lg:text-left space-y-6">
-                    {{-- Status Pill & Badges --}}
-                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
+                    class="{{ $heroDisplayImage ? 'grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center' : 'max-w-3xl mx-auto text-center space-y-6' }}">
+
+                    {{-- Left Column: Hero Typography & Actions --}}
+                    <div
+                        class="{{ $heroDisplayImage ? 'lg:col-span-7 text-center lg:text-left space-y-5' : 'space-y-6' }}">
                         @if ($landingPage->announcement_badge)
                             <div
-                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[12px] sm:text-[12.5px] font-semibold bg-brand-primary/10 border border-brand-primary/25 text-brand-primary shadow-sm tracking-[-0.01em]">
-                                <span class="w-2 h-2 rounded-full bg-brand-primary animate-ping"></span>
+                                class="inline-flex items-center gap-1.5 text-[11.5px] sm:text-[12px] font-bold uppercase tracking-wider text-brand-primary">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                                 <span>{{ $landingPage->announcement_badge }}</span>
                             </div>
                         @endif
 
-                        @if (collect($landingPage->operational_hours ?? [])->contains(fn($hours) => !empty($hours['is_open'])))
-                            <div
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] sm:text-[12.5px] font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20 tracking-[-0.01em]">
-                                <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
-                                <span>Buka Hari Ini</span>
-                            </div>
-                        @endif
-                    </div>
-
-                    {{-- Display Headline (SF Pro Typography Style) --}}
-                    @if ($landingPage->headline)
                         <h1
-                            class="text-3xl sm:text-5xl lg:text-[52px] xl:text-[56px] font-extrabold tracking-tight lg:tracking-[-0.035em] leading-[1.12] text-black dark:text-white max-w-3xl lg:max-w-none">
-                            {{ $landingPage->headline }}
+                            class="text-[34px] sm:text-[46px] lg:text-[54px] font-extrabold text-black dark:text-white tracking-[-0.035em] leading-[1.08]">
+                            {{ $landingPage->headline ?: $business->name }}
                         </h1>
-                    @endif
 
-                    {{-- Subheadline --}}
-                    @if ($landingPage->subheadline)
-                        <p
-                            class="text-[15px] sm:text-[17px] text-black/65 dark:text-white/65 max-w-2xl leading-relaxed font-normal tracking-[-0.01em] {{ $landingPage->hero_image_url ? '' : 'mx-auto' }}">
-                            {{ $landingPage->subheadline }}
-                        </p>
-                    @endif
+                        @if ($landingPage->subheadline)
+                            <p
+                                class="text-[15px] sm:text-[17px] text-black/65 dark:text-white/65 leading-relaxed font-normal tracking-[-0.01em] {{ $landingPage->hero_image_url ? 'max-w-xl' : 'max-w-2xl mx-auto' }}">
+                                {{ $landingPage->subheadline }}
+                            </p>
+                        @endif
 
-                    {{-- Action Buttons & Micro Trust --}}
-                    @if ($landingPage->cta_primary_text || $landingPage->cta_secondary_text)
-                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
-                            @if ($landingPage->cta_primary_text)
+                        {{-- Action Buttons (Apple HIG Rule: Maximum 2 CTAs, Concise Labels: Pesan, Reservasi, WA) --}}
+                        <div
+                            class="flex flex-col sm:flex-row items-center {{ $landingPage->hero_image_url ? 'justify-center lg:justify-start' : 'justify-center' }} gap-3 pt-2">
+                            {{-- Primary CTA --}}
+                            @if ($allowReservation)
+                                <button type="button" @click="openReservationModal()"
+                                    class="w-full sm:w-auto h-12 px-7 rounded-full bg-brand-primary text-white font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                    title="Reservasi">
+                                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                                    <span>{{ $landingPage->cta_primary_text ?: 'Reservasi' }}</span>
+                                </button>
+                            @elseif ($allowCustomerPo && $isProductionB2b)
+                                <button type="button" @click="openCustomerPoModal()"
+                                    class="w-full sm:w-auto h-12 px-7 rounded-full bg-brand-primary text-white font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                    title="Pesan PO">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                    <span>{{ $landingPage->cta_primary_text ?: 'Pesan' }}</span>
+                                </button>
+                            @elseif ($allowRequestOrder && !in_array($industryGroup, ['retail', 'service']))
+                                <button type="button" @click="requestOrderModalOpen = true"
+                                    class="w-full sm:w-auto h-12 px-7 rounded-full bg-brand-primary text-white font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                    title="Pesan Pre-Order">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                    <span>{{ $landingPage->cta_primary_text ?: 'Pesan' }}</span>
+                                </button>
+                            @elseif ($hasServices || $hasPosGoods)
+                                <a href="{{ $landingPage->cta_primary_url ?: '#layanan' }}"
+                                    class="w-full sm:w-auto h-12 px-7 rounded-full bg-brand-primary text-white font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    title="Pesan">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                    <span>{{ $landingPage->cta_primary_text ?: 'Pesan' }}</span>
+                                </a>
+                            @elseif ($hasWhatsapp)
                                 <a href="{{ $landingPage->cta_primary_url ?: $landingPage->getWhatsAppUrl() }}"
                                     target="_blank" rel="noopener"
-                                    class="w-full sm:w-auto h-12 px-7 rounded-full bg-brand-primary text-white font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5">
+                                    class="w-full sm:w-auto h-12 px-7 rounded-full bg-[#25D366] text-white font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] shadow-[0_4px_16px_rgba(37,211,102,0.25)] hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    title="Hubungi WA">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                         <path
                                             d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                                     </svg>
-                                    <span>{{ $landingPage->cta_primary_text }}</span>
+                                    <span>{{ $landingPage->cta_primary_text ?: 'WA' }}</span>
                                 </a>
                             @endif
 
-                            @if ($landingPage->cta_secondary_text)
-                                <a href="{{ $landingPage->cta_secondary_url ?: '#layanan' }}"
-                                    class="w-full sm:w-auto h-12 px-6 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] border border-black/5 dark:border-white/10 active:scale-[0.98] transition flex items-center justify-center gap-2">
-                                    <span>{{ $landingPage->cta_secondary_text }}</span>
-                                    <i data-lucide="arrow-down" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
-                                </a>
+                            {{-- Secondary Contextual Action (Pesan, Reservasi, atau WA) --}}
+                            @if ($allowReservation)
+                                @if ($allowCart || $hasPosGoods || $allowCustomerPo || $allowRequestOrder)
+                                    <a href="{{ $landingPage->cta_secondary_url ?: '#layanan' }}"
+                                        class="w-full sm:w-auto h-12 px-6 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] border border-black/5 dark:border-white/10 active:scale-[0.98] transition flex items-center justify-center gap-2"
+                                        title="Pesan">
+                                        <i data-lucide="shopping-bag"
+                                            class="w-4 h-4 text-black/50 dark:text-white/50"></i>
+                                        <span>{{ $landingPage->cta_secondary_text ?: 'Pesan' }}</span>
+                                    </a>
+                                @elseif ($hasWhatsapp)
+                                    <a href="{{ $landingPage->cta_secondary_url ?: $landingPage->getWhatsAppUrl() }}"
+                                        target="_blank" rel="noopener"
+                                        class="w-full sm:w-auto h-12 px-6 rounded-full bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] border border-[#34C759]/20 active:scale-[0.98] transition flex items-center justify-center gap-2"
+                                        title="Hubungi WA">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
+                                        </svg>
+                                        <span>{{ $landingPage->cta_secondary_text ?: 'WA' }}</span>
+                                    </a>
+                                @endif
+                            @else
+                                @if ($hasWhatsapp)
+                                    <a href="{{ $landingPage->cta_secondary_url ?: $landingPage->getWhatsAppUrl() }}"
+                                        target="_blank" rel="noopener"
+                                        class="w-full sm:w-auto h-12 px-6 rounded-full bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] border border-[#34C759]/20 active:scale-[0.98] transition flex items-center justify-center gap-2"
+                                        title="Hubungi WA">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
+                                        </svg>
+                                        <span>{{ $landingPage->cta_secondary_text ?: 'WA' }}</span>
+                                    </a>
+                                @endif
                             @endif
+                        </div>
+
+                        {{-- Micro Trust Tags --}}
+                        <div
+                            class="flex flex-wrap items-center {{ $heroDisplayImage ? 'justify-center lg:justify-start' : 'justify-center' }} gap-4 text-[12px] sm:text-[12.5px] font-medium text-black/55 dark:text-white/55 pt-1">
+                            <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check"
+                                    class="w-4 h-4 text-brand-primary"></i>100% Autentik</span>
+                            <span class="inline-flex items-center gap-1.5"><i data-lucide="sparkles"
+                                    class="w-4 h-4 text-amber-500"></i>Kualitas Terjamin</span>
+                            <span class="inline-flex items-center gap-1.5"><i data-lucide="smile"
+                                    class="w-4 h-4 text-[#34C759]"></i>Pelayanan Ramah</span>
+                        </div>
+                    </div>
+
+                    {{-- Right Column: Media Hardware Squircle Showcase --}}
+                    @if ($heroDisplayImage)
+                        <div class="lg:col-span-5 pt-6 lg:pt-0">
+                            <div
+                                class="rounded-[28px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.45)] border border-black/10 dark:border-white/10 aspect-[4/3] bg-black/[0.03] dark:bg-white/[0.05] relative group flex items-center justify-center">
+                                <img src="{{ $heroDisplayImage }}" alt="{{ $business->name }}"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                    fetchpriority="high"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div
+                                    class="hidden w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-primary/10 via-black/5 dark:via-white/5 to-brand-primary/20">
+                                    <i data-lucide="image" class="w-12 h-12 text-brand-primary/40"></i>
+                                </div>
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none">
+                                </div>
+                                <div
+                                    class="absolute bottom-4 inset-x-4 flex items-center justify-between text-white pointer-events-none">
+                                    <div class="text-xs font-semibold drop-shadow-md flex items-center gap-1.5">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-brand-primary"></i>
+                                        <span>{{ $business->name }}</span>
+                                    </div>
+                                    <span
+                                        class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-sm">
+                                        Resmi
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     @endif
 
-                    {{-- Micro Trust Tags --}}
-                    <div
-                        class="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-[12px] sm:text-[12.5px] font-medium text-black/55 dark:text-white/55 pt-1">
-                        <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check"
-                                class="w-4 h-4 text-brand-primary"></i>100% Autentik</span>
-                        <span class="inline-flex items-center gap-1.5"><i data-lucide="sparkles"
-                                class="w-4 h-4 text-amber-500"></i>Kualitas Terjamin</span>
-                        <span class="inline-flex items-center gap-1.5"><i data-lucide="smile"
-                                class="w-4 h-4 text-[#34C759]"></i>Pelayanan Ramah</span>
-                    </div>
                 </div>
-
-                {{-- Right Column: Media Hardware Squircle Showcase --}}
-                @if ($landingPage->hero_image_url)
-                    <div class="lg:col-span-5 pt-6 lg:pt-0">
-                        <div
-                            class="rounded-[28px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.45)] border border-black/10 dark:border-white/10 aspect-[4/3] bg-black/[0.03] dark:bg-white/[0.05] relative group">
-                            <img src="{{ $landingPage->hero_image_url }}" alt="{{ $business->name }}"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                fetchpriority="high" onerror="this.style.display='none';">
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none">
-                            </div>
-                            <div
-                                class="absolute bottom-4 inset-x-4 flex items-center justify-between text-white pointer-events-none">
-                                <div class="text-xs font-semibold drop-shadow-md flex items-center gap-1.5">
-                                    <i data-lucide="check-circle" class="w-4 h-4 text-brand-primary"></i>
-                                    <span>{{ $business->name }}</span>
-                                </div>
-                                <span
-                                    class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-sm">
-                                    Resmi
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-            </div>
         </section>
     @endif
 
@@ -1390,13 +3130,13 @@
                 {{-- Section Title --}}
                 <div class="text-center max-w-2xl mx-auto space-y-2">
                     <span
-                        class="inline-block px-3 py-1 rounded-full text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.06em] text-brand-primary bg-brand-primary/10">Menu
-                        &amp; Layanan</span>
-                    @if ($landingPage->services_title)
-                        <h2
-                            class="text-2xl sm:text-3xl lg:text-[36px] font-bold tracking-tight lg:tracking-[-0.025em] leading-[1.2] text-black dark:text-white">
-                            {{ $landingPage->services_title }}</h2>
-                    @endif
+                        class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-1">
+                        {{ $industryLabels['catalog_overline'] }}
+                    </span>
+                    <h2
+                        class="text-2xl sm:text-3xl lg:text-[36px] font-bold tracking-tight lg:tracking-[-0.025em] leading-[1.2] text-black dark:text-white">
+                        {{ $landingPage->services_title ?: $industryLabels['catalog_title'] }}
+                    </h2>
                     @if ($landingPage->services_subtitle)
                         <p
                             class="text-[14px] sm:text-[15px] text-black/60 dark:text-white/60 leading-relaxed font-normal tracking-[-0.01em]">
@@ -1404,119 +3144,255 @@
                     @endif
                 </div>
 
-                {{-- Custom Services Slider --}}
+                {{-- Custom Services Slider & Live Search --}}
                 @if ($sectionVisibility['services'] && $services->isNotEmpty())
                     <div class="space-y-5" x-data="makeSlider({{ $services->count() }}, { base: 1, sm: 2, lg: 3 }, 3600)">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
                                 <span
                                     class="text-[11px] font-semibold uppercase tracking-[0.05em] text-black/45 dark:text-white/45 block mb-0.5">Pilihan
                                     Layanan</span>
                                 <h3
                                     class="font-bold text-[18px] sm:text-[20px] text-black dark:text-white tracking-[-0.015em] leading-snug">
-                                    Layanan Unggulan</h3>
+                                    {{ $industryLabels['services_title'] }}</h3>
                             </div>
-                            @if ($services->count() > 1)
-                                <div class="flex items-center gap-2">
-                                    <button type="button" @click="prev()" aria-label="Layanan Sebelumnya"
-                                        class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
-                                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                                    </button>
-                                    <button type="button" @click="next()" aria-label="Layanan Berikutnya"
-                                        class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
-                                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+
+                            <div
+                                class="flex items-center gap-2 flex-wrap self-stretch sm:self-auto justify-between sm:justify-end">
+                                {{-- Capsule Live Search on Single Page --}}
+                                <div class="relative flex-1 sm:w-60">
+                                    <i data-lucide="search"
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-black/40 dark:text-white/40"></i>
+                                    <input type="search" x-model="serviceSearch" @input="filterServices()"
+                                        placeholder="Cari layanan..."
+                                        class="w-full h-8 sm:h-9 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 pl-8 pr-7 text-[16px] sm:text-[12.5px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition">
+                                    <button type="button" x-show="serviceSearch" @click="clearServiceFilter()"
+                                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white cursor-pointer">
+                                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </div>
-                            @endif
-                        </div>
 
-                        <div class="relative overflow-hidden rounded-[28px]" @mouseenter="stop()"
-                            @mouseleave="start()" @touchstart="stop()" @touchend="start()">
-                            <div class="flex transition-transform duration-500 ease-out"
-                                :style="'transform: translateX(-' + (currentIndex * (100 / perView)) + '%)'">
-                                @foreach ($services as $serviceIndex => $svc)
-                                    <div class="w-full sm:w-1/2 lg:w-1/3 shrink-0 p-2 sm:p-2.5">
-                                        <button type="button" @click="openService({{ Js::from($svc) }})"
-                                            class="w-full h-full text-left bento-card bento-card-interactive p-5 flex flex-col justify-between space-y-4 active:scale-[0.98]">
-                                            <div>
-                                                <div
-                                                    class="relative w-full aspect-[16/10] rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] overflow-hidden mb-3.5 flex items-center justify-center">
-                                                    @if (!empty($svc['image_url']))
-                                                        <img src="{{ $svc['image_url'] }}"
-                                                            alt="{{ $svc['title'] ?? 'Layanan' }}" loading="lazy"
-                                                            class="w-full h-full object-cover">
-                                                    @else
-                                                        <div
-                                                            class="w-full h-full flex items-center justify-center text-brand-primary">
-                                                            <i data-lucide="{{ $svc['icon'] ?? 'sparkles' }}"
-                                                                class="w-8 h-8"></i>
-                                                        </div>
-                                                    @endif
-                                                    @if (!empty($svc['badge']))
-                                                        <span
-                                                            class="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wider bg-brand-primary text-white shadow-sm">
-                                                            {{ $svc['badge'] }}
-                                                        </span>
-                                                    @endif
-                                                </div>
+                                {{-- Lihat Semua Pop-up Trigger --}}
+                                <button type="button" @click="openAllServicesModal()"
+                                    class="h-8 sm:h-9 px-3.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.14] text-black/80 dark:text-white/80 text-[12px] font-semibold flex items-center gap-1.5 transition active:scale-95 border border-black/5 dark:border-white/10 cursor-pointer whitespace-nowrap">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                    <span>Lihat Semua ({{ $services->count() }})</span>
+                                </button>
 
-                                                <h4
-                                                    class="font-semibold text-[14.5px] sm:text-[15px] text-black dark:text-white line-clamp-1 tracking-tight leading-snug">
-                                                    {{ $svc['title'] ?? '' }}</h4>
-                                                <p
-                                                    class="text-[12.5px] sm:text-[13px] text-black/60 dark:text-white/60 mt-1 line-clamp-2 leading-relaxed font-normal">
-                                                    {{ $svc['description'] ?? '' }}
-                                                </p>
-                                            </div>
-
-                                            <div
-                                                class="pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
-                                                <div
-                                                    class="font-bold text-[14px] sm:text-[14.5px] text-brand-primary tabular-nums tracking-tight">
-                                                    @if (!empty($svc['price']))
-                                                        {{ $svc['price'] }}
-                                                    @else
-                                                        Hubungi kami
-                                                    @endif
-                                                </div>
-                                                <span
-                                                    class="px-3 py-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 font-semibold text-[11.5px] tracking-tight transition flex items-center gap-1">
-                                                    <span>Detail</span>
-                                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                                                </span>
-                                            </div>
+                                @if ($services->count() > 1)
+                                    <div x-show="!serviceSearch && serviceCategory === 'all'"
+                                        class="hidden sm:flex items-center gap-1.5">
+                                        <button type="button" @click="prev()" aria-label="Layanan Sebelumnya"
+                                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
+                                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                        </button>
+                                        <button type="button" @click="next()" aria-label="Layanan Berikutnya"
+                                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
+                                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                         </button>
                                     </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Service Category Filter Pills on Single Page --}}
+                        @if ($serviceCategories->isNotEmpty())
+                            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none pt-1">
+                                <button type="button" @click="setServiceCategory('all')"
+                                    class="px-3.5 py-1.5 rounded-full text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95 cursor-pointer"
+                                    :class="serviceCategory === 'all' ? 'bg-brand-primary text-white shadow-sm' :
+                                        'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'">
+                                    Semua ({{ $services->count() }})
+                                </button>
+                                @foreach ($serviceCategories as $sCat)
+                                    @php
+                                        $sCatCount = $services
+                                            ->filter(fn($s) => ($s['category_id'] ?? null) == $sCat->id)
+                                            ->count();
+                                    @endphp
+                                    <button type="button" @click="setServiceCategory('{{ $sCat->id }}')"
+                                        class="px-3.5 py-1.5 rounded-full text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95 cursor-pointer"
+                                        :class="serviceCategory === '{{ $sCat->id }}' ?
+                                            'bg-brand-primary text-white shadow-sm' :
+                                            'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'">
+                                        {{ $sCat->name }}
+                                        @if ($sCatCount > 0)
+                                            <span
+                                                class="opacity-70 tabular-nums text-[11px]">({{ $sCatCount }})</span>
+                                        @endif
+                                    </button>
                                 @endforeach
                             </div>
-                        </div>
+                        @endif
 
-                        {{-- Minimalist Dots Indicator --}}
-                        <div class="flex items-center justify-center gap-1.5 pt-1" x-show="maxIndex() > 0">
-                            <template x-for="idx in (maxIndex() + 1)" :key="idx">
-                                <button type="button" @click="goTo(idx - 1)"
-                                    :class="currentIndex === (idx - 1) ? 'w-5 bg-brand-primary' :
-                                        'w-1.5 bg-black/20 dark:bg-white/20'"
-                                    class="h-1.5 rounded-full transition-all duration-300"
-                                    :aria-label="'Slide ' + idx"></button>
-                            </template>
-                        </div>
-
-                        @if ($services->count() > 3)
-                            <div class="text-center pt-2">
-                                <button type="button" @click="activeModal = 'all-services'"
-                                    class="inline-flex items-center gap-2 h-10 px-6 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 text-[13px] font-semibold tracking-tight active:scale-[0.97] transition">
-                                    <i data-lucide="grid" class="w-4 h-4"></i>
-                                    <span>Lihat Semua Layanan ({{ $services->count() }})</span>
+                        {{-- Live Filtered Results on Single Page (when searching or category selected) --}}
+                        <div x-show="serviceSearch.trim() !== '' || serviceCategory !== 'all'" x-cloak class="pt-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <template x-for="svc in filteredServices" :key="svc.title">
+                                    <div role="button" tabindex="0" @click="openService(svc)"
+                                        class="w-full text-left bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] rounded-[24px] shadow-sm hover:shadow-md bento-card-interactive p-5 flex flex-col justify-between space-y-4 active:scale-[0.98] cursor-pointer">
+                                        <div>
+                                            <div
+                                                class="relative w-full aspect-[16/10] rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] overflow-hidden mb-3.5 flex items-center justify-center border border-black/5 dark:border-white/10">
+                                                <template x-if="svc.image_url">
+                                                    <img :src="svc.image_url" :alt="svc.title" loading="lazy"
+                                                        class="w-full h-full object-cover"
+                                                        x-on:error="$event.target.style.display = 'none'; $event.target.nextElementSibling.classList.remove('hidden')">
+                                                </template>
+                                                <div :class="svc.image_url ? 'hidden' : ''"
+                                                    class="w-full h-full flex items-center justify-center text-brand-primary">
+                                                    <i data-lucide="sparkles" class="w-8 h-8"></i>
+                                                </div>
+                                                <template x-if="svc.badge">
+                                                    <span
+                                                        class="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wider bg-brand-primary text-white shadow-xs"
+                                                        x-text="svc.badge"></span>
+                                                </template>
+                                            </div>
+                                            <h4 class="font-semibold text-[14.5px] sm:text-[15px] text-black dark:text-white line-clamp-1 tracking-tight leading-snug"
+                                                x-text="svc.title"></h4>
+                                            <p class="text-[12.5px] sm:text-[13px] text-black/60 dark:text-white/60 mt-1 line-clamp-2 leading-relaxed font-normal"
+                                                x-text="svc.description || 'Layanan unggulan berkualitas siap memenuhi kebutuhan Anda.'">
+                                            </p>
+                                        </div>
+                                        <div
+                                            class="pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-2">
+                                            <div class="font-bold text-[13.5px] sm:text-[14px] text-brand-primary tabular-nums tracking-tight"
+                                                x-text="svc.price || 'Hubungi kami'"></div>
+                                            <span
+                                                class="h-7 px-3 rounded-full bg-brand-primary text-white text-[11.5px] font-semibold flex items-center gap-1">Detail</span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <div x-show="filteredServices.length === 0"
+                                class="py-10 text-center text-black/50 dark:text-white/50">
+                                <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                                <p class="text-[13px] font-medium">Tidak ada layanan yang cocok dengan pencarian atau
+                                    kategori ini.</p>
+                                <button type="button" @click="clearServiceFilter()"
+                                    class="mt-2.5 inline-flex items-center gap-1.5 text-[12px] text-brand-primary font-semibold hover:underline cursor-pointer">
+                                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                    <span>Reset Filter</span>
                                 </button>
                             </div>
-                        @endif
+                        </div>
+
+                        {{-- Standard Slider when Not Searching or Filtering --}}
+                        <div x-show="!serviceSearch && serviceCategory === 'all'">
+                            <div class="relative overflow-hidden rounded-[28px]" @mouseenter="stop()"
+                                @mouseleave="start()" @touchstart="stop()" @touchend="start()">
+                                <div class="flex transition-transform duration-500 ease-out"
+                                    :style="'transform: translateX(-' + (currentIndex * (100 / perView)) + '%)'">
+                                    @foreach ($services as $serviceIndex => $svc)
+                                        <div class="w-full sm:w-1/2 lg:w-1/3 shrink-0 p-2 sm:p-2.5">
+                                            <div role="button" tabindex="0"
+                                                @click="openService({{ Js::from($svc) }})"
+                                                class="w-full h-full text-left bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] rounded-[24px] shadow-sm hover:shadow-md bento-card-interactive p-5 flex flex-col justify-between space-y-4 active:scale-[0.98] cursor-pointer">
+                                                <div>
+                                                    <div
+                                                        class="relative w-full aspect-[16/10] rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] overflow-hidden mb-3.5 flex items-center justify-center border border-black/5 dark:border-white/10">
+                                                        @if (!empty($svc['image_url']))
+                                                            <img src="{{ $svc['image_url'] }}"
+                                                                alt="{{ $svc['title'] ?? 'Layanan' }}"
+                                                                loading="lazy" class="w-full h-full object-cover"
+                                                                onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                                                            <div
+                                                                class="hidden w-full h-full flex items-center justify-center text-brand-primary">
+                                                                <i data-lucide="{{ $svc['icon'] ?? 'sparkles' }}"
+                                                                    class="w-8 h-8"></i>
+                                                            </div>
+                                                        @else
+                                                            <div
+                                                                class="w-full h-full flex items-center justify-center text-brand-primary">
+                                                                <i data-lucide="{{ $svc['icon'] ?? 'sparkles' }}"
+                                                                    class="w-8 h-8"></i>
+                                                            </div>
+                                                        @endif
+                                                        @if (!empty($svc['badge']))
+                                                            <span
+                                                                class="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wider bg-brand-primary text-white shadow-xs">
+                                                                {{ $svc['badge'] }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+
+                                                    <h4
+                                                        class="font-semibold text-[14.5px] sm:text-[15px] text-black dark:text-white line-clamp-1 tracking-tight leading-snug">
+                                                        {{ $svc['title'] ?? '' }}</h4>
+                                                    <p
+                                                        class="text-[12.5px] sm:text-[13px] text-black/60 dark:text-white/60 mt-1 line-clamp-2 leading-relaxed font-normal">
+                                                        {{ $svc['description'] ?? '' }}
+                                                    </p>
+                                                </div>
+
+                                                <div
+                                                    class="pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-2">
+                                                    <div
+                                                        class="font-bold text-[13.5px] sm:text-[14px] text-brand-primary tabular-nums tracking-tight">
+                                                        @if (!empty($svc['price']))
+                                                            {{ $svc['price'] }}
+                                                        @else
+                                                            Hubungi kami
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex items-center gap-1.5">
+                                                        @if ($allowReservation)
+                                                            <button type="button"
+                                                                @click.stop="openReservationModal('{{ addslashes($svc['title'] ?? ($svc['name'] ?? 'Layanan')) }}', '{{ $svc['id'] ?? '' }}')"
+                                                                class="h-7 px-3 rounded-full bg-brand-primary hover:opacity-90 text-white text-[11.5px] font-semibold flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
+                                                                title="Reservasi">
+                                                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                                                <span>Reservasi</span>
+                                                            </button>
+                                                        @elseif ($allowStorefront && !empty($svc['raw_price']) && (float) $svc['raw_price'] > 0)
+                                                            <button type="button"
+                                                                @click.stop="directCheckout({ id: '{{ $svc['id'] ?? '' }}', name: '{{ addslashes($svc['title'] ?? ($svc['name'] ?? 'Layanan')) }}', price: {{ (float) $svc['raw_price'] }}, image_url: '{{ $svc['image_url'] ?? '' }}' }, 1)"
+                                                                class="h-7 px-3 rounded-full bg-brand-primary hover:opacity-90 text-white text-[11.5px] font-semibold flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
+                                                                title="Pesan">
+                                                                <i data-lucide="shopping-bag" class="w-3 h-3"></i>
+                                                                <span>Pesan</span>
+                                                            </button>
+                                                        @elseif ($hasWhatsapp)
+                                                            <a :href="waLink('{{ addslashes($svc['title'] ?? ($svc['name'] ?? 'Layanan')) }}',
+                                                                true)"
+                                                                target="_blank" @click.stop
+                                                                class="h-7 px-3 rounded-full bg-[#25D366] hover:opacity-90 text-white text-[11.5px] font-semibold flex items-center gap-1 transition active:scale-95 shadow-xs"
+                                                                title="WA">
+                                                                <svg class="w-3 h-3" fill="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path
+                                                                        d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
+                                                                </svg>
+                                                                <span>WA</span>
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Minimalist Dots Indicator --}}
+                            <div class="flex items-center justify-center gap-1.5 pt-3" x-show="maxIndex() > 0">
+                                <template x-for="idx in (maxIndex() + 1)" :key="idx">
+                                    <button type="button" @click="goTo(idx - 1)"
+                                        :class="currentIndex === (idx - 1) ? 'w-5 bg-brand-primary' :
+                                            'w-1.5 bg-black/20 dark:bg-white/20'"
+                                        class="h-1.5 rounded-full transition-all duration-300 cursor-pointer"
+                                        :aria-label="'Slide ' + idx"></button>
+                                </template>
+                            </div>
+                        </div>
                     </div>
                 @endif
 
-                {{-- Live POS Products Slider --}}
+                {{-- Live POS Products Slider & Interactive Catalog --}}
                 @if ($sectionVisibility['products'] && $landingPage->show_pos_products && $posProducts->isNotEmpty())
                     <div class="pt-6 space-y-5" x-data="makeSlider({{ $posProducts->count() }}, { base: 1, sm: 2, lg: 4 }, 3200)">
+                        {{-- Catalog Header & Search Controls --}}
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
                                 <span
@@ -1528,105 +3404,209 @@
                                         Katalog Produk</h3>
                                     @if ($storeSetting?->allow_request_order)
                                         <button type="button" @click="requestOrderModalOpen = true"
-                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/10 hover:bg-[#007AFF]/15 text-[#007AFF] text-[11.5px] font-semibold transition border border-[#007AFF]/20 shadow-xs">
-                                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                            <span>Request Order Khusus</span>
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-100 hover:bg-brand-200 text-brand-primary text-[11.5px] font-semibold transition border border-brand-primary/20 shadow-xs">
+                                            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                            <span>Pesan</span>
+                                        </button>
+                                    @endif
+                                    @if ($allowCustomerPo && $isProductionB2b)
+                                        <button type="button" @click="openCustomerPoModal()"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5856D6]/10 hover:bg-[#5856D6]/15 text-[#5856D6] dark:text-[#AF52DE] text-[11.5px] font-semibold transition border border-[#5856D6]/20 shadow-xs">
+                                            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                            <span>Pesan PO</span>
                                         </button>
                                     @endif
                                 </div>
                             </div>
-                            @if ($posProducts->count() > 1)
-                                <div class="flex items-center gap-2 self-end sm:self-center">
-                                    <button type="button" @click="prev()" aria-label="Produk Sebelumnya"
-                                        class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
-                                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                                    </button>
-                                    <button type="button" @click="next()" aria-label="Produk Berikutnya"
-                                        class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
-                                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+
+                            <div
+                                class="flex items-center gap-2 flex-wrap self-stretch sm:self-auto justify-between sm:justify-end">
+                                {{-- Capsule Live Search on Single Page --}}
+                                <div class="relative flex-1 sm:w-60">
+                                    <i data-lucide="search"
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-black/40 dark:text-white/40"></i>
+                                    <input type="search" x-model="productSearch" @input="filterProducts()"
+                                        placeholder="Cari nama produk..."
+                                        class="w-full h-8 sm:h-9 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 pl-8 pr-7 text-[16px] sm:text-[12.5px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition">
+                                    <button type="button" x-show="productSearch"
+                                        @click="productSearch = ''; filterProducts()"
+                                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </div>
-                            @endif
-                        </div>
 
-                        <div class="relative overflow-hidden rounded-[28px]" @mouseenter="stop()"
-                            @mouseleave="start()" @touchstart="stop()" @touchend="start()">
-                            <div class="flex transition-transform duration-500 ease-out"
-                                :style="'transform: translateX(-' + (currentIndex * (100 / perView)) + '%)'">
-                                @foreach ($posProducts as $prod)
-                                    <div class="w-full sm:w-1/2 lg:w-1/4 shrink-0 p-2 sm:p-2.5">
-                                        <button type="button"
-                                            @click="openProduct(products.find(product => product.id === '{{ $prod->id }}'))"
-                                            class="w-full h-full text-left bento-card bento-card-interactive p-4 flex flex-col justify-between space-y-3 active:scale-[0.98]">
-                                            <div>
-                                                <div
-                                                    class="w-full aspect-square rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] flex items-center justify-center mb-2.5 overflow-hidden">
-                                                    @if ($prod->image_url)
-                                                        <img src="{{ $prod->image_url }}"
-                                                            alt="{{ $prod->name }}" loading="lazy"
-                                                            class="w-full h-full object-cover"
-                                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><i
-                                                            data-lucide="package"
-                                                            class="hidden w-8 h-8 text-black/30 dark:text-white/30"></i>
-                                                    @else
-                                                        <i data-lucide="package"
-                                                            class="w-8 h-8 text-black/30 dark:text-white/30"></i>
-                                                    @endif
-                                                </div>
-                                                <h4
-                                                    class="font-semibold text-[13.5px] sm:text-[14px] text-black dark:text-white line-clamp-2 tracking-tight leading-snug">
-                                                    {{ $prod->name }}</h4>
-                                                @if ($prod->category)
-                                                    <span
-                                                        class="text-[11px] text-black/45 dark:text-white/45 block mt-0.5 font-normal">{{ $prod->category->name }}</span>
-                                                @endif
-                                            </div>
-                                            <div
-                                                class="pt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-1.5">
-                                                <span
-                                                    class="font-bold text-[13.5px] sm:text-[14px] text-brand-primary tabular-nums tracking-tight">Rp
-                                                    {{ number_format($prod->selling_price, 0, ',', '.') }}</span>
-                                                <div class="flex items-center gap-1.5">
-                                                    <button type="button"
-                                                        @click.stop="addToCart(products.find(p => p.id === '{{ $prod->id }}'), 1, false)"
-                                                        class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-brand-primary/15 hover:text-brand-primary flex items-center justify-center transition active:scale-90"
-                                                        title="Tambah ke Keranjang">
-                                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                                                    </button>
-                                                    <button type="button"
-                                                        @click.stop="directCheckout(products.find(p => p.id === '{{ $prod->id }}'), 1)"
-                                                        class="h-7 px-2.5 rounded-full bg-brand-primary text-white text-[11px] font-semibold hover:opacity-90 flex items-center gap-1 transition active:scale-95 shadow-sm"
-                                                        title="Beli Langsung">
-                                                        <span>Beli</span>
-                                                    </button>
-                                                </div>
-                                            </div>
+                                {{-- Lihat Semua Pop-up Trigger --}}
+                                <button type="button" @click="openAllProductsModal()"
+                                    class="h-8 sm:h-9 px-3.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.14] text-black/80 dark:text-white/80 text-[12px] font-semibold flex items-center gap-1.5 transition active:scale-95 border border-black/5 dark:border-white/10 cursor-pointer whitespace-nowrap">
+                                    <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                    <span>Lihat Semua ({{ $posProducts->count() }})</span>
+                                </button>
+
+                                @if ($posProducts->count() > 1)
+                                    <div x-show="!productSearch && productCategory === 'all'"
+                                        class="hidden sm:flex items-center gap-1.5">
+                                        <button type="button" @click="prev()" aria-label="Produk Sebelumnya"
+                                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
+                                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                        </button>
+                                        <button type="button" @click="next()" aria-label="Produk Berikutnya"
+                                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
+                                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                         </button>
                                     </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Category Filter Pills on Single Page --}}
+                        @if ($productCategories->isNotEmpty())
+                            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none pt-1">
+                                <button type="button" @click="setProductCategory('all')"
+                                    class="px-3.5 py-1.5 rounded-full text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95 cursor-pointer"
+                                    :class="productCategory === 'all' ? 'bg-brand-primary text-white shadow-sm' :
+                                        'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'">
+                                    Semua ({{ $posProducts->count() }})
+                                </button>
+                                @foreach ($productCategories as $category)
+                                    @php
+                                        $catCount = $posProducts
+                                            ->filter(fn($p) => $p->category_id == $category->id)
+                                            ->count();
+                                    @endphp
+                                    <button type="button" @click="setProductCategory('{{ $category->id }}')"
+                                        class="px-3.5 py-1.5 rounded-full text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95 cursor-pointer"
+                                        :class="productCategory === '{{ $category->id }}' ?
+                                            'bg-brand-primary text-white shadow-sm' :
+                                            'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'">
+                                        {{ $category->name }}
+                                        @if ($catCount > 0)
+                                            <span
+                                                class="opacity-70 tabular-nums text-[11px]">({{ $catCount }})</span>
+                                        @endif
+                                    </button>
                                 @endforeach
                             </div>
-                        </div>
+                        @endif
 
-                        {{-- Minimalist Dots Indicator --}}
-                        <div class="flex items-center justify-center gap-1.5 pt-1" x-show="maxIndex() > 0">
-                            <template x-for="idx in (maxIndex() + 1)" :key="idx">
-                                <button type="button" @click="goTo(idx - 1)"
-                                    :class="currentIndex === (idx - 1) ? 'w-5 bg-brand-primary' :
-                                        'w-1.5 bg-black/20 dark:bg-white/20'"
-                                    class="h-1.5 rounded-full transition-all duration-300"
-                                    :aria-label="'Slide ' + idx"></button>
-                            </template>
-                        </div>
-
-                        @if ($posProducts->count() > 4)
-                            <div class="text-center pt-2">
-                                <button type="button" @click="activeModal = 'all-products'"
-                                    class="inline-flex items-center gap-2 h-9 px-5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 text-[13px] font-semibold tracking-tight active:scale-[0.97] transition">
-                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                                    <span>Lihat Semua Produk ({{ $posProducts->count() }})</span>
+                        {{-- Filtered Results Grid on Single Page (when searching or category selected) --}}
+                        <div x-show="productSearch.trim() !== '' || productCategory !== 'all'" x-cloak class="pt-2">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4">
+                                <template x-for="prod in filteredProducts" :key="prod.id">
+                                    <div role="button" tabindex="0" @click="openProduct(prod)"
+                                        class="text-left bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] rounded-[24px] shadow-sm hover:shadow-md bento-card-interactive p-4 flex flex-col justify-between space-y-3 active:scale-[0.98] cursor-pointer">
+                                        <div>
+                                            <div
+                                                class="w-full aspect-square rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] flex items-center justify-center mb-2.5 overflow-hidden border border-black/5 dark:border-white/10">
+                                                <template x-if="prod.image_url">
+                                                    <img :src="prod.image_url" :alt="prod.name" loading="lazy"
+                                                        class="w-full h-full object-cover"
+                                                        x-on:error="$event.target.style.display = 'none'; $event.target.nextElementSibling.classList.remove('hidden')">
+                                                </template>
+                                                <i data-lucide="package" :class="prod.image_url ? 'hidden' : ''"
+                                                    class="w-8 h-8 text-black/30 dark:text-white/30"></i>
+                                            </div>
+                                            <h4 class="font-semibold text-[13.5px] sm:text-[14px] text-black dark:text-white line-clamp-2 tracking-tight leading-snug"
+                                                x-text="prod.name"></h4>
+                                            <span x-show="prod.category"
+                                                class="text-[11px] text-black/45 dark:text-white/45 block mt-0.5 font-normal"
+                                                x-text="prod.category"></span>
+                                        </div>
+                                        <div
+                                            class="pt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-1.5">
+                                            <span
+                                                class="font-bold text-[13.5px] sm:text-[14px] text-brand-primary tabular-nums tracking-tight"
+                                                x-text="'Rp ' + Number(prod.price || 0).toLocaleString('id-ID')"></span>
+                                            <div class="flex items-center gap-1.5">
+                                                <button type="button" @click.stop="directCheckout(prod, 1)"
+                                                    class="h-7 px-3 rounded-full bg-brand-primary text-white text-[11.5px] font-semibold hover:opacity-90 flex items-center gap-1.5 transition active:scale-95 shadow-xs cursor-pointer"
+                                                    title="Pesan">
+                                                    <i data-lucide="shopping-bag" class="w-3 h-3"></i>
+                                                    <span>Pesan</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <div x-show="filteredProducts.length === 0"
+                                class="py-10 text-center text-black/50 dark:text-white/50">
+                                <i data-lucide="package-open" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                                <p class="text-[13px] font-medium">Tidak ada produk yang cocok dengan pencarian atau
+                                    kategori ini.</p>
+                                <button type="button" @click="clearProductFilter()"
+                                    class="mt-2.5 inline-flex items-center gap-1.5 text-[12px] text-brand-primary font-semibold hover:underline cursor-pointer">
+                                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                    <span>Reset Filter</span>
                                 </button>
                             </div>
-                        @endif
+                        </div>
+
+                        {{-- Standard Slider when No Filter/Search is Active --}}
+                        <div x-show="!productSearch && productCategory === 'all'">
+                            <div class="relative overflow-hidden rounded-[28px]" @mouseenter="stop()"
+                                @mouseleave="start()" @touchstart="stop()" @touchend="start()">
+                                <div class="flex transition-transform duration-500 ease-out"
+                                    :style="'transform: translateX(-' + (currentIndex * (100 / perView)) + '%)'">
+                                    @foreach ($posProducts as $prod)
+                                        <div class="w-full sm:w-1/2 lg:w-1/4 shrink-0 p-2 sm:p-2.5">
+                                            <div role="button" tabindex="0"
+                                                @click="openProduct(products.find(product => product.id === '{{ $prod->id }}'))"
+                                                class="w-full h-full text-left bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] rounded-[24px] shadow-sm hover:shadow-md bento-card-interactive p-4 flex flex-col justify-between space-y-3 active:scale-[0.98] cursor-pointer">
+                                                <div>
+                                                    <div
+                                                        class="w-full aspect-square rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] flex items-center justify-center mb-2.5 overflow-hidden border border-black/5 dark:border-white/10">
+                                                        @if ($prod->image_url)
+                                                            <img src="{{ $prod->image_url }}"
+                                                                alt="{{ $prod->name }}" loading="lazy"
+                                                                class="w-full h-full object-cover"
+                                                                onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                                                            <i data-lucide="package"
+                                                                class="hidden w-8 h-8 text-black/30 dark:text-white/30"></i>
+                                                        @else
+                                                            <i data-lucide="package"
+                                                                class="w-8 h-8 text-black/30 dark:text-white/30"></i>
+                                                        @endif
+                                                    </div>
+                                                    <h4
+                                                        class="font-semibold text-[13.5px] sm:text-[14px] text-black dark:text-white line-clamp-2 tracking-tight leading-snug">
+                                                        {{ $prod->name }}</h4>
+                                                    @if ($prod->category)
+                                                        <span
+                                                            class="text-[11px] text-black/45 dark:text-white/45 block mt-0.5 font-normal">{{ $prod->category->name }}</span>
+                                                    @endif
+                                                </div>
+                                                <div
+                                                    class="pt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-1.5">
+                                                    <span
+                                                        class="font-bold text-[13.5px] sm:text-[14px] text-brand-primary tabular-nums tracking-tight">Rp
+                                                        {{ number_format($prod->selling_price, 0, ',', '.') }}</span>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <button type="button"
+                                                            @click.stop="directCheckout(products.find(p => p.id === '{{ $prod->id }}'), 1)"
+                                                            class="h-7 px-3 rounded-full bg-brand-primary text-white text-[11.5px] font-semibold hover:opacity-90 flex items-center gap-1.5 transition active:scale-95 shadow-xs cursor-pointer"
+                                                            title="Pesan">
+                                                            <i data-lucide="shopping-bag" class="w-3 h-3"></i>
+                                                            <span>Pesan</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Minimalist Dots Indicator --}}
+                            <div class="flex items-center justify-center gap-1.5 pt-3" x-show="maxIndex() > 0">
+                                <template x-for="idx in (maxIndex() + 1)" :key="idx">
+                                    <button type="button" @click="goTo(idx - 1)"
+                                        :class="currentIndex === (idx - 1) ? 'w-5 bg-brand-primary' :
+                                            'w-1.5 bg-black/20 dark:bg-white/20'"
+                                        class="h-1.5 rounded-full transition-all duration-300 cursor-pointer"
+                                        :aria-label="'Slide ' + idx"></button>
+                                </template>
+                            </div>
+                        </div>
                     </div>
                 @endif
 
@@ -1642,8 +3622,8 @@
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center space-y-2">
                     <span
-                        class="inline-block px-3 py-1 rounded-full text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.06em] text-brand-primary bg-brand-primary/10">Galeri
-                        Foto</span>
+                        class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-1">Galeri
+                        Suasana</span>
                     @if ($landingPage->gallery_title)
                         <h2
                             class="text-2xl sm:text-3xl lg:text-[36px] font-bold tracking-tight lg:tracking-[-0.025em] leading-[1.2] text-black dark:text-white">
@@ -1942,8 +3922,8 @@
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center space-y-2">
                     <span
-                        class="inline-block px-3 py-1 rounded-full text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.06em] text-brand-primary bg-brand-primary/10">Cerita
-                        Kami</span>
+                        class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-1">Profil
+                        &amp; Dedikasi</span>
                     <h2
                         class="text-2xl sm:text-3xl lg:text-[36px] font-bold tracking-tight lg:tracking-[-0.025em] leading-[1.2] text-black dark:text-white">
                         Tentang {{ $business->name }}</h2>
@@ -1954,7 +3934,7 @@
                     {{-- Left Bento Card: Story & Philosophy --}}
                     @if ($landingPage->about_title || $landingPage->about_story || $landingPage->about_image_url)
                         <div
-                            class="{{ !empty($landingPage->operational_hours) ? 'lg:col-span-7' : 'lg:col-span-12' }} bento-card p-7 sm:p-9 flex flex-col justify-between space-y-6">
+                            class="{{ !empty($normalizedOperationalHours) ? 'lg:col-span-7' : 'lg:col-span-12' }} bento-card p-7 sm:p-9 flex flex-col justify-between space-y-6">
                             <div class="space-y-4">
                                 <div
                                     class="inline-flex items-center gap-2 text-brand-primary text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.05em]">
@@ -1973,6 +3953,51 @@
                                         {{ $landingPage->about_story }}
                                     @endif
                                 </div>
+
+                                {{-- Dynamic Stats (Clients, Experience, Rating from Landing Page CMS) --}}
+                                @if (
+                                    !empty($statsConfig) &&
+                                        (!empty($statsConfig['clients']) || !empty($statsConfig['experience']) || !empty($statsConfig['rating'])))
+                                    <div
+                                        class="grid grid-cols-3 gap-3 pt-4 border-t border-black/5 dark:border-white/10">
+                                        @if (!empty($statsConfig['clients']))
+                                            <div class="space-y-0.5">
+                                                <div
+                                                    class="text-[17px] sm:text-[20px] font-extrabold text-brand-primary tabular-nums tracking-tight">
+                                                    {{ $statsConfig['clients'] }}
+                                                </div>
+                                                <div
+                                                    class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 font-medium leading-tight">
+                                                    {{ $statsConfig['clients_label'] ?? 'Pelanggan Puas' }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if (!empty($statsConfig['experience']))
+                                            <div class="space-y-0.5">
+                                                <div
+                                                    class="text-[17px] sm:text-[20px] font-extrabold text-brand-primary tabular-nums tracking-tight">
+                                                    {{ $statsConfig['experience'] }}
+                                                </div>
+                                                <div
+                                                    class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 font-medium leading-tight">
+                                                    {{ $statsConfig['experience_label'] ?? 'Jam Terbang' }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if (!empty($statsConfig['rating']))
+                                            <div class="space-y-0.5">
+                                                <div
+                                                    class="text-[17px] sm:text-[20px] font-extrabold text-amber-500 tabular-nums tracking-tight">
+                                                    {{ $statsConfig['rating'] }}
+                                                </div>
+                                                <div
+                                                    class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 font-medium leading-tight">
+                                                    {{ $statsConfig['rating_label'] ?? 'Rating Ulasan' }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
 
                             @if ($landingPage->about_image_url)
@@ -1986,7 +4011,7 @@
                     @endif
 
                     {{-- Right Bento Card: Jam Operasional (Apple Inset Group Table) --}}
-                    @if (!empty($landingPage->operational_hours))
+                    @if (!empty($normalizedOperationalHours))
                         <div class="lg:col-span-5 bento-card p-7 flex flex-col justify-between space-y-6">
                             <div class="space-y-5">
                                 <div class="flex items-center gap-3.5">
@@ -2006,10 +4031,10 @@
 
                                 <div
                                     class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05] p-3 divide-y divide-black/5 dark:divide-white/5 text-[13px]">
-                                    @foreach ($landingPage->operational_hours as $h)
+                                    @foreach ($normalizedOperationalHours as $h)
                                         <div class="py-2.5 px-2 flex justify-between items-center">
                                             <span
-                                                class="font-medium text-[13px] sm:text-[13.5px] text-black/75 dark:text-white/75">{{ $h['day'] }}</span>
+                                                class="font-medium text-[13px] sm:text-[13.5px] text-black/75 dark:text-white/75">{{ $h['day'] ?? 'Hari' }}</span>
                                             @if (!empty($h['is_open']))
                                                 @if (!empty($h['hours']))
                                                     <span
@@ -2030,11 +4055,22 @@
                                 </div>
                             </div>
 
-                            @if ($landingPage->whatsapp_number || $landingPage->custom_phone || $business->phone)
-                                <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank"
-                                    class="w-full h-11 rounded-full bg-brand-primary text-white font-semibold text-[13px] sm:text-[13.5px] tracking-tight flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.98] transition shadow-sm">
+                            @if ($allowReservation)
+                                <button type="button" @click="openReservationModal()"
+                                    class="w-full h-11 rounded-full bg-brand-primary text-white font-semibold text-[13px] sm:text-[13.5px] tracking-tight flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.98] transition shadow-sm cursor-pointer"
+                                    title="Reservasi">
                                     <i data-lucide="calendar" class="w-4 h-4"></i>
-                                    <span>Tanya Jadwal / Reservasi</span>
+                                    <span>Reservasi</span>
+                                </button>
+                            @elseif ($hasWhatsapp)
+                                <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank"
+                                    class="w-full h-11 rounded-full bg-[#25D366] text-white font-semibold text-[13px] sm:text-[13.5px] tracking-tight flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.98] transition shadow-sm"
+                                    title="Hubungi WA">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
+                                    </svg>
+                                    <span>WA</span>
                                 </a>
                             @endif
                         </div>
@@ -2053,7 +4089,7 @@
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center max-w-xl mx-auto space-y-2">
                     <span
-                        class="inline-block px-3 py-1 rounded-full text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.06em] text-brand-primary bg-brand-primary/10">Ulasan
+                        class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-1">Kepuasan
                         Pelanggan</span>
                     <h2
                         class="text-2xl sm:text-3xl lg:text-[36px] font-bold tracking-tight lg:tracking-[-0.025em] leading-[1.2] text-black dark:text-white">
@@ -2114,8 +4150,8 @@
             <div class="max-w-4xl mx-auto px-4 sm:px-6 space-y-7" x-data="{ openFaq: null }">
                 <div class="text-center space-y-2">
                     <span
-                        class="inline-block px-3 py-1 rounded-full text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.06em] text-brand-primary bg-brand-primary/10">Bantuan
-                        &amp; Info</span>
+                        class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-1">Informasi
+                        &amp; Panduan</span>
                     <h2
                         class="text-2xl sm:text-3xl lg:text-[36px] font-bold tracking-tight lg:tracking-[-0.025em] leading-[1.2] text-black dark:text-white">
                         Pertanyaan Umum (FAQ)</h2>
@@ -2155,8 +4191,8 @@
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center max-w-xl mx-auto space-y-2">
                     <span
-                        class="inline-block px-3 py-1 rounded-full text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.06em] text-brand-primary bg-brand-primary/10">Kunjungi
-                        Outlet</span>
+                        class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-1">Alamat
+                        &amp; Akses</span>
                     <h2
                         class="text-2xl sm:text-3xl lg:text-[36px] font-bold tracking-tight lg:tracking-[-0.025em] leading-[1.2] text-black dark:text-white">
                         Lokasi &amp; Kontak</h2>
@@ -2285,19 +4321,20 @@
     {{-- ========================================================================= --}}
     {{-- DETAIL & CATALOG MODAL (Apple Sheet Style)                                --}}
     {{-- ========================================================================= --}}
-    <div x-show="activeModal && activeModal !== 'gallery-lightbox'" x-cloak
-        @keydown.escape.window="activeModal = null" @click.self="activeModal = null"
-        class="fixed inset-0 z-[70] bg-black/35 backdrop-blur-[3px] p-4 flex items-center justify-center"
+    <div x-show="activeModal && activeModal !== 'gallery-lightbox' && activeModal !== 'all-products' && activeModal !== 'all-services'"
+        x-cloak @keydown.escape.window="activeModal = null" @click.self="activeModal = null"
+        class="storefront-sheet-overlay fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm p-4 flex items-center justify-center"
         role="dialog" aria-modal="true">
-        <div class="w-full max-h-[90vh] overflow-y-auto rounded-[24px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.3)] p-5 sm:p-7 transition-all duration-300"
-            :class="activeModal === 'all-gallery' ? 'max-w-4xl' : 'max-w-3xl'">
+        <div class="storefront-sheet w-full max-h-[90vh] overflow-y-auto rounded-[24px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.3)] p-5 sm:p-7 transition-all duration-300"
+            :class="activeModal === 'all-gallery' ? 'max-w-4xl' : 'max-w-2xl'">
 
-            <div class="flex items-center justify-between gap-3 mb-5 border-b border-black/5 dark:border-white/5 pb-3">
+            <div
+                class="flex items-center justify-between gap-3 mb-5 border-b border-black/5 dark:border-white/5 pb-3">
                 <h2 class="text-[17px] font-semibold text-black dark:text-white tracking-tight"
-                    x-text="activeModal === 'service' ? 'Detail Layanan' : activeModal === 'product' ? 'Detail Produk' : activeModal === 'all-services' ? 'Semua Layanan' : activeModal === 'all-products' ? 'Semua Produk' : 'Koleksi Galeri Foto'">
+                    x-text="activeModal === 'service' ? 'Detail Layanan' : activeModal === 'product' ? 'Detail Produk' : 'Koleksi Galeri Foto'">
                 </h2>
                 <button type="button" @click="activeModal = null"
-                    class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60 flex items-center justify-center hover:bg-black/10 active:scale-95 transition"
+                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/15 active:scale-95 transition cursor-pointer"
                     aria-label="Tutup dialog">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
@@ -2343,220 +4380,67 @@
                             <div
                                 class="flex items-center gap-2.5 bg-white dark:bg-black/40 px-3 py-1 rounded-full border border-black/10 dark:border-white/10 shadow-xs">
                                 <button type="button" @click="if (modalQty > 1) modalQty--"
-                                    class="w-6 h-6 flex items-center justify-center text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white font-bold text-[14px] active:scale-90 transition">&minus;</button>
+                                    class="w-6 h-6 flex items-center justify-center text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white font-bold text-[14px] active:scale-90 transition cursor-pointer">&minus;</button>
                                 <span
                                     class="text-[13px] font-extrabold text-black dark:text-white min-w-5 text-center tabular-nums"
                                     x-text="modalQty"></span>
                                 <button type="button" @click="modalQty++"
-                                    class="w-6 h-6 flex items-center justify-center text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white font-bold text-[14px] active:scale-90 transition">&plus;</button>
+                                    class="w-6 h-6 flex items-center justify-center text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white font-bold text-[14px] active:scale-90 transition cursor-pointer">&plus;</button>
                             </div>
                         </div>
 
                         {{-- Product Modal Actions --}}
-                        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2"
-                            x-show="activeModal === 'product'">
+                        <div class="flex items-center gap-2" x-show="activeModal === 'product'">
                             <template x-if="isStorefrontEnabled">
                                 <button type="button"
                                     @click="directCheckout(activeItem, modalQty); activeModal = null;"
-                                    class="flex-1 h-10 px-4 rounded-full bg-brand-primary text-white text-[13px] font-semibold tracking-tight shadow-sm hover:opacity-90 active:scale-[0.97] transition flex items-center justify-center gap-2">
-                                    <i data-lucide="zap" class="w-4 h-4"></i>
-                                    <span>Beli Sekarang</span>
-                                </button>
-                            </template>
-                            <template x-if="isStorefrontEnabled">
-                                <button type="button"
-                                    @click="addToCart(activeItem, modalQty, true); activeModal = null;"
-                                    class="h-10 px-4 rounded-full bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF] hover:text-white text-[13px] font-semibold tracking-tight active:scale-[0.97] transition flex items-center justify-center gap-1.5">
+                                    class="flex-1 h-10 px-4 rounded-full bg-brand-primary text-white text-[13px] font-semibold tracking-tight shadow-sm hover:opacity-90 active:scale-[0.97] transition flex items-center justify-center gap-2 cursor-pointer">
                                     <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                                    <span>+ Keranjang</span>
+                                    <span>Pesan</span>
                                 </button>
                             </template>
                             <a :href="activeItem ? waLink(activeItem.title || activeItem.name, false) : '#'"
                                 target="_blank" rel="noopener"
-                                class="h-10 px-3.5 rounded-full bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 text-[13px] font-semibold tracking-tight transition flex items-center justify-center gap-1.5"
-                                title="Tanya WhatsApp">
+                                class="h-10 px-4 rounded-full bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 text-[13px] font-semibold tracking-tight transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                :class="!isStorefrontEnabled ? 'flex-1' : ''" title="WhatsApp">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                                 </svg>
-                                <span class="hidden sm:inline">WhatsApp</span>
+                                <span>WA</span>
                             </a>
-                            <button type="button" @click="activeModal = null"
-                                class="h-10 px-4 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 text-[13px] font-medium tracking-tight hover:bg-black/[0.08] transition">
-                                Tutup
-                            </button>
                         </div>
 
                         {{-- Service Modal Actions --}}
-                        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2"
-                            x-show="activeModal === 'service'">
-                            <template
-                                x-if="activeItem && activeItem.raw_price && activeItem.raw_price > 0 && isStorefrontEnabled">
+                        <div class="flex items-center gap-2" x-show="activeModal === 'service'">
+                            @if ($allowReservation)
                                 <button type="button"
-                                    @click="directCheckout({ id: activeItem.id, name: activeItem.title || activeItem.name, price: activeItem.raw_price, image_url: activeItem.image_url }, 1); activeModal = null;"
-                                    class="flex-1 h-10 px-4 rounded-full bg-brand-primary text-white text-[13px] font-semibold tracking-tight shadow-sm hover:opacity-90 active:scale-[0.97] transition flex items-center justify-center gap-2">
-                                    <i data-lucide="zap" class="w-4 h-4"></i>
-                                    <span>Pesan Online</span>
+                                    @click="activeModal = null; openReservationModal(activeItem?.title || activeItem?.name, activeItem?.id)"
+                                    class="flex-1 h-10 px-4 rounded-full bg-brand-primary text-white text-[13px] font-semibold tracking-tight shadow-sm hover:opacity-90 active:scale-[0.97] transition flex items-center justify-center gap-2 cursor-pointer">
+                                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                                    <span>Reservasi</span>
                                 </button>
-                            </template>
-                            <button type="button"
-                                @click="activeModal = null; openReservationModal(activeItem?.title || activeItem?.name)"
-                                class="h-10 px-4 rounded-full bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF] hover:text-white text-[13px] font-semibold tracking-tight active:scale-[0.97] transition flex items-center justify-center gap-1.5"
-                                :class="!(activeItem && activeItem.raw_price && activeItem.raw_price > 0 &&
-                                isStorefrontEnabled) ? 'flex-1' : ''">
-                                <i data-lucide="calendar" class="w-4 h-4"></i>
-                                <span>Reservasi Jadwal</span>
-                            </button>
+                            @elseif ($allowStorefront)
+                                <button type="button"
+                                    @click="activeModal = null; directCheckout({ id: activeItem?.id, name: (activeItem?.title || activeItem?.name), price: (activeItem?.raw_price || 0), image_url: activeItem?.image_url }, 1)"
+                                    class="flex-1 h-10 px-4 rounded-full bg-brand-primary text-white text-[13px] font-semibold tracking-tight shadow-sm hover:opacity-90 active:scale-[0.97] transition flex items-center justify-center gap-2 cursor-pointer">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                    <span>Pesan</span>
+                                </button>
+                            @endif
                             <a :href="activeItem ? waLink(activeItem.title || activeItem.name, true) : '#'"
                                 target="_blank" rel="noopener"
-                                class="h-10 px-3.5 rounded-full bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 text-[13px] font-semibold tracking-tight transition flex items-center justify-center gap-1.5"
-                                title="Konsultasi WhatsApp">
+                                class="h-10 px-4 rounded-full bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 text-[13px] font-semibold tracking-tight transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                :class="!{{ json_encode($allowReservation || $allowStorefront) }} ? 'flex-1' : ''"
+                                title="WhatsApp">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                                 </svg>
-                                <span class="hidden sm:inline">WhatsApp</span>
+                                <span>WA</span>
                             </a>
-                            <button type="button" @click="activeModal = null"
-                                class="h-10 px-4 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 text-[13px] font-medium tracking-tight hover:bg-black/[0.08] transition">
-                                Tutup
-                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            {{-- All Services Grid View --}}
-            <div x-show="activeModal === 'all-services'" class="space-y-4">
-                <!-- Capsule Search -->
-                <div class="relative">
-                    <i data-lucide="search"
-                        class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-black/35 dark:text-white/35"></i>
-                    <input type="search" x-model="serviceSearch" @input="filterServices()"
-                        placeholder="Cari nama atau deskripsi layanan..."
-                        class="w-full h-10 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border-none pl-9 pr-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition">
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
-                    <template x-for="svc in filteredServices" :key="svc.title">
-                        <button type="button" @click="openService(svc)"
-                            class="text-left p-3.5 rounded-[16px] border border-black/5 dark:border-white/5 hover:border-black/15 dark:hover:border-white/15 transition flex flex-col justify-between group bg-black/[0.02] dark:bg-white/[0.03]">
-                            <div>
-                                <div
-                                    class="relative aspect-[16/10] rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] overflow-hidden flex items-center justify-center mb-2.5">
-                                    <template x-if="svc.image_url">
-                                        <img :src="svc.image_url" :alt="svc.title"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                                            x-on:error="$event.target.style.display = 'none'; $event.target.nextElementSibling.classList.remove('hidden')">
-                                    </template>
-                                    <i data-lucide="sparkles" class="w-7 h-7 text-black/30 dark:text-white/30"
-                                        :class="svc.image_url ? 'hidden' : ''"></i>
-                                    <template x-if="svc.badge">
-                                        <span
-                                            class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-brand-primary text-white text-[9.5px] font-semibold uppercase tracking-wider shadow-sm"
-                                            x-text="svc.badge"></span>
-                                    </template>
-                                </div>
-                                <h3 class="font-semibold text-[13.5px] text-black dark:text-white line-clamp-1 tracking-tight leading-snug group-hover:text-brand-primary transition"
-                                    x-text="svc.title"></h3>
-                                <p class="text-[11.5px] text-black/55 dark:text-white/55 line-clamp-2 mt-0.5 leading-relaxed font-normal"
-                                    x-text="svc.description || 'Layanan unggulan berkualitas siap memenuhi kebutuhan Anda.'">
-                                </p>
-                            </div>
-                            <div
-                                class="pt-2.5 mt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
-                                <span class="text-[13px] font-bold text-brand-primary tabular-nums tracking-tight"
-                                    x-text="svc.price || 'Hubungi kami'"></span>
-                                <span
-                                    class="px-2 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[11px] font-semibold text-black/70 dark:text-white/70 group-hover:bg-brand-primary group-hover:text-white transition flex items-center gap-0.5 tracking-tight">
-                                    <span>Detail</span>
-                                    <i data-lucide="chevron-right" class="w-3 h-3"></i>
-                                </span>
-                            </div>
-                        </button>
-                    </template>
-                </div>
-                <div x-show="filteredServices.length === 0"
-                    class="py-10 text-center text-black/40 dark:text-white/40">
-                    <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-1 opacity-50"></i>
-                    <p class="text-[13px] font-medium">Tidak ada layanan yang cocok dengan pencarian ini.</p>
-                </div>
-            </div>
-
-            {{-- All Products Grid View --}}
-            <div x-show="activeModal === 'all-products'" class="space-y-4">
-                <!-- Capsule Search -->
-                <div class="relative">
-                    <i data-lucide="search"
-                        class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-black/35 dark:text-white/35"></i>
-                    <input type="search" x-model="productSearch" @input="filterProducts()"
-                        placeholder="Cari nama atau deskripsi produk..."
-                        class="w-full h-10 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border-none pl-9 pr-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition">
-                </div>
-
-                {{-- Category Pill Tabs (Apple Segmented Scroll) --}}
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                    <button type="button" @click="productCategory = 'all'; filterProducts()"
-                        class="px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95"
-                        :class="productCategory === 'all' ? 'bg-brand-primary text-white shadow-sm' :
-                            'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08]'">
-                        Semua Kategori
-                    </button>
-                    @foreach ($productCategories as $category)
-                        <button type="button" @click="productCategory = '{{ $category->id }}'; filterProducts()"
-                            class="px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95"
-                            :class="productCategory === '{{ $category->id }}' ? 'bg-brand-primary text-white shadow-sm' :
-                                'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08]'">
-                            {{ $category->name }}
-                        </button>
-                    @endforeach
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 pt-1">
-                    <template x-for="product in filteredProducts" :key="product.id">
-                        <button type="button" @click="openProduct(product)"
-                            class="text-left p-3 rounded-[16px] border border-black/5 dark:border-white/5 hover:border-black/15 dark:hover:border-white/15 transition flex flex-col justify-between group bg-black/[0.02] dark:bg-white/[0.03]">
-                            <div>
-                                <div
-                                    class="aspect-square rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] overflow-hidden flex items-center justify-center mb-2">
-                                    <template x-if="product.image_url">
-                                        <img :src="product.image_url" :alt="product.name"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                                            x-on:error="$event.target.style.display = 'none'; $event.target.nextElementSibling.classList.remove('hidden')">
-                                    </template>
-                                    <i data-lucide="package" class="w-7 h-7 text-black/30 dark:text-white/30"
-                                        :class="product.image_url ? 'hidden' : ''"></i>
-                                </div>
-                                <h3 class="font-semibold text-[13px] text-black dark:text-white line-clamp-2 tracking-tight leading-snug group-hover:text-brand-primary transition"
-                                    x-text="product.name"></h3>
-                                <p class="text-[11px] text-black/45 dark:text-white/45 line-clamp-1 mt-0.5 font-normal"
-                                    x-text="product.category || ''"></p>
-                            </div>
-                            <div
-                                class="pt-2 mt-2 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-1">
-                                <span class="text-[12.5px] font-bold text-brand-primary tabular-nums tracking-tight"
-                                    x-text="'Rp ' + Number(product.price || 0).toLocaleString('id-ID')"></span>
-                                <div class="flex items-center gap-1">
-                                    <button type="button" @click.stop="addToCart(product, 1, false)"
-                                        class="w-6 h-6 rounded-full bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-brand-primary/15 hover:text-brand-primary transition flex items-center justify-center active:scale-90"
-                                        title="Tambah ke Keranjang">
-                                        <i data-lucide="plus" class="w-3 h-3"></i>
-                                    </button>
-                                    <button type="button"
-                                        @click.stop="activeModal = null; directCheckout(product, 1)"
-                                        class="h-6 px-2 rounded-full bg-brand-primary text-white text-[10.5px] font-semibold hover:opacity-90 transition active:scale-95 shadow-sm"
-                                        title="Beli Langsung">
-                                        <span>Beli</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </button>
-                    </template>
-                </div>
-                <div x-show="filteredProducts.length === 0"
-                    class="py-10 text-center text-black/40 dark:text-white/40">
-                    <i data-lucide="package-open" class="w-8 h-8 mx-auto mb-1 opacity-50"></i>
-                    <p class="text-[13px] font-medium">Tidak ada produk yang cocok dengan pencarian / kategori ini.</p>
                 </div>
             </div>
 
@@ -2594,14 +4478,303 @@
                     </template>
                 </div>
 
-                <div class="pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+                <div class="pt-3 border-t border-black/5 dark:border-white/5">
                     <span class="text-[12px] text-black/50 dark:text-white/50 font-normal">
                         Klik foto apa saja untuk membuka penampil layar penuh.
                     </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ========================================================================= --}}
+    {{-- FULL LAYOUT CATALOG MODAL (Apple Storefront Full View for Desktop/Tablet)  --}}
+    {{-- ========================================================================= --}}
+    <div x-show="activeModal === 'all-products' || activeModal === 'all-services'" x-cloak
+        @keydown.escape.window="activeModal = null"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] bg-black/60 backdrop-blur-md p-2 sm:p-4 md:p-6 lg:p-8 flex items-center justify-center transition-all duration-300"
+        role="dialog" aria-modal="true">
+
+        <div class="storefront-sheet storefront-catalog-sheet w-full h-full max-h-[96vh] md:max-h-[90vh] md:w-[94vw] lg:w-[92vw] xl:max-w-7xl rounded-[20px] sm:rounded-[28px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-all duration-300"
+            @click.outside="activeModal = null">
+
+            {{-- 1. Pinned Header --}}
+            <div
+                class="px-5 py-3.5 sm:px-7 sm:py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-4 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-md z-10 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0">
+                        <i :data-lucide="activeModal === 'all-products' ? 'shopping-bag' : 'sparkles'"
+                            class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-[16px] sm:text-[19px] font-bold text-black dark:text-white tracking-tight leading-tight"
+                            x-text="activeModal === 'all-products' ? 'Semua Produk' : 'Semua Layanan'"></h2>
+                        <p class="text-[11.5px] sm:text-[12.5px] text-black/50 dark:text-white/50 font-normal mt-0.5">
+                            <span
+                                x-text="activeModal === 'all-products' ? (filteredProducts.length + ' produk ditemukan') : (filteredServices.length + ' layanan ditemukan')"></span>
+                            <span>&bull; {{ $business->name }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div
+                        class="flex items-center p-0.5 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/5 text-[11.5px] sm:text-[12px] font-semibold">
+                        <button type="button" @click="openAllProductsModal()"
+                            class="px-3 py-1 rounded-full transition cursor-pointer"
+                            :class="activeModal === 'all-products' ?
+                                'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' :
+                                'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
+                            Produk ({{ $posProducts->count() }})
+                        </button>
+                        <button type="button" @click="openAllServicesModal()"
+                            class="px-3 py-1 rounded-full transition cursor-pointer"
+                            :class="activeModal === 'all-services' ?
+                                'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' :
+                                'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
+                            Layanan ({{ $services->count() }})
+                        </button>
+                    </div>
+
                     <button type="button" @click="activeModal = null"
-                        class="h-9 px-5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] text-black/70 dark:text-white/70 text-[13px] font-medium tracking-tight transition">
-                        Tutup
+                        class="h-9 px-3 sm:px-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 flex items-center gap-1.5 transition text-[12px] sm:text-[13px] font-semibold active:scale-95 cursor-pointer"
+                        aria-label="Tutup katalog">
+                        <span class="hidden sm:inline">Tutup</span>
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
+                </div>
+            </div>
+
+            {{-- 2. Pinned Search & Filter Controls --}}
+            <div
+                class="px-5 py-3 sm:px-7 sm:py-3.5 border-b border-black/[0.05] dark:border-white/[0.06] bg-black/[0.015] dark:bg-white/[0.02] space-y-2.5 shrink-0">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                    {{-- Search Capsule --}}
+                    <div class="relative flex-1">
+                        <i data-lucide="search"
+                            class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40 dark:text-white/40"></i>
+                        <template x-if="activeModal === 'all-products'">
+                            <input type="search" x-model="productSearch" @input="filterProducts()"
+                                placeholder="Cari nama atau kategori produk..."
+                                class="w-full h-9 sm:h-10 rounded-full bg-white dark:bg-white/[0.08] border border-black/10 dark:border-white/15 pl-10 pr-9 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition shadow-xs">
+                        </template>
+                        <template x-if="activeModal === 'all-services'">
+                            <input type="search" x-model="serviceSearch" @input="filterServices()"
+                                placeholder="Cari nama atau kategori layanan..."
+                                class="w-full h-9 sm:h-10 rounded-full bg-white dark:bg-white/[0.08] border border-black/10 dark:border-white/15 pl-10 pr-9 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition shadow-xs">
+                        </template>
+                        <button type="button"
+                            x-show="(activeModal === 'all-products' && productSearch) || (activeModal === 'all-services' && serviceSearch)"
+                            @click="activeModal === 'all-products' ? (productSearch = '', filterProducts()) : (serviceSearch = '', filterServices())"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white cursor-pointer">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    {{-- Reset Filter Button --}}
+                    <button type="button"
+                        x-show="(activeModal === 'all-products' && (productSearch || productCategory !== 'all')) || (activeModal === 'all-services' && (serviceSearch || serviceCategory !== 'all'))"
+                        @click="activeModal === 'all-products' ? clearProductFilter() : clearServiceFilter()"
+                        class="h-9 sm:h-10 px-3.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 text-[11.5px] sm:text-[12px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 whitespace-nowrap cursor-pointer">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Reset Filter</span>
+                    </button>
+                </div>
+
+                {{-- Category Filter Pills in Modal --}}
+                <template x-if="activeModal === 'all-products'">
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+                        <button type="button" @click="setProductCategory('all')"
+                            class="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[11.5px] sm:text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95 cursor-pointer"
+                            :class="productCategory === 'all' ? 'bg-brand-primary text-white shadow-sm' :
+                                'bg-white dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.12] border border-black/5 dark:border-white/10'">
+                            Semua ({{ $posProducts->count() }})
+                        </button>
+                        @foreach ($productCategories as $cat)
+                            @php
+                                $catCount = $posProducts->filter(fn($p) => $p->category_id == $cat->id)->count();
+                            @endphp
+                            <button type="button" @click="setProductCategory('{{ $cat->id }}')"
+                                class="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[11.5px] sm:text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95 cursor-pointer"
+                                :class="productCategory === '{{ $cat->id }}' ?
+                                    'bg-brand-primary text-white shadow-sm' :
+                                    'bg-white dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.12] border border-black/5 dark:border-white/10'">
+                                {{ $cat->name }}
+                                @if ($catCount > 0)
+                                    <span class="opacity-70 tabular-nums text-[10.5px]">({{ $catCount }})</span>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+                </template>
+
+                <template x-if="activeModal === 'all-services'">
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+                        <button type="button" @click="setServiceCategory('all')"
+                            class="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[11.5px] sm:text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95 cursor-pointer"
+                            :class="serviceCategory === 'all' ? 'bg-brand-primary text-white shadow-sm' :
+                                'bg-white dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.12] border border-black/5 dark:border-white/10'">
+                            Semua ({{ $services->count() }})
+                        </button>
+                        @foreach ($serviceCategories as $sCat)
+                            @php
+                                $sCatCount = $services
+                                    ->filter(fn($s) => ($s['category_id'] ?? null) == $sCat->id)
+                                    ->count();
+                            @endphp
+                            <button type="button" @click="setServiceCategory('{{ $sCat->id }}')"
+                                class="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[11.5px] sm:text-[12px] font-semibold tracking-tight transition whitespace-nowrap active:scale-95 cursor-pointer"
+                                :class="serviceCategory === '{{ $sCat->id }}' ?
+                                    'bg-brand-primary text-white shadow-sm' :
+                                    'bg-white dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.12] border border-black/5 dark:border-white/10'">
+                                {{ $sCat->name }}
+                                @if ($sCatCount > 0)
+                                    <span class="opacity-70 tabular-nums text-[10.5px]">({{ $sCatCount }})</span>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+                </template>
+            </div>
+
+            {{-- 3. Scrollable Grid Container (Full Layout on Desktop & Tablet) --}}
+            <div class="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 lg:p-7">
+                {{-- Product Grid --}}
+                <div x-show="activeModal === 'all-products'">
+                    <div
+                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-4.5">
+                        <template x-for="prod in filteredProducts" :key="prod.id">
+                            <div role="button" tabindex="0" @click="openProduct(prod)"
+                                class="text-left p-3 sm:p-3.5 rounded-[18px] border border-black/5 dark:border-white/10 hover:border-brand-primary/40 dark:hover:border-brand-primary/40 transition flex flex-col justify-between group bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] cursor-pointer">
+                                <div>
+                                    <div
+                                        class="aspect-square rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] overflow-hidden flex items-center justify-center mb-2.5 relative border border-black/5 dark:border-white/10">
+                                        <template x-if="prod.image_url">
+                                            <img :src="prod.image_url" :alt="prod.name"
+                                                class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                                x-on:error="$event.target.style.display = 'none'; $event.target.nextElementSibling.classList.remove('hidden')">
+                                        </template>
+                                        <i data-lucide="package" class="w-7 h-7 text-black/30 dark:text-white/30"
+                                            :class="prod.image_url ? 'hidden' : ''"></i>
+                                    </div>
+                                    <h3 class="font-semibold text-[13px] sm:text-[13.5px] text-black dark:text-white line-clamp-2 tracking-tight leading-snug group-hover:text-brand-primary transition"
+                                        x-text="prod.name"></h3>
+                                    <p class="text-[11px] text-black/45 dark:text-white/45 line-clamp-1 mt-0.5 font-normal"
+                                        x-text="prod.category || ''"></p>
+                                </div>
+                                <div
+                                    class="pt-2.5 mt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-1">
+                                    <span
+                                        class="text-[12.5px] sm:text-[13px] font-bold text-brand-primary tabular-nums tracking-tight"
+                                        x-text="'Rp ' + Number(prod.price || 0).toLocaleString('id-ID')"></span>
+                                    <div class="flex items-center gap-1">
+                                        <template x-if="isStorefrontEnabled">
+                                            <button type="button"
+                                                @click.stop="directCheckout(prod, 1); activeModal = null;"
+                                                class="h-6 sm:h-7 px-2.5 sm:px-3 rounded-full bg-brand-primary text-white text-[10.5px] sm:text-[11.5px] font-semibold hover:opacity-90 flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
+                                                title="Pesan">
+                                                <i data-lucide="shopping-bag" class="w-3 h-3"></i>
+                                                <span>Pesan</span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="filteredProducts.length === 0"
+                        class="py-16 text-center text-black/40 dark:text-white/40">
+                        <i data-lucide="package-open" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+                        <p class="text-[13.5px] font-medium text-black/60 dark:text-white/60">Tidak ada produk yang
+                            cocok dengan kriteria pencarian ini.</p>
+                        <button type="button" @click="clearProductFilter()"
+                            class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 text-brand-primary text-[12px] font-semibold transition cursor-pointer">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            <span>Reset Pencarian & Filter</span>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Services Grid --}}
+                <div x-show="activeModal === 'all-services'">
+                    <div
+                        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5">
+                        <template x-for="svc in filteredServices" :key="svc.title">
+                            <div role="button" tabindex="0" @click="openService(svc)"
+                                class="text-left p-4 rounded-[20px] border border-black/5 dark:border-white/10 hover:border-brand-primary/40 dark:hover:border-brand-primary/40 transition flex flex-col justify-between group bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] cursor-pointer">
+                                <div>
+                                    <div
+                                        class="relative aspect-[16/10] rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] overflow-hidden flex items-center justify-center mb-3 border border-black/5 dark:border-white/10">
+                                        <template x-if="svc.image_url">
+                                            <img :src="svc.image_url" :alt="svc.title"
+                                                class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                                x-on:error="$event.target.style.display = 'none'; $event.target.nextElementSibling.classList.remove('hidden')">
+                                        </template>
+                                        <i data-lucide="sparkles" class="w-8 h-8 text-black/30 dark:text-white/30"
+                                            :class="svc.image_url ? 'hidden' : ''"></i>
+                                        <template x-if="svc.badge">
+                                            <span
+                                                class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-brand-primary text-white text-[9.5px] font-semibold uppercase tracking-wider shadow-sm"
+                                                x-text="svc.badge"></span>
+                                        </template>
+                                    </div>
+                                    <h3 class="font-semibold text-[14px] text-black dark:text-white line-clamp-1 tracking-tight leading-snug group-hover:text-brand-primary transition"
+                                        x-text="svc.title"></h3>
+                                    <p class="text-[12px] text-black/55 dark:text-white/55 line-clamp-2 mt-1 leading-relaxed font-normal"
+                                        x-text="svc.description || 'Layanan unggulan berkualitas siap memenuhi kebutuhan Anda.'">
+                                    </p>
+                                </div>
+                                <div
+                                    class="pt-3 mt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-1.5">
+                                    <span class="text-[13px] font-bold text-brand-primary tabular-nums tracking-tight"
+                                        x-text="svc.price || 'Hubungi kami'"></span>
+                                    <div class="flex items-center gap-1.5">
+                                        @if ($allowReservation)
+                                            <button type="button"
+                                                @click.stop="activeModal = null; openReservationModal(svc.title, svc.id)"
+                                                class="h-7 px-3 rounded-full bg-brand-primary hover:opacity-90 text-white text-[11px] font-semibold flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
+                                                title="Reservasi">
+                                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                                <span>Reservasi</span>
+                                            </button>
+                                        @elseif ($allowStorefront)
+                                            <button type="button"
+                                                @click.stop="activeModal = null; directCheckout({ id: svc.id, name: (svc.title || svc.name), price: (svc.raw_price || 0), image_url: svc.image_url }, 1)"
+                                                class="h-7 px-3 rounded-full bg-brand-primary text-white text-[11px] font-semibold flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
+                                                title="Pesan">
+                                                <i data-lucide="shopping-bag" class="w-3 h-3"></i>
+                                                <span>Pesan</span>
+                                            </button>
+                                        @elseif ($hasWhatsapp)
+                                            <a :href="waLink(svc.title, true)" target="_blank" rel="noopener"
+                                                @click.stop
+                                                class="h-7 px-3 rounded-full bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 text-[11px] font-semibold flex items-center gap-1 transition active:scale-95 cursor-pointer"
+                                                title="WhatsApp">
+                                                <span>WA</span>
+                                            </a>
+                                        @endif
+                                        <span
+                                            class="h-7 px-2 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[11px] font-semibold text-black/70 dark:text-white/70 flex items-center gap-0.5 tracking-tight">
+                                            <span>Detail</span>
+                                            <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="filteredServices.length === 0"
+                        class="py-16 text-center text-black/40 dark:text-white/40">
+                        <i data-lucide="search-x" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+                        <p class="text-[13.5px] font-medium text-black/60 dark:text-white/60">Tidak ada layanan yang
+                            cocok dengan kriteria pencarian ini.</p>
+                        <button type="button" @click="clearServiceFilter()"
+                            class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 text-brand-primary text-[12px] font-semibold transition cursor-pointer">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            <span>Reset Pencarian & Filter</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2689,49 +4862,67 @@
     </div>
 
     {{-- ========================================================================= --}}
-    {{-- MOBILE BOTTOM BAR (iOS 18 Tab Bar Style)                                  --}}
+    {{-- MOBILE FLOATING ISLAND NAVBAR (iOS 18 Island Pill Architecture)           --}}
     {{-- ========================================================================= --}}
-    <nav class="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white/85 dark:bg-[#161617]/85 backdrop-blur-xl border-t border-black/5 dark:border-white/10 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+    <nav class="md:hidden fixed bottom-3 inset-x-3 sm:inset-x-6 z-50 rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] px-2.5 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)] pb-[calc(0.4rem+env(safe-area-inset-bottom))]"
         aria-label="Navigasi halaman">
-        <div class="grid grid-cols-5 gap-1">
-            <a href="#hero"
-                class="text-center text-[10.5px] font-medium tracking-tight text-black/55 dark:text-white/55 py-1"
-                :class="activeSection === 'hero' ? 'text-brand-primary font-semibold' : ''">
-                <i data-lucide="home" class="w-4 h-4 mx-auto mb-0.5"></i>
-                <span>Home</span>
-            </a>
-            <a href="#layanan"
-                class="text-center text-[10.5px] font-medium tracking-tight text-black/55 dark:text-white/55 py-1"
-                :class="activeSection === 'services' ? 'text-brand-primary font-semibold' : ''">
-                <i data-lucide="package" class="w-4 h-4 mx-auto mb-0.5"></i>
-                <span>Katalog</span>
-            </a>
-
-            {{-- Cart Tab with dynamic badge --}}
-            <button type="button" @click="cartDrawerOpen = true"
-                class="relative text-center text-[10.5px] font-medium tracking-tight text-black/55 dark:text-white/55 py-1 hover:text-brand-primary transition">
-                <div class="relative w-4 h-4 mx-auto mb-0.5 flex items-center justify-center">
-                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                    <span x-show="cartCount > 0"
-                        class="absolute -top-1.5 -right-2.5 px-1 py-0.2 rounded-full text-[9px] font-bold bg-[#007AFF] text-white tabular-nums leading-none shadow-xs"
-                        x-text="cartCount"></span>
-                </div>
-                <span>Keranjang</span>
-            </button>
-
-            {{-- Reservation / Booking Tab --}}
-            <button type="button" @click="openReservationModal()"
-                class="text-center text-[10.5px] font-medium tracking-tight text-black/55 dark:text-white/55 py-1 hover:text-brand-primary transition">
-                <i data-lucide="calendar" class="w-4 h-4 mx-auto mb-0.5"></i>
-                <span>Reservasi</span>
-            </button>
-
-            <a href="#lokasi"
-                class="text-center text-[10.5px] font-medium tracking-tight text-black/55 dark:text-white/55 py-1"
-                :class="activeSection === 'contact' ? 'text-brand-primary font-semibold' : ''">
-                <i data-lucide="map-pin" class="w-4 h-4 mx-auto mb-0.5"></i>
-                <span>Kontak</span>
-            </a>
+        <div class="grid {{ $bottomNavGridClass }} gap-1 items-end max-w-md mx-auto">
+            @foreach ($bottomNavButtons as $btn)
+                @if ($btn['type'] === 'link')
+                    <a href="{{ $btn['href'] }}"
+                        class="flex flex-col items-center justify-center py-1 px-0.5 text-[10px] sm:text-[10.5px] font-semibold tracking-tight transition active:scale-95 text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white"
+                        :class="activeSection === '{{ $btn['section'] ?? '' }}' ?
+                            'text-brand-primary dark:text-brand-primary font-bold' : ''">
+                        <i data-lucide="{{ $btn['icon'] }}" class="w-[18px] h-[18px] mb-0.5"></i>
+                        <span class="truncate max-w-[62px] text-center leading-tight">{{ $btn['label'] }}</span>
+                    </a>
+                @elseif ($btn['type'] === 'cart')
+                    <button type="button" @click="cartDrawerOpen = true"
+                        class="flex flex-col items-center justify-center {{ $btn['is_accent'] ? 'py-1.5 px-1 -mt-3.5 rounded-[18px] bg-brand-primary text-white shadow-[0_6px_16px_rgba(var(--primary-rgb),0.35)] active:scale-95 transition-transform border-2 border-white dark:border-[#161617]' : 'py-1 px-0.5 text-[10px] sm:text-[10.5px] font-semibold tracking-tight text-black/55 dark:text-white/55 hover:text-brand-primary transition active:scale-95' }}">
+                        <div class="relative {{ $btn['is_accent'] ? 'mb-0.5' : 'mb-0.5' }}">
+                            <i data-lucide="{{ $btn['icon'] }}"
+                                class="{{ $btn['is_accent'] ? 'w-5 h-5' : 'w-[18px] h-[18px]' }}"></i>
+                            <span x-show="cartCount > 0"
+                                class="absolute -top-1.5 -right-2 px-1 py-0.2 rounded-full text-[9px] font-extrabold {{ $btn['is_accent'] ? 'bg-white text-brand-primary' : 'bg-brand-primary text-white' }} tabular-nums leading-none shadow-xs"
+                                x-text="cartCount"></span>
+                        </div>
+                        <span
+                            class="text-[10px] {{ $btn['is_accent'] ? 'font-bold' : 'font-semibold' }} truncate max-w-[62px] text-center leading-tight">{{ $btn['label'] }}</span>
+                    </button>
+                @elseif ($btn['type'] === 'reservation')
+                    <button type="button" @click="openReservationModal()"
+                        class="flex flex-col items-center justify-center {{ $btn['is_accent'] ? 'py-1.5 px-1 -mt-3.5 rounded-[18px] bg-brand-primary text-white shadow-[0_6px_16px_rgba(var(--primary-rgb),0.35)] active:scale-95 transition-transform border-2 border-white dark:border-[#161617]' : 'py-1 px-0.5 text-[10px] sm:text-[10.5px] font-semibold tracking-tight text-black/55 dark:text-white/55 hover:text-brand-primary transition active:scale-95' }}">
+                        <i data-lucide="{{ $btn['icon'] }}"
+                            class="{{ $btn['is_accent'] ? 'w-5 h-5 mb-0.5' : 'w-[18px] h-[18px] mb-0.5' }}"></i>
+                        <span
+                            class="text-[10px] {{ $btn['is_accent'] ? 'font-bold' : 'font-semibold' }} truncate max-w-[62px] text-center leading-tight">{{ $btn['label'] }}</span>
+                    </button>
+                @elseif ($btn['type'] === 'request_order')
+                    <button type="button" @click="requestOrderModalOpen = true"
+                        class="flex flex-col items-center justify-center {{ $btn['is_accent'] ? 'py-1.5 px-1 -mt-3.5 rounded-[18px] bg-brand-primary text-white shadow-[0_6px_16px_rgba(var(--primary-rgb),0.35)] active:scale-95 transition-transform border-2 border-white dark:border-[#161617]' : 'py-1 px-0.5 text-[10px] sm:text-[10.5px] font-semibold tracking-tight text-black/55 dark:text-white/55 hover:text-brand-primary transition active:scale-95' }}">
+                        <i data-lucide="{{ $btn['icon'] }}"
+                            class="{{ $btn['is_accent'] ? 'w-5 h-5 mb-0.5' : 'w-[18px] h-[18px] mb-0.5' }}"></i>
+                        <span
+                            class="text-[10px] {{ $btn['is_accent'] ? 'font-bold' : 'font-semibold' }} truncate max-w-[62px] text-center leading-tight">{{ $btn['label'] }}</span>
+                    </button>
+                @elseif ($btn['type'] === 'customer_po')
+                    <button type="button" @click="openCustomerPoModal()"
+                        class="flex flex-col items-center justify-center {{ $btn['is_accent'] ? 'py-1.5 px-1 -mt-3.5 rounded-[18px] bg-[#5856D6] text-white shadow-[0_6px_16px_rgba(88,86,214,0.35)] active:scale-95 transition-transform border-2 border-white dark:border-[#161617]' : 'py-1 px-0.5 text-[10px] sm:text-[10.5px] font-semibold tracking-tight text-black/55 dark:text-white/55 hover:text-[#5856D6] transition active:scale-95' }}">
+                        <i data-lucide="{{ $btn['icon'] }}"
+                            class="{{ $btn['is_accent'] ? 'w-5 h-5 mb-0.5' : 'w-[18px] h-[18px] mb-0.5' }}"></i>
+                        <span
+                            class="text-[10px] {{ $btn['is_accent'] ? 'font-bold' : 'font-semibold' }} truncate max-w-[62px] text-center leading-tight">{{ $btn['label'] }}</span>
+                    </button>
+                @elseif ($btn['type'] === 'whatsapp')
+                    <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank" rel="noopener"
+                        class="flex flex-col items-center justify-center {{ $btn['is_accent'] ? 'py-1.5 px-1 -mt-3.5 rounded-[18px] bg-[#25D366] text-white shadow-[0_6px_16px_rgba(37,211,102,0.35)] active:scale-95 transition-transform border-2 border-white dark:border-[#161617]' : 'py-1 px-0.5 text-[10px] sm:text-[10.5px] font-semibold tracking-tight text-black/55 dark:text-white/55 hover:text-[#25D366] transition active:scale-95' }}">
+                        <i data-lucide="{{ $btn['icon'] }}"
+                            class="{{ $btn['is_accent'] ? 'w-5 h-5 mb-0.5' : 'w-[18px] h-[18px] mb-0.5' }}"></i>
+                        <span
+                            class="text-[10px] {{ $btn['is_accent'] ? 'font-bold' : 'font-semibold' }} truncate max-w-[62px] text-center leading-tight">{{ $btn['label'] }}</span>
+                    </a>
+                @endif
+            @endforeach
         </div>
     </nav>
 
@@ -2740,18 +4931,29 @@
     {{-- ========================================================================= --}}
     @if ($sectionVisibility['footer'])
         <footer
-            class="border-t {{ $landingPage->dark_mode ? 'bg-[#161617] border-white/10 text-white/60' : 'bg-[#F5F5F7] border-black/5 text-black/60' }}">
+            class="border-t pb-20 md:pb-0 bg-[#F5F5F7] dark:bg-[#161617] border-black/5 dark:border-white/10 text-black/60 dark:text-white/60 transition-colors duration-300">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
                 <div class="grid grid-cols-1 sm:{{ $footerGridClass }} gap-10 lg:gap-12">
                     {{-- Brand and social --}}
                     @if ($sectionVisibility['footer_brand'])
                         <div class="space-y-4">
                             <div class="flex items-center gap-3">
-                                @if ($landingPage->logo_url ?: $business->logo_url)
-                                    <img src="{{ $landingPage->logo_url ?: $business->logo_url }}"
-                                        alt="{{ $business->name }}"
-                                        class="w-10 h-10 rounded-[10px] object-contain bg-white dark:bg-black/20 p-1 border border-black/5 dark:border-white/10"
-                                        onerror="this.style.display='none';">
+                                @php
+                                    $footerBrandLogo = $business->logo_url ?: $landingPage->logo_url;
+                                @endphp
+                                @if ($footerBrandLogo)
+                                    <img src="{{ $footerBrandLogo }}" alt="{{ $business->name }}"
+                                        class="w-10 h-10 rounded-[10px] object-contain bg-white dark:bg-black/20 p-1 border border-black/5 dark:border-white/10 shadow-xs"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div
+                                        class="hidden w-10 h-10 rounded-[10px] bg-brand-primary text-white items-center justify-center font-bold text-sm shadow-xs">
+                                        {{ strtoupper(substr($business->name, 0, 2)) }}
+                                    </div>
+                                @else
+                                    <div
+                                        class="w-10 h-10 rounded-[10px] bg-brand-primary text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                                        {{ strtoupper(substr($business->name, 0, 2)) }}
+                                    </div>
                                 @endif
                                 <div>
                                     <div
@@ -2913,13 +5115,13 @@
         x-transition:leave="transition ease-in duration-200 transform"
         x-transition:leave-start="translate-y-0 opacity-100 scale-100"
         x-transition:leave-end="translate-y-10 opacity-0 scale-95"
-        class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-40 select-none">
+        class="hidden md:flex fixed md:bottom-6 left-1/2 -translate-x-1/2 z-40 select-none">
         <button type="button" @click="cartDrawerOpen = true"
             class="h-12 sm:h-13 px-5 sm:px-6 rounded-full bg-black/90 dark:bg-white/95 text-white dark:text-black backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.35)] border border-white/20 dark:border-black/20 flex items-center gap-3.5 hover:scale-105 active:scale-95 transition-all">
             <div class="relative flex items-center justify-center">
                 <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                 <span
-                    class="absolute -top-2 -right-2.5 px-1.5 py-0.2 rounded-full text-[10.5px] font-extrabold bg-[#007AFF] text-white tabular-nums shadow-sm"
+                    class="absolute -top-2 -right-2.5 px-1.5 py-0.2 rounded-full text-[10.5px] font-extrabold bg-brand-primary text-white tabular-nums shadow-sm"
                     x-text="cartCount"></span>
             </div>
             <div class="h-4 w-px bg-white/20 dark:bg-black/20"></div>
@@ -2944,8 +5146,8 @@
             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"></div>
 
-        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
-            <div class="w-screen max-w-md bg-white dark:bg-[#1C1C1E] shadow-2xl border-l border-black/5 dark:border-white/10 flex flex-col justify-between"
+        <div class="storefront-drawer-frame fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="storefront-sheet storefront-drawer w-screen max-w-md bg-white dark:bg-[#1C1C1E] shadow-2xl border-l border-black/5 dark:border-white/10 flex flex-col justify-between"
                 x-show="cartDrawerOpen" x-transition:enter="transform transition ease-in-out duration-300"
                 x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
                 x-transition:leave="transform transition ease-in-out duration-200"
@@ -2955,7 +5157,7 @@
                 <div class="p-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <div
-                            class="w-9 h-9 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                            class="w-9 h-9 rounded-[12px] bg-brand-100 text-brand-primary flex items-center justify-center">
                             <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                         </div>
                         <div>
@@ -2970,6 +5172,25 @@
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
+
+                {{-- Free Shipping Rule Progress Banner --}}
+                @if ($freeShippingThreshold > 0)
+                    <div
+                        class="px-5 py-2.5 bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[12px] flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="truck" class="w-4 h-4 text-[#34C759] shrink-0"></i>
+                            <span x-show="cartTotal >= {{ $freeShippingThreshold }}"
+                                class="font-bold text-[#34C759]">Bebas Ongkir Aktif!</span>
+                            <span x-show="cartTotal < {{ $freeShippingThreshold }}">Tambah <strong
+                                    class="tabular-nums"
+                                    x-text="formatPrice({{ $freeShippingThreshold }} - cartTotal)"></strong> utk
+                                Bebas Ongkir</span>
+                        </div>
+                        <span
+                            class="text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-white dark:bg-black/40 shadow-xs tabular-nums">Min.
+                            Rp {{ number_format($freeShippingThreshold, 0, ',', '.') }}</span>
+                    </div>
+                @endif
 
                 {{-- Drawer Item List --}}
                 <div class="flex-1 overflow-y-auto p-5 space-y-4 divide-y divide-black/5 dark:divide-white/10">
@@ -2987,22 +5208,22 @@
                             <div class="flex-1 min-w-0 space-y-1">
                                 <h4 class="text-[14px] font-bold text-black dark:text-white truncate"
                                     x-text="item.name"></h4>
-                                <span class="text-[12.5px] font-semibold text-[#007AFF] tabular-nums block"
+                                <span class="text-[12.5px] font-semibold text-brand-primary tabular-nums block"
                                     x-text="formatPrice(item.price)"></span>
 
-                                <div class="flex items-center justify-between pt-1">
+                                <div class="flex items-center justify-between pt-1.5">
                                     <div
-                                        class="flex items-center gap-2 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-full">
+                                        class="flex items-center gap-2 bg-black/5 dark:bg-white/5 px-2.5 py-1 rounded-full border border-black/5 dark:border-white/5">
                                         <button type="button" @click="updateQuantity(item.id, -1)"
-                                            class="w-5 h-5 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-bold">&minus;</button>
+                                            class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white font-bold text-[14px] active:scale-90 transition cursor-pointer">&minus;</button>
                                         <span
-                                            class="text-[12px] font-bold text-black dark:text-white min-w-4 text-center tabular-nums"
+                                            class="text-[13px] font-bold text-black dark:text-white min-w-5 text-center tabular-nums"
                                             x-text="item.quantity"></span>
                                         <button type="button" @click="updateQuantity(item.id, 1)"
-                                            class="w-5 h-5 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-bold">&plus;</button>
+                                            class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white font-bold text-[14px] active:scale-90 transition cursor-pointer">&plus;</button>
                                     </div>
                                     <button type="button" @click="removeFromCart(item.id)"
-                                        class="text-black/40 hover:text-[#FF3B30] text-[11.5px] transition">Hapus</button>
+                                        class="text-black/40 hover:text-[#FF3B30] text-[12px] font-medium transition cursor-pointer">Hapus</button>
                                 </div>
                             </div>
                         </div>
@@ -3022,10 +5243,17 @@
                             x-text="formatPrice(cartTotal)"></span>
                     </div>
 
+                    <template x-if="minOrderAmount > 0 && cartTotal < minOrderAmount && cart.length > 0">
+                        <div
+                            class="p-2.5 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/20 text-[#FF9500] text-[11.5px] font-semibold text-center">
+                            Minimum belanja adalah <span x-text="formatPrice(minOrderAmount)"></span>
+                        </div>
+                    </template>
+
                     <button type="button" @click="cartDrawerOpen = false; checkoutModalOpen = true;"
-                        :disabled="cart.length === 0"
-                        class="w-full h-12 rounded-[16px] bg-[#007AFF] hover:bg-[#0071E3] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm">
-                        <span>Lanjut ke Formulir Pembayaran</span>
+                        :disabled="cart.length === 0 || (minOrderAmount > 0 && cartTotal < minOrderAmount)"
+                        class="w-full h-12 rounded-[16px] bg-brand-primary hover:opacity-90 disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:cursor-not-allowed">
+                        <span>Pesan</span>
                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -3038,17 +5266,21 @@
     {{-- CHECKOUT MODAL (Apple HIG Checkout Architecture)                          --}}
     {{-- ========================================================================= --}}
     <div x-show="checkoutModalOpen" x-cloak
-        class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-        <div class="w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[28px] p-6 shadow-2xl border border-black/10 dark:border-white/10 max-h-[90vh] overflow-y-auto space-y-5"
+        <div class="storefront-sheet w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[28px] p-6 shadow-2xl border border-black/10 dark:border-white/10 max-h-[90vh] overflow-y-auto space-y-5"
             @click.outside="if(!isCheckingOut) checkoutModalOpen = false">
+
+            {{-- Mobile Touch Grab Bar --}}
+            <div class="sm:hidden w-10 h-1 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2"></div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-full bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                    <div
+                        class="w-8 h-8 rounded-full bg-brand-100 text-brand-primary flex items-center justify-center">
                         <i data-lucide="lock" class="w-4 h-4"></i>
                     </div>
                     <div>
@@ -3073,7 +5305,7 @@
 
             @guest('customer')
                 <div
-                    class="p-3.5 rounded-[16px] bg-gradient-to-br from-[#007AFF]/10 to-[#5856D6]/10 border border-[#007AFF]/20 space-y-2.5 text-center sm:text-left">
+                    class="p-3.5 rounded-[16px] bg-gradient-to-br from-brand-primary/10 to-[#5856D6]/10 border border-brand-primary/20 space-y-2.5 text-center sm:text-left">
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div class="space-y-0.5">
                             <p class="text-[13px] font-bold text-black dark:text-white">Masuk dengan Google</p>
@@ -3081,7 +5313,7 @@
                                 WhatsApp sebelum memesan.</p>
                         </div>
                         <a href="{{ route('customer.auth.google') }}?redirect={{ urlencode(url()->current()) }}"
-                            class="px-4 py-2 bg-[#007AFF] text-white rounded-xl text-[12.5px] font-bold hover:bg-[#0062CC] transition active:scale-95 shrink-0 flex items-center gap-1.5 shadow-sm">
+                            class="px-4 py-2 bg-brand-primary text-white rounded-xl text-[12.5px] font-bold hover:opacity-90 transition active:scale-95 shrink-0 flex items-center gap-1.5 shadow-sm">
                             <svg class="w-4 h-4" viewBox="0 0 24 24">
                                 <path fill="currentColor"
                                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -3124,7 +5356,7 @@
                             Lengkap <span class="text-red-500">*</span></label>
                         <input type="text" x-model="checkoutForm.customer_name" required
                             placeholder="Contoh: Budi Santoso"
-                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -3133,14 +5365,14 @@
                                 WhatsApp <span class="text-red-500">*</span></label>
                             <input type="tel" x-model="checkoutForm.customer_phone" required
                                 placeholder="08123456789"
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                         </div>
                         <div>
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
                                 (Opsional)</label>
                             <input type="email" x-model="checkoutForm.customer_email"
                                 placeholder="budi@example.com"
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                         </div>
                     </div>
                 </div>
@@ -3150,24 +5382,38 @@
                     <span
                         class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">2.
                         Pengiriman</span>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" @click="setFulfillment('pickup')"
-                            :class="checkoutForm.fulfillment_type === 'pickup' ?
-                                'border-[#007AFF] bg-[#007AFF]/10 text-[#007AFF] font-bold' :
-                                'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
-                            class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2">
-                            <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
-                            <span>Ambil Sendiri</span>
-                        </button>
-                        <button type="button" @click="setFulfillment('merchant_delivery')"
-                            :class="checkoutForm.fulfillment_type === 'merchant_delivery' ?
-                                'border-[#007AFF] bg-[#007AFF]/10 text-[#007AFF] font-bold' :
-                                'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
-                            class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2">
+                    @if (($storeSetting?->allow_pickup ?? true) && ($storeSetting?->allow_delivery ?? true))
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" @click="setFulfillment('pickup')"
+                                :class="checkoutForm.fulfillment_type === 'pickup' ?
+                                    'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
+                                    'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
+                                <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
+                                <span>Ambil Sendiri</span>
+                            </button>
+                            <button type="button" @click="setFulfillment('merchant_delivery')"
+                                :class="checkoutForm.fulfillment_type === 'merchant_delivery' ?
+                                    'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
+                                    'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
+                                <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
+                                <span>Kurir Toko</span>
+                            </button>
+                        </div>
+                    @elseif ($storeSetting?->allow_delivery ?? true)
+                        <div
+                            class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
                             <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
-                            <span>Kurir Toko</span>
-                        </button>
-                    </div>
+                            <span>Pengiriman Langsung via Kurir Toko</span>
+                        </div>
+                    @else
+                        <div
+                            class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
+                            <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
+                            <span>Pengambilan Mandiri di Outlet / Toko</span>
+                        </div>
+                    @endif
 
                     <div x-show="checkoutForm.fulfillment_type === 'merchant_delivery'" class="space-y-3 pt-1">
                         <div>
@@ -3176,7 +5422,7 @@
                                 Pengiriman Lengkap <span class="text-red-500">*</span></label>
                             <textarea x-model="checkoutForm.shipping_address" rows="2"
                                 placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, patokan..."
-                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
                         </div>
 
                         {{-- Aturan Ongkir / Pilihan Kurir Toko --}}
@@ -3188,13 +5434,13 @@
                                 <template x-for="opt in checkoutForm.shipping_options" :key="opt.id">
                                     <label
                                         class="p-2.5 rounded-[12px] border border-black/10 dark:border-white/10 flex items-center justify-between cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition"
-                                        :class="checkoutForm.shipping_rule_id === opt.id ? 'border-[#007AFF] bg-[#007AFF]/5' :
+                                        :class="checkoutForm.shipping_rule_id === opt.id ? 'border-brand-primary bg-brand-50' :
                                             ''">
                                         <div class="flex items-center gap-2.5">
                                             <input type="radio" name="shipping_rule_choice"
                                                 :value="opt.id" x-model="checkoutForm.shipping_rule_id"
                                                 @change="fetchShippingQuote(opt.id)"
-                                                class="text-[#007AFF] focus:ring-[#007AFF]">
+                                                class="text-brand-primary focus:ring-brand-primary">
                                             <div>
                                                 <span class="text-[13px] font-bold text-black dark:text-white block"
                                                     x-text="opt.name"></span>
@@ -3215,7 +5461,7 @@
                         </div>
 
                         <div x-show="checkoutForm.is_loading_shipping"
-                            class="text-[11.5px] text-[#007AFF] flex items-center gap-1.5 py-1">
+                            class="text-[11.5px] text-brand-primary flex items-center gap-1.5 py-1">
                             <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
                             <span>Menghitung ongkos kirim...</span>
                         </div>
@@ -3232,7 +5478,7 @@
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" x-model="checkoutForm.is_scheduled" class="sr-only peer">
                                 <div
-                                    class="w-9 h-5 bg-black/10 peer-focus:outline-none rounded-full peer dark:bg-white/10 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#007AFF]">
+                                    class="w-9 h-5 bg-black/10 peer-focus:outline-none rounded-full peer dark:bg-white/10 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary">
                                 </div>
                                 <span class="ml-2 text-[12px] font-medium text-black/70 dark:text-white/70">Pesan
                                     Terjadwal</span>
@@ -3244,20 +5490,35 @@
                                 <label
                                     class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Pilih
                                     Tanggal <span class="text-red-500">*</span></label>
-                                <input type="date" min="{{ date('Y-m-d') }}"
+                                <input type="date" min="{{ $minLeadTimeDate }}"
                                     x-model="checkoutForm.scheduled_date" :required="checkoutForm.is_scheduled"
-                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                                @if ($storeSetting?->cut_off_time)
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 mt-1">Batas pesanan masuk
+                                        hari ini: {{ substr((string) $storeSetting->cut_off_time, 0, 5) }} WIB.</p>
+                                @endif
                             </div>
                             <div>
                                 <label
                                     class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Slot
                                     Waktu (Opsional)</label>
+                                @php
+                                    $storeAvailableSlots = (array) ($storeSetting?->available_slots ?? []);
+                                    $fallbackSlots = [
+                                        'Pagi (08:00 - 11:30)',
+                                        'Siang (12:00 - 15:30)',
+                                        'Sore / Malam (16:00 - 20:00)',
+                                    ];
+                                    $checkoutSlots = !empty($storeAvailableSlots)
+                                        ? $storeAvailableSlots
+                                        : $fallbackSlots;
+                                @endphp
                                 <select x-model="checkoutForm.scheduled_time_slot"
-                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                                     <option value="">-- Bebas Waktu / Jam Buka Outlet --</option>
-                                    <option value="Pagi (08:00 - 11:30)">Pagi (08:00 - 11:30)</option>
-                                    <option value="Siang (12:00 - 15:30)">Siang (12:00 - 15:30)</option>
-                                    <option value="Sore / Malam (16:00 - 20:00)">Sore / Malam (16:00 - 20:00)</option>
+                                    @foreach ($checkoutSlots as $slot)
+                                        <option value="{{ $slot }}">{{ $slot }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -3267,38 +5528,91 @@
                 {{-- Rekening Pembayaran --}}
                 @if ($paymentMethods->isNotEmpty())
                     <div class="space-y-3 pt-2">
-                        <span
-                            class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">3.
-                            Pembayaran Transfer Bank / QRIS</span>
+                        <div class="flex items-center justify-between">
+                            <span
+                                class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">3.
+                                Pembayaran Transfer Bank / QRIS</span>
+                            @if ($storeSetting?->order_auto_cancel_minutes)
+                                <span
+                                    class="text-[11px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+                                    <i data-lucide="clock" class="w-3 h-3"></i>
+                                    <span>Batas bayar: {{ $storeSetting->order_auto_cancel_minutes }} mnt</span>
+                                </span>
+                            @endif
+                        </div>
                         <div class="space-y-2">
                             @foreach ($paymentMethods as $pm)
-                                <label
-                                    class="p-3 rounded-[14px] border border-black/10 dark:border-white/10 flex items-center justify-between cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition"
+                                <div class="rounded-[14px] border border-black/10 dark:border-white/10 p-3 transition"
                                     :class="checkoutForm.payment_method_id === '{{ $pm->id }}' ?
-                                        'border-[#007AFF] bg-[#007AFF]/5' : ''">
-                                    <div class="flex items-center gap-3">
-                                        <input type="radio" name="payment_method_id"
-                                            value="{{ $pm->id }}" x-model="checkoutForm.payment_method_id"
-                                            class="text-[#007AFF] focus:ring-[#007AFF]">
-                                        <div>
-                                            <span
-                                                class="text-[13.5px] font-bold text-black dark:text-white block">{{ $pm->bank_name }}</span>
-                                            @if ($pm->account_number)
+                                        'border-brand-primary bg-brand-50' : 'hover:bg-black/5 dark:hover:bg-white/5'">
+                                    <label class="flex items-center justify-between cursor-pointer">
+                                        <div class="flex items-center gap-3">
+                                            <input type="radio" name="payment_method_id"
+                                                value="{{ $pm->id }}"
+                                                x-model="checkoutForm.payment_method_id"
+                                                class="text-brand-primary focus:ring-brand-primary">
+                                            <div>
                                                 <span
-                                                    class="text-[11.5px] font-mono text-black/60 dark:text-white/60">{{ $pm->account_number }}
-                                                    a/n {{ $pm->account_holder }}</span>
-                                            @else
-                                                <span class="text-[11px] text-[#007AFF] font-medium">QRIS Langsung
-                                                    Toko</span>
-                                            @endif
+                                                    class="text-[13.5px] font-bold text-black dark:text-white block">{{ $pm->bank_name }}</span>
+                                                @if ($pm->account_number)
+                                                    <div class="flex items-center gap-2 mt-0.5">
+                                                        <span
+                                                            class="text-[11.5px] font-mono text-black/60 dark:text-white/60 tabular-nums">{{ $pm->account_number }}
+                                                            a/n {{ $pm->account_holder }}</span>
+                                                        <button type="button"
+                                                            @click.stop="navigator.clipboard.writeText('{{ $pm->account_number }}'); showToast('Nomor rekening disalin!')"
+                                                            class="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-primary hover:underline cursor-pointer">
+                                                            <i data-lucide="copy" class="w-3 h-3"></i>
+                                                            <span>Salin</span>
+                                                        </button>
+                                                    </div>
+                                                @else
+                                                    <span class="text-[11px] text-brand-primary font-medium">QRIS
+                                                        Langsung
+                                                        Toko</span>
+                                                @endif
+                                            </div>
                                         </div>
-                                    </div>
-                                    <span
-                                        class="text-[11px] font-bold uppercase px-2 py-0.5 rounded-full {{ $pm->type === 'qris' ? 'bg-[#5856D6]/10 text-[#5856D6]' : 'bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70' }}">
-                                        {{ $pm->type === 'qris' ? 'QRIS' : 'Transfer' }}
-                                    </span>
-                                </label>
+                                        <span
+                                            class="text-[11px] font-bold uppercase px-2 py-0.5 rounded-full {{ $pm->type === 'qris' ? 'bg-[#5856D6]/10 text-[#5856D6]' : 'bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70' }}">
+                                            {{ $pm->type === 'qris' ? 'QRIS' : 'Transfer' }}
+                                        </span>
+                                    </label>
+
+                                    @if ($pm->instructions)
+                                        <div x-show="checkoutForm.payment_method_id === '{{ $pm->id }}'"
+                                            x-cloak
+                                            class="mt-2.5 p-2.5 rounded-[12px] bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[11.5px] leading-relaxed">
+                                            {{ $pm->instructions }}
+                                        </div>
+                                    @endif
+
+                                    @if ($pm->type === 'qris' && $pm->qris_image_path)
+                                        <div x-show="checkoutForm.payment_method_id === '{{ $pm->id }}'"
+                                            x-cloak
+                                            class="mt-2.5 flex flex-col items-center p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-center">
+                                            <img src="{{ Storage::url($pm->qris_image_path) }}"
+                                                alt="QRIS {{ $pm->bank_name }}"
+                                                class="w-40 h-40 object-contain rounded-[12px] border border-black/10 bg-white p-2 shadow-xs">
+                                            <span
+                                                class="text-[11px] text-black/60 dark:text-white/60 mt-2 font-medium">Scan
+                                                QRIS ini dengan GoPay, OVO, Dana, BCA, atau m-Banking Anda</span>
+                                        </div>
+                                    @endif
+                                </div>
                             @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="space-y-2 pt-2">
+                        <span
+                            class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">3.
+                            Pembayaran</span>
+                        <div
+                            class="p-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[12px] text-black/70 dark:text-white/70 flex items-start gap-2.5">
+                            <i data-lucide="info" class="w-4 h-4 text-brand-primary shrink-0 mt-0.5"></i>
+                            <span>Instruksi pembayaran dan rincian transfer akan dikonfirmasi langsung oleh kasir /
+                                admin toko via WhatsApp setelah pesanan dibuat.</span>
                         </div>
                     </div>
                 @endif
@@ -3308,8 +5622,8 @@
                     <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Catatan
                         Pesanan (Opsional)</label>
                     <input type="text" x-model="checkoutForm.notes"
-                        placeholder="Contoh: Jangan terlalu pedas, titip di satpam, dll."
-                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        placeholder="{{ $storeSetting?->order_notes_placeholder ?: 'Contoh: Jangan terlalu pedas, titip di satpam, dll.' }}"
+                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                 </div>
 
                 {{-- Total & Submit --}}
@@ -3335,14 +5649,14 @@
 
                     <div class="flex items-center justify-between text-[15px] pt-1">
                         <span class="text-black/70 dark:text-white/70 font-semibold">Total Pembayaran</span>
-                        <span class="text-[20px] font-extrabold text-[#007AFF] tabular-nums"
+                        <span class="text-[20px] font-extrabold text-brand-primary tabular-nums"
                             x-text="formatPrice(grandTotal)"></span>
                     </div>
 
                     <button type="submit" :disabled="isCheckingOut"
-                        class="w-full h-12 rounded-[16px] bg-[#007AFF] hover:bg-[#0071E3] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm">
-                        <span x-show="!isCheckingOut">Konfirmasi Pesanan &amp; Dapatkan Instruksi Bayar</span>
-                        <span x-show="isCheckingOut">Memproses Pesanan...</span>
+                        class="w-full h-12 rounded-[16px] bg-brand-primary hover:opacity-90 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm">
+                        <span x-show="!isCheckingOut">Pesan</span>
+                        <span x-show="isCheckingOut">Memproses...</span>
                         <i x-show="!isCheckingOut" data-lucide="arrow-right" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -3353,19 +5667,25 @@
     {{-- ========================================================================= --}}
     {{-- REQUEST ORDER MODAL (Apple Bento Sheet for RFQ / Custom Orders)            --}}
     {{-- ========================================================================= --}}
-    <div x-show="requestOrderModalOpen" x-transition.opacity @keydown.escape.window="requestOrderModalOpen = false"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md"
+    <div x-show="requestOrderModalOpen" x-cloak x-transition.opacity
+        @keydown.escape.window="requestOrderModalOpen = false"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
         style="display: none;">
         <div @click.away="requestOrderModalOpen = false" x-show="requestOrderModalOpen"
             x-transition:enter="transition ease-out duration-300 transform"
             x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-            class="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1C1C1E] rounded-[28px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-5">
+            class="storefront-sheet w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1C1C1E] rounded-[28px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-5">
+
+            {{-- Mobile Touch Grab Bar --}}
+            <div class="sm:hidden w-10 h-1 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2"></div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="space-y-0.5">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-[#007AFF] block">Request Order
-                        Khusus</span>
-                    <h3 class="text-[18px] font-bold text-black dark:text-white">Pesan Kustom / Pre-Order</h3>
+                    <span
+                        class="text-[11px] font-bold uppercase tracking-wider text-brand-primary block">{{ $isUmkmRumahan ? 'Pemesanan Kustom / PO' : 'Request Order Khusus' }}</span>
+                    <h3 class="text-[18px] font-bold text-black dark:text-white">
+                        {{ $isUmkmRumahan ? 'Pre-Order / Pesanan Khusus' : ($industryGroup === 'manufacturing' ? 'Permintaan PO & Fabrikasi' : 'Pesan Kustom / Pre-Order') }}
+                    </h3>
                 </div>
                 <button type="button" @click="requestOrderModalOpen = false"
                     class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white">
@@ -3374,10 +5694,11 @@
             </div>
 
             <div
-                class="p-3.5 rounded-[14px] bg-[#007AFF]/5 border border-[#007AFF]/15 text-[12px] text-black/70 dark:text-white/70 flex items-start gap-2.5">
-                <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5"></i>
-                <span>Pesanan khusus memerlukan peninjauan oleh tim kami. Anda akan menerima notifikasi penawaran harga
-                    &amp; konfirmasi ketersediaan melalui WhatsApp.</span>
+                class="p-3.5 rounded-[14px] bg-brand-50 border border-brand-primary/20 text-[12px] text-black/70 dark:text-white/70 flex items-start gap-2.5">
+                <i data-lucide="info" class="w-4 h-4 text-brand-primary shrink-0 mt-0.5"></i>
+                <span>{{ $isUmkmRumahan
+                    ? 'Pesanan pre-order dikerjakan fresh sesuai permintaan Anda. Kami akan mengonfirmasi ketersediaan slot jadwal dan rincian harga via WhatsApp.'
+                    : 'Pesanan khusus memerlukan peninjauan oleh tim kami. Anda akan menerima notifikasi penawaran harga & konfirmasi ketersediaan melalui WhatsApp.' }}</span>
             </div>
 
             <template x-if="requestOrderForm.error">
@@ -3399,7 +5720,7 @@
                             Lengkap <span class="text-red-500">*</span></label>
                         <input type="text" x-model="requestOrderForm.customer_name" required
                             placeholder="Contoh: Budi Santoso"
-                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
@@ -3407,14 +5728,14 @@
                                 WhatsApp <span class="text-red-500">*</span></label>
                             <input type="tel" x-model="requestOrderForm.customer_phone" required
                                 placeholder="08123456789"
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                         </div>
                         <div>
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
                                 (Opsional)</label>
                             <input type="email" x-model="requestOrderForm.customer_email"
                                 placeholder="budi@example.com"
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                         </div>
                     </div>
                 </div>
@@ -3425,35 +5746,38 @@
                         class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">2.
                         Kebutuhan Pesanan</span>
                     <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Item /
-                            Menu yang Diminta <span class="text-red-500">*</span></label>
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                            {{ $industryLabels['request_order_item_label'] ?? 'Item / Menu yang Diminta' }} <span
+                                class="text-red-500">*</span>
+                        </label>
                         <input type="text" x-model="requestOrderForm.item_name" required
-                            placeholder="Contoh: Paket Katering 50 Porsi, Tumpeng Mini, Souvenir Khusus"
-                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            placeholder="{{ $isUmkmRumahan ? 'Contoh: Kue Ulang Tahun Kustom 20cm, Tumpeng Mini 30 Box, Seragam 2 Lusin' : 'Contoh: Paket Katering 50 Porsi, Souvenir Khusus, Fabrikasi Komponen' }}"
+                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label
-                                class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Perkiraan
-                                Jumlah / Porsi <span class="text-red-500">*</span></label>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                {{ $industryLabels['request_order_qty_label'] ?? 'Perkiraan Jumlah' }} <span
+                                    class="text-red-500">*</span>
+                            </label>
                             <input type="number" min="1" x-model="requestOrderForm.item_qty" required
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                         </div>
                         <div>
-                            <label
-                                class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Target
-                                Tanggal Dibutuhkan</label>
-                            <input type="date" min="{{ date('Y-m-d') }}"
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                {{ $industryLabels['request_order_date_label'] ?? 'Target Tanggal Dibutuhkan' }}
+                            </label>
+                            <input type="date" min="{{ $minLeadTimeDate }}"
                                 x-model="requestOrderForm.scheduled_date"
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                         </div>
                     </div>
                     <div>
                         <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Detail
                             &amp; Spesifikasi Kebutuhan</label>
                         <textarea x-model="requestOrderForm.notes" rows="3"
-                            placeholder="Tuliskan selengkap mungkin: jenis masakan, kemasan box/bungkus, pantangan/alergi, budget target, dll."
-                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+                            placeholder="{{ $storeSetting?->order_notes_placeholder ?: ($isUmkmRumahan ? 'Tuliskan selengkap mungkin: varian rasa, tulisan ucapan pada kue, pilihan warna kemasan box, pantangan alergi, dll.' : 'Tuliskan selengkap mungkin: jenis pesanan, kemasan, target budget, spesifikasi bahan/ukuran, dll.') }}"
+                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
                     </div>
                 </div>
 
@@ -3462,41 +5786,439 @@
                     <span
                         class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">3.
                         Opsi Pengambilan / Kirim</span>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" @click="requestOrderForm.fulfillment_type = 'pickup'"
-                            :class="requestOrderForm.fulfillment_type === 'pickup' ?
-                                'border-[#007AFF] bg-[#007AFF]/10 text-[#007AFF] font-bold' :
-                                'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
-                            class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2">
-                            <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
-                            <span>Ambil Sendiri</span>
-                        </button>
-                        <button type="button" @click="requestOrderForm.fulfillment_type = 'merchant_delivery'"
-                            :class="requestOrderForm.fulfillment_type === 'merchant_delivery' ?
-                                'border-[#007AFF] bg-[#007AFF]/10 text-[#007AFF] font-bold' :
-                                'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
-                            class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2">
+                    @if (($storeSetting?->allow_pickup ?? true) && ($storeSetting?->allow_delivery ?? true))
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" @click="requestOrderForm.fulfillment_type = 'pickup'"
+                                :class="requestOrderForm.fulfillment_type === 'pickup' ?
+                                    'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
+                                    'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
+                                <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
+                                <span>Ambil Sendiri</span>
+                            </button>
+                            <button type="button" @click="requestOrderForm.fulfillment_type = 'merchant_delivery'"
+                                :class="requestOrderForm.fulfillment_type === 'merchant_delivery' ?
+                                    'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
+                                    'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
+                                <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
+                                <span>Kirim ke Alamat</span>
+                            </button>
+                        </div>
+                    @elseif ($storeSetting?->allow_delivery ?? true)
+                        <div
+                            class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
                             <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
-                            <span>Kirim ke Alamat</span>
-                        </button>
-                    </div>
+                            <span>Pengiriman Langsung ke Alamat Tujuan</span>
+                        </div>
+                    @else
+                        <div
+                            class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
+                            <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
+                            <span>Pengambilan Mandiri di Toko / Outlet</span>
+                        </div>
+                    @endif
                     <div x-show="requestOrderForm.fulfillment_type === 'merchant_delivery'" class="pt-1">
                         <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Alamat
                             Tujuan Pengiriman</label>
                         <textarea x-model="requestOrderForm.shipping_address" rows="2"
                             placeholder="Nama jalan, nomor gedung/rumah, kelurahan..."
-                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
                     </div>
                 </div>
 
                 {{-- Action Button --}}
                 <div class="pt-4 border-t border-black/5 dark:border-white/10">
                     <button type="submit" :disabled="requestOrderForm.is_submitting"
-                        class="w-full h-12 rounded-[16px] bg-[#007AFF] hover:bg-[#0071E3] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm">
-                        <span x-show="!requestOrderForm.is_submitting">Kirim Permintaan Pesanan Khusus</span>
-                        <span x-show="requestOrderForm.is_submitting">Mengirim Permintaan...</span>
+                        class="w-full h-12 rounded-[16px] bg-brand-primary hover:opacity-90 disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm">
+                        <span x-show="!requestOrderForm.is_submitting">Pesan</span>
+                        <span x-show="requestOrderForm.is_submitting">Memproses...</span>
                         <i x-show="!requestOrderForm.is_submitting" data-lucide="arrow-right" class="w-4 h-4"></i>
                     </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- ========================================================================= --}}
+    {{-- CUSTOMER PO & MULTI-DROP BATCH MODAL (Apple Bento Architecture for B2B)  --}}
+    {{-- ========================================================================= --}}
+    <div x-show="customerPoModalOpen" x-cloak @keydown.escape.window="customerPoModalOpen = false"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md"
+        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+        <div class="storefront-sheet w-full max-w-2xl bg-white dark:bg-[#1C1C1E] rounded-[28px] p-5 sm:p-7 shadow-2xl border border-black/10 dark:border-white/10 max-h-[92vh] overflow-y-auto space-y-6"
+            @click.outside="if(!customerPoForm.is_submitting) customerPoModalOpen = false">
+
+            {{-- Mobile Touch Grab Bar --}}
+            <div class="sm:hidden w-10 h-1 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2"></div>
+
+            {{-- Modal Header --}}
+            <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-[14px] bg-[#5856D6]/10 text-[#5856D6] dark:text-[#AF52DE] flex items-center justify-center">
+                        <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[18px] font-bold text-black dark:text-white tracking-tight">Purchase Order
+                            (PO) &amp; Batch</h3>
+                        <span class="text-[12px] text-black/50 dark:text-white/50">Formulir Pemesanan Grosir, B2B, dan
+                            Jadwal Pengiriman Bertahap</span>
+                    </div>
+                </div>
+                <button type="button" @click="customerPoModalOpen = false"
+                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center text-black/60 dark:text-white/60 transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            {{-- Auth / Guest Banner --}}
+            @guest('customer')
+                <div
+                    class="p-4 rounded-[18px] bg-gradient-to-br from-[#5856D6]/10 to-brand-primary/10 border border-[#5856D6]/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                    <div class="space-y-0.5">
+                        <p class="text-[13px] font-bold text-black dark:text-white">Identitas Pembeli Resmi</p>
+                        <p class="text-[11.5px] text-black/60 dark:text-white/60">Wajib login Google &amp; verifikasi
+                            WhatsApp untuk menerbitkan PO resmi dan melacak status batch.</p>
+                    </div>
+                    <a href="{{ route('customer.auth.google') }}?redirect={{ urlencode(url()->current()) }}"
+                        class="px-4 py-2 bg-[#5856D6] hover:bg-[#4745B8] text-white rounded-xl text-[12.5px] font-bold transition active:scale-95 shrink-0 flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
+                        <span>Login Google</span>
+                    </a>
+                </div>
+            @else
+                <div
+                    class="p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[12px] flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
+                        <span class="text-black/70 dark:text-white/70">Akun Terdaftar: <strong
+                                class="text-black dark:text-white">{{ auth('customer')->user()->name }}</strong>
+                            ({{ auth('customer')->user()->phone ?? 'Belum ada No. WA' }})</span>
+                    </div>
+                    @if (!auth('customer')->user()->isPhoneVerified())
+                        <a href="{{ route('customer.otp') }}"
+                            class="text-[#FF9500] font-semibold hover:underline">Verifikasi OTP &rarr;</a>
+                    @else
+                        <span class="text-[#34C759] font-semibold text-[11.5px]">✓ Akun Terverifikasi</span>
+                    @endif
+                </div>
+            @endguest
+
+            {{-- Error Notification --}}
+            <template x-if="customerPoForm.error">
+                <div
+                    class="p-3.5 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] text-[12.5px] font-medium flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+                    <span x-text="customerPoForm.error"></span>
+                </div>
+            </template>
+
+            <form @submit.prevent="submitCustomerPo()" class="space-y-6">
+                {{-- 1. IDENTITAS PEMESAN & INSTANSI --}}
+                <div
+                    class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 space-y-3.5">
+                    <div class="flex items-center gap-2 border-b border-black/5 dark:border-white/5 pb-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-[#5856D6] text-white text-[11px] font-bold flex items-center justify-center">1</span>
+                        <h4 class="text-[13px] font-bold uppercase tracking-wider text-black/70 dark:text-white/70">
+                            Data Pemesan &amp; Instansi / Perusahaan</h4>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                Nama Lengkap PIC <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" x-model="customerPoForm.customer_name" required
+                                placeholder="Contoh: Hendra Gunawan"
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                        </div>
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                Nomor WhatsApp PIC <span class="text-red-500">*</span>
+                            </label>
+                            <input type="tel" x-model="customerPoForm.customer_phone" required
+                                placeholder="08123456789"
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                Nama Perusahaan / Usaha
+                            </label>
+                            <input type="text" x-model="customerPoForm.company_name"
+                                placeholder="PT / CV / Katering ..."
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                        </div>
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                No. PO Internal Pembeli
+                            </label>
+                            <input type="text" x-model="customerPoForm.customer_po_number"
+                                placeholder="Contoh: PO-2026/09/012"
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                        </div>
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                Email Instansi / Billing
+                            </label>
+                            <input type="email" x-model="customerPoForm.customer_email"
+                                placeholder="purchasing@company.com"
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 2. DAFTAR ITEM BARANG PO --}}
+                <div
+                    class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 space-y-3.5">
+                    <div class="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="w-5 h-5 rounded-full bg-[#5856D6] text-white text-[11px] font-bold flex items-center justify-center">2</span>
+                            <h4
+                                class="text-[13px] font-bold uppercase tracking-wider text-black/70 dark:text-white/70">
+                                Daftar Produk &amp; Volume PO</h4>
+                        </div>
+                        <span class="text-[12px] text-black/50 dark:text-white/50 tabular-nums">
+                            Total Item: <strong class="text-black dark:text-white font-bold"
+                                x-text="poTotalItemQty"></strong> unit
+                        </span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <template x-for="(it, idx) in customerPoForm.items" :key="idx">
+                            <div
+                                class="p-3.5 rounded-[16px] bg-white dark:bg-[#252528] border border-black/10 dark:border-white/10 space-y-2.5 shadow-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11.5px] font-bold text-[#5856D6] dark:text-[#AF52DE]"
+                                        x-text="'Item #' + (idx + 1)"></span>
+                                    <button type="button" @click="removePoItem(idx)"
+                                        x-show="customerPoForm.items.length > 1"
+                                        class="text-red-500 hover:text-red-600 text-[11px] font-semibold flex items-center gap-1 cursor-pointer">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        <span>Hapus</span>
+                                    </button>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                                    <div class="sm:col-span-6">
+                                        <label
+                                            class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-0.5">
+                                            Pilih dari Katalog (Opsional)
+                                        </label>
+                                        <select x-model="it.product_id" @change="onPoProductChange(idx)"
+                                            class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                            <option value="">-- Tulis Kustom / Bebas --</option>
+                                            <template x-for="p in products" :key="p.id">
+                                                <option :value="p.id"
+                                                    x-text="p.name + ' (' + formatPrice(p.price) + ')'"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="sm:col-span-6">
+                                        <label
+                                            class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-0.5">
+                                            Nama Produk / Spesifikasi PO <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" x-model="it.product_name" required
+                                            placeholder="Contoh: Baju Seragam drill, Kardus 30x20x10..."
+                                            class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                                    <div class="sm:col-span-4">
+                                        <label
+                                            class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-0.5">
+                                            Jumlah Unit <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="number" min="0.01" step="any"
+                                            x-model="it.quantity" required
+                                            class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                    </div>
+                                    <div class="sm:col-span-4">
+                                        <label
+                                            class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-0.5">
+                                            Estimasi Harga Satuan (Rp)
+                                        </label>
+                                        <input type="number" min="0" step="any"
+                                            x-model="it.unit_price"
+                                            class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                    </div>
+                                    <div class="sm:col-span-4">
+                                        <label
+                                            class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-0.5">
+                                            Catatan / Kode Varian
+                                        </label>
+                                        <input type="text" x-model="it.notes" placeholder="Warna, ukuran, dll."
+                                            class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <button type="button" @click="addPoItem()"
+                        class="w-full py-2.5 rounded-[14px] border border-dashed border-[#5856D6]/40 text-[#5856D6] dark:text-[#AF52DE] hover:bg-[#5856D6]/5 font-semibold text-[12.5px] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Tambah Baris Produk PO</span>
+                    </button>
+                </div>
+
+                {{-- 3. JADWAL PENGIRIMAN BERTAHAP / MULTI-DROP BATCHES --}}
+                <div
+                    class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 space-y-3.5">
+                    <div class="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="w-5 h-5 rounded-full bg-[#5856D6] text-white text-[11px] font-bold flex items-center justify-center">3</span>
+                            <h4
+                                class="text-[13px] font-bold uppercase tracking-wider text-black/70 dark:text-white/70">
+                                Jadwal Kirim Bertahap (Multi-Drop)</h4>
+                        </div>
+                        <span class="text-[11.5px] px-2 py-0.5 rounded-full"
+                            :class="poTotalBatchQty === poTotalItemQty ? 'bg-[#34C759]/15 text-[#34C759] font-bold' :
+                                'bg-[#FF9500]/15 text-[#FF9500] font-semibold'">
+                            <span x-text="'Alokasi: ' + poTotalBatchQty + ' / ' + poTotalItemQty + ' unit'"></span>
+                        </span>
+                    </div>
+
+                    <p class="text-[11.5px] text-black/60 dark:text-white/60">
+                        Atur pengiriman barang secara bertahap dalam beberapa kali kirim ke satu atau beberapa alamat
+                        tujuan berbeda.
+                    </p>
+
+                    <div class="space-y-3">
+                        <template x-for="(b, bIdx) in customerPoForm.batches" :key="bIdx">
+                            <div
+                                class="p-3.5 rounded-[16px] bg-white dark:bg-[#252528] border border-black/10 dark:border-white/10 space-y-2.5 shadow-xs">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="truck" class="w-4 h-4 text-[#5856D6]"></i>
+                                        <span class="text-[12.5px] font-bold text-black dark:text-white"
+                                            x-text="'Pengiriman Batch #' + (bIdx + 1)"></span>
+                                    </div>
+                                    <button type="button" @click="removePoBatch(bIdx)"
+                                        x-show="customerPoForm.batches.length > 1"
+                                        class="text-red-500 hover:text-red-600 text-[11px] font-semibold flex items-center gap-1 cursor-pointer">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        <span>Hapus Batch</span>
+                                    </button>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                    <div>
+                                        <label
+                                            class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-0.5">
+                                            Target Tanggal Kirim <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="date" min="{{ $minLeadTimeDate }}"
+                                            x-model="b.scheduled_date" required
+                                            class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-0.5">
+                                            Slot Jam Pengiriman
+                                        </label>
+                                        <input type="text" x-model="b.scheduled_time_slot"
+                                            placeholder="09:00 - 12:00"
+                                            class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-0.5">
+                                            Jumlah Kirim Batch <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="number" min="0.01" step="any" x-model="b.quantity"
+                                            required
+                                            class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-0.5">
+                                        Alamat Tujuan Batch Ini (Kosongkan bila sama dengan alamat utama)
+                                    </label>
+                                    <input type="text" x-model="b.shipping_address"
+                                        placeholder="Alamat drop point / gudang cabang..."
+                                        class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <button type="button" @click="addPoBatch()"
+                        class="w-full py-2.5 rounded-[14px] border border-dashed border-[#5856D6]/40 text-[#5856D6] dark:text-[#AF52DE] hover:bg-[#5856D6]/5 font-semibold text-[12.5px] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                        <span>+ Tambah Jadwal Pengiriman (Batch Berikutnya)</span>
+                    </button>
+                </div>
+
+                {{-- 4. ALAMAT UTAMA & METODE PEMBAYARAN --}}
+                <div
+                    class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 space-y-3.5">
+                    <div class="flex items-center gap-2 border-b border-black/5 dark:border-white/5 pb-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-[#5856D6] text-white text-[11px] font-bold flex items-center justify-center">4</span>
+                        <h4 class="text-[13px] font-bold uppercase tracking-wider text-black/70 dark:text-white/70">
+                            Alamat Utama &amp; Rekomendasi Pembayaran</h4>
+                    </div>
+
+                    <div>
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                            Alamat Utama / Kantor Pembeli
+                        </label>
+                        <textarea x-model="customerPoForm.shipping_address" rows="2"
+                            placeholder="Alamat kantor pusat, jalan, nomor gedung, kota..."
+                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6] resize-none"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                Rekomendasi Pembayaran
+                            </label>
+                            <select x-model="customerPoForm.payment_method_id"
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                <option value="">Transfer Bank / Invoice Termin PO</option>
+                                @foreach ($paymentMethods as $pm)
+                                    <option value="{{ $pm->id }}">{{ $pm->name }}
+                                        ({{ strtoupper($pm->type) }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                Catatan / Syarat Khusus PO
+                            </label>
+                            <input type="text" x-model="customerPoForm.notes"
+                                placeholder="Termin pembayaran, syarat faktur pajak, dll."
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Action Button --}}
+                <div class="pt-2 border-t border-black/5 dark:border-white/10">
+                    <button type="submit" :disabled="customerPoForm.is_submitting"
+                        class="w-full h-13 rounded-[16px] bg-[#5856D6] hover:bg-[#4745B8] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
+                        <span x-show="!customerPoForm.is_submitting">Pesan</span>
+                        <span x-show="customerPoForm.is_submitting">Memproses...</span>
+                        <i x-show="!customerPoForm.is_submitting" data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                    <p class="text-center text-[11px] text-black/45 dark:text-white/45 mt-2">
+                        Nomor tracking token PO dan ringkasan jadwal batch akan otomatis diterbitkan setelah formulir
+                        dikirim.
+                    </p>
                 </div>
             </form>
         </div>
@@ -3506,13 +6228,16 @@
     {{-- RESERVATION MODAL (Apple HIG Sheet for Table & Service Bookings)           --}}
     {{-- ========================================================================= --}}
     <div x-show="reservationModalOpen" x-cloak @keydown.escape.window="reservationModalOpen = false"
-        class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-        <div class="w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[28px] p-6 shadow-2xl border border-black/10 dark:border-white/10 max-h-[90vh] overflow-y-auto space-y-5"
+        <div class="storefront-sheet w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[28px] p-6 shadow-2xl border border-black/10 dark:border-white/10 max-h-[90vh] overflow-y-auto space-y-5"
             @click.outside="if(!isSubmittingReservation) reservationModalOpen = false">
+
+            {{-- Mobile Touch Grab Bar --}}
+            <div class="sm:hidden w-10 h-1 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2"></div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-2.5">
@@ -3542,12 +6267,9 @@
                         Tim kami akan segera memeriksa ketersediaan jadwal/meja dan mengirimkan konfirmasi melalui
                         WhatsApp ke nomor Anda.
                     </p>
-                    <div class="pt-2">
-                        <button type="button" @click="reservationModalOpen = false; reservationSuccess = false;"
-                            class="px-5 py-2 rounded-full bg-[#34C759] text-white font-semibold text-[13px] hover:opacity-95 transition active:scale-95">
-                            Tutup
-                        </button>
-                    </div>
+                    <p class="text-[12px] text-[#34C759] font-medium pt-1">
+                        Ketuk di luar area untuk menutup jendela ini.
+                    </p>
                 </div>
             </template>
 
@@ -3563,14 +6285,14 @@
 
                     @guest('customer')
                         <div
-                            class="mb-4 p-3.5 rounded-[16px] bg-gradient-to-br from-[#007AFF]/10 to-[#5856D6]/10 border border-[#007AFF]/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                            class="mb-4 p-3.5 rounded-[16px] bg-gradient-to-br from-brand-primary/10 to-[#5856D6]/10 border border-brand-primary/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
                             <div class="space-y-0.5">
                                 <p class="text-[13px] font-bold text-black dark:text-white">Masuk dengan Google</p>
                                 <p class="text-[11.5px] text-black/60 dark:text-white/60">Wajib login &amp; verifikasi
                                     WhatsApp untuk reservasi.</p>
                             </div>
                             <a href="{{ route('customer.auth.google') }}?redirect={{ urlencode(url()->current()) }}"
-                                class="px-4 py-2 bg-[#007AFF] text-white rounded-xl text-[12.5px] font-bold hover:bg-[#0062CC] transition active:scale-95 shrink-0 flex items-center gap-1.5 shadow-sm">
+                                class="px-4 py-2 bg-brand-primary text-white rounded-xl text-[12.5px] font-bold hover:opacity-90 transition active:scale-95 shrink-0 flex items-center gap-1.5 shadow-sm">
                                 Login Google
                             </a>
                         </div>
@@ -3603,7 +6325,7 @@
                                     Lengkap <span class="text-red-500">*</span></label>
                                 <input type="text" x-model="reservationForm.customer_name" required
                                     placeholder="Contoh: Budi Santoso"
-                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
@@ -3612,7 +6334,7 @@
                                         WhatsApp <span class="text-red-500">*</span></label>
                                     <input type="tel" x-model="reservationForm.customer_phone" required
                                         placeholder="08123456789"
-                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
                                 </div>
                                 <div>
                                     <label
@@ -3620,7 +6342,7 @@
                                         (Opsional)</label>
                                     <input type="email" x-model="reservationForm.customer_email"
                                         placeholder="budi@example.com"
-                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
                                 </div>
                             </div>
                         </div>
@@ -3635,44 +6357,76 @@
                                     <label
                                         class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Tanggal
                                         Reservasi <span class="text-red-500">*</span></label>
-                                    <input type="date" min="{{ date('Y-m-d') }}"
+                                    <input type="date" min="{{ $minLeadTimeDate }}"
                                         x-model="reservationForm.reservation_date" required
-                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
                                 </div>
                                 <div>
                                     <label
                                         class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Waktu
                                         / Jam Kunjungan <span class="text-red-500">*</span></label>
+                                    @php
+                                        $resAvailableSlots = (array) ($storeSetting?->available_slots ?? []);
+                                        $fallbackResSlots = [
+                                            '10:00 - 12:00 (Pagi)',
+                                            '12:00 - 14:00 (Makan Siang)',
+                                            '14:00 - 16:00 (Siang)',
+                                            '16:00 - 18:00 (Sore)',
+                                            '18:30 - 20:30 (Makan Malam)',
+                                            '20:30 - 22:00 (Malam)',
+                                        ];
+                                        $reservationSlots = !empty($resAvailableSlots)
+                                            ? $resAvailableSlots
+                                            : $fallbackResSlots;
+                                    @endphp
                                     <select x-model="reservationForm.time_slot" required
-                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
-                                        <option value="10:00 - 12:00">10:00 - 12:00 (Pagi)</option>
-                                        <option value="12:00 - 14:00">12:00 - 14:00 (Makan Siang)</option>
-                                        <option value="14:00 - 16:00">14:00 - 16:00 (Siang)</option>
-                                        <option value="16:00 - 18:00">16:00 - 18:00 (Sore)</option>
-                                        <option value="18:30 - 20:30">18:30 - 20:30 (Makan Malam)</option>
-                                        <option value="20:30 - 22:00">20:30 - 22:00 (Malam)</option>
+                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                        @foreach ($reservationSlots as $slot)
+                                            <option value="{{ $slot }}">{{ $slot }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
-                            <div>
-                                <label
-                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Jumlah
-                                    Orang / Tamu <span class="text-red-500">*</span></label>
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="flex items-center gap-3 bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-[14px] border border-black/10 dark:border-white/10">
-                                        <button type="button"
-                                            @click="if (reservationForm.guest_count > 1) reservationForm.guest_count--"
-                                            class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold">&minus;</button>
-                                        <span
-                                            class="text-[14px] font-extrabold text-black dark:text-white min-w-8 text-center tabular-nums"
-                                            x-text="reservationForm.guest_count + ' Orang'"></span>
-                                        <button type="button" @click="reservationForm.guest_count++"
-                                            class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold">&plus;</button>
+                            <div
+                                class="grid grid-cols-1 {{ isset($posTables) && $posTables->isNotEmpty() ? 'sm:grid-cols-2' : '' }} gap-3">
+                                <div>
+                                    <label
+                                        class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Jumlah
+                                        Orang / Tamu <span class="text-red-500">*</span></label>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex items-center gap-3 bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-[14px] border border-black/10 dark:border-white/10">
+                                            <button type="button"
+                                                @click="if (reservationForm.guest_count > 1) reservationForm.guest_count--"
+                                                class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold">&minus;</button>
+                                            <span
+                                                class="text-[14px] font-extrabold text-black dark:text-white min-w-8 text-center tabular-nums"
+                                                x-text="reservationForm.guest_count + ' Orang'"></span>
+                                            <button type="button" @click="reservationForm.guest_count++"
+                                                class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold">&plus;</button>
+                                        </div>
+                                        <span class="text-[11.5px] text-black/50 dark:text-white/50">Dapat disesuaikan
+                                            jika rombongan</span>
                                     </div>
-                                    <span class="text-[11.5px] text-black/50 dark:text-white/50">Dapat disesuaikan
-                                        jika rombongan</span>
                                 </div>
+                                @if (isset($posTables) && $posTables->isNotEmpty())
+                                    <div>
+                                        <label
+                                            class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                            Pilihan Meja / Ruangan (Opsional)
+                                        </label>
+                                        <select x-model="reservationForm.pos_table_id"
+                                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                            <option value="">-- Bebas / Ditentukan Otomatis --</option>
+                                            @foreach ($posTables as $pt)
+                                                <option value="{{ $pt->id }}">
+                                                    {{ $pt->name ?: 'Meja ' . $pt->table_number }} (Kapasitas
+                                                    {{ $pt->capacity }} Orang)
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
@@ -3681,16 +6435,16 @@
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan
                                 Tambahan (Layanan / Meja Khusus)</label>
                             <textarea x-model="reservationForm.notes" rows="2"
-                                placeholder="Contoh: Meja non-smoking, baby chair, dekorasi ulang tahun, dll."
-                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759] resize-none"></textarea>
+                                placeholder="{{ $storeSetting?->order_notes_placeholder ?: 'Contoh: Meja non-smoking, baby chair, dekorasi ulang tahun, dll.' }}"
+                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759] resize-none"></textarea>
                         </div>
 
                         {{-- Submit Button --}}
                         <div class="pt-3 border-t border-black/5 dark:border-white/10">
                             <button type="submit" :disabled="isSubmittingReservation"
                                 class="w-full h-12 rounded-[16px] bg-[#34C759] hover:bg-[#2FB350] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm">
-                                <span x-show="!isSubmittingReservation">Kirim Permintaan Reservasi</span>
-                                <span x-show="isSubmittingReservation">Memproses Reservasi...</span>
+                                <span x-show="!isSubmittingReservation">Reservasi</span>
+                                <span x-show="isSubmittingReservation">Memproses...</span>
                                 <i x-show="!isSubmittingReservation" data-lucide="arrow-right"
                                     class="w-4 h-4"></i>
                             </button>
@@ -3704,7 +6458,7 @@
     {{-- ========================================================================= --}}
     {{-- FLOATING WHATSAPP BUTTON (Apple Frosted Glass Widget)                     --}}
     {{-- ========================================================================= --}}
-    <div class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 flex flex-col items-end select-none">
+    <div class="fixed flex bottom-20 right-4 md:bottom-6 md:right-6 z-50 flex-col items-end select-none">
 
         {{-- Floating Greeting Bubble --}}
         <div x-show="waChatOpen" x-transition.opacity
@@ -3713,32 +6467,32 @@
             <div class="flex items-center justify-between">
                 <span
                     class="font-semibold text-[13px] text-black dark:text-white tracking-tight">{{ $business->name }}</span>
-                <button @click="waChatOpen = false"
-                    class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                <button type="button" @click="waChatOpen = false"
+                    class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white cursor-pointer">
                     <i data-lucide="x" class="w-3.5 h-3.5"></i>
                 </button>
             </div>
             <p class="text-[12px] text-black/65 dark:text-white/65 leading-relaxed font-normal">
-                Halo! Ada yang bisa kami bantu seputar produk atau layanan kami?
+                {{ $landingPage->whatsapp_welcome_message ?: 'Halo! Ada yang bisa kami bantu seputar produk atau layanan kami?' }}
             </p>
-            <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank"
-                class="w-full h-9 rounded-full bg-brand-primary text-white font-semibold text-[12.5px] tracking-tight text-center flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-95 transition">
-                <span>Mulai Obrolan WhatsApp</span>
+            <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank" rel="noopener"
+                class="w-full h-9 rounded-full bg-[#25D366] text-white font-semibold text-[12.5px] tracking-tight text-center flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-95 transition shadow-sm">
+                <span>WA</span>
                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
             </a>
         </div>
 
         {{-- Button Trigger (Apple Touch Circle) --}}
-        <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank" rel="noopener"
-            class="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.35)] hover:scale-105 active:scale-95 transition-all duration-200 group relative"
+        <button type="button" @click="waChatOpen = !waChatOpen"
+            class="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.35)] hover:scale-105 active:scale-95 transition-all duration-200 group relative cursor-pointer"
             aria-label="Hubungi WhatsApp">
             <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 24 24">
                 <path
                     d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z" />
             </svg>
             <span
-                class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#FF3B30] border-2 border-white dark:border-black animate-pulse"></span>
-        </a>
+                class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#FF3B30] border-2 border-white dark:border-black"></span>
+        </button>
     </div>
 
     <script>

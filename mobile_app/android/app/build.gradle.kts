@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "id.cooca.app.cooca_pos_mobile"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

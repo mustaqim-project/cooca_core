@@ -136,6 +136,13 @@ final class CommerceOrderService
             throw new InvalidArgumentException('Keranjang belanja tidak boleh kosong.');
         }
 
+        foreach ($itemsData as $row) {
+            $qty = (float) ($row['quantity'] ?? 0);
+            if ($qty <= 0.0) {
+                throw new InvalidArgumentException('Jumlah pesanan untuk setiap produk harus lebih dari 0.');
+            }
+        }
+
         // 3. Resolve Location
         $locationId = Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
             ?? Location::where('business_id', $business->id)->value('id');
@@ -208,9 +215,9 @@ final class CommerceOrderService
 
             // Process Items and Reserve Stock Atomically
             foreach ($itemsData as $row) {
-                $qty = (float) ($row['quantity'] ?? 1);
-                if ($qty <= 0) {
-                    continue;
+                $qty = (float) ($row['quantity'] ?? 0);
+                if ($qty <= 0.0) {
+                    throw new InvalidArgumentException('Jumlah pesanan untuk setiap produk harus lebih dari 0.');
                 }
 
                 $productId = (string) ($row['product_id'] ?? '');
@@ -245,6 +252,14 @@ final class CommerceOrderService
                 ];
             }
 
+            if (empty($processedItems)) {
+                throw new InvalidArgumentException('Pesanan harus memiliki minimal 1 produk dengan jumlah lebih dari 0.');
+            }
+
+            if ($subtotal <= 0.0) {
+                throw new DomainException('Total nilai pesanan harus lebih dari Rp 0.');
+            }
+
             if ($subtotal < (float) $setting->min_order_amount) {
                 $formattedMin = number_format((float) $setting->min_order_amount, 0, ',', '.');
                 throw new DomainException("Minimum total belanja adalah Rp {$formattedMin}.");
@@ -270,6 +285,7 @@ final class CommerceOrderService
                 'business_id' => $business->id,
                 'location_id' => $locationId,
                 'customer_id' => $customer->id,
+                'global_customer_id' => auth('customer')->id() ?? null,
                 'payment_method_id' => $paymentMethod?->id,
                 'shipping_rule_id' => $shippingRuleId,
                 'order_number' => $orderNumber,
@@ -438,6 +454,13 @@ final class CommerceOrderService
             throw new InvalidArgumentException('Daftar permintaan barang tidak boleh kosong.');
         }
 
+        foreach ($itemsData as $row) {
+            $qty = (float) ($row['quantity'] ?? 0);
+            if ($qty <= 0.0) {
+                throw new InvalidArgumentException('Jumlah permintaan untuk setiap barang harus lebih dari 0.');
+            }
+        }
+
         $locationId = Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
             ?? Location::where('business_id', $business->id)->value('id');
 
@@ -495,8 +518,10 @@ final class CommerceOrderService
             $processedItems = [];
 
             foreach ($itemsData as $row) {
-                $qty = (float) ($row['quantity'] ?? 1);
-                if ($qty <= 0) continue;
+                $qty = (float) ($row['quantity'] ?? 0);
+                if ($qty <= 0.0) {
+                    throw new InvalidArgumentException('Jumlah permintaan untuk setiap barang harus lebih dari 0.');
+                }
 
                 $productId = ! empty($row['product_id']) ? (string) $row['product_id'] : null;
                 $productName = trim($row['product_name'] ?? '');
@@ -530,10 +555,15 @@ final class CommerceOrderService
                 ];
             }
 
+            if (empty($processedItems)) {
+                throw new InvalidArgumentException('Daftar permintaan barang tidak boleh kosong.');
+            }
+
             $order = CommerceOrder::create([
                 'business_id' => $business->id,
                 'location_id' => $locationId,
                 'customer_id' => $customer->id,
+                'global_customer_id' => auth('customer')->id() ?? null,
                 'order_number' => $orderNumber,
                 'tracking_token' => $trackingToken,
                 'order_type' => CommerceOrder::TYPE_REQUEST_ORDER,

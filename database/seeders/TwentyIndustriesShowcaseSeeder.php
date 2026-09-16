@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Domain\Template\BusinessTemplateService;
 use App\Models\Business;
+use App\Models\BusinessLandingPage;
 use App\Models\BusinessTypeTemplate;
 use App\Models\CommerceOrder;
 use App\Models\CommerceOrderBatch;
@@ -143,16 +144,22 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
             );
 
             // Hubungkan owner spesifik industri
-            $business->users()->syncWithoutDetaching([
-                $user->id => ['id' => (string) Str::uuid(), 'role' => 'owner'],
-            ]);
+            if (! $business->users()->where('users.id', $user->id)->exists()) {
+                $business->users()->attach($user->id, [
+                    'id' => (string) Str::uuid(),
+                    'role' => 'owner',
+                ]);
+            }
             $user->update(['active_business_id' => $business->id]);
 
             // Hubungkan Akun Testing Utama sebagai owner ke SETIAP bisnis industri
             foreach ($testingUserModels as $tUser) {
-                $business->users()->syncWithoutDetaching([
-                    $tUser->id => ['id' => (string) Str::uuid(), 'role' => 'owner'],
-                ]);
+                if (! $business->users()->where('users.id', $tUser->id)->exists()) {
+                    $business->users()->attach($tUser->id, [
+                        'id' => (string) Str::uuid(),
+                        'role' => 'owner',
+                    ]);
+                }
                 if (! $tUser->active_business_id) {
                     $tUser->update(['active_business_id' => $business->id]);
                 }
@@ -509,40 +516,82 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
             );
         }
 
-        // 0.1 Business Landing Page
-        \App\Models\BusinessLandingPage::updateOrCreate(
+        // 0. Resolve Industry Blueprint
+        $blueprint = $this->getIndustryBlueprint($templateCode, $business);
+        $landingSpec = $blueprint['landing'];
+        $storeSpec = $blueprint['store'];
+
+        $rawHours = $landingSpec['operational_hours'] ?? [];
+        $normalizedHours = [];
+        $dayTranslations = [
+            'monday' => 'Senin',
+            'tuesday' => 'Selasa',
+            'wednesday' => 'Rabu',
+            'thursday' => 'Kamis',
+            'friday' => 'Jumat',
+            'saturday' => 'Sabtu',
+            'sunday' => 'Minggu',
+        ];
+        foreach ($rawHours as $k => $item) {
+            if (isset($item['day'])) {
+                $normalizedHours[] = $item;
+            } elseif (is_array($item)) {
+                $dayKey = is_string($k) ? strtolower($k) : '';
+                $dayName = $dayTranslations[$dayKey] ?? (is_string($k) ? ucfirst($k) : 'Hari');
+                $isOpen = !empty($item['is_open']) || (!empty($item['open']) && $item['open'] !== 'closed');
+                $openTime = $item['open'] ?? '';
+                $closeTime = $item['close'] ?? '';
+                $hoursText = $isOpen && $openTime && $closeTime ? "{$openTime} - {$closeTime} WIB" : ($isOpen ? 'Buka' : 'Tutup');
+                $normalizedHours[] = [
+                    'day' => $dayName,
+                    'hours' => $hoursText,
+                    'is_open' => $isOpen,
+                ];
+            }
+        }
+
+        // 0.1 Business Landing Page (Tailored per Industry Archetype)
+        BusinessLandingPage::updateOrCreate(
             ['business_id' => $business->id],
             [
-                'headline' => $business->name,
-                'subheadline' => $business->description ?: "Solusi operasional terpercaya & terlengkap dari {$business->name}.",
+                'headline' => $landingSpec['headline'],
+                'subheadline' => $landingSpec['subheadline'],
                 'is_published' => true,
                 'show_pos_products' => true,
-                'theme_color' => '#007AFF',
-                'cta_primary_text' => 'Beli Sekarang',
+                'theme_color' => $landingSpec['theme_color'],
+                'cta_primary_text' => $landingSpec['cta_primary_text'],
+                'cta_secondary_text' => $landingSpec['cta_secondary_text'],
+                'announcement_badge' => $landingSpec['announcement_badge'],
+                'services_title' => $landingSpec['services_title'],
+                'about_title' => $landingSpec['about_title'],
+                'about_story' => $landingSpec['about_story'],
+                'operational_hours' => $normalizedHours,
                 'whatsapp_number' => $business->phone ?: '081234567890',
+                'whatsapp_welcome_message' => $landingSpec['whatsapp_welcome_message'],
             ]
         );
 
-        // 1. Storefront Settings
+        // 1. Storefront Settings (Strictly configured per industry capabilities)
         CommerceStoreSetting::updateOrCreate(
             ['business_id' => $business->id],
             [
                 'is_storefront_enabled' => true,
                 'is_discoverable' => true,
-                'allow_pickup' => true,
-                'allow_delivery' => true,
-                'allow_request_order' => true,
-                'allow_scheduled_order' => true,
-                'allow_customer_po' => true,
-                'allow_reservation' => true,
-                'min_order_amount' => 10000,
-                'lead_time_hours' => 2,
+                'allow_pickup' => $storeSpec['allow_pickup'],
+                'allow_delivery' => $storeSpec['allow_delivery'],
+                'allow_request_order' => $storeSpec['allow_request_order'],
+                'allow_scheduled_order' => $storeSpec['allow_scheduled_order'],
+                'allow_customer_po' => $storeSpec['allow_customer_po'],
+                'allow_reservation' => $storeSpec['allow_reservation'],
+                'min_order_amount' => $storeSpec['min_order_amount'],
+                'lead_time_hours' => $storeSpec['lead_time_hours'],
                 'operating_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-                'available_slots' => ['09:00 - 11:00', '11:00 - 13:00', '14:00 - 16:00', '16:00 - 18:00', '19:00 - 21:00'],
+                'available_slots' => $storeSpec['available_slots'],
                 'cut_off_time' => '17:00',
                 'max_capacity_per_slot' => 15,
                 'daily_order_quota' => 50,
-                'announcement_text' => "Official Online Store {$business->name}. Siap melayani pesanan instan, katering kustom, PO berkala & reservasi slot waktu.",
+                'announcement_text' => $storeSpec['announcement_text'],
+                'order_notes_placeholder' => $storeSpec['order_notes_placeholder'],
             ]
         );
 
@@ -570,34 +619,64 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
             ]
         );
 
-        // 3. Shipping Rules
-        CommerceShippingRule::updateOrCreate(
-            ['business_id' => $business->id, 'name' => 'Kurir Toko / Pengantaran Langsung'],
-            [
+        // 3. Shipping Rules (Tailored to Industry Fulfillment Model)
+        CommerceShippingRule::where('business_id', $business->id)->delete();
+        if ($blueprint['shipping'] === 'service') {
+            CommerceShippingRule::create([
+                'business_id' => $business->id,
+                'name' => 'Layanan di Lokasi / Datang Langsung',
+                'rule_type' => CommerceShippingRule::TYPE_FLAT,
+                'rate_amount' => 0,
+                'min_order_for_free' => null,
+                'is_active' => true,
+                'sort_order' => 1,
+            ]);
+        } elseif ($blueprint['shipping'] === 'b2b') {
+            CommerceShippingRule::create([
+                'business_id' => $business->id,
+                'name' => 'Armada Truk / Ekspedisi Kargo',
+                'rule_type' => CommerceShippingRule::TYPE_FLAT,
+                'rate_amount' => 75000,
+                'min_order_for_free' => 2000000,
+                'is_active' => true,
+                'sort_order' => 1,
+            ]);
+            CommerceShippingRule::create([
+                'business_id' => $business->id,
+                'name' => 'Bebas Ongkir Kargo (PO > Rp 2.000.000)',
+                'rule_type' => CommerceShippingRule::TYPE_FREE_THRESHOLD,
+                'rate_amount' => 0,
+                'min_order_for_free' => 2000000,
+                'is_active' => true,
+                'sort_order' => 2,
+            ]);
+        } else {
+            CommerceShippingRule::create([
+                'business_id' => $business->id,
+                'name' => 'Kurir Toko / Pengantaran Langsung',
                 'rule_type' => CommerceShippingRule::TYPE_FLAT,
                 'rate_amount' => 15000,
                 'min_order_for_free' => 150000,
                 'is_active' => true,
                 'sort_order' => 1,
-            ]
-        );
-
-        CommerceShippingRule::updateOrCreate(
-            ['business_id' => $business->id, 'name' => 'Gratis Ongkir (Belanja > Rp 150.000)'],
-            [
+            ]);
+            CommerceShippingRule::create([
+                'business_id' => $business->id,
+                'name' => 'Gratis Ongkir (Belanja > Rp 150.000)',
                 'rule_type' => CommerceShippingRule::TYPE_FREE_THRESHOLD,
                 'rate_amount' => 0,
                 'min_order_for_free' => 150000,
                 'is_active' => true,
                 'sort_order' => 2,
-            ]
-        );
+            ]);
+        }
 
-        // 4. POS Tables (for F&B and On-site Services)
+        // 4. POS Tables (strictly for Reservable businesses)
         $tableList = [];
-        if (in_array($templateCode, ['fnb_resto', 'fnb_cafe', 'fnb_bakery', 'fnb_cloud_kitchen', 'service_barbershop', 'service_workshop'])) {
-            $prefix = in_array($templateCode, ['service_barbershop', 'service_workshop']) ? 'Kursi / Bay #' : 'Meja #';
-            for ($t = 1; $t <= 5; $t++) {
+        if (! empty($blueprint['tables']['supported'])) {
+            $prefix = $blueprint['tables']['prefix'] ?? 'Meja #';
+            $count = $blueprint['tables']['count'] ?? 5;
+            for ($t = 1; $t <= $count; $t++) {
                 $posTable = PosTable::firstOrCreate(
                     ['business_id' => $business->id, 'table_number' => 'T-0' . $t],
                     [
@@ -610,6 +689,10 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
                 );
                 $tableList[] = $posTable;
             }
+        } else {
+            // Clean up any old tables or reservations for non-reservable industries
+            PosTable::where('business_id', $business->id)->delete();
+            CommerceReservation::where('business_id', $business->id)->delete();
         }
 
         // 5. Sample Commerce Orders
@@ -617,104 +700,109 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
             $firstProduct = reset($productMap);
             $orderQty = 2;
             $subtotal = (float) $firstProduct->selling_price * $orderQty;
-            $shippingCost = 15000;
+            $shippingCost = $blueprint['shipping'] === 'service' ? 0 : 15000;
             $totalAmount = $subtotal + $shippingCost;
 
-            // Direct Checkout Order (Completed & Paid)
-            $directOrder = CommerceOrder::firstOrCreate(
-                ['business_id' => $business->id, 'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(4))],
-                [
-                    'location_id' => $location->id,
-                    'customer_id' => $customer?->id,
-                    'order_type' => CommerceOrder::TYPE_DIRECT_CHECKOUT,
-                    'status' => CommerceOrder::STATUS_COMPLETED,
-                    'payment_status' => CommerceOrder::PAYMENT_PAID,
-                    'fulfillment_type' => CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY,
-                    'customer_name' => $customer?->name ?? 'Pelanggan Online',
-                    'customer_phone' => $customer?->phone ?? '081299887766',
-                    'shipping_address' => 'Jl. Anggrek No. 12, Kompleks Perumahan Sejahtera',
-                    'subtotal' => $subtotal,
-                    'shipping_cost' => $shippingCost,
-                    'total_amount' => $totalAmount,
-                    'tracking_token' => Str::random(64),
-                    'notes' => 'Pesanan Direct Checkout sample showcase',
-                    'created_at' => Carbon::now()->subDays(1),
-                ]
-            );
+            if ($blueprint['orders']['seed_direct'] ?? true) {
+                // Direct Checkout Order (Completed & Paid)
+                $directOrder = CommerceOrder::firstOrCreate(
+                    ['business_id' => $business->id, 'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(4))],
+                    [
+                        'location_id' => $location->id,
+                        'customer_id' => $customer?->id,
+                        'order_type' => CommerceOrder::TYPE_DIRECT_CHECKOUT,
+                        'status' => CommerceOrder::STATUS_COMPLETED,
+                        'payment_status' => CommerceOrder::PAYMENT_PAID,
+                        'fulfillment_type' => $blueprint['shipping'] === 'service' ? CommerceOrder::FULFILLMENT_PICKUP : CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY,
+                        'customer_name' => $customer?->name ?? 'Pelanggan Online',
+                        'customer_phone' => $customer?->phone ?? '081299887766',
+                        'shipping_address' => $blueprint['shipping'] === 'service' ? 'Layanan di Outlet' : 'Jl. Anggrek No. 12, Kompleks Perumahan Sejahtera',
+                        'subtotal' => $subtotal,
+                        'shipping_cost' => $shippingCost,
+                        'total_amount' => $totalAmount,
+                        'tracking_token' => Str::random(64),
+                        'notes' => 'Pesanan Direct Checkout showcase ' . $business->name,
+                        'created_at' => Carbon::now()->subDays(1),
+                    ]
+                );
 
-            CommerceOrderItem::firstOrCreate(
-                ['commerce_order_id' => $directOrder->id, 'product_id' => $firstProduct->id],
-                [
-                    'product_name' => $firstProduct->name,
-                    'product_type' => 'product',
-                    'unit_price' => $firstProduct->selling_price,
-                    'quantity' => $orderQty,
-                    'subtotal' => $subtotal,
-                ]
-            );
+                CommerceOrderItem::firstOrCreate(
+                    ['commerce_order_id' => $directOrder->id, 'product_id' => $firstProduct->id],
+                    [
+                        'product_name' => $firstProduct->name,
+                        'product_type' => 'product',
+                        'unit_price' => $firstProduct->selling_price,
+                        'quantity' => $orderQty,
+                        'subtotal' => $subtotal,
+                    ]
+                );
+            }
 
-            // B2B Customer PO Order with Multi-Drop Batches
-            $poOrder = CommerceOrder::firstOrCreate(
-                ['business_id' => $business->id, 'customer_po_number' => 'PO-' . strtoupper(Str::random(6))],
-                [
-                    'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
-                    'location_id' => $location->id,
-                    'customer_id' => $customer?->id,
-                    'order_type' => CommerceOrder::TYPE_CUSTOMER_PO,
-                    'status' => CommerceOrder::STATUS_PROCESSING,
-                    'payment_status' => CommerceOrder::PAYMENT_PAID,
-                    'fulfillment_type' => CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY,
-                    'customer_name' => 'Bpk. Hendra Gunawan',
-                    'customer_phone' => '081233445566',
-                    'company_name' => 'PT Mitra Niaga Gemilang',
-                    'shipping_address' => 'Gudang Logistik Pusat, Jl. Daan Mogot KM 14, Jakarta Barat',
-                    'subtotal' => $subtotal * 5,
-                    'shipping_cost' => 0,
-                    'total_amount' => $subtotal * 5,
-                    'tracking_token' => Str::random(64),
-                    'notes' => 'Customer PO B2B dengan pengiriman terjadwal multi-drop',
-                ]
-            );
+            if ($blueprint['orders']['seed_po'] ?? false) {
+                // B2B Customer PO Order with Multi-Drop Batches
+                $poOrder = CommerceOrder::firstOrCreate(
+                    ['business_id' => $business->id, 'customer_po_number' => 'PO-' . strtoupper(Str::random(6))],
+                    [
+                        'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+                        'location_id' => $location->id,
+                        'customer_id' => $customer?->id,
+                        'order_type' => CommerceOrder::TYPE_CUSTOMER_PO,
+                        'status' => CommerceOrder::STATUS_PROCESSING,
+                        'payment_status' => CommerceOrder::PAYMENT_PAID,
+                        'fulfillment_type' => CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY,
+                        'customer_name' => 'Bpk. Hendra Gunawan',
+                        'customer_phone' => '081233445566',
+                        'company_name' => 'PT Mitra Niaga Gemilang',
+                        'shipping_address' => 'Gudang Logistik Pusat, Jl. Daan Mogot KM 14, Jakarta Barat',
+                        'subtotal' => $subtotal * 5,
+                        'shipping_cost' => 0,
+                        'total_amount' => $subtotal * 5,
+                        'tracking_token' => Str::random(64),
+                        'notes' => 'Customer PO B2B dengan pengiriman terjadwal multi-drop',
+                    ]
+                );
 
-            CommerceOrderItem::firstOrCreate(
-                ['commerce_order_id' => $poOrder->id, 'product_id' => $firstProduct->id],
-                [
-                    'product_name' => $firstProduct->name,
-                    'product_type' => 'product',
-                    'unit_price' => $firstProduct->selling_price,
-                    'quantity' => $orderQty * 5,
-                    'subtotal' => $subtotal * 5,
-                ]
-            );
+                CommerceOrderItem::firstOrCreate(
+                    ['commerce_order_id' => $poOrder->id, 'product_id' => $firstProduct->id],
+                    [
+                        'product_name' => $firstProduct->name,
+                        'product_type' => 'product',
+                        'unit_price' => $firstProduct->selling_price,
+                        'quantity' => $orderQty * 5,
+                        'subtotal' => $subtotal * 5,
+                    ]
+                );
 
-            // Batch Drops
-            CommerceOrderBatch::firstOrCreate(
-                ['commerce_order_id' => $poOrder->id, 'batch_number' => 1],
-                [
-                    'batch_code' => 'BATCH-01',
-                    'scheduled_date' => Carbon::today()->toDateString(),
-                    'status' => CommerceOrderBatch::STATUS_SHIPPED,
-                    'shipping_address' => 'Gudang Logistik Pusat, Jl. Daan Mogot KM 14',
-                    'quantity' => 4,
-                    'tracking_number' => 'RESI-LOKAL-001',
-                ]
-            );
+                // Batch Drops
+                CommerceOrderBatch::firstOrCreate(
+                    ['commerce_order_id' => $poOrder->id, 'batch_number' => 1],
+                    [
+                        'batch_code' => 'BATCH-01',
+                        'scheduled_date' => Carbon::today()->toDateString(),
+                        'status' => CommerceOrderBatch::STATUS_SHIPPED,
+                        'shipping_address' => 'Gudang Logistik Pusat, Jl. Daan Mogot KM 14',
+                        'quantity' => 4,
+                        'tracking_number' => 'RESI-LOKAL-001',
+                    ]
+                );
 
-            CommerceOrderBatch::firstOrCreate(
-                ['commerce_order_id' => $poOrder->id, 'batch_number' => 2],
-                [
-                    'batch_code' => 'BATCH-02',
-                    'scheduled_date' => Carbon::today()->addDays(5)->toDateString(),
-                    'status' => CommerceOrderBatch::STATUS_SCHEDULED,
-                    'shipping_address' => 'Ruko BSD Boulevard No. 8, Serpong',
-                    'quantity' => 6,
-                ]
-            );
+                CommerceOrderBatch::firstOrCreate(
+                    ['commerce_order_id' => $poOrder->id, 'batch_number' => 2],
+                    [
+                        'batch_code' => 'BATCH-02',
+                        'scheduled_date' => Carbon::today()->addDays(5)->toDateString(),
+                        'status' => CommerceOrderBatch::STATUS_SCHEDULED,
+                        'shipping_address' => 'Ruko BSD Boulevard No. 8, Serpong',
+                        'quantity' => 6,
+                    ]
+                );
+            }
         }
 
         // 6. Sample Reservation (for F&B / Services with tables)
-        if (! empty($tableList)) {
+        if (! empty($tableList) && ($blueprint['store']['allow_reservation'] ?? false)) {
             $firstTable = $tableList[0];
+            $resSlot = $blueprint['store']['available_slots'][0] ?? '19:00 - 21:00';
             CommerceReservation::firstOrCreate(
                 ['business_id' => $business->id, 'reservation_code' => 'RSV-' . strtoupper(Str::random(6))],
                 [
@@ -723,13 +811,1032 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
                     'customer_phone' => '081377889900',
                     'customer_email' => 'dian.safitri@example.com',
                     'reservation_date' => Carbon::today()->toDateString(),
-                    'time_slot' => '19:00 - 21:00',
+                    'time_slot' => $resSlot,
                     'guest_count' => 4,
                     'status' => CommerceReservation::STATUS_CONFIRMED,
-                    'notes' => 'Reservasi makan malam perayaan ulang tahun, mohon siapkan baby chair.',
+                    'notes' => 'Reservasi jadwal showcase untuk ' . $business->name,
                 ]
             );
         }
+    }
+
+    /**
+     * Get tailored industry blueprint for landing page, storefront settings, shipping, and tables.
+     *
+     * @return array<string, mixed>
+     */
+    private function getIndustryBlueprint(string $templateCode, Business $business): array
+    {
+        $blueprints = [
+            'fnb_resto' => [
+                'landing' => [
+                    'headline' => 'Restoran Keluarga Cita Rasa Nusantara',
+                    'subheadline' => 'Menyajikan hidangan tradisional otentik dengan bahan segar pilihan, ruang makan nyaman, dan pelayanan ramah keluarga.',
+                    'theme_color' => '#D97706',
+                    'cta_primary_text' => 'Reservasi',
+                    'cta_secondary_text' => 'Menu',
+                    'announcement_badge' => 'Dine-in & Reservasi Meja',
+                    'whatsapp_welcome_message' => 'Halo Restoran ' . $business->name . ', saya ingin reservasi meja atau memesan hidangan keluarga.',
+                    'services_title' => 'Menu Andalan & Paket Keluarga',
+                    'about_title' => 'Cita Rasa Resep Warisan Nusantara',
+                    'about_story' => 'Didirikan dengan komitmen menyajikan hidangan nusantara otentik tanpa kompromi rasa. Semua bumbu diolah dari rempah lokal berkualitas terbaik.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '10:00', 'close' => '22:00'],
+                        'tuesday' => ['open' => '10:00', 'close' => '22:00'],
+                        'wednesday' => ['open' => '10:00', 'close' => '22:00'],
+                        'thursday' => ['open' => '10:00', 'close' => '22:00'],
+                        'friday' => ['open' => '10:00', 'close' => '22:00'],
+                        'saturday' => ['open' => '09:00', 'close' => '22:30'],
+                        'sunday' => ['open' => '09:00', 'close' => '22:30'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => true,
+                    'min_order_amount' => 25000,
+                    'lead_time_hours' => 1,
+                    'available_slots' => ['11:00 - 13:00', '13:00 - 15:00', '17:00 - 19:00', '19:00 - 21:00'],
+                    'announcement_text' => 'Selamat datang di ' . $business->name . '. Melayani reservasi meja keluarga, ruang VIP & takeaway.',
+                    'order_notes_placeholder' => 'Contoh: tingkat kepedasan sedang, pisahkan kuah, dll.',
+                ],
+                'tables' => ['supported' => true, 'prefix' => 'Meja #', 'count' => 5],
+                'shipping' => 'fnb',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'fnb_cafe' => [
+                'landing' => [
+                    'headline' => 'Specialty Coffee & Artisan Pastry',
+                    'subheadline' => 'Ruang santai & co-working ramah dengan seduhan biji kopi Nusantara pilihan, koneksi cepat, dan camilan artisanal.',
+                    'theme_color' => '#B45309',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Reservasi',
+                    'announcement_badge' => 'Fresh Roasted Beans & Cozy Space',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin bertanya seputar menu kopi atau reservasi spot kerja.',
+                    'services_title' => 'Signature Coffee & Bites',
+                    'about_title' => 'Komitmen pada Setiap Tetes Kopi',
+                    'about_story' => 'Kami bekerja langsung dengan petani kopi lokal dari Gayo, Kintamani, hingga Toraja untuk memastikan kualitas seduhan terbaik setiap hari.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:00', 'close' => '22:00'],
+                        'tuesday' => ['open' => '08:00', 'close' => '22:00'],
+                        'wednesday' => ['open' => '08:00', 'close' => '22:00'],
+                        'thursday' => ['open' => '08:00', 'close' => '22:00'],
+                        'friday' => ['open' => '08:00', 'close' => '23:00'],
+                        'saturday' => ['open' => '08:00', 'close' => '23:00'],
+                        'sunday' => ['open' => '08:00', 'close' => '22:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => true,
+                    'min_order_amount' => 15000,
+                    'lead_time_hours' => 1,
+                    'available_slots' => ['09:00 - 12:00', '13:00 - 16:00', '16:00 - 19:00', '19:00 - 22:00'],
+                    'announcement_text' => 'Biji kopi fresh roast hari ini siap diseduh. Booking meeting table atau pesan pickup praktis.',
+                    'order_notes_placeholder' => 'Contoh: less sugar, oatmilk, es dipisah...',
+                ],
+                'tables' => ['supported' => true, 'prefix' => 'Meja #', 'count' => 5],
+                'shipping' => 'fnb',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'fnb_bakery' => [
+                'landing' => [
+                    'headline' => 'Roti, Kue & Pastry Hangat Setiap Pagi',
+                    'subheadline' => 'Dibuat setiap hari dari mentega murni dan tepung premium tanpa bahan pengawet. Tersedia pesanan kustom snack box & kue ulang tahun.',
+                    'theme_color' => '#EA580C',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Custom Cake',
+                    'announcement_badge' => 'Fresh From The Oven',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin memesan kue ulang tahun kustom / snack box acara.',
+                    'services_title' => 'Pilihan Roti & Pastry Favorit',
+                    'about_title' => 'Kelezatan Roti Tanpa Kompromi',
+                    'about_story' => 'Resep keluarga turun temurun yang dikombinasikan dengan teknik pastry modern untuk menghasilkan kelembutan sempurna.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '06:30', 'close' => '21:00'],
+                        'tuesday' => ['open' => '06:30', 'close' => '21:00'],
+                        'wednesday' => ['open' => '06:30', 'close' => '21:00'],
+                        'thursday' => ['open' => '06:30', 'close' => '21:00'],
+                        'friday' => ['open' => '06:30', 'close' => '21:00'],
+                        'saturday' => ['open' => '06:30', 'close' => '21:30'],
+                        'sunday' => ['open' => '06:30', 'close' => '21:30'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 30000,
+                    'lead_time_hours' => 6,
+                    'available_slots' => ['Pagi (07:00 - 10:00)', 'Siang (11:00 - 14:00)', 'Sore (15:00 - 18:00)'],
+                    'announcement_text' => 'Roti & pastry segar siap saji. Menerima pesanan kustom cake & snack box untuk kantor/keluarga.',
+                    'order_notes_placeholder' => 'Contoh: tulisan ucapan pada kue, pilihan warna pita kemasan...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'standard',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'fnb_katering' => [
+                'landing' => [
+                    'headline' => 'Solusi Katering Prasmanan, Nasi Box & Event',
+                    'subheadline' => 'Menyajikan ribuan porsi hidangan lezat dan higienis bersertifikasi halal untuk pernikahan, seminar kantor, dan konsumsi harian.',
+                    'theme_color' => '#16A34A',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Request Menu',
+                    'announcement_badge' => 'Katering Bergaransi Rasa & Higienis',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin konsultasi paket katering dan penawaran harga untuk acara.',
+                    'services_title' => 'Paket Katering & Prasmanan',
+                    'about_title' => 'Mitra Terpercaya Setiap Acara Istimewa',
+                    'about_story' => 'Berpengalaman lebih dari 8 tahun melayani katering korporat dan pesta pernikahan dengan standar sanitasi ketat dan ketepatan waktu.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '07:00', 'close' => '20:00'],
+                        'tuesday' => ['open' => '07:00', 'close' => '20:00'],
+                        'wednesday' => ['open' => '07:00', 'close' => '20:00'],
+                        'thursday' => ['open' => '07:00', 'close' => '20:00'],
+                        'friday' => ['open' => '07:00', 'close' => '20:00'],
+                        'saturday' => ['open' => '07:00', 'close' => '20:00'],
+                        'sunday' => ['open' => '07:00', 'close' => '20:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 150000,
+                    'lead_time_hours' => 24,
+                    'available_slots' => ['Makan Pagi (06:30 - 08:30)', 'Makan Siang (11:00 - 13:00)', 'Makan Malam (17:30 - 19:30)'],
+                    'announcement_text' => 'Katering prasmanan, bento box & konsumsi event. Booking tanggal acara Anda minimal H-3.',
+                    'order_notes_placeholder' => 'Contoh: pantangan alergi, permintaan jenis wadah ramah lingkungan...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'standard',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'fnb_cloud_kitchen' => [
+                'landing' => [
+                    'headline' => 'Menu Multi-Brand Siap Antar Cepat',
+                    'subheadline' => 'Dapur modern terpusat menyajikan berbagai sajian favorit dengan kualitas terjamin, kemasan higienis, dan pengantaran kilat.',
+                    'theme_color' => '#DC2626',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'WA',
+                    'announcement_badge' => 'Pengantaran Cepat & Higienis',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin memesan menu takeaway untuk pengantaran langsung.',
+                    'services_title' => 'Menu Populer Siap Antar',
+                    'about_title' => 'Efisien, Cepat, dan Lezat',
+                    'about_story' => 'Konsep dapur terintegrasi dengan teknologi modern untuk menghadirkan makanan berkualitas dalam waktu pengantaran tercepat.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '10:00', 'close' => '22:00'],
+                        'tuesday' => ['open' => '10:00', 'close' => '22:00'],
+                        'wednesday' => ['open' => '10:00', 'close' => '22:00'],
+                        'thursday' => ['open' => '10:00', 'close' => '22:00'],
+                        'friday' => ['open' => '10:00', 'close' => '23:00'],
+                        'saturday' => ['open' => '10:00', 'close' => '23:00'],
+                        'sunday' => ['open' => '10:00', 'close' => '22:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 20000,
+                    'lead_time_hours' => 1,
+                    'available_slots' => ['Siang (11:00 - 14:00)', 'Malam (17:00 - 21:00)'],
+                    'announcement_text' => 'Pesanan siap saji hangat berkualitas resto, kemasan bersegel higienis & cepat sampai.',
+                    'order_notes_placeholder' => 'Contoh: sambal dipisah, minta sendok garpu...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'fnb',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'fnb_frozen_food' => [
+                'landing' => [
+                    'headline' => 'Stok Lauk Frozen Higienis & Siap Saji',
+                    'subheadline' => 'Lauk siap goreng dan siap kukus dengan kemasan kedap udara higienis. Tanpa pengawet buatan, aman dan lezat untuk keluarga.',
+                    'theme_color' => '#0284C7',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Grosir',
+                    'announcement_badge' => 'Beku Higienis & Thermal Packed',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin memesan produk frozen food atau info kemitraan reseller.',
+                    'services_title' => 'Produk Frozen Unggulan',
+                    'about_title' => 'Solusi Praktis Dapur Keluarga Modern',
+                    'about_story' => 'Diproses dengan teknik pembekuan cepat (blast freezing) untuk mengunci nutrisi, tekstur, dan rasa alami makanan.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:00', 'close' => '19:00'],
+                        'tuesday' => ['open' => '08:00', 'close' => '19:00'],
+                        'wednesday' => ['open' => '08:00', 'close' => '19:00'],
+                        'thursday' => ['open' => '08:00', 'close' => '19:00'],
+                        'friday' => ['open' => '08:00', 'close' => '19:00'],
+                        'saturday' => ['open' => '08:00', 'close' => '17:00'],
+                        'sunday' => ['open' => '08:00', 'close' => '15:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 50000,
+                    'lead_time_hours' => 2,
+                    'available_slots' => ['Sesi Pagi (09:00 - 12:00)', 'Sesi Sore (14:00 - 17:00)'],
+                    'announcement_text' => 'Stok lauk praktis keluarga beku higienis. Pengiriman dengan ice gel pack aman sampai tujuan.',
+                    'order_notes_placeholder' => 'Contoh: kemas per paket 500g, butuh ice gel tambahan...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'standard',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'retail_fmcg' => [
+                'landing' => [
+                    'headline' => 'Pusat Sembako & Kebutuhan Rumah Tangga Lengkap',
+                    'subheadline' => 'Belanja sembako dan perlengkapan harian keluarga harga grosir terjangkau. Layanan antar kilat langsung ke pintu rumah Anda.',
+                    'theme_color' => '#2563EB',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'WA',
+                    'announcement_badge' => 'Harga Hemat & Stok Selalu Siap',
+                    'whatsapp_welcome_message' => 'Halo Toko ' . $business->name . ', saya ingin memesan belanjaan sembako untuk dikirim ke rumah.',
+                    'services_title' => 'Produk Sembako & Kebutuhan Pokok',
+                    'about_title' => 'Sahabat Belanja Hemat Setiap Hari',
+                    'about_story' => 'Menyediakan ribuan item kebutuhan harian rumah tangga dengan jaminan keaslian barang dan timbang ukur presisi.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '07:00', 'close' => '21:00'],
+                        'tuesday' => ['open' => '07:00', 'close' => '21:00'],
+                        'wednesday' => ['open' => '07:00', 'close' => '21:00'],
+                        'thursday' => ['open' => '07:00', 'close' => '21:00'],
+                        'friday' => ['open' => '07:00', 'close' => '21:00'],
+                        'saturday' => ['open' => '07:00', 'close' => '21:00'],
+                        'sunday' => ['open' => '07:00', 'close' => '21:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 20000,
+                    'lead_time_hours' => 1,
+                    'available_slots' => ['Pagi (08:00 - 11:00)', 'Siang (13:00 - 16:00)', 'Sore (16:30 - 19:30)'],
+                    'announcement_text' => 'Belanja sembako & kebutuhan dapur praktis tanpa antre. Pengantaran hari yang sama.',
+                    'order_notes_placeholder' => 'Contoh: titip pesan ke kurir, taruh di teras bila tidak ada orang...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'standard',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'retail_fashion' => [
+                'landing' => [
+                    'headline' => 'Koleksi Fashion Trendy & Busana Elegan',
+                    'subheadline' => 'Pilihan pakaian berkualitas tinggi dengan potongan modern, material nyaman bernapas, dan desain eksklusif untuk gaya percaya diri Anda.',
+                    'theme_color' => '#4F46E5',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Koleksi',
+                    'announcement_badge' => 'New Season Arrival',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin bertanya ketersediaan ukuran dan warna busana ini.',
+                    'services_title' => 'Katalog Busana Terlaris',
+                    'about_title' => 'Gaya Elegan Tanpa Batas',
+                    'about_story' => 'Menghadirkan kurasi mode terbaik dengan perpaduan kenyamanan bahan dan tren gaya busana kontemporer.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '09:00', 'close' => '21:00'],
+                        'tuesday' => ['open' => '09:00', 'close' => '21:00'],
+                        'wednesday' => ['open' => '09:00', 'close' => '21:00'],
+                        'thursday' => ['open' => '09:00', 'close' => '21:00'],
+                        'friday' => ['open' => '09:00', 'close' => '21:00'],
+                        'saturday' => ['open' => '09:00', 'close' => '21:30'],
+                        'sunday' => ['open' => '09:00', 'close' => '21:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => false,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 50000,
+                    'lead_time_hours' => 2,
+                    'available_slots' => ['Pengiriman Reguler (10:00 - 14:00)', 'Pengiriman Sore (15:00 - 18:00)'],
+                    'announcement_text' => 'Koleksi busana terbaru siap kirim ke seluruh Indonesia. Gratis ongkir untuk pembelian tertentu.',
+                    'order_notes_placeholder' => 'Contoh: warna cadangan jika habis...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'standard',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'retail_electronics' => [
+                'landing' => [
+                    'headline' => 'Gadget, Aksesoris & Elektronik Bergaransi Resmi',
+                    'subheadline' => 'Solusi teknologi terpercaya dengan jaminan 100% original, pelayanan klaim garansi mudah, dan pengiriman aman terlindungi bubble wrap tebal.',
+                    'theme_color' => '#0F172A',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Konsultasi',
+                    'announcement_badge' => '100% Produk Original Bergaransi',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin konsultasi spesifikasi atau stok produk elektronik ini.',
+                    'services_title' => 'Produk Gadget & Aksesoris Unggulan',
+                    'about_title' => 'Destinasi Teknologi Terpercaya',
+                    'about_story' => 'Bekerja sama dengan distributor resmi brand terkemuka untuk menghadirkan perangkat berkinerja tinggi dengan harga kompetitif.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '09:30', 'close' => '20:30'],
+                        'tuesday' => ['open' => '09:30', 'close' => '20:30'],
+                        'wednesday' => ['open' => '09:30', 'close' => '20:30'],
+                        'thursday' => ['open' => '09:30', 'close' => '20:30'],
+                        'friday' => ['open' => '09:30', 'close' => '20:30'],
+                        'saturday' => ['open' => '09:30', 'close' => '21:00'],
+                        'sunday' => ['open' => '09:30', 'close' => '20:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => false,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 50000,
+                    'lead_time_hours' => 2,
+                    'available_slots' => ['Pengiriman Batch 1 (10:00 - 13:00)', 'Pengiriman Batch 2 (14:00 - 18:00)'],
+                    'announcement_text' => 'Produk elektronik & gadget 100% original bergaransi resmi. Packing aman asuransi pengiriman.',
+                    'order_notes_placeholder' => 'Contoh: packing kayu atau asuransi tambahan...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'standard',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'retail_pharmacy' => [
+                'landing' => [
+                    'headline' => 'Apotek Resmi, Obat Asli & Konsultasi Apoteker',
+                    'subheadline' => 'Melayani resep dokter, obat bebas berizin BPOM, suplemen kesehatan, dan alat medis lengkap dengan pendampingan apoteker berlisensi.',
+                    'theme_color' => '#059669',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Tanya Apoteker',
+                    'announcement_badge' => 'Apoteker Berlisensi & Obat Resmi BPOM',
+                    'whatsapp_welcome_message' => 'Halo Apotek ' . $business->name . ', saya ingin konsultasi resep atau cek ketersediaan obat.',
+                    'services_title' => 'Kategori Obat, Vitamin & Alkes',
+                    'about_title' => 'Dedikasi untuk Kesehatan Keluarga',
+                    'about_story' => 'Menjaga integritas rantai pasok obat dengan suhu penyimpanan terstandar dan konsultasi pengobatan yang aman.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '07:30', 'close' => '22:00'],
+                        'tuesday' => ['open' => '07:30', 'close' => '22:00'],
+                        'wednesday' => ['open' => '07:30', 'close' => '22:00'],
+                        'thursday' => ['open' => '07:30', 'close' => '22:00'],
+                        'friday' => ['open' => '07:30', 'close' => '22:00'],
+                        'saturday' => ['open' => '07:30', 'close' => '22:00'],
+                        'sunday' => ['open' => '08:00', 'close' => '21:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 15000,
+                    'lead_time_hours' => 1,
+                    'available_slots' => ['Pengantaran Kilat (1-2 Jam)', 'Pengantaran Terjadwal (14:00 - 17:00)'],
+                    'announcement_text' => 'Apotek resmi berizin BPOM. Melayani tebus resep, obat bebas & konsultasi pemakaian obat.',
+                    'order_notes_placeholder' => 'Contoh: cantumkan foto resep dokter atau keluhan...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'standard',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'service_barbershop' => [
+                'landing' => [
+                    'headline' => 'Gentlemen Grooming & Haircut Berkelas',
+                    'subheadline' => 'Pengalaman pangkas rambut pria profesional dengan capster berpengalaman, cuci rambut pijat relaksasi, dan produk penataan rambut terbaik.',
+                    'theme_color' => '#1E293B',
+                    'cta_primary_text' => 'Reservasi',
+                    'cta_secondary_text' => 'Layanan',
+                    'announcement_badge' => 'Slot Booking Tanpa Antre',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin reservasi slot waktu potong rambut & grooming.',
+                    'services_title' => 'Paket Potong Rambut & Grooming',
+                    'about_title' => 'Seni Presisi Penampilan Pria',
+                    'about_story' => 'Menghadirkan gaya rambut klasik hingga modern yang disesuaikan dengan kontur wajah dan kepribadian Anda.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '10:00', 'close' => '21:00'],
+                        'tuesday' => ['open' => '10:00', 'close' => '21:00'],
+                        'wednesday' => ['open' => '10:00', 'close' => '21:00'],
+                        'thursday' => ['open' => '10:00', 'close' => '21:00'],
+                        'friday' => ['open' => '10:00', 'close' => '21:30'],
+                        'saturday' => ['open' => '09:30', 'close' => '21:30'],
+                        'sunday' => ['open' => '09:30', 'close' => '21:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => false,
+                    'allow_delivery' => false,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => false,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => true,
+                    'min_order_amount' => 0,
+                    'lead_time_hours' => 1,
+                    'available_slots' => ['10:00 - 11:30', '11:30 - 13:00', '14:00 - 15:30', '16:00 - 17:30', '18:30 - 20:30'],
+                    'announcement_text' => 'Potong rambut berkelas tanpa antre. Pilih capster favorit & reservasi waktu Anda sekarang.',
+                    'order_notes_placeholder' => 'Contoh: request model fade, shave jenggot...',
+                ],
+                'tables' => ['supported' => true, 'prefix' => 'Kursi Pangkas #', 'count' => 4],
+                'shipping' => 'service',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'service_workshop' => [
+                'landing' => [
+                    'headline' => 'Bengkel Mobil Modern, Servis Presisi & Terpercaya',
+                    'subheadline' => 'Perawatan berkala, tune up mesin injeksi, ganti oli, servis rem & diagnosa scanner komputer lengkap dengan teknisi berpengalaman.',
+                    'theme_color' => '#C2410C',
+                    'cta_primary_text' => 'Reservasi',
+                    'cta_secondary_text' => 'Servis',
+                    'announcement_badge' => 'Mekanik Bersertifikat & Sparepart Asli',
+                    'whatsapp_welcome_message' => 'Halo Bengkel ' . $business->name . ', saya ingin konsultasi servis mobil atau booking bay servis.',
+                    'services_title' => 'Layanan Servis & Perawatan Otomotif',
+                    'about_title' => 'Transparan, Tepat, dan Bergaransi',
+                    'about_story' => 'Mengutamakan keterbukaan biaya dan estimasi waktu pengerjaan dengan peralatan diagnostik mutakhir.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:00', 'close' => '17:00'],
+                        'tuesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'wednesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'thursday' => ['open' => '08:00', 'close' => '17:00'],
+                        'friday' => ['open' => '08:00', 'close' => '17:00'],
+                        'saturday' => ['open' => '08:00', 'close' => '17:00'],
+                        'sunday' => ['open' => '09:00', 'close' => '15:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => false,
+                    'allow_delivery' => false,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => false,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => true,
+                    'min_order_amount' => 0,
+                    'lead_time_hours' => 2,
+                    'available_slots' => ['08:30 - 10:30 (Pagi)', '10:30 - 12:30 (Siang)', '13:30 - 15:30 (Sore)', '15:30 - 17:00 (Sore)'],
+                    'announcement_text' => 'Bengkel mobil modern dengan mekanik bersertifikat. Booking jadwal servis berkala Anda hari ini.',
+                    'order_notes_placeholder' => 'Contoh: plat nomor mobil, tipe mobil, keluhan getar di rem...',
+                ],
+                'tables' => ['supported' => true, 'prefix' => 'Bay Servis #', 'count' => 4],
+                'shipping' => 'service',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'service_laundry' => [
+                'landing' => [
+                    'headline' => 'Layanan Laundry Kiloan & Satuan Bersih Higienis',
+                    'subheadline' => 'Cuci setrika rapi wangi tahan lama dengan air terfilter dan deterjen ramah serat kain. Layanan antar-jemput gratis untuk area sekitar.',
+                    'theme_color' => '#0284C7',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Jemput Baju',
+                    'announcement_badge' => 'Antar-Jemput Cucian Cepat',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin request jadwal jemput cucian kiloan/satuan ke alamat saya.',
+                    'services_title' => 'Daftar Paket Laundry & Cuci Satuan',
+                    'about_title' => 'Pakaian Bersih, Rapi & Segar Setiap Hari',
+                    'about_story' => 'Merawat setiap helai pakaian Anda dengan mesin cuci industri modern dan sistem pemisahan warna ketat.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '07:00', 'close' => '21:00'],
+                        'tuesday' => ['open' => '07:00', 'close' => '21:00'],
+                        'wednesday' => ['open' => '07:00', 'close' => '21:00'],
+                        'thursday' => ['open' => '07:00', 'close' => '21:00'],
+                        'friday' => ['open' => '07:00', 'close' => '21:00'],
+                        'saturday' => ['open' => '07:00', 'close' => '21:00'],
+                        'sunday' => ['open' => '08:00', 'close' => '18:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 25000,
+                    'lead_time_hours' => 2,
+                    'available_slots' => ['Jemput Pagi (08:00 - 10:00)', 'Jemput Siang (13:00 - 15:00)', 'Jemput Sore (16:00 - 18:00)'],
+                    'announcement_text' => 'Layanan laundry kiloan & satuan higienis. Hubungi kami untuk penjemputan gratis ke rumah Anda.',
+                    'order_notes_placeholder' => 'Contoh: baju sutra harap cuci tangan, pisahkan selimut...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'standard',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'service_salon_spa' => [
+                'landing' => [
+                    'headline' => 'Perawatan Kecantikan, Rambut & Spa Relaksasi',
+                    'subheadline' => 'Tempat pelarian sempurna untuk relaksasi tubuh dan perawatan kecantikan holistik dengan terapis bersertifikat di suasana yang damai.',
+                    'theme_color' => '#A21CAF',
+                    'cta_primary_text' => 'Reservasi',
+                    'cta_secondary_text' => 'Treatment',
+                    'announcement_badge' => 'Oasis Relaksasi & Perawatan Holistik',
+                    'whatsapp_welcome_message' => 'Halo Salon & Spa ' . $business->name . ', saya ingin reservasi jadwal creambath, facial, atau pijat tubuh.',
+                    'services_title' => 'Menu Perawatan Tubuh & Wajah',
+                    'about_title' => 'Kembalikan Kesegaran Alami Tubuh',
+                    'about_story' => 'Menggunakan ramuan herbal tradisional dan produk perawatan wajah dermatologi modern untuk merawat kecantikan Anda seutuhnya.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '09:00', 'close' => '20:00'],
+                        'tuesday' => ['open' => '09:00', 'close' => '20:00'],
+                        'wednesday' => ['open' => '09:00', 'close' => '20:00'],
+                        'thursday' => ['open' => '09:00', 'close' => '20:00'],
+                        'friday' => ['open' => '09:00', 'close' => '20:30'],
+                        'saturday' => ['open' => '09:00', 'close' => '20:30'],
+                        'sunday' => ['open' => '09:00', 'close' => '20:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => false,
+                    'allow_delivery' => false,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => false,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => true,
+                    'min_order_amount' => 0,
+                    'lead_time_hours' => 1,
+                    'available_slots' => ['09:00 - 11:00', '11:00 - 13:00', '14:00 - 16:00', '16:00 - 18:00', '18:30 - 20:00'],
+                    'announcement_text' => 'Manjakan diri Anda dengan spa & facial relaksasi. Reservasi jadwal kedatangan Anda secara instan.',
+                    'order_notes_placeholder' => 'Contoh: request terapis wanita, kulit sensitif...',
+                ],
+                'tables' => ['supported' => true, 'prefix' => 'Ruang Treatment #', 'count' => 4],
+                'shipping' => 'service',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'service_clinic' => [
+                'landing' => [
+                    'headline' => 'Klinik Pratama & Perawatan Gigi Terpercaya',
+                    'subheadline' => 'Pelayanan medis terpadu dengan dokter umum dan dokter gigi berizin. Ruang praktik higienis, ramah pasien, dan peralatan diagnostik modern.',
+                    'theme_color' => '#0891B2',
+                    'cta_primary_text' => 'Reservasi',
+                    'cta_secondary_text' => 'Jadwal Dokter',
+                    'announcement_badge' => 'Konsultasi Dokter & Antrean Terjadwal',
+                    'whatsapp_welcome_message' => 'Halo Klinik ' . $business->name . ', saya ingin membuat janji temu konsultasi dokter / perawatan gigi.',
+                    'services_title' => 'Layanan Medis & Poli Perawatan',
+                    'about_title' => 'Pelayanan Kesehatan Profesional & Bersahabat',
+                    'about_story' => 'Berkomitmen memberikan diagnosis yang tepat, pencegahan terarah, dan pengobatan optimal bagi seluruh anggota keluarga.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:00', 'close' => '21:00'],
+                        'tuesday' => ['open' => '08:00', 'close' => '21:00'],
+                        'wednesday' => ['open' => '08:00', 'close' => '21:00'],
+                        'thursday' => ['open' => '08:00', 'close' => '21:00'],
+                        'friday' => ['open' => '08:00', 'close' => '21:00'],
+                        'saturday' => ['open' => '08:00', 'close' => '20:00'],
+                        'sunday' => ['open' => '09:00', 'close' => '16:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => false,
+                    'allow_delivery' => false,
+                    'allow_request_order' => false,
+                    'allow_scheduled_order' => false,
+                    'allow_customer_po' => false,
+                    'allow_reservation' => true,
+                    'min_order_amount' => 0,
+                    'lead_time_hours' => 1,
+                    'available_slots' => ['Sesi Pagi (09:00 - 11:30)', 'Sesi Siang (13:00 - 15:30)', 'Sesi Malam (18:00 - 20:30)'],
+                    'announcement_text' => 'Layanan konsultasi medis & gigi tanpa antrean panjang. Booking jadwal dokter Anda di sini.',
+                    'order_notes_placeholder' => 'Contoh: keluhan sakit gigi geraham, kontrol rutin darah tinggi...',
+                ],
+                'tables' => ['supported' => true, 'prefix' => 'Ruang Poli #', 'count' => 3],
+                'shipping' => 'service',
+                'orders' => ['seed_direct' => true, 'seed_po' => false],
+            ],
+
+            'manufaktur_konveksi' => [
+                'landing' => [
+                    'headline' => 'Pabrik Konveksi B2B: Seragam Kerja, Polo & Jaket',
+                    'subheadline' => 'Kapasitas produksi hingga 20.000 potong/bulan dengan mesin jahit modern, bordir komputer presisi, dan quality control ketat sebelum pengiriman.',
+                    'theme_color' => '#4338CA',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Ajukan PO',
+                    'announcement_badge' => 'Vendor Pengadaan Seragam Korporat',
+                    'whatsapp_welcome_message' => 'Halo Konveksi ' . $business->name . ', kami ingin konsultasi tender produksi seragam dan minta quotation.',
+                    'services_title' => 'Lini Produksi Garmen & Seragam',
+                    'about_title' => 'Mitra Produksi Pakaian Terstandar Industri',
+                    'about_story' => 'Mendukung ratusan perusahaan, BUMN, dan komunitas di seluruh Indonesia dalam pengadaan busana kerja dengan bahan bersertifikasi.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:00', 'close' => '17:00'],
+                        'tuesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'wednesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'thursday' => ['open' => '08:00', 'close' => '17:00'],
+                        'friday' => ['open' => '08:00', 'close' => '17:00'],
+                        'saturday' => ['open' => '08:00', 'close' => '14:00'],
+                        'sunday' => ['open' => '00:00', 'close' => '00:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 500000,
+                    'lead_time_hours' => 72,
+                    'available_slots' => ['Batch Produksi Minggu ke-1', 'Batch Produksi Minggu ke-2', 'Batch Pengiriman Akhir Bulan'],
+                    'announcement_text' => 'Produsen seragam kantor & kaos event terpercaya. Menerima PO B2B dengan pengiriman bertahap multi-drop.',
+                    'order_notes_placeholder' => 'Contoh: spesifikasi kain drill, ukuran bordir dada kiri, batas deadline acara...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'b2b',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'manufaktur_percetakan' => [
+                'landing' => [
+                    'headline' => 'Percetakan Offset, Digital & Packaging UMKM',
+                    'subheadline' => 'Solusi cetak kemasan produk, packaging corrugated box, stiker label kustom, brosur promosi, dan company profile dengan warna akurat.',
+                    'theme_color' => '#0284C7',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Cetak Kustom',
+                    'announcement_badge' => 'Cetak Kemasan Presisi & Cepat',
+                    'whatsapp_welcome_message' => 'Halo Percetakan ' . $business->name . ', saya ingin mencetak kemasan kustom / label dan mengirim file desain.',
+                    'services_title' => 'Produk Kemasan & Advertising',
+                    'about_title' => 'Ketepatan Warna & Ketajaman Cetak',
+                    'about_story' => 'Didukung mesin offset 5 warna dan digital printing beresolusi tinggi untuk hasil cetak yang memikat calon pembeli produk Anda.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:00', 'close' => '17:30'],
+                        'tuesday' => ['open' => '08:00', 'close' => '17:30'],
+                        'wednesday' => ['open' => '08:00', 'close' => '17:30'],
+                        'thursday' => ['open' => '08:00', 'close' => '17:30'],
+                        'friday' => ['open' => '08:00', 'close' => '17:30'],
+                        'saturday' => ['open' => '08:00', 'close' => '15:00'],
+                        'sunday' => ['open' => '00:00', 'close' => '00:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 100000,
+                    'lead_time_hours' => 48,
+                    'available_slots' => ['Slot Cetak Kilat (24 Jam)', 'Slot Cetak Reguler (3-5 Hari)'],
+                    'announcement_text' => 'Pusat cetak packaging dus UMKM & promosi bisnis. Upload file desain dan cetak sesuai kebutuhan.',
+                    'order_notes_placeholder' => 'Contoh: laminasi doff / glossy, ukuran pisau pon custom...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'b2b',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'manufaktur_craft' => [
+                'landing' => [
+                    'headline' => 'Karya Kerajinan Tangan, Anyaman & Souvenir',
+                    'subheadline' => 'Produk handmade artisanal dari serat alam, anyaman bambu, kayu, dan tembikar untuk dekorasi rumah, hampers elegan, dan souvenir pernikahan.',
+                    'theme_color' => '#B45309',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Kustom Souvenir',
+                    'announcement_badge' => 'Artisan Handmade & Eco-friendly',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin memesan souvenir kerajinan tangan custom untuk acara.',
+                    'services_title' => 'Koleksi Kerajinan & Gift Set',
+                    'about_title' => 'Warisan Seni & Nilai Budaya Nusantara',
+                    'about_story' => 'Memberdayakan komunitas perajin lokal untuk menghasilkan cinderamata bernilai estetika tinggi dan ramah lingkungan.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:30', 'close' => '17:00'],
+                        'tuesday' => ['open' => '08:30', 'close' => '17:00'],
+                        'wednesday' => ['open' => '08:30', 'close' => '17:00'],
+                        'thursday' => ['open' => '08:30', 'close' => '17:00'],
+                        'friday' => ['open' => '08:30', 'close' => '17:00'],
+                        'saturday' => ['open' => '08:30', 'close' => '16:00'],
+                        'sunday' => ['open' => '09:00', 'close' => '14:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 100000,
+                    'lead_time_hours' => 48,
+                    'available_slots' => ['Batch Pengiriman Awal Bulan', 'Batch Pengiriman Pertengahan Bulan'],
+                    'announcement_text' => 'Kerajinan tangan otentik nusantara. Menerima pesanan kustom souvenir acara & hampers korporat.',
+                    'order_notes_placeholder' => 'Contoh: grafir nama pada kayu, kartu ucapan khusus...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'standard',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'manufaktur_furniture' => [
+                'landing' => [
+                    'headline' => 'Mebel Kayu Solid, Kitchen Set & Desain Interior',
+                    'subheadline' => 'Pabrik furniture kayu jati dan mahoni pilihan. Menghadirkan meja, kursi, lemari, dan custom interior presisi untuk hunian, cafe, & kantor.',
+                    'theme_color' => '#78350F',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Konsultasi Desain',
+                    'announcement_badge' => 'Kayu Pilihan Bergaransi Kokoh',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', saya ingin konsultasi pembuatan kitchen set / furniture custom.',
+                    'services_title' => 'Produk Mebel & Layanan Kustom',
+                    'about_title' => 'Kekuatan Konstruksi & Estetika Kayu Alami',
+                    'about_story' => 'Didukung tukang kayu berpengalaman puluhan tahun dengan teknik sambungan pasak tradisional yang kokoh dan tahan puluhan tahun.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:00', 'close' => '17:00'],
+                        'tuesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'wednesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'thursday' => ['open' => '08:00', 'close' => '17:00'],
+                        'friday' => ['open' => '08:00', 'close' => '17:00'],
+                        'saturday' => ['open' => '08:00', 'close' => '15:00'],
+                        'sunday' => ['open' => '00:00', 'close' => '00:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 500000,
+                    'lead_time_hours' => 72,
+                    'available_slots' => ['Pengiriman Armada Truk Khusus', 'Instalasi di Tempat Pelanggan'],
+                    'announcement_text' => 'Mebel kayu solid tahan lama & custom interior. Free konsultasi desain dan survei ruangan.',
+                    'order_notes_placeholder' => 'Contoh: dimensi ruangan, pilihan warna finishing melamine doff/gloss...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'b2b',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'trading_distributor' => [
+                'landing' => [
+                    'headline' => 'Distributor Resmi Pasokan Grosir & Partai Besar',
+                    'subheadline' => 'Pemasok tangan pertama terpercaya untuk komoditas pangan, sembako, dan bahan baku industri dengan harga distributor bersaing.',
+                    'theme_color' => '#0F766E',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Daftar B2B',
+                    'announcement_badge' => 'Pasokan Teratur & Harga Grosir Pabrik',
+                    'whatsapp_welcome_message' => 'Halo Distributor ' . $business->name . ', kami ingin meminta price list pasokan grosir rutin.',
+                    'services_title' => 'Katalog Pasokan Komoditas & Grosir',
+                    'about_title' => 'Rantai Pasok Tangguh & Terpercaya',
+                    'about_story' => 'Menghubungkan produsen utama dengan ribuan peritel, horeka (hotel resto kafe), dan pabrik manufaktur di seluruh penjuru wilayah.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '07:30', 'close' => '17:00'],
+                        'tuesday' => ['open' => '07:30', 'close' => '17:00'],
+                        'wednesday' => ['open' => '07:30', 'close' => '17:00'],
+                        'thursday' => ['open' => '07:30', 'close' => '17:00'],
+                        'friday' => ['open' => '07:30', 'close' => '17:00'],
+                        'saturday' => ['open' => '07:30', 'close' => '15:00'],
+                        'sunday' => ['open' => '00:00', 'close' => '00:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 1000000,
+                    'lead_time_hours' => 24,
+                    'available_slots' => ['Drop Pengiriman Pagi (08:00 - 12:00)', 'Drop Pengiriman Siang (13:00 - 17:00)'],
+                    'announcement_text' => 'Pusat grosir pasokan resmi. Melayani PO rutin partai besar dengan faktur pajak & tempo terpercaya.',
+                    'order_notes_placeholder' => 'Contoh: nomor PO internal kantor, jadwal bongkar muat gudang...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'b2b',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+            'mfg_precision' => [
+                'landing' => [
+                    'headline' => 'Pabrik Injection Molding Plastik & CNC Presisi B2B',
+                    'subheadline' => 'Spesialis fabrikasi komponen teknik, cetakan molding presisi, dan stamping logam berkualitas ekspor dengan toleransi mikro.',
+                    'theme_color' => '#475569',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Katalog Komponen',
+                    'announcement_badge' => 'Toleransi Mikro & Sertifikasi Mutu ISO',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', kami ingin mengirimkan file CAD / gambar teknik untuk penawaran fabrikasi presisi.',
+                    'services_title' => 'Komponen Teknik & Fabrikasi Presisi',
+                    'about_title' => 'Akurasi Tinggi & Mesin CNC Modern',
+                    'about_story' => 'Melayani kebutuhan komponen suku cadang otomotif, alat elektronik, dan peralatan industri dengan mesin injection mutakhir.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:00', 'close' => '17:00'],
+                        'tuesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'wednesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'thursday' => ['open' => '08:00', 'close' => '17:00'],
+                        'friday' => ['open' => '08:00', 'close' => '17:00'],
+                        'saturday' => ['open' => '08:00', 'close' => '15:00'],
+                        'sunday' => ['open' => '00:00', 'close' => '00:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 1000000,
+                    'lead_time_hours' => 72,
+                    'available_slots' => ['Batch Pengiriman Truk Pabrik', 'Pengiriman Kargo Kontainer'],
+                    'announcement_text' => 'Pabrik komponen teknik presisi B2B. Melayani pengadaan industri skala besar dengan sistem Customer PO & delivery bertahap.',
+                    'order_notes_placeholder' => 'Contoh: toleransi dimensi +/- 0.02mm, nomor gambar teknik...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'b2b',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'service_agency' => [
+                'landing' => [
+                    'headline' => 'Digital Agency: Software House, Web App & Desain UI/UX',
+                    'subheadline' => 'Membantu transformasi digital bisnis Anda melalui pengembangan aplikasi modern, website berkecepatan tinggi, dan strategi branding digital.',
+                    'theme_color' => '#2563EB',
+                    'cta_primary_text' => 'Konsultasi',
+                    'cta_secondary_text' => 'Portofolio',
+                    'announcement_badge' => 'Solusi Digital Skalabel & Bergaransi',
+                    'whatsapp_welcome_message' => 'Halo Tim ' . $business->name . ', kami ingin konsultasi proyek pengembangan web/aplikasi untuk perusahaan kami.',
+                    'services_title' => 'Layanan Pengembangan Software & Desain',
+                    'about_title' => 'Inovasi Teknologi Terdepan untuk Bisnis',
+                    'about_story' => 'Didukung oleh engineer, arsitek sistem, dan UI/UX desainer berpengalaman dalam membangun produk digital kelas dunia.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '09:00', 'close' => '18:00'],
+                        'tuesday' => ['open' => '09:00', 'close' => '18:00'],
+                        'wednesday' => ['open' => '09:00', 'close' => '18:00'],
+                        'thursday' => ['open' => '09:00', 'close' => '18:00'],
+                        'friday' => ['open' => '09:00', 'close' => '18:00'],
+                        'saturday' => ['open' => '00:00', 'close' => '00:00'],
+                        'sunday' => ['open' => '00:00', 'close' => '00:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => false,
+                    'allow_delivery' => false,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => false,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => true,
+                    'min_order_amount' => 0,
+                    'lead_time_hours' => 24,
+                    'available_slots' => ['Sesi Pagi (10:00 - 12:00)', 'Sesi Siang (14:00 - 16:00)', 'Sesi Sore (16:30 - 18:00)'],
+                    'announcement_text' => 'Solusi digital terpadu untuk bisnis Anda. Booking sesi konsultasi teknis atau ajukan scope of work proyek.',
+                    'order_notes_placeholder' => 'Contoh: ringkasan kebutuhan proyek, target deadline rilis...',
+                ],
+                'tables' => ['supported' => true, 'prefix' => 'Ruang Konsultasi & Meeting #', 'count' => 3],
+                'shipping' => 'service',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'service_contractor' => [
+                'landing' => [
+                    'headline' => 'Jasa Kontraktor Bangunan, Renovasi Rumah & Desain Arsitektur',
+                    'subheadline' => 'Mewujudkan hunian idaman dan bangunan komersial berkualitas kokoh dengan material terstandar SNI, gambar kerja presisi, dan pengawasan berkala.',
+                    'theme_color' => '#D97706',
+                    'cta_primary_text' => 'Survei Lokasi',
+                    'cta_secondary_text' => 'RAB Proyek',
+                    'announcement_badge' => 'Bergaransi Struktur & Tepat Waktu',
+                    'whatsapp_welcome_message' => 'Halo Kontraktor ' . $business->name . ', saya ingin konsultasi rencana bangun/renovasi rumah dan jadwal survei gratis.',
+                    'services_title' => 'Paket Bangun Baru & Pekerjaan Renovasi',
+                    'about_title' => 'Konstruksi Kokoh & Anggaran Transparan',
+                    'about_story' => 'Berpengalaman lebih dari 10 tahun menyelesaikan berbagai proyek residensial dan ruko komersial dengan laporan progres mingguan.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '08:00', 'close' => '17:00'],
+                        'tuesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'wednesday' => ['open' => '08:00', 'close' => '17:00'],
+                        'thursday' => ['open' => '08:00', 'close' => '17:00'],
+                        'friday' => ['open' => '08:00', 'close' => '17:00'],
+                        'saturday' => ['open' => '08:00', 'close' => '17:00'],
+                        'sunday' => ['open' => '09:00', 'close' => '15:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => false,
+                    'allow_delivery' => false,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => false,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => true,
+                    'min_order_amount' => 0,
+                    'lead_time_hours' => 24,
+                    'available_slots' => ['Survei Pagi (09:00 - 12:00)', 'Survei Siang (13:30 - 16:30)'],
+                    'announcement_text' => 'Jasa bangun & renovasi terpercaya. Booking jadwal survei lokasi & konsultasi estimasi RAB transparan.',
+                    'order_notes_placeholder' => 'Contoh: luas lahan / bangunan, perkiraan lokasi survei...',
+                ],
+                'tables' => ['supported' => true, 'prefix' => 'Tim Estimator & Survei #', 'count' => 3],
+                'shipping' => 'service',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'service_event' => [
+                'landing' => [
+                    'headline' => 'Wedding Planner & Event Organizer Profesional',
+                    'subheadline' => 'Perencanaan acara pernikahan intim hingga pesta megah dengan konsep tematik, tim pelaksana berpengalaman, dan koordinasi vendor sempurna.',
+                    'theme_color' => '#BE185D',
+                    'cta_primary_text' => 'Konsultasi',
+                    'cta_secondary_text' => 'Paket Event',
+                    'announcement_badge' => 'Momen Istimewa Penuh Kenangan Indah',
+                    'whatsapp_welcome_message' => 'Halo ' . $business->name . ', kami ingin konsultasi paket wedding organizer untuk tanggal pernikahan kami.',
+                    'services_title' => 'Paket Pernikahan & Manajemen Acara',
+                    'about_title' => 'Dedikasi Penuh untuk Hari Bahagia Anda',
+                    'about_story' => 'Mengatur setiap detail acara mulai dari rundown, koordinasi vendor busana, rias, katering, hingga dokumentasi profesional.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '09:00', 'close' => '20:00'],
+                        'tuesday' => ['open' => '09:00', 'close' => '20:00'],
+                        'wednesday' => ['open' => '09:00', 'close' => '20:00'],
+                        'thursday' => ['open' => '09:00', 'close' => '20:00'],
+                        'friday' => ['open' => '09:00', 'close' => '20:00'],
+                        'saturday' => ['open' => '09:00', 'close' => '21:00'],
+                        'sunday' => ['open' => '09:00', 'close' => '21:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => false,
+                    'allow_delivery' => false,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => false,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => true,
+                    'min_order_amount' => 0,
+                    'lead_time_hours' => 24,
+                    'available_slots' => ['Konsultasi Siang (13:00 - 15:00)', 'Konsultasi Sore (16:00 - 18:00)', 'Konsultasi Malam (19:00 - 21:00)'],
+                    'announcement_text' => 'Wujudkan pernikahan impian Anda tanpa stres. Booking jadwal konsultasi konsep acara dengan wedding planner kami.',
+                    'order_notes_placeholder' => 'Contoh: rencana tanggal acara, perkiraan jumlah tamu undangan...',
+                ],
+                'tables' => ['supported' => true, 'prefix' => 'Lounge Konsultasi Acara #', 'count' => 3],
+                'shipping' => 'service',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+
+            'agri_farming' => [
+                'landing' => [
+                    'headline' => 'Peternakan Ayam Broiler & Pasokan Unggas Segar',
+                    'subheadline' => 'Penyedia ayam hidup dan karkas segar bersertifikat halal, dipelihara dengan pakan bernutrisi seimbang dan pemantauan biosekuriti ketat.',
+                    'theme_color' => '#15803D',
+                    'cta_primary_text' => 'Pesan',
+                    'cta_secondary_text' => 'Pasokan Rutin',
+                    'announcement_badge' => 'Unggas Sehat, Segar & Bersertifikat Halal',
+                    'whatsapp_welcome_message' => 'Halo Peternakan ' . $business->name . ', kami ingin info harga panen ayam broiler hari ini dan pesanan pasokan rutin.',
+                    'services_title' => 'Komoditas Unggas & Hasil Peternakan',
+                    'about_title' => 'Peternakan Modern Berkelanjutan',
+                    'about_story' => 'Menerapkan kandang closed-house dengan kontrol sirkulasi udara otomatis untuk memastikan kesehatan dan bobot panen ayam yang seragam.',
+                    'operational_hours' => [
+                        'monday' => ['open' => '06:00', 'close' => '17:00'],
+                        'tuesday' => ['open' => '06:00', 'close' => '17:00'],
+                        'wednesday' => ['open' => '06:00', 'close' => '17:00'],
+                        'thursday' => ['open' => '06:00', 'close' => '17:00'],
+                        'friday' => ['open' => '06:00', 'close' => '17:00'],
+                        'saturday' => ['open' => '06:00', 'close' => '17:00'],
+                        'sunday' => ['open' => '06:00', 'close' => '17:00'],
+                    ],
+                ],
+                'store' => [
+                    'allow_pickup' => true,
+                    'allow_delivery' => true,
+                    'allow_request_order' => true,
+                    'allow_scheduled_order' => true,
+                    'allow_customer_po' => true,
+                    'allow_reservation' => false,
+                    'min_order_amount' => 500000,
+                    'lead_time_hours' => 24,
+                    'available_slots' => ['Panen Pagi (05:00 - 08:00)', 'Panen Siang (12:00 - 15:00)', 'Panen Sore (16:00 - 19:00)'],
+                    'announcement_text' => 'Pasokan ayam potong segar langsung dari kandang peternak. Melayani RPH, pasar grosir & restoran dengan pengiriman armada khusus.',
+                    'order_notes_placeholder' => 'Contoh: rata-rata bobot hidup yang diminta (1.8 - 2.0 kg), jadwal timbang di kandang...',
+                ],
+                'tables' => ['supported' => false],
+                'shipping' => 'b2b',
+                'orders' => ['seed_direct' => true, 'seed_po' => true],
+            ],
+        ];
+
+        // Aliases to guarantee 100% template_code matches across all 20 industries
+        $blueprints['fnb_catering'] = $blueprints['fnb_katering'] ?? $blueprints['fnb_catering'];
+        $blueprints['mfg_garment'] = $blueprints['manufaktur_konveksi'] ?? $blueprints['mfg_garment'];
+        $blueprints['mfg_furniture'] = $blueprints['manufaktur_furniture'] ?? $blueprints['mfg_furniture'];
+        $blueprints['mfg_craft'] = $blueprints['manufaktur_craft'] ?? $blueprints['mfg_craft'];
+        $blueprints['mfg_printing'] = $blueprints['manufaktur_percetakan'] ?? $blueprints['mfg_printing'];
+        $blueprints['retail_reseller'] = $blueprints['retail_fmcg'];
+
+        return $blueprints[$templateCode] ?? $blueprints['retail_fmcg'];
     }
 
     /**

@@ -326,8 +326,10 @@ final class CustomerPortalController extends Controller
     {
         $request->validate([
             'product_id' => ['required', 'uuid', 'exists:products,id'],
-            'quantity'   => ['nullable', 'numeric', 'min:0.1'],
+            'quantity'   => ['nullable', 'numeric', 'gt:0'],
             'notes'      => ['nullable', 'string', 'max:200'],
+        ], [
+            'quantity.gt' => 'Jumlah item yang dipesan harus lebih dari 0.',
         ]);
 
         $business = Business::where('slug', $slug)->where('is_active', true)->firstOrFail();
@@ -414,6 +416,15 @@ final class CustomerPortalController extends Controller
 
         if (! $cart || $cart->items->isEmpty()) {
             return redirect()->route('customer.cart')->with('error', 'Cart toko ini kosong.');
+        }
+
+        if ($cart->items->contains(fn($i) => (float) $i->quantity <= 0.0)) {
+            return redirect()->route('customer.cart')->with('error', 'Jumlah item pesanan harus lebih dari 0.');
+        }
+
+        $cartSubtotal = (float) $cart->items->sum(fn($i) => (float) $i->quantity * (float) ($i->product?->selling_price ?? $i->unit_price ?? 0));
+        if ($cartSubtotal <= 0.0) {
+            return redirect()->route('customer.cart')->with('error', 'Total nilai belanja harus lebih dari Rp 0.');
         }
 
         // Redirect ke storefront checkout page toko dengan cart pre-filled

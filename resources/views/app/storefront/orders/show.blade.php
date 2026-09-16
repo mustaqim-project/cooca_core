@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 pb-16" x-data="{ rejectModalOpen: false, cancelModalOpen: false, imageModalOpen: false, activeImageUrl: '' }">
+    <div class="space-y-6 pb-28 lg:pb-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8" x-data="{ rejectModalOpen: false, cancelModalOpen: false, imageModalOpen: false, activeImageUrl: '' }">
 
         {{-- FLASH NOTIFICATIONS --}}
         @if (session('success'))
@@ -37,7 +37,7 @@
                         @php
                             $statusStyles = [
                                 'pending_payment' => 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/20',
-                                'proof_submitted' => 'bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/20 animate-pulse',
+                                'proof_submitted' => 'bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/20',
                                 'paid' => 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border-[#34C759]/20',
                                 'processing' => 'bg-[#5856D6]/10 text-[#5856D6] border-[#5856D6]/20',
                                 'ready' => 'bg-[#32ADE6]/10 text-[#32ADE6] border-[#32ADE6]/20',
@@ -191,7 +191,7 @@
                                                 <input type="number" step="0.01" min="0.01"
                                                     name="items[{{ $idx }}][quantity]"
                                                     value="{{ (float) $it->quantity }}"
-                                                    class="w-20 h-9 px-2.5 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white font-bold text-center">
+                                                    class="w-20 h-9 px-2.5 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white font-bold text-center tabular-nums">
                                             </div>
                                             <div>
                                                 <label
@@ -200,7 +200,7 @@
                                                 <input type="number" step="100" min="0"
                                                     name="items[{{ $idx }}][unit_price]"
                                                     value="{{ (float) $it->unit_price }}" placeholder="0" required
-                                                    class="w-36 h-9 px-2.5 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white font-bold">
+                                                    class="w-36 h-9 px-2.5 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white font-bold tabular-nums">
                                             </div>
                                         </div>
                                     </div>
@@ -214,14 +214,14 @@
                                         Kirim (Rp)</label>
                                     <input type="number" step="100" min="0" name="shipping_cost"
                                         value="{{ (float) $order->shipping_cost }}" placeholder="0"
-                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white font-bold">
+                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white font-bold tabular-nums">
                                 </div>
                                 <div>
                                     <label
                                         class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Rekening
                                         Pembayaran</label>
                                     <select name="payment_method_id"
-                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white">
+                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white">
                                         <option value="">-- Rekening Standar Toko --</option>
                                         @foreach ($business->paymentMethods as $pm)
                                             <option value="{{ $pm->id }}"
@@ -241,13 +241,13 @@
                                 <input type="text" name="notes"
                                     placeholder="Contoh: Sudah termasuk kemasan khusus dan garansi dingin."
                                     value="{{ $order->notes }}"
-                                    class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white">
+                                    class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white">
                             </div>
 
                             <button type="submit"
                                 class="w-full h-11 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13.5px] transition flex items-center justify-center gap-2 shadow-sm">
                                 <i data-lucide="send" class="w-4 h-4"></i>
-                                <span>Kirim Penawaran Harga ke Pelanggan &amp; Buka Akses Bayar</span>
+                                <span>Kirim Penawaran</span>
                             </button>
                         </form>
                     </div>
@@ -300,25 +300,25 @@
                     <div class="mt-6 pt-4 border-t border-black/5 dark:border-white/10 space-y-2 text-[13.5px]">
                         <div class="flex items-center justify-between text-black/60 dark:text-white/60">
                             <span>Subtotal Item</span>
-                            <span>Rp {{ number_format((float) $order->subtotal_amount, 0, ',', '.') }}</span>
+                            <span class="tabular-nums">Rp {{ number_format((float) $order->subtotal_amount, 0, ',', '.') }}</span>
                         </div>
                         @if ((float) $order->shipping_fee > 0)
                             <div class="flex items-center justify-between text-black/60 dark:text-white/60">
                                 <span>Ongkos Kirim
                                     ({{ $order->fulfillment_type === 'pickup' ? 'Ambil Sendiri' : 'Kurir Toko' }})</span>
-                                <span>Rp {{ number_format((float) $order->shipping_fee, 0, ',', '.') }}</span>
+                                <span class="tabular-nums">Rp {{ number_format((float) $order->shipping_fee, 0, ',', '.') }}</span>
                             </div>
                         @endif
                         @if ((float) $order->discount_amount > 0)
                             <div class="flex items-center justify-between text-[#34C759]">
                                 <span>Diskon</span>
-                                <span>-Rp {{ number_format((float) $order->discount_amount, 0, ',', '.') }}</span>
+                                <span class="tabular-nums">-Rp {{ number_format((float) $order->discount_amount, 0, ',', '.') }}</span>
                             </div>
                         @endif
                         <div
                             class="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/10 text-[16px] font-extrabold text-black dark:text-white">
                             <span>Total Tagihan</span>
-                            <span class="text-[#007AFF]">Rp
+                            <span class="text-[#007AFF] tabular-nums">Rp
                                 {{ number_format((float) $order->total_amount, 0, ',', '.') }}</span>
                         </div>
                     </div>
@@ -429,7 +429,7 @@
                                                         class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">Perbarui
                                                         Status Drop</label>
                                                     <select name="status"
-                                                        class="w-full h-9 px-3 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[12.5px] text-black dark:text-white">
+                                                        class="w-full h-9 px-3 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white">
                                                         <option value="scheduled"
                                                             {{ $batch->status === 'scheduled' ? 'selected' : '' }}>
                                                             Terjadwal (Scheduled)</option>
@@ -454,15 +454,14 @@
                                                     <input type="text" name="tracking_number"
                                                         value="{{ $batch->tracking_number }}"
                                                         placeholder="Contoh: KURIR-01 / JNE-12345"
-                                                        class="w-full h-9 px-3 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[12.5px] text-black dark:text-white">
+                                                        class="w-full h-9 px-3 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white">
                                                 </div>
                                             </div>
                                             <div class="flex items-center justify-end gap-2 pt-1">
                                                 <button type="button" @click="editing = false"
                                                     class="px-3 py-1.5 rounded-[10px] text-[12px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5">Batal</button>
                                                 <button type="submit"
-                                                    class="px-4 py-1.5 rounded-[10px] bg-[#5856D6] hover:bg-[#4745B8] text-white text-[12px] font-bold transition">Simpan
-                                                    Perubahan</button>
+                                                    class="px-4 py-1.5 rounded-[10px] bg-[#5856D6] hover:bg-[#4745B8] text-white text-[12px] font-bold transition">Simpan</button>
                                             </div>
                                         </form>
                                     </div>
@@ -622,7 +621,7 @@
                                         <button type="submit"
                                             class="w-full h-11 rounded-[14px] bg-[#34C759] hover:bg-[#30B752] text-white text-[13.5px] font-bold transition flex items-center justify-center gap-2 shadow-sm">
                                             <i data-lucide="check-circle" class="w-4 h-4"></i>
-                                            <span>Verifikasi Pembayaran</span>
+                                            <span>Verifikasi</span>
                                         </button>
                                     </form>
 
@@ -657,7 +656,7 @@
                             <label class="block text-[12px] font-semibold text-black/50 dark:text-white/50 mb-1.5">Perbarui
                                 Tahapan Order</label>
                             <select name="status"
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                                 <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>
                                     Diproses (Sedang Disiapkan/Dimasak)</option>
                                 <option value="ready" {{ $order->status === 'ready' ? 'selected' : '' }}>Siap (Siap
@@ -672,7 +671,7 @@
                         <button type="submit"
                             class="w-full h-10 rounded-[14px] bg-black/10 dark:bg-white/10 hover:bg-black/15 dark:hover:bg-white/15 text-black dark:text-white text-[13px] font-bold transition flex items-center justify-center gap-2">
                             <i data-lucide="save" class="w-4 h-4"></i>
-                            <span>Simpan Status</span>
+                            <span>Simpan</span>
                         </button>
                     </form>
                 </div>
@@ -683,12 +682,12 @@
 
         {{-- MODAL TOLAK BUKTI BAYAR --}}
         <div x-show="rejectModalOpen" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
+            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
                 @click.outside="rejectModalOpen = false">
                 <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                     <div class="flex items-center gap-2 text-[#FF3B30]">
@@ -714,7 +713,7 @@
                             Penolakan <span class="text-red-500">*</span></label>
                         <textarea name="rejection_reason" rows="3" required
                             placeholder="Contoh: Nominal transfer kurang, struk buram, atau dana belum masuk mutasi."
-                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF3B30] resize-none"></textarea>
+                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF3B30] resize-none"></textarea>
                     </div>
 
                     <div class="flex items-center justify-end gap-2 pt-2">
@@ -724,7 +723,7 @@
                         </button>
                         <button type="submit"
                             class="px-5 py-2 rounded-full bg-[#FF3B30] hover:bg-[#E0352B] text-white text-[13px] font-bold shadow-sm transition">
-                            Tolak & Minta Upload Ulang
+                            Tolak
                         </button>
                     </div>
                 </form>

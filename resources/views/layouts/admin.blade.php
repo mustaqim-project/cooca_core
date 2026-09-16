@@ -253,16 +253,16 @@
             { title: 'Dashboard Beranda', desc: 'Ringkasan & metrik finansial platform', url: '{{ route('admin.dashboard') }}', icon: 'layout-dashboard', cat: 'Ringkasan' },
             { title: 'Bisnis (Tenants)', desc: 'Daftar workspace UMKM & status akun', url: '{{ route('admin.businesses.index') }}', icon: 'building-2', cat: 'Ringkasan' },
             { title: 'Basis Pengguna', desc: 'Akun terdaftar, owner & tim kasir', url: '{{ route('admin.users.index') }}', icon: 'users', cat: 'Ringkasan' },
-            { title: 'Feedback & Bug', desc: 'Laporan bug & ide fitur dari tenant', url: '{{ route('admin.feedback.bugs.index') }}', icon: 'messages-square', cat: 'Ringkasan' },
             { title: 'Pemulihan Akun', desc: 'Verifikasi identitas & persetujuan reset', url: '{{ route('admin.account-recoveries.index') }}', icon: 'shield-alert', cat: 'Operasional' },
+            { title: 'Feedback & Bug', desc: 'Laporan bug & ide fitur dari tenant', url: '{{ route('admin.feedback.bugs.index') }}', icon: 'messages-square', cat: 'Operasional' },
+            { title: 'WhatsApp Gateway', desc: 'Status dual gateway OTP & notifikasi', url: '{{ route('admin.whatsapp.index') }}', icon: 'message-circle', cat: 'Operasional' },
+            { title: 'Monitoring Token AI', desc: 'Pantau konsumsi Gemini 2.5 Flash', url: '{{ route('admin.ai-tokens.index') }}', icon: 'sparkles', cat: 'Operasional' },
             { title: 'Langganan & Billing', desc: 'Approval bukti bayar paket Core', url: '{{ route('admin.subscriptions.index') }}', icon: 'receipt', cat: 'Monetisasi' },
             { title: 'Paket & Harga', desc: 'Katalog paket Core & kuota token', url: '{{ route('admin.billing-packages.index') }}', icon: 'layers-3', cat: 'Monetisasi' },
             { title: 'Rekening Bank', desc: 'CMS rekening pembayaran resmi Cooca', url: '{{ route('admin.payment-accounts.index') }}', icon: 'credit-card', cat: 'Monetisasi' },
-            { title: 'Monitoring Token AI', desc: 'Pantau konsumsi Gemini 2.5 Flash', url: '{{ route('admin.ai-tokens.index') }}', icon: 'sparkles', cat: 'Monetisasi' },
-            { title: 'WhatsApp Gateway', desc: 'Status dual gateway OTP & notifikasi', url: '{{ route('admin.whatsapp.index') }}', icon: 'message-circle', cat: 'Operasional' },
-            { title: 'Database Leads', desc: 'Database prospek & kontak calon tenant', url: '{{ route('admin.leads.index') }}', icon: 'users-round', cat: 'Konten & Marketing' },
-            { title: 'Template Excel', desc: 'Unduhan berkas spreadsheet master', url: '{{ route('admin.templates.index') }}', icon: 'file-spreadsheet', cat: 'Konten & Marketing' },
-            { title: 'Artikel & Edukasi', desc: 'CMS blog bisnis & artikel UMKM', url: '{{ route('admin.posts.index') }}', icon: 'file-text', cat: 'Konten & Marketing' },
+            { title: 'Database Leads', desc: 'Database prospek & kontak calon tenant', url: '{{ route('admin.leads.index') }}', icon: 'users-round', cat: 'Pemasaran' },
+            { title: 'Artikel & Edukasi', desc: 'CMS blog bisnis & artikel UMKM', url: '{{ route('admin.posts.index') }}', icon: 'file-text', cat: 'Pemasaran' },
+            { title: 'Template Excel', desc: 'Unduhan berkas spreadsheet master', url: '{{ route('admin.templates.index') }}', icon: 'file-spreadsheet', cat: 'Pemasaran' },
             { title: 'Pengaturan Sistem', desc: 'Google Cloud OAuth, server SMTP & parameter platform', url: '{{ route('admin.settings.index') }}', icon: 'sliders', cat: 'Konfigurasi' },
             { title: 'Log Error & Diagnostik', desc: 'Pemantauan runtime exception & file log', url: '{{ route('admin.error-logs.index') }}', icon: 'terminal', cat: 'Konfigurasi' },
             { title: 'Profil Administrator', desc: 'Kelola identitas & ubah kata sandi', url: '{{ route('admin.profile.index') }}', icon: 'key-round', cat: 'Konfigurasi' }
@@ -319,6 +319,7 @@
 
             <!-- Navigation Links -->
             <nav class="space-y-1 text-[13.5px] font-medium pt-3">
+                <!-- Group 1: Ringkasan Utama -->
                 <div
                     class="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
                     Ringkasan Utama
@@ -339,18 +340,13 @@
                 <a href="{{ route('admin.users.index') }}"
                     class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.users.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
                     <i data-lucide="users" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
-                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Pengguna</span>
+                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Basis Pengguna</span>
                 </a>
 
-                <a href="{{ route('admin.feedback.bugs.index') }}"
-                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.feedback.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
-                    <i data-lucide="messages-square" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
-                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Feedback &amp; Bug</span>
-                </a>
-
+                <!-- Group 2: Operasional & Layanan -->
                 <div
                     class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
-                    Operasional Platform
+                    Operasional &amp; Layanan
                 </div>
 
                 <a href="{{ route('admin.account-recoveries.index') }}"
@@ -367,6 +363,31 @@
                     @endif
                 </a>
 
+                <a href="{{ route('admin.feedback.bugs.index') }}"
+                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.feedback.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <i data-lucide="messages-square" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
+                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Feedback &amp; Bug</span>
+                </a>
+
+                <a href="{{ route('admin.whatsapp.index') }}"
+                    class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.whatsapp.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <svg width="18" height="18"
+                            class="w-[18px] h-[18px] text-[#25D366] shrink-0 fill-current" viewBox="0 0 24 24">
+                            <path
+                                d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
+                        </svg>
+                        <span class="whitespace-nowrap truncate min-w-0 flex-1">WhatsApp Gateway</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('admin.ai-tokens.index') }}"
+                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.ai-tokens.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <i data-lucide="sparkles" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
+                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Monitoring Token AI</span>
+                </a>
+
+                <!-- Group 3: Monetisasi & Billing -->
                 <div
                     class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
                     Monetisasi &amp; Billing
@@ -398,27 +419,10 @@
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Rekening Bank</span>
                 </a>
 
-                <a href="{{ route('admin.ai-tokens.index') }}"
-                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.ai-tokens.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
-                    <i data-lucide="sparkles" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
-                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Monitoring Token AI</span>
-                </a>
-
-                <a href="{{ route('admin.whatsapp.index') }}"
-                    class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.whatsapp.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
-                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                        <svg width="18" height="18"
-                            class="w-[18px] h-[18px] text-[#25D366] shrink-0 fill-current" viewBox="0 0 24 24">
-                            <path
-                                d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
-                        </svg>
-                        <span class="whitespace-nowrap truncate min-w-0 flex-1">WhatsApp Gateway</span>
-                    </div>
-                </a>
-
+                <!-- Group 4: Konten & Pemasaran -->
                 <div
                     class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
-                    Konten &amp; Marketing
+                    Konten &amp; Pemasaran
                 </div>
 
                 <a href="{{ route('admin.leads.index') }}"
@@ -427,18 +431,19 @@
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Database Leads</span>
                 </a>
 
-                <a href="{{ route('admin.templates.index') }}"
-                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.templates.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
-                    <i data-lucide="file-spreadsheet" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
-                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Template Excel</span>
-                </a>
-
                 <a href="{{ route('admin.posts.index') }}"
                     class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.posts.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
                     <i data-lucide="file-text" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Artikel &amp; Edukasi</span>
                 </a>
 
+                <a href="{{ route('admin.templates.index') }}"
+                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.templates.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <i data-lucide="file-spreadsheet" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
+                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Template Excel</span>
+                </a>
+
+                <!-- Group 5: Konfigurasi Sistem -->
                 <div
                     class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
                     Konfigurasi Sistem
@@ -490,106 +495,110 @@
         </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <div class="lg:pl-72 flex flex-col flex-1 min-h-screen min-w-0 w-full overflow-x-hidden">
-        <!-- Toolbar (macOS Sonoma Toolbar & iOS 18 Navigation Bar) -->
-        <header
-            class="sticky top-0 z-30 toolbar-material border-b border-black/[0.06] dark:border-white/[0.08] px-3.5 sm:px-8 h-[64px] sm:h-[72px] py-2 flex items-center justify-between gap-3 sm:gap-4 min-w-0 w-full">
-            <div class="flex items-center gap-3.5 min-w-0 py-1">
-                <button @click="sidebarOpen = true"
-                    class="lg:hidden w-11 h-11 -ml-2 rounded-[12px] text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center"
-                    aria-label="Buka navigasi">
-                    <i data-lucide="menu" class="w-5 h-5" stroke-width="2"></i>
-                </button>
-                <div class="min-w-0 flex flex-col justify-center">
-                    <h1
-                        class="text-[18px] sm:text-[20px] font-extrabold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight truncate leading-snug">
-                        {{ $headerTitle ?? 'Admin Console' }}
-                    </h1>
-                    <p
-                        class="text-[12px] text-black/50 dark:text-white/50 truncate hidden md:block leading-none mt-0.5">
-                        {{ $headerSubtitle ?? 'Pusat Manajemen Sistem Cooca (cooca.id)' }}
-                    </p>
-                </div>
+    <!-- ============================================================ -->
+    <!-- Topbar / Toolbar — FIXED positioning (cross-browser reliable) -->
+    <!-- Must be OUTSIDE any overflow container to function correctly -->
+    <!-- ============================================================ -->
+    <header
+        class="fixed top-0 left-0 right-0 lg:left-72 z-30 toolbar-material border-b border-black/[0.06] dark:border-white/[0.08] px-3.5 sm:px-8 h-[64px] sm:h-[72px] py-2 flex items-center justify-between gap-3 sm:gap-4 min-w-0">
+        <div class="flex items-center gap-3.5 min-w-0 py-1">
+            <button @click="sidebarOpen = true"
+                class="lg:hidden w-11 h-11 -ml-2 rounded-[12px] text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center"
+                aria-label="Buka navigasi">
+                <i data-lucide="menu" class="w-5 h-5" stroke-width="2"></i>
+            </button>
+            <div class="min-w-0 flex flex-col justify-center">
+                <h1
+                    class="text-[18px] sm:text-[20px] font-extrabold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight truncate leading-snug">
+                    {{ $headerTitle ?? 'Admin Console' }}
+                </h1>
+                <p
+                    class="text-[12px] text-black/50 dark:text-white/50 truncate hidden md:block leading-none mt-0.5">
+                    {{ $headerSubtitle ?? 'Pusat Manajemen Sistem Cooca (cooca.id)' }}
+                </p>
             </div>
+        </div>
 
-            <div class="flex items-center gap-2.5 shrink-0">
-                <!-- Spotlight Quick Navigator Button (macOS Sonoma Style Cmd+K) -->
-                <button type="button" @click="openSpotlight()"
-                    class="h-10 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.04] dark:border-white/[0.06] text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all hidden sm:flex items-center gap-2 text-[12px] font-medium"
-                    aria-label="Pencarian & Navigasi Modul Admin" title="Pencarian Cepat Modul (Ctrl+K / ⌘K)">
-                    <i data-lucide="search" class="w-3.5 h-3.5 text-black/40 dark:text-white/40"
+        <div class="flex items-center gap-2.5 shrink-0">
+            <!-- Spotlight Quick Navigator Button (macOS Sonoma Style Cmd+K) -->
+            <button type="button" @click="openSpotlight()"
+                class="h-10 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.04] dark:border-white/[0.06] text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all hidden sm:flex items-center gap-2 text-[12px] font-medium"
+                aria-label="Pencarian & Navigasi Modul Admin" title="Pencarian Cepat Modul (Ctrl+K / ⌘K)">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-black/40 dark:text-white/40"
+                    stroke-width="2"></i>
+                <span class="text-black/45 dark:text-white/45 hidden md:inline">Cari modul...</span>
+                <kbd
+                    class="px-1.5 py-0.5 rounded-[6px] text-[10px] font-mono font-bold bg-black/[0.06] dark:bg-white/[0.1] text-black/60 dark:text-white/60 border border-black/[0.06] dark:border-white/[0.08]">⌘K</kbd>
+            </button>
+
+            <!-- Segmented Theme Pill Control -->
+            <div x-data="{
+                theme: localStorage.getItem('cooca-admin-theme') || 'light',
+                open: false,
+                apply(value) {
+                    this.theme = value;
+                    localStorage.setItem('cooca-admin-theme', value);
+                    localStorage.setItem('cooca-theme', value);
+                    const dark = value === 'dark' || (value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    document.documentElement.classList.toggle('dark', dark);
+                    document.documentElement.dataset.theme = value;
+                    this.open = false;
+                }
+            }" class="relative" @click.outside="open = false">
+                <button type="button" @click="open = !open"
+                    class="h-10 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.04] dark:border-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
+                    aria-label="Pilih tema" title="Pilih tema tampilan">
+                    <i x-show="theme === 'light'" data-lucide="sun" class="w-4 h-4 text-[#FF9500]"
                         stroke-width="2"></i>
-                    <span class="text-black/45 dark:text-white/45 hidden md:inline">Cari modul...</span>
-                    <kbd
-                        class="px-1.5 py-0.5 rounded-[6px] text-[10px] font-mono font-bold bg-black/[0.06] dark:bg-white/[0.1] text-black/60 dark:text-white/60 border border-black/[0.06] dark:border-white/[0.08]">⌘K</kbd>
+                    <i x-show="theme === 'dark'" data-lucide="moon" class="w-4 h-4 text-[#5856D6]"
+                        stroke-width="2" style="display: none;"></i>
+                    <i x-show="theme === 'system'" data-lucide="monitor" class="w-4 h-4 text-[#007AFF]"
+                        stroke-width="2" style="display: none;"></i>
+                    <span class="hidden sm:inline text-[12px] font-bold"
+                        x-text="theme === 'dark' ? 'Gelap' : (theme === 'system' ? 'Sistem' : 'Terang')"></span>
+                    <i data-lucide="chevron-down"
+                        class="hidden sm:block w-3.5 h-3.5 text-black/35 dark:text-white/35"></i>
                 </button>
-
-                <!-- Segmented Theme Pill Control -->
-                <div x-data="{
-                    theme: localStorage.getItem('cooca-admin-theme') || 'light',
-                    open: false,
-                    apply(value) {
-                        this.theme = value;
-                        localStorage.setItem('cooca-admin-theme', value);
-                        localStorage.setItem('cooca-theme', value);
-                        const dark = value === 'dark' || (value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                        document.documentElement.classList.toggle('dark', dark);
-                        document.documentElement.dataset.theme = value;
-                        this.open = false;
-                    }
-                }" class="relative" @click.outside="open = false">
-                    <button type="button" @click="open = !open"
-                        class="h-10 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.04] dark:border-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
-                        aria-label="Pilih tema" title="Pilih tema tampilan">
-                        <i x-show="theme === 'light'" data-lucide="sun" class="w-4 h-4 text-[#FF9500]"
-                            stroke-width="2"></i>
-                        <i x-show="theme === 'dark'" data-lucide="moon" class="w-4 h-4 text-[#5856D6]"
-                            stroke-width="2" style="display: none;"></i>
-                        <i x-show="theme === 'system'" data-lucide="monitor" class="w-4 h-4 text-[#007AFF]"
-                            stroke-width="2" style="display: none;"></i>
-                        <span class="hidden sm:inline text-[12px] font-bold"
-                            x-text="theme === 'dark' ? 'Gelap' : (theme === 'system' ? 'Sistem' : 'Terang')"></span>
-                        <i data-lucide="chevron-down"
-                            class="hidden sm:block w-3.5 h-3.5 text-black/35 dark:text-white/35"></i>
+                <div x-show="open" x-transition
+                    class="absolute right-0 top-full mt-2 w-36 rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/[0.06] dark:border-white/10 shadow-2xl p-1 z-50"
+                    style="display: none;">
+                    <button type="button" @click="apply('light')"
+                        class="w-full h-9 px-3 rounded-[10px] flex items-center gap-2 text-left text-[13px] font-semibold text-black/75 dark:text-white/75 hover:bg-black/5 dark:hover:bg-white/10">
+                        <i data-lucide="sun" class="w-4 h-4 text-[#FF9500]"></i><span>Terang</span>
                     </button>
-                    <div x-show="open" x-transition
-                        class="absolute right-0 top-full mt-2 w-36 rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/[0.06] dark:border-white/10 shadow-2xl p-1 z-50"
-                        style="display: none;">
-                        <button type="button" @click="apply('light')"
-                            class="w-full h-9 px-3 rounded-[10px] flex items-center gap-2 text-left text-[13px] font-semibold text-black/75 dark:text-white/75 hover:bg-black/5 dark:hover:bg-white/10">
-                            <i data-lucide="sun" class="w-4 h-4 text-[#FF9500]"></i><span>Terang</span>
-                        </button>
-                        <button type="button" @click="apply('dark')"
-                            class="w-full h-9 px-3 rounded-[10px] flex items-center gap-2 text-left text-[13px] font-semibold text-black/75 dark:text-white/75 hover:bg-black/5 dark:hover:bg-white/10">
-                            <i data-lucide="moon" class="w-4 h-4 text-[#5856D6]"></i><span>Gelap</span>
-                        </button>
-                        <button type="button" @click="apply('system')"
-                            class="w-full h-9 px-3 rounded-[10px] flex items-center gap-2 text-left text-[13px] font-semibold text-black/75 dark:text-white/75 hover:bg-black/5 dark:hover:bg-white/10">
-                            <i data-lucide="monitor" class="w-4 h-4 text-[#007AFF]"></i><span>Sistem</span>
-                        </button>
-                    </div>
+                    <button type="button" @click="apply('dark')"
+                        class="w-full h-9 px-3 rounded-[10px] flex items-center gap-2 text-left text-[13px] font-semibold text-black/75 dark:text-white/75 hover:bg-black/5 dark:hover:bg-white/10">
+                        <i data-lucide="moon" class="w-4 h-4 text-[#5856D6]"></i><span>Gelap</span>
+                    </button>
+                    <button type="button" @click="apply('system')"
+                        class="w-full h-9 px-3 rounded-[10px] flex items-center gap-2 text-left text-[13px] font-semibold text-black/75 dark:text-white/75 hover:bg-black/5 dark:hover:bg-white/10">
+                        <i data-lucide="monitor" class="w-4 h-4 text-[#007AFF]"></i><span>Sistem</span>
+                    </button>
                 </div>
-
-                <!-- Hairline Vertical Separator -->
-                <div class="h-5 w-[1px] bg-black/[0.08] dark:bg-white/[0.1] hidden sm:block"></div>
-
-                <a href="{{ route('admin.profile.index') }}"
-                    class="h-10 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.04] dark:border-white/[0.06] text-[13px] font-semibold text-black/75 dark:text-white/75 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center gap-1.5"
-                    title="Profil & Ganti Kata Sandi">
-                    <i data-lucide="key-round" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"
-                        stroke-width="1.8"></i>
-                    <span class="hidden md:inline">Profil Admin</span>
-                </a>
-
-                <a href="{{ route('landing') }}" target="_blank"
-                    class="h-10 px-3.5 rounded-[12px] bg-[#007AFF] text-[13px] font-bold text-white hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-sm shadow-[#007AFF]/25"
-                    title="Buka Website Publik Cooca (Tab Baru)">
-                    <i data-lucide="external-link" class="w-4 h-4" stroke-width="2"></i>
-                    <span class="hidden lg:inline">Website Publik</span>
-                </a>
             </div>
-        </header>
+
+            <!-- Hairline Vertical Separator -->
+            <div class="h-5 w-[1px] bg-black/[0.08] dark:bg-white/[0.1] hidden sm:block"></div>
+
+            <a href="{{ route('admin.profile.index') }}"
+                class="h-10 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.04] dark:border-white/[0.06] text-[13px] font-semibold text-black/75 dark:text-white/75 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center gap-1.5"
+                title="Profil & Ganti Kata Sandi">
+                <i data-lucide="key-round" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"
+                    stroke-width="1.8"></i>
+                <span class="hidden md:inline">Profil Admin</span>
+            </a>
+
+            <a href="{{ route('landing') }}" target="_blank"
+                class="h-10 px-3.5 rounded-[12px] bg-[#007AFF] text-[13px] font-bold text-white hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-sm shadow-[#007AFF]/25"
+                title="Buka Website Publik Cooca (Tab Baru)">
+                <i data-lucide="external-link" class="w-4 h-4" stroke-width="2"></i>
+                <span class="hidden lg:inline">Website Publik</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Area (lg:pl-72 for sidebar offset, pt for fixed header height) -->
+    <div class="lg:pl-72 flex flex-col flex-1 min-h-screen min-w-0 w-full pt-[64px] sm:pt-[72px]">
 
         <!-- macOS Sonoma Spotlight Quick Navigator Modal -->
         <div x-show="spotlightOpen" x-cloak class="relative z-50" aria-labelledby="spotlight-title" role="dialog"
@@ -662,23 +671,15 @@
         </div>
 
         <!-- Flash Messages & Content Body Canvas -->
+        {{--
+            NOTE: session('success') and session('status') are intentionally
+            omitted here. The AppAlert script block at the bottom of this layout
+            fires toasts for these flash keys via session()->pull(). Showing them
+            inline here AND as AppAlert toasts caused a double-notification bug
+            (user saw a "dismiss popup" on every reload after a redirect).
+            Individual views may still render their own inline flash banners.
+        --}}
         <main class="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-[1440px] w-full min-w-0 mx-auto space-y-5 sm:space-y-6 pb-28 lg:pb-12">
-            @if (session('success'))
-                <div
-                    class="flex items-center gap-3 rounded-[18px] px-5 py-4 bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-[13px] font-semibold border border-[#34C759]/25 backdrop-blur-md shadow-sm">
-                    <i data-lucide="check-circle-2" class="w-5 h-5 shrink-0" stroke-width="2"></i>
-                    <span>{{ session('success') }}</span>
-                </div>
-            @endif
-
-            @if (session('status'))
-                <div
-                    class="flex items-center gap-3 rounded-[18px] px-5 py-4 bg-[#5856D6]/15 text-[#413FA6] dark:text-[#5E5CE6] text-[13px] font-semibold border border-[#5856D6]/25 backdrop-blur-md shadow-sm">
-                    <i data-lucide="info" class="w-5 h-5 shrink-0" stroke-width="2"></i>
-                    <span>{{ session('status') }}</span>
-                </div>
-            @endif
-
             @if ($errors->any())
                 <div
                     class="rounded-[18px] px-5 py-4 bg-[#FF3B30]/12 border border-[#FF3B30]/25 text-[13px] space-y-1.5 backdrop-blur-md shadow-sm">

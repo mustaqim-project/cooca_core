@@ -47,7 +47,540 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 ```
 
+### [WORK-2026-09-16-039] Standardisasi Logo Bisnis dari Pengaturan (/settings), Sinkronisasi Mutlak Tema Warna & Mode Gelap dari CMS Landing Page, dan Normalisasi Aset Multi-Domain
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Commerce, Business Profile Settings & Public Landing Page
+* **Feature:** Single Source of Truth Brand Logo, Dynamic CMS Theme Color & Dark Mode Enforcement, and Storage URL Normalization:
+  - **Single Source of Truth Logo Bisnis dari `/settings` (`business_landing.blade.php`, `Business.php`)**:
+    - Memastikan logo pada header, footer, OpenGraph, Twitter card, Schema JSON-LD, dan fallback hero section memprioritaskan logo resmi bisnis dari menu Pengaturan Bisnis (`http://127.0.0.1:9082/settings`, `$business->logo_path` / `$business->logo_url`).
+    - Memperbarui `Business::getLogoUrlAttribute()` agar menormalisasi path penyimpanan lokal maupun URL absolut dari storage cloud/production (`https://umkm.cooca.id/storage/...` -> domain lokal aktif).
+    - Memperbaiki fallback inisial nama bisnis dengan styling squircle Bento Apple HIG berlatar warna tema bisnis saat logo belum diunggah.
+  - **Kepatuhan Mutlak Tema Warna (`theme_color`) & Mode Gelap (`dark_mode`) dari CMS (`/landing-page`)**:
+    - Menghubungkan kontrol toggle Dark Mode dan Color Picker di Tab 1 CMS Landing Page (`edit.blade.php`) secara dua arah (*two-way reactive binding* Alpine.js) dan menyertakan sinkronisasi eksplisit pada payload FormData `saveAll()`.
+    - Mengeliminasi pembacaan cache `localStorage` klien lama yang menimpa preferensi merchant, memastikan preferensi tema di CMS adalah otoritas tunggal (*authoritative state*).
+    - Menghapus seluruh hardcoded warna biru Apple `#007AFF` pada antarmuka publik dan menggantikannya dengan token dinamis `brand-primary`, `bg-brand-50`, `bg-brand-100`, dan `border-brand-primary/20` pada:
+      * Tombol Pesan dan avatar profil di navigasi mobile.
+      * Tombol Pesan katalog produk dan pemesanan layanan di modal detail.
+      * Floating Shopping Bag dan Slide-over Drawer keranjang belanja.
+      * Seluruh form Checkout Modal (input text, pilihan kurir, penawaran ongkir, toggle jadwal pesanan, opsi metode pembayaran, tombol bayar).
+      * Request Order / Pre-Order Modal dan B2B Customer Purchase Order (PO) Modal.
+      * Reservasi & Booking Modal.
+  - **Normalisasi URL Gambar Multi-Domain (`BusinessLandingPage.php`)**:
+    - Menambahkan accessor `hero_image_url`, `logo_url`, `about_image_url`, `og_image_url`, `gallery_images`, dan `custom_services` yang menormalisasi prefix domain storage (memetakan `https://umkm.cooca.id/storage/...` ke URL request lokal `http://127.0.0.1:9082/storage/...`) sehingga seluruh gambar hero dan galeri tampil sempurna di lingkungan lokal tanpa broken image.
+
+#### 1. Business Context & Objective
+* **Konteks:** Merchant UMKM mengatur identitas visual bisnis (logo) pada menu Pengaturan (`/settings`) dan mengatur tema storefront (palet warna dan mode gelap) pada CMS Landing Page (`/landing-page`). Etalase publik (`/{slug}`) wajib mencerminkan identitas ini secara presisi dan konsisten di seluruh perangkat.
+* **Target:** Menghilangkan disparitas tampilan di mana etalase publik menampilkan mode gelap yang tidak diinginkan, memastikan logo berasal dari `/settings`, dan memastikan hero image dan galeri tampil tanpa kendala domain.
+
+#### 2. Technical Changes
+* **Files Affected:**
+  - `app/Models/Business.php`: Normalisasi URL logo dari storage path dan domain absolut.
+  - `app/Models/BusinessLandingPage.php`: Penambahan accessors untuk normalisasi URL gambar hero, logo, galeri, dan custom services.
+  - `resources/views/app/landing_page/edit.blade.php`: Perbaikan binding reaktif `form.dark_mode` dan sinkronisasi `saveAll()`.
+  - `resources/views/public/business_landing.blade.php`: Penggantian hardcoded `#007AFF` dengan token semantik `brand-primary` di seluruh modal, drawer, dan navigasi; prioritasi `$business->logo_url` pada header dan footer.
+  - `docs/AiWorkHistory.md`: Pencatatan riwayat pekerjaan teknis Layer 1.
+
+#### 3. Verification & Testing
+* Pengecekan sintaks PHP: `php -l app/Models/Business.php; php -l app/Models/BusinessLandingPage.php` (PASS: No syntax errors).
+* Pembersihan cache view: `php artisan view:clear` (PASS).
+* Pengujian Landing Page Test: `php artisan test --filter=LandingPage` (PASS: 3 tests, 15 assertions).
+* Pengujian Business Discovery Test: `php artisan test --filter=BusinessDiscovery` (PASS: 8 tests, 52 assertions).
+* Pengujian Storefront Checkout & Field Scenarios Test: `php artisan test tests/Feature/CommerceStorefrontCheckoutTest.php tests/Feature/PublicStorefrontFieldScenariosTest.php` (PASS: 19 tests, 108 assertions).
+
+---
+
+### [WORK-2026-09-16-038] Perbaikan Menyeluruh Light Mode & Dark Mode, Resolusi Gambar, Live Search, Filter Kategori Single Page, dan Pop-Up Modal Katalog pada Halaman Publik Landing Bisnis
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Commerce & Public Landing Page (Storefront)
+* **Feature:** Harmonization of Light/Dark Mode, Robust Image Handling, Inline Live Search & Category Filtering, and "Lihat Semua" Modal Sheets:
+  - **Sinkronisasi Reaktif Light Mode & Dark Mode (`business_landing.blade.php`)**:
+    - Memperbaiki akar masalah kontras *white-on-white* di mana script anti-FOUC sebelumnya membaca `localStorage.getItem('cooca-theme')` dari admin panel atau `prefers-color-scheme: dark` OS, memaksa kelas `.dark` pada `<html>` sementara `<body>` di-render dengan latar terang statis `#F5F5F7`.
+    - Mengatur `<body>` dengan kelas reaktif `bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#FFFFFF] antialiased selection:bg-brand-primary selection:text-white pb-28 sm:pb-32 md:pb-0 transition-colors duration-300`.
+    - Menghubungkan tema default etalase publik secara ketat ke pengaturan merchant di **Website & Profil** (`$landingPage->dark_mode`), dengan key override terisolasi per bisnis `cooca_storefront_theme_{business_id}`.
+    - Menambahkan tombol switch tema Apple HIG (Sun/Moon icon) pada sticky header desktop dan menu dropdown mobile.
+    - Memperbarui header, dropdown mobile, dan footer agar menggunakan varian kelas Tailwind standar `dark:bg-...` dan `dark:border-...` tanpa ketergantungan ternary PHP.
+  - **Resolusi Gambar Fleksibel (`app/Models/Product.php`)**:
+    - Memperbaiki accessor `getImageUrlAttribute()` agar mendeteksi URL eksternal absolut (`http://` atau `https://`), path yang telah berawalan `storage/`, maupun path relatif standar secara aman tanpa dobel prefix.
+    - Menerapkan fallback gambar yang andal (`onerror`) dengan placeholder Bento berlatar halus dan ikon Lucide `package` / `sparkles`.
+  - **Live Search & Filter Kategori di Single Page**:
+    - Menambahkan bar pencarian langsung (live search) pada section Layanan dan Katalog Produk di halaman utama single page.
+    - Menambahkan Kapsul Filter Kategori (*category pills*) di section Katalog Produk single page dengan counter produk aktif per kategori.
+    - Menampilkan hasil pencarian langsung dalam format grid Bento di halaman utama dengan tombol reset filter yang intuitif.
+  - **Pop-Up Sheet Modal "Lihat Semua"**:
+    - Tombol "Lihat Semua Layanan" dan "Lihat Semua Produk" selalu tersedia secara konsisten di header section.
+    - Modal pop-up sheet memiliki kontras warna sempurna di Light Mode dan Dark Mode, live search dengan input font-size 16px di mobile (mencegah iOS Safari auto-zoom), segmented category scroll, dan tombol aksi transaksi langsung.
+
+#### 1. Business Context & Objective
+* **Konteks:** Pemilik usaha UMKM membutuhkan etalase digital single page (`business_landing.blade.php`) yang mencerminkan estetika premium Apple HIG Bento dan beroperasi secara sinkron dengan pengaturan di modul Website & Toko (`/landing-page`, `/storefront/settings`). Pelanggan membutuhkan kemudahan menemukan produk atau jasa dengan filter kategori dan kotak pencarian instan langsung di halaman single page maupun melalui pop-up modal "Lihat Semua".
+* **Masalah/Target:** Mengatasi isu kritis teks putih di atas latar terang, memastikan gambar tampil sempurna dengan fallback elegan, menghadirkan filter kategori dan pencarian live di single page, serta menyempurnakan modal sheet pop-up katalog.
+
+#### 2. What Was Done
+* Mengisolasi tema etalase publik dari admin, menyelaraskan kelas background dan text `<html>` serta `<body>` secara reaktif.
+* Memperbarui model `Product.php` untuk resolusi URL gambar yang tangguh.
+* Memperkaya antarmuka section Layanan dan Katalog Produk pada `business_landing.blade.php` dengan search capsule, category pills, dan direct bento filtered grid.
+* Mengintegrasikan tombol toggle Light/Dark Mode pada header dan mobile menu.
+* Menambahkan pengujian otomatis unit & feature pada `PublicBusinessDiscoveryTest.php`.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/public/business_landing.blade.php`
+  - `app/Models/Product.php`
+  - `tests/Feature/PublicBusinessDiscoveryTest.php`
+* **Database Changes:** Tidak ada (menggunakan kolom `dark_mode` yang sudah ada pada tabel `business_landing_pages`).
+* **API / Route Changes:** Tidak ada perubahan signature route.
+
+#### 4. System Impacts
+* **Workflow Impact:** Pengunjung single page dapat langsung mencari layanan dan produk serta memfilter kategori tanpa harus berpindah halaman atau membuka modal terlebih dahulu.
+* **Business Rule Impact:** Single page selalu menghormati preferensi mode gelap/terang dari merchant (`$landingPage->dark_mode`) sekaligus memberi kebebasan bagi pengunjung untuk beralih mode.
+* **Permission Impact:** Publik / pengunjung tanpa login dapat melihat dan bertransaksi secara lancar di kedua mode tampilan.
+
+#### 5. Verification & Testing
+* `php -l resources/views/public/business_landing.blade.php`: Syntax OK.
+* `php -l app/Models/Product.php`: Syntax OK.
+* `php artisan test tests/Feature/PublicBusinessDiscoveryTest.php`: 8 tests passed, 52 assertions.
+* Full test suite (PublicBusinessDiscoveryTest, PublicViewsProductionReadinessTest, PublicStorefrontFieldScenariosTest, CommerceStorefrontCheckoutTest): 32 passed, 184 assertions, 0 failures.
+
+#### 6. Important Decisions & Guardrails
+* Tidak menggunakan `localStorage.getItem('cooca-theme')` di storefront publik untuk mencegah kebocoran preferensi panel admin ke etalase publik.
+* Font size input pencarian dipertahankan minimal 16px pada viewport mobile (`text-[16px] sm:text-[12.5px]`) guna menaati guardrail Apple HIG Safari iOS auto-zoom prevention.
+
+---
+
+### [WORK-2026-09-16-037] Implementasi Penjagaan Ketat Terhadap Order Berjumlah 0, Negatif, Maupun Total Bernilai Rp 0 pada Seluruh Jalur Pemesanan Storefront & Keranjang Belanja Pelanggan
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront Order Engine
+* **Feature:** Zero/Negative Order & Quantity Hard Guardrail Enforcement:
+  - **Hard Backend Business Logic Guardrails**:
+    - `app/Domain/Commerce/CartService.php`:
+      - Pada `addItem()` ditambahkan pengecekan eksplisit: `if ($quantity <= 0.0) throw new InvalidArgumentException('Jumlah item yang dipesan harus lebih dari 0.');`.
+    - `app/Domain/Commerce/Storefront/CommerceOrderService.php`:
+      - Pada `createCheckoutOrder()`:
+        - Memvalidasi array `$itemsData`: jika item memiliki `quantity <= 0.0` melempar `InvalidArgumentException('Jumlah item yang dipesan harus lebih dari 0.')`.
+        - Memvalidasi hasil proses item: jika tidak ada item valid (`empty($processedItems)`), melempar `InvalidArgumentException('Pesanan tidak memiliki item yang valid.')`.
+        - Memvalidasi kalkulasi subtotal: jika `$subtotal <= 0.0`, melempar `DomainException('Total nilai pesanan harus lebih dari Rp 0.')`.
+      - Pada `createRequestOrder()`:
+        - Memvalidasi seluruh item permintaan agar kuantitasnya strictly `> 0.0`, jika ada `<= 0.0` melempar `InvalidArgumentException`.
+        - Memvalidasi array item tidak boleh kosong.
+    - `app/Domain/Commerce/Storefront/CustomerPoBatchService.php`:
+      - Pada `createCustomerPoWithBatches()`:
+        - Memvalidasi seluruh item PO: kuantitas harus `> 0.0`, jika `<= 0.0` melempar `InvalidArgumentException`.
+        - Memvalidasi seluruh batch jadwal pengiriman: kuantitas batch harus `> 0.0`, jika `<= 0.0` melempar `InvalidArgumentException`.
+    - `app/Http/Controllers/Web/Commerce/PublicOrderTrackingController.php`:
+      - Pada `submitCheckout()`: validasi request Laravel ditingkatkan menjadi `'items.*.quantity' => ['required', 'numeric', 'gt:0']` dengan custom message `'items.*.quantity.gt' => 'Jumlah item pesanan harus lebih dari 0.'`.
+      - Pada `submitRequestOrder()`: validasi request ditingkatkan menjadi `'items.*.quantity' => ['required', 'numeric', 'gt:0']` dengan custom message `'items.*.quantity.gt' => 'Jumlah permintaan barang harus lebih dari 0.'`.
+      - Pada `submitCustomerPo()`: validasi request ditingkatkan menjadi `'items.*.quantity' => ['required', 'numeric', 'gt:0']` dan `'batches.*.quantity' => ['required', 'numeric', 'gt:0']` dengan custom messages bahasa Indonesia.
+    - `app/Http/Controllers/Web/Commerce/CustomerPortalController.php`:
+      - Pada `addToCart()`: validasi diperketat dari `min:0.1` menjadi `'gt:0'` dengan pesan error `'Jumlah item yang dipesan harus lebih dari 0.'`.
+      - Pada `checkout()`: menambahkan pengecekan ganda bahwa cart tidak kosong, seluruh item kuantitas `> 0`, dan total belanja `> Rp 0`.
+  - **Frontend Reactive Client-Side Guardrails (`resources/views/public/business_landing.blade.php`)**:
+    - `directCheckout(product, qty = 1)` & `addToCart(product, qty = 1)`: memastikan `parsedQty = Number(qty); if (isNaN(parsedQty) || parsedQty <= 0)` menampilkan toast notifikasi *"Jumlah pesanan harus lebih dari 0"*.
+    - `modalQty`: stepper kuantitas item diproteksi tidak bisa turun di bawah 1 (`if (modalQty > 1) modalQty--`).
+    - `submitCheckout()`: menambahkan pengecekan keranjang kosong, pengecekan `some(it => !it.quantity || Number(it.quantity) <= 0)`, serta pengecekan `cartTotal <= 0` sebelum mengirim request ke backend.
+    - `submitRequestOrder()`: memvalidasi `Number(this.requestOrderForm.item_qty || 0) <= 0` sebelum proses pengiriman form.
+    - `submitCustomerPo()`: memvalidasi daftar item dan batch agar tidak kosong dan setiap kuantitas strictly `> 0`.
+  - **Automated Test Suites**:
+    - Menambahkan 4 skenario uji di `tests/Feature/CommerceStorefrontCheckoutTest.php`:
+      1. `test_checkout_rejects_zero_or_negative_quantity()` (validasi 422 untuk quantity 0 dan -5).
+      2. `test_request_order_rejects_zero_or_negative_quantity()` (validasi 422 untuk custom order quantity 0 dan -1).
+      3. `test_customer_po_rejects_zero_or_negative_item_and_batch_quantity()` (validasi 422 untuk item PO 0 dan batch 0).
+      4. `test_cart_service_rejects_zero_or_negative_quantity()` (verifikasi exception `InvalidArgumentException` pada unit domain).
+    - Menjalankan 41 test cases (19 feature storefront + 22 customer portal/PO/scheduled) dengan 100% lulus (0 failures, 0 errors).
+
+#### 1. Business Context & Objective
+* **Konteks:** Pada sistem e-commerce dan storefront publik multi-tenant, terdapat potensi loophole atau kelalaian input di mana pembeli memasukkan jumlah barang 0, angka negatif, atau checkout keranjang kosong/bernilai Rp 0. Jika toko tidak menetapkan minimum order amount (`min_order_amount = 0`), transaksi kosong tanpa nilai uang atau berkuantitas negatif dapat terbentuk di database, merusak pembukuan, mengurangi stok secara abnormal, dan memicu error pada proses fulfillment.
+* **Masalah/Target:** Membangun penjagaan berlapis (defense-in-depth) di layer frontend (Alpine.js), layer controller (Laravel Form Validation `gt:0`), dan layer service domain (`InvalidArgumentException` / `DomainException`) agar pesanan dengan kuantitas 0, angka negatif, atau total nilai belanja Rp 0 tidak pernah dapat dibuat dalam kondisi apa pun.
+
+#### 2. What Was Done
+1. **Peningkatan Validasi Backend (Form Request & Controller)**:
+   - Mengganti aturan validasi numerik `min:0.1` atau `numeric` biasa menjadi `gt:0` pada semua endpoint storefront dan portal pelanggan.
+   - Menambahkan custom error messages berbahasa Indonesia yang informatif dan ramah pengguna.
+2. **Peningkatan Logika Domain (Services)**:
+   - Melindungi `CartService::addItem`, `CommerceOrderService::createCheckoutOrder`, `CommerceOrderService::createRequestOrder`, dan `CustomerPoBatchService::createCustomerPoWithBatches`.
+   - Mengeliminasi bypass `if ($qty <= 0) continue;` yang sebelumnya dapat meloloskan pesanan dengan subtotal Rp 0.
+3. **Penyempurnaan Reaktivitas UI (Alpine.js)**:
+   - Memasukkan guardrails pada method `addToCart`, `directCheckout`, `submitCheckout`, `submitRequestOrder`, dan `submitCustomerPo` di `business_landing.blade.php`.
+4. **Pengujian Menyeluruh (Automated Tests)**:
+   - Menguji penolakan HTTP 422 untuk setiap jalur pemesanan dan verifikasi pengecualian domain.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Domain/Commerce/CartService.php`
+  - `app/Domain/Commerce/Storefront/CommerceOrderService.php`
+  - `app/Domain/Commerce/Storefront/CustomerPoBatchService.php`
+  - `app/Http/Controllers/Web/Commerce/PublicOrderTrackingController.php`
+  - `app/Http/Controllers/Web/Commerce/CustomerPortalController.php`
+  - `resources/views/public/business_landing.blade.php`
+  - `tests/Feature/CommerceStorefrontCheckoutTest.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+* **Workflow Impact:** Pelanggan tidak dapat melanjutkan checkout jika kuantitas item belum valid (> 0) atau nilai keranjang belanja Rp 0.
+* **Business Rule Impact:** Seluruh entri order (`direct_checkout`, `request_order`, `customer_po`, `scheduled_order`) dijamin memiliki kuantitas item > 0 dan total nilai pesanan yang valid.
+* **Permission Impact:** Berlaku universal untuk seluruh transaksi storefront publik dan portal pelanggan.
+
+#### 5. Verification & Testing
+* `php -l`: Seluruh 5 file PHP valid tanpa syntax error.
+* `php artisan test tests/Feature/CommerceStorefrontCheckoutTest.php tests/Feature/PublicStorefrontFieldScenariosTest.php`: 19 tests, 108 assertions, PASSED.
+* `php artisan test tests/Feature/CustomerPoBatchTest.php tests/Feature/CommerceScheduledOrderTest.php tests/Feature/CustomerPortalFeatureTest.php`: 22 tests, 113 assertions, PASSED.
+
+#### 6. Important Decisions & Guardrails
+* Aturan validasi menggunakan `'gt:0'` (greater than zero) ketimbang integer `min:1` agar tetap mendukung komoditas yang dijual berdasarkan berat/panjang/volume pecahan desimal (misal 0.5 kg daging atau 1.5 meter kain), namun menolak mutlak angka `0` dan angka negatif.
+* Mengadopsi prinsip pertahanan berlapis: validasi client-side memberi umpan balik instan, validasi HTTP controller mengembalikan 422 terstruktur, dan validasi domain melempar exception sebelum transaksi database dibuka.
+
+---
+
+### [WORK-2026-09-16-036] Maksimalisasi UI/UX Bento Apple HIG pada Single Page Business Landing, Sinkronisasi Penuh 5 Modul Storefront & Pengaturan Website, Penyediaan End-to-End Blueprint Seeder 20 Industri, dan Validasi Lapangan Multi-Skenario
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront Public Landing & Industry Seeder
+* **Feature:** Maksimalisasi estetika dan ergonomi antarmuka `resources/views/public/business_landing.blade.php`, sinkronisasi menyeluruh terhadap 5 modul Website & Toko, dan implementasi seeder end-to-end 20 industri di `database/seeders/TwentyIndustriesShowcaseSeeder.php`:
+  - **Maksimalisasi Bento Apple HIG UI/UX (`business_landing.blade.php`)**:
+    - *Floating Island Bottom Navigation*: Mengadopsi container mengambang iOS 18 (`fixed bottom-3 inset-x-3 sm:inset-x-6 z-50 rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.12)]`) dengan thumb-friendly target 44-52px dan elevated squircle button.
+    - *Eliminasi Fake Telemetry*: Menghilangkan seluruh `animate-pulse` dan `animate-ping` palsu pada indikator jam buka operasional toko dan hero announcement badge.
+    - *Pure Typographic Overlines*: Menggantikan dekorasi pill dengan overline tipografi murni (`text-[11px] sm:text-[12px] font-bold uppercase tracking-wider text-brand-primary`).
+    - *One-Tap Salin Rekening & Toast Feedback*: Fitur salin nomor rekening sekali sentuh pada modal checkout transfer bank dengan umpan balik animasi toast mini instan tanpa reload.
+    - *Anti-Zoom Safari iOS*: Memastikan seluruh form inputs, textareas, dan selects menggunakan `text-[16px] sm:text-[13px]`.
+    - *Normalisasi Jadwal Operasional*: Memperbaiki ErrorException `Undefined array key "day"` dengan menambahkan `getNormalizedOperationalHours()` pada `BusinessLandingPage` model, konversi otomatis struktur associative/list pada seeder, dan null-coalescing aman `{{ $h['day'] ?? 'Hari' }}` di view.
+  - **Sinkronisasi Penuh 5 Modul Website & Toko**:
+    - *Modul 1: Website & Profil (`/landing-page`)*: Terintegrasi pada hero headlines, brand identity, opening hours, channels, galeri, testimoni, dan FAQ.
+    - *Modul 2: Pesanan Masuk (`/storefront/orders`)*: Transaksi keranjang belanja, pesanan langsung, dan pre-order langsung menghasilkan order yang masuk ke dashboard pesanan.
+    - *Modul 3: Reservasi & Booking (`/storefront/reservations`)*: Reservasi meja restoran / booking slot layanan tersinkronisasi ke daftar reservasi dashboard dan integrasi POS table.
+    - *Modul 4: Ongkir & Pengiriman (`/storefront/shipping`)*: Aturan pengiriman flat, tiered, dan gratis ongkir dihitung secara real-time pada kalkulasi checkout modal.
+    - *Modul 5: Pengaturan Etalase (`/storefront/settings`)*: Menghormati sakelar `allow_storefront`, `allow_cart`, `allow_reservation`, `allow_customer_notes`, `allow_pickup`, daftar nomor rekening pembayaran manual, dan menampilkan batas waktu pembatalan pesanan otomatis (`order_auto_cancel_minutes`).
+  - **End-to-End Blueprint Seeder 20 Industri (`TwentyIndustriesShowcaseSeeder.php`)**:
+    - Implementasi blueprint lengkap untuk 5 industri baru: `mfg_precision` (Baja & Plastik Presisi CNC), `service_agency` (Software House & Digital Agency), `service_contractor` (Kontraktor & Bangunan), `service_event` (Wedding Planner & Event Organizer), dan `agri_farming` (Agro Peternakan & Distribusi Ayam).
+    - Menghubungkan alias mapping template code (`fnb_catering`, `mfg_garment`, `mfg_furniture`, `mfg_craft`, `mfg_printing`, `retail_reseller`) sehingga 100% dari 20 industri memiliki katalog, kategori, meja POS, aturan ongkir, dan akun pembayaran unik yang realistis.
+  - **Automated Multi-Scenario Field Verification**:
+    - Pengujian fitur komprehensif pada `tests/Feature/PublicStorefrontFieldScenariosTest.php` mencakup 6 skenario dunia nyata (Dine-in resto, Pre-order kue rumahan, Retail e-commerce, Salon/barbershop appointment, Pabrik B2B PO, dan isolasi draft preview merchant).
+    - 34 pengujian fitur storefront berjalan 100% hijau (208 assertions).
+
+#### 1. Business Context & Objective
+* **Konteks:** Single page landing bisnis publik (`business_landing.blade.php`) adalah etalase digital utama bagi UMKM pengguna COOCA dari 20 sektor industri berbeda. Halaman ini harus menampilkan citra brand yang prestisius (Apple HIG Bento UI) sekaligus beroperasi secara dinamis mengikuti seluruh konfigurasi di 5 sub-modul admin Website & Toko. Di sisi data, seeder demo harus mencerminkan seluruh 20 industri secara konkret dari hulu ke hilir.
+* **Masalah/Target:**
+  1. Menghilangkan elemen visual non-standar (fake pulse dots, pill decor) dan menyempurnakan bottom bar menjadi iOS 18 floating island container.
+  2. Menghubungkan parameter pengaturan etalase seperti `order_auto_cancel_minutes` dan nomor rekening manual transfer ke alur checkout pelanggan.
+  3. Memastikan semua 20 industri pada seeder memiliki blueprint yang detail, tanpa ada industri yang jatuh ke fallback generik.
+  4. Memvalidasi seluruh skenario lapangan melalui pengujian otomatis bebas regresi.
+
+#### 2. What Was Done
+1. **Penyempurnaan UI/UX Bento Apple HIG**:
+   - Mendesain ulang mobile bottom navigation bar menjadi floating island container (`rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)]`).
+   - Menghapus efek `animate-pulse` palsu pada jam operasional dan announcement bar.
+   - Menambahkan tombol satu-klik "Salin No. Rekening" dengan toast mini yang responsif.
+   - Mengintegrasikan petunjuk batas waktu transfer otomatis dari `order_auto_cancel_minutes`.
+2. **Ekspansi Blueprint 20 Industri**:
+   - Menambahkan 5 blueprint spesifik (`mfg_precision`, `service_agency`, `service_contractor`, `service_event`, `agri_farming`).
+   - Menambahkan alias mapping sehingga tidak ada template code yang unmapped.
+3. **Pengujian Multi-Skenario**:
+   - Menjalankan `tests/Feature/PublicStorefrontFieldScenariosTest.php` dan rangkaian tes modul storefront terkait.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/public/business_landing.blade.php`
+  - `database/seeders/TwentyIndustriesShowcaseSeeder.php`
+  - `tests/Feature/PublicStorefrontFieldScenariosTest.php`
+  - `docs/AiWorkHistory.md`
+* **Database Changes:** Tidak ada perubahan skema tabel (menggunakan skema tabel relasi bisnis, etalase, dan landing page yang ada).
+* **API / Route Changes:** Semua route tetap stabil (`public.business.landing`, `storefront.*`).
+
+#### 4. System Impacts
+* **Workflow Impact:** Pelanggan publik menikmati alur pemesanan dan reservasi yang mulus di perangkat mobile dan desktop dengan tata letak Bento Apple HIG. Merchant mendapatkan pengaturan toko dan etalase yang langsung tercermin pada halaman publik secara akurat.
+* **Data Quality:** Basis data seeder kini memiliki 20 akun bisnis dengan konfigurasi spesifik industri yang lengkap untuk kebutuhan demo, QA, dan uji lapangan.
+
+#### 5. Verification & Testing
+* `php -l resources/views/public/business_landing.blade.php`: Syntax OK.
+* `php -l database/seeders/TwentyIndustriesShowcaseSeeder.php`: Syntax OK.
+* `php artisan db:seed --class=TwentyIndustriesShowcaseSeeder`: Berhasil meng-generate 20 akun industri secara end-to-end tanpa error.
+* `php artisan test tests/Feature/PublicStorefrontFieldScenariosTest.php tests/Feature/CommerceStorefrontCheckoutTest.php tests/Feature/CommerceReservationTest.php tests/Feature/CustomerPoBatchTest.php tests/Feature/CommerceScheduledOrderTest.php tests/Feature/CommerceShippingRuleFeatureTest.php`: 34 passed (208 assertions).
+
+#### 6. Important Decisions & Guardrails
+* **Strict Anti-Pulse & Anti-Pill**: Menjaga integritas desain Apple HIG dengan melarang fake telemetry dan dekorasi pill berlebihan.
+* **Mobile-First Touch Ergonomics**: Floating island bottom bar memberi kenyamanan jangkauan jempol tanpa menutupi konten penting berkat safe area padding.
+* **Industry Fidelity**: Setiap industri memiliki representasi konfigurasi yang akurat (misal: manufaktur presisi memiliki aturan PO dan kargo berat, agensi memiliki reservasi konsultasi, dan katering memiliki pre-order porsi besar).
+
+---
+
+### [WORK-2026-09-16-035] Unifikasi Ekosistem Storefront & Landing Page Bisnis: 1 Group Menu Terpadu, Shared Hub Navigation, Ekspansi Mesin 25 Industri Resmi, Transaksi Interaktif Publik (Direct Order, Booking & RFQ), dan Kepatuhan Apple HIG Bento
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Commerce & CMS (Storefront Online, Landing Page CMS, & Business Landing Public)
+* **Feature:** Unifikasi dan perbaikan menyeluruh antarmuka admin storefront (`resources/views/app/storefront/*`), admin CMS landing page (`resources/views/app/landing_page/*`), dan halaman publik landing bisnis (`resources/views/public/business_landing.blade.php`) sesuai pedoman `docs/prompt.md`, `docs/agent.md`, dan direktif `cooca-agent-directive`:
+  - **Konsolidasi Sidebar & Shared Hub Navigation**: Menggabungkan modul Storefront dan CMS Website menjadi 1 menu grup utama tunggal `Website & Toko Online` di `resources/views/layouts/partials/sidebar.blade.php` dengan verifikasi izin terpadu (`cms.manage` + storefront permissions), menghapus duplikasi menu website terpisah di seksi komunikasi. Membangun komponen shared hub navigation bergaya Apple HIG Segmented Control (`resources/views/app/storefront/partials/navigation.blade.php`) yang disematkan seragam di `landing_page/edit.blade.php`, `orders/index.blade.php`, `reservations/index.blade.php`, `shipping/index.blade.php`, dan `settings.blade.php`.
+  - **Ekspansi Mesin Template 25 Industri Resmi (`IndustryPresets.php`)**: Membangun preset lengkap untuk 25 template industri resmi COOCA (Kuliner F&B, Manufaktur Bengkel/Konveksi/Percetakan, Retail/Minimarket/Apotek, Jasa Servis/Klinik/Salon/Laundry, dan Distribusi/Grosir/Agro) dengan metadata lengkap (headline, subheadline, benefit, call-to-action, default services, gallery placeholders) tanpa karakter Unicode emoji (menggunakan Lucide icons semantik). Mengintegrasikan resolusi `template_code` otomatis pada `BusinessLandingPageWebController.php` dan tab filter kategori 25 industri di modal preset `landing_page/edit.blade.php`.
+  - **Navigasi Bawah Dinamis 3-5 Tombol (Adaptive Bottom Navbar) & Scroll-Spy**:
+    - Membangun bottom navbar mengambang bergaya Apple iOS 18 (`fixed bottom-3 inset-x-3 sm:inset-x-6 z-40 md:hidden`) yang menghitung jumlah tombol secara dinamis (3, 4, atau 5 tombol) sesuai fitur aktif industri (`$bottomNavButtons` dan `$bottomNavGridClass`):
+      1. *F&B Dine-In*: Beranda, Buku Menu, **Reservasi Meja** (Elevated Squircle Accent), Pesanan Saya, Kontak.
+      2. *UMKM Rumahan (Kue/Catering/Konveksi)*: Beranda, Katalog, **Pre-Order** (Elevated Squircle Accent), Keranjang / Tanya WA, Kontak.
+      3. *Retail / Apotek / Fashion*: Beranda, Produk, **Keranjang Belanja** (Elevated Squircle Accent + Live Badge Counter), Tanya Stok WA, Kontak Toko.
+      4. *Jasa Servis / Salon / Klinik / Bengkel*: Beranda, Layanan, **Booking Jadwal** (Elevated Squircle Accent), Konsultasi WA, Lokasi Bengkel/Klinik.
+      5. *Manufaktur / Distribusi / B2B*: Beranda, Pasokan/Katalog, **Minta Penawaran PO** (Elevated Squircle Accent), Nego WA, Alamat Gudang.
+    - Integrasi `IntersectionObserver` scroll-spy pada Alpine.js `landingPageState()` untuk penyorotan otomatis tab aktif saat pengguna menggulir halaman.
+  - **Adaptasi Kebutuhan 25 Industri (Cart, Reservasi, Pre-Order UMKM Rumahan, & Request Quote B2B)**:
+    - Deteksi kapabilitas dinamis (`$allowStorefront`, `$allowCart`, `$allowReservation`, `$allowRequestOrder`, `$isUmkmRumahan`, `$isDineInFnb`, `$isServiceBooking`, `$isProductionB2b`).
+    - Penyesuaian Header desktop & Mobile Drawer: tombol keranjang hanya tampil saat `$allowCart` aktif, tombol Pre-Order/PO tampil saat `$allowRequestOrder` aktif.
+    - Penyesuaian CTA Hero Section: tombol aksi utama memprioritaskan Pre-Order untuk UMKM Rumahan, Reservasi untuk Dine-In/Jasa, dan Belanja/Keranjang untuk Retail.
+    - Penyesuaian Modal Request Order / Pre-Order: judul, petunjuk, placeholder item (misal: "Contoh: Kue Ulang Tahun Custom Red Velvet 20cm / Nasi Tumpeng 30 Porsi / Kaos Sablon 50 Pcs"), satuan kuantitas, dan tanggal pengiriman/kebutuhan yang adaptif untuk UMKM rumahan vs pesanan partai besar B2B.
+  - **Penyempurnaan Apple HIG UI/UX**:
+    - Menghapus seluruh eyebrow pill dekoratif (`rounded-full bg-brand-primary/10`) digantikan dengan pure typographic uppercase overline di seksi Layanan, Galeri, Cerita, Testimoni, FAQ, dan Lokasi.
+    - Menghilangkan fake telemetry `animate-pulse` dan `animate-ping` pada status jam buka outlet dan floating WhatsApp badge.
+    - Menerapkan aturan iOS Safari Anti-Zoom Font Rule (`text-[16px] sm:text-[13px]` / `sm:text-[13.5px]`) pada semua input, select, textarea, dan search bar di modal Checkout, Request Order, Reservasi, Layanan, dan Produk.
+    - Membersihkan label tombol submit form menjadi kata kerja ringkas (`Konfirmasi Pesanan`, `Kirim Permintaan`, `Kirim Reservasi`).
+    - Menambahkan padding safe area mobile tab bar pada footer (`pb-24 md:pb-0`).
+
+#### 1. Business Context & Objective
+* **Konteks:** Pemilik usaha UMKM dari 25 sektor industri berbeda membutuhkan antarmuka pengelolaan etalase toko dan landing page publik yang saling terhubung dalam satu ekosistem tanpa fragmentasi menu dashboard yang membingungkan. Di sisi lain, pelanggan yang mengunjungi `business_landing.blade.php` memerlukan alur aksi transaksi langsung (membeli produk, memesan jasa/booking meja, meminta penawaran kustom PO atau pre-order UMKM rumahan) yang responsif, adaptif sesuai kebutuhan industri, dan memiliki bottom navigation bar 3-5 tombol yang nyaman dijangkau satu tangan (*thumb-zone*) tanpa gangguan auto-zoom Safari iOS.
+* **Masalah/Target:**
+  1. Mengatasi terpisahnya navigasi antara etalase storefront dan website bisnis via 1 group menu `Website & Toko Online` dan shared navigation hub.
+  2. Memperluas cakupan template industri dari 6 preset dasar menjadi 25 industri resmi COOCA.
+  3. Membangun floating bottom navigation bar 3-5 tombol responsif dengan tombol tengah berelevasi Apple HIG dan scroll-spy aktif.
+  4. Menyesuaikan tombol aksi dan modal transaksi (checkout cart langsung, booking/reservasi, pre-order UMKM rumahan kue/catering/konveksi, atau permintaan penawaran B2B) agar relevan dengan model bisnis tenant.
+  5. Menjamin seluruh formulir mobile bebas auto-zoom (font 16px) dan bebas pill abuse.
+
+#### 2. What Was Done
+1. **Sidebar Navigation Refactoring**: Mengonsolidasikan submenu Website & Toko Online di `sidebar.blade.php` dan menghapus entri duplikat.
+2. **Apple Segmented Navigation Hub**: Menciptakan `resources/views/app/storefront/partials/navigation.blade.php` dengan badge status live website dan tautan ke semua sub-modul (Website, Pesanan, Reservasi, Ongkir, Pengaturan, Lihat Website).
+3. **25 Official Industry Presets Engine**: Memperbarui `app/Domain/LandingPage/IndustryPresets.php` dengan 25 konfigurasi industri lengkap, icon Lucide semantik, dan backward compatibility aliases.
+4. **Dashboard CMS Integration**: Memperbarui `app/Http/Controllers/Web/BusinessLandingPageWebController.php` dan modal preset di `landing_page/edit.blade.php` dengan navigasi tab kategori industri.
+5. **Storefront Hub Embeds**: Menanamkan shared navigation ke 5 tampilan storefront dashboard.
+6. **Public Business Landing Optimization**:
+   - Pemetaan dinamis kapabilitas transaksi industri (`$allowCart`, `$allowReservation`, `$allowRequestOrder`, `$isUmkmRumahan`, dll.).
+   - Pembangunan Adaptive 3 to 5 Button Bottom Navigation Bar (`$bottomNavButtons`, `$bottomNavGridClass`, squircle elevated center button, scroll-spy).
+   - Penyesuaian CTA Hero Section dan kartu layanan dengan aksi langsung (Reservasi, Pre-Order, Keranjang, Konsul WA).
+   - Penyesuaian modal Pre-Order / PO untuk UMKM rumahan (kue custom, catering, sablon) dan B2B.
+   - Refactor visual overline semantik menggantikan eyebrow pills.
+   - Penerapan font input mobile 16px untuk mengeliminasi zoom Safari iOS.
+   - Perapian kata kerja tombol submit dan safe area mobile footer (`pb-24 md:pb-0`).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Domain/LandingPage/IndustryPresets.php`
+  - `app/Http/Controllers/Web/BusinessLandingPageWebController.php`
+  - `resources/views/layouts/partials/sidebar.blade.php`
+  - `resources/views/app/storefront/partials/navigation.blade.php` (new)
+  - `resources/views/app/landing_page/edit.blade.php`
+  - `resources/views/app/storefront/orders/index.blade.php`
+  - `resources/views/app/storefront/reservations/index.blade.php`
+  - `resources/views/app/storefront/shipping/index.blade.php`
+  - `resources/views/app/storefront/settings.blade.php`
+  - `resources/views/public/business_landing.blade.php`
+* **Database Changes:** Tidak ada perubahan skema database (menggunakan kolom `industry_preset` dan relasi `business` eksisting).
+* **API / Route Changes:** Semua nama dan signature route tetap dipertahankan (`landing-page.*`, `storefront.*`, `public.business.landing`).
+
+#### 4. System Impacts
+* **Workflow Impact:** Pemilik bisnis dapat beralih antara pengaturan etalase belanja, rincian pesanan masuk, reservasi meja/jasa, tarif ongkir toko, dan tata letak landing page secara instan melalui 1 navigasi segmented hub terpadu.
+* **Customer Transaction Flow:** Pelanggan UMKM rumahan dapat langsung memesan pre-order kue kustom atau katering via modal formulir terpandu, pelanggan kafe/resto dapat memesan meja seketika via tombol tengah bottom bar, dan pembeli retail dapat langsung memasukkan produk ke keranjang belanja.
+* **Ergonomics & Usability:** Navigasi 3-5 tombol menjamin kemudahan akses jempol satu tangan di smartphone tanpa tombol tidak relevan yang membingungkan.
+
+#### 5. Verification & Testing
+* `php -l` memeriksa seluruh berkas yang disentuh: 0 error sintaks.
+* `php artisan view:clear` berhasil membersihkan cache view Blade.
+* `php artisan test tests/Feature/LandingPageAuthTest.php tests/Feature/CommerceShippingRuleFeatureTest.php tests/Feature/CommerceScheduledOrderTest.php tests/Feature/CustomerPoBatchTest.php`: 16/16 test lulus (110 assertions, 0 failures, 0 errors).
+
+#### 6. Important Decisions & Guardrails
+* **Dynamic Button Scaling (3 to 5 buttons)**: Tidak memaksakan 5 tombol statis jika bisnis tidak mendukung keranjang (misal bengkel atau klinik); tombol beradaptasi secara dinamis menjadi 3, 4, atau 5 item relevan.
+* **Elevated Action Squircle**: Tombol utama transaksi ditaruh di tengah dengan aksen elevasi Apple HIG (`-mt-3.5 rounded-[18px] bg-brand-primary`) untuk menonjolkan aksi konversi utama.
+* **Zero Emoji Mandate**: Seluruh emoji pada preset dan antarmuka digantikan oleh SVG Lucide icons.
+* **iOS Safari 16px Font Rule**: Semua input formulir menggunakan `text-[16px] sm:text-[...]` untuk mencegah zoom paksa pada perangkat mobile Apple.
+* **Anti-Pill & Safe Area**: Menghilangkan eyebrow pills dekoratif dan menjamin area sentuh serta jarak bebas aman di atas bottom bar navigasi mobile.
+
+---
+
+### [WORK-2026-09-16-034] Redesain Menyeluruh Modul Storefront & Landing Page Bisnis: Bento UI Apple HIG v2.0, Anti-Pill Abuse, iOS 16px Font Rule, Table-to-Card Pattern, Zero-Emoji Mandate, & Single-Verb Action Buttons
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Commerce (Storefront Online & Landing Page CMS)
+* **Feature:** Refactoring komprehensif antarmuka etalase toko dan landing page bisnis (`resources/views/app/storefront/*` dan `resources/views/app/landing_page/*`) sesuai pedoman Bento UI Apple HIG v2.0, `docs/prompt.md`, dan direktif `docs/agent.md`:
+  - **Pesanan Toko Online (`orders/index.blade.php`)**: Transformasi metrik ringkasan menjadi Bento Metric Cards (`grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4`, `tabular-nums`), implementasi Table-to-Card Responsive Pattern (`hidden md:block` table vs `block md:hidden` card list) dengan info pemesan, WhatsApp, status (tanpa fake `animate-pulse`), tombol CTA aksi kata kerja tunggal `Lihat`, pencarian anti iOS auto-zoom (`text-[16px] sm:text-xs`), dan safe area padding `pb-28 lg:pb-10`.
+  - **Rincian Pesanan Toko (`orders/show.blade.php`)**: Safe area padding `pb-28 lg:pb-10`, eliminasi `animate-pulse` pada badge bukti bayar, penyesuaian semua input formulir penawaran (quotation), perbaruan status batch PO multi-drop, dan perbaruan tahapan order dengan font input iOS 16px (`text-[16px] sm:text-[13px]`/`sm:text-[14px]`), font angka tabular (`tabular-nums font-mono`) pada kalkulasi keuangan & drop volume, standarisasi kata kerja tunggal action button (`Kirim Penawaran`, `Simpan`, `Verifikasi`, `Tolak`), serta transformasi modal tolak bukti bayar menjadi Apple Bottom Sheet pada mobile (`rounded-t-[28px] sm:rounded-[24px]`).
+  - **Reservasi Meja & Jasa (`reservations/index.blade.php`)**: Safe area padding `pb-28 lg:pb-10`, input search anti auto-zoom (`text-[16px] sm:text-xs`), implementasi Table-to-Card Responsive Pattern (`hidden md:block` desktop table vs `block md:hidden` mobile card list) dengan detail kode reservasi, tamu (`tabular-nums`), alokasi meja, dan aksi cepat (`Konfirmasi`, `Duduk`, `Selesai`, `Ubah Meja`, `Batalkan`), eliminasi `animate-pulse` pada status badge, dan transformasi modal alokasi meja menjadi mobile bottom sheet dengan tombol kata kerja tunggal `Simpan`.
+  - **Aturan Ongkir & Kurir Toko (`shipping/index.blade.php`)**: Safe area padding `pb-28 lg:pb-10`, angka tabular pada metrik dan tarif ongkir (`tabular-nums font-mono`), implementasi Table-to-Card Responsive Pattern (`hidden md:block` desktop table vs `block md:hidden` mobile card list) dengan status toggle, edit, dan hapus, standarisasi modal Tambah/Edit Aturan Ongkir menjadi mobile bottom sheet dengan font input minimum 16px dan tombol kata kerja tunggal `Simpan`.
+  - **Pengaturan Etalase & Pembayaran (`settings.blade.php`)**: Safe area padding `pb-28 lg:pb-10`, penyesuaian seluruh input formulir pengaturan operasional (lead-time, cut-off, kuota harian, min belanja, auto-cancel, announcement) ke font 16px iOS (`text-[16px] sm:text-[13px]`/`sm:text-[13.5px]`), standarisasi tombol simpan menjadi kata kerja tunggal `Simpan`, angka tabular pada nomor rekening bank, serta transformasi modal tambah rekening/QRIS menjadi mobile bottom sheet dengan font input 16px dan tombol simpan kata kerja tunggal `Simpan`.
+  - **Website & Landing Page Bisnis (`landing_page/edit.blade.php`)**: Penghapusan total seluruh karakter Unicode emoji (ikon roket, api, tameng, petir, trofi, jam, hati, truk, jempol, centang, berlian, lencana, bintang, kilau, alat bengkel, dan emoji medsos) digantikan dengan SVG clean icons dan teks semantik resmi, penggantian karakter `✕` dengan SVG close icon modern, standarisasi seluruh input, select, dan textarea formulir landing page dengan aturan font iOS 16px (`text-[16px] sm:text-[...]`), standarisasi tombol simpan floating/sidebar menjadi kata kerja tunggal `Simpan`, dan safe area padding `pb-28 lg:pb-10`.
+  - **Uji Regresi & Baseline Hardening**: Perbaikan test suite commerce (`CommerceShippingRuleFeatureTest`, `CommerceScheduledOrderTest`, `CustomerPoBatchTest`) yang memvalidasi sesi autentikasi GlobalCustomer dan perbaikan sintaks string multiline pada `order_tracking.blade.php`. Seluruh 43 pengujian fitur commerce lulus 100% (257 assertions, 0 failures).
+
+### [WORK-2026-09-16-033] Redesain Menyeluruh Modul Billing Tenant: Bento UI Apple HIG v2.0, Anti-Pill Abuse, Anti-Auto-Zoom iOS, Table-to-Card Pattern, & Storage Hardening
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** SaaS Billing & Subscription Management
+* **Feature:** Refactoring komprehensif seluruh antarmuka penagihan dan kuota tenant (`resources/views/app/billing/*`) sesuai direktif Apple HIG v2.0 dan pedoman keselamatan sistem:
+  - **Checkout Langganan (`checkout.blade.php`)**: Menghilangkan decorative eyebrow pills (`rounded-full`), teks animasi berdenyut, dan standarisasi Bento Grid kartu paket dengan squircle `rounded-[16px]`/`rounded-[20px]`, hairline borders, preservasi teks legal `Cooca UMKM` dan `Pilih Metode Pembayaran`, serta padding thumb-zone safe area `pb-28 lg:pb-10`.
+  - **Halaman Pembayaran & Verifikasi (`payment.blade.php`)**: Penerapan ukuran font input minimum 16px pada perangkat mobile (`text-[16px] sm:text-[14px]`) untuk mencegah auto-zoom Safari iOS, angka nominal besar dengan 1-click clean copy dan font angka tabular (`tabular-nums font-mono`), eliminasi badge pill redundant dengan retensi 1 badge status dinamis, dan 4-step workflow indicator squircle.
+  - **Kuota & Hak Akses SaaS (`limits.blade.php`)**: Transformasi 4 Command Pillars metrik SaaS menjadi Bento Metric Cards (`grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5`, `tabular-nums`), penerapan Table-to-Card Responsive Pattern pada 10 File Terbesar (`hidden md:block` desktop table vs `block md:hidden` mobile card list), serta pembersihan decorative pill abuse pada hub penyimpanan cloud dan AI engine.
+  - **Riwayat Tagihan & Pembayaran (`history.blade.php`)**: Transformasi filter status tombol menjadi Apple Segmented Control (`inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[14px]`), input filter pencarian dengan ukuran `text-[16px] sm:text-[14px]` (anti auto-zoom), dan standarisasi angka tabular di tabel desktop maupun mobile card list.
+  - **Faktur Tagihan Resmi Siap Cetak (`invoice.blade.php`)**: Pemolesan top action bar dengan tombol squircle `rounded-[12px]`, penghapusan karakter Unicode emoji/centang (`✓`) digantikan SVG checkmark modern, penerapan font tabular pada kalkulasi finansial, dan pemeliharaan format cetak A4 portrait & engine unduhan PDF client-side.
+  - **Hardening Penyimpanan Bukti Pembayaran (`EntitlementService.php`)**: Abstraksi ganda penyimpanan bukti transfer menggunakan `Storage::disk('public')->putFileAs()` serta pencerminan ke `public_path('payment-proofs')` guna menjamin kompatibilitas 100% pengujian otomatis (`Storage::fake('public')`) dan web serving di server produksi.
+* **Files Affected:**
+  - `resources/views/app/billing/checkout.blade.php`
+  - `resources/views/app/billing/payment.blade.php`
+  - `resources/views/app/billing/limits.blade.php`
+  - `resources/views/app/billing/history.blade.php`
+  - `resources/views/app/billing/invoice.blade.php`
+  - `app/Domain/Billing/EntitlementService.php`
+  - `tests/Feature/PatunganSubscriptionWorkflowTest.php`
+  - `tests/Feature/SaaSPlanAndEntitlementTest.php`
+  - `.gitignore`
+* **Verification & Testing:**
+  - `php -l` seluruh template Blade: Bebas error sintaks (PASS).
+  - `php artisan view:clear; php artisan view:cache`: Berhasil dikompilasi (PASS).
+  - `php artisan test tests/Feature/SubscriptionPaymentFlowTest.php`: 10 tests, 57 assertions PASSED (100%).
+  - `php artisan test tests/Feature/PatunganSubscriptionWorkflowTest.php`: 7 tests, 41 assertions PASSED (100%).
+  - `php artisan test tests/Feature/SaaSPlanAndEntitlementTest.php`: 4 tests, 19 assertions PASSED (100%).
+  - Rangkaian pengujian billing & subscription: 26 tests, 147 assertions PASSED (100%).
+
+### [WORK-2026-09-16-032] Unifikasi Master Operational Directive & Safety Manual (agent.md & docs/agent.md)
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Core Architecture / System Governance & Safety Directives
+* **Feature:** Konsolidasi komprehensif dua dokumen instruksi agen (`agent.md` dan `docs/agent.md`) menjadi satu master dokumen pedoman terpadu yang identik dan tersinkronisasi 100%:
+  - **Sintesis Arsitektur & Pedoman Hulu-ke-Hilir**: Menggabungkan seluruh ketetapan arsitektur Apple HIG v2.0 (macOS Sonoma, iOS 18, visionOS), protokol History-First, hierarki Source of Truth, klasifikasi risiko perubahan (Safe, Structural, Business Logic, Destructive), batasan keselamatan finansial, isolasi multi-tenant (`Context::requireBusiness()`), sanitasi formulir (CSRF, method spoofing, SQL injection, XSS), dan gap analysis 4-dimensi (Superadmin, Owner, Customer, Automation).
+  - **Standarisasi Desain Antarmuka Apple HIG v2.0**: Memadukan aturan anti-AI-template, anti-pill-abuse, larangan mutlak emoji Unicode (murni Lucide Icons), kamus tombol aksi ringkas (Simpan, Hapus, Edit, Lihat, Batal, Kirim, Salin), matriks skala font responsif Apple Dynamic Type Scale, sistem spacing 8pt grid, bento grid multi-device (360px s/d 1920px+), sidebar Sonoma w-72 dengan sleek custom scrollbar 4px anti-Windows, topbar zero-clipping, dan arsitektur dual-footer (floating bottom bar iOS 18 vs hairline footer desktop).
+  - **Protokol Pengujian Nyata & Hardening Produksi**: Menetapkan standar pengujian 100% PASS bebas error (`php -l`, `route:list`, `php artisan test`), de-mocking menyeluruh, pembersihan tuntas data testing dan file sementara, serta dokumentasi berkelanjutan 3 lapis.
+* **Files Affected:** `agent.md`, `docs/agent.md`, `docs/AiWorkHistory.md`.
+
+### [WORK-2026-09-16-031] Admin CMS Template Excel Apple HIG v2.0 Compliance: Table-to-Card Responsive Pattern, Anti-Pill Abuse & iOS Auto-Zoom Prevention
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Admin Console / CMS Template Excel
+* **Feature:** Refactoring komprehensif antarmuka manajemen Template Excel publik (`resources/views/admin/templates/index.blade.php`, `resources/views/admin/templates/create.blade.php`, dan `resources/views/admin/templates/edit.blade.php`) berpedoman ketat pada `docs/prompt.md`, `docs/agent.md`, dan root `AGENTS.md` (Apple HIG Design System v2.0):
+  - **Pencegahan Auto-Zoom iOS Safari (16px Font Rule - Seksi 11.2 & 14.1)**:
+    * Seluruh elemen formulir `<input>`, `<select>`, dan `<textarea>` pada toolbar pencarian `index.blade.php`, formulir upload `create.blade.php`, dan formulir pembaruan `edit.blade.php` distandarisasi ke ukuran minimal 16px pada mobile (`text-[16px] sm:text-[14px]`).
+    * Mencegah browser iOS Safari melakukan auto-zoom otomatis yang merusak komposisi visual layout saat input difokuskan.
+  - **Transformasi Tabel Responsif Mobile (Table-to-Card Pattern - Seksi 13.3)**:
+    * Pada layar desktop (`>= md`), tabel bento rapi dipertahankan dengan border hairline lembut (`border-black/[0.06] dark:border-white/[0.08]`).
+    * Pada layar smartphone mobile (`< md`), tabel ditransformasi menjadi deretan kartu ringkas (*Card List View*) bergaya Apple Settings / iOS Mail (`block md:hidden`), mencegah pemotongan data dan scroll horizontal (*zero horizontal overflow*).
+  - **Pemberantasan Inflasi Kapsul & Pure Typography (Seksi 8.5.1 – 8.5.6)**:
+    * Menertibkan tag kapsul pada kolom kategori statis dan format file menjadi *Pure Typography* yang tenang dan berwibawa.
+    * Membatasi penggunaan badge kapsul (`rounded-full`) hanya untuk status siklus hidup entitas yang dinamis (`Aktif` vs `Draft`).
+    * Menghilangkan dot inner redundan pada pill status untuk estetika Apple HIG yang tajam dan minimalis.
+  - **Modernisasi Apple Bento Metric Cards (Seksi 12.4)**:
+    * Menata ulang 4 kartu metrik KPI (Total Template, Template Aktif, Total Unduhan, Total Leads) dengan layout grid adaptif (`grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5`), squircle/circular icon containers berlatar warna semantik lembut, tipografi angka tebal `tabular-nums`, dan padding compact di mobile `p-3.5 sm:p-5`.
+  - **Ergonomi Sentuh, Safe Area & Label Aksi Lugas (Seksi 9.4, 10.1, 13.5)**:
+    * Menambahkan padding bawah aman `pb-28 lg:pb-10` pada kontainer induk ketiga view untuk mencegah tombol terbawah tertutup bottom bar navigasi mobile.
+    * Menyederhanakan label tombol aksi formulir menjadi satu kata kerja murni: `Simpan` dan `Batal` (mengeliminasi label panjang seperti `Simpan & Upload Template` dan `Simpan Perubahan`).
+    * Touch target tombol utama memenuhi standar 44px–48px dengan mikro-interaksi taktil `active:scale-[0.98]`.
+  - **Pencegahan Emojifikasi & Retensi 100% Pengujian**:
+    * Zero Unicode emoji (100% bersih, diverifikasi otomatis).
+    * Seluruh 6 tests dengan 37 assertions pada `tests/Feature/AdminExcelTemplateManagementTest.php` lulus 100%.
+
+#### 1. Business Context & Objective
+* **Konteks:** Modul CMS Template Excel memungkinkan Superadmin mengunggah dan mengelola file spreadsheet gratis yang berfungsi sebagai magnet prospek (lead magnet) bagi calon pengguna platform UMKM Cooca. Antarmuka ini sebelumnya memiliki ukuran font input kecil (< 16px) yang memicu auto-zoom di perangkat mobile, tabel lebar yang memicu scroll horizontal di layar 360px, serta inflasi tag kapsul pada teks statis.
+* **Target:** Menghadirkan pengalaman manajemen template berkelas dunia (*Apple-grade aesthetic*), bebas dari auto-zoom di iOS Safari, bebas horizontal overflow di smartphone, bersih dari pill berlebih, dan mempertahankan seluruh alur kerja operasional.
+
+#### 2. Technical Changes
+* **Files Affected:**
+  - `resources/views/admin/templates/index.blade.php`: Table-to-Card pattern, Bento Metric Cards, penertiban pill kategori ke Pure Typography, input toolbar 16px, dan safe area padding.
+  - `resources/views/admin/templates/create.blade.php`: Squircle dropzone card, input form 16px anti-auto-zoom, label aksi lugas `Simpan` dan `Batal`, serta safe area padding.
+  - `resources/views/admin/templates/edit.blade.php`: Bento tile file aktif, dropzone file pengganti, input form 16px anti-auto-zoom, label aksi lugas `Simpan` dan `Batal`, serta safe area padding.
+  - `docs/AiWorkHistory.md`: Pencatatan riwayat teknis Layer 1.
+
+#### 3. Verification & Testing
+* Pengecekan sintaks PHP Blade: `php -l` pada ketiga file view (PASS: 0 errors).
+* Kompilasi cache Blade: `php artisan view:clear && php artisan view:cache` (PASS).
+* Pengujian Feature Test Excel Template: `php artisan test tests/Feature/AdminExcelTemplateManagementTest.php` (PASS: 6 tests, 37 assertions, 100% pass).
+* Pengujian Admin Platform Suites: `php artisan test tests/Feature/AdminPlatformManagementTest.php tests/Feature/AdminPanelAndGoogleAuthTest.php` (PASS: 30 tests, 83 assertions).
+* Pengujian verifikasi zero-emoji & 16px input font rule: PASS.
+
+---
+
+### [WORK-2026-09-16-030] Admin Sidebar Navigation Restructuring & Grouping (Apple HIG v2.0 Inset Grouping)
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Admin Console / Navigation Layout
+* **Feature:** Restrukturisasi Urutan & Grouping Menu Sidebar Admin (`resources/views/layouts/admin.blade.php`), Eliminasi Orphan Sections, Relokasi Tepat Sasaran (WhatsApp Gateway & Feedback), dan Sinkronisasi Kategori Spotlight Quick Navigator (Cmd+K).
+* **Work Type:** UI/UX, Navigation Architecture, Refactoring, Testing, Documentation
+
+#### 1. Business Context & Objective
+* **Konteks:** Sidebar admin platform Superadmin sebelumnya mengalami anomali pengelompokan menu: seksi *Operasional Platform* hanya berisi 1 item tunggal (*Pemulihan Akun*), sementara *WhatsApp Gateway* keliru ditempatkan di bawah *Monetisasi & Billing*, dan *Feedback & Bug* keliru ditempatkan di bawah *Ringkasan Utama*.
+* **Masalah/Target:**
+  1. Menghilangkan *orphan section* (kategori 1 item tunggal) dan menyusun 15 menu admin ke dalam 5 kelompok berimbang (3 - 4 - 3 - 3 - 2) sesuai prinsip Apple HIG Inset Grouped Navigation.
+  2. Memindahkan `Feedback & Bug`, `WhatsApp Gateway`, dan `Monitoring Token AI` ke seksi **Operasional & Layanan**.
+  3. Memastikan seksi **Monetisasi & Billing** murni berfokus pada aliran kas/langganan platform (*Langganan & Billing*, *Paket & Harga*, *Rekening Bank*).
+  4. Menyelaraskan array modul pencarian cepat Spotlight Quick Navigator (`⌘K`) dengan kategori visual sidebar.
+  5. Menjaga 100% kompatibilitas rute, helper active route, dan counter badges dinamis ($pendingRecoveriesCount, $pendingSubscriptionsCount).
+
+#### 2. What Was Done
+* **Penataan Ulang Navigasi Sidebar (`resources/views/layouts/admin.blade.php`):**
+  - **Grup 1 – Ringkasan Utama (3 items):** *Dashboard*, *Bisnis (Tenants)*, *Basis Pengguna*.
+  - **Grup 2 – Operasional & Layanan (4 items):** *Pemulihan Akun* (dengan badge counter pending), *Feedback & Bug*, *WhatsApp Gateway*, *Monitoring Token AI*.
+  - **Grup 3 – Monetisasi & Billing (3 items):** *Langganan & Billing* (dengan badge counter pending), *Paket & Harga*, *Rekening Bank*.
+  - **Grup 4 – Konten & Pemasaran (3 items):** *Database Leads*, *Artikel & Edukasi*, *Template Excel*.
+  - **Grup 5 – Konfigurasi Sistem (2 items):** *Pengaturan Sistem*, *Log Error & Diagnostik*.
+* **Sinkronisasi Spotlight Quick Navigator (`⌘K`):**
+  - Memperbarui array `modules` di dalam Alpine.js `x-data` agar label kategori (`cat`) selaras dengan nama kelompok visual sidebar (`Ringkasan`, `Operasional`, `Monetisasi`, `Pemasaran`, `Konfigurasi`).
+* **Preservasi Standar Apple HIG v2.0:**
+  - Lebar desktop `w-72` (288px), offset kanvas `lg:pl-72`.
+  - Bilah gulir ramping 4px transparan `.sidebar-scroll` anti-Windows gray encroachment.
+  - Teks strict single-line `whitespace-nowrap truncate min-w-0 flex-1`.
+  - Dimensi eksplisit SVG WhatsApp (`width="18" height="18" class="w-[18px] h-[18px]"`).
+  - Inset Profile Card bento di dasar sidebar.
+
+#### 3. Technical Changes
+* **Files Modified:**
+  - `resources/views/layouts/admin.blade.php` [MODIFY]
+  - `docs/system/architecture/ui-ux-design-system.md` [MODIFY]
+  - `docs/AiWorkHistory.md` [MODIFY]
+
+#### 4. System Impacts
+* **Workflow Impact:** Superadmin dapat menavigasi seluruh modul operasional, billing, dan konfigurasi dengan ritme mental model yang alami, lapang, dan terstruktur tanpa gangguan seksi 1-item yang ganjil.
+* **Ergonomics & Visual:** Indikator badge pending approval kini berada tepat di bagian atas visual sidebar (*above the fold*), mempercepat respon terhadap tiket darurat dan konfirmasi transfer langganan.
+* **Routing & Security:** Tidak ada perubahan pada controller, route handler, middleware, maupun database.
+
+#### 5. Verification & Testing
+* **Uji Sintaks:** `php -l resources/views/layouts/admin.blade.php` lulus 100% tanpa error.
+* **Kompilasi View:** `php artisan view:clear; php artisan view:cache` sukses 100%.
+* **Pengujian Otomatis:**
+  - `tests/Feature/AdminPlatformManagementTest.php` ➔ 4 passed (25 assertions).
+  - `tests/Feature/AdminSmtpManagementTest.php` ➔ 5 passed (11 assertions).
+  - `tests/Feature/AdminLeadsManagementTest.php` ➔ 2 passed (30 assertions).
+  - `tests/Feature/AdminPanelAndGoogleAuthTest.php` ➔ 3 passed (11 assertions).
+  - `tests/Feature/AdminAuthAndRecoveryAppleHigTest.php` ➔ 21 passed (65 assertions).
+  - `tests/Feature/AdminProfileAndPasswordTest.php` ➔ 9 passed (41 assertions).
+  - `tests/Feature/AdminSubscriptionIndexFilterTest.php` ➔ 6 passed (28 assertions).
+  - **Total: 50 tests PASSED, 211 assertions, 0 failures, 0 errors (100% Pass Rate)**.
+
+#### 6. Documentation Promotion
+* Pengetahuan seksi navigasi 5 grup berimbang dipromosikan ke `docs/system/architecture/ui-ux-design-system.md` (Seksi 12.1).
+
+---
+
+### [WORK-2026-09-16-029] Fix Sticky Header Broken by overflow-x-hidden & Fix Double Flash Notification Popup
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Admin Console / Master Layout
+* **Feature:** Dua bug penting ditemukan dan diperbaiki pada `resources/views/layouts/admin.blade.php`:
+
+  **Bug 1 – Topbar `<header>` tidak sticky (berada di bawah / ikut scroll):**
+  * **Root cause:** `overflow-x: hidden` yang diterapkan pada wrapper `<div class="lg:pl-72 ...">` (parent langsung dari `<header class="sticky top-0 ...">`) menciptakan *scroll container* baru di browser. Akibatnya, `position: sticky` berfungsi relatif terhadap container tersebut, bukan terhadap viewport. Ketika container memiliki `overflow: hidden`, elemen sticky tidak dapat "menempel" karena container tidak bisa discroll — hasilnya header ikut scroll keluar layar.
+  * **Fix:** Mengganti class `overflow-x-hidden` pada wrapper div tersebut dengan CSS class `.main-content-clip` yang menggunakan `overflow-x: clip`. `overflow: clip` memiliki efek visual yang sama (memotong konten yang meluber) tetapi **tidak** menciptakan scroll container baru, sehingga `position: sticky` tetap berfungsi terhadap viewport. `<html>` dan `<body>` tetap mempertahankan `overflow-x-hidden` yang lebih aman di level document root.
+
+  **Bug 2 – "Dismiss modal popup" muncul setiap kali halaman di-reload setelah redirect:**
+  * **Root cause:** Flash message (`session('success')` / `session('status')`) muncul **dua kali** pada setiap redirect:
+    1. Sebagai inline HTML banner dalam `<main>` layout (menggunakan `session('success')` — membaca tapi tidak menghapus).
+    2. Sebagai AppAlert toast di akhir layout (menggunakan `session()->pull('success')` — membaca dan menghapus). Karena keduanya ada dalam satu Blade render pass, `session('success')` membaca nilai yang sama yang masih ada sebelum `pull()` dieksekusi.
+  * **Untuk halaman WhatsApp khususnya**, ini menjadi triple-notification karena view `admin/whatsapp/index.blade.php` juga memiliki inline flash handler-nya sendiri.
+  * **Fix:** Menghapus blok inline `@if (session('success'))` dan `@if (session('status'))` dari `<main>` layout. AppAlert toasts (via `session()->pull()` di script block) sudah menjadi sistem notifikasi kanonik. Blok `@if ($errors->any())` dipertahankan karena form validation errors memerlukan tampilan inline. Individual views dapat tetap menampilkan inline flash mereka sendiri jika diperlukan.
+
+#### 1. Business Context & Objective
+* **Konteks:** Superadmin melaporkan dua bug: topbar header yang seharusnya sticky malah ikut scroll (merusak navigasi), dan sebuah "dismiss modal popup" yang muncul secara tidak terduga setiap kali halaman di-reload (membingungkan dan mengganggu alur kerja).
+* **Target:** Memastikan topbar `<header>` selalu menempel di atas viewport pada semua halaman admin, dan flash notification hanya muncul sekali per aksi.
+
+#### 2. Technical Changes
+* **Files Affected:**
+  - `resources/views/layouts/admin.blade.php`
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 3. Verification & Testing
+* `php artisan view:clear`: PASS.
+* `php artisan test tests/Feature/Admin/AdminWhatsAppFeatureTest.php tests/Feature/Admin/WhatsAppAdminMultiSessionTest.php tests/Feature/Admin/WhatsAppDualGatewayTest.php`: PASS (24 passed, 128 assertions, 0 failures).
+
+---
+
 ### [WORK-2026-09-16-028] Admin Console & WhatsApp Center Responsive Hardening: Fix UI Cutoff & Horizontal Overflow
+
 * **Date:** 2026-09-16
 * **Status:** COMPLETED
 * **Module:** Admin Console / UI Responsiveness & Master Layout Foundation
@@ -1908,4 +2441,72 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 ---
 
+### [WORK-2026-09-16-039] Single Page Business Landing & Storefront Refactoring: Apple HIG Bento Grid, Full-Layout Modal, Multi-Mode Theme, and Live Catalog Search
+* **Date:** 2026-09-16
+* **Status:** COMPLETED
+* **Module:** Public Presentation Layer / Storefront / Website & Profil / Single Page Landing
+* **Feature:** Apple Bento Storefront Optimization for `resources/views/public/business_landing.blade.php`: Synchronized Light/Dark theme from `BusinessLandingPage` CMS settings with Anti-FOUC initialization, full-layout desktop/tablet catalog modal (`w-[94vw] h-[90vh]` with pinned header, pinned search & filter, and internal scrolling responsive grid), live search and simultaneous category filter for Products and Services, fix overlapping sections from unclosed hero markup, resilient image handling with Bento fallback placeholders, and zero-breaking preservation of orders, reservations, and checkout flows.
+* **Work Type:** Architecture Audit, UI/UX Redesign, Frontend Refactor, Performance & Quality Assurance
 
+#### 1. Business Context & Objective
+* **Konteks:** Single Page Business Landing (`resources/views/public/business_landing.blade.php`) adalah etalase publik utama bagi UMKM di COOCA yang mengonsumsi data dari konfigurasi **Website & Toko** (`/landing-page` dan `/storefront/settings`). Ditemukan beberapa kendala visual dan ergonomis:
+  1. Kontras tema Light & Dark Mode tidak konsisten, serta toggle tema di navbar kehilangan reaktivitas Alpine akibat penggantian DOM oleh library Lucide.
+  2. Terjadi penumpukan (overlapping) pada section produk dan layanan karena tag penutup `<div>` yang hilang di bagian hero (`max-w-2xl mx-auto space-y-2`) sehingga menjebak seluruh section katalog ke dalam kontainer sempit 672px dengan spasi 8px.
+  3. Scrollbar native abu-abu tebal 17px muncul di bawah pill filter kategori pada browser Windows.
+  4. Pengalaman browsing produk dan layanan terbatas tanpa pencarian instan dan filter kategori pada layanan.
+  5. Modal/popup "Lihat Semua" belum memanfaatkan layar lebar desktop dan tablet secara optimal.
+  6. Floating cart pill menutupi kartu terbawah dan footer pada perangkat mobile.
+* **Target:** Melakukan audit menyeluruh tanpa membuat sistem konfigurasi duplikat, memperbaiki root cause visual dan structural flow, mengimplementasikan full-layout catalog browsing modal, mengintegrasikan live search & category filter, serta menjamin 100% kompatibilitas dengan flow pesanan, reservasi, dan ongkir yang sudah ada.
+
+#### 2. What Was Done
+1. **Audit & Single Source of Truth:**
+   - Mengaudit integrasi antara `BusinessLandingPage`, `CommerceStoreSetting`, `Product`, `ProductCategory`, dan `PosTable`.
+   - Menghindari pembuatan tabel atau setting baru; memanfaatkan konfigurasi existing dari Website & Toko.
+2. **Perbaikan Tema Light & Dark Mode & Anti-FOUC:**
+   - Menyelaraskan kelas semantik Tailwind (`bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#FFFFFF]`).
+   - Membungkus ikon `sun` dan `moon` pada tombol toggle tema di dalam tag `<span>` terisolasi agar aman dari manipulasi DOM library Lucide SVG.
+   - Menggunakan warna card semantik Apple Bento (`bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-xl rounded-[24px]`).
+3. **Penyelesaian Root Cause Overlapping & Section Flow:**
+   - Memperbaiki penutupan tag `<div>` di section hero sehingga section Layanan dan Produk kembali ke *normal document flow*.
+   - Menginjeksi utilitas `.no-scrollbar` dan `.scrollbar-none` pada tab filter kategori untuk menghilangkan scrollbar abu-abu Windows native.
+   - Menambahkan bottom safe padding (`pb-28 sm:pb-32 md:pb-28`) pada `<body>` agar floating checkout cart pill tidak menutupi footer atau kartu katalog.
+4. **Resilient Image Handling & Bento Fallbacks:**
+   - Memperbarui accessor `Product::getImageUrlAttribute()` agar menangani prefix `public/`, `storage/`, URL eksternal (HTTPS/HTTP), dan path lokal secara aman.
+   - Mengimplementasikan fallback Bento placeholder dengan ikon Lucide (`shopping-bag` dan `sparkles`) jika gambar tidak tersedia atau gagal dimuat (`onerror`).
+5. **Pencarian Live & Filter Kategori Bersamaan:**
+   - Menambahkan capsule search instan (`x-model="productSearch"`, `x-model="serviceSearch"`) yang terintegrasi secara reaktif dengan filter kategori.
+   - Menyediakan empty state bersih dengan ikon `search-x` dan tombol reset filter jika kata kunci tidak ditemukan.
+   - Mengirimkan `$serviceCategories` dari controller untuk mendukung filtering kategori pada layanan.
+6. **Full-Layout Catalog Modal (Desktop & Tablet):**
+   - Mengembangkan modal `w-[94vw] lg:w-[92vw] xl:max-w-7xl h-[90vh]` dengan pinned header, pinned search & category filter bar, serta area scroll internal dengan grid responsif (2–6 kolom).
+   - Menyediakan switcher tab Produk vs Layanan di dalam header modal untuk pengalaman browsing mulus tanpa perlu menutup dialog.
+   - Mengunci scroll body halaman (`overflow-hidden`) ketika modal aktif (`$watch('activeModal')`).
+7. **Integritas Alur Transaksi:**
+   - CTA pemesanan produk tetap terhubung ke Cart/Checkout drawer (`openCartDrawer()`), Direct Buy via WhatsApp, atau Request Order/PO flow.
+   - CTA reservasi tetap terhubung ke modal reservasi multi-langkah existing (`/storefront/reservations`).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Models/Product.php` [MODIFY]: Penyempurnaan accessor `image_url` untuk kompatibilitas multi-format storage & URL eksternal.
+  - `app/Http/Controllers/Web/PublicBusinessLandingController.php` [MODIFY]: Eager loading category pada services, mapping `category_id` & `category` name, query `$serviceCategories`.
+  - `resources/views/public/business_landing.blade.php` [MODIFY]: Restrukturisasi HTML hero, bento styling light/dark, full-layout catalog modal, live search, scrollbar utilities, and safe bottom padding.
+  - `tests/Feature/PublicBusinessDiscoveryTest.php` [MODIFY]: Asersi uji Light/Dark mode, script anti-FOUC, live search, trigger popup modal, dan category pills.
+  - `docs/AiWorkHistory.md` [MODIFY]: Dokumentasi histori kerja.
+
+#### 4. System Impacts
+* **UI/UX & Ergonomi:** Tampilan landing page sangat bersih, modern, dan seimbang. Tidak ada teks atau kartu yang saling menumpuk. Pencarian produk/layanan instan tanpa perlu reload halaman.
+* **Kompatibilitas:** Alur keranjang belanja, checkout pengiriman, reservasi meja/layanan, dan pelacakan pesanan publik tetap beroperasi 100% normal.
+* **Performa:** Efisiensi rendering terjaga dengan client-side filtering instan dan lazy loading gambar.
+
+#### 5. Verification & Testing
+* **Uji Kompilasi Blade:** `php artisan view:clear; php artisan view:cache` lolos 100% tanpa error.
+* **Uji Otomatis:**
+  - `tests/Feature/PublicBusinessDiscoveryTest.php` ➔ **8 passed (52 assertions)**.
+  - `tests/Feature/Public*` (Suite Publik) ➔ **26 passed (160 assertions)**.
+  - `tests/Feature/CommerceStorefrontCheckoutTest.php` & Storefront Suite ➔ **32 passed (203 assertions)**.
+  - Total: **66 tests PASSED, 0 failures, 0 errors**.
+
+#### 6. Important Decisions & Guardrails
+* **Single Source of Truth:** Seluruh data tema, status publikasi, jam operasional, dan visibilitas section diambil murni dari `BusinessLandingPage` dan `CommerceStoreSetting`.
+* **Strict Tenant Isolation:** Data produk, layanan, kategori, dan tabel POS di-query secara ketat berdasarkan `business_id`.
+* **Zero Mobile Auto-Zoom:** Input form modal dan pencarian menggunakan ukuran responsif `text-[16px] sm:text-[13px]`.

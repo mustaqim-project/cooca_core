@@ -282,8 +282,7 @@
                             <i data-lucide="layers" class="w-4 h-4"></i>
                         </div>
                         <div>
-                            <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Jadwal
-                                Pengiriman Bertahap (PO Batches)</h3>
+                            <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Jadwal Pengiriman Bertahap (PO Batches)</h3>
                             <p class="text-[12px] text-black/50 dark:text-white/50">Progres pemenuhan setiap termin
                                 pengiriman.</p>
                         </div>

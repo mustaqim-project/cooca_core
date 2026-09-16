@@ -73,16 +73,12 @@
         </div>
 
         {{-- NOTIFICATIONS / ALERTS --}}
-        @if (session('success'))
-            <div
-                class="rounded-[18px] p-4 bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-[13px] font-medium flex items-center justify-between gap-3 shadow-sm">
-                <div class="flex items-center gap-2.5 min-w-0">
-                    <i data-lucide="check-circle-2" class="w-5 h-5 shrink-0"></i>
-                    <span class="truncate">{{ session('success') }}</span>
-                </div>
-                <span class="text-[11px] opacity-75 font-semibold shrink-0">Berhasil</span>
-            </div>
-        @endif
+        {{--
+            NOTE: session('success') banner dihapus dari sini.
+            Layout admin.blade.php sudah menangani flash notifications via
+            AppAlert toast (session()->pull). Menampilkan banner inline di sini
+            DAN toast dari layout mengakibatkan double-notification.
+        --}}
         @if ($errors->any())
             <div
                 class="rounded-[18px] p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#C41E17] dark:text-[#FF453A] text-[13px] font-medium shadow-sm">
@@ -97,6 +93,7 @@
                 </ul>
             </div>
         @endif
+
 
         {{-- 2. BENTO HERO KPI TILES (ADAPTIVE 2-COLUMN MOBILE, 4-COLUMN DESKTOP) --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 w-full min-w-0">

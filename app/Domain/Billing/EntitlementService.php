@@ -29,6 +29,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 final class EntitlementService
@@ -866,14 +867,20 @@ final class EntitlementService
         UploadedFile $file,
         array $senderData = []
     ): SubscriptionPayment {
-        $directory = public_path('payment-proofs');
-        if (!is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
         $filename = Str::random(40) . '.' . $file->extension();
-        $file->move($directory, $filename);
         $path = 'payment-proofs/' . $filename;
+        Storage::disk('public')->putFileAs('payment-proofs', $file, $filename);
+
+        // Also ensure public_path has the file for direct web server serving if symlink is absent
+        try {
+            $directory = public_path('payment-proofs');
+            if (!is_dir($directory)) {
+                @mkdir($directory, 0755, true);
+            }
+            if (file_exists(Storage::disk('public')->path($path))) {
+                @copy(Storage::disk('public')->path($path), public_path($path));
+            }
+        } catch (\Throwable) {}
 
         $payment->update([
             'payment_proof_path' => $path,

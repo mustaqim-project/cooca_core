@@ -96,7 +96,23 @@ class Business extends Model
 
     public function getLogoUrlAttribute(): ?string
     {
-        return $this->logo_path ? asset('storage/' . $this->logo_path) : null;
+        if (empty($this->logo_path)) {
+            return null;
+        }
+
+        if (preg_match('#^https?://[^/]+/storage/(.*)$#i', $this->logo_path, $matches)) {
+            return asset('storage/' . $matches[1]);
+        }
+
+        if (str_starts_with($this->logo_path, 'storage/') || str_starts_with($this->logo_path, '/storage/')) {
+            return asset(ltrim($this->logo_path, '/'));
+        }
+
+        if (str_starts_with($this->logo_path, 'http://') || str_starts_with($this->logo_path, 'https://')) {
+            return $this->logo_path;
+        }
+
+        return asset('storage/' . ltrim($this->logo_path, '/'));
     }
 
     public function getCurrencyCodeAttribute(): string

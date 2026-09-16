@@ -86,6 +86,14 @@ class CustomerPoBatchTest extends TestCase
             'allow_customer_po' => true,
         ]);
 
+        $this->customer = \App\Models\GlobalCustomer::create([
+            'google_id' => 'google-user-po',
+            'name' => 'Pak Hendra',
+            'email' => 'hendra@corp.co.id',
+            'phone' => '081211112222',
+            'phone_verified_at' => now(),
+        ]);
+
         Context::setBusiness($this->business);
     }
 
@@ -133,7 +141,8 @@ class CustomerPoBatchTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson(route('public.storefront.customer_po', $this->business->slug), $payload);
+        $response = $this->actingAs($this->customer, 'customer')
+            ->postJson(route('public.storefront.customer_po', $this->business->slug), $payload);
 
         $response->assertOk()
             ->assertJsonPath('success', true)
@@ -182,7 +191,8 @@ class CustomerPoBatchTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson(route('public.storefront.customer_po', $this->business->slug), $payload);
+        $response = $this->actingAs($this->customer, 'customer')
+            ->postJson(route('public.storefront.customer_po', $this->business->slug), $payload);
 
         $response->assertStatus(422)
             ->assertJsonPath('success', false);

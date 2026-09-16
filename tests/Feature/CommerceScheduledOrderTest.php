@@ -111,6 +111,14 @@ class CommerceScheduledOrderTest extends TestCase
             'daily_order_quota' => 5,
             'order_auto_cancel_minutes' => 120,
         ]);
+
+        $this->customer = \App\Models\GlobalCustomer::create([
+            'google_id' => 'google-user-scheduled',
+            'name' => 'Ibu Ratna',
+            'email' => 'ratna@example.com',
+            'phone' => '081234567890',
+            'phone_verified_at' => now(),
+        ]);
     }
 
     public function test_customer_can_create_scheduled_order(): void
@@ -136,7 +144,8 @@ class CommerceScheduledOrderTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson("/b/{$this->business->slug}/checkout", $payload);
+        $response = $this->actingAs($this->customer, 'customer')
+            ->postJson("/b/{$this->business->slug}/checkout", $payload);
 
         $response->assertOk();
         $response->assertJsonPath('success', true);
@@ -175,7 +184,8 @@ class CommerceScheduledOrderTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson("/b/{$this->business->slug}/checkout", $payload);
+        $response = $this->actingAs($this->customer, 'customer')
+            ->postJson("/b/{$this->business->slug}/checkout", $payload);
 
         $response->assertStatus(422);
         $response->assertJsonPath('success', false);
@@ -221,7 +231,8 @@ class CommerceScheduledOrderTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson("/b/{$this->business->slug}/checkout", $payload);
+        $response = $this->actingAs($this->customer, 'customer')
+            ->postJson("/b/{$this->business->slug}/checkout", $payload);
 
         $response->assertStatus(422);
         $response->assertJsonPath('success', false);
@@ -248,7 +259,8 @@ class CommerceScheduledOrderTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson("/b/{$this->business->slug}/request-order", $payload);
+        $response = $this->actingAs($this->customer, 'customer')
+            ->postJson("/b/{$this->business->slug}/request-order", $payload);
 
         $response->assertOk();
         $response->assertJsonPath('success', true);

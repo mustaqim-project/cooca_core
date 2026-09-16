@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Domain\LandingPage\IndustryPresets;
 use App\Http\Controllers\Controller;
+use App\Models\Business;
 use App\Models\BusinessLandingPage;
 use App\Models\Product;
 use App\Domain\Storage\OwnerStorageQuotaService;
@@ -34,7 +35,7 @@ class BusinessLandingPageWebController extends Controller
         // industry preset so the CMS never shows a fully null landing page.
         // NOTE: presets contain only text content - NO stock/unsplash images.
         if ($landingPage->wasRecentlyCreated || (blank($landingPage->headline) && blank($landingPage->values))) {
-            $presetKey  = $landingPage->industry_preset ?: 'retail';
+            $presetKey  = $landingPage->industry_preset ?: ($business->template_code ?: 'retail_reseller');
             $preset     = IndustryPresets::get($presetKey, $business->name);
 
             $defaults = [
@@ -400,7 +401,7 @@ class BusinessLandingPageWebController extends Controller
     public function applyPreset(Request $request): JsonResponse
     {
         $business = Context::requireBusiness();
-        $presetKey = $request->input('preset', 'retail');
+        $presetKey = $request->input('preset', $business->template_code ?: 'retail_reseller');
 
         $preset = IndustryPresets::get($presetKey, $business->name);
 

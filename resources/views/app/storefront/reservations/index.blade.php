@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Reservasi & Booking Jadwal - Cooca'])
 
 @section('content')
-    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{
+    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 lg:pb-10" x-data="{
         showAssignModal: false,
         selectedReservation: null,
         openAssign(rsv) {
@@ -9,36 +9,8 @@
             this.showAssignModal = true;
         }
     }">
-        <!-- Header Section -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <div
-                    class="flex items-center gap-2 text-xs font-semibold text-black/40 dark:text-white/40 uppercase tracking-wider mb-1">
-                    <a href="{{ route('dashboard') }}"
-                        class="hover:text-black dark:hover:text-white transition-colors">Workspace</a>
-                    <span>/</span>
-                    <a href="{{ route('storefront.orders.index') }}"
-                        class="hover:text-black dark:hover:text-white transition-colors">Toko Online</a>
-                    <span>/</span>
-                    <span class="text-black/80 dark:text-white/80">Reservasi Meja & Jasa</span>
-                </div>
-                <h1 class="text-2xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2.5">
-                    <i data-lucide="calendar-check" class="w-6 h-6 text-[#007AFF]"></i>
-                    <span>Reservasi &amp; Booking Jadwal</span>
-                </h1>
-                <p class="text-sm text-black/60 dark:text-white/60 mt-1">
-                    Kelola jadwal pemesanan meja makan restoran dan slot waktu layanan jasa pelanggan.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <a href="{{ route('public.business.landing', $business->slug) }}#layanan" target="_blank"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-black/10 dark:border-white/10 text-xs font-semibold text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-all">
-                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                    <span>Buka Etalase Publik</span>
-                </a>
-            </div>
-        </div>
+        {{-- UNIFIED STOREFRONT HUB NAVIGATION --}}
+        @include('app.storefront.partials.navigation', ['title' => 'Reservasi Meja & Booking'])
 
         <!-- Feedback Alerts -->
         @if (session('success'))
@@ -133,7 +105,7 @@
                     class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"></i>
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Cari nama, kode, WhatsApp..."
-                    class="w-full h-10 pl-9 pr-3 rounded-full bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    class="w-full h-10 pl-9 pr-3 rounded-full bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 text-[16px] sm:text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
             </form>
         </div>
 
@@ -152,7 +124,8 @@
                     </p>
                 </div>
             @else
-                <div class="overflow-x-auto">
+                {{-- DESKTOP TABLE VIEW (>= md) --}}
+                <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead
                             class="bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/5 text-black/50 dark:text-white/50 uppercase font-bold text-[11px] tracking-wider">
@@ -205,7 +178,7 @@
                                         <span class="inline-flex items-center gap-1">
                                             <i data-lucide="users"
                                                 class="w-3.5 h-3.5 text-black/40 dark:text-white/40"></i>
-                                            <span>{{ $rsv->guest_count }} Orang</span>
+                                            <span class="tabular-nums">{{ $rsv->guest_count }} Orang</span>
                                         </span>
                                     </td>
 
@@ -253,7 +226,7 @@
                                                 Show</span>
                                         @else
                                             <span
-                                                class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 animate-pulse">Menunggu</span>
+                                                class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400">Menunggu</span>
                                         @endif
                                     </td>
 
@@ -276,7 +249,7 @@
                                                     <input type="hidden" name="status" value="seated">
                                                     <button type="submit"
                                                         class="px-2.5 py-1 rounded-[8px] bg-[#5856D6] hover:bg-[#4745B8] text-white font-bold text-[11px] transition">
-                                                        Duduk / Seated
+                                                        Duduk
                                                     </button>
                                                 </form>
                                             @elseif($rsv->status === 'seated')
@@ -327,6 +300,171 @@
                     </table>
                 </div>
 
+                {{-- MOBILE CARD LIST (< md) --}}
+                <div class="block md:hidden divide-y divide-black/5 dark:divide-white/5">
+                    @foreach ($reservations as $rsv)
+                        <div class="p-4 space-y-3" x-data="{ openMenu: false }">
+                            {{-- Top row: Code, Date & Status --}}
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span
+                                            class="font-bold text-black dark:text-white font-mono text-[13px]">{{ $rsv->reservation_code }}</span>
+                                        <span
+                                            class="px-2 py-0.5 rounded bg-[#007AFF]/10 text-[#007AFF] font-bold text-[10.5px]">
+                                            {{ $rsv->time_slot }}
+                                        </span>
+                                    </div>
+                                    <span
+                                        class="text-xs text-black/55 dark:text-white/55 block mt-0.5">{{ $rsv->reservation_date->translatedFormat('d M Y') }}</span>
+                                </div>
+                                <div>
+                                    @if ($rsv->status === 'confirmed')
+                                        <span
+                                            class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">Dikonfirmasi</span>
+                                    @elseif($rsv->status === 'seated')
+                                        <span
+                                            class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-[#5856D6]/15 text-[#5856D6]">Duduk</span>
+                                    @elseif($rsv->status === 'completed')
+                                        <span
+                                            class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70">Selesai</span>
+                                    @elseif($rsv->status === 'cancelled')
+                                        <span
+                                            class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-red-500/15 text-red-600">Batal</span>
+                                    @elseif($rsv->status === 'no_show')
+                                        <span
+                                            class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-gray-500/15 text-gray-600">No Show</span>
+                                    @else
+                                        <span
+                                            class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400">Menunggu</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Middle row: Customer & Table info --}}
+                            <div
+                                class="p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 space-y-1.5 text-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-black dark:text-white">{{ $rsv->customer_name }}</span>
+                                    <span
+                                        class="font-semibold text-black/70 dark:text-white/70 inline-flex items-center gap-1">
+                                        <i data-lucide="users" class="w-3.5 h-3.5 text-black/40 dark:text-white/40"></i>
+                                        <span class="tabular-nums">{{ $rsv->guest_count }} Tamu</span>
+                                    </span>
+                                </div>
+
+                                @php
+                                    $cleanPhone = preg_replace('/[^0-9]/', '', $rsv->customer_phone);
+                                    if (str_starts_with($cleanPhone, '0')) {
+                                        $cleanPhone = '62' . substr($cleanPhone, 1);
+                                    }
+                                @endphp
+                                <div class="flex items-center justify-between">
+                                    <a href="https://wa.me/{{ $cleanPhone }}?text=Halo%20{{ urlencode($rsv->customer_name) }},%20konfirmasi%20reservasi%20{{ $rsv->reservation_code }}..."
+                                        target="_blank"
+                                        class="inline-flex items-center gap-1 text-[#25D366] hover:underline text-[11.5px]">
+                                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                        <span>+{{ $rsv->customer_phone }}</span>
+                                    </a>
+
+                                    <div>
+                                        @if ($rsv->posTable)
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/10 text-[#5856D6]">
+                                                <i data-lucide="layout-grid" class="w-3 h-3"></i>
+                                                <span>#{{ $rsv->posTable->table_number }} ({{ $rsv->posTable->name }})</span>
+                                            </span>
+                                        @elseif($rsv->product)
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF]">
+                                                <i data-lucide="sparkles" class="w-3 h-3"></i>
+                                                <span>{{ $rsv->product->name }}</span>
+                                            </span>
+                                        @else
+                                            <button type="button" @click="openAssign({{ Js::from($rsv) }})"
+                                                class="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#007AFF] hover:underline">
+                                                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                                                <span>Pilih Meja</span>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                @if ($rsv->notes)
+                                    <p
+                                        class="text-[11.5px] text-black/50 dark:text-white/50 italic pt-1 border-t border-black/5 dark:border-white/5">
+                                        "{{ $rsv->notes }}"
+                                    </p>
+                                @endif
+                            </div>
+
+                            {{-- Bottom row: Quick Actions --}}
+                            <div class="flex items-center justify-between gap-2 pt-1">
+                                <div>
+                                    @if ($rsv->status === 'pending_confirmation')
+                                        <form action="{{ route('storefront.reservations.status', $rsv) }}" method="POST"
+                                            class="inline">
+                                            @csrf
+                                            <input type="hidden" name="status" value="confirmed">
+                                            <button type="submit"
+                                                class="px-3.5 py-1.5 rounded-[10px] bg-[#34C759] hover:bg-[#2EB04E] text-white font-bold text-xs transition">
+                                                Konfirmasi
+                                            </button>
+                                        </form>
+                                    @elseif($rsv->status === 'confirmed')
+                                        <form action="{{ route('storefront.reservations.status', $rsv) }}" method="POST"
+                                            class="inline">
+                                            @csrf
+                                            <input type="hidden" name="status" value="seated">
+                                            <button type="submit"
+                                                class="px-3.5 py-1.5 rounded-[10px] bg-[#5856D6] hover:bg-[#4745B8] text-white font-bold text-xs transition">
+                                                Duduk
+                                            </button>
+                                        </form>
+                                    @elseif($rsv->status === 'seated')
+                                        <form action="{{ route('storefront.reservations.status', $rsv) }}" method="POST"
+                                            class="inline">
+                                            @csrf
+                                            <input type="hidden" name="status" value="completed">
+                                            <button type="submit"
+                                                class="px-3.5 py-1.5 rounded-[10px] bg-black dark:bg-white text-white dark:text-black font-bold text-xs transition">
+                                                Selesai
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+
+                                <div class="relative">
+                                    <button type="button" @click="openMenu = !openMenu"
+                                        class="p-2 rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-black/60 dark:text-white/60">
+                                        <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                                    </button>
+                                    <div x-show="openMenu" @click.away="openMenu = false" x-transition
+                                        class="absolute right-0 bottom-full mb-1 w-40 bg-white dark:bg-[#2C2C2E] rounded-[14px] shadow-lg border border-black/10 dark:border-white/10 p-1.5 z-20 text-left text-xs space-y-0.5">
+                                        <button type="button"
+                                            @click="openMenu = false; openAssign({{ Js::from($rsv) }})"
+                                            class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-black/5 flex items-center gap-2 text-black dark:text-white">
+                                            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                                            <span>Ubah Meja</span>
+                                        </button>
+                                        @if (!in_array($rsv->status, ['cancelled', 'completed', 'no_show'], true))
+                                            <form action="{{ route('storefront.reservations.status', $rsv) }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="status" value="cancelled">
+                                                <button type="submit"
+                                                    class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-red-50 text-red-600 flex items-center gap-2">
+                                                    <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                                                    <span>Batalkan</span>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
                 <div class="p-4 border-t border-black/5 dark:border-white/5">
                     {{ $reservations->links() }}
                 </div>
@@ -335,10 +473,10 @@
 
         <!-- Modal Assign Table -->
         <div x-show="showAssignModal" x-transition.opacity
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm"
             style="display: none;">
             <div @click.away="showAssignModal = false"
-                class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4">
+                class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4">
                 <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                     <h3 class="text-base font-bold text-black dark:text-white">Alokasikan Meja Restoran</h3>
                     <button type="button" @click="showAssignModal = false" class="text-black/40 hover:text-black">
@@ -361,7 +499,7 @@
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Pilih
                                 Meja yang Tersedia</label>
                             <select name="pos_table_id" required
-                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs text-black dark:text-white">
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-xs text-black dark:text-white">
                                 <option value="">-- Pilih Nomor Meja --</option>
                                 @foreach ($tables as $tbl)
                                     <option value="{{ $tbl->id }}">
@@ -376,8 +514,7 @@
                             <button type="button" @click="showAssignModal = false"
                                 class="px-4 py-2 rounded-full text-xs font-semibold text-black/60 hover:bg-black/5">Batal</button>
                             <button type="submit"
-                                class="px-5 py-2 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold transition">Simpan
-                                Alokasi</button>
+                                class="px-5 py-2 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold transition">Simpan</button>
                         </div>
                     </form>
                 </template>

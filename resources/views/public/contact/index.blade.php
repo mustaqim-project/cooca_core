@@ -17,8 +17,7 @@
                     <i data-lucide="message-square" class="w-4 h-4"></i>
                     <span>Customer Support 24/7</span>
                 </div>
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Hubungi Tim
-                    Kami</h1>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Hubungi Tim Kami</h1>
                 <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] max-w-lg mx-auto leading-relaxed">
                     Punya pertanyaan seputar cara penggunaan aplikasi kasir atau ingin berkonsultasi seputar pembukuan
                     bisnis? Tim COOCA siap membantu Anda.

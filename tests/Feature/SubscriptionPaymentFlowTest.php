@@ -270,4 +270,16 @@ class SubscriptionPaymentFlowTest extends TestCase
         $response->assertSee($this->business->name);
         $response->assertSee('Download PDF Langsung');
     }
+
+    public function test_tenant_can_view_payment_instructions_page(): void
+    {
+        $service = new EntitlementService();
+        $payment = $service->createPaymentOrder($this->business, $this->user, 'monthly', SubscriptionPayment::METHOD_BCA);
+
+        $response = $this->actingAs($this->user)->get(route('billing.payment.show', $payment));
+
+        $response->assertOk();
+        $response->assertSee($payment->order_number);
+        $response->assertSee('Nomor Rekening Tujuan');
+    }
 }

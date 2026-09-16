@@ -35,10 +35,19 @@ final class MerchantOrderController extends Controller
         abort_unless(Context::hasPermission('storefront.orders.view'), 403);
 
         $statusTab = $request->query('tab', 'all');
+        $typeFilter = $request->query('type', 'all');
 
         $query = CommerceOrder::where('business_id', $business->id)
             ->with(['items', 'paymentMethod', 'latestProof'])
             ->latest();
+
+        if ($typeFilter !== 'all') {
+            if ($typeFilter === 'customer_po') {
+                $query->whereIn('order_type', [CommerceOrder::TYPE_CUSTOMER_PO, CommerceOrder::TYPE_PO_BATCH]);
+            } else {
+                $query->where('order_type', $typeFilter);
+            }
+        }
 
         if ($statusTab === 'needs_verification') {
             $query->where('status', CommerceOrder::STATUS_PROOF_SUBMITTED);
@@ -66,7 +75,7 @@ final class MerchantOrderController extends Controller
             ->where('status', CommerceOrder::STATUS_PROOF_SUBMITTED)
             ->count();
 
-        return view('app.storefront.orders.index', compact('business', 'orders', 'statusTab', 'needsVerificationCount'));
+        return view('app.storefront.orders.index', compact('business', 'orders', 'statusTab', 'typeFilter', 'needsVerificationCount'));
     }
 
     /**

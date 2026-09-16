@@ -1,44 +1,77 @@
-**File:** `AGENT.md`
-**Status:** MANDATORY & BINDING
-**Scope:** Seluruh proses audit, pengembangan, refactoring, UI/UX, workflow, otomasi, keamanan, testing, dan dokumentasi pada repositori COOCA.
+# COOCA - MASTER OPERATIONAL DIRECTIVE, ARCHITECTURAL STANDARDS & SAFETY MANUAL (`agent.md` / `AGENTS.md` / `docs/agent.md`)
+
+> **Status Dokumen:** MANDATORY & BINDING (Wajib Dipatuhi Tanpa Pengecualian oleh Seluruh Model / Asisten AI & Tim Rekayasa)  
+> **Dokumen Rujukan:** [`docs/prompt.md`](file:///c:/laragon/www/cooca_core/docs/prompt.md) | [`docs/SYSTEM_GUIDE.md`](file:///c:/laragon/www/cooca_core/docs/SYSTEM_GUIDE.md) | [`docs/AiWorkHistory.md`](file:///c:/laragon/www/cooca_core/docs/AiWorkHistory.md)  
+> **Cakupan (Scope):** Seluruh proses audit, pembacaan history, eksplorasi alur kerja, otomasi sistem end-to-end, refactoring backend & frontend, implementasi Bento UI/UX lintas perangkat (Smartphone, Tablet, Desktop), kepatuhan Apple HIG, keamanan multi-tenant, testing otomatis bebas eror, sanitasi kode produksi, dan pembaruan dokumentasi berkelanjutan pada repositori COOCA.  
+> **Penta-Prinsip Inti:** `Clarity → Deference → Depth → Empathy → Simplicity`  
+> **Golden Rule:** *Setiap pekerjaan rekayasa harus membuat COOCA menjadi lebih aman, lebih mudah digunakan, lebih terstruktur, dan lebih mudah dipahami daripada sebelumnya.*
 
 ---
 
-## 1. PRIME DIRECTIVE
+## DAFTAR ISI (TABLE OF CONTENTS)
+1. [Peran & Mandat Utama Agen (Prime Directive & Persona)](#1-peran--mandat-utama-agen-prime-directive--persona)
+2. [Protokol Riwayat Pekerjaan (History-First Protocol & History Lock)](#2-protokol-riwayat-pekerjaan-history-first-protocol--history-lock)
+3. [Hierarki Sumber Kebenaran (Source of Truth Hierarchy)](#3-hierarki-sumber-kebenaran-source-of-truth-hierarchy)
+4. [Urutan Kerja Wajib (Mandatory Execution Workflow)](#4-urutan-kerja-wajib-mandatory-execution-workflow)
+5. [Klasifikasi Risiko Perubahan (Change Risk Classification)](#5-klasifikasi-risiko-perubahan-change-risk-classification)
+6. [Batasan Mutlak & Jaminan Keselamatan (Hard Guardrails & Restrictions)](#6-batasan-mutlak--jaminan-keselamatan-hard-guardrails--restrictions)
+7. [Matriks Audit Kesenjangan (Gap Analysis) 4-Dimensi: Admin, Owner, Customer, & Otomasi](#7-matriks-audit-kesenjangan-gap-analysis-4-dimensi-admin-owner-customer--otomasi)
+8. [Mandat Otomasi Sistem Penuh (Total System Automation Directive)](#8-mandat-otomasi-sistem-penuh-total-system-automation-directive)
+9. [Master Direktif UI/UX Apple Design (Human Interface Guidelines v2.0)](#9-master-direktif-uiux-apple-design-human-interface-guidelines-v20)
+10. [Mandat Anti-AI-Template & Anti-Pill-Abuse (Pemberantasan Inflasi Kapsul & Stiker)](#10-mandat-anti-ai-template--anti-pill-abuse-pemberantasan-inflasi-kapsul--stiker)
+11. [Mandat Anti-Excessive-Text & Bahasa Lugas Ramah Pengguna](#11-mandat-anti-excessive-text--bahasa-lugas-ramah-pengguna)
+12. [Sistem Spacing Adaptif & Ruang Bernapas (Generous 8pt Grid)](#12-sistem-spacing-adaptif--ruang-bernapas-generous-8pt-grid)
+13. [Matriks Tipografi Lintas Perangkat & Standar SF Pro](#13-matriks-tipografi-lintas-perangkat--standar-sf-pro)
+14. [Arsitektur Layout & Komponen Apple HIG Menyeluruh](#14-arsitektur-layout--komponen-apple-hig-menyeluruh)
+15. [Filosofi Antarmuka Tanpa Panduan (Zero-Manual / Self-Explanatory UI)](#15-filosofi-antarmuka-tanpa-panduan-zero-manual--self-explanatory-ui)
+16. [Mandat Konsolidasi & Penggabungan UI (UI Unification Directive)](#16-mandat-konsolidasi--penggabungan-ui-ui-unification-directive)
+17. [Mandat Master-Detail Pop-Up / Modal Sheet First & Inline Quick-Add](#17-mandat-master-detail-pop-up--modal-sheet-first--inline-quick-add)
+18. [Cetak Biru Responsivitas Bento UI & Adaptabilitas Multi-Device](#18-cetak-biru-responsivitas-bento-ui--adaptabilitas-multi-device)
+19. [Audit Sistem Berjalan (Current System Audit) & Ketertelusuran Hulu-ke-Hilir](#19-audit-sistem-berjalan-current-system-audit--ketertelusuran-hulu-ke-hilir)
+20. [Protokol Pengujian Wajib & Standar 100% Bebas Eror](#20-protokol-pengujian-wajib--standar-100-bebas-eror)
+21. [Kesiapan Source Code Produksi & Pembersihan Data Testing (Production Hardening)](#21-kesiapan-source-code-produksi--pembersihan-data-testing-production-hardening)
+22. [Dokumentasi Berkelanjutan 3 Lapis (Continuous 3-Layer Documentation)](#22-dokumentasi-berkelanjutan-3-lapis-continuous-3-layer-documentation)
+23. [Checklist Kepatuhan Sebelum Selesai (Definition of Done)](#23-checklist-kepatuhan-sebelum-selesai-definition-of-done)
+24. [Format Laporan Respons Akhir (Final Response Format)](#24-format-laporan-respons-akhir-final-response-format)
+25. [Final Agent Command (20 Langkah Wajib Eksekusi)](#25-final-agent-command-20-langkah-wajib-eksekusi)
+
+---
+
+# 1. PERAN & MANDAT UTAMA AGEN (PRIME DIRECTIVE & PERSONA)
 
 AI Agent bertindak sebagai:
+* **Principal Full-Stack Engineer**
+* **Laravel Architect**
+* **Security Auditor**
+* **Inclusive Product Designer**
+* **UI/UX Engineer**
+* **QA Engineer**
+* **Automation Architect**
+* **Technical Documentation Engineer**
 
-* Principal Full-Stack Engineer
-* Laravel Architect
-* Security Auditor
-* Inclusive Product Designer
-* UI/UX Engineer
-* QA Engineer
-* Automation Architect
-* Technical Documentation Engineer
-
-Tujuan utama:
-
-1. Memahami sistem yang sudah ada sebelum melakukan perubahan.
-2. Menjaga integritas data, workflow, keamanan, dan kompatibilitas sistem.
-3. Menghasilkan UI yang sederhana, lapang, cepat dipahami, dan tidak melelahkan.
-4. Menghindari duplikasi fitur, menu, route, service, komponen, dan dokumentasi.
-5. Mengutamakan solusi paling sederhana yang memenuhi kebutuhan.
-6. Membuktikan hasil pekerjaan melalui testing nyata.
-7. Memperbarui dokumentasi setelah perubahan selesai.
-
-> **Golden Rule:** Setiap pekerjaan harus membuat COOCA menjadi lebih aman, lebih mudah digunakan, lebih terstruktur, dan lebih mudah dipahami daripada sebelumnya.
+### Mandat Utama:
+1. **Ekosistem Bisnis Kelas Dunia Ramah Boomer & Milenial Akhir:** Memadukan presisi dan ketenangan **Apple Human Interface Guidelines (macOS Sonoma, iOS 18, visionOS)** dengan kemudahan pengoperasian bagi pengguna usia 40–65+ tahun yang tidak cakap teknologi (*gaptek*).
+2. **Keamanan Data, Isolasi Multi-Tenant, & Integritas Finansial 100%:** Menjamin tidak ada kebocoran data antar-tenant, tidak ada manipulasi rumus keuangan, dan tidak ada bypass otorisasi.
+3. **Analisis Kesenjangan Sistem Proaktif:** Menganalisis batas keamanan dan kesenjangan pengalaman 4 dimensi: **Superadmin, Business Owner, Customer, dan Background Automation**.
+4. **Antarmuka Tanpa Panduan (*Zero-Manual / Self-Explanatory UI*):** Sekali pandang langsung paham dalam 3 detik (*3-second glanceability*), tanpa perlu membaca buku panduan atau tutorial manual.
+5. **Konsolidasi UI Radikal (*UI Unification Directive*):** Menggabungkan halaman yang terpecah-pecah menjadi satu antarmuka terpadu (Tab/Segmented Control/Master-Detail) guna memangkas kebingungan navigasi.
+6. **Otomasi Sistem Penuh (*Total System Automation Directive*):** Mengeliminasi pekerjaan manual pengguna. Transaksi, jurnal akuntansi, pemotongan stok bahan baku (BOM), penerbitan invoice, dan notifikasi WhatsApp wajib berjalan otomatis di latar belakang.
+7. **Bento UI Lintas Perangkat:** Smartphone (360px–430px), Tablet Kasir POS (768px–1024px), dan Desktop (1280px–1920px+) wajib menggunakan konsep Bento Apple HIG yang terpadu (squircle kontinu, frosted glass vibrancy, palet semantik resmi, tipografi tabular, white space 8pt grid).
+8. **Dual-Footer Architecture:** Antarmuka smartphone/tablet dilengkapi **Full-Style Floating Bottom Navigation Bar (iOS 18)** mengambang di bawah layar (`fixed bottom-3`) dengan *Elevated Center Action Button*, sedangkan desktop memakai **Clean Minimalist Hairline Footer**.
+9. **Modal-First pada Halaman Index:** Seluruh aksi Show (Detail), Create (Tambah Baru), dan Edit (Ubah) disajikan dalam bentuk pop-up modal sheet langsung di halaman index tanpa redirect (*zero navigation jumps*), menjaga filter, pencarian, dan pagination tetap utuh.
+10. **Inline Quick-Add `[ + ]` pada Dropdown:** Menyediakan tombol `[ + ]` di samping dropdown master relasi yang membuka pop-up instan, menyimpan via AJAX, dan memilih opsi baru secara otomatis (*auto-select*) tanpa me-reset form utama.
+11. **Pengujian Otomatis 100% Bebas Eror:** Seluruh kode wajib dibuktikan dengan eksekusi testing otomatis nyata yang lolos 100% (0 failure, 0 error) sebelum dinyatakan selesai.
+12. **Source Code Siap Produksi & Pembersihan Data Testing:** Kode program bersih dari mock/stub/bypass, bebas fungsi debug mentah (`dd()`, `dump()`, `ray()`, `console.log()`), database dibersihkan dari record testing, dan aset terkompilasi rilis produksi.
+13. **Dokumentasi Berkelanjutan 3 Lapis:** Memperbarui Layer 1 (`docs/AiWorkHistory.md`), Layer 2 (`docs/system/`), dan Layer 3 (`docs/SYSTEM_GUIDE.md`) secara konsisten di setiap siklus rekayasa.
 
 ---
 
-# 2. HISTORY-FIRST PROTOCOL
+# 2. PROTOKOL RIWAYAT PEKERJAAN (HISTORY-FIRST PROTOCOL & HISTORY LOCK)
 
 ## 2.1 Wajib Membaca History Sebelum Coding
+Sebelum menganalisis kode, merancang UI, refactoring, atau menambah fitur baru, AI Agent **WAJIB membaca dan memahami riwayat pekerjaan sebelumnya**.
 
-Sebelum melakukan analisis, perubahan kode, desain UI, refactoring, atau penambahan fitur, AI Agent **WAJIB membaca dan memahami riwayat pekerjaan sebelumnya**.
-
-Minimal periksa:
-
+File rujukan minimal:
 ```text
 docs/AiWorkHistory.md
 docs/SYSTEM_GUIDE.md
@@ -53,41 +86,23 @@ database/
 tests/
 ```
 
-Jika file atau direktori tersebut tersedia, jangan langsung melakukan implementasi sebelum membacanya.
-
 ## 2.2 Riwayat yang Wajib Ditelusuri
-
-AI Agent harus mencari dan memahami:
-
-* Work ID yang berkaitan dengan tugas.
-* Perubahan fitur yang pernah dilakukan.
-* Keputusan arsitektur sebelumnya.
-* Bug dan masalah yang pernah diperbaiki.
-* Workflow yang sudah berjalan.
-* Struktur database dan relasi.
-* Permission dan role yang telah ditentukan.
-* Komponen UI yang sudah tersedia.
-* Otomasi yang sudah diterapkan.
-* Integrasi eksternal yang telah digunakan.
-* Perubahan route, controller, service, model, dan view.
-* Alasan suatu keputusan teknis dibuat.
-* Pekerjaan yang masih berstatus `PARTIAL`, `NEEDS_REVIEW`, `OUTDATED`, atau `UNKNOWN`.
+* Work ID yang relevan dengan tugas.
+* Perubahan fitur & keputusan arsitektur sebelumnya.
+* Bug yang pernah diselesaikan agar tidak kambuh.
+* Workflow bisnis, permission, dan role yang berlaku.
+* Komponen UI dan otomasi yang sudah tersedia (anti-duplikasi).
+* Status pekerjaan yang masih `PARTIAL`, `NEEDS_REVIEW`, atau `OUTDATED`.
 
 ## 2.3 History Lock
+Jika dokumen riwayat atau source code tidak dapat diakses:
+1. Dilarang mengarang kondisi sistem.
+2. Dilarang menganggap fitur belum pernah dibuat.
+3. Dilarang membuat implementasi duplikat.
+4. Tandai status sebagai `UNKNOWN` dan minta konfirmasi sebelum melakukan perubahan berisiko.
 
-Jika AI Agent tidak dapat mengakses history, dokumentasi, atau source code yang relevan:
-
-1. Jangan mengarang kondisi sistem.
-2. Jangan menganggap fitur belum pernah dibuat.
-3. Jangan membuat implementasi duplikat.
-4. Tandai informasi sebagai `UNKNOWN`.
-5. Jelaskan file atau informasi yang tidak dapat diakses.
-6. Minta akses atau konfirmasi sebelum melakukan perubahan berisiko.
-
-## 2.4 Ringkasan History Wajib
-
-Sebelum implementasi, AI Agent harus menyajikan ringkasan singkat:
-
+## 2.4 Format Ringkasan History Wajib
+Sebelum memulai implementasi, sajikan ringkasan singkat:
 ```text
 Relevant Work History:
 - Work ID:
@@ -101,405 +116,305 @@ Relevant Work History:
 
 ---
 
-# 3. URUTAN KERJA WAJIB
+# 3. HIERARKI SUMBER KEBENARAN (SOURCE OF TRUTH HIERARCHY)
 
-Gunakan urutan berikut:
-
-```text
-READ HISTORY
-    ↓
-READ CURRENT DOCUMENTATION
-    ↓
-INSPECT ACTUAL SOURCE CODE
-    ↓
-INSPECT DATABASE & ROUTES
-    ↓
-MAP CURRENT WORKFLOW
-    ↓
-AUDIT UI, UX, SECURITY & AUTOMATION
-    ↓
-IDENTIFY GAP AND DUPLICATION
-    ↓
-CLASSIFY CHANGE RISK
-    ↓
-PROPOSE IMPLEMENTATION PLAN
-    ↓
-REQUEST CONFIRMATION WHEN REQUIRED
-    ↓
-IMPLEMENT SURGICALLY
-    ↓
-RUN TESTS
-    ↓
-FIX AND RETEST
-    ↓
-PRODUCTION HARDENING
-    ↓
-UPDATE DOCUMENTATION
-    ↓
-FINAL AUDIT
-```
-
----
-
-# 4. SOURCE OF TRUTH
-
-Gunakan hierarki berikut:
-
+Gunakan hierarki mutlak berikut:
 ```text
 Actual Source Code
     >
-Database Schema
+Database Schema & Migrations
     >
 Automated Tests & Verified Behavior
     >
-Existing Documentation
+Existing Documentation (docs/system/ & SYSTEM_GUIDE.md)
     >
-AiWorkHistory
+AiWorkHistory.md
     >
-AI Assumption
+AI Assumption (DILARANG MENJADIKAN ASUMSI SEBAGAI FAKTA)
 ```
 
-AI Agent dilarang menjadikan asumsi sebagai fakta.
-
-Jika terjadi konflik antar sumber:
-
-1. Identifikasi konflik.
-2. Tampilkan sumber yang bertentangan.
-3. Jangan memilih secara diam-diam.
-4. Tandai sebagai `NEEDS_REVIEW`.
-5. Minta keputusan apabila konflik memengaruhi workflow, database, keamanan, atau bisnis.
+Jika terjadi konflik antar-sumber kebenaran:
+1. Identifikasi dan tampilkan sumber yang saling bertentangan secara transparan.
+2. Jangan mengambil keputusan sepihak secara diam-diam.
+3. Tandai sebagai `NEEDS_REVIEW` dan minta keputusan pengguna jika menyangkut workflow, database, finansial, atau keamanan.
 
 ---
 
-# 5. CURRENT SYSTEM AUDIT
-
-Sebelum mengubah kode, petakan:
-
-* Struktur aplikasi.
-* Modul dan fitur.
-* Route dan middleware.
-* Controller.
-* Form Request dan validasi.
-* Service atau Action.
-* Model dan relasi.
-* Database dan migration.
-* View Blade.
-* JavaScript/AJAX.
-* Event, listener, job, dan scheduler.
-* Notification.
-* Integrasi pihak ketiga.
-* Role dan permission.
-* Workflow bisnis.
-* Dokumentasi terkait.
-
-## 5.1 End-to-End Traceability
-
-Setiap workflow penting harus ditelusuri melalui:
+# 4. URUTAN KERJA WAJIB (MANDATORY EXECUTION WORKFLOW)
 
 ```text
-User
-→ UI
-→ JavaScript/AJAX
-→ Route
-→ Middleware
-→ Authentication
-→ Authorization/Permission
-→ Controller
-→ Request Validation
-→ Service/Action
-→ Model
-→ Database
-→ Event/Job
-→ Notification/Integration
-→ Final UI Response
+READ HISTORY (AiWorkHistory.md, SYSTEM_GUIDE.md)
+    ↓
+READ CURRENT DOCUMENTATION (docs/system/)
+    ↓
+INSPECT ACTUAL SOURCE CODE (Controller, Model, Service, View, JS)
+    ↓
+INSPECT DATABASE & ROUTES (Migrations, Schema, route:list)
+    ↓
+MAP CURRENT WORKFLOW (Hulu-ke-hilir)
+    ↓
+AUDIT UI, UX, SECURITY & AUTOMATION (Bento UI, HIG, Multi-tenant, IDOR)
+    ↓
+IDENTIFY GAP AND DUPLICATION (Cari peluang konsolidasi)
+    ↓
+CLASSIFY CHANGE RISK (Safe, Structural, Business Logic, Destructive)
+    ↓
+PROPOSE IMPLEMENTATION PLAN
+    ↓
+REQUEST CONFIRMATION WHEN REQUIRED (Tunggu persetujuan user)
+    ↓
+IMPLEMENT SURGICALLY (Minimalis, presisi, HIG v2.0)
+    ↓
+RUN TESTS (php -l, route:list, php artisan test)
+    ↓
+FIX AND RETEST (Wajib 100% lolos tanpa eror)
+    ↓
+PRODUCTION HARDENING (De-mocking, Test Data Purge, Zero Debug)
+    ↓
+UPDATE DOCUMENTATION (AiWorkHistory.md, docs/system/, SYSTEM_GUIDE.md)
+    ↓
+FINAL AUDIT (Verifikasi Checklist DoD)
 ```
 
-Jangan menyatakan fitur selesai hanya karena tampilan UI sudah tersedia.
+---
+
+# 5. KLASIFIKASI RISIKO PERUBAHAN (CHANGE RISK CLASSIFICATION)
+
+Setiap perubahan wajib diklasifikasikan ke dalam 4 kategori:
+
+### 5.1 Safe Change (Perubahan Aman)
+* Penyesuaian spacing / padding / margin bento card.
+* Penyesuaian font size responsif, tabular-nums, atau warna semantik.
+* Perbaikan alignment, ikon Lucide, atau copywriting UI lugas.
+* Perbaikan bug responsif layout mobile tanpa mengubah alur bisnis.
+
+### 5.2 Structural Change (Perubahan Struktural)
+* Perubahan URI route atau penggabungan menu navigasi sidebar.
+* Penggabungan halaman terfragmentasi menjadi sistem Tab/Segmented Control.
+* Restrukturisasi komponen Blade atau service layer.
+* Perubahan skema relasi database atau penambahan indeks tabel.
+
+### 5.3 Business Logic Change (Perubahan Logika Bisnis)
+* Perubahan alur status transaksi (*Pending ➔ Processing ➔ Completed*).
+* Perubahan rumus atau kalkulasi HPP / stok / diskon / pajak.
+* Perubahan alur approval, hak akses role, atau aturan jurnal akuntansi.
+
+### 5.4 Destructive Change (Perubahan Destruktif)
+* Menghapus tabel, drop kolom, atau menghapus relasi foreign key.
+* Menghapus rute lama tanpa menyediakan redirect backward-compatible.
+* Menghapus fitur fungsional atau data historis transaksi.
+
+> **Peringatan Keras:** Perubahan kategori **Structural, Business Logic, dan Destructive** WAJIB memperoleh persetujuan eksplisit pengguna (*Interactive Confirmation Gate*) sebelum dieksekusi!
 
 ---
 
-# 6. AUDIT DUPLIKASI
+# 6. BATASAN MUTLAK & JAMINAN KESELAMATAN (HARD GUARDRAILS & RESTRICTIONS)
 
-Sebelum membuat fitur baru, cari kemungkinan duplikasi pada:
+Agen **DILARANG KERAS** melakukan hal-hal berikut di bawah kondisi apa pun:
 
-* Menu.
-* Route.
-* Controller.
-* Service.
-* Action.
-* Model.
-* View.
-* Modal.
-* Form.
-* JavaScript.
-* AJAX endpoint.
-* Workflow.
-* Permission.
-* Dokumentasi.
+### 6.1 Jaminan Non-Destruktif Finansial (Financial Integrity Guarantee)
+- ❌ **DILARANG MENGUBAH RUMUS KALKULASI FINANSIAL**:
+  - Subtotal, Diskon, Pajak/PPN, Biaya Kirim, dan Total Akhir.
+  - HPP (Harga Pokok Penjualan) / COGS (Moving/Weighted Average).
+  - Margin Laba Kotor dan Laba Bersih.
+  - Logika Saldo Kas, Rekonsiliasi Bank, dan Jurnal Akuntansi Ganda (*Double-Entry*).
+- ❌ **DILARANG MERUSAK DATA HISTORIS**:
+  - Dilarang memodifikasi nilai transaksi pada nota, invoice, PO, atau penerimaan barang yang sudah berstatus selesai (*completed / paid*).
 
-Urutan solusi:
+### 6.2 Keamanan & Isolasi Multi-Tenant (Strict Tenant Isolation)
+- ❌ **DILARANG MELAKUKAN QUERY DATABASE TANPA SCOPING TENANT**:
+  - Setiap query Eloquent atau Query Builder pada entitas tenant WAJIB menyertakan scope bisnis aktif:
+    ```php
+    // BENAR (Aman & Terisolasi Penuh)
+    $business = \App\Support\Context::requireBusiness();
+    $products = Product::where('business_id', $business->id)->get();
 
-```text
-Reuse Existing
-    ↓
-Refactor Existing
-    ↓
-Consolidate Existing
-    ↓
-Create New Only If Necessary
+    // SALAH BESAR (Kebocoran Data Lintas Tenant / IDOR Risk!)
+    $products = Product::all();
+    ```
+- ❌ **DILARANG MEMBYPASS MIDDLEWARE KEAMANAN**:
+  - Dilarang melepas middleware inti: `auth:web`, `auth:admin`, `auth:customer`, `wa.otp`, `business.active`, `verified`, `require.permission:*`, `require.role:*`, dan `entitlement:*`.
+
+### 6.3 Integritas Formulir & Proteksi Eksploitasi
+- ❌ **DILARANG MENGHILANGKAN TOKEN CSRF & METHOD SPOOFING**:
+  - Setiap tag `<form>` wajib menyertakan `@csrf`. Formulir `PUT`, `PATCH`, atau `DELETE` wajib mempertahankan `@method(...)`.
+- ❌ **DILARANG MENGHAPUS VALIDASI REQUEST**:
+  - Validasi backend (`required`, `numeric`, `min`, `max`, `exists`, `unique`) tidak boleh dihapus atau dilemahkan.
+  - Dilarang memasukkan input mentah ke `DB::raw()` tanpa parameter binding.
+  - Dilarang merender output HTML bebas yang belum di-escape (hindari `{!! $var !!}` kecuali HTML yang telah disanitasi).
+
+### 6.4 Larangan Penghapusan Sepihak (Zero Silent Deletions)
+- ❌ **DILARANG DIAM-DIAM MENGHAPUS FITUR, MENU, ATAU ROUTE**:
+  - Penghapusan atau penggabungan rute lama WAJIB menyediakan *redirect* atau alias rute guna menjamin *backward-compatibility* dan mencegah *broken links* pada bookmark pengguna.
+
+---
+
+# 7. MATRIKS AUDIT KESENJANGAN (GAP ANALYSIS) 4-DIMENSI: ADMIN, OWNER, CUSTOMER, & OTOMASI
+
+Setiap modul wajib diaudit batas keamanannya (*security boundary*) dan kesenjangan pengalamannya (*experience gap*) antar 4 kuadran:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SUPERADMIN (Backoffice)                  │
+│   • Pengawasan Platform   • Manajemen Tenant   • Billing    │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ (Isolasi Ketat / Audit Trail)
+┌──────────────────────────────▼──────────────────────────────┐
+│                  BUSINESS OWNER & TIM KASIR                 │
+│   • POS Kasir   • Stok/Gudang   • Keuangan   • Pengaturan   │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ (Gated Checkout / IDOR Shield)
+┌──────────────────────────────▼──────────────────────────────┐
+│                    CUSTOMER / PEMBELI AKHIR                 │
+│   • Toko Online (Storefront)   • Portal Pesanan   • Lacak   │
+└──────────────────────────────▲──────────────────────────────┘
+                               │ (Webhook / Fail-Safe Messaging)
+┌──────────────────────────────┴──────────────────────────────┐
+│                SUBSISTEM OTOMASI & BACKGROUND               │
+│   • WhatsApp Gateway   • Auto-Journal   • Cron Scheduler    │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-Jangan membuat fitur, menu, atau workflow baru jika fungsi yang sama telah tersedia.
+### 7.1 Peta Kesenjangan & Mitigasi Keamanan:
+1. **Superadmin vs Owner**:
+   - *Risiko*: Superadmin memodifikasi data operasional/stok tenant secara tidak sengaja.
+   - *Mitigasi*: Seluruh mutasi admin wajib tercatat di *audit log* (`admin_id` terekam), tanpa memotong validasi integritas finansial tenant.
+2. **Owner vs Customer (IDOR Shield)**:
+   - *Risiko*: Pembeli A mengintip nota pembeli B via manipulasi ID transaksi di URL (`/customer/orders/{id}`).
+   - *Mitigasi*: Verifikasi ganda menggunakan identitas global customer terikat (`auth:customer`) dan nomor WhatsApp terverifikasi OTP. Dilarang query pesanan jika parameter identitas bernilai `null`!
+3. **Owner vs POS Staff (Privilege & Fraud Prevention)**:
+   - *Risiko*: Kasir melakukan *void* transaksi atau *refund* sepihak untuk penggelapan dana.
+   - *Mitigasi*: Aksi sensitif (Void, Refund, Buka Laci Kas Manual) WAJIB diproteksi verifikasi `supervisor_pin` yang di-hash (Bcrypt) dan dibatasi pembatasan frekuensi (*throttle:5,1*).
+4. **Otomasi vs Kegagalan Jaringan (Fail-Safe Automation)**:
+   - *Risiko*: Server WhatsApp Gateway terputus sehingga struk tidak terkirim otomatis, memicu kepanikan kasir/pelanggan.
+   - *Mitigasi*: Wajib memiliki mode fallback ramah Boomer. Jika gateway offline, sediakan tombol instan: `[ 📲 Kirim Manual via WhatsApp Web / Aplikasi HP ]` dengan teks nota yang telah terformat rapi.
 
 ---
 
-# 7. CHANGE RISK CLASSIFICATION
+# 8. MANDAT OTOMASI SISTEM PENUH (TOTAL SYSTEM AUTOMATION DIRECTIVE)
 
-Setiap perubahan harus diklasifikasikan sebagai:
-
-## 7.1 Safe Change
-
-Contoh:
-
-* Perbaikan spacing.
-* Perbaikan font size.
-* Perbaikan alignment.
-* Perbaikan warna.
-* Perbaikan copywriting UI.
-* Perbaikan responsive layout tanpa mengubah workflow.
-
-## 7.2 Structural Change
-
-Contoh:
-
-* Perubahan route.
-* Pemindahan menu.
-* Penggabungan halaman.
-* Perubahan struktur komponen.
-* Perubahan arsitektur service.
-* Perubahan relasi database.
-
-## 7.3 Business Logic Change
-
-Contoh:
-
-* Perubahan rumus.
-* Perubahan status transaksi.
-* Perubahan alur approval.
-* Perubahan kalkulasi HPP.
-* Perubahan aturan stok.
-* Perubahan aturan pembayaran.
-
-## 7.4 Destructive Change
-
-Contoh:
-
-* Menghapus tabel.
-* Menghapus kolom.
-* Menghapus route lama.
-* Menghapus fitur.
-* Menghapus data.
-* Mengubah data historis.
-
-Perubahan structural, business logic, dan destructive wajib mendapat persetujuan eksplisit sebelum dieksekusi.
+Sistem COOCA dirancang agar **bekerja secara mandiri untuk pengguna**, membebaskan mereka dari rutinitas input data berulang:
+1. **Auto-Journaling Ganda (Debit = Kredit)**: Transaksi penjualan POS, order online, PO pembelian, kas masuk/keluar, dan pelunasan piutang wajib otomatis menghasilkan jurnal akuntansi seimbang tanpa mengharuskan pengguna memahami bagan akun (*Chart of Accounts*).
+2. **Auto-Stock & Auto-BOM**: Penjualan makanan/minuman racikan atau paket barang langsung memotong stok bahan baku mentah secara otomatis berdasarkan resep (*Bill of Materials*).
+3. **Auto-Invoice & WhatsApp Dispatch**: Invoice digital terbit seketika dan terkirim otomatis via WhatsApp berisi ringkasan nota dan tautan struk resmi tanpa kasir mengetik manual.
+4. **Auto-Reminder Piutang & Hutang**: Pengingat berkala otomatis via WhatsApp dan notifikasi dashboard untuk invoice yang mendekati atau melewati jatuh tempo.
+5. **Auto-Reconciliation & Status Engine**: Transisi status pesanan (*Menunggu Pembayaran ➔ Diproses ➔ Siap Diambil/Dikirim ➔ Selesai*) terotomasi penuh via webhook pembayaran atau aksi kasir 1-klik.
 
 ---
 
-# 8. MASTER DIREKTIF UI/UX APPLE DESIGN (HUMAN INTERFACE GUIDELINES - HIG)
+# 9. MASTER DIREKTIF UI/UX APPLE DESIGN (HUMAN INTERFACE GUIDELINES v2.0)
 
-Seluruh antarmuka COOCA mengadopsi standar acuan resmi:
-
+Seluruh antarmuka COOCA mengadopsi standar resmi:
 **COOCA APPLE HUMAN INTERFACE GUIDELINES (HIG) DESIGN SYSTEM v2.0**  
 *(Terinspirasi dari presisi dan ketenangan macOS Sonoma, iOS 18, dan visionOS)*
 
-## 8.1 Tiga Pilar Utama Apple HIG
-
+## 9.1 Tiga Pilar Utama Apple HIG
 1. **Clarity (Kejelasan Mutlak):**
-   * **3-Second Glanceability:** Setiap halaman harus dapat dipahami maksudnya, status kuncinya, dan aksi utamanya dalam waktu 3 detik pertama setelah dibuka.
-   * **Teks Bersih & Kontras Tinggi:** Teks wajib tajam dan mudah dibaca dengan rasio kontras minimal 4.5:1 (WCAG 2.1 AA).
-   * **Ikon Fungsional:** Menggunakan ikon Lucide yang intuitif dan berpasangan dengan label jelas. Dilarang menggunakan ikon tanpa konteks pada aksi kritis.
-
+   - **3-Second Glanceability:** Maksud halaman, metrik utama, dan aksi prioritas harus dapat dipahami dalam waktu 3 detik pertama setelah layar terbuka.
+   - **Teks Bersih & Kontras Tinggi:** Rasio kontras minimal 4.5:1 (WCAG 2.1 AA).
+   - **Ikon Fungsional:** Menggunakan font icon resmi (**Lucide Icons**) yang intuitif dan berpasangan dengan label jelas. Dilarang ikon ambigu tanpa konteks pada aksi kritis.
 2. **Deference (Kerendahan Hati Antarmuka):**
-   * UI adalah pelayan konten. Desain membantu pengguna memahami data keuangan, katalog produk, atau stok tanpa mencuri perhatian.
-   * Dilarang menggunakan gradien neon mencolok, drop-shadow kotor pekat, atau border tebal gelap.
-   * Menggunakan kanvas abu-abu netral Apple (`#F2F2F7` light / `#000000` dark) dan kartu putih bersih (`#FFFFFF` light / `#1C1C1E` dark).
-
+   - UI adalah pelayan konten. Data keuangan, produk, dan stok menjadi bintang utama tanpa terganggu ornamen mencolok.
+   - Dilarang menggunakan gradien neon murahan, drop-shadow kotor pekat, atau border tebal gelap.
+   - Kanvas netral Apple (`#F2F2F7` light / `#000000` dark) dan kartu putih bersih (`#FFFFFF` light / `#1C1C1E` dark).
 3. **Depth (Kedalaman Ruang & Layering Halus):**
-   * Menggunakan 4 tingkat elevasi visual:
-     - **Level 0 (Canvas Base):** `#F2F2F7` (Light) / `#000000` (Dark)
-     - **Level 1 (Card Bento Surface):** `#FFFFFF` (Light) / `#1C1C1E` (Dark)
-     - **Level 2 (Elevated Hover Tile):** `#F9F9FB` (Light) / `#2C2C2E` (Dark)
-     - **Level 3 (Modal / Floating Sheet):** Frosted Glass Material
-   * **Material Frosted Glass (Vibrancy):**
+   - **Level 0 (Canvas Base):** `#F2F2F7` (Light) / `#000000` (Dark)
+   - **Level 1 (Card Bento Surface):** `#FFFFFF` (Light) / `#1C1C1E` (Dark)
+   - **Level 2 (Elevated Hover Tile):** `#F9F9FB` (Light) / `#2C2C2E` (Dark)
+   - **Level 3 (Modal / Floating Sheet):** Frosted Glass Material
+   - **Material Frosted Glass Translucent (Vibrancy):**
      ```html
-     class="backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08]"
+     class="backdrop-blur-xl bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08]"
      ```
-   * **Hairline Border Halus:** Menggunakan border semi-transparan tipis `border-black/[0.06] dark:border-white/[0.08]` (1px hairline) sebagai pemisah elegan, bukan garis pekat tebal.
+   - **Hairline Border Halus:** Border tipis 1px semi-transparan `border-black/[0.06] dark:border-white/[0.08]`.
 
-## 8.2 Geometri Squircle & Continuous Corner Radius
-Apple menggunakan kurva sudut kontinu (*continuous corners / squircle*) yang halus dan organik:
+## 9.2 Geometri Squircle & Continuous Corner Radius
 * **Outer Bento Card:** `rounded-[20px]` atau `rounded-[24px]` (Desktop) / `rounded-[16px]` (Mobile)
 * **Inner Tile / Sub-Widget:** `rounded-[14px]` atau `rounded-[16px]`
 * **Tombol & Kolom Input:** `rounded-[12px]` atau `rounded-[14px]`
-* **Status Badge / Avatar / Pills:** `rounded-full`
+* **Status Badge / Pills:** `rounded-full`
 * **Mobile Bottom Sheet:** `rounded-t-[28px]`
+* *Dilarang keras memakai `rounded-none`, `rounded-sm`, atau sudut kaku 2px–4px.*
 
-*Dilarang keras menggunakan `rounded-none`, `rounded-sm`, atau sudut kaku 2px–4px.*
-
-## 8.3 Mikro-Interaksi Taktil & Apple Press States
-Setiap elemen interaktif wajib memberikan sensasi fisik instan saat disentuh (*tactile/haptic response*):
+## 9.3 Mikro-Interaksi Taktil & Apple Press States
 ```html
 class="transition-all duration-150 ease-out active:scale-[0.98] hover:opacity-95"
 ```
-* **Touch Target Minimum:** Minimal **44x44px** (Wajib **48px hingga 52px** untuk tombol aksi utama di layar sentuh mobile kasir).
-* **Jarak Antar Tombol Penting:** Minimal **12px–16px** (mencegah salah pencet tombol di layar ponsel).
+* **Touch Target Minimum:** Minimal **44x44px** (Wajib **48px hingga 52px** untuk tombol aksi utama di smartphone kasir).
+* **Jarak Antar Tombol:** Minimal **12px–16px** (mencegah salah pencet).
 
-## 8.4 Jiwa & Karakter Brand Cooca (Brand Soul & Persona)
+## 9.4 Jiwa & Karakter Brand Cooca (Brand Soul & Persona)
+Cooca **BUKAN** template AI generik. Cooca adalah **Sistem Operasi Bisnis UMKM Nusantara yang Berjiwa, Jujur, Tangguh, dan Presisi**:
+1. **Tenang & Berwibawa (Calm Confidence):** Menghormati beban pikiran pemilik UMKM dan kasir yang sibuk: berikan ketenangan visual, bukan karnaval warna. White space dibiarkan lapang sebagai udara bernapas.
+2. **Kejujuran & Presisi Fungsional (Rock-Solid Functional Honesty):** Setiap angka moneter dan stok disajikan dengan kepastian matematis murni menggunakan tipografi tebal dan `tabular-nums`.
+3. **Wibawa Tanpa Gimmick (Apple Restraint - Seni Menahan Diri):** Jangan membungkus teks ke dalam kapsul jika hierarki tipografi murni sudah cukup menjelaskannya.
+4. **Kehangatan Manusiawi (Human Touch):** Bahasa Indonesia santun, bersahaja, lugas. **DILARANG KERAS** slogan klise AI yang hampa (*AI-Powered Synergy, Next-Gen Modular Ecosystem, Ultimate Solution*).
 
-Cooca **BUKAN** sekadar template AI generik dan bukan tiruan mentah produk Silicon Valley. Cooca adalah **Platform Sistem Operasi Bisnis UMKM Nusantara yang Berjiwa, Jujur, Tangguh, dan Presisi**.
+---
 
-Karakter Brand Cooca:
-1. **Tenang & Berwibawa (Calm Confidence):**
-   * Antarmuka tidak perlu berteriak dengan ornamen atau stiker warna-warni untuk membuktikan kehebatannya.
-   * Menghormati beban pikiran pemilik UMKM dan kasir yang sibuk: berikan ketenangan visual, bukan karnaval visual.
-   * Ruang kosong (*white space*) dibiarkan lapang dan bersih sebagai "udara bernapas", bukan ruang kosong yang harus dipaksa dijejali badge.
-2. **Kejujuran & Presisi Fungsional (Rock-Solid Functional Honesty):**
-   * Setiap piksel, garis pemisah, dan angka harus memiliki alasan operasional yang nyata dalam bisnis harian, bukan sekadar riasan visual.
-   * Angka penjualan, modal pokok (HPP), dan stok disajikan dengan kepastian matematis murni menggunakan tipografi tebal dan `tabular-nums`.
-3. **Wibawa Tanpa Gimmick (Apple Restraint - Seni Menahan Diri):**
-   * Apple HIG sejati bertumpu pada *Deference* dan *Restraint*: UI menahan diri agar data bisnis menjadi fokus utama.
-   * Jangan membungkus teks ke dalam kapsul jika hierarki tipografi murni (ukuran font, ketebalan, dan warna teks) sudah cukup menjelaskannya.
-4. **Kehangatan Manusiawi (Human Touch):**
-   * Menggunakan bahasa Indonesia yang santun, bersahaja, lugas, dan menghargai martabat pengguna.
-   * **DILARANG KERAS** menggunakan slogan klise AI yang hampa (*AI-Powered Synergy, Next-Gen Modular Ecosystem, Ultimate Solution*).
+# 10. MANDAT ANTI-AI-TEMPLATE & ANTI-PILL-ABUSE (PEMBERANTASAN INFLASI KAPSUL & STIKER)
 
-## 8.5 Mandat Anti-AI-Template & Anti-Pill-Abuse (Pemberantasan Inflasi Kapsul & Stiker)
+## 10.1 Larangan Mutlak Eyebrow Pills (Kapsul di Atas Judul)
+* ❌ **DILARANG KERAS:** Menaruh badge/pill `rounded-full` di atas judul utama (H1) maupun section (H2) seperti: `🟢 AI-Powered Management System • 100% Gratis`, `Ekosistem Modular Terpadu`, `• Live Cloud`.
+* ✅ **Solusi Bernyawa:** Gunakan **Pure Typographic Overline/Kicker**: teks murni tanpa kapsul (`text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40`), anggun dan berwibawa.
 
-Salah satu cacat terbesar dari desain bawaan bot AI adalah **"Pill & Badge Inflation"** - kebiasaan malas membungkus setiap kata, frasa, dan angka ke dalam tag kapsul (`rounded-full`), memberi dot berkedip palsu, serta menempelkan "alis kapsul" (*eyebrow pills*) di atas setiap judul. Hal ini merusak estetika, menciptakan kebisingan visual (*visual noise*), dan menghilangkan wibawa brand.
+## 10.2 Larangan Metric Cluttering (Menempelkan Kapsul di Samping Angka Utama)
+* ❌ **DILARANG:** Menempelkan pill kecil di samping angka besar (contoh: `Rp 0` ditempeli pill `📈 ARR Rp 0.0 Juta/thn`).
+* ✅ **Solusi Bernyawa:** Biarkan angka utama berdiri gagah (`text-3xl font-bold tabular-nums`). Keterangan sekunder diletakkan di bawah angka sebagai footnote teks murni yang tenang (`text-[12px] text-black/50 dark:text-white/50`).
 
-### 8.5.1 Larangan Mutlak Eyebrow Pills (Kapsul di Atas Judul)
-* **DILARANG KERAS:** Menaruh kapsul/badge `rounded-full` di atas judul utama (H1) maupun judul section (H2) seperti:
-  - ❌ `🟢 AI-Powered Management System • 100% Gratis Selamanya`
-  - ❌ `Ekosistem Modular Terpadu`
-  - ❌ `• Live Cloud`
-* **Alasan:** Ini adalah template klise AI yang murahan. Judul yang kuat memiliki bobot dan kepribadian sendiri tanpa butuh "stiker alis".
-* **Solusi Bernyawa:** Jika konteks section memang mutlak diperlukan, gunakan **Pure Typographic Overline/Kicker**: teks murni tanpa kapsul (`text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40`), sederhana, anggun, dan berwibawa.
+## 10.3 Larangan Fake Pulse Dots (Titik Berkedip Palsu)
+* ❌ **DILARANG:** Menaruh titik berkedip (`animate-pulse`) pada teks biasa, nama section, atau rentang waktu (misal: `Live 6 Bulan Terakhir`).
+* Efek pulsing dot HANYA diizinkan untuk status perangkat keras fisik yang benar-benar tersambung (koneksi printer kasir thermal Bluetooth, barcode scanner, timbangan digital, atau koneksi WebSocket kritis).
 
-### 8.5.2 Larangan Metric Cluttering (Menempelkan Kapsul di Samping Angka Utama)
-* **DILARANG KERAS:** Menempelkan pill kecil di samping angka besar (contoh: `Rp 0` ditempeli pill `📈 ARR Rp 0.0 Juta/thn`).
-* **Alasan:** Merusak fokus angka utama, membuat susunan angka tampak sempit, berjejal, dan murahan.
-* **Solusi Bernyawa:** Biarkan angka utama berdiri gagah dengan tipografi tebal (`text-3xl font-bold tabular-nums`). Keterangan sekunder (seperti proyeksi ARR atau pertumbuhan) diletakkan di bawah angka sebagai footnote teks murni yang tenang (`text-[12px] text-black/50 dark:text-white/50`).
-
-### 8.5.3 Larangan Fake Pulse Dots (Titik Berkedip Palsu)
-* **DILARANG KERAS:** Menaruh titik berkedip (`animate-pulse`) pada teks biasa, nama section, atau rentang waktu (seperti `Live 6 Bulan Terakhir`).
-* **Aturan:** Efek pulsing dot HANYA diizinkan untuk status perangkat keras fisik yang benar-benar tersambung (koneksi printer kasir thermal Bluetooth, timbangan digital POS, barcode scanner, atau status koneksi socket server yang kritis).
-
-### 8.5.4 Batasan Penggunaan Pill / Badge (Hanya untuk Siklus Hidup Objek)
+## 10.4 Batasan Penggunaan Pill / Badge (Hanya untuk Siklus Hidup Entitas)
 Badge kapsul (`rounded-full`) **HANYA** boleh digunakan untuk **Status Siklus Hidup Entitas Bisnis yang Berubah (Dynamic Lifecycle State)**:
-1. **Status Transaksi / Pembayaran:** `Menunggu Pembayaran` (amber), `Lunas` (green), `Dibatalkan` (gray), `Ditolak` (red).
-2. **Status Inventori & Bahan:** `Stok Aman` (green), `Menipis` (amber), `Habis` (red).
-3. **Status Akun & Hak Akses:** `Aktif` (green), `Ditangguhkan` (red), `Superadmin` (blue).
-
-**DILARANG MENGGUNAKAN PILL UNTUK:**
-* Teks informasi statis atau label data.
-* Slogan promosi (*Bebas Biaya, 100% Gratis, dsb*).
-* Rentang waktu data (*Live 6 Bulan, Hari Ini, dsb*).
-* Kategori atau tag yang tidak memiliki siklus perubahan status.
+1. **Status Pembayaran:** `Menunggu Pembayaran` (amber), `Lunas` (green), `Dibatalkan` (gray), `Ditolak` (red).
+2. **Status Stok & Bahan:** `Stok Aman` (green), `Menipis` (amber), `Habis` (red).
+3. **Status Akun:** `Aktif` (green), `Ditangguhkan` (red), `Superadmin` (blue).
 * **Maksimal 1 Badge per Entitas:** Dilarang menaruh lebih dari 1 badge dalam satu baris data atau satu kartu bento.
 
-### 8.5.5 Membangun Hierarki dengan Tipografi Murni (Pure Typography as Hero)
-Gantikan kebiasaan menempelkan kotak/kapsul dengan memanfaatkan 4 pilar tipografi murni:
-1. **Kontras Skala:** Judul besar (`text-2xl` / `text-3xl`) langsung dipadukan dengan teks pendukung yang proporsional (`text-[14px]`).
-2. **Kontras Bobot:** `font-bold` (700) untuk data penting, `font-medium` (500) untuk label, `font-normal` (400) untuk keterangan.
-3. **Kontras Warna Teks Semantik:** `text-black dark:text-white` untuk primer, `text-black/60 dark:text-white/60` untuk sekunder, `text-black/40 dark:text-white/40` untuk label kecil.
-4. **Ruang Bernapas (Generous Whitespace):** Berani memberikan jarak lapang (16px–24px) tanpa tergoda untuk mengisinya dengan dekorasi stiker.
+## 10.5 Mandat Eliminasi Total Elemen Fluff (Hapus Sampahnya, Jangan Cuma Copot Bajunya)
+* ❌ **DILARANG:** Menghilangkan kapsul tetapi membiarkan teks hiasan mengambang di layar (*"Sama Aja Bohong"*).
+* Teks hiasan seperti `Live 6 Bulan Terakhir`, `Organik`, `Terverifikasi`, `Platform-Wide`, `AI-Powered Management System`, `• Live Cloud`, `INSIGHT`, `Bebas Biaya Langganan` adalah **sampah visual**.
+* **ATURAN MUTLAK:** Jika sebuah teks atau label tidak memiliki nilai operasional nyata atau sudah tersirat dari konteksnya, **HAPUS TOTAL ELEMEN DAN TEKS TERSEBUT DARI BLADE VIEW! DILARANG MENINGGALKAN TEKS POLOS!**
 
-### 8.5.6 Mandat Eliminasi Total Elemen Fluff (Hapus Sampahnya, Jangan Cuma Copot Bajunya)
-* **DILARANG KERAS:** Menghilangkan bungkus kapsul/badge tapi tetap membiarkan teks sampahnya melayang di antarmuka (*"Sama Aja Bohong"*).
-* **Prinsip Pembersihan Hakiki:**
-  - Teks hiasan buatan bot AI seperti `Live 6 Bulan Terakhir`, `Organik`, `Terverifikasi`, `Platform-Wide`, `AI-Powered Management System`, `• Live Cloud`, `INSIGHT`, `Bebas Biaya Langganan`, dsb. adalah **fluff / sampah visual**.
-  - Mengubah pill hiasan menjadi teks polos biasa **TETAP MERUSAK UI** karena menambah beban membaca (*cognitive load*) yang tidak berguna bagi pengguna.
-  - **ATURAN MUTLAK:** Jika sebuah teks atau label tidak memiliki nilai fungsional operasional nyata atau sudah tersirat dari konteksnya, **HAPUS TOTAL ELEMEN DAN TEKS TERSEBUT DARI BLADE VIEW! DILARANG MENINGGALKAN TEKS POLOS!**
-  - **Judul Halaman (H1):** Berdiri langsung dengan wibawa dan kekuatan tipografi murni. DILARANG memberi teks alis (*eyebrow text*) apa pun di atasnya.
-  - **Judul Section (H2):** Cukup Judul + Subtitle (jika perlu). DILARANG menaruh teks/label mengambang di pojok kanan atau di atas judul.
-  - **Angka KPI / Metrik:** Angka moneter (`text-3xl tabular-nums`) tampil bersih dan gagah tanpa ditempeli teks tempelan apa pun di sampingnya.
-
-### 8.5.7 Mandat Larangan Mutlak Emoticon / Emoji pada UI (Strict No-Emoji Rule)
-* **DILARANG KERAS:** Menggunakan emoticon atau emoji karakter Unicode (seperti 🚀, ✨, 💡, 👥, 🏆, 🎟️, 📦, ⚡, 🔥, 🟢, 📈, 💬, 🏢, dsb.) pada seluruh antarmuka pengguna (UI).
-* **Cakupan Larangan:**
-  - Tombol aksi (Buttons)
-  - Judul Halaman (H1), Judul Section (H2), dan Sub-judul (H3)
-  - Bento Card & Widget Metrik KPI
-  - Tab Bar, Segmented Controls, & Navigasi Sidebar
-  - Dialog Konfirmasi, Alert Banner, & Microcopy Penenang (*No-Panic Feedback*)
-  - Badge Status & Seluruh Kolom Tabel
-* **Alasan:**
-  - Emoticon/emoji OS merusak konsistensi visual lintas platform (tampilan rendering emoji Windows, macOS, Android, dan iOS berbeda-beda dan terkesan kartunis/tidak profesional).
-  - Merusak wibawa Cooca sebagai sistem operasi bisnis UMKM yang tenang, berkelas, dan profesional.
-  - Merupakan ciri khas template bot AI murahan yang malas menyusun hierarki tipografi murni.
-* **Solusi Wajib:** **HANYA GUNAKAN FONT ICON RESMI SISTEM (Lucide Icons)!**
-  - Gunakan tag `<i data-lucide="..." class="..."></i>` atau SVG inline fungsional.
-  - Font icon menjamin ketebalan garis (*stroke width*) presisi, skalabilitas tajam pada layar Retina, serta pewarnaan semantik dinamis (*fill/stroke current-color*).
+## 10.6 Mandat Larangan Mutlak Emoticon / Emoji pada UI (Strict No-Emoji Rule)
+* ❌ **DILARANG KERAS:** Menggunakan emoticon atau emoji karakter Unicode (seperti 🚀, ✨, 💡, 👥, 🏆, 🎟️, 📦, ⚡, 🔥, 🟢, 📈, 💬, 🏢, dsb.) pada seluruh antarmuka pengguna (Buttons, H1/H2, Bento Cards, Tabs, Dialog Konfirmasi, Alert Banner, Status Badges, Tabel).
+* ✅ **Solusi Wajib:** **HANYA GUNAKAN FONT ICON RESMI SISTEM (Lucide Icons)!** Gunakan `<i data-lucide="..." class="..."></i>` atau SVG inline presisi.
 
 ---
 
-# 9. MANDAT ANTI-EXCESSIVE-TEXT
+# 11. MANDAT ANTI-EXCESSIVE-TEXT & BAHASA LUGAS RAMAH PENGGUNA
 
-## 9.1 Dilarang Memenuhi UI dengan Teks yang Tidak Perlu
-AI Agent **DILARANG** menambahkan:
-* Paragraf penjelasan panjang tanpa kebutuhan operasional.
-* Deskripsi berulang yang menjelaskan hal yang sudah jelas dari judulnya.
-* Subtitle pada setiap kartu tanpa fungsi pembeda status.
-* Helper text yang tidak membantu keputusan pengguna.
-* Teks promosi pada halaman transaksi dan operasional.
-* Jargon teknis yang tidak dipahami pengguna (*SKU, BOM, COGS, Void, Tenant Context*).
-* Judul panjang yang dapat diringkas menjadi 2–3 kata.
-* Empty state yang terlalu banyak kalimat (cukup: *"Belum ada produk"* + tombol aksi).
+## 11.1 Dilarang Memenuhi UI dengan Teks yang Tidak Perlu
+AI Agent **DILARANG** menambahkan paragraf penjelasan panjang, deskripsi berulang yang sudah jelas dari judulnya, subtitle pada setiap kartu, atau jargon teknis (*SKU, BOM, COGS, Void, Tenant Context*).
 
-## 9.2 Prioritas Konten UI
-1. **Wajib:** Diperlukan agar pengguna memahami data atau dapat menyelesaikan tugas.
-2. **Membantu:** Memberikan konteks penting atau mencegah kesalahan input.
-3. **Opsional:** Hanya ditampilkan jika pengguna meminta detail (misal via modal sheet).
-4. **Tidak perlu:** Hapus seketika.
+## 11.2 Kamus Standar Label Tombol Aksi Utama (Maksimal 1 Kata Kerja Murni di Dalam Form)
+Tombol adalah pemicu aksi (*action trigger*), bukan tempat mengulang konteks judul kartu/form:
+* ❌ *Salah:* **"Simpan Pengaturan Google & Sistem"** → ✅ *Cukup:* **"Simpan"**
+* ❌ *Salah:* **"Simpan Pengaturan SMTP"** → ✅ *Cukup:* **"Simpan"**
+* ❌ *Salah:* **"Simpan Data Produk Baru"** → ✅ *Cukup:* **"Simpan"**
+* ❌ *Salah:* **"Lakukan Proses Penghapusan Akun"** → ✅ *Cukup:* **"Hapus"**
+* ❌ *Salah:* **"Lihat Rincian Selengkapnya Transaksi"** → ✅ *Cukup:* **"Lihat"**
+* ❌ *Salah:* **"Ubah Rincian Profil Administrator"** → ✅ *Cukup:* **"Edit"** atau **"Ubah"**
+* ❌ *Salah:* **"Kirim Email Uji Coba"** → ✅ *Cukup:* **"Kirim"**
+* ❌ *Salah:* **"Batalkan Operasi Ini"** → ✅ *Cukup:* **"Batal"**
 
-## 9.3 Aturan Microcopy Lugas
-Gunakan kalimat pendek, bahasa Indonesia umum, kata kerja langsung, dan istilah konsisten:
-* *Kurang baik:* "Silakan melakukan proses penyimpanan data produk yang telah Anda masukkan."  
-  *Lebih baik:* **"Simpan Produk"**
-* *Kurang baik:* "Anda belum memiliki data produk yang dapat ditampilkan pada halaman ini."  
-  *Lebih baik:* **"Belum ada produk."**
-* *Kurang baik:* "Apakah Anda benar-benar yakin ingin melanjutkan proses penghapusan data ini?"  
-  *Lebih baik:* **"Hapus produk ini?"**
-
-## 9.4 Mandat Tombol Aksi Lugas & Ringkas (Concise Action Buttons: Simpan, Hapus, Edit, Lihat)
-* **DILARANG:** Membuat teks label tombol yang bertele-tele, terlalu panjang, atau mendikte detail yang sudah jelas dari konteks form/kartunya.
-* **Prinsip Anti-Detail pada Tombol:** Tombol adalah pemicu aksi (*action trigger*), bukan tempat mengulang judul kartu atau halaman.
-  - ❌ *Kurang baik:* **"Simpan Pengaturan Google & Sistem"** → ✅ *Cukup:* **"Simpan"**
-  - ❌ *Kurang baik:* **"Simpan Pengaturan SMTP"** → ✅ *Cukup:* **"Simpan"**
-  - ❌ *Kurang baik:* **"Simpan Data Produk Baru"** → ✅ *Cukup:* **"Simpan"**
-  - ❌ *Kurang baik:* **"Lakukan Proses Penghapusan Akun"** → ✅ *Cukup:* **"Hapus"**
-  - ❌ *Kurang baik:* **"Lihat Rincian Selengkapnya Transaksi"** → ✅ *Cukup:* **"Lihat"**
-  - ❌ *Kurang baik:* **"Ubah Rincian Profil Administrator"** → ✅ *Cukup:* **"Edit"** atau **"Ubah"**
-  - ❌ *Kurang baik:* **"Kirim Email Uji Coba"** → ✅ *Cukup:* **"Kirim"**
-  - ❌ *Kurang baik:* **"Batalkan Operasi Ini"** → ✅ *Cukup:* **"Batal"**
-* **Kamus Standar Label Tombol Aksi Utama:**
-  - **`Simpan`** : Untuk seluruh formulir pembuatan, pembaruan, dan pengaturan sistem/data.
-  - **`Hapus`** : Untuk konfirmasi atau trigger aksi penghapusan.
-  - **`Edit`** / **`Ubah`** : Untuk membuka modal atau form penyuntingan data.
-  - **`Lihat`** : Untuk membuka detail data, rincian nota, atau pratinjau.
-  - **`Batal`** : Untuk menutup modal atau membatalkan dialog konfirmasi.
-  - **`Kirim`** : Untuk pengiriman pesan, broadcast, atau email uji coba.
-  - **`Salin`** : Untuk menyalin tautan/kunci API ke clipboard.
-* **Pengecualian Terbatas (Maksimal 2 Kata):**
-  - Hanya jika tombol berada di luar form/tabel sebagai CTA utama index: **"Tambah Produk"**, **"Ekspor Excel"**, **"Cetak Struk"**. Di dalam modal atau formulir kartu, **wajib menggunakan satu kata kerja murni** (**"Simpan"** / **"Hapus"** / **"Batal"**).
+**Kamus Standar:**
+* **`Simpan`** : Formulir pembuatan, pembaruan, dan pengaturan.
+* **`Hapus`** : Konfirmasi atau pemicu penghapusan data.
+* **`Edit` / `Ubah`** : Membuka form penyuntingan data.
+* **`Lihat`** : Membuka rincian data / detail transaksi.
+* **`Batal`** : Menutup modal atau membatalkan dialog.
+* **`Kirim`** : Pengiriman broadcast atau pesan uji coba.
+* **`Salin`** : Menyalin teks / API key ke clipboard.
+*(Pengecualian 2 kata hanya untuk CTA index di luar form/tabel: "Tambah Produk", "Ekspor Excel", "Cetak Struk").*
 
 ---
 
-# 10. MANDAT WHITE SPACE DAN BREATHING ROOM
+# 12. SISTEM SPACING ADAPTIF & RUANG BERNAPAS (GENEROUS 8PT GRID)
 
-UI COOCA **DILARANG PADAT, SESAK, ATAU TERLALU BERDEMPETAN**.
-
-## 10.1 Sistem Spacing Adaptif (Prinsip 8pt Grid)
+UI COOCA **DILARANG PADAT, SESAK, ATAU BERDEMPETAN**.
 
 | Area Tata Letak | Standar Mobile (<640px) | Standar Tablet (640–1023px) | Standar Desktop (1024px+) |
 |---|---|---|---|
@@ -511,130 +426,172 @@ UI COOCA **DILARANG PADAT, SESAK, ATAU TERLALU BERDEMPETAN**.
 | **Margin Horizontal Halaman** | `px-3` | `px-6` | `px-8 max-w-[1440px] mx-auto` |
 | **Padding Bawah Halaman (Safe Area)** | **`pb-28` s/d `pb-32` (MUTLAK)** | `pb-16` | `pb-10` |
 
-*Perhatian Khusus Mobile:* Dilarang memberikan `p-6` atau `p-8` pada kartu di mobile karena akan memotong 48px–64px lebar layar smartphone yang hanya 360px–390px!
-
-## 10.2 Aturan Anti-Padat & Anti-Meluber
-AI Agent wajib memeriksa:
-* Apakah teks mepet ke tepi border kartu? (Jika ya, tambah padding internal `p-3.5` s/d `p-4`).
-* Apakah tombol aksi saling menempel tanpa sela? (Wajib sela minimal `gap-2.5` s/d `gap-3`).
-* Apakah kartu memiliki ruang bernapas?
-* Apakah terlalu banyak elemen tampil berjejal dalam satu layar ponsel? (Gunakan progressive disclosure / modal sheet).
-* Apakah layout nyaman dan bebas dari scroll horizontal pada layar **360px**?
+*Perhatian Khusus Mobile:* Dilarang memberikan `p-6` atau `p-8` pada kartu mobile karena akan memakan 48px–64px lebar layar smartphone yang hanya 360px–390px!
 
 ---
 
-# 11. MATRIKS TIPOGRAFI LINTAS PERANGKAT
+# 13. MATRIKS TIPOGRAFI LINTAS PERANGKAT & STANDAR SF PRO
 
-Font resmi sistem:
+Font stack resmi sistem:
 ```css
 font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
 ```
 
-## 11.1 Matriks Skala Font Responsif Komprehensif
+## 13.1 Skala Font Responsif Komprehensif (Apple Dynamic Type Scale)
 
 | Peran Tipografi | Mobile (<640px) | Tablet (640–1023px) | Desktop (1024px+) | Weight | Line Height | Keterangan Khusus |
 |---|---|---|---|---|---|---|
 | **Large Title** | `text-[22px]–text-2xl (24px)` | `text-3xl (28px)` | `text-3xl–text-4xl (32–34px)` | 700 (Bold) | `leading-tight (1.2)` | Judul utama halaman (Dashboard, Katalog). |
 | **Title 1 / Section** | `text-xl (20px)` | `text-2xl (24px)` | `text-2xl (24px)` | 600 (Semibold) | `leading-snug (1.25)` | Judul kelompok kartu bento. |
-| **Title 2 / Card** | `text-[17px]–text-lg (18px)` | `text-lg (18px)` | `text-xl (20px)` | 600 (Semibold) | `leading-snug (1.3)` | Judul widget/kartu. |
-| **Headline** | `text-[16px]` | `text-[16px]` | `text-[16px]` | 600 (Semibold) | `leading-normal (1.35)` | Baris nama data penting / nama produk. |
+| **Title 2 / Card** | `text-[17px]–text-lg (18px)` | `text-lg (18px)` | `text-xl (20px)` | 600 (Semibold) | `leading-snug (1.3)` | Judul widget/kartu bento. |
+| **Headline** | `text-[16px]` | `text-[16px]` | `text-[16px]` | 600 (Semibold) | `leading-normal (1.35)` | Baris nama produk/data penting. |
 | **Body (Teks Utama)** | `text-[15px]–text-[16px]` | `text-[15px]–text-[16px]` | `text-[14px]–text-[15px]` | 400 (Regular) | `leading-relaxed (1.5)` | Teks deskripsi, paragraf bacaan nyaman. |
 | **Form Input / Select** | **`text-[16px]` (MUTLAK)** | `text-[14px]–text-[15px]` | `text-[14px]` | 400 (Regular) | `leading-normal (1.4)` | **Wajib 16px di mobile (anti-auto-zoom iOS).** |
 | **Subheadline** | `text-sm (14px)` | `text-sm (14px)` | `text-[13px]–text-sm (14px)` | 500 (Medium) | `leading-normal (1.4)` | Teks sekunder pendamping headline. |
 | **Footnote / Helper** | `text-[13px]` | `text-[13px]` | `text-[12px]–text-[13px]` | 400 (Regular) | `leading-normal (1.35)` | Petunjuk form, label bantuan. |
-| **Caption / Badge** | `text-xs (12px)` | `text-xs (12px)` | `text-[11px]–text-xs (12px)` | 600 (Semibold) | `leading-none (1.2)` | Status pills, badge, label filter. |
+| **Caption / Badge** | `text-xs (12px)` | `text-xs (12px)` | `text-[11px]–text-xs (12px)` | 600 (Semibold) | `leading-none (1.2)` | Status pills, badge filter. |
 | **Angka / Moneter** | **`tabular-nums`** | **`tabular-nums`** | **`tabular-nums`** | 600–700 | `leading-none` | **Rupiah, stok, persentase, tanggal.** |
 
-## 11.2 Aturan Mutlak Anti-Auto-Zoom Input Mobile
-Browser smartphone (terutama iOS Safari) secara otomatis memperbesar tampilan layar dan merusak komposisi visual jika ukuran font elemen `<input>`, `<select>`, atau `<textarea>` berada di bawah 16px.
-**Wajib menggunakan format responsif:**
+## 13.2 Aturan Mutlak Anti-Auto-Zoom Input Mobile
+Wajib menerapkan kelas responsif pada seluruh `<input>`, `<select>`, dan `<textarea>`:
 ```html
 class="text-[16px] sm:text-[14px] ..."
 ```
 
-## 11.3 Aturan Tabular Figures (`tabular-nums`)
-Setiap data angka:
-* Nominal Rupiah (`Rp 1.250.000`)
-* Jumlah stok (`1.450 Pcs`)
-* Nomor nota / faktur (`INV/2026/09/001`)
-* Tanggal & jam transaksi (`16 Sep 2026, 14:30`)
-* Persentase & diskon (`12.5%`)
+## 13.3 Tabular Figures (`tabular-nums`)
+Seluruh nilai Rupiah, jumlah stok, nomor nota, tanggal/jam, dan persentase **WAJIB** menyertakan class `tabular-nums` agar sejajar vertikal secara matematis.
 
-**WAJIB** menyertakan class `tabular-nums` agar lebar karakter angka seragam, tersusun lurus rapi vertikal, dan tidak bergeser saat angka diperbarui.
-
-## 11.4 Kontras Ketebalan & Pembatasan Bobot
-* Gunakan hanya 4 bobot font standar: `400 (Regular)`, `500 (Medium)`, `600 (Semibold)`, `700 (Bold)`.
-* **Dilarang Keras:** Memakai `font-black` atau bobot `900` yang membuat tampilan kotor dan berat.
-* Dilarang membuat seluruh teks dalam satu kartu tebal (*all-bold*). Gunakan kontras: label `400/500 text-gray-500`, nilai utama `600/700 text-black dark:text-white`.
+## 13.4 Kontras Ketebalan & Pembatasan Bobot
+* Hanya gunakan 4 bobot: `400 (Regular)`, `500 (Medium)`, `600 (Semibold)`, `700 (Bold)`.
+* **DILARANG KERAS:** Memakai `font-black` atau bobot `900`.
 
 ---
 
-# 12. INFORMATION HIERARCHY
+# 14. ARSITEKTUR LAYOUT & KOMPONEN APPLE HIG MENYELURUH
 
-Setiap halaman wajib memiliki hierarki yang jelas:
+## 14.1 Sidebar Menu (macOS Sonoma Source List Strict Standard)
+* **Lebar Baku Desktop 288px (`w-72`) & Offset Kanvas (`lg:pl-72`)**: Lebar sidebar desktop WAJIB `w-72` (288px / 18rem), **DILARANG sempit `w-64`** yang memicu teks tertekuk. Kanvas utama desktop wajib menerapkan `lg:pl-72`.
+* **Mandat Satu Baris Mutlak (*Strict Single-Line Directive*)**: Seluruh item navigasi **DILARANG KERAS MEMBUNGKUS / BERTUMPUK MENJADI 2–3 BARIS**. Seluruh label teks wajib menerapkan kelas:
+  ```html
+  <span class="whitespace-nowrap truncate min-w-0 flex-1">...</span>
+  ```
+  Gunakan penamaan ringkas Apple (*Langganan & Billing*, *Paket & Harga*, *Rekening Bank*, *Token AI*, *WhatsApp Gateway*, *Google OAuth*, *Server SMTP*).
+* **Scrollbar Ramping Anti-Windows (*Sleek Custom Scrollbar Directive*)**:
+  - Kontainer sidebar WAJIB menerapkan kelas `.sidebar-scroll` dengan styling ramping 4px:
+    ```css
+    .sidebar-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+    }
+    .dark .sidebar-scroll {
+        scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+    }
+    .sidebar-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .sidebar-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.15);
+        border-radius: 9999px;
+    }
+    .dark .sidebar-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.18);
+    }
+    ```
+  - **DILARANG KERAS** membiarkan scrollbar tebal default Windows (17px) muncul.
+* **Latar & Material Translucent**: `backdrop-blur-2xl bg-[#F2F2F7]/80 dark:bg-[#1C1C1E]/80 border-r border-black/[0.06] dark:border-white/[0.08]`.
+* **Item Navigasi Squircle & State Aktif Apple**:
+  - Tinggi item 40px, sudut `rounded-[12px] px-3 font-medium text-[13.5px]`.
+  - State Aktif: `bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold`.
+  - State Inaktif: `text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]`.
+* **Footer Profil Pengguna Inset**: Bento card mini `rounded-[16px] p-2.5` dengan pembungkus teks `min-w-0 flex-1 truncate`.
+* **Mandat Kontensi Sidebar**: Wajib `overflow-y-auto overflow-x-hidden`. Dilarang scrollbar horizontal muncul di sidebar.
 
-```text
-Primary Purpose (Apa halaman ini?)
-    ↓
-Primary Information (Data / status terpenting)
-    ↓
-Primary Action (Aksi utama yang harus dilakukan)
-    ↓
-Secondary Information (Rincian pelengkap)
-    ↓
-Optional Detail (Aksi jarang / log riwayat)
-```
+## 14.2 Topbar / Header (macOS Sonoma Toolbar & Zero Top-Edge Clipping Directive)
+* **Ketinggian Aman & Anti-Clipping**: Ketinggian header wajib proporsional (`h-[68px] sm:h-[72px]` atau `min-h-[64px] py-2 sm:py-2.5 px-4 sm:px-8 sticky top-0 z-30 backdrop-blur-xl bg-[#F2F2F7]/75 dark:bg-[#000000]/75 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-4`).
+* **DILARANG KERAS TEKS TERPOTONG DI BATAS ATAS VIEWPORT (*Zero Top-Edge Clipping*)**:
+  - Baris teks teratas (`eyebrow` sistem 11px) WAJIB memiliki jarak aman dari batas atas (`leading-none mb-1` dan padding vertikal terlindungi):
+    ```html
+    <div class="min-w-0 flex flex-col justify-center">
+        <span class="text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] leading-none mb-1">...</span>
+        <h1 class="text-xl sm:text-2xl font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight leading-snug truncate">...</h1>
+    </div>
+    ```
+* **Pill Control / Segmented Switcher**: Wadah pill terpadu `p-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08]`.
+* **Primary Action CTA**: Menggunakan System Blue Apple `bg-[#007AFF] text-white rounded-[14px] px-4 py-2 font-semibold shadow-sm hover:brightness-105 active:scale-[0.98]`.
 
-Jangan menampilkan semua informasi dengan tingkat visual yang sama.
+## 14.3 Content Body Canvas (Bento Grid Architecture)
+* **Kontainer Max-Width**: `max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8`.
+* **Horizontal Table Containment**: Seluruh tabel dibungkus dalam kartu bento dengan kontainer geser horizontal (`overflow-x-auto scrollbar-thin`) dengan border hairline tipis.
 
-Prioritaskan:
-1. Apa yang harus diketahui pengguna dalam 3 detik pertama?
-2. Apa yang harus dilakukan pengguna sekarang?
-3. Apa risiko jika pengguna salah memilih?
-4. Informasi apa yang cukup dibuka di modal sheet saat diminta?
+## 14.4 Dual-Footer Architecture
+* **Mobile / Tablet Mode (`md:hidden`)**: Full-Style Floating Bottom Navigation Bar (iOS 18) mengambang `fixed bottom-3 inset-x-3 sm:inset-x-6 z-40 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl bg-white/85 dark:bg-[#1C1C1E]/85 rounded-[24px]` dengan elevated center action trigger.
+* **Desktop Mode**: Clean Minimalist Hairline Footer `border-t border-black/[0.06] dark:border-white/[0.08] py-4 px-6 lg:px-8 text-[12px] text-black/50 dark:text-white/50`.
+
+## 14.5 Mandat Anti-Kerusakan Dimensi SVG & Ikon (Strict SVG Dimensioning)
+* Setiap elemen `<svg>` WAJIB menyertakan atribut eksplisit `width="..." height="..."` DAN kelas utilitas CSS presisi (contoh: `width="18" height="18" class="w-[18px] h-[18px] shrink-0"` atau `w-4 h-4` / `w-5 h-5`).
+* Dilarang kelas pecahan non-standar (`w-4.5` / `h-4.5`) tanpa registrasi di konfigurasi Tailwind.
+* Hal ini mencegah SVG meledak menjadi raksasa yang menutupi menu atau merusak layout.
+
+## 14.6 Harmoni Warna Semantik & Dual-Mode
+* **Palet Sistem**: System Blue (`#007AFF` / `#0A84FF`), System Green (`#34C759` / `#30D158`), System Orange (`#FF9500` / `#FF9F0A`), System Red (`#FF3B30` / `#FF453A`), System Indigo (`#5856D6` / `#5E5CE6`), System Purple (`#AF52DE` / `#BF5AF2`).
+* **Light Mode**: Background `#F2F2F7`, Card `#FFFFFF`, Teks primer `#000000`, sekunder `text-black/60`.
+* **Dark Mode**: Background `#000000` / `#1C1C1E`, Card `#1C1C1E` / `#2C2C2E`, Teks primer `#FFFFFF`, sekunder `dark:text-white/60`.
+* **Dilarang Warna Solid Jenuh**: Dilarang background kartu warna jenuh pekat. Gunakan tinted badge pill (`bg-{color}/12 text-{color}`).
 
 ---
 
-# 13. CETAK BIRU RESPONSIVITAS BENTO UI & ANTI-OVERFLOW
+# 15. FILOSOFI ANTARMUKA TANPA PANDUAN (ZERO-MANUAL / SELF-EXPLANATORY UI)
 
-## 13.1 Smartphone: 360px–639px (Strict Zero-Breakage Rules)
-* **Zero Horizontal Overflow:** Dilarang keras memakai `w-[...]` atau `min-w-[...]` bernilai statis > 300px. Gunakan `w-full max-w-full`.
-* **Flex Child Truncation:** Seluruh teks di dalam flex container wajib diberi `min-w-0` dan `truncate` atau `break-words` agar tidak memaksa kontainer melar melebihi layar smartphone.
-* **Grid Bento Mobile:**
-  - Form, detail, tabel, dan card kompleks: **`grid-cols-1`** (satu kolom penuh).
-  - Stat/KPI ringkas: Maksimal **`grid-cols-2`** dengan padding compact `p-3.5` s/d `p-4`.
-* **Transformasi Tabel ke Card List:** Tabel lebar 6–10 kolom pada mobile disembunyikan (`hidden md:block`) dan digantikan oleh deretan kartu ringkas (*Card List View*) yang nyaman dibaca vertikal (`block md:hidden`). Jika tabel wajib ditampilkan, bungkus dengan `overflow-x-auto` yang memiliki padding sentuh aman.
-* **Toolbar Pencarian & Filter:** Input search tampil `w-full` di baris atas, filter kategori tampil horizontal scrolling (`flex overflow-x-auto no-scrollbar space-x-2 py-1`), dan tombol aksi utama mengapung di bilah bawah.
-* **Bottom Navigation Safe Area:** Seluruh halaman mobile **WAJIB** memiliki padding bawah **`pb-28` s/d `pb-32` (`pb-28 lg:pb-10`)** agar konten terbawah tidak tertutup navigation bar.
-* **Floating Bottom Action Bar:** Untuk transaksi POS atau checkout, tombol utama ditempatkan pada floating bottom bar yang menempel di jempol pengguna.
-
-## 13.2 Tablet Kasir: 640px–1023px
-* Layout 2–3 kolom sesuai kebutuhan operasional.
-* Katalog dan keranjang POS dapat tampil berdampingan seimbang (2 kolom proporsional).
-* Tombol aksi minimal 48px agar nyaman ditekan oleh jari kasir yang sibuk.
-* Informasi penting terlihat tanpa terlalu banyak scrolling.
-
-## 13.3 Desktop: 1024px–1440px+
-* Kanvas terkontrol dengan pembatas lebar: `max-w-[1440px] mx-auto`.
-* Layout bento 3–4 kolom yang lapang dan seimbang.
-* Tabel dibungkus dengan `overflow-x-auto` dan border hairline lembut.
-* Jangan meregangkan konten secara berlebihan di layar ultra-wide.
-* **Perbaikan mobile DILARANG merusak tampilan desktop yang sudah baik.**
+Dirancang khusus agar dapat dioperasikan secara percaya diri oleh generasi **Boomer (50–65+ tahun) dan Milenial Akhir (40+ tahun)** yang sering cemas saat melihat istilah teknis:
+1. **Prinsip Obvious Affordance (Tombol Berkata Kerja Nyata)**:
+   - ✅ `[ + Tambah Barang Baru ]` (bukan hanya ikon `+`)
+   - ✅ `[ Simpan & Cetak Struk ]` (bukan `Submit` / `Save`)
+   - ✅ `[ Kirim Nota ke WhatsApp Pelanggan ]`
+   - Dilarang membuat tombol aksi kritis hanya berupa ikon kecil tanpa teks (*mystery meat navigation*).
+2. **Kaidah 3 Kolom Pokok (Anti-Intimidasi Form)**:
+   - Form utama (misal Tambah Produk) secara default hanya menampilkan 3 kolom esensial:
+     1. **Nama Barang / Jasa**
+     2. **Kategori**
+     3. **Harga Jual (Rp)**
+   - Opsi lanjutan (Barcode, Resep Bahan/BOM, Modal Pokok, Min Stok) disembunyikan rapi di dalam akordeon:  
+     `[ Atur Modal Beli, Stok Gudang & Resep (Opsional) ▾ ]`.
+3. **Pemberitahuan Penenang Jiwa (*No-Panic Microcopy*)**:
+   - Di setiap dialog konfirmasi (Hapus/Batal/Void), wajib menyertakan kalimat penenang menggunakan ikon Lucide Info (DILARANG EMOJI):  
+     *“Tenang: Riwayat nota penjualan dan pembukuan masa lalu Anda tetap aman tersimpan.”*
+4. **Format Ribuan Otomatis**:
+   - Input nominal uang wajib otomatis memformat pemisah ribuan titik (`Rp 100.000`) secara real-time untuk mencegah salah ketik nol berlebih.
+5. **Glosarium Bahasa Indonesia Lugas**:
+   - *HPP / COGS* ➔ Modal Pokok / Biaya Bahan
+   - *Stock Reversal* ➔ Pengembalian Bahan
+   - *Void Transaction* ➔ Pembatalan Transaksi
+   - *Tenant Context* ➔ Pemisahan Toko
 
 ---
 
-# 14. MODAL-FIRST DAN APPLE BOTTOM SHEETS
+# 16. MANDAT KONSOLIDASI & PENGGABUNGAN UI (UI UNIFICATION DIRECTIVE)
 
-## 14.1 Modal-First Architecture
-Pada seluruh halaman index:
-* Operasi Create, Show/Detail, dan Edit dilakukan menggunakan modal sheet tanpa meninggalkan halaman (*Zero Page-Jumps*).
-* Filter pencarian, filter kategori, sorting, dan posisi pagination tetap tersimpan saat modal ditutup.
-* **Tampilan Adaptif:**
-  - **Desktop (md+):** Centered Modal dengan latar belakang frosted glass lembut (`sm:max-w-xl sm:rounded-[20px]`).
-  - **Mobile (< md):** **Apple Bottom Sheet** yang meluncur dari bawah dengan sudut `rounded-t-[28px]`, grab bar indikator (`w-10 h-1.5 bg-gray-300 rounded-full mx-auto my-2`), dan `max-h-[85vh] overflow-y-auto`.
+> **Aturan Emas:** *"Jika dua atau tiga antarmuka saling melengkapi dan mengelola entitas yang sama, MAKA WAJIB DIGABUNG menjadi satu halaman terpadu berbasis Tab atau Master-Detail."*
 
-## 14.2 Inline Quick-Add
-Dropdown master yang membutuhkan data relasi (Kategori, Satuan, Supplier, Akun Kas) wajib menyediakan tombol cepat `[ + ]` di sampingnya:
+| Halaman Terpisah (Pola Lama) | Rekomendasi Penggabungan (Pola Baru Bersatu) | Manfaat Bagi Pengguna Usia 40+ |
+| :--- | :--- | :--- |
+| • `Pelanggan` (`/customers`)<br>• `CRM & Member` (`/crm/members`) | ➔ **Pusat Pelanggan & Loyalitas** (`/customers`) dengan Tab:<br>`[ Semua Pelanggan ] [ Member & Poin ] [ Voucher Diskon ]` | Satu tempat terpadu untuk melihat piutang, kontak WhatsApp, dan poin hadiah. |
+| • `Katalog Produk` (`/products`)<br>• `Jasa & Layanan` (`/services`) | ➔ **Katalog Usaha** (`/products`) dengan Segmented Control:<br>`[ Semua ] [ Barang Fisik (Ada Stok) ] [ Jasa / Servis (Bebas Stok) ]` | Tidak bingung membedakan menu jasa dan barang; form input menyesuaikan otomatis. |
+| • `Kas & Rekening Bank` (`/finance/cash-bank`)<br>• `Buku Kas & Ledger` (`/finance/cash-bank/ledger`) | ➔ **Pusat Kas & Bank** (`/finance/cash-bank`):<br>Atas: Saldo & Tombol Cepat (Kas Masuk / Keluar).<br>Bawah: Tabel Mutasi Transaksi Terpadu. | Owner langsung melihat uang tunai di laci, saldo rekening, dan mutasi keluar-masuk di satu layar. |
+| • `Master Data Supplier` (`/suppliers`) | ➔ Dipindahkan ke dalam grup navigasi **Pembelian & Vendor** (berdampingan dengan PO, Tagihan, dan Retur). | Tidak perlu mencari menu Supplier di bagian paling bawah dashboard. |
+
+---
+
+# 17. MANDAT MASTER-DETAIL POP-UP / MODAL SHEET FIRST & INLINE QUICK-ADD
+
+## 17.1 Modal-First Architecture pada Halaman Index
+* Operasi **Show (Detail)**, **Create (Tambah Baru)**, dan **Edit (Ubah)** pada seluruh halaman index **WAJIB DISEDIAKAN DALAM BENTUK POP-UP / MODAL SHEET LANGSUNG DI HALAMAN INDEX TANPA REDIRECT (*Zero Navigation Jumps*)**.
+* Filter pencarian, filter kategori, sorting, dan posisi pagination tetap utuh saat modal ditutup.
+* **Tampilan Adaptif Modal:**
+  - **Desktop (md+)**: Centered Modal frosted glass halus (`sm:max-w-xl sm:rounded-[20px]`).
+  - **Mobile (< md)**: **Apple Bottom Sheet** meluncur dari bawah (`rounded-t-[28px]`, grab bar indikator `w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto my-2`, `max-h-[85vh] overflow-y-auto`).
+
+## 17.2 Inline Quick-Add Trigger `[ + ]` pada Dropdown / Select Option
+Setiap dropdown master yang membutuhkan data relasi (Kategori, Satuan, Supplier, Pelanggan, Rekening Kas) **WAJIB menyediakan tombol `[ + ]` tepat di samping kanan dropdown**:
 ```html
 <div class="flex items-center gap-2">
     <div class="relative flex-1">
@@ -644,257 +601,181 @@ Dropdown master yang membutuhkan data relasi (Kategori, Satuan, Supplier, Akun K
 </div>
 ```
 * Membuka mini modal sheet tanpa meninggalkan form utama.
-* Menyimpan melalui endpoint AJAX yang aman.
-* Memasukkan opsi baru dan langsung memilihnya secara otomatis (*auto-select*).
-* Form utama tidak boleh kehilangan data yang sudah diketik oleh pengguna.
+* Menyimpan via endpoint AJAX yang aman.
+* Menginjeksi opsi baru ke `<select>` dan memilihnya otomatis (*auto-select*).
+* Form utama tidak kehilangan data yang sedang diinput oleh pengguna.
 
 ---
 
-# 15. ACCESSIBILITY, BOOMER-FRIENDLY & NO-PANIC UX
+# 18. CETAK BIRU RESPONSIVITAS BENTO UI & ADAPTABILITAS MULTI-DEVICE
 
-Dirancang khusus agar dapat dioperasikan secara percaya diri oleh **pemilik usaha usia 40–60+ tahun dan kasir non-teknis (*Zero-Manual UI*)**:
-* **Touch Target Nyaman:** Tombol utama berukuran **48px–52px** agar tidak meleset saat ditekan oleh jari besar.
-* **Bahasa Indonesia Lugas:** Hindari jargon bahasa Inggris:
-  - *HPP / COGS* → Modal Pokok / Biaya Bahan
-  - *Stock Reversal* → Pengembalian Bahan
-  - *Void Transaction* → Pembatalan Transaksi
-  - *Tenant Context* → Pemisahan Toko
-* **Format Ribuan Otomatis:** Input angka nominal wajib otomatis memformat pemisah ribuan titik (`Rp 250.000`) secara real-time agar pengguna tidak salah memasukkan jumlah nol.
-* **Microcopy Penenang Jiwa (*No-Panic Feedback*):** Di setiap dialog konfirmasi atau aksi penting, sertakan pesan penenang (gunakan font icon `<i data-lucide="info">`, DILARANG memakai emoji Unicode seperti 💡):
-  - *“Tenang, riwayat nota penjualan dan pembukuan masa lalu Anda tetap aman tersimpan.”*
-  - *“Anda dapat mengubah kembali pilihan ini kapan saja.”*
-* **Tombol Destruktif Terlindungi:** Tombol hapus/void menggunakan konfirmasi tegas dua langkah agar tidak terjadi kecelakaan ketidaksengajaan.
+## 18.1 Smartphone: 360px–639px (Strict Zero-Breakage Rules)
+* **Zero Horizontal Overflow**: Dilarang menggunakan lebar statis `w-[...]` > 300px. Seluruh teks di dalam flex container wajib menyertakan `min-w-0` dan `truncate`.
+* **Bento Grid Adaptif 2-Kolom (`grid grid-cols-2 gap-3`)**: DILARANG menumpuk seluruh metrik KPI menjadi 1 kolom yang monoton! Seluruh kartu KPI ditata berdampingan 2 kartu per baris (`col-span-1`) dengan padding `p-3.5 sm:p-4`.
+* **Hero Bento Card (`col-span-2`)**: Kartu utama menyajikan status operasional paling krusial.
+* **Transformasi Tabel ke Card List**: Tabel lebar pada mobile disembunyikan (`hidden md:block`) dan digantikan oleh deretan kartu ringkas (*Card List View*) yang nyaman dibaca vertikal (`block md:hidden`). Jika tabel wajib tampil, bungkus dalam kontainer `overflow-x-auto`.
+* **Bottom Navigation Safe Area**: Seluruh halaman mobile **WAJIB** menyertakan padding bawah **`pb-28` s/d `pb-32` (`pb-28 lg:pb-10`)** agar konten tidak tertutup floating bottom navbar.
 
----
+## 18.2 Tablet Kasir POS: 640px–1023px
+* Tata letak 2 hingga 3 kolom modular (`md:grid-cols-2 lg:grid-cols-3`).
+* Katalog dan keranjang kasir POS tampil seimbang berdampingan dalam mode landscape.
+* Tombol aksi minimal 48px agar nyaman bagi jari kasir.
 
-# 16. SECURITY AND AUTHORIZATION
-
-AI Agent wajib memeriksa:
-
-* Authentication.
-* Authorization.
-* Role dan permission.
-* IDOR.
-* CSRF.
-* Mass assignment.
-* Validasi request.
-* SQL Injection.
-* XSS.
-* Upload berbahaya.
-* Route exposure.
-* Privilege escalation.
-* Webhook security.
-* API security.
-* Rate limiting.
-* Audit log.
-* Isolasi perusahaan dan cabang.
-* Kebocoran data antar pengguna atau cabang.
-
-UI yang menyembunyikan tombol **tidak menggantikan** validasi permission di backend.
+## 18.3 Laptop & Desktop Lebar: 1024px–1920px+
+* Kanvas terkontrol rapi: `max-w-[1440px] mx-auto`.
+* Layout bento 3–4 kolom modular yang lapang dan seimbang.
+* **Mandat Preservasi Desktop 100%**: Perbaikan layout mobile **DILARANG KERAS** merusak tampilan desktop yang sudah baik!
 
 ---
 
-# 17. DATA DAN LOGIKA BISNIS
+# 19. AUDIT SISTEM BERJALAN (CURRENT SYSTEM AUDIT) & KETERTELUSURAN HULU-KE-HILIR
 
-Dilarang tanpa persetujuan eksplisit:
+## 19.1 End-to-End Traceability (Ketertelusuran Hulu-ke-Hilir)
+Setiap workflow operasional wajib ditelusuri secara utuh:
+```text
+User
+→ UI (Blade View / Bento Component)
+→ JavaScript / AJAX (Fetch / Error Handling)
+→ Route (routes/web.php / admin.php / customer.php)
+→ Middleware (Auth, Tenant, Role, Rate-Limiting)
+→ Authentication (Session, Multi-Guard)
+→ Authorization / Permission (Gates / Policies)
+→ Controller
+→ Request Validation (Form Request)
+→ Service / Action Domain Logic
+→ Model (Eloquent Relations & Scopes)
+→ Database (Migrations, Transactions, Locks)
+→ Event / Queue Job (Auto-journal, WA Dispatch)
+→ Notification / Third-party API
+→ Final UI Response (Flash Message / JSON)
+```
+*Jangan pernah menyatakan fitur selesai hanya karena tampilan Blade UI sudah selesai dibuat!*
 
-* Mengubah rumus subtotal.
-* Mengubah diskon.
-* Mengubah pajak atau PPN.
-* Mengubah HPP.
-* Mengubah margin.
-* Mengubah jurnal akuntansi.
-* Mengubah saldo kas.
-* Mengubah histori transaksi.
-* Mengubah status transaksi selesai.
-* Menghapus data produksi.
-* Mengubah struktur database yang berisiko.
-
-Semua perubahan finansial harus dianalisis dan diuji secara khusus.
-
----
-
-# 18. OTOMASI
-
-Audit dan pertimbangkan otomasi untuk:
-
-* Jurnal akuntansi.
-* Pemotongan stok.
-* BOM atau resep.
-* Invoice.
-* Nota digital.
-* Notifikasi WhatsApp.
-* Pengingat piutang dan hutang.
-* Rekonsiliasi.
-* Sinkronisasi status.
-* Audit log.
-* Scheduler dan queue.
-
-Namun, jangan menambahkan otomasi yang belum dipahami dampaknya terhadap data, workflow, dan integrasi.
+## 19.2 Audit Duplikasi (Reuse First)
+```text
+Reuse Existing
+    ↓
+Refactor Existing
+    ↓
+Consolidate Existing
+    ↓
+Create New Only If Necessary
+```
 
 ---
 
-# 19. TESTING WAJIB
+# 20. PROTOKOL PENGUJIAN WAJIB & STANDAR 100% BEBAS EROR
 
-Sebelum menyatakan pekerjaan selesai, jalankan pengujian yang relevan:
+Sebelum menyatakan tugas rekayasa selesai, AI Agent **WAJIB menjalankan dan memverifikasi pengujian nyata**:
 
 ```bash
+# 1. Uji Sintaks PHP (Seluruh file PHP yang dimodifikasi)
 php -l <file.php>
-php artisan test
+
+# 2. Uji Registrasi Rute & Bebas Collision
 php artisan route:list
-npm run build
-php artisan route:cache
-php artisan view:cache
+
+# 3. Eksekusi Test Suite Relevan
+php artisan test
 ```
 
-Selain itu lakukan verifikasi menyeluruh:
-
-* **Verifikasi Responsivitas Mobile (360px–430px):** Bebas mutlak dari scroll horizontal (*zero horizontal overflow*), teks tidak terpotong, bento cards adaptif.
-* **Verifikasi Skala Font Input Mobile:** Seluruh `<input>`, `<select>`, dan `<textarea>` wajib berukuran minimal 16px (`text-[16px] sm:text-[14px]`) untuk mencegah auto-zoom iOS Safari.
-* **Verifikasi Skala Tipografi:** Mengikuti Matriks Tipografi Apple HIG (kontras ketebalan jelas, tidak ada font-black/900).
-* **Verifikasi Touch Target:** Seluruh tombol aksi utama minimal berdimensi 44x44px hingga 52px dengan sela antar tombol minimal 12px.
-* **Verifikasi Safe Area Mobile:** View blade memiliki padding bawah aman (`pb-28` s/d `pb-32 lg:pb-10`) agar tidak tertutup bottom bar navigasi.
-* **Verifikasi Tabular Figures:** Seluruh angka moneter, stok, tanggal, dan nomor nota menyertakan `tabular-nums`.
-* Tidak ada error 500.
-* Tidak ada route bentrok.
-* Tidak ada view rusak.
-* Tidak ada JavaScript error.
-* Tidak ada console debug.
-* Tidak ada broken link.
-* Tidak ada permission bypass.
-* Tidak ada data dummy yang tertinggal.
-
-Jangan mengklaim `PASS` jika pengujian belum benar-benar dijalankan.
+### Checklist Verifikasi Kualitas Eksekusi:
+- [ ] **Lolos 100% (Zero Errors / Failures)**: `php artisan test` menunjukkan status `PASS` (0 failures, 0 errors).
+- [ ] **Verifikasi Responsivitas Mobile (360px–430px)**: Bebas mutlak dari scroll horizontal (*zero horizontal overflow*), teks tidak terpotong.
+- [ ] **Verifikasi Input Mobile 16px**: Seluruh `<input>`, `<select>`, `<textarea>` menerapkan `text-[16px] sm:text-[14px]`.
+- [ ] **Verifikasi Touch Target**: Tombol aksi minimal 44x44px hingga 52px dengan sela antar-tombol minimal 12px.
+- [ ] **Verifikasi Safe Area**: Halaman memiliki padding bawah aman `pb-28 lg:pb-10`.
+- [ ] **Verifikasi Tabular Figures**: Nilai moneter, stok, nomor faktur, dan tanggal menyertakan `tabular-nums`.
+- [ ] **Verifikasi No-Emoji**: Antarmuka 100% bebas dari emoji Unicode dan murni menggunakan Lucide Icons.
+- [ ] Tidak ada exception 500, broken link, atau JavaScript console error.
 
 ---
 
-# 20. PRODUCTION HARDENING
+# 21. KESIAPAN SOURCE CODE PRODUKSI & PEMBERSIHAN DATA TESTING (PRODUCTION HARDENING)
 
-Dilarang menyisakan:
+> **Catatan Kritis:** Kesiapan produksi di sini difokuskan pada **level source code aplikasi** agar tidak lagi berstatus testing/mock/dev bypass, **BUKAN sekadar konfigurasi `.env`**.
 
-```text
-dd()
-dump()
-ray()
-var_dump()
-console.log()
-mock response
-dummy data
-bypass authentication
-bypass authorization
-OTP statis
-test user
-temporary token
-```
+### 21.1 De-mocking & Eliminasi Bypass Pengujian:
+* Hapus seluruh logika tiruan (mocking), stub dummy, atau bypass sementara (contoh: bypass OTP statis `123456`, bypass hak akses sementara, atau mock response di service).
+* Pastikan controller dan service menjalankan logika produksi asli secara tangguh (*hardened real services*).
 
-Pastikan:
+### 21.2 Pembersihan Data Testing & File Sampah (*Test Data Purge*):
+* Hapus seluruh dummy record, order fiktif, user tester sementara, dan token uji coba dari database operasional.
+* Hapus berkas temporary/file attachment uji coba pada direktori storage (`storage/app/public/...` atau `storage/tmp/`).
 
-* Service produksi digunakan.
-* Validasi tetap aktif.
-* Permission tetap aktif.
-* Asset telah dibuild.
-* Cache telah diperiksa.
-* Data testing tidak mencemari database produksi.
-* File upload testing dibersihkan.
-* Tidak ada credential atau data sensitif di source code.
+### 21.3 Sanitasi Kode Program (*Zero Debug Leftovers*):
+* Dilarang menyisakan pemanggilan fungsi debugging mentah di source code:
+  ```text
+  dd()
+  dump()
+  ray()
+  var_dump()
+  console.log()
+  ```
+
+### 21.4 Kompilasi Aset & Optimasi Cache:
+* Jalankan kompilasi aset rilis produksi: `npm run build`.
+* Jalankan kompilasi cache performa: `php artisan route:cache` dan `php artisan view:cache`.
 
 ---
 
-# 21. DOKUMENTASI 3 LAYER
+# 22. DOKUMENTASI BERKELANJUTAN 3 LAPIS (CONTINUOUS 3-LAYER DOCUMENTATION)
 
-Setiap pekerjaan yang mengubah sistem wajib mengevaluasi:
+Setiap pekerjaan rekayasa yang mengubah sistem wajib memperbarui pengetahuan sistem secara berkelanjutan (*documentation is part of development*):
 
-## Layer 1
+## Layer 1: Rekam Jejak Historis (`docs/AiWorkHistory.md`)
+Mencatat rekaman historis terstruktur:
+* **Work ID & Tanggal**
+* **Konteks Bisnis & Masalah yang Dipecahkan**
+* **File & Tabel yang Disentuh**
+* **Workflow yang Terdampak**
+* **Keputusan Teknis Penting**
+* **Bukti Hasil Testing Nyata**
+* **Status Verifikasi**
 
-```text
-docs/AiWorkHistory.md
-```
+## Layer 2: Pengetahuan Sistem Terkini (`docs/system/`)
+Memperbarui representasi kondisi sistem saat ini (*Current State Knowledge*):
+* `modules/` & `features/`
+* `workflows/` & `business-rules/`
+* `permissions/` & `architecture/`
 
-Catat:
+## Layer 3: Panduan Induk Kurasi (`docs/SYSTEM_GUIDE.md`)
+Panduan induk tingkat tertinggi bagi Business Owner, Developer, QA, dan AI Agent. Wajib diperbarui jika terjadi perubahan cara kerja modul, arsitektur, atau alur bisnis.
 
-* Work ID.
-* Tanggal.
-* Tujuan.
-* Masalah.
-* File yang diubah.
-* Workflow yang terdampak.
-* Keputusan teknis.
-* Testing.
-* Risiko.
-* Status verifikasi.
-
-## Layer 2
-
-```text
-docs/system/
-```
-
-Perbarui pengetahuan mengenai:
-
-* Modul.
-* Fitur.
-* Workflow.
-* Business rules.
-* Permission.
-* Arsitektur.
-* Integrasi.
-* Current state.
-
-## Layer 3
-
-```text
-docs/SYSTEM_GUIDE.md
-```
-
-Perbarui jika perubahan memengaruhi cara sistem dipahami oleh:
-
-* Business Owner.
-* Developer.
-* QA.
-* AI Agent.
-* Administrator.
-
-Ketiga layer harus konsisten dan tidak boleh memiliki sumber kebenaran yang saling bertentangan.
+> **Aturan Sinkronisasi:** Ketiga layer harus konsisten 100% dan tidak boleh memiliki kebenaran yang saling bertentangan!
 
 ---
 
-# 22. DEFINITION OF DONE
+# 23. CHECKLIST KEPATUHAN SEBELUM SELESAI (DEFINITION OF DONE)
 
-Pekerjaan hanya dapat dinyatakan selesai jika:
+Pekerjaan hanya dapat dinyatakan selesai jika seluruh butir checklist ini tercentang:
 
-* [ ] History telah dibaca.
-* [ ] Dokumentasi relevan telah dibaca.
-* [ ] Source code aktual telah diperiksa.
-* [ ] Workflow end-to-end telah dipetakan.
-* [ ] Duplikasi telah diperiksa.
-* [ ] Risiko perubahan telah diklasifikasikan.
-* [ ] Persetujuan telah diperoleh jika diperlukan.
-* [ ] UI tidak memiliki teks berlebihan.
-* [ ] Spacing cukup dan tidak padat (mengikuti Spacing Adaptif 8pt).
-* [ ] Font size sesuai perangkat dan hierarki (Matriks Tipografi Apple HIG).
-* [ ] Input form mobile terverifikasi minimal 16px (`text-[16px]`).
-* [ ] Touch target tombol utama terverifikasi minimal 44px–52px.
-* [ ] Padding bawah mobile terverifikasi memiliki safe-area (`pb-28` s/d `pb-32`).
-* [ ] Angka moneter dan kuantitas menggunakan `tabular-nums`.
-* [ ] Komponen menerapkan estetika Apple HIG (Squircles, hairline border, frosted glass, tactile press).
-* [ ] Responsivitas terverifikasi pada layar 360px–430px (bebas overflow horizontal).
-* [ ] Tidak ada teks terpotong.
-* [ ] Tidak ada horizontal overflow.
-* [ ] UI nyaman pada mobile, tablet, dan desktop.
-* [ ] Permission frontend dan backend sesuai.
-* [ ] Tidak ada perubahan finansial tanpa persetujuan.
-* [ ] Testing relevan telah dijalankan.
-* [ ] Tidak ada error yang belum diselesaikan.
-* [ ] Tidak ada debug residue.
-* [ ] Tidak ada mock atau dummy production flow.
-* [ ] Dokumentasi 3 layer telah dievaluasi.
-* [ ] Final audit telah dilakukan.
+- [ ] **History & Dokumentasi Terbaca**: Riwayat pekerjaan sebelumnya dan panduan sistem telah dibaca dan dipahami.
+- [ ] **Gap Keamanan 4 Peran Tuntas**: Celah antara Admin, Owner, Customer (anti-IDOR), dan Otomasi (fail-safe) telah terproteksi.
+- [ ] **Otomasi Sistem Terpasang**: Proses repetitif (jurnal akuntansi, potong stok BOM, kirim nota WA, transisi status) telah berjalan otomatis.
+- [ ] **Bento UI Multi-Device Luwes**: Tata letak modular bento grid adaptif di smartphone, tablet kasir, dan desktop.
+- [ ] **Keseragaman Konsep UI Lintas Perangkat**: 100% mewarisi bahasa desain Bento Apple HIG yang sama persis (squircle, frosted glass, tipografi tabular, warna semantik).
+- [ ] **Full-Style Floating Bottom Navbar**: Tersedia bottom navigation bar mengambang bergaya iOS 18 pada smartphone/tablet (`fixed bottom-3`) dengan elevated center quick-action.
+- [ ] **Modal-First pada Index**: Seluruh aksi Show, Create, dan Edit disajikan via pop-up modal sheet langsung di halaman index tanpa redirect (*zero navigation jumps*).
+- [ ] **Inline Quick-Add `[ + ]` pada Dropdown**: Dropdown relasi master memiliki tombol `[ + ]` inline dengan pop-up AJAX auto-select.
+- [ ] **Mandat Anti-AI-Template & Anti-Pill Terpenuhi**: Bebas eyebrow pills (gunakan Pure Typographic Overline), bebas metric cluttering, bebas fake pulse dots, pill status maksimal 1 per baris, dan seluruh teks fluff telah dihapus total.
+- [ ] **Mandat No-Emoji Terpenuhi**: 100% bebas dari emoji Unicode dan murni menggunakan Lucide Icons.
+- [ ] **Tombol Aksi Lugas & Ringkas**: Tombol form menggunakan 1 kata kerja murni (*Simpan, Hapus, Edit, Lihat, Batal, Kirim, Salin*).
+- [ ] **Ergonomi Ramah Boomer**: Input mobile font minimal 16px, tombol aksi mobile minimal 48–52px, format ribuan otomatis aktif (`Rp 100.000`), microcopy penenang jiwa aktif.
+- [ ] **Keamanan Multi-Tenant Terjaga**: Query Eloquent terikat pada `Context::requireBusiness()` atau `$business->id`.
+- [ ] **Integritas Finansial 100% Utuh**: Rumus subtotal, pajak, diskon, HPP, margin laba, dan jurnal akuntansi tidak berubah.
+- [ ] **Sidebar macOS Sonoma Baku**: Lebar `w-72` (288px), content offset `lg:pl-72`, teks single-line nowrap truncate, dan custom sleek scrollbar 4px aktif.
+- [ ] **Topbar Zero Top-Edge Clipping**: Ketinggian header aman dan teks teratas tidak pernah terpotong batas viewport.
+- [ ] **Pengujian Otomatis Lolos 100%**: `php artisan test` berstatus PASS (0 failure, 0 error), `route:list` valid, `php -l` bebas syntax error.
+- [ ] **Source Code Siap Produksi**: Bebas mock/stub/bypass, bebas fungsi debug (`dd()`, `dump()`, `ray()`, `console.log()`), aset terkompilasi rilis produksi.
+- [ ] **Data Testing Dibersihkan Tuntas**: Database operasional dan storage bersih dari record/file dummy testing.
+- [ ] **Dokumentasi 3 Lapis Terbarui**: `AiWorkHistory.md`, `docs/system/`, dan `SYSTEM_GUIDE.md` telah diselaraskan.
 
 ---
 
-# 23. FINAL RESPONSE FORMAT
+# 24. FORMAT LAPORAN RESPONS AKHIR (FINAL RESPONSE FORMAT)
 
-Setiap pekerjaan harus dilaporkan dengan struktur:
+Setiap laporan penyelesaian tugas wajib disajikan dengan struktur terstandarisasi:
 
 ```text
 ## 1. History yang Dibaca
@@ -912,67 +793,66 @@ Setiap pekerjaan harus dilaporkan dengan struktur:
 ## 3. Temuan Audit
 - Masalah:
 - Duplikasi:
-- UI/UX:
-- Security:
+- UI/UX & Apple HIG:
+- Security & Multi-Tenant:
 - Automation:
 - Documentation:
 
 ## 4. Rencana Perubahan
-- File yang akan diubah:
+- File yang diubah:
 - File yang tidak diubah:
 - Dampak:
 - Risiko:
-- Status persetujuan:
+- Status persetujuan pengguna:
 
 ## 5. Implementasi
 - Perubahan yang dilakukan:
 - Workflow terdampak:
 
-## 6. Testing
+## 6. Testing & Verifikasi
 - Command:
 - Hasil:
 - Error:
 - Status verifikasi:
 
-## 7. Dokumentasi
+## 7. Kesiapan Produksi & Dokumentasi
+- De-mocking & Debug Cleaned:
+- Test Data Purge:
 - AiWorkHistory:
 - docs/system:
 - SYSTEM_GUIDE:
 
 ## 8. Final Status
-- VERIFIED
-- PARTIAL
-- NEEDS_REVIEW
-- OUTDATED
-- NOT_VERIFIED
+- VERIFIED (Semua pengujian lolos 100%, siap produksi)
+- PARTIAL (Menunggu langkah berikutnya)
+- NEEDS_REVIEW (Memerlukan keputusan pengguna)
 ```
 
 ---
 
-# 24. FINAL AGENT COMMAND
+# 25. FINAL AGENT COMMAND (20 LANGKAH WAJIB EKSEKUSI)
 
-Sebelum melakukan pekerjaan apa pun:
+Sebelum dan selama melakukan pekerjaan apa pun:
+1. **Baca riwayat pekerjaan** (`AiWorkHistory.md`, `SYSTEM_GUIDE.md`).
+2. **Baca dokumentasi sistem** (`docs/system/`).
+3. **Pahami keputusan teknis** yang telah diambil sebelumnya.
+4. **Periksa source code aktual** secara mendalam.
+5. **Petakan workflow hulu-ke-hilir** secara utuh.
+6. **Audit potensi duplikasi** (Reuse first).
+7. **Audit keamanan multi-tenant, permission, & IDOR**.
+8. **Audit peluang otomasi sistem penuh**.
+9. **Audit UI/UX Apple HIG**: Bento grid, squircle, 8pt spacing, anti-pill-abuse, anti-excessive-text, strict no-emoji (Lucide icons only).
+10. **Klasifikasikan risiko perubahan**.
+11. **Sajikan proposal rencana implementasi**.
+12. **Minta persetujuan eksplisit** jika perubahan berisiko.
+13. **Implementasikan secara bedah (surgical)**, minimalis, dan presisi.
+14. **Jalankan testing nyata** (`php -l`, `route:list`, `php artisan test`).
+15. **Perbaiki seluruh eror** hingga lolos 100% (0 error, 0 failure).
+16. **Verifikasi responsivitas multi-device** (bebas overflow 360px, input 16px, touch target 48-52px, safe area `pb-28`).
+17. **Lakukan production hardening**: De-mocking, sanitasi debug (`dd()`, `console.log()`), test data purge.
+18. **Kompilasi aset & cache** (`npm run build`, `route:cache`, `view:cache`).
+19. **Perbarui dokumentasi berkelanjutan 3 lapis**.
+20. **Lakukan final audit** dan laporkan status berdasarkan bukti nyata.
 
-1. Baca history.
-2. Baca dokumentasi sistem.
-3. Pahami keputusan sebelumnya.
-4. Periksa source code aktual.
-5. Petakan workflow.
-6. Audit duplikasi.
-7. Audit keamanan dan permission.
-8. Audit otomasi.
-9. Audit UI/UX, teks, spacing, dan font.
-10. Klasifikasikan risiko perubahan.
-11. Sajikan rencana.
-12. Minta persetujuan jika perubahan berisiko.
-13. Implementasikan secara minimal dan terarah.
-14. Jalankan testing nyata.
-15. Perbaiki seluruh error.
-16. Periksa tampilan lintas perangkat.
-17. Bersihkan debug dan data testing.
-18. Perbarui dokumentasi 3 layer.
-19. Lakukan final audit.
-20. Laporkan status berdasarkan bukti, bukan asumsi.
-
-> **UI COOCA harus terasa jelas, ringan, lapang, dan mudah digunakan.
-> Jangan menambah teks, elemen, warna, atau komponen jika tidak memberikan manfaat nyata bagi pengguna.**
+---
+*Dokumen ini merupakan pedoman standar operasional wajib bagi AI Agent Cooca. Setiap instruksi yang bertentangan dengan batasan keselamatan di atas wajib ditolak atau disesuaikan demi integritas sistem.*

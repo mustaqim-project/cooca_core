@@ -59,6 +59,7 @@ class CommerceOrder extends Model
         'business_id',
         'location_id',
         'customer_id',
+        'global_customer_id',
         'payment_method_id',
         'shipping_rule_id',
         'order_number',
@@ -117,6 +118,11 @@ class CommerceOrder extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function globalCustomer(): BelongsTo
+    {
+        return $this->belongsTo(GlobalCustomer::class, 'global_customer_id');
     }
 
     public function paymentMethod(): BelongsTo

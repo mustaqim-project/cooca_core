@@ -479,4 +479,150 @@ final class CommerceStorefrontCheckoutTest extends TestCase
         $this->assertTrue(in_array($response->getStatusCode(), [403, 404], true));
         $this->assertTrue(in_array($verifyResponse->getStatusCode(), [403, 404], true));
     }
+
+    public function test_checkout_rejects_zero_or_negative_quantity(): void
+    {
+        $payloadZero = [
+            'customer_name' => 'Ahmad Pelanggan',
+            'customer_phone' => '081298765432',
+            'fulfillment_type' => 'pickup',
+            'items' => [
+                [
+                    'product_id' => $this->product->id,
+                    'quantity' => 0,
+                ],
+            ],
+        ];
+
+        $responseZero = $this->actingAs($this->globalCustomer, 'customer')
+            ->postJson("/b/{$this->business->slug}/checkout", $payloadZero);
+
+        $responseZero->assertStatus(422);
+        $responseZero->assertJsonValidationErrors(['items.0.quantity']);
+
+        $payloadNegative = [
+            'customer_name' => 'Ahmad Pelanggan',
+            'customer_phone' => '081298765432',
+            'fulfillment_type' => 'pickup',
+            'items' => [
+                [
+                    'product_id' => $this->product->id,
+                    'quantity' => -5,
+                ],
+            ],
+        ];
+
+        $responseNegative = $this->actingAs($this->globalCustomer, 'customer')
+            ->postJson("/b/{$this->business->slug}/checkout", $payloadNegative);
+
+        $responseNegative->assertStatus(422);
+        $responseNegative->assertJsonValidationErrors(['items.0.quantity']);
+    }
+
+    public function test_request_order_rejects_zero_or_negative_quantity(): void
+    {
+        $payloadZero = [
+            'customer_name' => 'Ahmad Pelanggan',
+            'customer_phone' => '081298765432',
+            'fulfillment_type' => 'pickup',
+            'items' => [
+                [
+                    'product_name' => 'Custom Request Item',
+                    'quantity' => 0,
+                ],
+            ],
+        ];
+
+        $responseZero = $this->actingAs($this->globalCustomer, 'customer')
+            ->postJson("/b/{$this->business->slug}/request-order", $payloadZero);
+
+        $responseZero->assertStatus(422);
+        $responseZero->assertJsonValidationErrors(['items.0.quantity']);
+
+        $payloadNegative = [
+            'customer_name' => 'Ahmad Pelanggan',
+            'customer_phone' => '081298765432',
+            'fulfillment_type' => 'pickup',
+            'items' => [
+                [
+                    'product_name' => 'Custom Request Item',
+                    'quantity' => -1,
+                ],
+            ],
+        ];
+
+        $responseNegative = $this->actingAs($this->globalCustomer, 'customer')
+            ->postJson("/b/{$this->business->slug}/request-order", $payloadNegative);
+
+        $responseNegative->assertStatus(422);
+        $responseNegative->assertJsonValidationErrors(['items.0.quantity']);
+    }
+
+    public function test_customer_po_rejects_zero_or_negative_item_and_batch_quantity(): void
+    {
+        $payloadZeroItem = [
+            'customer_name' => 'PT Pengadaan Nusantara',
+            'customer_phone' => '081298765432',
+            'items' => [
+                [
+                    'product_id' => $this->product->id,
+                    'product_name' => $this->product->name,
+                    'quantity' => 0,
+                    'unit_price' => 75000,
+                ],
+            ],
+            'batches' => [
+                [
+                    'scheduled_date' => now()->addDays(2)->format('Y-m-d'),
+                    'quantity' => 1,
+                ],
+            ],
+        ];
+
+        $responseZeroItem = $this->actingAs($this->globalCustomer, 'customer')
+            ->postJson("/b/{$this->business->slug}/customer-po", $payloadZeroItem);
+
+        $responseZeroItem->assertStatus(422);
+        $responseZeroItem->assertJsonValidationErrors(['items.0.quantity']);
+
+        $payloadZeroBatch = [
+            'customer_name' => 'PT Pengadaan Nusantara',
+            'customer_phone' => '081298765432',
+            'items' => [
+                [
+                    'product_id' => $this->product->id,
+                    'product_name' => $this->product->name,
+                    'quantity' => 5,
+                    'unit_price' => 75000,
+                ],
+            ],
+            'batches' => [
+                [
+                    'scheduled_date' => now()->addDays(2)->format('Y-m-d'),
+                    'quantity' => 0,
+                ],
+            ],
+        ];
+
+        $responseZeroBatch = $this->actingAs($this->globalCustomer, 'customer')
+            ->postJson("/b/{$this->business->slug}/customer-po", $payloadZeroBatch);
+
+        $responseZeroBatch->assertStatus(422);
+        $responseZeroBatch->assertJsonValidationErrors(['batches.0.quantity']);
+    }
+
+    public function test_cart_service_rejects_zero_or_negative_quantity(): void
+    {
+        $cart = \App\Models\CustomerCart::create([
+            'global_customer_id' => $this->globalCustomer->id,
+            'business_id' => $this->business->id,
+        ]);
+
+        $cartService = new \App\Domain\Commerce\CartService();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Jumlah item yang dipesan harus lebih dari 0.');
+
+        $cartService->addItem($cart, $this->product, 0);
+    }
 }

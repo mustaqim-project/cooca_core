@@ -5,19 +5,10 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-24" x-data="landingPageEditor()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-10" x-data="landingPageEditor()">
 
-        <!-- ========================================== -->
-        <!-- 0. BREADCRUMB BAR (macOS Minimalist Style) -->
-        <!-- ========================================== -->
-        <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 print:hidden"
-            aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-            <span>›</span>
-            <span class="text-black/70 dark:text-white/70 font-medium">Pemasaran &amp; Profil</span>
-            <span>›</span>
-            <span class="text-black dark:text-white font-medium">Website &amp; Landing Page Bisnis</span>
-        </nav>
+        {{-- 0. STOREFRONT & WEBSITE HUB NAVIGATION --}}
+        @include('app.storefront.partials.navigation', ['title' => 'Website & Profil Bisnis'])
 
         <!-- ========================================== -->
         <!-- 1. TOP TOOLBAR & ACTION COCKPIT            -->
@@ -70,14 +61,14 @@
             <!-- Toolbar Actions -->
             <div class="flex flex-wrap items-center gap-2 z-10 w-full lg:w-auto">
                 @if (\App\Support\Context::hasPermission('cms.manage'))
-                    <button type="button" @click="showPresetModal = true"
+                    <button type="button" @click="showPresetModal = true; $nextTick(() => { if (window.lucide) lucide.createIcons(); })"
                         class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-[#B25E00] dark:text-[#FF9F0A] bg-[#FF9500]/10 hover:bg-[#FF9500]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
                         <svg class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A]" fill="none" stroke="currentColor"
                             stroke-width="1.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
                         </svg>
-                        <span>Template Industri (20)</span>
+                        <span>Preset Industri (25)</span>
                     </button>
 
                     <button type="button" @click="togglePublish()" :disabled="saving"
@@ -275,7 +266,7 @@
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                         </path>
                                     </svg>
-                                    <span x-text="saving ? 'Menyimpan...' : 'Simpan Perubahan'">Simpan Perubahan</span>
+                                    <span x-text="saving ? 'Menyimpan...' : 'Simpan'">Simpan</span>
                                 </button>
                                 <p class="text-[11px] text-center truncate"
                                     :class="saveError ? 'text-[#FF3B30] font-medium' : 'text-black/50 dark:text-white/50'"
@@ -359,8 +350,8 @@
                                         memberikan nuansa mewah bertema gelap pada landing page publik bisnis Anda.</div>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="dark_mode" value="1"
-                                        {{ $landingPage->dark_mode ? 'checked' : '' }} class="sr-only peer">
+                                    <input type="checkbox" name="dark_mode" value="1" x-model="form.dark_mode"
+                                        class="sr-only peer">
                                     <div
                                         class="w-11 h-6 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#007AFF]">
                                     </div>
@@ -402,8 +393,8 @@
                                         Badge Pengumuman Singkat
                                     </label>
                                     <input type="text" name="announcement_badge" x-model="form.announcement_badge"
-                                        placeholder="🔥 Solusi Terpercaya Sejak 2018"
-                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        placeholder="Solusi Terpercaya Sejak 2018"
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                     <p class="text-[11px] text-black/40 dark:text-white/40 mt-1">Muncul di atas judul besar
                                         sebagai pemikat perhatian pertama.</p>
                                 </div>
@@ -422,7 +413,7 @@
                                     </div>
                                     <input type="file" name="logo_image" accept="image/jpeg,image/png,image/webp"
                                         @change="handleImagePreview($event, 'logo')"
-                                        class="w-full text-[12px] text-black/50 dark:text-white/50 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:px-3 file:py-1.5 file:text-[#007AFF] file:font-semibold file:cursor-pointer">
+                                        class="w-full text-[16px] sm:text-[12px] text-black/50 dark:text-white/50 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:px-3 file:py-1.5 file:text-[#007AFF] file:font-semibold file:cursor-pointer">
                                     <label
                                         class="mt-2 flex items-center gap-2 text-[11px] text-black/50 dark:text-white/50">
                                         <input type="checkbox" name="remove_logo_image" value="1"
@@ -440,7 +431,7 @@
                                 </label>
                                 <input type="text" name="headline" x-model="form.headline"
                                     placeholder="Solusi Layanan &amp; Produk Terpercaya untuk Kebutuhan Anda"
-                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] font-semibold text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] font-semibold text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                             </div>
 
                             <!-- Subheadline -->
@@ -451,7 +442,7 @@
                                 </label>
                                 <textarea name="subheadline" x-model="form.subheadline" rows="3"
                                     placeholder="Kami hadir memberikan solusi terbaik dengan pengerjaan profesional, garansi kepuasan, dan harga terjangkau..."
-                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
+                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
                             </div>
 
                             <!-- Call-to-Action Buttons -->
@@ -463,7 +454,7 @@
                                     </label>
                                     <input type="text" name="cta_primary_text" x-model="form.cta_primary_text"
                                         placeholder="Pesan via WhatsApp"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
                                 <div>
                                     <label
@@ -472,7 +463,7 @@
                                     </label>
                                     <input type="text" name="cta_primary_url" x-model="form.cta_primary_url"
                                         placeholder="https://wa.me/... atau #kontak"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition font-mono">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition font-mono">
                                 </div>
                                 <div>
                                     <label
@@ -481,7 +472,7 @@
                                     </label>
                                     <input type="text" name="cta_secondary_text" x-model="form.cta_secondary_text"
                                         placeholder="Lihat Daftar Layanan &amp; Harga"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
                                 <div>
                                     <label
@@ -490,7 +481,7 @@
                                     </label>
                                     <input type="text" name="cta_secondary_url" x-model="form.cta_secondary_url"
                                         placeholder="#layanan atau URL tujuan"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition font-mono">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition font-mono">
                                 </div>
                             </div>
 
@@ -508,7 +499,7 @@
                                 </div>
                                 <input type="file" name="hero_image" accept="image/jpeg,image/png,image/webp"
                                     @change="handleImagePreview($event, 'hero')"
-                                    class="w-full text-[12px] text-black/50 dark:text-white/50 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:px-3 file:py-1.5 file:text-[#007AFF] file:font-semibold file:cursor-pointer">
+                                    class="w-full text-[16px] sm:text-[12px] text-black/50 dark:text-white/50 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:px-3 file:py-1.5 file:text-[#007AFF] file:font-semibold file:cursor-pointer">
                                 <label class="mt-2 flex items-center gap-2 text-[11px] text-black/50 dark:text-white/50">
                                     <input type="checkbox" name="remove_hero_image" value="1"
                                         class="rounded-[4px] border-black/20 text-[#FF3B30] focus:ring-[#FF3B30]">
@@ -560,7 +551,7 @@
                                 </div>
                                 <input type="file" name="about_image" accept="image/jpeg,image/png,image/webp"
                                     @change="handleImagePreview($event, 'about')"
-                                    class="w-full text-[12px] text-black/50 dark:text-white/50 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:px-3 file:py-1.5 file:text-[#007AFF] file:font-semibold file:cursor-pointer">
+                                    class="w-full text-[16px] sm:text-[12px] text-black/50 dark:text-white/50 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:px-3 file:py-1.5 file:text-[#007AFF] file:font-semibold file:cursor-pointer">
                                 <label class="mt-2 flex items-center gap-2 text-[11px] text-black/50 dark:text-white/50">
                                     <input type="checkbox" name="remove_about_image" value="1"
                                         class="rounded-[4px] border-black/20 text-[#FF3B30] focus:ring-[#FF3B30]">
@@ -575,7 +566,7 @@
                                 </label>
                                 <input type="text" x-model="form.about_title"
                                     placeholder="Dedikasi Kami untuk Kualitas &amp; Kepuasan Pelanggan"
-                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                             </div>
 
                             <div>
@@ -585,7 +576,7 @@
                                 </label>
                                 <textarea x-model="form.about_story" rows="4"
                                     placeholder="Ceritakan bagaimana usaha Anda beroperasi, komitmen kualitas, keahlian tim, serta garansi yang diberikan..."
-                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
+                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
                             </div>
 
                             <!-- 3 STATS KREDIBILITAS -->
@@ -603,10 +594,10 @@
                                         <input type="text" name="stats[clients]"
                                             value="{{ data_get($landingPage->values, 'stats.clients', '5.000+') }}"
                                             placeholder="5.000+"
-                                            class="w-full h-9 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-3 text-[15px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] focus:outline-none text-center">
+                                            class="w-full h-9 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-3 text-[16px] sm:text-[15px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] focus:outline-none text-center">
                                         <input type="text" name="stats[clients_label]" value="Pelanggan Puas"
                                             placeholder="Label Pelanggan"
-                                            class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] text-black/70 dark:text-white/70 focus:outline-none text-center">
+                                            class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] text-black/70 dark:text-white/70 focus:outline-none text-center">
                                     </div>
                                     <div
                                         class="rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-3 space-y-2">
@@ -615,10 +606,10 @@
                                             2 (Pengalaman)</label>
                                         <input type="text" name="stats[experience]" value="8+ Tahun"
                                             placeholder="8+ Tahun"
-                                            class="w-full h-9 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-3 text-[15px] font-bold tabular-nums text-[#007AFF] focus:outline-none text-center">
+                                            class="w-full h-9 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-3 text-[16px] sm:text-[15px] font-bold tabular-nums text-[#007AFF] focus:outline-none text-center">
                                         <input type="text" name="stats[experience_label]"
                                             value="Pengalaman Profesional" placeholder="Label Pengalaman"
-                                            class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] text-black/70 dark:text-white/70 focus:outline-none text-center">
+                                            class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] text-black/70 dark:text-white/70 focus:outline-none text-center">
                                     </div>
                                     <div
                                         class="rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-3 space-y-2">
@@ -627,10 +618,10 @@
                                             3 (Review / Rating)</label>
                                         <input type="text" name="stats[rating]" value="4.9 / 5.0"
                                             placeholder="4.9 / 5.0"
-                                            class="w-full h-9 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-3 text-[15px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A] focus:outline-none text-center">
+                                            class="w-full h-9 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-3 text-[16px] sm:text-[15px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A] focus:outline-none text-center">
                                         <input type="text" name="stats[rating_label]" value="Rating Kepuasan Ulasan"
                                             placeholder="Label Rating"
-                                            class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] text-black/70 dark:text-white/70 focus:outline-none text-center">
+                                            class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] text-black/70 dark:text-white/70 focus:outline-none text-center">
                                     </div>
                                 </div>
                             </div>
@@ -657,26 +648,26 @@
                                                 x-text="index + 1"></div>
                                             <input type="text" x-model="val.title"
                                                 placeholder="Judul Pilar Keunggulan"
-                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] font-semibold text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] font-semibold text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                                             <select x-model="val.icon"
-                                                class="h-8 px-2 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] text-[12px] text-[#007AFF] font-medium focus:outline-none">
-                                                <option value="shield-check">🛡️ Shield</option>
-                                                <option value="zap">⚡ Zap</option>
-                                                <option value="award">🏆 Award</option>
+                                                class="h-8 px-2 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] text-[16px] sm:text-[12px] text-[#007AFF] font-medium focus:outline-none">
+                                                <option value="shield-check">Shield Check</option>
+                                                <option value="zap">Kilat (Zap)</option>
+                                                <option value="award">Penghargaan (Award)</option>
                                                 <option value="star">⭐ Star</option>
-                                                <option value="clock">🕐 Clock</option>
-                                                <option value="heart">❤️ Heart</option>
-                                                <option value="truck">🚚 Truck</option>
-                                                <option value="thumbs-up">👍 Thumbs Up</option>
-                                                <option value="check-circle">✅ Check</option>
-                                                <option value="gem">💎 Gem</option>
-                                                <option value="badge-check">🎖️ Badge</option>
-                                                <option value="tag">🏷️ Tag</option>
-                                                <option value="sparkles">✨ Sparkles</option>
+                                                <option value="clock">Jam (Clock)</option>
+                                                <option value="heart">Favorit (Heart)</option>
+                                                <option value="truck">Pengiriman (Truck)</option>
+                                                <option value="thumbs-up">Rekomendasi (Thumbs Up)</option>
+                                                <option value="check-circle">Terverifikasi (Check)</option>
+                                                <option value="gem">Premium (Gem)</option>
+                                                <option value="badge-check">Lencana (Badge)</option>
+                                                <option value="tag">Penawaran (Tag)</option>
+                                                <option value="sparkles">Istimewa (Sparkles)</option>
                                             </select>
                                         </div>
                                         <textarea x-model="val.description" rows="2" placeholder="Uraian singkat keunggulan..."
-                                            class="w-full bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] p-2.5 text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF] resize-none"></textarea>
+                                            class="w-full bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] p-2.5 text-[16px] sm:text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF] resize-none"></textarea>
                                     </div>
                                 </template>
                             </div>
@@ -704,7 +695,7 @@
                                             :class="day.is_open ?
                                                 'text-black dark:text-white bg-white dark:bg-[#2C2C2E]' :
                                                 'text-black/35 dark:text-white/35 bg-black/[0.04] dark:bg-white/[0.04] italic'"
-                                            class="flex-1 h-8 px-2.5 border-none rounded-[6px] text-[12px] tabular-nums focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                            class="flex-1 h-8 px-2.5 border-none rounded-[6px] text-[16px] sm:text-[12px] tabular-nums focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                         <label
                                             class="flex items-center gap-1.5 cursor-pointer text-[12px] shrink-0 select-none">
                                             <input type="checkbox" x-model="day.is_open"
@@ -762,9 +753,8 @@
                             @if (isset($serviceProducts) && $serviceProducts->isNotEmpty())
                                 <div
                                     class="rounded-[12px] bg-purple-500/10 border border-purple-500/20 p-4 flex flex-col sm:flex-row items-start gap-3.5">
-                                    <div
-                                        class="w-9 h-9 rounded-[10px] bg-purple-500/15 text-purple-700 dark:text-purple-300 flex items-center justify-center shrink-0 text-lg">
-                                        🛠️
+                                    <div class="w-9 h-9 rounded-[10px] bg-purple-500/15 text-purple-700 dark:text-purple-300 flex items-center justify-center shrink-0">
+                                        <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 3.097l-.102.102m0 0l-5.108.233" /></svg>
                                     </div>
                                     <div class="flex-1 space-y-1.5">
                                         <div class="flex items-center gap-2 flex-wrap">
@@ -787,7 +777,7 @@
                                             @foreach ($serviceProducts as $sp)
                                                 <span
                                                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] bg-white dark:bg-[#2C2C2E] border border-purple-500/20 text-[11.5px] font-medium text-black dark:text-white shadow-xs">
-                                                    <span>🛠️ {{ $sp->name }}</span>
+                                                    <svg class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 3.097l-.102.102m0 0l-5.108.233" /></svg><span>{{ $sp->name }}</span>
                                                     @if ($sp->selling_price > 0)
                                                         <span
                                                             class="text-purple-600 dark:text-purple-400 font-semibold">(Rp
@@ -813,7 +803,7 @@
                                         Section Layanan</label>
                                     <input type="text" name="services_title" x-model="form.services_title"
                                         placeholder="Layanan &amp; Produk Pilihan"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
                                 <div>
                                     <label
@@ -821,7 +811,7 @@
                                         / Deskripsi Pengantar</label>
                                     <input type="text" name="services_subtitle" x-model="form.services_subtitle"
                                         placeholder="Kualitas terbaik dan pelayanan prima untuk setiap pelanggan."
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
                             </div>
 
@@ -837,9 +827,9 @@
                                                 x-text="sIdx + 1"></span>
                                             <input type="text" x-model="service.title"
                                                 placeholder="Nama Layanan / Menu / Paket"
-                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] font-semibold text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] font-semibold text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                                             <input type="text" x-model="service.price" placeholder="Rp 150.000"
-                                                class="w-full sm:w-36 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] font-semibold tabular-nums text-[#34C759] dark:text-[#30D158] focus:outline-none text-right">
+                                                class="w-full sm:w-36 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] font-semibold tabular-nums text-[#34C759] dark:text-[#30D158] focus:outline-none text-right">
                                             <button type="button" @click="removeService(sIdx)"
                                                 class="h-8 w-8 rounded-[8px] text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 flex items-center justify-center transition cursor-pointer"
                                                 title="Hapus Layanan">
@@ -855,12 +845,12 @@
                                             <div class="md:col-span-2">
                                                 <input type="text" x-model="service.description"
                                                     placeholder="Deskripsi ringkas, rincian termasuk, garansi..."
-                                                    class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                                                    class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                                             </div>
                                             <div>
                                                 <input type="text" x-model="service.badge"
                                                     placeholder="Badge: Terpopuler / Promo"
-                                                    class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] font-medium text-[#FF9500] dark:text-[#FF9F0A] focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                                                    class="w-full h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] font-medium text-[#FF9500] dark:text-[#FF9F0A] focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                                             </div>
                                         </div>
 
@@ -1037,7 +1027,7 @@
                                         Bagian Galeri</label>
                                     <input type="text" name="gallery_title" x-model="form.gallery_title"
                                         maxlength="120" placeholder="Galeri &amp; Suasana Toko Kami"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
                                 <div>
                                     <label
@@ -1045,7 +1035,7 @@
                                         / Subtitle Galeri</label>
                                     <textarea name="gallery_subtitle" x-model="form.gallery_subtitle" maxlength="500" rows="2"
                                         placeholder="Dokumentasi aktivitas, produk unggulan, dan kehangatan pelayanan kami."
-                                        class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 py-2 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
+                                        class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 py-2 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
                                 </div>
                             </div>
 
@@ -1137,7 +1127,7 @@
                                             <div>
                                                 <input type="text" x-model="item.caption"
                                                     placeholder="Caption foto..."
-                                                    class="w-full h-7 px-2 bg-white dark:bg-[#2C2C2E] border-none rounded-[6px] text-[11px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                                    class="w-full h-7 px-2 bg-white dark:bg-[#2C2C2E] border-none rounded-[6px] text-[16px] sm:text-[11px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                             </div>
                                         </div>
                                     </template>
@@ -1168,7 +1158,7 @@
                                             <div>
                                                 <input type="text" x-model="nItem.caption"
                                                     placeholder="Caption baru..."
-                                                    class="w-full h-7 px-2 bg-white dark:bg-[#2C2C2E] border-none rounded-[6px] text-[11px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                                    class="w-full h-7 px-2 bg-white dark:bg-[#2C2C2E] border-none rounded-[6px] text-[16px] sm:text-[11px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                             </div>
                                         </div>
                                     </template>
@@ -1222,9 +1212,9 @@
                                         class="rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-3.5 space-y-2.5">
                                         <div class="flex items-center gap-2">
                                             <input type="text" x-model="testi.name" placeholder="Nama Pelanggan"
-                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] font-semibold text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] font-semibold text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                                             <input type="text" x-model="testi.role" placeholder="Kota / Profesi"
-                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                                             <span
                                                 class="text-[#FF9500] text-[12px] font-bold font-mono whitespace-nowrap">★
                                                 5.0</span>
@@ -1239,7 +1229,7 @@
                                             </button>
                                         </div>
                                         <textarea x-model="testi.comment" rows="2" placeholder="Ulasan pengalaman pelanggan..."
-                                            class="w-full bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] p-2.5 text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF] resize-none"></textarea>
+                                            class="w-full bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] p-2.5 text-[16px] sm:text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF] resize-none"></textarea>
                                     </div>
                                 </template>
 
@@ -1300,7 +1290,7 @@
                                             <span class="text-[12px] font-bold text-[#007AFF] font-mono shrink-0">Q:</span>
                                             <input type="text" x-model="faq.q"
                                                 placeholder="Pertanyaan (misal: Apakah melayani pesan antar?)"
-                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[12px] font-semibold text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                                                class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] font-semibold text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                                             <button type="button" @click="removeFaq(fIdx)"
                                                 class="h-8 w-8 rounded-[8px] text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 flex items-center justify-center transition cursor-pointer"
                                                 title="Hapus FAQ">
@@ -1315,7 +1305,7 @@
                                             <span
                                                 class="text-[12px] font-bold text-black/35 dark:text-white/35 font-mono shrink-0 mt-1.5">A:</span>
                                             <textarea x-model="faq.a" rows="2" placeholder="Jawaban yang jelas dan ramah..."
-                                                class="flex-1 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] p-2.5 text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF] resize-none"></textarea>
+                                                class="flex-1 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] p-2.5 text-[16px] sm:text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF] resize-none"></textarea>
                                         </div>
                                     </div>
                                 </template>
@@ -1366,7 +1356,7 @@
                                     </label>
                                     <input type="text" name="whatsapp_number" x-model="form.whatsapp_number"
                                         placeholder="6281234567890"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] font-mono text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition mb-3">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition mb-3">
 
                                     <label
                                         class="block text-[11px] font-semibold uppercase tracking-wider text-black/50 dark:text-white/50 mb-1.5">
@@ -1374,7 +1364,7 @@
                                     </label>
                                     <input type="text" name="custom_phone" x-model="form.custom_phone"
                                         placeholder="021-1234567 atau 081234..."
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] font-mono text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
 
                                 <!-- Email & Alamat -->
@@ -1385,7 +1375,7 @@
                                     </label>
                                     <input type="email" name="custom_email" x-model="form.custom_email"
                                         placeholder="kontak@bisnisanda.com"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition mb-3">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition mb-3">
 
                                     <label
                                         class="block text-[11px] font-semibold uppercase tracking-wider text-black/50 dark:text-white/50 mb-1.5">
@@ -1394,7 +1384,7 @@
                                     <input type="text" name="google_maps_embed_url"
                                         x-model="form.google_maps_embed_url"
                                         placeholder="https://www.google.com/maps/embed?pb=..."
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] font-mono text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                     <p class="text-[11px] text-black/40 dark:text-white/40 mt-1">Google Maps &gt; Bagikan
                                         &gt; Sematkan peta &gt; salin URL di <code class="text-[#007AFF]">src="..."</code>
                                     </p>
@@ -1409,7 +1399,7 @@
                                 </label>
                                 <textarea name="whatsapp_welcome_message" x-model="form.whatsapp_welcome_message" rows="2"
                                     placeholder="Halo, saya melihat website Anda dan ingin bertanya lebih lanjut..."
-                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
+                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
                             </div>
 
                             <!-- Alamat Fisik Lengkap -->
@@ -1420,7 +1410,7 @@
                                 </label>
                                 <textarea name="custom_address" x-model="form.custom_address" rows="2"
                                     placeholder="Jl. Sudirman No. 123, Kelurahan, Kecamatan, Kota/Kabupaten, Kode Pos"
-                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
+                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
                             </div>
 
                             <!-- SOCIAL MEDIA & MARKETPLACE LINKS -->
@@ -1430,14 +1420,14 @@
                                     Tautan Media Sosial &amp; Marketplace Toko
                                 </label>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    @foreach ([['key' => 'instagram', 'label' => '📸 Instagram', 'placeholder' => 'https://instagram.com/...'], ['key' => 'tiktok', 'label' => '🎵 TikTok', 'placeholder' => 'https://tiktok.com/@...'], ['key' => 'facebook', 'label' => '📘 Facebook', 'placeholder' => 'https://facebook.com/...'], ['key' => 'youtube', 'label' => '▶️ YouTube', 'placeholder' => 'https://youtube.com/...'], ['key' => 'tokopedia', 'label' => '🛒 Tokopedia', 'placeholder' => 'https://tokopedia.com/...'], ['key' => 'shopee', 'label' => '🛍️ Shopee', 'placeholder' => 'https://shopee.co.id/...']] as $social)
+                                    @foreach ([['key' => 'instagram', 'label' => 'Instagram', 'placeholder' => 'https://instagram.com/...'], ['key' => 'tiktok', 'label' => 'TikTok', 'placeholder' => 'https://tiktok.com/@...'], ['key' => 'facebook', 'label' => 'Facebook', 'placeholder' => 'https://facebook.com/...'], ['key' => 'youtube', 'label' => 'YouTube', 'placeholder' => 'https://youtube.com/...'], ['key' => 'tokopedia', 'label' => 'Tokopedia', 'placeholder' => 'https://tokopedia.com/...'], ['key' => 'shopee', 'label' => 'Shopee', 'placeholder' => 'https://shopee.co.id/...']] as $social)
                                         <div>
                                             <label
                                                 class="text-[10px] font-semibold text-black/60 dark:text-white/60 block mb-1 uppercase tracking-wider">{{ $social['label'] }}</label>
                                             <input type="text" name="social_links[{{ $social['key'] }}]"
                                                 value="{{ $landingPage->social_links[$social['key']] ?? '' }}"
                                                 placeholder="{{ $social['placeholder'] }}"
-                                                class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2.5 text-[12px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                                class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                         </div>
                                     @endforeach
                                 </div>
@@ -1510,7 +1500,7 @@
                                     Singkat Footer</label>
                                 <textarea name="footer_description" x-model="form.footer_description" maxlength="1000" rows="3"
                                     placeholder="Deskripsi ringkas profil usaha untuk ditampilkan di bagian footer..."
-                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
+                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1520,7 +1510,7 @@
                                         Kolom Navigasi</label>
                                     <input type="text" name="footer_navigation_title"
                                         x-model="form.footer_navigation_title" maxlength="80" placeholder="Navigasi"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
                                 <div>
                                     <label
@@ -1528,7 +1518,7 @@
                                         Kolom Layanan</label>
                                     <input type="text" name="footer_services_title"
                                         x-model="form.footer_services_title" maxlength="80" placeholder="Layanan Kami"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
                                 <div>
                                     <label
@@ -1536,7 +1526,7 @@
                                         Kolom Kontak</label>
                                     <input type="text" name="footer_contact_title" x-model="form.footer_contact_title"
                                         maxlength="80" placeholder="Hubungi Kami"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
                                 <div>
                                     <label
@@ -1544,7 +1534,7 @@
                                         Tombol Aksi Footer</label>
                                     <input type="text" name="footer_cta_text" x-model="form.footer_cta_text"
                                         maxlength="100" placeholder="Hubungi via WhatsApp"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 </div>
                             </div>
 
@@ -1585,7 +1575,7 @@
                                 </label>
                                 <input type="text" name="meta_title" x-model="form.meta_title"
                                     placeholder="{{ $business->name }} - Layanan &amp; Produk Terpercaya"
-                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 <div class="flex justify-between text-[11px] text-black/45 dark:text-white/45 mt-1">
                                     <span>Panjang ideal: 50–60 karakter</span>
                                     <span
@@ -1602,7 +1592,7 @@
                                 </label>
                                 <textarea name="meta_description" x-model="form.meta_description" rows="3"
                                     placeholder="Deskripsi ringkas bisnis Anda yang tampil di bawah judul pada hasil pencarian Google..."
-                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
+                                    class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 py-2.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
                                 <div class="flex justify-between text-[11px] text-black/45 dark:text-white/45 mt-1">
                                     <span>Panjang ideal: 120–160 karakter</span>
                                     <span
@@ -1619,7 +1609,7 @@
                                 </label>
                                 <input type="text" name="meta_keywords" x-model="form.meta_keywords" maxlength="500"
                                     placeholder="kuliner jakarta, servis motor, katering enak, toko grosir"
-                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 <p class="text-[11px] text-black/40 dark:text-white/40 mt-1">Pisahkan tiap kata kunci
                                     dengan tanda koma.</p>
                             </div>
@@ -1638,7 +1628,7 @@
                                 </div>
                                 <input type="file" name="og_image" accept="image/jpeg,image/png,image/webp"
                                     @change="handleImagePreview($event, 'og')"
-                                    class="w-full text-[12px] text-black/50 dark:text-white/50 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:px-3 file:py-1.5 file:text-[#007AFF] file:font-semibold file:cursor-pointer">
+                                    class="w-full text-[16px] sm:text-[12px] text-black/50 dark:text-white/50 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:px-3 file:py-1.5 file:text-[#007AFF] file:font-semibold file:cursor-pointer">
                                 <label class="mt-2 flex items-center gap-2 text-[11px] text-black/50 dark:text-white/50">
                                     <input type="checkbox" name="remove_og_image" value="1"
                                         class="rounded-[4px] border-black/20 text-[#FF3B30]">
@@ -1721,7 +1711,7 @@
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                 </path>
                             </svg>
-                            <span x-text="saving ? 'Menyimpan...' : 'Simpan Semua Perubahan'">Simpan Semua
+                            <span x-text="saving ? 'Menyimpan...' : 'Simpan'">Simpan Semua
                                 Perubahan</span>
                         </button>
                     @endif
@@ -1759,9 +1749,7 @@
                         </a>
                         <button type="button" @click="showPreview = false"
                             class="w-7 h-7 rounded-[6px] text-black/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition"
-                            title="Tutup preview">
-                            ✕
-                        </button>
+                            title="Tutup preview"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                     </div>
                 </div>
                 <iframe :src="previewUrl" title="Preview halaman publik bisnis"
@@ -1770,53 +1758,112 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- MODAL: 20 INDUSTRY PRESETS SELECTOR (Apple Sheet Style)      -->
+        <!-- MODAL: 25+ INDUSTRY PRESETS SELECTOR (Apple Sheet Style)     -->
         <!-- ============================================================ -->
         <div x-show="showPresetModal" x-transition.opacity
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
-            style="display:none;" x-cloak>
+            class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-sm"
+            style="display:none;" x-cloak
+            x-data="{ presetCategory: 'all' }">
             <div @click.away="showPresetModal = false"
-                class="bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[16px] max-w-5xl w-full max-h-[88vh] flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.25)] overflow-hidden">
+                class="bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/10 dark:border-white/10 rounded-[20px] max-w-5xl w-full max-h-[90vh] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.3)] overflow-hidden">
 
                 <!-- Modal Header -->
-                <div class="p-4 sm:p-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+                <div class="p-4 sm:p-5 border-b border-black/5 dark:border-white/10 flex items-start justify-between gap-3">
                     <div>
-                        <h3 class="text-[16px] font-semibold text-black dark:text-white">Template 20 Sektor Industri
-                            Bisnis Indonesia</h3>
-                        <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">Pilih sektor usaha Anda untuk
-                            mengisi konten, headline, layanan, FAQ, dan ulasan dalam 1 klik.</p>
+                        <div class="text-[11px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-wider mb-1">
+                            Arsitektur Konten Multisektor
+                        </div>
+                        <h3 class="text-[17px] sm:text-[18px] font-bold text-black dark:text-white tracking-tight">
+                            Preset 25 Sektor Industri Bisnis Indonesia
+                        </h3>
+                        <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
+                            Pilih sektor bisnis Anda untuk menyelaraskan headline, narasi profil, 4 pilar nilai, katalog layanan, FAQ, dan ulasan secara otomatis.
+                        </p>
                     </div>
                     <button type="button" @click="showPresetModal = false"
-                        class="w-7 h-7 rounded-[6px] text-black/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition">
-                        ✕
+                        class="w-8 h-8 rounded-full text-black/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition shrink-0">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
-                <!-- Modal Body: 20 Industry Cards -->
-                <div class="p-4 sm:p-5 overflow-y-auto">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                <!-- Category Segmented Tabs -->
+                <div class="px-4 sm:px-5 py-2.5 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/5 overflow-x-auto no-scrollbar">
+                    <div class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[12px] gap-1 text-[12px] font-medium">
+                        <button type="button" @click="presetCategory = 'all'"
+                            :class="presetCategory === 'all' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                            class="px-3 py-1.5 rounded-[9px] transition-all">
+                            Semua (25)
+                        </button>
+                        <button type="button" @click="presetCategory = 'fnb'"
+                            :class="presetCategory === 'fnb' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                            class="px-3 py-1.5 rounded-[9px] transition-all">
+                            Kuliner &amp; F&amp;B
+                        </button>
+                        <button type="button" @click="presetCategory = 'manufacturing'"
+                            :class="presetCategory === 'manufacturing' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                            class="px-3 py-1.5 rounded-[9px] transition-all">
+                            Manufaktur &amp; Bengkel
+                        </button>
+                        <button type="button" @click="presetCategory = 'retail'"
+                            :class="presetCategory === 'retail' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                            class="px-3 py-1.5 rounded-[9px] transition-all">
+                            Retail &amp; Apotek
+                        </button>
+                        <button type="button" @click="presetCategory = 'service'"
+                            :class="presetCategory === 'service' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                            class="px-3 py-1.5 rounded-[9px] transition-all">
+                            Jasa &amp; Layanan
+                        </button>
+                        <button type="button" @click="presetCategory = 'trading'"
+                            :class="presetCategory === 'trading' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                            class="px-3 py-1.5 rounded-[9px] transition-all">
+                            Distribusi &amp; Agro
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Body: 25 Industry Cards -->
+                <div class="p-4 sm:p-5 overflow-y-auto space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         @foreach ($industries as $ind)
-                            <div
-                                class="p-3.5 rounded-[12px] border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.03] hover:border-[#007AFF]/50 transition-all flex flex-col justify-between">
+                            <div x-show="presetCategory === 'all' || presetCategory === '{{ $ind['category'] ?? 'retail' }}'"
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                class="p-4 rounded-[16px] border border-black/5 dark:border-white/5 bg-white/60 dark:bg-white/[0.02] hover:border-[#007AFF]/40 hover:shadow-sm transition-all flex flex-col justify-between group">
                                 <div>
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-2xl">{{ $ind['icon'] }}</span>
-                                        <span
-                                            class="w-3.5 h-3.5 rounded-full border border-black/10 dark:border-white/10 shadow-2xs"
-                                            style="background-color: {{ $ind['theme_color'] }}"></span>
+                                    <div class="flex items-center justify-between mb-2.5">
+                                        <div class="w-9 h-9 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center text-black/70 dark:text-white/80 group-hover:text-[#007AFF] transition-colors">
+                                            <i data-lucide="{{ $ind['icon'] ?? 'store' }}" class="w-4 h-4"></i>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[10px] font-medium uppercase tracking-wider text-black/40 dark:text-white/40">
+                                                {{ match($ind['category'] ?? '') {
+                                                    'fnb' => 'F&B',
+                                                    'manufacturing' => 'MFG',
+                                                    'retail' => 'Retail',
+                                                    'service' => 'Jasa',
+                                                    'trading' => 'Agro',
+                                                    default => 'Bisnis'
+                                                } }}
+                                            </span>
+                                            <span class="w-3 h-3 rounded-full border border-black/10 dark:border-white/10"
+                                                style="background-color: {{ $ind['theme_color'] ?? '#007AFF' }}"></span>
+                                        </div>
                                     </div>
-                                    <h4 class="text-[13px] font-semibold text-black dark:text-white leading-tight mb-1">
+                                    <h4 class="text-[13.5px] font-bold text-black dark:text-white leading-snug mb-1">
                                         {{ $ind['name'] }}
                                     </h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 leading-relaxed line-clamp-2">
+                                    <p class="text-[11.5px] text-black/55 dark:text-white/55 leading-relaxed line-clamp-2">
                                         {{ $ind['description'] }}
                                     </p>
                                 </div>
-                                <div class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5">
+                                <div class="mt-3.5 pt-2.5 border-t border-black/5 dark:border-white/5">
                                     <button type="button"
                                         @click="applyPreset('{{ $ind['id'] }}', $event.currentTarget)"
-                                        class="w-full h-7 rounded-[6px] bg-[#007AFF]/10 hover:bg-[#007AFF] text-[#007AFF] hover:text-white text-[11px] font-semibold active:scale-[0.97] transition-all flex items-center justify-center gap-1 cursor-pointer">
-                                        <span>Terapkan</span>
+                                        class="w-full h-8 rounded-[9px] bg-[#007AFF]/10 hover:bg-[#007AFF] text-[#007AFF] hover:text-white text-[11.5px] font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                        <span>Terapkan Template</span>
                                     </button>
                                 </div>
                             </div>
@@ -1825,9 +1872,8 @@
                 </div>
 
                 <!-- Modal Footer -->
-                <div
-                    class="px-4 py-3 border-t border-black/5 dark:border-white/10 flex flex-col sm:flex-row justify-between items-center gap-2 text-[12px] text-black/50 dark:text-white/50">
-                    <p>⚡ Penerapan template menyelaraskan teks pengantar, 4 pilar nilai, layanan, FAQ, dan ulasan.</p>
+                <div class="px-5 py-3 border-t border-black/5 dark:border-white/10 flex flex-col sm:flex-row justify-between items-center gap-2 text-[12px] text-black/50 dark:text-white/50 bg-black/[0.01] dark:bg-white/[0.01]">
+                    <p>Menerapkan template otomatis menyesuaikan headline, 4 pilar nilai, katalog layanan, FAQ, dan ulasan.</p>
                     <button type="button" @click="showPresetModal = false"
                         class="h-8 px-4 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 font-medium transition">
                         Tutup
@@ -1848,9 +1894,7 @@
                         Tambah Foto Galeri via URL
                     </h3>
                     <button type="button" @click="showAddUrlModal = false"
-                        class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white">
-                        ✕
-                    </button>
+                        class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 </div>
                 <div class="space-y-3">
                     <div>
@@ -1860,7 +1904,7 @@
                         </label>
                         <input type="text" x-model="newUrlInput"
                             placeholder="https://example.com/foto.jpg atau /storage/..."
-                            class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                            class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                     </div>
                     <div>
                         <label
@@ -1869,7 +1913,7 @@
                         </label>
                         <input type="text" x-model="newCaptionInput"
                             placeholder="Contoh: Suasana Ruang Tunggu dan Kasir"
-                            class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                            class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                     </div>
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/5">
@@ -2011,6 +2055,7 @@
                 form: {
                     industry_preset: @json($landingPage->industry_preset ?? 'retail'),
                     theme_color: @json($landingPage->theme_color ?? '#007AFF'),
+                    dark_mode: @json((bool) ($landingPage->dark_mode ?? false)),
                     announcement_badge: @json($landingPage->announcement_badge ?? ''),
                     headline: @json($landingPage->headline ?? ''),
                     subheadline: @json($landingPage->subheadline ?? ''),
@@ -2455,6 +2500,10 @@
                         const formEl = document.getElementById('landingPageForm');
                         const formData = new FormData(formEl);
 
+                        // Selaraskan nilai dark_mode dan theme_color dari form state
+                        formData.set('dark_mode', this.form.dark_mode ? '1' : '0');
+                        formData.set('theme_color', this.form.theme_color);
+
                         // Sinkronkan galleryItems JSON dan unggahan foto baru beserta captionnya
                         formData.set('gallery_images_json', JSON.stringify(this.galleryItems));
                         formData.delete('gallery_images[]');
@@ -2500,6 +2549,8 @@
                             });
                         }
                         if (data.landing_page) {
+                            if (typeof data.landing_page.dark_mode !== 'undefined') this.form.dark_mode = Boolean(data.landing_page.dark_mode);
+                            if (data.landing_page.theme_color) this.form.theme_color = data.landing_page.theme_color;
                             if (data.landing_page.hero_image_url) this.form.hero_image_url = data.landing_page
                                 .hero_image_url;
                             if (data.landing_page.logo_url) this.form.logo_url = data.landing_page.logo_url;

@@ -64,8 +64,20 @@ final class MerchantStoreSettingController extends Controller
             'daily_order_quota' => ['nullable', 'integer', 'min:0', 'max:10000'],
             'min_order_amount' => ['required', 'numeric', 'min:0'],
             'order_auto_cancel_minutes' => ['required', 'integer', 'min:15', 'max:1440'],
+            'operating_days' => ['nullable'],
+            'available_slots' => ['nullable'],
             'announcement_text' => ['nullable', 'string', 'max:500'],
         ]);
+
+        $operatingDays = $request->input('operating_days');
+        if (is_array($operatingDays)) {
+            $operatingDays = array_values(array_filter($operatingDays));
+        }
+
+        $availableSlotsInput = $request->input('available_slots');
+        $availableSlots = is_array($availableSlotsInput)
+            ? array_values(array_filter($availableSlotsInput))
+            : array_values(array_filter(array_map('trim', explode("\n", (string) $availableSlotsInput))));
 
         $setting = CommerceStoreSetting::firstOrCreate(['business_id' => $business->id]);
         $setting->update([
@@ -77,6 +89,8 @@ final class MerchantStoreSettingController extends Controller
             'allow_scheduled_order' => $request->boolean('allow_scheduled_order'),
             'allow_customer_po' => $request->boolean('allow_customer_po'),
             'allow_reservation' => $request->boolean('allow_reservation'),
+            'operating_days' => ! empty($operatingDays) ? $operatingDays : null,
+            'available_slots' => ! empty($availableSlots) ? $availableSlots : null,
             'lead_time_hours' => (int) ($validated['lead_time_hours'] ?? 0),
             'cut_off_time' => ! empty($validated['cut_off_time']) ? $validated['cut_off_time'] : null,
             'daily_order_quota' => (int) ($validated['daily_order_quota'] ?? 0),

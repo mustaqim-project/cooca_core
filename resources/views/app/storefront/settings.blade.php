@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 pb-16" x-data="{ addMethodModalOpen: false, methodType: 'bank_transfer' }">
+    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-28 lg:pb-10" x-data="{ addMethodModalOpen: false, methodType: 'bank_transfer' }">
 
         {{-- FLASH MESSAGES --}}
         @if (session('success'))
@@ -23,28 +23,8 @@
             </div>
         @endif
 
-        {{-- HEADER WITH DIRECT LINK --}}
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('storefront.orders.index') }}"
-                    class="w-10 h-10 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center text-black/70 dark:text-white/70 transition">
-                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                </a>
-                <div>
-                    <h1 class="text-[20px] font-bold text-black dark:text-white tracking-tight">Konfigurasi Etalase &
-                        Pembayaran</h1>
-                    <p class="text-[12.5px] text-black/55 dark:text-white/55">Link Etalase: <a
-                            href="{{ url("/b/{$business->slug}") }}" target="_blank"
-                            class="text-[#007AFF] hover:underline font-medium">{{ url("/b/{$business->slug}") }}</a></p>
-                </div>
-            </div>
-
-            <a href="{{ url("/b/{$business->slug}") }}" target="_blank"
-                class="h-10 px-4 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold transition flex items-center gap-2 shadow-sm">
-                <i data-lucide="external-link" class="w-4 h-4"></i>
-                <span>Kunjungi Etalase Toko</span>
-            </a>
-        </div>
+        {{-- UNIFIED STOREFRONT HUB NAVIGATION --}}
+        @include('app.storefront.partials.navigation', ['title' => 'Pengaturan Etalase Toko'])
 
         {{-- MAIN GRID --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -171,15 +151,47 @@
                                         </div>
                                     </label>
                                 </div>
+
+                                <div
+                                    class="p-3.5 rounded-[16px] bg-black/5 dark:bg-white/5 flex items-center justify-between">
+                                    <div>
+                                        <span class="text-[13px] font-bold text-black dark:text-white block">Customer PO &amp; Batch</span>
+                                        <span class="text-[11px] text-black/50 dark:text-white/50">Pesanan kantor B2B &amp; multi-drop</span>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="allow_customer_po" value="1"
+                                            class="sr-only peer"
+                                            {{ $setting->allow_customer_po ?? true ? 'checked' : '' }}>
+                                        <div
+                                            class="w-9 h-5 bg-black/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#007AFF]">
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div
+                                    class="p-3.5 rounded-[16px] bg-black/5 dark:bg-white/5 flex items-center justify-between">
+                                    <div>
+                                        <span class="text-[13px] font-bold text-black dark:text-white block">Reservasi &amp; Booking</span>
+                                        <span class="text-[11px] text-black/50 dark:text-white/50">Reservasi meja resto &amp; jasa</span>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="allow_reservation" value="1"
+                                            class="sr-only peer"
+                                            {{ $setting->allow_reservation ?? true ? 'checked' : '' }}>
+                                        <div
+                                            class="w-9 h-5 bg-black/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#007AFF]">
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
                         {{-- SCHEDULED ORDER OPERATIONAL SETTINGS --}}
                         <div
-                            class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-3">
+                            class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-4">
                             <span
                                 class="text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 block">Pengaturan
-                                Pesanan Terjadwal (Katering &amp; PO)</span>
+                                Pesanan Terjadwal (Katering, PO &amp; Reservasi)</span>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div>
                                     <label
@@ -188,7 +200,7 @@
                                     <input type="number" name="lead_time_hours"
                                         value="{{ (int) ($setting->lead_time_hours ?? 0) }}" min="0"
                                         max="720"
-                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[13px] font-bold text-black dark:text-white">
+                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] font-bold text-black dark:text-white tabular-nums">
                                     <span class="text-[10.5px] text-black/45 dark:text-white/45 mt-0.5 block">0 = Boleh
                                         H+0</span>
                                 </div>
@@ -198,7 +210,7 @@
                                         Cut-Off Esok Hari</label>
                                     <input type="time" name="cut_off_time"
                                         value="{{ $setting->cut_off_time ? substr((string) $setting->cut_off_time, 0, 5) : '' }}"
-                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[13px] font-bold text-black dark:text-white">
+                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] font-bold text-black dark:text-white tabular-nums">
                                     <span class="text-[10.5px] text-black/45 dark:text-white/45 mt-0.5 block">Batas jam
                                         pesan</span>
                                 </div>
@@ -209,10 +221,50 @@
                                     <input type="number" name="daily_order_quota"
                                         value="{{ (int) ($setting->daily_order_quota ?? 0) }}" min="0"
                                         max="10000"
-                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[13px] font-bold text-black dark:text-white">
+                                        class="w-full h-10 px-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] font-bold text-black dark:text-white tabular-nums">
                                     <span class="text-[10.5px] text-black/45 dark:text-white/45 mt-0.5 block">0 = Tanpa
                                         batas</span>
                                 </div>
+                            </div>
+
+                            @php
+                                $dayNames = [
+                                    'monday' => 'Sen',
+                                    'tuesday' => 'Sel',
+                                    'wednesday' => 'Rab',
+                                    'thursday' => 'Kam',
+                                    'friday' => 'Jum',
+                                    'saturday' => 'Sab',
+                                    'sunday' => 'Min',
+                                ];
+                                $activeDays = is_array($setting->operating_days) && !empty($setting->operating_days)
+                                    ? $setting->operating_days
+                                    : array_keys($dayNames);
+                                $slotList = is_array($setting->available_slots) && !empty($setting->available_slots)
+                                    ? implode("\n", $setting->available_slots)
+                                    : "09:00 - 11:00\n11:00 - 13:00\n14:00 - 16:00\n16:00 - 18:00\n19:00 - 21:00";
+                            @endphp
+
+                            <div>
+                                <label class="block text-[11.5px] font-semibold text-black/60 dark:text-white/60 mb-1.5">Hari Operasional Menerima Pesanan</label>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach ($dayNames as $dKey => $dLabel)
+                                        <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[12.5px] font-medium text-black dark:text-white cursor-pointer hover:border-[#007AFF] transition">
+                                            <input type="checkbox" name="operating_days[]" value="{{ $dKey }}"
+                                                class="rounded border-gray-300 text-[#007AFF] focus:ring-[#007AFF]"
+                                                {{ in_array($dKey, $activeDays, true) ? 'checked' : '' }}>
+                                            <span>{{ $dLabel }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11.5px] font-semibold text-black/60 dark:text-white/60 mb-1">Slot Waktu Pengantaran / Reservasi (1 slot per baris)</label>
+                                <textarea name="available_slots" rows="3"
+                                    class="w-full p-2.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"
+                                    placeholder="09:00 - 11:00&#10;11:00 - 13:00&#10;14:00 - 16:00">{{ $slotList }}</textarea>
+                                <span class="text-[10.5px] text-black/45 dark:text-white/45 mt-0.5 block">Format: Jam Mulai - Jam Selesai (dipisahkan baris baru).</span>
                             </div>
                         </div>
 
@@ -225,7 +277,7 @@
                                 <input type="number" name="min_order_amount"
                                     value="{{ (float) $setting->min_order_amount }}" min="0" step="1000"
                                     required
-                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] tabular-nums">
                                 <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Set 0 jika tidak ada batas
                                     minimum.</p>
                             </div>
@@ -236,7 +288,7 @@
                                 <input type="number" name="order_auto_cancel_minutes"
                                     value="{{ $setting->order_auto_cancel_minutes }}" min="15" max="1440"
                                     required
-                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] tabular-nums">
                                 <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Stok dilepas otomatis jika
                                     bukti belum diunggah.</p>
                             </div>
@@ -248,13 +300,13 @@
                                 Pengumuman Etalase (Opsional)</label>
                             <textarea name="announcement_text" rows="2"
                                 placeholder="Contoh: Pesanan setelah jam 17:00 akan dikirim keesokan harinya."
-                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none">{{ $setting->announcement_text }}</textarea>
+                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none">{{ $setting->announcement_text }}</textarea>
                         </div>
 
                         <button type="submit"
                             class="h-11 px-6 rounded-full bg-black dark:bg-white hover:bg-black/90 dark:hover:bg-white/90 text-white dark:text-black text-[13.5px] font-bold transition flex items-center justify-center gap-2 shadow-sm">
                             <i data-lucide="check" class="w-4 h-4"></i>
-                            <span>Simpan Pengaturan Etalase</span>
+                            <span>Simpan</span>
                         </button>
                     </form>
                 </div>
@@ -291,7 +343,7 @@
                                         </span>
                                     </div>
                                     @if ($method->account_number)
-                                        <p class="text-[12.5px] font-mono text-black/70 dark:text-white/70">
+                                        <p class="text-[12.5px] font-mono tabular-nums text-black/70 dark:text-white/70">
                                             {{ $method->account_number }}</p>
                                         <p class="text-[11.5px] text-black/50 dark:text-white/50">a/n
                                             {{ $method->account_holder }}</p>
@@ -344,12 +396,12 @@
 
         {{-- MODAL TAMBAH METODE PEMBAYARAN --}}
         <div x-show="addMethodModalOpen" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
+            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
                 @click.outside="addMethodModalOpen = false">
                 <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                     <h3 class="text-[16px] font-bold text-black dark:text-white">Tambah Metode Pembayaran</h3>
@@ -388,21 +440,21 @@
                             Penyedia <span class="text-red-500">*</span></label>
                         <input type="text" name="bank_name" required
                             placeholder="Contoh: BCA, Mandiri, BRI, QRIS Toko"
-                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
 
                     <div x-show="methodType === 'bank_transfer'">
                         <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Nomor
                             Rekening</label>
                         <input type="text" name="account_number" placeholder="Contoh: 1234567890"
-                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] font-medium font-mono tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
 
                     <div x-show="methodType === 'bank_transfer'">
                         <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Atas Nama
                             Rekening</label>
                         <input type="text" name="account_holder" placeholder="Contoh: PT Toko Berkah / Budi Santoso"
-                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
 
                     <div x-show="methodType === 'qris'">
@@ -416,7 +468,7 @@
                         <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Petunjuk
                             Pembayaran (Opsional)</label>
                         <textarea name="instructions" rows="2" placeholder="Contoh: Harap cantumkan nomor order pada berita transfer."
-                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
                     </div>
 
                     <div class="flex items-center justify-end gap-2 pt-2">
@@ -426,7 +478,7 @@
                         </button>
                         <button type="submit"
                             class="px-5 py-2.5 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold shadow-sm transition">
-                            Simpan Rekening
+                            Simpan
                         </button>
                     </div>
                 </form>

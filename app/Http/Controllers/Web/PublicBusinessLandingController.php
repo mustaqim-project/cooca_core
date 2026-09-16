@@ -77,6 +77,11 @@ class PublicBusinessLandingController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        $posTables = \App\Models\PosTable::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->orderBy('table_number')
+            ->get();
+
         // 1. Physical Goods catalog (Produk Fisik)
         $posProducts = Product::where('business_id', $business->id)
             ->where('is_active', true)
@@ -106,6 +111,12 @@ class PublicBusinessLandingController extends Controller
         $dbServices = Product::where('business_id', $business->id)
             ->where('is_active', true)
             ->services()
+            ->with('category')
+            ->orderBy('name')
+            ->get();
+
+        $serviceCategories = ProductCategory::where('business_id', $business->id)
+            ->whereHas('products', fn ($query) => $query->where('is_active', true)->services())
             ->orderBy('name')
             ->get();
 
@@ -117,6 +128,8 @@ class PublicBusinessLandingController extends Controller
             'price' => $p->selling_price > 0 ? 'Rp ' . number_format((float) $p->selling_price, 0, ',', '.') : 'Hubungi kami',
             'raw_price' => (float) $p->selling_price,
             'image_url' => $p->image_url,
+            'category_id' => $p->category_id,
+            'category' => $p->category?->name,
             'icon' => 'sparkles',
             'badge' => 'Layanan',
             'type' => 'service',
@@ -160,12 +173,14 @@ class PublicBusinessLandingController extends Controller
             'business',
             'landingPage',
             'services',
+            'serviceCategories',
             'posProducts',
             'productCategories',
             'productPayload',
             'storeSetting',
             'paymentMethods',
             'shippingRules',
+            'posTables',
             'dbCartItems',
             'openCheckoutModal'
         ));

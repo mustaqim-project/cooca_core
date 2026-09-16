@@ -41,6 +41,9 @@ class PatunganSubscriptionWorkflowTest extends TestCase
             'name' => 'Juragan UMKM',
             'email' => 'juragan@cooca.id',
             'password' => 'password123',
+            'email_verified_at' => now(),
+            'phone' => '6281234567888',
+            'phone_verified_at' => now(),
         ]);
 
         $this->business = Business::create(['name' => 'Dapur Nusantara']);

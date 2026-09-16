@@ -37,6 +37,10 @@ class CartService
         ?string $notes = null,
         ?array $selectedModifiers = null
     ): CustomerCartItem {
+        if ($quantity <= 0.0) {
+            throw new \InvalidArgumentException('Jumlah item yang dipesan harus lebih dari 0.');
+        }
+
         $unitPrice = $product->selling_price ?? 0.0;
 
         $existing = $cart->items()->where('product_id', $product->id)->first();

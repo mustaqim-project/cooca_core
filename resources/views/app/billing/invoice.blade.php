@@ -125,7 +125,7 @@
 
     <!-- Floating Top Action Bar -->
     <header
-        class="no-print max-w-4xl mx-auto mb-6 bg-white dark:bg-slate-900/95 text-slate-900 dark:text-white p-4 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 space-y-3 backdrop-blur-xl">
+        class="no-print max-w-4xl mx-auto mb-6 bg-white dark:bg-slate-900/95 text-slate-900 dark:text-white p-4 rounded-[20px] shadow-xs border border-black/[0.06] dark:border-white/[0.08] space-y-3 backdrop-blur-xl">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <span
@@ -137,11 +137,11 @@
 
             <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('billing.payment.show', $payment) }}"
-                    class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold transition-colors text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                    class="px-3.5 py-2 rounded-[12px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold active:scale-[0.98] transition-all text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 cursor-pointer">
                     Kembali
                 </a>
                 <button type="button" onclick="window.print()"
-                    class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer">
+                    class="px-3.5 py-2 rounded-[12px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 active:scale-[0.98] transition-all border border-slate-200 dark:border-slate-700 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
@@ -151,7 +151,7 @@
                     <span>Cetak Printer</span>
                 </button>
                 <button id="btnDownloadPdf" type="button" onclick="downloadPDF()"
-                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm shadow-emerald-600/20 flex items-center gap-2 transition-all cursor-pointer">
+                    class="px-4 py-2 rounded-[12px] bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm shadow-emerald-600/20 flex items-center gap-2 active:scale-[0.98] transition-all cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -176,7 +176,7 @@
     </header>
 
     <!-- Outer responsive wrapper -->
-    <div class="max-w-4xl mx-auto overflow-x-auto shadow-xl rounded-2xl">
+    <div class="max-w-4xl mx-auto overflow-x-auto shadow-xl rounded-[20px]">
         <!-- Paper Sheet Container (Strict A4 Layout on Paper & Screen) -->
         <main class="print-sheet bg-white p-6 sm:p-10 md:p-12 text-slate-900 space-y-6 min-w-[620px] sm:min-w-0"
             aria-label="Faktur Tagihan Resmi">
@@ -186,7 +186,7 @@
                 <div class="space-y-2 max-w-md">
                     <div class="flex items-center gap-3 mb-1">
                         <div
-                            class="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-emerald-400 font-black text-xl tracking-tighter shadow-md">
+                            class="w-10 h-10 rounded-[12px] bg-slate-950 flex items-center justify-center text-emerald-400 font-black text-xl tracking-tighter shadow-md">
                             C
                         </div>
                         <div>
@@ -199,14 +199,14 @@
                         <p class="font-medium">Penyedia Platform SaaS Enterprise &amp; Kasir POS Cloud UMKM Indonesia
                         </p>
                         <p>Website: https://cooca.id | Email: billing@cooca.id | CS: +62 812-3456-7890</p>
-                        <p class="font-mono text-[11px]">NPWP: 01.234.567.8-012.000 | SK Kemenkumham Terdaftar</p>
+                        <p class="font-mono text-[11px] tabular-nums">NPWP: 01.234.567.8-012.000 | SK Kemenkumham Terdaftar</p>
                     </div>
                 </div>
 
                 <div class="text-right space-y-0.5">
                     <div class="text-lg font-black tracking-wider text-slate-950 uppercase">INVOICE TAGIHAN</div>
-                    <div class="text-sm font-mono font-black text-slate-800">{{ $payment->order_number }}</div>
-                    <div class="text-xs text-slate-500 font-mono">
+                    <div class="text-sm font-mono font-black text-slate-800 tabular-nums">{{ $payment->order_number }}</div>
+                    <div class="text-xs text-slate-500 font-mono tabular-nums">
                         ID Transaksi: #{{ $payment->id }}
                     </div>
                     <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600 mt-1">
@@ -223,19 +223,19 @@
                     <div class="text-sm font-black text-slate-950 font-mono">{{ $business->name }}</div>
                     <div class="font-bold text-slate-800">{{ $payment->user?->name ?? 'Pemilik Bisnis' }}</div>
                     <div class="text-slate-600 font-mono">Email: {{ $payment->user?->email ?? '-' }}</div>
-                    <div class="text-slate-600 font-mono">ID Workspace: {{ $business->id }}</div>
+                    <div class="text-slate-600 font-mono tabular-nums">ID Workspace: {{ $business->id }}</div>
                 </div>
 
                 <div class="space-y-1.5 text-right font-sans">
                     <div class="flex justify-end gap-3">
                         <span class="text-slate-500">Tanggal Faktur:</span>
                         <span
-                            class="font-mono font-bold text-slate-900">{{ $payment->created_at->translatedFormat('d F Y') }}</span>
+                            class="font-mono font-bold text-slate-900 tabular-nums">{{ $payment->created_at->translatedFormat('d F Y') }}</span>
                     </div>
                     <div class="flex justify-end gap-3">
                         <span class="text-slate-500">Jatuh Tempo:</span>
                         <span
-                            class="font-mono font-bold text-slate-900">{{ $payment->created_at->copy()->addDay()->translatedFormat('d F Y') }}</span>
+                            class="font-mono font-bold text-slate-900 tabular-nums">{{ $payment->created_at->copy()->addDay()->translatedFormat('d F Y') }}</span>
                     </div>
                     <div class="flex justify-end gap-3">
                         <span class="text-slate-500">Metode Bayar:</span>
@@ -246,7 +246,7 @@
                         <div class="flex justify-end gap-3">
                             <span class="text-slate-500">Waktu Pembayaran:</span>
                             <span
-                                class="font-mono font-bold text-emerald-700">{{ $payment->approved_at->translatedFormat('d F Y, H:i') }}
+                                class="font-mono font-bold text-emerald-700 tabular-nums">{{ $payment->approved_at->translatedFormat('d F Y, H:i') }}
                                 WIB</span>
                         </div>
                     @endif
@@ -268,7 +268,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         <tr class="align-top">
-                            <td class="py-3 px-3 text-center font-mono text-slate-600">1</td>
+                            <td class="py-3 px-3 text-center font-mono text-slate-600 tabular-nums">1</td>
                             <td class="py-3 px-3">
                                 <div class="font-bold text-slate-950 leading-tight">
                                     {{ $payment->package_name ?? ($payment->cycle === 'annual' ? 'Paket Core Cooca (Tahunan)' : ($payment->cycle === 'monthly' ? 'Paket Core Cooca (Bulanan)' : 'Top Up Kuota Bisnis')) }}
@@ -284,20 +284,20 @@
                             <td class="py-3 px-3 text-center font-mono text-slate-700 uppercase">
                                 {{ $durationText }}
                             </td>
-                            <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900">
+                            <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900 tabular-nums">
                                 1
                             </td>
-                            <td class="py-3 px-3 text-right font-mono text-slate-800 whitespace-nowrap">
+                            <td class="py-3 px-3 text-right font-mono text-slate-800 whitespace-nowrap tabular-nums">
                                 Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
                             </td>
-                            <td class="py-3 px-3 text-right font-mono font-bold text-slate-950 whitespace-nowrap">
+                            <td class="py-3 px-3 text-right font-mono font-bold text-slate-950 whitespace-nowrap tabular-nums">
                                 Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
                             </td>
                         </tr>
 
                         @if ($payment->unique_code > 0)
                             <tr class="align-top">
-                                <td class="py-3 px-3 text-center font-mono text-slate-600">2</td>
+                                <td class="py-3 px-3 text-center font-mono text-slate-600 tabular-nums">2</td>
                                 <td class="py-3 px-3">
                                     <div class="font-bold text-slate-950 leading-tight">Kode Unik Verifikasi Rekening
                                         Bank</div>
@@ -310,14 +310,14 @@
                                 <td class="py-3 px-3 text-center font-mono text-slate-700 uppercase">
                                     Trans
                                 </td>
-                                <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900">
+                                <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900 tabular-nums">
                                     1
                                 </td>
                                 <td
-                                    class="py-3 px-3 text-right font-mono text-amber-700 font-semibold whitespace-nowrap">
+                                    class="py-3 px-3 text-right font-mono text-amber-700 font-semibold whitespace-nowrap tabular-nums">
                                     +Rp {{ $uniqueStr }}
                                 </td>
-                                <td class="py-3 px-3 text-right font-mono font-bold text-amber-700 whitespace-nowrap">
+                                <td class="py-3 px-3 text-right font-mono font-bold text-amber-700 whitespace-nowrap tabular-nums">
                                     +Rp {{ $uniqueStr }}
                                 </td>
                             </tr>
@@ -333,7 +333,7 @@
                     <!-- Left: Bank Account Instructions & Transfer Data -->
                     <div class="space-y-4 w-1/2">
                         <div
-                            class="p-3.5 border-l-2 border-slate-400 bg-slate-50/80 space-y-1.5 text-slate-700 rounded-r-xl">
+                            class="p-3.5 border-l-2 border-slate-400 bg-slate-50/80 space-y-1.5 text-slate-700 rounded-r-[12px]">
                             <div class="font-bold text-slate-950 text-[11px] uppercase tracking-wider">Rekening Tujuan
                                 Resmi Cooca:</div>
                             <div class="pt-1 space-y-1 text-xs">
@@ -346,7 +346,7 @@
                                     <span class="w-24 text-slate-500 shrink-0 font-medium">No. Rekening</span>
                                     <span class="text-slate-400">:</span>
                                     <span
-                                        class="font-mono font-bold text-slate-950 text-sm tracking-wider">{{ $methodDetails['account_number'] }}</span>
+                                        class="font-mono font-bold text-slate-950 text-sm tracking-wider tabular-nums">{{ $methodDetails['account_number'] }}</span>
                                 </div>
                                 <div class="flex items-baseline gap-2">
                                     <span class="w-24 text-slate-500 shrink-0 font-medium">Atas Nama</span>
@@ -361,7 +361,7 @@
                                             ({{ $payment->sender_bank ?? '-' }})</strong></div>
                                     @if ($payment->proof_uploaded_at)
                                         <div><span class="text-slate-500">Waktu Kirim Struk:</span> <span
-                                                class="font-mono text-slate-700">{{ $payment->proof_uploaded_at->translatedFormat('d F Y, H:i') }}
+                                                class="font-mono text-slate-700 tabular-nums">{{ $payment->proof_uploaded_at->translatedFormat('d F Y, H:i') }}
                                                 WIB</span></div>
                                     @endif
                                 </div>
@@ -372,7 +372,7 @@
                             <div>
                                 <div class="font-bold text-slate-900 mb-0.5">Catatan Tambahan:</div>
                                 <div
-                                    class="text-slate-600 whitespace-pre-line bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                                    class="text-slate-600 whitespace-pre-line bg-slate-50 p-2.5 rounded-[10px] border border-slate-200">
                                     {{ $payment->notes }}</div>
                             </div>
                         @endif
@@ -382,7 +382,7 @@
                     <div class="w-72 space-y-2">
                         <div class="flex justify-between text-slate-600">
                             <span>Subtotal Tagihan:</span>
-                            <span class="font-mono font-semibold text-slate-900">
+                            <span class="font-mono font-semibold text-slate-900 tabular-nums">
                                 Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
                             </span>
                         </div>
@@ -390,7 +390,7 @@
                         @if ($payment->unique_code > 0)
                             <div class="flex justify-between text-slate-600">
                                 <span class="text-amber-700">Kode Unik Verifikasi:</span>
-                                <span class="font-mono font-semibold text-amber-700">
+                                <span class="font-mono font-semibold text-amber-700 tabular-nums">
                                     +Rp {{ $uniqueStr }}
                                 </span>
                             </div>
@@ -399,7 +399,7 @@
                         <div
                             class="pt-2 border-t-2 border-slate-900 flex justify-between items-center text-sm font-black text-slate-950">
                             <span>Total Tagihan:</span>
-                            <span class="font-mono text-base text-slate-950 font-black">
+                            <span class="font-mono text-base text-slate-950 font-black tabular-nums">
                                 Rp {{ number_format((float) $payment->total_payable, 0, ',', '.') }}
                             </span>
                         </div>
@@ -407,7 +407,7 @@
                         <div class="flex justify-between text-slate-600 pt-1">
                             <span>Sudah Dibayar:</span>
                             <span
-                                class="font-mono font-semibold {{ $isApproved ? 'text-emerald-700' : 'text-slate-500' }}">
+                                class="font-mono font-semibold tabular-nums {{ $isApproved ? 'text-emerald-700' : 'text-slate-500' }}">
                                 Rp
                                 {{ $isApproved ? number_format((float) $payment->total_payable, 0, ',', '.') : '0' }}
                             </span>
@@ -416,7 +416,7 @@
                         <div
                             class="flex justify-between items-center pt-2 border-t border-slate-300 font-bold {{ $isApproved ? 'text-emerald-700' : 'text-amber-700' }}">
                             <span>Sisa Tagihan:</span>
-                            <span class="font-mono text-base font-black">
+                            <span class="font-mono text-base font-black tabular-nums">
                                 {{ $isApproved ? 'Rp 0 (LUNAS)' : 'Rp ' . number_format((float) $payment->total_payable, 0, ',', '.') }}
                             </span>
                         </div>
@@ -425,8 +425,11 @@
                         @if ($isApproved)
                             <div class="pt-3 text-center">
                                 <div
-                                    class="inline-block px-4 py-1.5 rounded-xl border-2 border-emerald-600 text-emerald-700 font-black text-xs font-mono uppercase tracking-widest rotate-[-3deg] shadow-sm">
-                                    ✓ LUNAS / PAID DIGITAL
+                                    class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-[12px] border-2 border-emerald-600 text-emerald-700 font-black text-xs font-mono uppercase tracking-widest rotate-[-3deg] shadow-xs">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                    <span>LUNAS / VERIFIED DIGITAL</span>
                                 </div>
                             </div>
                         @endif
@@ -514,7 +517,7 @@
                     btn.classList.remove('opacity-75', 'cursor-wait');
                     btn.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span>✓ Berhasil Diunduh!</span>
+                        <span>Berhasil Diunduh!</span>
                     `;
                     setTimeout(() => {
                         btn.innerHTML = originalHtml;

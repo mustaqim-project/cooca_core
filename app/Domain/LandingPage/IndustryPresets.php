@@ -7,31 +7,100 @@ namespace App\Domain\LandingPage;
 class IndustryPresets
 {
     /**
-     * Get list of all 20 supported industries with key and label.
+     * Map between template codes and legacy alias keys.
+     */
+    public static function aliasMap(): array
+    {
+        return [
+            'resto'       => 'fnb_resto',
+            'bengkel'     => 'service_workshop',
+            'fashion'     => 'mfg_garment',
+            'percetakan'  => 'mfg_printing',
+            'bakery'      => 'fnb_bakery',
+            'carwash'     => 'service_autodetailing',
+            'laundry'     => 'service_laundry',
+            'bangunan'    => 'service_contractor',
+            'salon'       => 'service_barbershop',
+            'retail'      => 'retail_reseller',
+            'ekspedisi'   => 'distributor_fmcg',
+            'pertanian'   => 'agri_farming',
+        ];
+    }
+
+    /**
+     * Resolve a preset key from either modern template code or legacy alias.
+     */
+    public static function resolveKey(?string $key): string
+    {
+        if (empty($key)) {
+            return 'retail_reseller';
+        }
+
+        $alias = self::aliasMap();
+        if (isset($alias[$key])) {
+            return $alias[$key];
+        }
+
+        $reverse = array_flip($alias);
+        if (isset($reverse[$key])) {
+            return $key;
+        }
+
+        return $key;
+    }
+
+    /**
+     * Get list of all supported industries with key, label, Lucide icon, category, and theme color.
      */
     public static function all(): array
     {
         return [
-            'bengkel'     => ['label' => 'Bengkel & Servis Otomotif', 'icon' => 'wrench', 'color' => '#0284C7'],
-            'klinik'      => ['label' => 'Klinik Kesehatan & Dokter', 'icon' => 'activity', 'color' => '#0D9488'],
-            'resto'       => ['label' => 'Restoran, Kafe & Kuliner (F&B)', 'icon' => 'utensils', 'color' => '#E11D48'],
-            'salon'       => ['label' => 'Salon Kecantikan & Barbershop', 'icon' => 'scissors', 'color' => '#9333EA'],
-            'retail'      => ['label' => 'Toko Retail & Minimarket', 'icon' => 'shopping-bag', 'color' => '#16A34A'],
-            'fashion'     => ['label' => 'Butik Fashion & Konveksi', 'icon' => 'shirt', 'color' => '#DB2777'],
-            'laundry'     => ['label' => 'Laundry Kiloan & Dry Clean', 'icon' => 'sparkles', 'color' => '#0891B2'],
-            'notaris'     => ['label' => 'Kantor Notaris & PPAT / Hukum', 'icon' => 'scale', 'color' => '#4338CA'],
-            'bangunan'    => ['label' => 'Bahan Bangunan & Material', 'icon' => 'hard-hat', 'color' => '#D97706'],
-            'percetakan'  => ['label' => 'Percetakan Digital & Sablon', 'icon' => 'printer', 'color' => '#EA580C'],
-            'petshop'     => ['label' => 'Pet Shop, Vet & Grooming', 'icon' => 'heart', 'color' => '#F59E0B'],
-            'elektronik'  => ['label' => 'Servis Gadget & Toko Elektronik', 'icon' => 'cpu', 'color' => '#4F46E5'],
-            'bakery'      => ['label' => 'Toko Roti, Bakery & Pastry', 'icon' => 'cake', 'color' => '#CA8A04'],
-            'carwash'     => ['label' => 'Cuci Mobil & Auto Detailing', 'icon' => 'car', 'color' => '#2563EB'],
-            'studio_foto' => ['label' => 'Studio Foto & Dokumentasi', 'icon' => 'camera', 'color' => '#7C3AED'],
-            'gym'         => ['label' => 'Gym, Fitness & Studio Olahraga', 'icon' => 'dumbbell', 'color' => '#DC2626'],
-            'bimbel'      => ['label' => 'Bimbel, Kursus & Les Privat', 'icon' => 'graduation-cap', 'color' => '#2563EB'],
-            'ekspedisi'   => ['label' => 'Agen Ekspedisi & Jasa Kurir', 'icon' => 'truck', 'color' => '#F97316'],
-            'florist'     => ['label' => 'Florist & Toko Bunga Dekorasi', 'icon' => 'flower-2', 'color' => '#EC4899'],
-            'pertanian'   => ['label' => 'Toko Pertanian & Hidroponik', 'icon' => 'sprout', 'color' => '#15803D'],
+            // ─── 1. KULINER & F&B (7) ──────────────────────────────────────────
+            'fnb_resto'           => ['label' => 'Restoran & Rumah Makan (Dine-in)', 'icon' => 'utensils', 'category' => 'fnb', 'color' => '#E11D48'],
+            'fnb_cafe'            => ['label' => 'Coffee Shop & Cafe', 'icon' => 'coffee', 'category' => 'fnb', 'color' => '#854D0E'],
+            'fnb_bakery'          => ['label' => 'Toko Roti, Bakery & Pastry', 'icon' => 'cake', 'category' => 'fnb', 'color' => '#CA8A04'],
+            'fnb_cloud_kitchen'   => ['label' => 'Cloud Kitchen & Delivery Only', 'icon' => 'flame', 'category' => 'fnb', 'color' => '#EA580C'],
+            'fnb_catering'        => ['label' => 'Catering & Prasmanan Pesta', 'icon' => 'utensils-crossed', 'category' => 'fnb', 'color' => '#D97706'],
+            'fnb_frozen_food'     => ['label' => 'Frozen Food & Olahan Beku', 'icon' => 'snowflake', 'category' => 'fnb', 'color' => '#0284C7'],
+            'fnb_catering_diet'   => ['label' => 'Diet & Healthy Catering', 'icon' => 'apple', 'category' => 'fnb', 'color' => '#16A34A'],
+
+            // ─── 2. MANUFAKTUR & PRODUKSI (7) ────────────────────────────────
+            'mfg_garment'         => ['label' => 'Konveksi, Butik & Garment', 'icon' => 'shirt', 'category' => 'manufacturing', 'color' => '#DB2777'],
+            'mfg_precision'       => ['label' => 'Plastik, Bubut & Logam Presisi', 'icon' => 'cog', 'category' => 'manufacturing', 'color' => '#475569'],
+            'mfg_furniture'       => ['label' => 'Furniture & Mebel Kayu Interior', 'icon' => 'armchair', 'category' => 'manufacturing', 'color' => '#B45309'],
+            'mfg_craft'           => ['label' => 'Kerajinan Tangan & Handmade Craft', 'icon' => 'palette', 'category' => 'manufacturing', 'color' => '#9333EA'],
+            'mfg_printing'        => ['label' => 'Percetakan Digital, Offset & Sablon', 'icon' => 'printer', 'category' => 'manufacturing', 'color' => '#EA580C'],
+            'mfg_cosmetics'       => ['label' => 'Kosmetik & Skincare Production', 'icon' => 'sparkles', 'category' => 'manufacturing', 'color' => '#EC4899'],
+            'mfg_tailor_custom'   => ['label' => 'Penjahit Jas & Kebaya Custom', 'icon' => 'scissors', 'category' => 'manufacturing', 'color' => '#6D28D9'],
+
+            // ─── 3. RETAIL & TOKO (2) ─────────────────────────────────────────
+            'retail_reseller'     => ['label' => 'Toko Retail, Kelontong & Minimarket', 'icon' => 'shopping-bag', 'category' => 'retail', 'color' => '#16A34A'],
+            'retail_pharmacy'     => ['label' => 'Apotek, Toko Obat & Alkes', 'icon' => 'cross', 'category' => 'retail', 'color' => '#0D9488'],
+
+            // ─── 4. JASA PROFESIONAL & ACARA (3) ──────────────────────────────
+            'service_agency'      => ['label' => 'Digital Creative Agency & IT Software', 'icon' => 'code-2', 'category' => 'service', 'color' => '#2563EB'],
+            'service_contractor'  => ['label' => 'Kontraktor, Bahan Bangunan & Renovasi', 'icon' => 'hard-hat', 'category' => 'service', 'color' => '#D97706'],
+            'service_event'       => ['label' => 'Event Organizer & Wedding Organizer', 'icon' => 'party-popper', 'category' => 'service', 'color' => '#7C3AED'],
+
+            // ─── 5. JASA OPERASIONAL HARIAN (4) ───────────────────────────────
+            'service_workshop'    => ['label' => 'Bengkel Mobil & Motor Otomotif', 'icon' => 'wrench', 'category' => 'service', 'color' => '#0284C7'],
+            'service_barbershop'  => ['label' => 'Barbershop, Salon & Kecantikan', 'icon' => 'scissors', 'category' => 'service', 'color' => '#9333EA'],
+            'service_laundry'     => ['label' => 'Laundry Kiloan & Dry Clean', 'icon' => 'shirt', 'category' => 'service', 'color' => '#0891B2'],
+            'service_autodetailing' => ['label' => 'Cuci Mobil & Auto Detailing', 'icon' => 'car', 'category' => 'service', 'color' => '#2563EB'],
+
+            // ─── 6. DISTRIBUSI & PERTANIAN (2) ────────────────────────────────
+            'distributor_fmcg'    => ['label' => 'Distributor Grosir & Jasa Logistik', 'icon' => 'truck', 'category' => 'trading', 'color' => '#F97316'],
+            'agri_farming'        => ['label' => 'Pertanian, Peternakan & Hidroponik', 'icon' => 'sprout', 'category' => 'trading', 'color' => '#15803D'],
+
+            // ─── 7. SPESIALIS NICHE LAINNYA (Legacy Support) ──────────────────
+            'klinik'              => ['label' => 'Klinik Kesehatan & Dokter', 'icon' => 'activity', 'category' => 'service', 'color' => '#0D9488'],
+            'notaris'             => ['label' => 'Kantor Notaris & PPAT / Hukum', 'icon' => 'scale', 'category' => 'service', 'color' => '#4338CA'],
+            'petshop'             => ['label' => 'Pet Shop, Vet & Grooming', 'icon' => 'heart', 'category' => 'retail', 'color' => '#F59E0B'],
+            'elektronik'          => ['label' => 'Servis Gadget & Toko Elektronik', 'icon' => 'cpu', 'category' => 'service', 'color' => '#4F46E5'],
+            'studio_foto'         => ['label' => 'Studio Foto & Videografi', 'icon' => 'camera', 'category' => 'service', 'color' => '#7C3AED'],
+            'gym'                 => ['label' => 'Gym, Fitness & Studio Olahraga', 'icon' => 'dumbbell', 'category' => 'service', 'color' => '#DC2626'],
+            'bimbel'              => ['label' => 'Bimbel, Kursus & Les Privat', 'icon' => 'graduation-cap', 'category' => 'service', 'color' => '#2563EB'],
+            'florist'             => ['label' => 'Florist & Toko Bunga Dekorasi', 'icon' => 'flower-2', 'category' => 'retail', 'color' => '#EC4899'],
         ];
     }
 
@@ -40,51 +109,81 @@ class IndustryPresets
      */
     public static function get(string $key, string $businessName = 'Usaha Kami'): array
     {
-        $presets = self::definitions($businessName);
+        $resolvedKey = self::resolveKey($key);
+        $presets     = self::definitions($businessName);
 
-        return $presets[$key] ?? $presets['retail'];
+        if (isset($presets[$resolvedKey])) {
+            return $presets[$resolvedKey];
+        }
+
+        if (isset($presets[$key])) {
+            return $presets[$key];
+        }
+
+        // Fallback to retail
+        return $presets['retail_reseller'] ?? $presets['retail'] ?? reset($presets);
     }
 
     /**
-     * Get all industries formatted for the CMS preset modal.
-     * Returns array of objects with id, name, icon (emoji), description, tags, theme_color.
+     * Get all industries formatted for the CMS preset modal (Zero Emoji, Lucide Icons).
      */
     public static function forModal(): array
     {
-        $map = [
-            'bengkel'     => ['name' => 'Bengkel & Otomotif',          'icon' => '🔧', 'description' => 'Servis kendaraan, tune-up, ganti oli, spare part, cuci motor/mobil.', 'tags' => ['mekanik','otomotif','servis']],
-            'klinik'      => ['name' => 'Klinik Kesehatan',            'icon' => '🏥', 'description' => 'Praktik dokter, klinik gigi, bidan, terapi, dan konsultasi medis.', 'tags' => ['dokter','kesehatan','medis']],
-            'resto'        => ['name' => 'Restoran & F&B',             'icon' => '🍽️', 'description' => 'Warung makan, kafe, restoran, katering, dan semua bisnis kuliner.', 'tags' => ['kuliner','makanan','kafe']],
-            'salon'       => ['name' => 'Salon & Barbershop',          'icon' => '✂️', 'description' => 'Salon rambut, barbershop, nail art, spa, kecantikan.', 'tags' => ['salon','kecantikan','barbershop']],
-            'retail'      => ['name' => 'Toko Retail & Minimarket',    'icon' => '🛒', 'description' => 'Toko kelontong, minimarket, waralaba, dan toko serba ada.', 'tags' => ['toko','retail','minimarket']],
-            'fashion'     => ['name' => 'Butik Fashion & Konveksi',    'icon' => '👗', 'description' => 'Pakaian, busana muslim, konveksi, kaos polos, dan aksesori mode.', 'tags' => ['fashion','pakaian','butik']],
-            'laundry'     => ['name' => 'Laundry & Dry Clean',         'icon' => '👕', 'description' => 'Laundry kiloan, cuci setrika, dry cleaning, dan laundry ekspres.', 'tags' => ['laundry','cuci','pakaian']],
-            'notaris'     => ['name' => 'Notaris, PPAT & Hukum',       'icon' => '⚖️', 'description' => 'Kantor notaris, PPAT, pengacara, legalitas dokumen bisnis.', 'tags' => ['notaris','hukum','legal']],
-            'bangunan'    => ['name' => 'Bahan Bangunan & Material',   'icon' => '🏗️', 'description' => 'Toko besi, toko bangunan, material, pasir, batu, semen.', 'tags' => ['bangunan','material','konstruksi']],
-            'percetakan'  => ['name' => 'Percetakan & Sablon',         'icon' => '🖨️', 'description' => 'Cetak banner, sablon, digital printing, undangan, merchandise.', 'tags' => ['cetak','sablon','printing']],
-            'petshop'     => ['name' => 'Pet Shop & Grooming',         'icon' => '🐾', 'description' => 'Toko hewan, grooming, klinik veteriner, pakan dan aksesoris pet.', 'tags' => ['petshop','hewan','grooming']],
-            'elektronik'  => ['name' => 'Servis & Toko Elektronik',    'icon' => '📱', 'description' => 'Servis HP, laptop, elektronik rumah tangga, toko gadget dan aksesoris.', 'tags' => ['elektronik','gadget','servis']],
-            'bakery'      => ['name' => 'Bakery, Roti & Pastry',       'icon' => '🍞', 'description' => 'Toko roti, kue, pastry, bakery artisan, dan katering kue.', 'tags' => ['bakery','roti','kue']],
-            'carwash'     => ['name' => 'Cuci Mobil & Detailing',      'icon' => '🚗', 'description' => 'Cuci mobil, motor, auto detailing, poles body, coating.', 'tags' => ['carwash','detailing','mobil']],
-            'studio_foto' => ['name' => 'Studio Foto & Videografi',    'icon' => '📸', 'description' => 'Studio foto, foto produk, videografi pernikahan, dokumentasi event.', 'tags' => ['foto','videografi','studio']],
-            'gym'         => ['name' => 'Gym & Fitness Center',        'icon' => '💪', 'description' => 'Gym, fitness center, studio aerobik, yoga, crossfit, personal trainer.', 'tags' => ['gym','fitness','olahraga']],
-            'bimbel'      => ['name' => 'Bimbel & Kursus Les',         'icon' => '📚', 'description' => 'Bimbingan belajar, kursus musik, les privat, coding, dan skill training.', 'tags' => ['bimbel','kursus','pendidikan']],
-            'ekspedisi'   => ['name' => 'Ekspedisi & Jasa Kurir',      'icon' => '🚚', 'description' => 'Jasa kirim barang, ekspedisi lokal, agen logistik, packing & cargo.', 'tags' => ['ekspedisi','kurir','logistik']],
-            'florist'     => ['name' => 'Florist & Toko Bunga',        'icon' => '💐', 'description' => 'Rangkaian bunga, dekorasi wedding, papan bunga, dan taman.', 'tags' => ['florist','bunga','dekorasi']],
-            'pertanian'   => ['name' => 'Pertanian & Hidroponik',      'icon' => '🌱', 'description' => 'Toko tani, bibit, pupuk, hidroponik, agribisnis, dan kebun urban.', 'tags' => ['pertanian','hidroponik','tani']],
+        $all = self::all();
+        $definitions = [
+            'fnb_resto'           => ['name' => 'Restoran & Rumah Makan', 'description' => 'Menu makanan, meja dine-in, reservasi, takeaway, dan delivery.', 'tags' => ['kuliner','resto','dinein','makanan']],
+            'fnb_cafe'            => ['name' => 'Coffee Shop & Cafe', 'description' => 'Kopi racikan barista, pastry, suasana nongkrong, wifi dan meeting.', 'tags' => ['kopi','cafe','espresso','tongkrongan']],
+            'fnb_bakery'          => ['name' => 'Bakery & Toko Roti', 'description' => 'Roti manis, kue tart ulang tahun, pastry oven fresh, hampers.', 'tags' => ['roti','kue','pastry','tart']],
+            'fnb_cloud_kitchen'   => ['name' => 'Cloud Kitchen & Delivery', 'description' => 'Menu cepat saji kemasan rapi, siap antar pesanan online.', 'tags' => ['delivery','online','kitchen','makanan']],
+            'fnb_catering'        => ['name' => 'Catering & Prasmanan', 'description' => 'Paket nasi kotak, prasmanan pernikahan, arisan dan gathering kantor.', 'tags' => ['catering','prasmanan','kotak','pesta']],
+            'fnb_frozen_food'     => ['name' => 'Frozen Food & Olahan Beku', 'description' => 'Nugget, sosis, dimsum, daging marinasi kemasan vacuum kedap udara.', 'tags' => ['frozen','beku','nugget','dimsum']],
+            'fnb_catering_diet'   => ['name' => 'Katering Diet & Makanan Sehat', 'description' => 'Menu kalori terukur, rendah garam, program weight loss & gym.', 'tags' => ['diet','sehat','healthy','kalori']],
+
+            'mfg_garment'         => ['name' => 'Konveksi & Butik Fashion', 'description' => 'Seragam kantor, kaos sablon komunitas, busana muslim, gamis & jilbab.', 'tags' => ['konveksi','garment','baju','fashion','sablon']],
+            'mfg_precision'       => ['name' => 'Plastik, Bubut & Logam Presisi', 'description' => 'Jasa bubut CNC, cetakan injeksi plastik, suku cadang mesin industri.', 'tags' => ['bubut','cnc','logam','presisi','plastik']],
+            'mfg_furniture'       => ['name' => 'Furniture & Mebel Kayu', 'description' => 'Kitchen set, meja kantor, lemari custom kayu jati & plywood HPL.', 'tags' => ['furniture','mebel','kayu','interior','hpl']],
+            'mfg_craft'           => ['name' => 'Kerajinan Tangan & Craft', 'description' => 'Suvenir pernikahan, anyaman, kerajinan kulit & pernak-pernik unik.', 'tags' => ['craft','suvenir','handmade','seni']],
+            'mfg_printing'        => ['name' => 'Percetakan & Digital Printing', 'description' => 'Spanduk banner outdoor, stiker label kemasan, brosur, map & nota.', 'tags' => ['cetak','banner','stiker','printing']],
+            'mfg_cosmetics'       => ['name' => 'Kosmetik & Skincare', 'description' => 'Serum wajah, sabun kecantikan, body lotion bersertifikat BPOM.', 'tags' => ['skincare','kosmetik','beauty','sabun']],
+            'mfg_tailor_custom'   => ['name' => 'Penjahit Jas & Kebaya Custom', 'description' => 'Pola bespoke fitting badan, jas formal pria, kebaya akad & wisuda.', 'tags' => ['tailor','penjahit','jas','kebaya']],
+
+            'retail_reseller'     => ['name' => 'Toko Retail & Minimarket', 'description' => 'Sembako lengkap, kebutuhan rumah tangga harian, snack & minuman.', 'tags' => ['retail','toko','minimarket','kelontong']],
+            'retail_pharmacy'     => ['name' => 'Apotek & Toko Obat', 'description' => 'Obat resep dokter, suplemen vitamin, obat bebas dan alat kesehatan.', 'tags' => ['apotek','obat','farmasi','alkes']],
+
+            'service_agency'      => ['name' => 'Digital Agency & IT Software', 'description' => 'Pembuatan website, aplikasi mobile, desain grafis & social media ads.', 'tags' => ['agency','it','software','desain','web']],
+            'service_contractor'  => ['name' => 'Kontraktor & Toko Bangunan', 'description' => 'Renovasi rumah, semen, pasir, besi beton SNI, cat dan baja ringan.', 'tags' => ['bangunan','kontraktor','renovasi','semen','besi']],
+            'service_event'       => ['name' => 'Event & Wedding Organizer', 'description' => 'Dekorasi pesta pelaminan, dokumentasi foto, sound system & MC.', 'tags' => ['event','wedding','wo','dekorasi']],
+
+            'service_workshop'    => ['name' => 'Bengkel Mobil & Motor', 'description' => 'Servis berkala, tune-up injeksi, ganti oli, rem, ban & sparepart asli.', 'tags' => ['bengkel','otomotif','servis','motor','mobil']],
+            'service_barbershop'  => ['name' => 'Barbershop & Salon Rambut', 'description' => 'Potong rambut fade, creambath relaksasi, hair coloring & cuci blow.', 'tags' => ['barber','salon','rambut','styling']],
+            'service_laundry'     => ['name' => 'Laundry Kiloan & Dry Clean', 'description' => 'Cuci kering setrika uap, cuci bed cover tebal, sepatu & gorden wangi.', 'tags' => ['laundry','cuci','kiloan','setrika']],
+            'service_autodetailing' => ['name' => 'Cuci Mobil & Auto Detailing', 'description' => 'Cuci mobil salju hidrolik, poles body, nano ceramic coating & jamur kaca.', 'tags' => ['carwash','cuci','detailing','coating']],
+
+            'distributor_fmcg'    => ['name' => 'Distributor Grosir & Ekspedisi', 'description' => 'Grosir kartonan sembako, armada antar truk & jasa ekspedisi cargo.', 'tags' => ['distributor','grosir','fmcg','ekspedisi','cargo']],
+            'agri_farming'        => ['name' => 'Pertanian, Ternak & Hidroponik', 'description' => 'Bibit tanaman unggul, pupuk organik, pakan ternak & instalasi hidroponik.', 'tags' => ['pertanian','tani','pupuk','bibit','hidroponik']],
+
+            // Additional legacy vertical niches
+            'klinik'              => ['name' => 'Klinik Kesehatan Pratama', 'description' => 'Pemeriksaan dokter umum, klinik gigi estetik & cek laboratorium.', 'tags' => ['dokter','klinik','medis','kesehatan']],
+            'notaris'             => ['name' => 'Kantor Notaris & PPAT', 'description' => 'Akta pendirian PT/CV, perjanjian legal bisnis, AJB tanah & sertifikat.', 'tags' => ['notaris','ppat','hukum','legal']],
+            'petshop'             => ['name' => 'Pet Shop & Anabul Grooming', 'description' => 'Pakan kucing & anjing premium, mandi grooming sehat, pet hotel ber-AC.', 'tags' => ['petshop','anabul','kucing','anjing','grooming']],
+            'elektronik'          => ['name' => 'Servis HP, Laptop & Gadget', 'description' => 'Ganti LCD sentuh, baterai original, instal ulang & sparepart garansi.', 'tags' => ['elektronik','gadget','servis','laptop','hp']],
+            'studio_foto'         => ['name' => 'Studio Foto & Dokumentasi', 'description' => 'Foto wisuda, foto produk katalog, pas foto kilat & sewa studio.', 'tags' => ['foto','studio','fotografi','wisuda']],
+            'gym'                 => ['name' => 'Gym & Fitness Center', 'description' => 'Alat fitness lengkap, kelas aerobik/yoga, keanggotaan member & trainer.', 'tags' => ['gym','fitness','olahraga','sehat']],
+            'bimbel'              => ['name' => 'Bimbingan Belajar & Les Privat', 'description' => 'Pendampingan belajar SD-SMA, persiapan UTBK & kursus privat.', 'tags' => ['bimbel','les','kursus','sekolah']],
+            'florist'             => ['name' => 'Florist & Toko Bunga', 'description' => 'Buket bunga wisuda segar, papan bunga ucapan selamat & standing flower.', 'tags' => ['florist','bunga','buket','dekorasi']],
         ];
 
-        $catalog = self::all();
-        $result  = [];
-
-        foreach ($map as $id => $meta) {
+        $result = [];
+        foreach ($definitions as $id => $meta) {
+            $catMeta = $all[$id] ?? ['category' => 'other', 'color' => '#007AFF', 'icon' => 'sparkles'];
             $result[] = [
                 'id'          => $id,
                 'name'        => $meta['name'],
-                'icon'        => $meta['icon'],
+                'icon'        => $catMeta['icon'] ?? 'sparkles',
+                'category'    => $catMeta['category'] ?? 'other',
                 'description' => $meta['description'],
                 'tags'        => $meta['tags'],
-                'theme_color' => $catalog[$id]['color'] ?? '#10B981',
+                'theme_color' => $catMeta['color'] ?? '#007AFF',
             ];
         }
 
@@ -92,649 +191,737 @@ class IndustryPresets
     }
 
     /**
-     * Raw definitions for 20 industries with authentic Indonesian copy.
+     * Raw definitions for all 25 industries with authentic Indonesian copy.
      */
     protected static function definitions(string $biz): array
     {
         return [
-            // 1. BENGKEL OTOMOTIF
-            'bengkel' => [
-                'theme_color'        => '#0284C7',
-                'headline'           => "Servis Kendaraan Terpercaya & Bergaransi di {$biz}",
-                'subheadline'        => "Perawatan berkala, tune up, ganti oli, dan perbaikan mesin dengan teknisi berpengalaman serta suku cadang 100% original.",
-                'announcement_badge' => "⭐ Garansi Servis 14 Hari & Cek Kendaraan Gratis",
-                'cta_primary_text'   => "Booking Servis via WhatsApp",
-                'cta_secondary_text' => "Daftar Harga & Paket Servis",
-                'about_title'        => "Dedikasi Menjaga Performa Kendaraan Anda",
-                'about_story'        => "{$biz} didirikan dengan komitmen memberikan rasa aman bagi setiap pengendara. Kami mengedepankan transparansi estimasi biaya tanpa biaya tersembunyi, pengerjaan cepat dengan peralatan modern, dan garansi pengerjaan.",
-                'values' => [
-                    ['icon' => 'award', 'title' => 'Mekanik Tersertifikasi', 'desc' => 'Dikerjakan oleh teknisi ahli berpengalaman belasan tahun.'],
-                    ['icon' => 'shield-check', 'title' => 'Sparepart 100% Asli', 'desc' => 'Jaminan suku cadang original dengan masa garansi pabrik.'],
-                    ['icon' => 'clock', 'title' => 'Pengerjaan Cepat', 'desc' => 'Servis terjadwal dengan estimasi waktu yang tepat.'],
-                    ['icon' => 'check-circle', 'title' => 'Transparan Tanpa Nego', 'desc' => 'Pengecekan dan estimasi biaya disetujui sebelum pengerjaan.'],
-                ],
-                'services' => [
-                    ['title' => 'Tune Up Injeksi & Karburator', 'desc' => 'Pembersihan ruang bakar, injector, busi, dan kalibrasi mesin.', 'price' => 'Rp 85.000', 'badge' => 'Populer'],
-                    ['title' => 'Paket Ganti Oli + Servis Ringan', 'desc' => 'Termasuk cek rem, kelistrikan, angin ban, dan rantai/CVT.', 'price' => 'Rp 110.000', 'badge' => 'Hemat'],
-                    ['title' => 'Servis CVT Matic / Rem Lengkap', 'desc' => 'Pembersihan mangkok ganda, roller, v-belt, dan ganti minyak rem.', 'price' => 'Rp 65.000', 'badge' => null],
-                    ['title' => 'Overhaul / Turun Mesin', 'desc' => 'Perbaikan total kebocoran oli, suara kasar, dan performa hilang.', 'price' => 'Rp 450.000', 'badge' => 'Bergaransi'],
-                ],
-                'faqs' => [
-                    ['question' => 'Apakah harus booking terlebih dahulu?', 'answer' => 'Anda bisa datang langsung (walk-in), namun kami menyarankan booking via WhatsApp untuk menghindari antrean.'],
-                    ['question' => 'Apakah ada garansi setelah servis?', 'answer' => 'Ya, kami memberikan garansi servis selama 14 hari kerja untuk memastikan kepuasan Anda.'],
-                    ['question' => 'Bisakah membawa sparepart sendiri?', 'answer' => 'Bisa, Anda hanya akan dikenakan biaya jasa pemasangan teknisi kami.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Bambang Sudiro', 'role' => 'Pengguna Motor Harian', 'quote' => 'Mekanik ramah, penjelasannya detail, dan motor jadi enteng banget. Sangat recommended!', 'rating' => 5],
-                    ['name' => 'Rina Wijaya', 'role' => 'Karyawan Swasta', 'quote' => 'Bisa booking lewat WhatsApp jadi tidak perlu antre berjam-jam saat jam pulang kantor.', 'rating' => 5],
-                ],
-            ],
-
-            // 2. KLINIK & DOKTER
-            'klinik' => [
-                'theme_color'        => '#0D9488',
-                'headline'           => "Layanan Kesehatan Profesional & Nyaman untuk Keluarga Anda",
-                'subheadline'        => "Klinik pratama modern dengan dokter umum, dokter gigi, laboratorium, dan apotek lengkap siap melayani kesehatan Anda.",
-                'announcement_badge' => "🏥 Buka Setiap Hari • Menerima Pasien Umum & Rujukan",
-                'cta_primary_text'   => "Konsultasi & Reservasi Dokter",
-                'cta_secondary_text' => "Jadwal Praktik & Layanan",
-                'about_title'        => "Kesehatan Anda Adalah Prioritas Utama Kami",
-                'about_story'        => "{$biz} hadir memberikan layanan medis yang ramah, higienis, dan terjangkau. Didukung oleh tim dokter berpengalaman serta rekam medis digital yang rapi dan aman.",
-                'values' => [
-                    ['icon' => 'heart-pulse', 'title' => 'Dokter Berpengalaman', 'desc' => 'Tim medis profesional dengan izin praktik resmi (SIP).'],
-                    ['icon' => 'sparkles', 'title' => 'Fasilitas Bersih & Higienis', 'desc' => 'Standar sterilisasi tinggi untuk kenyamanan dan keselamatan pasien.'],
-                    ['icon' => 'calendar', 'title' => 'Antrean Ramah Digital', 'desc' => 'Daftar nomor antrean langsung dari rumah via WhatsApp.'],
-                    ['icon' => 'pill', 'title' => 'Farmasi Lengkap', 'desc' => 'Obat-obatan resmi berstandar BPOM langsung dari distributor resmi.'],
-                ],
-                'services' => [
-                    ['title' => 'Konsultasi Dokter Umum', 'desc' => 'Pemeriksaan fisik, diagnosis, resep obat, dan surat keterangan sehat.', 'price' => 'Rp 50.000', 'badge' => 'Umum'],
-                    ['title' => 'Pemeriksaan Gigi & Scaling', 'desc' => 'Pembersihan karang gigi, tambal estetik, dan pencabutan gigi tanpa sakit.', 'price' => 'Rp 150.000', 'badge' => 'Gigi'],
-                    ['title' => 'Cek Laboratorium Darah / Gula / Kolesterol', 'desc' => 'Hasil cepat dalam 15 menit dengan akurasi tinggi.', 'price' => 'Rp 75.000', 'badge' => 'Cepat'],
-                    ['title' => 'Suntik Vitamin C & Imunitas', 'desc' => 'Tingkatkan daya tahan tubuh dan stamina di masa cuaca pancaroba.', 'price' => 'Rp 120.000', 'badge' => 'Populer'],
-                ],
-                'faqs' => [
-                    ['question' => 'Kapan jadwal praktik dokter umum?', 'answer' => 'Praktik buka setiap hari Senin - Sabtu pukul 08.00 - 21.00 WIB dan Minggu pukul 09.00 - 15.00 WIB.'],
-                    ['question' => 'Apakah melayani pemeriksaan di rumah (home care)?', 'answer' => 'Ya, kami menyediakan layanan kunjungan dokter & perawat ke rumah untuk kondisi tertentu.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'drg. Hendra Santoso', 'role' => 'Pasien Rutin', 'quote' => 'Dokternya ramah banget menjelaskan kondisi penyakit, tempatnya bersih dan pelayanannya cepat.', 'rating' => 5],
-                    ['name' => 'Siti Nurhaliza', 'role' => 'Ibu Rumah Tangga', 'quote' => 'Pelayanan klinik sangat bagus, anak saya tidak takut diperiksa karena dokternya sangat sabar.', 'rating' => 5],
-                ],
-            ],
-
-            // 3. RESTORAN & KULINER (F&B)
-            'resto' => [
+            // ─── 1. RESTORAN & RUMAH MAKAN ───────────────────────────────────
+            'fnb_resto' => [
                 'theme_color'        => '#E11D48',
-                'headline'           => "Cita Rasa Kuliner Autentik yang Menggugah Selera di {$biz}",
-                'subheadline'        => "Bahan segar pilihan, resep rahasia warisan, dan suasana santai cocok untuk kumpul keluarga, rekan kerja, dan komunitas.",
-                'announcement_badge' => "🔥 Promo Makan Hemat & Free WiFi Area Nyaman",
-                'cta_primary_text'   => "Pesan / Reservasi Meja via WA",
-                'cta_secondary_text' => "Buku Menu & Daftar Harga",
-                'about_title'        => "Kelezatan Dari Dapur yang Penuh Cinta",
-                'about_story'        => "Berawal dari kegemaran menyajikan hidangan lezat dan berkualitas, {$biz} hadir untuk menyatukan kehangatan keluarga dan teman lewat santapan terbaik.",
+                'headline'           => "Cita Rasa Kuliner Nusantara Autentik di {$biz}",
+                'subheadline'        => "Bahan segar pilihan petani lokal, resep tradisi warisan keluarga, dan suasana santai yang nyaman untuk makan bersama keluarga dan kerabat tercinta.",
+                'announcement_badge' => "Menu Spesial Hari Ini Tersedia - Disajikan Selalu Hangat",
+                'cta_primary_text'   => "Pesan Menu / Reservasi Meja",
+                'cta_secondary_text' => "Daftar Menu & Harga",
+                'about_title'        => "Kelezatan Dari Dapur Penuh Dedikasi",
+                'about_story'        => "Berawal dari kegemaran menyajikan hidangan lezat dan berkualitas, {$biz} hadir untuk menyatukan kehangatan keluarga dan sahabat lewat santapan terbaik.",
                 'values' => [
                     ['icon' => 'utensils', 'title' => '100% Halal & Higienis', 'desc' => 'Bahan baku terverifikasi halal dan diolah dengan standar kebersihan ketat.'],
-                    ['icon' => 'flame', 'title' => 'Selalu Disajikan Hangat', 'desc' => 'Dimasak fresh saat dipesan (made to order) untuk rasa optimal.'],
+                    ['icon' => 'flame', 'title' => 'Selalu Disajikan Hangat', 'desc' => 'Dimasak fresh saat dipesan (made to order) untuk cita rasa optimal.'],
                     ['icon' => 'smile', 'title' => 'Pelayanan Ramah & Cepat', 'desc' => 'Staf ramah siap melayani pesanan Anda dengan senyuman.'],
-                    ['icon' => 'map-pin', 'title' => 'Parkir Luas & Musholla', 'desc' => 'Kenyamanan fasilitas lengkap untuk kunjungan santai.'],
+                    ['icon' => 'map-pin', 'title' => 'Fasilitas Lengkap & Nyaman', 'desc' => 'Area parkir luas, toilet bersih, dan musholla untuk kenyamanan Anda.'],
                 ],
                 'services' => [
-                    ['title' => 'Paket Nasi Ayam Bakar Madu Spesial', 'desc' => 'Lengkap dengan nasi putih, tahu, tempe, lalapan segar & sambal bajak.', 'price' => 'Rp 28.000', 'badge' => 'Best Seller'],
-                    ['title' => 'Iga Bakar Saus Karamel Rempah', 'desc' => 'Daging iga empuk lembut dengan bumbu rempah pilihan meresap sempurna.', 'price' => 'Rp 48.000', 'badge' => 'Chef Choice'],
-                    ['title' => 'Es Kopi Susu Gula Aren Barista', 'desc' => 'Espresso blend pilihan dengan susu segar creamy dan gula aren organik.', 'price' => 'Rp 18.000', 'badge' => 'Favorit'],
-                    ['title' => 'Paket Gathering / Prasmanan (Min 20 Pax)', 'desc' => 'Pilihan menu lengkap untuk acara arisan, rapat kantor, dan ulang tahun.', 'price' => 'Rp 35.000 / pax', 'badge' => 'Acara'],
+                    ['title' => 'Paket Nasi Ayam Bakar Madu Spesial', 'desc' => 'Lengkap dengan nasi putih pulen, tahu, tempe, lalapan segar & sambal bajak khas.', 'price' => 'Rp 28.000', 'badge' => 'Favorit'],
+                    ['title' => 'Iga Bakar Saus Rempah Nusantara', 'desc' => 'Daging iga empuk lembut dengan bumbu rempah pilihan meresap sempurna sampai ke tulang.', 'price' => 'Rp 48.000', 'badge' => 'Chef Choice'],
+                    ['title' => 'Es Kopi Susu Gula Aren Barista', 'desc' => 'Espresso blend pilihan dengan susu segar creamy dan gula aren organik murni.', 'price' => 'Rp 18.000', 'badge' => 'Minuman'],
+                    ['title' => 'Paket Prasmanan Keluarga / Acara (Min 20 Pax)', 'desc' => 'Pilihan menu lengkap untuk acara arisan, rapat kantor, dan syukuran keluarga.', 'price' => 'Rp 35.000 / pax', 'badge' => 'Acara'],
                 ],
                 'faqs' => [
-                    ['question' => 'Apakah bisa booking tempat untuk rombongan?', 'answer' => 'Bisa sekali! Kami memiliki area lantai 2 ber-AC yang muat hingga 60 orang.'],
-                    ['question' => 'Apakah bisa pesan antar (delivery)?', 'answer' => 'Bisa, silakan hubungi WhatsApp kami untuk pemesanan langsung tanpa biaya komisi aplikasi.'],
+                    ['question' => 'Apakah bisa reservasi meja untuk rombongan keluarga?', 'answer' => 'Bisa, silakan reservasi melalui website ini atau WhatsApp kami minimal 1 hari sebelumnya.'],
+                    ['question' => 'Apakah melayani pemesanan nasi kotak / katering?', 'answer' => 'Ya, kami melayani pesanan nasi kotak dan tumpeng mini untuk berbagai acara.'],
                 ],
                 'testimonials' => [
-                    ['name' => 'Dimas Anggara', 'role' => 'Pecinta Kuliner', 'quote' => 'Bumbu iga bakarnya meresap sampai ke tulang! Sambalnya juara pedas gurihnya.', 'rating' => 5],
-                    ['name' => 'Maya Kartika', 'role' => 'Food Vlogger Lokal', 'quote' => 'Tempatnya cozy banget buat nongkrong sore, kopi susunya pas tidak kemanisan.', 'rating' => 5],
+                    ['name' => 'Dimas Anggara', 'role' => 'Pelanggan Setia', 'quote' => 'Bumbu iga bakarnya meresap sempurna sampai ke tulang! Sambalnya juara pedas gurihnya.', 'rating' => 5],
+                    ['name' => 'Maya Kartika', 'role' => 'Warga Sekitar', 'quote' => 'Tempatnya bersih banget buat kumpul keluarga, ayam bakarnya empuk dan anak-anak suka.', 'rating' => 5],
                 ],
             ],
 
-            // 4. SALON & BARBERSHOP
-            'salon' => [
-                'theme_color'        => '#9333EA',
-                'headline'           => "Sentuhan Gaya & Perawatan Terbaik untuk Penampilan Percaya Diri",
-                'subheadline'        => "Potong rambut tren terkini, hair styling, creambath, pewarnaan, facial, hingga nail art ditangani oleh stylist profesional.",
-                'announcement_badge' => "✂️ Diskon 15% untuk Kunjungan Pertama",
-                'cta_primary_text'   => "Booking Slot Stylist via WA",
-                'cta_secondary_text' => "Pilihan Treatment & Harga",
-                'about_title'        => "Tampil Maksimal Bersama {$biz}",
-                'about_story'        => "Kami percaya setiap orang berhak tampil percaya diri dan menawan. Dengan produk perawatan rambut premium dan teknik modern, kami siap mewujudkan gaya impian Anda.",
+            // ─── 2. COFFEE SHOP & CAFE ────────────────────────────────────────
+            'fnb_cafe' => [
+                'theme_color'        => '#854D0E',
+                'headline'           => "Secangkir Kopi Pilihan & Ruang Tenang untuk Berkarya di {$biz}",
+                'subheadline'        => "Biji kopi single origin sangrai segar, minuman non-kopi artisanal, camilan pastry renyah, dan WiFi kencang untuk menemani produktivitas Anda.",
+                'announcement_badge' => "Free WiFi Kencang & Colokan di Setiap Meja",
+                'cta_primary_text'   => "Pesan Kopi / Booking Meja",
+                'cta_secondary_text' => "Buku Menu & Minuman",
+                'about_title'        => "Kultur Kopi yang Santun dan Menginspirasi",
+                'about_story'        => "{$biz} didirikan sebagai titik temu bagi para penikmat rasa, pekerja kreatif, dan sahabat. Kami menyeduh setiap cangkir dengan presisi suhu dan rasio terbaik.",
                 'values' => [
-                    ['icon' => 'scissors', 'title' => 'Stylist Bersertifikat', 'desc' => 'Menguasai tren haircut terkini dari classic hingga modern.'],
-                    ['icon' => 'sparkles', 'title' => 'Produk Premium Aman', 'desc' => 'Hanya menggunakan brand perawatan rambut resmi tanpa zat berbahaya.'],
-                    ['icon' => 'coffee', 'title' => 'Suasana Ruangan Nyaman', 'desc' => 'Dilengkapi AC, musik santai, dan free soft drink untuk relaksasi Anda.'],
-                    ['icon' => 'clock', 'title' => 'Tepat Waktu Tanpa Antre', 'desc' => 'Jadwal booking terjadwal ketat untuk menghargai waktu Anda.'],
+                    ['icon' => 'coffee', 'title' => 'Biji Kopi Nusantara Pilihan', 'desc' => 'Direct trade langsung dari petani kopi lokal Indonesia terbaik.'],
+                    ['icon' => 'wifi', 'title' => 'Koneksi Cepat & Suasana Tenang', 'desc' => 'Sangat cocok untuk kerja remote (WFC), meeting santai, dan belajar.'],
+                    ['icon' => 'cake', 'title' => 'Pastry Fresh Dibuat Setiap Hari', 'desc' => 'Croissant, brownies, dan donat kampung disajikan fresh dari oven.'],
+                    ['icon' => 'heart', 'title' => 'Barista Ramah & Berpengalaman', 'desc' => 'Konsultasikan profil rasa kopi yang Anda sukai dengan barista kami.'],
                 ],
                 'services' => [
-                    ['title' => 'Gentleman Haircut + Wash & Styling', 'desc' => 'Potong rambut presisi, cuci rambut, hot towel, dan styling pomade.', 'price' => 'Rp 50.000', 'badge' => 'Barber'],
-                    ['title' => 'Ladies Haircut + Blow Dry', 'desc' => 'Konsultasi bentuk wajah, cuci rambut premium, dan blow styling.', 'price' => 'Rp 75.000', 'badge' => 'Salon'],
-                    ['title' => 'Creambath Tradisional Relaksasi', 'desc' => 'Perawatan akar rambut dengan pijatan leher dan bahu 60 menit.', 'price' => 'Rp 85.000', 'badge' => 'Favorit'],
-                    ['title' => 'Hair Coloring / Balayage / Highlight', 'desc' => 'Pewarnaan rambut tren modern dengan pelindung batang rambut.', 'price' => 'Rp 250.000', 'badge' => 'Tren'],
+                    ['title' => 'Kopi Susu Senja Gula Aren', 'desc' => 'Signature espresso blend dengan susu murni segar dan gula aren alami.', 'price' => 'Rp 18.000', 'badge' => 'Best Seller'],
+                    ['title' => 'Manual Brew V60 Single Origin', 'desc' => 'Seduhan pour-over menonjolkan keasaman buah segar dan aroma floral.', 'price' => 'Rp 24.000', 'badge' => 'Artisan'],
+                    ['title' => 'Matcha Latte Uji Kyoto', 'desc' => 'Bubuk matcha murni dipadukan dengan susu segar berbusa halus.', 'price' => 'Rp 22.000', 'badge' => 'Non-Coffee'],
+                    ['title' => 'Butter Croissant Crispy', 'desc' => 'Lapisan pastry buttery renyah di luar dan lembut di bagian dalam.', 'price' => 'Rp 16.000', 'badge' => 'Snack'],
                 ],
                 'faqs' => [
-                    ['question' => 'Apakah harus booking jadwal terlebih dahulu?', 'answer' => 'Sangat disarankan booking via WhatsApp minimal 2 jam sebelumnya agar tidak menunggu.'],
-                    ['question' => 'Apakah melayani anak-anak?', 'answer' => 'Ya, kami memiliki kursi dan stylist yang ramah dan sabar untuk potongan rambut anak.'],
+                    ['question' => 'Apakah tersedia area smoking dan non-smoking ber-AC?', 'answer' => 'Ya, kami menyediakan ruangan ber-AC bebas asap rokok di dalam dan area semi-outdoor untuk smoking.'],
+                    ['question' => 'Apakah bisa booking area untuk mini workshop atau meeting?', 'answer' => 'Bisa, kami memiliki meeting room kapasitas 10-15 orang lengkap dengan layar monitor.'],
                 ],
                 'testimonials' => [
-                    ['name' => 'Ferry Gunawan', 'role' => 'Pelanggan Setia Barbershop', 'quote' => 'Fade cut-nya sangat rapi dan presisi. Tempat potong rambut terbaik di kota ini.', 'rating' => 5],
-                    ['name' => 'Jessica Amelia', 'role' => 'Beauty Enthusiast', 'quote' => 'Warna balayage-nya keluar sempurna dan rambut tetap lembut tidak rusak. Puas banget!', 'rating' => 5],
+                    ['name' => 'Reza Pahlevi', 'role' => 'Pekerja Remote', 'quote' => 'Tempat paling nyaman buat WFC, kopinya pas di lambung dan WiFi-nya kencang stabil.', 'rating' => 5],
+                    ['name' => 'Nabila Putri', 'role' => 'Mahasiswi', 'quote' => 'Matcha latte dan croissant-nya enak banget! Suasananya tenang gak berisik.', 'rating' => 5],
                 ],
             ],
 
-            // 5. TOKO RETAIL & MINIMARKET
-            'retail' => [
+            // ─── 3. BAKERY & TOKO ROTI ─────────────────────────────────────────
+            'fnb_bakery' => [
+                'theme_color'        => '#CA8A04',
+                'headline'           => "Kelembutan Roti & Pastry Fresh Oven Setiap Pagi di {$biz}",
+                'subheadline'        => "Dibuat tanpa bahan pengawet kimia, menggunakan mentega asli kualitas premium, ragi alami, dan isian melimpah yang lumer di mulut.",
+                'announcement_badge' => "Dipanggang Segar Setiap Pagi - Bebas Bahan Pengawet",
+                'cta_primary_text'   => "Pesan Roti & Kue Online",
+                'cta_secondary_text' => "Katalog Roti & Hampers",
+                'about_title'        => "Kelezatan Tradisi Bakery Sehat",
+                'about_story'        => "{$biz} percaya bahwa roti yang baik bermula dari bahan murni dan kesabaran proses fermentasi. Kami hadirkan aroma panggangan hangat untuk keluarga Anda.",
+                'values' => [
+                    ['icon' => 'cake', 'title' => 'Bebas Pengawet Kimia', 'desc' => 'Adonan alami aman dikonsumsi seluruh keluarga dan anak-anak.'],
+                    ['icon' => 'sparkles', 'title' => '100% Mentega Asli', 'desc' => 'Wangi khas butter alami tanpa aroma buatan yang menyengat.'],
+                    ['icon' => 'gift', 'title' => 'Kue Tart & Hampers Cantik', 'desc' => 'Kemasan elegan siap kirim untuk ucapan ulang tahun dan hari raya.'],
+                    ['icon' => 'truck', 'title' => 'Pengiriman Cepat Aman', 'desc' => 'Dikemas higienis dengan kurir toko agar bentuk kue tetap utuh.'],
+                ],
+                'services' => [
+                    ['title' => 'Roti Sobek Keju Cokelat Lumer', 'desc' => 'Tekstur lembut dengan isian cokelat lumer dan taburan parutan keju gurih.', 'price' => 'Rp 22.000', 'badge' => 'Favorit'],
+                    ['title' => 'Roti Sisir Mentega Jadul', 'desc' => 'Roti sisir legendaris dengan olesan butter harum dan gula kristal.', 'price' => 'Rp 14.000', 'badge' => 'Klasik'],
+                    ['title' => 'Kue Ulang Tahun Custom (Diameter 18cm)', 'desc' => 'Bolu lembut berlapis selai strawberry segar dan cream tidak enek.', 'price' => 'Rp 185.000', 'badge' => 'Tart'],
+                    ['title' => 'Paket Hampers Roti & Cookies Cantik', 'desc' => 'Cocok untuk hantaran kerabat, rekan kerja, dan bingkisan hari besar.', 'price' => 'Mulai Rp 120.000', 'badge' => 'Gift'],
+                ],
+                'faqs' => [
+                    ['question' => 'Berapa hari daya tahan roti tanpa pengawet?', 'answer' => 'Roti kami bertahan 3-4 hari di suhu ruang dan hingga 7 hari jika disimpan rapat di lemari pendingin.'],
+                    ['question' => 'Berapa hari sebelumnya harus memesan kue ulang tahun kustom?', 'answer' => 'Kami menyarankan pemesanan kue ulang tahun kustom minimal H-2 sebelum acara.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Ibu Wulandari', 'role' => 'Ibu Rumah Tangga', 'quote' => 'Rotinya beneran empuk lembut tanpa bikin enek. Anak-anak sarapan selalu minta roti ini.', 'rating' => 5],
+                    ['name' => 'Fajar Nugroho', 'role' => 'Karyawan Swasta', 'quote' => 'Pesan kue ulang tahun buat istri hasilnya cantik persis seperti contoh foto, rasanya premium!', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 4. CLOUD KITCHEN & DELIVERY ──────────────────────────────────
+            'fnb_cloud_kitchen' => [
+                'theme_color'        => '#EA580C',
+                'headline'           => "Sajian Cepat Saji Higienis & Siap Antar ke Meja Anda dari {$biz}",
+                'subheadline'        => "Dapur modern tersertifikasi yang fokus pada pengolahan makanan pesan-antar dengan packaging kedap tumpah dan waktu persiapan kilat.",
+                'announcement_badge' => "Kemasan Food Grade Ramah Lingkungan & Anti Tumpah",
+                'cta_primary_text'   => "Pesan Sekarang via Toko Online",
+                'cta_secondary_text' => "Daftar Menu Siap Antar",
+                'about_title'        => "Kecepatan, Kebersihan, dan Rasa Terjamin",
+                'about_story'        => "{$biz} dirancang khusus untuk memenuhi kebutuhan makan siang dan malam masyarakat modern yang serba praktis tanpa mengorbankan kualitas gizi dan rasa.",
+                'values' => [
+                    ['icon' => 'clock', 'title' => 'Persiapan Kilat 10-15 Menit', 'desc' => 'Standar dapur cepat memastikan pesanan langsung dikirim hangat.'],
+                    ['icon' => 'shield-check', 'title' => 'Kemasan Sealed Higienis', 'desc' => 'Disertai segel keamanan untuk menjaga kebersihan sampai ke tangan Anda.'],
+                    ['icon' => 'tag', 'title' => 'Harga Lebih Hemat Tanpa Mark-up', 'desc' => 'Pesan langsung tanpa biaya komisi aplikasi yang membebani.'],
+                    ['icon' => 'truck', 'title' => 'Radius Pengiriman Luas', 'desc' => 'Didukung armada kurir toko dan kurir instan terpercaya.'],
+                ],
+                'services' => [
+                    ['title' => 'Rice Bowl Daging Sapi Teriyaki', 'desc' => 'Daging sapi iris empuk berlumur saus manis gurih dengan taburan wijen.', 'price' => 'Rp 32.000', 'badge' => 'Populer'],
+                    ['title' => 'Nasi Kulit Ayam Crispy Sambal Korek', 'desc' => 'Kulit ayam garing renyah dipadu sambal ulek pedas nagih dan serundeng.', 'price' => 'Rp 24.000', 'badge' => 'Pedas'],
+                    ['title' => 'Paket Hemat Makan Siang Kantor (5 Porsi)', 'desc' => 'Paket komplit praktis untuk makan bersama rekan kerja di kantor.', 'price' => 'Rp 115.000', 'badge' => 'Hemat'],
+                ],
+                'faqs' => [
+                    ['question' => 'Apakah bisa melayani takeaway langsung ke outlet?', 'answer' => 'Ya, Anda bisa pesan online terlebih dahulu dan ambil langsung di titik pickup kami.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Budi Santoso', 'role' => 'Karyawan Startup', 'quote' => 'Pesan makan siang kantor selalu tepat waktu. Kemasannya rapi tidak bocor dan makanannya masih hangat.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 5. CATERING & PRASMANAN ──────────────────────────────────────
+            'fnb_catering' => [
+                'theme_color'        => '#D97706',
+                'headline'           => "Jasa Katering Terpercaya untuk Pernikahan, Acara Kantor & Syukuran di {$biz}",
+                'subheadline'        => "Pilihan menu lezat berselera nusantara & internasional, dekorasi prasmanan anggun, dan staf pelayan profesional siap menyukseskan momen istimewa Anda.",
+                'announcement_badge' => "Free Food Tasting & Konsultasi Menu Prasmanan",
+                'cta_primary_text'   => "Minta Penawaran Katering",
+                'cta_secondary_text' => "Pilihan Paket Prasmanan",
+                'about_title'        => "Mitra Kuliner Terpercaya di Setiap Momen Bersejarah",
+                'about_story'        => "Dengan pengalaman melayani ribuan event dan acara formal, {$biz} memastikan hidangan yang disajikan bukan hanya memanjakan lidah, tapi juga menghormati para tamu undangan Anda.",
+                'values' => [
+                    ['icon' => 'award', 'title' => 'Koki Berpengalaman Belasan Tahun', 'desc' => 'Racikan bumbu konsisten dan porsi memuaskan tanpa kekurangan di hari H.'],
+                    ['icon' => 'sparkles', 'title' => 'Dekorasi Meja Prasmanan Mewah', 'desc' => 'Pilihan tema dekorasi prasmanan modern sesuai tema warna acara Anda.'],
+                    ['icon' => 'check-circle-2', 'title' => 'Jadwal Pengantaran Tepat Janji', 'desc' => 'Makanan tiba di lokasi acara 2 jam sebelum jam makan dimulai.'],
+                    ['icon' => 'users', 'title' => 'Pramusaji Berseragam Rapi', 'desc' => 'Staf ramah, sigap membersihkan piring, dan menjaga kebersihan meja.'],
+                ],
+                'services' => [
+                    ['title' => 'Paket Prasmanan Pernikahan (Mulai 300 Pax)', 'desc' => 'Menu lengkap: 2 olahan daging/ayam, ikan, sop hangat, aneka es & dessert buah.', 'price' => 'Mulai Rp 45.000 / pax', 'badge' => 'Wedding'],
+                    ['title' => 'Paket Nasi Kotak Acara Kantor / Rapat (Min 15 Box)', 'desc' => 'Kemasan bento bersekat higienis lengkap sendok, tisu, buah dan air mineral.', 'price' => 'Mulai Rp 25.000 / box', 'badge' => 'Box'],
+                    ['title' => 'Tumpeng Mini Nusantara Syukuran', 'desc' => 'Nasi kuning wangi pulen dengan 7 macam lauk tradisional kemasan mika eksklusif.', 'price' => 'Rp 35.000 / porsi', 'badge' => 'Syukuran'],
+                ],
+                'faqs' => [
+                    ['question' => 'Apakah bisa jadwal food testing sebelum menentukan pilihan?', 'answer' => 'Tentu, kami menyediakan sesi food tasting gratis di kantor kami untuk calon mempelai atau panitia acara.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Rina & Aditya', 'role' => 'Pengantin', 'quote' => 'Semua tamu memuji rasa makanannya yang enak dan porsinya berlimpah, tidak ada yang kehabisan. Terima kasih banyak!', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 6. FROZEN FOOD & OLAHAN BEKU ─────────────────────────────────
+            'fnb_frozen_food' => [
+                'theme_color'        => '#0284C7',
+                'headline'           => "Stok Makanan Beku Berkualitas, Praktis & Bergizi untuk Keluarga di {$biz}",
+                'subheadline'        => "Olahan daging, ayam, seafood, dan dimsum beku higienis tanpa bahan pengawet kimia berbahaya. Siap goreng dan kukus dalam 5 menit.",
+                'announcement_badge' => "Dibekukan Cepat (Blast Freezing) Menjaga Kesegaran Nutrisi",
+                'cta_primary_text'   => "Belanja Frozen Food Online",
+                'cta_secondary_text' => "Katalog Produk Beku",
+                'about_title'        => "Solusi Masak Praktis Ibu Rumah Tangga",
+                'about_story'        => "{$biz} hadir memberikan solusi praktis bagi keluarga aktif yang ingin menyajikan santapan lezat bergizi dalam hitungan menit tanpa repot memotong dan membumbui bahan mentah.",
+                'values' => [
+                    ['icon' => 'snowflake', 'title' => 'Proses Pembekuan Cepat', 'desc' => 'Mencegah pertumbuhan bakteri dan mengunci rasa alami daging.'],
+                    ['icon' => 'shield-check', 'title' => 'Daging Segar Bukan Olahan Sisa', 'desc' => 'Kandungan daging asli melimpah tanpa tepung berlebihan.'],
+                    ['icon' => 'truck', 'title' => 'Pengiriman Menggunakan Ice Gel', 'desc' => 'Produk tetap beku dingin sampai di tangan Anda.'],
+                    ['icon' => 'tag', 'title' => 'Melayani Reseller & Eceran', 'desc' => 'Dapatkan harga khusus untuk pembelian paket reseller.'],
+                ],
+                'services' => [
+                    ['title' => 'Dimsum Ayam Udang Premium (Isi 20 Pcs)', 'desc' => 'Daging ayam padat kenyal dengan cincangan udang segar dan saus chili oil gurih.', 'price' => 'Rp 45.000 / pack', 'badge' => 'Best Seller'],
+                    ['title' => 'Nugget Ayam Homemade Keju (500gr)', 'desc' => 'Dibuat dari dada ayam segar tanpa MSG berlebih, aman untuk balita.', 'price' => 'Rp 38.000 / pack', 'badge' => 'Anak-anak'],
+                    ['title' => 'Daging Sapi Slice Marinasi Bulgogi (500gr)', 'desc' => 'Irisan daging sapi empuk siap panggang di teflon, bumbu sudah meresap.', 'price' => 'Rp 65.000 / pack', 'badge' => 'Grill'],
+                ],
+                'faqs' => [
+                    ['question' => 'Berapa lama masa simpan produk beku di freezer?', 'answer' => 'Produk kami tahan hingga 3-6 bulan di dalam freezer bersuhu minimal -18 derajat Celcius.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Citra Dewi', 'role' => 'Ibu Bekerja', 'quote' => 'Sangat menyelamatkan saat pagi hari buru-buru bikin bekal anak. Tinggal goreng atau kukus sebentar sudah siap.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 7. DIET & HEALTHY CATERING ───────────────────────────────────
+            'fnb_catering_diet' => [
                 'theme_color'        => '#16A34A',
-                'headline'           => "Belanja Kebutuhan Harian Lengkap, Hemat & Dekat di {$biz}",
-                'subheadline'        => "Sembako murah, kebutuhan rumah tangga, makanan ringan, produk segar, dan pembayaran tagihan lengkap setiap hari.",
-                'announcement_badge' => "🛒 Harga Grosir & Eceran • Promo Setiap Akhir Pekan",
-                'cta_primary_text'   => "Pesan via WhatsApp (Bisa Diantar)",
-                'cta_secondary_text' => "Katalog Promo Minggu Ini",
-                'about_title'        => "Sahabat Kebutuhan Keluarga Anda",
-                'about_story'        => "{$biz} hadir memberikan kemudahan belanja kebutuhan pokok dengan harga bersahabat, stok selalu baru dan segar, serta layanan ramah tetangga.",
+                'headline'           => "Katering Sehat & Diet Berselera Tanpa Rasa Hambar di {$biz}",
+                'subheadline'        => "Program makanan terukur kalori untuk turun berat badan, pemulihan kesehatan, dan kebugaran gym dengan bahan organik segar tanpa minyak jenuh berlebih.",
+                'announcement_badge' => "Dihitung Presisi oleh Konsultan Gizi & Koki Berpengalaman",
+                'cta_primary_text'   => "Pilih Paket Katering Diet",
+                'cta_secondary_text' => "Konsultasi Target Kalori",
+                'about_title'        => "Makan Sehat Tetap Enak dan Menyenangkan",
+                'about_story'        => "Diet bukan berarti menyiksa diri dengan makanan hambar. Di {$biz}, kami mengolah bumbu rempah alami dan teknik memasak modern agar makanan sehat terasa selezat hidangan restoran.",
                 'values' => [
-                    ['icon' => 'tag', 'title' => 'Harga Pasti Hemat', 'desc' => 'Harga bersaing langsung dari distributor terpercaya.'],
-                    ['icon' => 'check-circle-2', 'title' => 'Produk Selalu Fresh', 'desc' => 'Stok produk diperbarui secara berkala dengan tanggal kedaluwarsa aman.'],
-                    ['icon' => 'truck', 'title' => 'Layanan Antar ke Rumah', 'desc' => 'Belanja via WhatsApp, pesanan diantar langsung sampai depan pintu.'],
-                    ['icon' => 'credit-card', 'title' => 'Bayar Tunai & QRIS', 'desc' => 'Kemudahan transaksi non-tunai bebas repot uang kembalian.'],
+                    ['icon' => 'heart-pulse', 'title' => 'Informasi Kalori & Makronutrisi Jelas', 'desc' => 'Setiap porsi disertai rincian gramasi protein, karbohidrat, dan serat.'],
+                    ['icon' => 'leaf', 'title' => 'Sayuran Organik Bebas Pestisida', 'desc' => 'Bahan baku nabati segar dipanen langsung dari perkebunan ramah lingkungan.'],
+                    ['icon' => 'calendar', 'title' => 'Menu Berganti Setiap Hari', 'desc' => 'Jadwal variasi menu selama 30 hari tanpa perulangan yang membosankan.'],
+                    ['icon' => 'truck', 'title' => 'Pengantaran Tepat Jam Makan', 'desc' => 'Dikirim 2 kali sehari untuk makan siang dan makan malam segar.'],
                 ],
                 'services' => [
-                    ['title' => 'Beras Premium 5kg Pilihan', 'desc' => 'Beras pulen bersih bebas pemutih dan pengawet kimia.', 'price' => 'Rp 72.000', 'badge' => 'Pokok'],
-                    ['title' => 'Minyak Goreng Refill 2 Liter', 'desc' => 'Minyak kelapa sawit jernih dua kali penyaringan.', 'price' => 'Rp 34.000', 'badge' => 'Hemat'],
-                    ['title' => 'Telur Ayam Ras Segar 1 Kg', 'desc' => 'Telur pilihan peternakan lokal selalu fresh setiap hari.', 'price' => 'Rp 27.000', 'badge' => 'Segar'],
-                    ['title' => 'Paket Sembako Berkah Bulanan', 'desc' => 'Isi beras, minyak, gula, kopi, dan mi instan praktis.', 'price' => 'Rp 165.000', 'badge' => 'Paket'],
+                    ['title' => 'Paket Weight Loss 5 Hari (Makan Siang & Malam)', 'desc' => 'Kisaran 400-500 Kcal per porsi, tinggi protein untuk defisit kalori efektif.', 'price' => 'Rp 275.000 / minggu', 'badge' => 'Diet'],
+                    ['title' => 'Paket Muscle Gain High Protein', 'desc' => 'Dada ayam, salmon, telur dan karbohidrat kompleks untuk pembentukan otot.', 'price' => 'Rp 350.000 / minggu', 'badge' => 'Gym'],
+                    ['title' => 'Paket Healthy Lunch Kantor (5 Hari Kerja)', 'desc' => 'Makan siang bergizi seimbang bebas santan jenuh dan MSG berlebih.', 'price' => 'Rp 140.000 / minggu', 'badge' => 'Kantor'],
                 ],
                 'faqs' => [
-                    ['question' => 'Apakah ada minimal belanja untuk layanan antar?', 'answer' => 'Gratis ongkir untuk radius 2 km dengan minimal belanja Rp 50.000.'],
-                    ['question' => 'Jam berapa toko buka?', 'answer' => 'Kami buka setiap hari mulai pukul 07.00 sampai 22.00 WIB.'],
+                    ['question' => 'Apakah bisa custom alergi makanan seperti seafood atau kacang?', 'answer' => 'Bisa sekali, cantumkan riwayat alergi Anda saat mendaftar paket dan kami akan menyesuaikan menunya.'],
                 ],
                 'testimonials' => [
-                    ['name' => 'Ibu Ratna', 'role' => 'Warga Sekitar', 'quote' => 'Belanja tinggal WA langsung dianterin mas-masnya. Sangat menolong ibu-ibu yang repot di rumah.', 'rating' => 5],
-                    ['name' => 'Pak Joko', 'role' => 'Pelanggan Rutin', 'quote' => 'Harganya jujur dan murah, pelayanannya ramah banget.', 'rating' => 5],
+                    ['name' => 'dr. Tania Lestari', 'role' => 'Pelanggan 3 Bulan', 'quote' => 'Turun 6 kg tanpa ngerasa lemas sama sekali. Rasanya enak banget beda dari katering diet lainnya.', 'rating' => 5],
                 ],
             ],
 
-            // 6. BUTIK FASHION & KONVEKSI
-            'fashion' => [
+            // ─── 8. KONVEKSI & FASHION ────────────────────────────────────────
+            'mfg_garment' => [
                 'theme_color'        => '#DB2777',
-                'headline'           => "Koleksi Busana Modis & Jasa Jahit Konveksi Berkualitas",
-                'subheadline'        => "Pakaian siap pakai kekinian, baju pesta, seragam kantor, kaos komunitas, hingga custom busana dengan bahan adem dan jahitan presisi.",
-                'announcement_badge' => "✨ Koleksi Terbaru Edisi 2026 Ready Stock",
-                'cta_primary_text'   => "Konsultasi / Order via WhatsApp",
-                'cta_secondary_text' => "Katalog Busana & Portofolio",
-                'about_title'        => "Karya Jahit dan Gaya dari Hati",
-                'about_story'        => "{$biz} menggabungkan seni desain busana dengan standar jahitan butik berkualitas tinggi. Baik untuk pakaian harian maupun seragam berskala besar, kami jamin kerapian dan kenyamanannya.",
+                'headline'           => "Jasa Konveksi Busana, Seragam & Kaos Sablon Berkualitas di {$biz}",
+                'subheadline'        => "Melayani pembuatan seragam kantor, kaos polo, kemeja batik, jaket bomber, seragam olahraga, dan busana muslim dengan jahitan rapi dan bahan adem.",
+                'announcement_badge' => "Kapasitas Produksi Ribuan Pcs per Bulan - Bergaransi Ukuran",
+                'cta_primary_text'   => "Minta Penawaran / Pesan Seragam",
+                'cta_secondary_text' => "Katalog Bahan & Portofolio",
+                'about_title'        => "Standar Jahitan Butik untuk Skala Partai & Satuan",
+                'about_story'        => "{$biz} menggabungkan ketelitian penjahit terampil dengan mesin garmen modern. Kami berkomitmen menyelesaikan setiap pesanan tepat deadline tanpa mengorbankan kerapian jahitan.",
                 'values' => [
-                    ['icon' => 'sparkles', 'title' => 'Bahan Adem & Nyaman', 'desc' => 'Menggunakan material kain pilihan premium grade A.'],
-                    ['icon' => 'scissors', 'title' => 'Jahitan Rapi Berstandar Butik', 'desc' => 'Dikerjakan oleh penjahit profesional berpengalaman puluhan tahun.'],
-                    ['icon' => 'layers', 'title' => 'Menerima Partai Besar & Satuan', 'desc' => 'Siap melayani pesanan seragam kantor, arisan, maupun custom satuan.'],
-                    ['icon' => 'check-circle', 'title' => 'Fitting Sempurna', 'desc' => 'Garansi revisi ukuran jika pakaian belum pas di badan.'],
+                    ['icon' => 'shirt', 'title' => 'Pilihan Kain Grade A Lengkap', 'desc' => 'Cotton combed 24s/30s, drill premium, nagata, katun toyobo, dan ceruty.'],
+                    ['icon' => 'scissors', 'title' => 'Jahitan Rantai Presisi Rapi', 'desc' => 'Dikerjakan oleh penjahit berpengalaman dengan pengawasan quality control ketat.'],
+                    ['icon' => 'printer', 'title' => 'Sablon & Bordir Komputer Tajam', 'desc' => 'Hasil bordir padat tidak mudah terurai dan sablon plastisol tahan cuci.'],
+                    ['icon' => 'clock', 'title' => 'Jaminan Selesai Tepat Deadline', 'desc' => 'Garansi waktu pengerjaan untuk kenyamanan acara dan operasional Anda.'],
                 ],
                 'services' => [
-                    ['title' => 'Dress & Gamis Busana Muslimah', 'desc' => 'Model elegan dengan bahan katun toyobo/ceruty jatuh yang adem.', 'price' => 'Rp 145.000', 'badge' => 'Best Seller'],
-                    ['title' => 'Kemeja Batik Pria & Wanita Formal', 'desc' => 'Motif kontemporer dengan furing halus yang menyerap keringat.', 'price' => 'Rp 125.000', 'badge' => 'Formal'],
-                    ['title' => 'Konveksi Kaos Komunitas / Sablon (Min 12 Pcs)', 'desc' => 'Bahan Cotton Combed 24s/30s adem dengan sablon plastisol awet.', 'price' => 'Rp 60.000 / pcs', 'badge' => 'Grosir'],
-                    ['title' => 'Jasa Jahit Baju Pesta & Kebaya Custom', 'desc' => 'Desain sesuai permintaan pelanggan dengan fitting detail.', 'price' => 'Mulai Rp 200.000', 'badge' => 'Custom'],
+                    ['title' => 'Kemeja Seragam Kantor Drill Nagata (Min 12 Pcs)', 'desc' => 'Bahan adem tidak luntur, sudah termasuk bordir logo komputer 2 titik.', 'price' => 'Mulai Rp 95.000 / pcs', 'badge' => 'Seragam'],
+                    ['title' => 'Kaos Komunitas Sablon Plastisol (Min 24 Pcs)', 'desc' => 'Bahan 100% Cotton Combed 30s adem lembut dengan sablon anti pecah.', 'price' => 'Mulai Rp 55.000 / pcs', 'badge' => 'Kaos'],
+                    ['title' => 'Jaket Bomber / Hoodie Fleece Katun', 'desc' => 'Bahan tebal lembut nyaman dipakai siang maupun malam hari.', 'price' => 'Mulai Rp 135.000 / pcs', 'badge' => 'Jaket'],
+                    ['title' => 'Gamis & Busana Muslimah Custom Butik', 'desc' => 'Model anggun kekinian cocok untuk seragam pengajian dan pesta keluarga.', 'price' => 'Mulai Rp 125.000 / pcs', 'badge' => 'Muslimah'],
                 ],
                 'faqs' => [
-                    ['question' => 'Berapa lama proses pengerjaan konveksi seragam?', 'answer' => 'Untuk pesanan konveksi standar 1-50 pcs membutuhkan waktu 7-10 hari kerja.'],
-                    ['question' => 'Apakah bisa kirim ke luar kota?', 'answer' => 'Bisa, kami melayani pengiriman ke seluruh wilayah Indonesia via ekspedisi terpercaya.'],
+                    ['question' => 'Berapa minimal order untuk pembuatan seragam kantor?', 'answer' => 'Minimal pemesanan seragam konveksi adalah 12 pcs. Untuk kaos sablon minimal 24 pcs.'],
+                    ['question' => 'Apakah bisa dibuatkan sampel (mockup) sebelum produksi massal?', 'answer' => 'Bisa, untuk pemesanan di atas 50 pcs kami menyediakan approval sample fisik sebelum pengerjaan penuh.'],
                 ],
                 'testimonials' => [
-                    ['name' => 'Dewi Anggraini', 'role' => 'Pelanggan Butik', 'quote' => 'Jahitannya rapi banget, bahannya jatuh dan adem dipakai seharian. Bakal langganan terus!', 'rating' => 5],
-                    ['name' => 'Rizky Pratama', 'role' => 'Ketua Komunitas Motor', 'quote' => 'Bikin seragam kaos 40 biji hasilnya sangat memuaskan, sablonnya awet dicuci berkali-kali.', 'rating' => 5],
+                    ['name' => 'Bambang Sugiarto', 'role' => 'HRD PT Berkah Mandiri', 'quote' => 'Seragam kantor 80 pcs selesai tepat waktu sebelum acara tahunan. Kerapian jahitannya mantap!', 'rating' => 5],
                 ],
             ],
 
-            // 7. LAUNDRY & DRY CLEAN
-            'laundry' => [
+            // ─── 9. LOGAM, BUBUT & PLASTIK PRESISI ────────────────────────────
+            'mfg_precision' => [
+                'theme_color'        => '#475569',
+                'headline'           => "Pabrikasi Suku Cadang Mesin, Bubut Presisi & Cetakan Molding di {$biz}",
+                'subheadline'        => "Pengerjaan bubut konvensional & CNC, milling, wire cut, pengelasan argon, dan cetakan injeksi plastik dengan toleransi ukuran mikron yang akurat.",
+                'announcement_badge' => "Didukung Mesin CNC Presisi Tinggi & Teknisi Berpengalaman",
+                'cta_primary_text'   => "Konsultasi Gambar Teknik / PO",
+                'cta_secondary_text' => "Daftar Kemampuan Bengkel",
+                'about_title'        => "Presisi Tanpa Kompromi untuk Kelancaran Industri Anda",
+                'about_story'        => "{$biz} melayani kebutuhan rekayasa suku cadang pabrik dan otomotif. Kami memastikan setiap material baja, kuningan, dural, dan teflon dikerjakan sesuai spesifikasi gambar teknis.",
+                'values' => [
+                    ['icon' => 'cog', 'title' => 'Toleransi Ukuran Akurat', 'desc' => 'Pengecekan menggunakan alat ukur mikrometer dan jangka sorong digital.'],
+                    ['icon' => 'layers', 'title' => 'Material Logam Berkualitas', 'desc' => 'Baja S45C, SKD11, VCL, Stainless Steel 304, kuningan dan alumunium.'],
+                    ['icon' => 'file-text', 'title' => 'Bisa dari Gambar 2D / 3D CAD', 'desc' => 'Menerima file format DWG, DXF, STEP, atau cukup membawa contoh benda kerja rusak.'],
+                ],
+                'services' => [
+                    ['title' => 'Jasa Bubut Poros & Shaft Mesin', 'desc' => 'Pembuatan as roda, bushing perunggu, ulir drat, dan pully transmisi mesin.', 'price' => 'Estimasi Sesuai Gambar', 'badge' => 'Bubut'],
+                    ['title' => 'Fabrikasi Gear & Roda Gigi Custom', 'desc' => 'Pembuatan roda gigi lurus, miring (helical), dan rantai sproket baja.', 'price' => 'Estimasi Sesuai Gambar', 'badge' => 'Gear'],
+                    ['title' => 'Molding Plastik & Dies Stamping', 'desc' => 'Rancang bangun cetakan injeksi produk plastik dan pisau pon stamping plat.', 'price' => 'Konsultasi Proyek', 'badge' => 'Molding'],
+                ],
+                'faqs' => [
+                    ['question' => 'Apakah melayani pembuatan part satuan atau harus partai besar?', 'answer' => 'Kami melayani pembuatan prototype satuan maupun produksi massal ratusan pcs.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Ir. Gunawan', 'role' => 'Maintenance Manager Pabrik', 'quote' => 'Sparepart mesin impor yang patah berhasil dibikin replikanya dengan presisi sempurna. Mesin pabrik bisa jalan lagi.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 10. FURNITURE & MEBEL KAYU ───────────────────────────────────
+            'mfg_furniture' => [
+                'theme_color'        => '#B45309',
+                'headline'           => "Karya Mebel Kayu Solid & Interior Custom Berkualitas di {$biz}",
+                'subheadline'        => "Pembuatan kitchen set modern, meja kerja, tempat tidur, lemari pakaian, dan mebel kayu jati solid bergaransi anti rayap dan finishing halus.",
+                'announcement_badge' => "Free Desain 3D & Konsultasi Ukuran Lokasi",
+                'cta_primary_text'   => "Minta Penawaran / Survey Lokasi",
+                'cta_secondary_text' => "Galeri Proyek Interior",
+                'about_title'        => "Kenyamanan Ruang dengan Sentuhan Kehangatan Alami",
+                'about_story'        => "Setiap rumah berhak memiliki interior yang rapi dan fungsional. {$biz} memadukan keindahan urat kayu alami dengan aksesoris engsel soft-close modern untuk kenyamanan hidup Anda.",
+                'values' => [
+                    ['icon' => 'armchair', 'title' => 'Kayu Pilihan Kering Oven', 'desc' => 'Menggunakan kayu jati, mahoni, dan plywood meranti tebal anti melengkung.'],
+                    ['icon' => 'sparkles', 'title' => 'Finishing Halus Sempurna', 'desc' => 'Pilihan lapisan HPL motif marmer/kayu, cat duco halus, dan melamin natural.'],
+                    ['icon' => 'wrench', 'title' => 'Pemasangan Rapi Bergaransi', 'desc' => 'Dipasang langsung oleh tukang kayu profesional tanpa merusak dinding Anda.'],
+                ],
+                'services' => [
+                    ['title' => 'Kitchen Set Modern Minimalis HPL', 'desc' => 'Termasuk rak piring stainless, laci bumbu, engsel slow-motion dan lampu LED strip.', 'price' => 'Mulai Rp 1.850.000 / m', 'badge' => 'Dapur'],
+                    ['title' => 'Lemari Pakaian Wardrobe Pintu Geser (Sliding)', 'desc' => 'Maksimalisasi ruang kamar tidur dengan cermin besar dan laci tersembunyi.', 'price' => 'Mulai Rp 1.750.000 / m', 'badge' => 'Kamar'],
+                    ['title' => 'Meja Makan Kayu Jati Solid 6 Kursi', 'desc' => 'Kayu utuh tebal dengan finishing melamin dove yang menonjolkan serat alami.', 'price' => 'Rp 4.500.000 / set', 'badge' => 'Solid'],
+                ],
+                'faqs' => [
+                    ['question' => 'Berapa lama proses pembuatan kitchen set custom?', 'answer' => 'Waktu produksi di workshop berkisar 14-21 hari kerja, pemasangan di lokasi biasanya 1-2 hari.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'dr. Hendra Wijaya', 'role' => 'Pemilik Rumah Baru', 'quote' => 'Kitchen set rapi banget pengerjaannya, laci-lacinya halus ditutup. Sangat puas dengan hasil kerjanya!', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 11. KERAJINAN TANGAN & CRAFT ─────────────────────────────────
+            'mfg_craft' => [
+                'theme_color'        => '#9333EA',
+                'headline'           => "Karya Seni Handmade, Souvenir Pernikahan & Kerajinan Unik di {$biz}",
+                'subheadline'        => "Dibuat dengan sentuhan tangan penuh ketelitian dari bahan ramah lingkungan, rotan, kulit asli, resin, dan kayu estetik bernilai seni tinggi.",
+                'announcement_badge' => "Karya Asli Pengrajin Nusantara - Menerima Custom Souvenir",
+                'cta_primary_text'   => "Pesan Souvenir / Custom Craft",
+                'cta_secondary_text' => "Katalog Produk Kerajinan",
+                'about_title'        => "Kecintaan Pada Seni dan Keterampilan Tangan",
+                'about_story'        => "{$biz} memberdayakan tangan-tangan terampil pengrajin lokal untuk menghasilkan produk dekorasi dan suvenir yang bermakna mendalam bagi setiap momen bahagia Anda.",
+                'values' => [
+                    ['icon' => 'palette', 'title' => 'Otentik & Eksklusif', 'desc' => 'Setiap karya memiliki keunikan karakter dan nilai seni tersendiri.'],
+                    ['icon' => 'gift', 'title' => 'Kemasan Giftbox Elegan', 'desc' => 'Dilengkapi kartu ucapan custom dan pita hias yang siap dibagikan.'],
+                    ['icon' => 'leaf', 'title' => 'Material Ramah Lingkungan', 'desc' => 'Memanfaatkan bahan alami dan serat daur ulang yang berkesinambungan.'],
+                ],
+                'services' => [
+                    ['title' => 'Souvenir Pouch Kulit Sintetis (Min 100 Pcs)', 'desc' => 'Kemasan mika pita dengan emboss nama mempelai atau logo perusahaan.', 'price' => 'Rp 8.500 / pcs', 'badge' => 'Souvenir'],
+                    ['title' => 'Tatakan Gelas Kayu Jati Resin Estetik (Set 4 Pcs)', 'desc' => 'Perpaduan kayu alami dan resin transparan untuk mempercantik meja tamu.', 'price' => 'Rp 65.000 / set', 'badge' => 'Home Decor'],
+                    ['title' => 'Hiasan Dinding Macrame Tenun Bohemian', 'desc' => 'Tali katun alami dirajut tangan dengan batang kayu apung alami.', 'price' => 'Rp 85.000', 'badge' => 'Dekorasi'],
+                ],
+                'faqs' => [
+                    ['question' => 'Berapa minimal pemesanan suvenir pernikahan kustom?', 'answer' => 'Minimal order suvenir dengan cetak nama adalah 50-100 pcs tergantung jenis barang.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Sheila & Kevin', 'role' => 'Klien Souvenir Nikah', 'quote' => 'Souvenir pouch kulitnya cantik banget, tamunya pada suka karena bermanfaat dan jahitannya rapi!', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 12. PERCETAKAN & DIGITAL PRINTING ────────────────────────────
+            'mfg_printing' => [
+                'theme_color'        => '#EA580C',
+                'headline'           => "Jasa Cetak Digital, Spanduk Banner & Stiker Label Cepat di {$biz}",
+                'subheadline'        => "Cetak banner outdoor tahan panas hujan, stiker label kemasan botol/makanan cutting rapi, brosur, kalender, nota NCR, dan perlengkapan promosi usaha.",
+                'announcement_badge' => "Mesin Format Besar Terbaru - Cetak Kilat Bisa Ditunggu",
+                'cta_primary_text'   => "Kirim File Cetak via WhatsApp",
+                'cta_secondary_text' => "Daftar Harga & Ukuran Cetak",
+                'about_title'        => "Warna Tajam, Presisi dan Tepat Waktu Deadline",
+                'about_story'        => "{$biz} adalah solusi percetakan serba ada bagi para pelaku UMKM dan perusahaan yang membutuhkan materi promosi berkualitas tinggi tanpa khawatir warna meleset.",
+                'values' => [
+                    ['icon' => 'sparkles', 'title' => 'Tinta Original Warna Cerah', 'desc' => 'Menggunakan tinta outdoor dan indoor Jepang tahan air dan tidak luntur.'],
+                    ['icon' => 'scissors', 'title' => 'Cutting Pola Presisi (Kiss Cut / Die Cut)', 'desc' => 'Stiker label dipotong otomatis sesuai lekuk desain logo Anda.'],
+                    ['icon' => 'clock', 'title' => 'Layanan Kilat Hari Ini Selesai', 'desc' => 'Cetak banner dan stiker siap ambil dalam hitungan jam.'],
+                    ['icon' => 'file-check', 'title' => 'Bantu Cek Resolusi File', 'desc' => 'Tim kami memastikan file cetak Anda tidak pecah sebelum masuk mesin.'],
+                ],
+                'services' => [
+                    ['title' => 'Cetak Banner Spanduk Flexi 280gr - 440gr', 'desc' => 'Cetak promosi outdoor tajam sudah termasuk mata ayam keliling di tiap sudut.', 'price' => 'Mulai Rp 18.000 / m²', 'badge' => 'Kilat'],
+                    ['title' => 'Stiker Vinyl / Bontax + Cutting A3+', 'desc' => 'Label kemasan makanan & minuman tahan air dingin freezer, siap tempel.', 'price' => 'Rp 15.000 / lbr A3+', 'badge' => 'Favorit UMKM'],
+                    ['title' => 'Brosur Full Color Art Paper 150gr (1 Rim)', 'desc' => 'Cetak promosi tajam mengkilap 2 sisi ukuran A5 atau A4 isi 500 lembar.', 'price' => 'Mulai Rp 165.000 / rim', 'badge' => 'Promosi'],
+                    ['title' => 'Nota NCR 2 Rangkap Cetak Custom (Min 10 Buku)', 'desc' => 'Kertas tembus tanpa karbon, sudah termasuk jilid blok dan nomor nota urut.', 'price' => 'Rp 12.000 / buku', 'badge' => 'Nota'],
+                ],
+                'faqs' => [
+                    ['question' => 'Format file apa yang paling bagus untuk dicetak?', 'answer' => 'Format file PDF, TIFF, CDR, atau JPG dengan resolusi minimal 150-300 dpi dan format warna CMYK.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Nadia Sabrina', 'role' => 'Owner Minuman Kopi', 'quote' => 'Stiker vinyl-nya beneran tahan air dingin, dimasukkan freezer gak copot dan warnanya gak luntur.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 13. KOSMETIK & SKINCARE ───────────────────────────────────────
+            'mfg_cosmetics' => [
+                'theme_color'        => '#EC4899',
+                'headline'           => "Produk Perawatan Kulit Alami, Sehat & Bersertifikat di {$biz}",
+                'subheadline'        => "Serum pencerah wajah, sabun mandi herbal, tabir surya UV filter, dan toner pelembap diformulasikan lembut untuk kulit tropis Indonesia.",
+                'announcement_badge' => "Lolos Uji Dermatologi - Bebas Merkuri & Zat Berbahaya",
+                'cta_primary_text'   => "Belanja Skincare Online",
+                'cta_secondary_text' => "Katalog Perawatan Kulit",
+                'about_title'        => "Kecantikan Sehat Alami dari Hati",
+                'about_story'        => "{$biz} percaya kecantikan sejati terpancar dari kulit yang sehat terawat. Kami hanya menggunakan ekstrak botani alami dan bahan aktif berstandar farmasi resmi.",
+                'values' => [
+                    ['icon' => 'sparkles', 'title' => 'Bahan Aktif Aman & Lembut', 'desc' => 'Niacinamide, Hyaluronic Acid, Centella Asiatica, dan vitamin alami.'],
+                    ['icon' => 'shield-check', 'title' => 'Standar Mutu CPKB', 'desc' => 'Diproduksi dengan higienitas tinggi sesuai Cara Pembuatan Kosmetika yang Baik.'],
+                    ['icon' => 'heart', 'title' => 'Cruelty-Free & No Harsh Chemicals', 'desc' => 'Bebas paraben berlebih, hidrokuinon, dan pengawet berbahaya.'],
+                ],
+                'services' => [
+                    ['title' => 'Brightening Glow Serum 20ml', 'desc' => 'Mencerahkan flek hitam dan meratakan warna kulit tanpa rasa perih.', 'price' => 'Rp 75.000', 'badge' => 'Best Seller'],
+                    ['title' => 'Gentle Facial Cleanser Low pH 100ml', 'desc' => 'Pembersih wajah busa lembut yang menjaga kelembapan barrier kulit.', 'price' => 'Rp 48.000', 'badge' => 'Harian'],
+                    ['title' => 'Sunscreen Gel SPF 50 PA++++ (50gr)', 'desc' => 'Tabir surya tekstur seringan air tanpa white-cast dan tidak menyumbat pori.', 'price' => 'Rp 65.000', 'badge' => 'Pelindung'],
+                ],
+                'faqs' => [
+                    ['question' => 'Apakah produk ini aman untuk ibu hamil dan menyusui?', 'answer' => 'Sebagian besar produk dasar kami formulasi ramah ibu hamil, silakan cek deskripsi komposisi produk.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Anisa Rahma', 'role' => 'Beauty Enthusiast', 'quote' => 'Serumnya ringan cepat meresap, dalam 2 minggu bekas jerawat pudar dan kulit lebih cerah alami.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 14. PENJAHIT JAS & KEBAYA CUSTOM ─────────────────────────────
+            'mfg_tailor_custom' => [
+                'theme_color'        => '#6D28D9',
+                'headline'           => "Jasa Jahit Jas Pria, Kebaya Wisuda & Gaun Pengantin di {$biz}",
+                'subheadline'        => "Pengerjaan adibusana bespoke dengan pengukuran detail anatomi tubuh, fitting berkala, furing sutra halus, dan jahitan tangan master tailor berpengalaman.",
+                'announcement_badge' => "Fitting Sempurna Sesuai Lekuk Tubuh - Garansi Revisi Ukuran",
+                'cta_primary_text'   => "Jadwalkan Konsultasi & Pengukuran",
+                'cta_secondary_text' => "Galeri Jas & Kebaya Pengantin",
+                'about_title'        => "Keanggunan Tradisi Jahit Presisi Tinggi",
+                'about_story'        => "Busana yang tepat akan meningkatkan kepercayaan diri pemakainya. Di {$biz}, setiap helai pakaian dirancang khusus untuk mewujudkan siluet tubuh yang proporsional dan elegan.",
+                'values' => [
+                    ['icon' => 'scissors', 'title' => 'Pola Kustom Perorangan', 'desc' => 'Setiap klien dibuatkan pola individual baru sesuai lekuk tubuh masing-masing.'],
+                    ['icon' => 'award', 'title' => 'Master Tailor Berpengalaman', 'desc' => 'Menguasai struktur potongan jas modern (Italian cut / British cut) dan kebaya pakem.'],
+                    ['icon' => 'check-circle-2', 'title' => 'Garansi Fitting Sampai Pas', 'desc' => 'Revisi penyesuaian ukuran gratis hingga pakaian nyaman dikenakan.'],
+                ],
+                'services' => [
+                    ['title' => 'Jahit Jas Pria Formal 2 Piece (Jas + Celana)', 'desc' => 'Termasuk bahan wool blend, bantalan pundak impor, dan kancing eksklusif.', 'price' => 'Mulai Rp 1.500.000', 'badge' => 'Jas'],
+                    ['title' => 'Jahit Kebaya Wisuda & Pesta Payet Halus', 'desc' => 'Bahan brokat/tille halus dengan taburan mutiara dan payet jahit tangan rapi.', 'price' => 'Mulai Rp 450.000', 'badge' => 'Kebaya'],
+                    ['title' => 'Gaun Pengantin Custom Akad / Resepsi', 'desc' => 'Desain gaun impian impian Anda lengkap dengan bustier dan veil panjang anggun.', 'price' => 'Konsultasi Desain', 'badge' => 'Bridal'],
+                ],
+                'faqs' => [
+                    ['question' => 'Berapa kali sesi fitting yang dibutuhkan sebelum baju selesai?', 'answer' => 'Rata-rata 1-2 kali sesi fitting untuk memastikan bahu, pinggang, dan panjang pakaian jatuh pas.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Ferry Gunawan', 'role' => 'Pengantin Pria', 'quote' => 'Jas pernikahannya pas banget di badan, gak ada lipatan aneh di punggung. Sangat berkelas potongannya.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 15. TOKO RETAIL & MINIMARKET ─────────────────────────────────
+            'retail_reseller' => [
+                'theme_color'        => '#16A34A',
+                'headline'           => "Belanja Sembako Lengkap, Hemat & Dekat di {$biz}",
+                'subheadline'        => "Beras pilihan, minyak goreng jernih, telur segar, kebutuhan rumah tangga, makanan ringan, dan perlengkapan mandi lengkap dengan harga tetangga.",
+                'announcement_badge' => "Harga Eceran & Grosir - Siap Antar ke Rumah Anda",
+                'cta_primary_text'   => "Pesan Belanjaan via Toko Online",
+                'cta_secondary_text' => "Katalog Promo Minggu Ini",
+                'about_title'        => "Sahabat Kebutuhan Harian Keluarga Anda",
+                'about_story'        => "{$biz} hadir memberikan kemudahan belanja kebutuhan pokok harian dengan harga jujur bersahabat, stok selalu baru dan segar, serta layanan ramah bertetangga.",
+                'values' => [
+                    ['icon' => 'tag', 'title' => 'Harga Pasti Bersahabat', 'desc' => 'Harga bersaing langsung dari distributor terpercaya tanpa biaya tambahan.'],
+                    ['icon' => 'check-circle-2', 'title' => 'Stok Selalu Baru & Higienis', 'desc' => 'Tanggal kedaluwarsa selalu dipantau ketat demi keamanan konsumsi keluarga.'],
+                    ['icon' => 'truck', 'title' => 'Layanan Antar Belanjaan', 'desc' => 'Belanja via ponsel, barang pesanan langsung diantar sampai depan pintu rumah.'],
+                    ['icon' => 'credit-card', 'title' => 'Bayar Tunai & QRIS', 'desc' => 'Mendukung pembayaran non-tunai bebas repot uang kembalian.'],
+                ],
+                'services' => [
+                    ['title' => 'Beras Premium 5kg Kemasan', 'desc' => 'Beras pulen bersih bebas pemutih dan wangi pandan alami.', 'price' => 'Rp 72.000', 'badge' => 'Pokok'],
+                    ['title' => 'Minyak Goreng Refill 2 Liter', 'desc' => 'Minyak kelapa sawit jernih dua kali penyaringan tidak mudah hitam.', 'price' => 'Rp 34.000', 'badge' => 'Hemat'],
+                    ['title' => 'Telur Ayam Ras Segar 1 Kg', 'desc' => 'Telur pilihan peternakan lokal selalu fresh datang setiap pagi.', 'price' => 'Rp 27.000', 'badge' => 'Segar'],
+                    ['title' => 'Paket Sembako Lengkap Bulanan', 'desc' => 'Paket hemat isi beras, minyak, gula pasir, teh, kopi, dan mie instan.', 'price' => 'Rp 165.000', 'badge' => 'Paket'],
+                ],
+                'faqs' => [
+                    ['question' => 'Apakah ada layanan pesan antar sampai ke rumah?', 'answer' => 'Ya, kami melayani antar belanjaan langsung ke rumah untuk area terdekat.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Ibu Ratna', 'role' => 'Warga Sekitar', 'quote' => 'Tinggal pesan lewat web langsung diantar sama kurirnya. Ngebantu banget pas lagi repot ngasuh anak.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 16. APOTEK & TOKO OBAT ────────────────────────────────────────
+            'retail_pharmacy' => [
+                'theme_color'        => '#0D9488',
+                'headline'           => "Apotek Terlengkap, Obat Asli & Layanan Farmasi Ramah di {$biz}",
+                'subheadline'        => "Penyediaan obat resep dokter, obat bebas berstandar BPOM, suplemen vitamin imunitas, susu medis, dan alat cek kesehatan lengkap terpercaya.",
+                'announcement_badge' => "100% Produk Farmasi Resmi dari Distributor PBF Berizin",
+                'cta_primary_text'   => "Beli Obat / Kirim Resep Dokter",
+                'cta_secondary_text' => "Katalog Vitamin & Obat",
+                'about_title'        => "Kesehatan Keluarga Anda Adalah Amanah Kami",
+                'about_story'        => "{$biz} didukung oleh apoteker dan asisten tenaga farmasi berijazah resmi. Kami siap memberikan informasi dosis, aturan pakai, dan interaksi obat yang aman dan jelas.",
+                'values' => [
+                    ['icon' => 'shield-check', 'title' => 'Jaminan Obat Asli BPOM', 'desc' => 'Tidak menjual obat ilegal atau palsu, seluruh stok tercatat faktur resmi PBF.'],
+                    ['icon' => 'heart-pulse', 'title' => 'Konsultasi Apoteker Ramah', 'desc' => 'Tanyakan aturan minum dan efek samping obat tanpa dipungut biaya.'],
+                    ['icon' => 'file-text', 'title' => 'Tebus Resep Dokter Cepat', 'desc' => 'Kirim foto resep dokter via WhatsApp/Web untuk disiapkan segera.'],
+                ],
+                'services' => [
+                    ['title' => 'Paket Vitamin C & Zinc Imunitas Tubuh', 'desc' => 'Suplemen daya tahan tubuh harian untuk menjaga stamina di cuaca tak menentu.', 'price' => 'Rp 35.000', 'badge' => 'Vitamin'],
+                    ['title' => 'Cek Gula Darah, Kolesterol & Asam Urat', 'desc' => 'Pemeriksaan cepat di tempat dengan alat digital akurat dan jarum steril sekali pakai.', 'price' => 'Rp 30.000', 'badge' => 'Cek'],
+                    ['title' => 'Alat Tensimeter Digital Lengan Otomatis', 'desc' => 'Alat ukur tekanan darah praktis bersertifikasi akurat untuk lansia di rumah.', 'price' => 'Rp 285.000', 'badge' => 'Alkes'],
+                ],
+                'faqs' => [
+                    ['question' => 'Bagaimana cara menebus obat resep dokter?', 'answer' => 'Cukup kirim foto resep dokter yang jelas melalui tombol WhatsApp kami, apoteker kami akan memverifikasi dan menyiapkan obat.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Bapak Hartono', 'role' => 'Pasien Rutin', 'quote' => 'Apotekernya ramah banget menjelaskan obat tensi saya. Harganya lebih murah daripada apotek waralaba lain.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 17. DIGITAL AGENCY & IT SOFTWARE ─────────────────────────────
+            'service_agency' => [
+                'theme_color'        => '#2563EB',
+                'headline'           => "Jasa Pembuatan Website, Aplikasi & Pemasaran Digital Profesional di {$biz}",
+                'subheadline'        => "Kami membantu bisnis UMKM dan korporasi bertransformasi digital melalui website elegan, sistem backend handal, UI/UX modern, dan kampanye iklan digital.",
+                'announcement_badge' => "Solusi Digital Berbasis Apple HIG & Cloud Modern",
+                'cta_primary_text'   => "Konsultasi Proyek & Portofolio",
+                'cta_secondary_text' => "Daftar Layanan Digital",
+                'about_title'        => "Teknologi yang Mengembangkan Potensi Bisnis Anda",
+                'about_story'        => "{$biz} adalah studio rekayasa perangkat lunak dan desain kreatif. Kami memadukan estetika antarmuka kelas dunia dengan kecepatan infrastruktur komputasi awan yang aman.",
+                'values' => [
+                    ['icon' => 'code-2', 'title' => 'Teknologi Cepat & Teruji', 'desc' => 'Dibangun dengan arsitektur modern, responsive mobile-first, dan loading gesit.'],
+                    ['icon' => 'sparkles', 'title' => 'Desain Bersih & Elegan', 'desc' => 'Antarmuka intuitif yang memikat pelanggan dan meningkatkan konversi penjualan.'],
+                    ['icon' => 'shield-check', 'title' => 'Keamanan Data & Garansi Bug', 'desc' => 'Dukungan pemeliharaan teknis dan garansi perbaikan bug pasca-peluncuran.'],
+                ],
+                'services' => [
+                    ['title' => 'Pembuatan Website Company Profile & Portofolio', 'desc' => 'Website elegan mobile responsive, SEO Google ready, dan integrasi WhatsApp.', 'price' => 'Mulai Rp 2.500.000', 'badge' => 'Web'],
+                    ['title' => 'Pembuatan Toko Online & Aplikasi Web Kustom', 'desc' => 'Katalog produk mandiri, gerbang pembayaran instan, dan kalkulator ongkir.', 'price' => 'Mulai Rp 4.500.000', 'badge' => 'E-Commerce'],
+                    ['title' => 'Desain UI/UX & Redesain Aplikasi Mobile', 'desc' => 'Riset alur pengguna, wireframe prototipe interaktif, dan desain Apple HIG.', 'price' => 'Mulai Rp 3.000.000', 'badge' => 'Desain'],
+                ],
+                'faqs' => [
+                    ['question' => 'Berapa lama proses pengerjaan website company profile standar?', 'answer' => 'Rata-rata 7 hingga 14 hari kerja setelah materi konten dan desain disetujui.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Ferry Darmawan', 'role' => 'CEO CV Mega Karya', 'quote' => 'Website kami sekarang kelihatan mewah dan loading-nya cepet banget. Klien dari luar kota makin percaya.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 18. KONTRAKTOR & BANGUNAN ────────────────────────────────────
+            'service_contractor' => [
+                'theme_color'        => '#D97706',
+                'headline'           => "Jasa Renovasi Rumah, Kontraktor Bangunan & Material Berkualitas di {$biz}",
+                'subheadline'        => "Pembangunan rumah tinggal, ruko, renovasi atap bocor, pengecatan, partisi gipsum, dan penyediaan semen, pasir, besi beton SNI serta baja ringan.",
+                'announcement_badge' => "Free Survey Lokasi, Gambar Denah & Rencana Anggaran Biaya (RAB)",
+                'cta_primary_text'   => "Minta Survey & Hitung Biaya RAB",
+                'cta_secondary_text' => "Katalog Material & Layanan",
+                'about_title'        => "Membangun dengan Kokoh, Transparan dan Amanah",
+                'about_story'        => "{$biz} hadir memberikan rasa tenang bagi pemilik rumah dan investor properti. Kami mengutamakan transparansi bahan bangunan, tukang berpengalaman, dan garansi kebocoran.",
+                'values' => [
+                    ['icon' => 'hard-hat', 'title' => 'Mandor & Tukang Terampil', 'desc' => 'Pengerjaan rapi, lot tegak lurus, dan sambungan keramik presisi.'],
+                    ['icon' => 'file-text', 'title' => 'RAB Jelas Tanpa Biaya Siluman', 'desc' => 'Rincian volume material dan upah tukang dijelaskan transparan di awal.'],
+                    ['icon' => 'shield-check', 'title' => 'Garansi Pemeliharaan', 'desc' => 'Jaminan perbaikan jika timbul retak rambut atau rembes air setelah pengerjaan.'],
+                ],
+                'services' => [
+                    ['title' => 'Paket Bangun Rumah Baru (Per Meter Persegi)', 'desc' => 'Termasuk pondasi cakar ayam, bata merah/hebel, atap baja ringan & finishing cat.', 'price' => 'Mulai Rp 3.200.000 / m²', 'badge' => 'Bangun'],
+                    ['title' => 'Renovasi Atap Bocor & Ganti Rangka Baja Ringan', 'desc' => 'Pembersihan talang seng lama, ganti usuk reng zincalume anti rayap dan genteng.', 'price' => 'Mulai Rp 185.000 / m²', 'badge' => 'Atap'],
+                    ['title' => 'Pasang Keramik & Granit Lantai Presisi', 'desc' => 'Pemasangan lantai granit 60x60 rata tanpa kopong dengan semen perekat khusus.', 'price' => 'Mulai Rp 85.000 / m²', 'badge' => 'Lantai'],
+                ],
+                'faqs' => [
+                    ['question' => 'Apakah biaya survey dan hitung RAB dipungut biaya?', 'answer' => 'Tidak, survey lokasi dan pembuatan draft RAB estimasi gratis tanpa ikatan kontrak.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Ir. Hendra Kusuma', 'role' => 'Pemilik Rumah Renovasi', 'quote' => 'Renovasi dapur dan ruang belakang selesai tepat waktu sebelum lebaran. Tukangnya sopan dan rapi kerjanya.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 19. EVENT & WEDDING ORGANIZER ────────────────────────────────
+            'service_event' => [
+                'theme_color'        => '#7C3AED',
+                'headline'           => "Wujudkan Momen Pernikahan & Acara Impian Sempurna Bersama {$biz}",
+                'subheadline'        => "Perencanaan komprehensif hari pernikahan, gathering perusahaan, dekorasi anggun, dokumentasi foto sinematik, sound system, dan pendampingan rundown.",
+                'announcement_badge' => "Jadwal Acara Tertata Rapi - Nikmati Hari Bahagia Anda",
+                'cta_primary_text'   => "Konsultasi Paket Acara & Wedding",
+                'cta_secondary_text' => "Galeri Acara & Portofolio",
+                'about_title'        => "Mengabadikan Cerita Bahagia Tanpa Rasa Cemas",
+                'about_story'        => "Di {$biz}, kami percaya bahwa pengantin dan keluarga harus menikmati setiap detik hari pernikahan mereka. Biarkan tim profesional kami yang mengurus seluruh koordinasi vendor di lapangan.",
+                'values' => [
+                    ['icon' => 'party-popper', 'title' => 'Koordinasi Vendor Menyeluruh', 'desc' => 'Menghubungkan katering, MUA, dekorasi, panggung, dan gedung tanpa miskomunikasi.'],
+                    ['icon' => 'clock', 'title' => 'Rundown Disiplin & Presisi', 'desc' => 'Waktu akad nikah, resepsi, hingga foto bersama berjalan tertib sesuai susunan acara.'],
+                    ['icon' => 'users', 'title' => 'Crew Lapangan Sigap & Ramah', 'desc' => 'Staf pendamping pengantin (bride assistant) siap siaga mendampingi kebutuhan Anda.'],
+                ],
+                'services' => [
+                    ['title' => 'Paket Wedding Organizer Day-Of Coordination', 'desc' => 'Pendampingan 6-8 crew profesional, technical meeting vendor, dan gladi resik.', 'price' => 'Mulai Rp 4.500.000', 'badge' => 'WO'],
+                    ['title' => 'Paket All-In One Wedding (Gedung & Vendor)', 'desc' => 'Solusi lengkap dekorasi pelaminan, busana pengantin, katering 500 pax, dan dokumentasi.', 'price' => 'Konsultasi Anggaran', 'badge' => 'All-In'],
+                    ['title' => 'Paket Gathering & Seminar Perusahaan', 'desc' => 'Penyediaan stage backdrop panggung, audio system, LED screen, dan registrasi tamu.', 'price' => 'Mulai Rp 3.500.000', 'badge' => 'Event'],
+                ],
+                'faqs' => [
+                    ['question' => 'Berapa bulan sebelum hari H sebaiknya mulai memakai jasa WO?', 'answer' => 'Sangat disarankan mulai berkonsultasi 3 hingga 6 bulan sebelum acara untuk kepastian gedung dan vendor.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Putri & Yoga', 'role' => 'Pengantin Baru', 'quote' => 'Acara pernikahan kami berlangsung lancar banget berkat tim WO yang super sigap. Orang tua kami juga tenang gak capek!', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 20. BENGKEL MOBIL & MOTOR ────────────────────────────────────
+            'service_workshop' => [
+                'theme_color'        => '#0284C7',
+                'headline'           => "Servis Kendaraan Terpercaya, Bergaransi & Transparan di {$biz}",
+                'subheadline'        => "Tune up injeksi, ganti oli mesin original, servis rem, servis CVT matic, kelistrikan, overhoul mesin, dan suku cadang asli bergaransi kerja 14 hari.",
+                'announcement_badge' => "Garansi Servis 14 Hari & Pengecekan Kendaraan Gratis",
+                'cta_primary_text'   => "Booking Antrean Servis via WA",
+                'cta_secondary_text' => "Daftar Harga Paket Servis",
+                'about_title'        => "Menjaga Performa dan Keselamatan Kendaraan Anda",
+                'about_story'        => "{$biz} didirikan untuk memberikan rasa aman bagi pengendara. Kami mengedepankan estimasi biaya transparan tanpa biaya tersembunyi, pengerjaan cepat dengan alat modern, dan sparepart original.",
+                'values' => [
+                    ['icon' => 'wrench', 'title' => 'Mekanik Ahli Berpengalaman', 'desc' => 'Dikerjakan oleh teknisi bersertifikasi yang paham seluk-beluk mesin.'],
+                    ['icon' => 'shield-check', 'title' => 'Sparepart 100% Asli', 'desc' => 'Jaminan suku cadang original dengan masa garansi pengerjaan.'],
+                    ['icon' => 'clock', 'title' => 'Pengerjaan Cepat Tanpa Antre Lama', 'desc' => 'Sistem booking terjadwal agar motor atau mobil Anda lekas selesai.'],
+                    ['icon' => 'check-circle-2', 'title' => 'Estimasi Biaya Sebelum Dikerjakan', 'desc' => 'Pemeriksaan kerusakan dan harga disetujui pelanggan sebelum diganti.'],
+                ],
+                'services' => [
+                    ['title' => 'Paket Servis Ringan + Ganti Oli Mesin', 'desc' => 'Termasuk cek rem depan belakang, kelistrikan lampu, angin ban, dan rantai/CVT.', 'price' => 'Mulai Rp 85.000', 'badge' => 'Hemat'],
+                    ['title' => 'Tune Up Injeksi & Pembersihan Throttle Body', 'desc' => 'Kalibrasi sensor injeksi, semprot ruang bakar, dan busi untuk tarikan enteng.', 'price' => 'Rp 65.000', 'badge' => 'Populer'],
+                    ['title' => 'Servis CVT Matic Lengkap (Motor Matic)', 'desc' => 'Pembersihan mangkok ganda, roller, v-belt, dan pelumasan grease CVT.', 'price' => 'Rp 50.000', 'badge' => 'Matic'],
+                    ['title' => 'Kuras Minyak Rem & Ganti Kampas Rem', 'desc' => 'Pembersihan kaliper cakram dan minyak rem DOT 4 baru demi keselamatan berkendara.', 'price' => 'Mulai Rp 45.000', 'badge' => 'Rem'],
+                ],
+                'faqs' => [
+                    ['question' => 'Apakah harus booking jadwal terlebih dahulu?', 'answer' => 'Anda bisa langsung datang (walk-in), namun kami menyarankan booking melalui website ini agar tidak menunggu antrean.'],
+                    ['question' => 'Apakah ada garansi setelah servis?', 'answer' => 'Ya, kami memberikan garansi servis selama 14 hari kerja jika keluhan yang sama berulang.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Bambang Sudiro', 'role' => 'Pengguna Motor Harian', 'quote' => 'Mekaniknya ramah, penjelasannya detail, dan motor jadi enteng banget tarikannya. Sangat direkomendasikan!', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 21. BARBERSHOP & SALON RAMBUT ────────────────────────────────
+            'service_barbershop' => [
+                'theme_color'        => '#9333EA',
+                'headline'           => "Sentuhan Gaya Rambut Rapi & Perawatan Maksimal di {$biz}",
+                'subheadline'        => "Potong rambut tren terkini, fade presisi, creambath relaksasi, hair styling pomade, perataan warna rambut, dan cuci blow ditangani kapster profesional.",
+                'announcement_badge' => "Potong Rambut Nyaman Ber-AC & Free Softdrink",
+                'cta_primary_text'   => "Booking Jam Potong Rambut",
+                'cta_secondary_text' => "Pilihan Layanan & Tarif",
+                'about_title'        => "Tampil Percaya Diri dengan Gaya Rambut Idaman",
+                'about_story'        => "Kami percaya setiap orang berhak tampil percaya diri dan menawan. Dengan teknik potong presisi dan produk perawatan rambut pilihan, kami siap mewujudkan penampilan terbaik Anda.",
+                'values' => [
+                    ['icon' => 'scissors', 'title' => 'Kapster & Stylist Bersertifikat', 'desc' => 'Menguasai tren potongan rambut terkini dari classic gentleman hingga modern crop.'],
+                    ['icon' => 'sparkles', 'title' => 'Peralatan Steril & Higienis', 'desc' => 'Gunting, clipper dan handuk dibersihkan steril sebelum digunakan ke pelanggan.'],
+                    ['icon' => 'coffee', 'title' => 'Ruangan Ber-AC Dingin & Santai', 'desc' => 'Alunan musik santai, kursi empuk, dan aroma ruangan yang menenangkan.'],
+                ],
+                'services' => [
+                    ['title' => 'Gentleman Haircut + Wash & Pomade Styling', 'desc' => 'Potong rambut presisi, pijat kepala ringan, cuci rambut, dan aplikasi pomade.', 'price' => 'Rp 50.000', 'badge' => 'Barber'],
+                    ['title' => 'Ladies Haircut + Wash & Blow Dry', 'desc' => 'Konsultasi bentuk wajah, potong rambut rapi, cuci rambut wangi dan blow.', 'price' => 'Rp 75.000', 'badge' => 'Salon'],
+                    ['title' => 'Creambath Tradisional Relaksasi 45 Menit', 'desc' => 'Perawatan akar rambut dengan pijatan leher dan bahu untuk melepas lelah.', 'price' => 'Rp 85.000', 'badge' => 'Favorit'],
+                    ['title' => 'Hair Coloring / Cat Rambut Hitam Alami', 'desc' => 'Tutup uban atau pewarnaan tren modern dengan pelindung batang rambut.', 'price' => 'Mulai Rp 120.000', 'badge' => 'Color'],
+                ],
+                'faqs' => [
+                    ['question' => 'Apakah harus booking terlebih dahulu?', 'answer' => 'Disarankan booking jam kedatangan via website atau WhatsApp agar Anda tidak perlu menunggu giliran antre.'],
+                ],
+                'testimonials' => [
+                    ['name' => 'Ferry Gunawan', 'role' => 'Pelanggan Setia', 'quote' => 'Fade cut-nya sangat rapi dan detail. Tempatnya adem dan pelayanannya sangat ramah.', 'rating' => 5],
+                ],
+            ],
+
+            // ─── 22. LAUNDRY KILOAN & DRY CLEAN ───────────────────────────────
+            'service_laundry' => [
                 'theme_color'        => '#0891B2',
                 'headline'           => "Cucian Bersih Higienis, Rapi & Wangi Tahan Lama di {$biz}",
-                'subheadline'        => "Layanan laundry kiloan, satuan, dry cleaning, cuci bed cover, sepatu, dan gorden dengan mesin modern serta parfum eksklusif.",
-                'announcement_badge' => "🧺 Layanan Antar Jemput Gratis (Radius 3 KM)",
-                'cta_primary_text'   => "Pesan Antar Jemput via WA",
+                'subheadline'        => "Layanan cuci setrika uap kiloan, dry clean satuan jas/gaun, cuci bed cover tebal, sepatu, tas, dan gorden dengan mesin modern 1 pelanggan 1 mesin (tidak dicampur).",
+                'announcement_badge' => "1 Mesin 1 Pelanggan - Free Antar Jemput Radius Terdekat",
+                'cta_primary_text'   => "Pesan Cuci / Antar Jemput",
                 'cta_secondary_text' => "Daftar Paket Laundry & Harga",
-                'about_title'        => "Perawatan Pakaian Keluarga Anda",
-                'about_story'        => "{$biz} berkomitmen merawat setiap helai pakaian Anda dengan standar 1 mesin 1 pelanggan (tanpa dicampur). Kami menggunakan deterjen ramah serat kain dan air tersaring bersih.",
+                'about_title'        => "Perawatan Pakaian Keluarga dengan Standar Tinggi",
+                'about_story'        => "{$biz} berkomitmen merawat setiap helai pakaian Anda tanpa pernah mencampurnya dengan pakaian pelanggan lain. Air bersih tersaring dan detergen ramah serat kain menjamin warna pakaian tetap awet.",
                 'values' => [
-                    ['icon' => 'shield-check', 'title' => '1 Mesin 1 Pelanggan', 'desc' => 'Pakaian Anda tidak pernah dicampur dengan pakaian pelanggan lain.'],
-                    ['icon' => 'sparkles', 'title' => 'Parfum Tahan Lama', 'desc' => 'Pilihan aroma segar premium yang awet menempel di serat kain.'],
-                    ['icon' => 'clock', 'title' => 'Tepat Waktu & Kilat', 'desc' => 'Tersedia opsi express selesai dalam hitungan 4-6 jam.'],
-                    ['icon' => 'truck', 'title' => 'Free Pickup & Delivery', 'desc' => 'Tinggal kirim share location via WA, kurir kami siap menjemput.'],
+                    ['icon' => 'shield-check', 'title' => '1 Mesin 1 Pelanggan', 'desc' => 'Pakaian Anda tidak pernah dicampur dengan pakaian orang lain, higienis dan suci.'],
+                    ['icon' => 'sparkles', 'title' => 'Parfum Tahan Lama', 'desc' => 'Pilihan aroma segar mewah yang awet menempel di serat kain berhari-hari.'],
+                    ['icon' => 'clock', 'title' => 'Layanan Kilat Express 6 Jam', 'desc' => 'Solusi darurat untuk pakaian kerja atau sekolah yang butuh segera dipakai.'],
+                    ['icon' => 'truck', 'title' => 'Free Pickup & Delivery', 'desc' => 'Kirim lokasi via WhatsApp, kurir kami siap menjemput cucian kotor Anda.'],
                 ],
                 'services' => [
-                    ['title' => 'Laundry Kiloan Cuci Kering Setrika (Reguler 2 Hari)', 'desc' => 'Pakaian dicuci bersih, disetrika uap rapi, dipacking rapi kedap udara.', 'price' => 'Rp 7.000 / kg', 'badge' => 'Favorit'],
-                    ['title' => 'Laundry Kiloan Express (Selesai 6 Jam)', 'desc' => 'Solusi darurat untuk pakaian kerja/sekolah yang butuh segera dipakai.', 'price' => 'Rp 14.000 / kg', 'badge' => 'Kilat'],
-                    ['title' => 'Cuci Bed Cover Jumbo + Tas Bersih', 'desc' => 'Pembersihan debu tungau dan noda dengan putaran mesin khusus.', 'price' => 'Rp 30.000 / pc', 'badge' => 'Populer'],
-                    ['title' => 'Deep Clean Sepatu & Tas Kulit', 'desc' => 'Pembersihan material kanvas, suede, dan kulit dengan cleaner khusus.', 'price' => 'Rp 35.000 / psg', 'badge' => 'Treatment'],
+                    ['title' => 'Laundry Kiloan Cuci Kering Setrika (Reguler 2 Hari)', 'desc' => 'Pakaian dicuci bersih, disetrika uap rapi, dipacking plastik kedap udara.', 'price' => 'Rp 7.000 / kg', 'badge' => 'Favorit'],
+                    ['title' => 'Laundry Kiloan Express (Selesai 6 Jam)', 'desc' => 'Pencucian kilat siap pakai di hari yang sama dengan aroma wangi segar.', 'price' => 'Rp 14.000 / kg', 'badge' => 'Kilat'],
+                    ['title' => 'Cuci Bed Cover Jumbo + Tas Higienis', 'desc' => 'Pembersihan debu tungau dan noda dengan putaran mesin khusus berkapasitas besar.', 'price' => 'Rp 30.000 / pc', 'badge' => 'Bedcover'],
+                    ['title' => 'Deep Clean Sepatu Sneakers & Kulit', 'desc' => 'Pembersihan sol dan material kanvas/suede dengan cairan cleaner khusus sepatu.', 'price' => 'Rp 35.000 / psg', 'badge' => 'Sepatu'],
                 ],
                 'faqs' => [
-                    ['question' => 'Bagaimana cara menggunakan layanan antar-jemput?', 'answer' => 'Cukup chat WhatsApp kami, kirim alamat dan jumlah cucian, kurir kami akan segera meluncur.'],
-                    ['question' => 'Apakah pakaian putih dipisahkan?', 'answer' => 'Tentu, tim kami melakukan pemilahan warna dan jenis kain sebelum masuk ke proses pencucian.'],
+                    ['question' => 'Bagaimana cara menggunakan layanan antar jemput?', 'answer' => 'Cukup klik tombol pesan antar jemput di web ini, isi alamat dan jumlah cucian, kurir kami akan segera meluncur.'],
                 ],
                 'testimonials' => [
-                    ['name' => 'Ardiansyah', 'role' => 'Anak Kos Mahasiswa', 'quote' => 'Pakaian disetrika rapi wangi tahan seminggu di lemari. Antar jemputnya juga on time.', 'rating' => 5],
-                    ['name' => 'Linda Susanti', 'role' => 'Ibu Rumah Tangga', 'quote' => 'Bed cover tebal jadi wangi dan empuk lagi tanpa ribet nyuci sendiri. Sangat membantu!', 'rating' => 5],
+                    ['name' => 'Linda Susanti', 'role' => 'Ibu Rumah Tangga', 'quote' => 'Pakaian disetrika rapi wangi tahan seminggu di lemari. Antar jemputnya juga selalu on time!', 'rating' => 5],
                 ],
             ],
 
-            // 8. KANTOR NOTARIS & PPAT
-            'notaris' => [
-                'theme_color'        => '#4338CA',
-                'headline'           => "Layanan Hukum, Akta Notaris & PPAT Terpercaya dan Profesional",
-                'subheadline'        => "Pembuatan akta pendirian PT/CV, perjanjian bisnis, balik nama sertifikat tanah, akta jual beli (AJB), dan konsultasi legalitas formal.",
-                'announcement_badge' => "⚖️ Pejabat Pembuat Akta Tanah (PPAT) & Notaris Resmi",
-                'cta_primary_text'   => "Jadwalkan Konsultasi Legal via WA",
-                'cta_secondary_text' => "Daftar Layanan Kenotariatan",
-                'about_title'        => "Kepastian Hukum untuk Bisnis dan Aset Anda",
-                'about_story'        => "Kantor Notaris & PPAT {$biz} berdedikasi memberikan kepastian hukum yang kokoh, transparan, dan sesuai dengan ketentuan perundang-undangan Republik Indonesia.",
-                'values' => [
-                    ['icon' => 'scale', 'title' => 'Legalitas Sah & Resmi', 'desc' => 'Terdaftar dan berkekuatan hukum penuh di Kementerian Hukum dan HAM serta BPN.'],
-                    ['icon' => 'lock', 'title' => 'Kerahasiaan Dokumen Terjamin', 'desc' => 'Privasi dan keamanan berkas klien dijaga dengan kode etik tinggi.'],
-                    ['icon' => 'file-text', 'title' => 'Proses Transparan & Jelas', 'desc' => 'Rincian biaya PNBP, pajak BPHTB, dan jasa dijelaskan sejak awal.'],
-                    ['icon' => 'help-circle', 'title' => 'Konsultasi Solutif', 'desc' => 'Membantu menemukan solusi legalitas terbaik bagi bisnis dan keluarga.'],
-                ],
-                'services' => [
-                    ['title' => 'Pendirian PT / CV / Yayasan Lengkap', 'desc' => 'Termasuk Akta Notaris, SK Kemenkumham, NPWP Badan, dan NIB OSS.', 'price' => 'Mulai Rp 3.500.000', 'badge' => 'Bisnis'],
-                    ['title' => 'Akta Jual Beli (AJB) Tanah & Bangunan', 'desc' => 'Pengecekan sertifikat BPN, validasi pajak, hingga penandatanganan akta sah.', 'price' => 'Sesuai Nilai Transaksi', 'badge' => 'PPAT'],
-                    ['title' => 'Balik Nama & Peningkatan Hak Sertifikat', 'desc' => 'Proses pengurusan sertifikat tanah di kantor BPN hingga selesai.', 'price' => 'Konsultasi Terlebih Dahulu', 'badge' => 'Tanah'],
-                    ['title' => 'Legalisasi & Waarmerking Dokumen', 'desc' => 'Pengesahan tanda tangan surat perjanjian, kuasa, dan dokumen resmi.', 'price' => 'Rp 100.000 / berkas', 'badge' => 'Cepat'],
-                ],
-                'faqs' => [
-                    ['question' => 'Dokumen apa saja yang diperlukan untuk membuat PT baru?', 'answer' => 'KTP & NPWP para pendiri, nama PT yang diajukan (3 kata), alamat domisili usaha, dan persentase saham.'],
-                    ['question' => 'Berapa lama proses pembuatan akta PT selesai?', 'answer' => 'Rata-rata 3-5 hari kerja setelah nama PT disetujui dan akta ditandatangani.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Ir. Hendro Wijoyo', 'role' => 'Direktur PT Cahaya Sukses', 'quote' => 'Pengurusan akta PT cepat dan informatif. Semua perizinan NIB selesai tanpa kendala.', 'rating' => 5],
-                    ['name' => 'Suryo Utomo', 'role' => 'Klien Transaksi Tanah', 'quote' => 'Pelayanan ramah dan penjelasan pajaknya sangat transparan. Sangat recommended!', 'rating' => 5],
-                ],
-            ],
-
-            // 9. BAHAN BANGUNAN & MATERIAL
-            'bangunan' => [
-                'theme_color'        => '#D97706',
-                'headline'           => "Pusat Bahan Bangunan & Material Terlengkap, Berkualitas & Cepat Kirim",
-                'subheadline'        => "Semen, pasir, besi beton SNI, cat dinding, baja ringan, keramik, pipa, dan perlengkapan tukang untuk proyek renovasi maupun pembangunan baru.",
-                'announcement_badge' => "🏗️ Siap Kirim Armada Pick-Up & Truk Sampai Lokasi Proyek",
-                'cta_primary_text'   => "Minta Penawaran Harga / Order WA",
-                'cta_secondary_text' => "Katalog Material Bangunan",
-                'about_title'        => "Mitra Pembangunan Rumah Impian Anda",
-                'about_story'        => "{$biz} menyediakan segala kebutuhan material konstruksi dengan stok melimpah, harga bersaing, dan armada pengiriman mandiri yang siap antar tepat waktu.",
-                'values' => [
-                    ['icon' => 'check-circle-2', 'title' => 'Besi Beton Standar SNI', 'desc' => 'Besi berukuran presisi penuh (full) demi kekokohan struktur bangunan.'],
-                    ['icon' => 'truck', 'title' => 'Armada Kirim Siaga', 'desc' => 'Pengiriman cepat langsung ke lokasi proyek Anda di hari yang sama.'],
-                    ['icon' => 'tag', 'title' => 'Harga Kontraktor & Retail', 'desc' => 'Tersedia potongan harga khusus untuk pembelian volume proyek.'],
-                    ['icon' => 'message-square', 'title' => 'Konsultasi Volume Gratis', 'desc' => 'Bantu hitung kebutuhan material semen, pasir, dan besi dari denah Anda.'],
-                ],
-                'services' => [
-                    ['title' => 'Semen Portland Komposit 40kg & 50kg', 'desc' => 'Semen kuat tekan tinggi dari produsen terkemuka bersertifikat SNI.', 'price' => 'Mulai Rp 54.000 / sak', 'badge' => 'Stok Banyak'],
-                    ['title' => 'Besi Beton Polos & Ulir SNI Full', 'desc' => 'Ukuran 6mm, 8mm, 10mm, 12mm, 16mm panjang 12 meter standar.', 'price' => 'Harga Bersaing', 'badge' => 'SNI'],
-                    ['title' => 'Pasir Cor & Pasir Pasang 1 Truk', 'desc' => 'Pasir bersih bebas lumpur berlebih cocok untuk cor dan plester.', 'price' => 'Hubungi untuk Rute', 'badge' => 'Curah'],
-                    ['title' => 'Baja Ringan Kanal C & Reng Zincalume', 'desc' => 'Rangka atap anti karat tahan rayap dengan ketebalan standar aman.', 'price' => 'Mulai Rp 68.000 / btg', 'badge' => 'Atap'],
-                ],
-                'faqs' => [
-                    ['question' => 'Apakah bisa bayar di tempat (COD) saat barang sampai?', 'answer' => 'Ya, kami melayani sistem COD untuk area pengiriman tertentu setelah pesanan dikonfirmasi.'],
-                    ['question' => 'Berapa minimal order untuk free ongkir?', 'answer' => 'Free ongkir armada pick-up berlaku untuk pembelian material tertentu dalam radius 5 km.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Pak Marwan', 'role' => 'Mandor Proyek Perumahan', 'quote' => 'Besi betul-betul full SNI, semen selalu ready stok banyak. Pengiriman selalu tepat janji.', 'rating' => 5],
-                    ['name' => 'Agus Salim', 'role' => 'Pemilik Rumah Renovasi', 'quote' => 'Sangat terbantu bisa pesan lewat WA, dikasih saran kebutuhan material oleh mas adminnya.', 'rating' => 5],
-                ],
-            ],
-
-            // 10. PERCETAKAN & SABLON
-            'percetakan' => [
-                'theme_color'        => '#EA580C',
-                'headline'           => "Jasa Cetak Digital, Offset & Sablon Cepat, Tajam & Presisi",
-                'subheadline'        => "Cetak banner spanduk, brosur, kartu nama, stiker label kemasan, undangan, kalender, hingga sablon kaos dan merchandise promosi.",
-                'announcement_badge' => "🖨️ Mesin Cetak Format Besar Terbaru • Bisa Ditunggu",
-                'cta_primary_text'   => "Kirim File & Order via WhatsApp",
-                'cta_secondary_text' => "Daftar Produk & Pricelist",
-                'about_title'        => "Mewujudkan Desain Anda Dalam Kualitas Nyata",
-                'about_story'        => "{$biz} adalah solusi percetakan serba ada yang mengedepankan ketajaman warna, kecepatan cetak, dan ketepatan waktu deadline untuk promosi usaha Anda.",
-                'values' => [
-                    ['icon' => 'sparkles', 'title' => 'Warna Tajam & Tahan Air', 'desc' => 'Menggunakan tinta outdoor & indoor original Jepang berkualitas tinggi.'],
-                    ['icon' => 'clock', 'title' => 'Layanan Kilat Bisa Ditunggu', 'desc' => 'Cetak banner dan stiker meteran selesai dalam hitungan menit.'],
-                    ['icon' => 'scissors', 'title' => 'Bisa Cutting Pola Stiker', 'desc' => 'Potong stiker label bulat, oval, atau custom die-cut rapi otomatis.'],
-                    ['icon' => 'file-check', 'title' => 'Bantu Cek File Desain', 'desc' => 'Tim kami memeriksa resolusi dan layout file Anda sebelum dicetak.'],
-                ],
-                'services' => [
-                    ['title' => 'Cetak Banner / Spanduk Flexi 280gr - 440gr', 'desc' => 'Cetak spanduk outdoor tajam tahan panas dan hujan, gratis mata ayam.', 'price' => 'Mulai Rp 18.000 / m²', 'badge' => 'Cepat'],
-                    ['title' => 'Stiker Vinyl / Bontax + Cutting Kiss Cut', 'desc' => 'Label kemasan makanan, minuman, dan produk botol tahan air dan minyak.', 'price' => 'Rp 15.000 / lbr A3+', 'badge' => 'Favorit UMKM'],
-                    ['title' => 'Brosur & Flyer Full Color Art Paper', 'desc' => 'Cetak promosi 1 sisi / 2 sisi ukuran A5 atau A4 tajam mengkilap.', 'price' => 'Mulai Rp 150.000 / rim', 'badge' => 'Promosi'],
-                    ['title' => 'Kartu Nama Eksklusif + Laminasi Doff/Glossy', 'desc' => 'Bahan Art Carton 260gr tebal termasuk box mika transparan rapi.', 'price' => 'Rp 35.000 / box (100 pcs)', 'badge' => 'Eksklusif'],
-                ],
-                'faqs' => [
-                    ['question' => 'Format file apa yang disarankan untuk dicetak?', 'answer' => 'Format file PDF, TIFF, JPG, CDR, atau AI dengan color mode CMYK dan resolusi minimal 150-300 dpi.'],
-                    ['question' => 'Apakah bisa dibantu buatkan desain jika belum punya?', 'answer' => 'Tentu, tim desainer grafis kami siap membantu pembuatan layout desain promosi Anda.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Nadia Sabrina', 'role' => 'Owner Bisnis Minuman', 'quote' => 'Stiker label botolnya anti air banget, dimasukkan freezer tidak luntur sama sekali.', 'rating' => 5],
-                    ['name' => 'Fauzi Rahman', 'role' => 'Panitia Acara Event', 'quote' => 'Cetak banner 6 meter sore-sore bisa langsung ditunggu dan dipasang malamnya. Luar biasa!', 'rating' => 5],
-                ],
-            ],
-
-            // 11. PET SHOP & GROOMING
-            'petshop' => [
-                'theme_color'        => '#F59E0B',
-                'headline'           => "Sahabat Terbaik Hewan Kesayangan Anda di {$biz}",
-                'subheadline'        => "Pakan premium kucing & anjing, grooming higienis bebas kutu & jamur, pet hotel nyaman, vitamin, dan aksesoris terlengkap.",
-                'announcement_badge' => "🐾 Free Antar-Jemput Grooming (S&K Berlaku)",
-                'cta_primary_text'   => "Booking Grooming via WhatsApp",
-                'cta_secondary_text' => "Katalog Pakan & Perlengkapan",
-                'about_title'        => "Merawat Anabul dengan Penuh Kasih Sayang",
-                'about_story'        => "{$biz} didirikan oleh para pecinta hewan. Kami memahami bahwa anabul adalah bagian dari keluarga, sehingga kami memperlakukan mereka dengan sabar, lembut, dan higienis.",
-                'values' => [
-                    ['icon' => 'heart', 'title' => 'Groomer Sabar & Berpengalaman', 'desc' => 'Paham cara menangani anabul yang sensitif dan penakut tanpa stres.'],
-                    ['icon' => 'sparkles', 'title' => 'Shampo Medicated Khusus', 'desc' => 'Menggunakan shampo anti kutu, anti jamur, dan pelembut bulu premium.'],
-                    ['icon' => 'home', 'title' => 'Pet Hotel Bersih & Ber-AC', 'desc' => 'Kandang terpisah steril dengan update video harian untuk pemilik.'],
-                    ['icon' => 'shield-check', 'title' => 'Pakan Original Resmi', 'desc' => 'Produk pakan ternama jaminan keaslian dan masa kedaluwarsa aman.'],
-                ],
-                'services' => [
-                    ['title' => 'Grooming Lengkap Kucing / Anjing', 'desc' => 'Potong kuku, bersihkan telinga, mandi air hangat, blower, dan parfum wangi.', 'price' => 'Mulai Rp 55.000', 'badge' => 'Populer'],
-                    ['title' => 'Grooming Treatment Kutu & Jamur', 'desc' => 'Mandi rendam obat khusus membasmi telur kutu dan spora jamur membandel.', 'price' => 'Mulai Rp 75.000', 'badge' => 'Treatment'],
-                    ['title' => 'Pet Hotel / Penitipan Anabul (Per Malam)', 'desc' => 'Termasuk makan, ruangan ber-AC, pembersihan kandang, dan jalan santai.', 'price' => 'Rp 45.000 / malam', 'badge' => 'Liburan'],
-                    ['title' => 'Pakan Kucing Kering & Basah Premium', 'desc' => 'Tersedia Royal Canin, Pro Plan, Whiskas, Me-O, bolt, dan steril diet.', 'price' => 'Mulai Rp 20.000', 'badge' => 'Nutrisi'],
-                ],
-                'faqs' => [
-                    ['question' => 'Apakah hewan yang dititipkan harus sudah divaksin?', 'answer' => 'Ya, demi keselamatan dan kesehatan bersama, hewan harus sehat dan bebas kutu/jamur parah.'],
-                    ['question' => 'Berapa lama durasi proses grooming?', 'answer' => 'Rata-rata 1 hingga 1,5 jam tergantung jenis bulu dan kepatuhan hewan kesayangan.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Clarissa Putri', 'role' => 'Pecinta Kucing Persia', 'quote' => 'Kucing saya yang galak bisa tenang banget di-grooming di sini. Bulunya jadi wangi dan ngembang!', 'rating' => 5],
-                    ['name' => 'Denny Setiawan', 'role' => 'Pemilik Golden Retriever', 'quote' => 'Pet hotelnya terawat banget, tiap hari dikirimin video anjing lagi main. Hati jadi tenang saat dinas luar kota.', 'rating' => 5],
-                ],
-            ],
-
-            // 12. SERVIS ELEKTRONIK & GADGET
-            'elektronik' => [
-                'theme_color'        => '#4F46E5',
-                'headline'           => "Pusat Servis HP, Laptop & Gadget Cepat, Bergaransi & Transparan",
-                'subheadline'        => "Ganti LCD, ganti baterai, perbaikan mati total, kena air, IC power, upgrade SSD/RAM, instalasi software, dan penjualan aksesoris original.",
-                'announcement_badge' => "⚡ Ganti Baterai & LCD Bisa Ditunggu 30 Menit",
-                'cta_primary_text'   => "Konsultasi Kerusakan via WA",
-                'cta_secondary_text' => "Estimasi Biaya & Garansi",
-                'about_title'        => "Solusi Tepat untuk Masalah Perangkat Anda",
-                'about_story'        => "{$biz} mengedepankan kejujuran diagnosa dan transparansi proses perbaikan. Setiap komponen dicek di depan pelanggan dan bergaransi resmi.",
-                'values' => [
-                    ['icon' => 'eye', 'title' => 'Pengecekan di Depan Anda', 'desc' => 'Bongkar dan pasang transparan tanpa risiko penukaran sparepart.'],
-                    ['icon' => 'shield-check', 'title' => 'Garansi Servis Hingga 90 Hari', 'desc' => 'Klaim garansi mudah tanpa dipersulit jika kendala berulang.'],
-                    ['icon' => 'zap', 'title' => 'Sparepart Kualitas Original', 'desc' => 'Layar sentuh responsif, warna tajam, dan baterai berdaya tahan tinggi.'],
-                    ['icon' => 'search', 'title' => 'Cek Kerusakan Gratis', 'desc' => 'Gratis biaya pengecekan jika perangkat tidak jadi diperbaiki.'],
-                ],
-                'services' => [
-                    ['title' => 'Ganti LCD Touchscreen iPhone & Android', 'desc' => 'Layar baru jernih, responsif, dan bebas ghost touch.', 'price' => 'Mulai Rp 180.000', 'badge' => 'Bisa Ditunggu'],
-                    ['title' => 'Ganti Baterai Original Bergaransi', 'desc' => 'Kembalikan daya tahan baterai agar tidak cepat drop dan panas.', 'price' => 'Mulai Rp 120.000', 'badge' => 'Original'],
-                    ['title' => 'Upgrade SSD & Tambah RAM Laptop', 'desc' => 'Bikin laptop lemot jadi ngebut hingga 10x lipat dalam 45 menit.', 'price' => 'Mulai Rp 250.000', 'badge' => 'Performa'],
-                    ['title' => 'Servis Mesin Motherboard / Mati Total', 'desc' => 'Perbaikan IC charger, short circuit, dan konslet akibat terkena air.', 'price' => 'Estimasi Dicek', 'badge' => 'Teknisi Ahli'],
-                ],
-                'faqs' => [
-                    ['question' => 'Apakah data di HP/laptop akan hilang saat diservis?', 'answer' => 'Untuk perbaikan hardware seperti LCD dan baterai, data 100% aman dan tidak tersentuh.'],
-                    ['question' => 'Berapa lama masa garansi servis?', 'answer' => 'Kami memberikan garansi tertulis mulai dari 30 hari hingga 90 hari tergantung jenis komponen.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Kevin Sanjaya', 'role' => 'Mahasiswa IT', 'quote' => 'Laptop lemot saya dipasang SSD di sini langsung boot hitungan detik. Cepat dan harganya masuk akal.', 'rating' => 5],
-                    ['name' => 'Dian Sastro', 'role' => 'Pengguna iPhone', 'quote' => 'Ganti layar LCD iPhone bisa ditunggu cuma 25 menit. Warnanya sama bagusnya dengan aslinya.', 'rating' => 5],
-                ],
-            ],
-
-            // 13. TOKO ROTI & BAKERY
-            'bakery' => [
-                'theme_color'        => '#CA8A04',
-                'headline'           => "Kelezatan Roti & Kue Segar Dipanggang Setiap Pagi di {$biz}",
-                'subheadline'        => "Roti manis lembut tanpa pengawet, kue tart ulang tahun custom, pastry renyah, kue basah tradisional, dan snack box untuk segala acara.",
-                'announcement_badge' => "🍞 Fresh From The Oven Setiap Hari Pukul 07.00 WIB",
-                'cta_primary_text'   => "Pesan Kue / Snack Box via WA",
-                'cta_secondary_text' => "Katalog Roti & Tart Ulang Tahun",
-                'about_title'        => "Kelembutan yang Menemani Setiap Momen Manis",
-                'about_story'        => "Di {$biz}, kami hanya menggunakan mentega berkualitas tinggi, ragi alami, dan bahan premium tanpa tambahan bahan pengawet berbahaya. Setiap gigitan menghadirkan kelembutan sejati.",
-                'values' => [
-                    ['icon' => 'sparkles', 'title' => 'Tanpa Bahan Pengawet', 'desc' => 'Aman dikonsumsi anak-anak dan keluarga setiap hari.'],
-                    ['icon' => 'flame', 'title' => 'Fresh Setiap Pagi', 'desc' => 'Roti baru dipanggang setiap hari demi aroma dan tekstur optimal.'],
-                    ['icon' => 'cake', 'title' => 'Custom Cake Ulang Tahun', 'desc' => 'Bebas request tema, karakter, dan tulisan sesuai impian Anda.'],
-                    ['icon' => 'package', 'title' => 'Siap Terima Partai Besar', 'desc' => 'Kapasitas produksi ratusan kotak snack box rapat dan pengajian.'],
-                ],
-                'services' => [
-                    ['title' => 'Roti Manis Aneka Rasa (Cokelat, Keju, Srikaya)', 'desc' => 'Tekstur super lembut dengan isian melimpah tidak pelit.', 'price' => 'Mulai Rp 7.000 / pc', 'badge' => 'Favorit'],
-                    ['title' => 'Kue Tart Ulang Tahun Custom Design', 'desc' => 'Kue sponge lembut berlapis selai dan butter cream premium tidak seret.', 'price' => 'Mulai Rp 125.000', 'badge' => 'Custom'],
-                    ['title' => 'Croissant & Danish Pastry Butter Prancis', 'desc' => 'Lapisan luar renyah buttery dengan bagian dalam yang berongga sempurna.', 'price' => 'Rp 18.000 / pc', 'badge' => 'Pastry'],
-                    ['title' => 'Paket Snack Box Acara Kantor & Pengajian', 'desc' => 'Isi 2-3 kue pilihan plus air mineral dalam kotak cantik.', 'price' => 'Mulai Rp 12.000 / box', 'badge' => 'Paket Acara'],
-                ],
-                'faqs' => [
-                    ['question' => 'Berapa hari sebelumnya jika ingin pesan kue tart custom?', 'answer' => 'Sebaiknya pesan minimal H-2 sebelum acara agar tim dekorator kami dapat menyiapkan desain terbaik.'],
-                    ['question' => 'Berapa lama daya tahan roti tanpa pengawet?', 'answer' => 'Karena tanpa pengawet, roti kami tahan 3-4 hari di suhu ruang atau hingga 1 minggu di dalam kulkas.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Anita Rahmawati', 'role' => 'Ibu Penyelenggara Ultah Anak', 'quote' => 'Kue tart karakternya persis seperti foto yang saya kirim, dan rasanya enak banget gak bikin eneg!', 'rating' => 5],
-                    ['name' => 'Budi Santosa', 'role' => 'Sekretaris Kantor', 'quote' => 'Pesan 120 snack box untuk rapat kantor datang tepat waktu dan kuenya masih hangat. Mantap!', 'rating' => 5],
-                ],
-            ],
-
-            // 14. CARWASH & DETAILING
-            'carwash' => [
+            // ─── 23. CUCI MOBIL & AUTO DETAILING ──────────────────────────────
+            'service_autodetailing' => [
                 'theme_color'        => '#2563EB',
-                'headline'           => "Kilau Bersih Sempurna Mobil & Motor Anda di {$biz}",
-                'subheadline'        => "Cuci salju hidrolik, pembersihan kolong anti karat, vacuum interior bersih tuntas, jamur kaca hilang, dan paket salon mobil nano ceramic coating.",
-                'announcement_badge' => "🚗 Cuci 5 Kali Gratis 1 Kali Cuci (Kartu Member)",
-                'cta_primary_text'   => "Reservasi Cuci / Detailing via WA",
-                'cta_secondary_text' => "Daftar Paket Cuci & Poles",
-                'about_title'        => "Kebersihan Kendaraan yang Detail Hingga ke Sudut Tersembunyi",
-                'about_story'        => "{$biz} bukan sekadar mencuci bodi luar. Kami membersihkan kendaraan Anda dengan teknik dua ember, sampo busa pH netral yang aman untuk cat, dan pembersihan interior bebas debu.",
+                'headline'           => "Kilau Bersih Sempurna & Perlindungan Cat Mobil Anda di {$biz}",
+                'subheadline'        => "Cuci mobil salju hidrolik H-beam, pembersihan interior vakum, poles jamur kaca, penghilang baret halus, dan nano ceramic coating tahan cuaca ekstrem.",
+                'announcement_badge' => "Shampoo Mobil pH Netral - Tidak Mengikis Pernis Cat",
+                'cta_primary_text'   => "Booking Cuci / Auto Detailing",
+                'cta_secondary_text' => "Pilihan Paket & Estimasi",
+                'about_title'        => "Perawatan Kendaraan Seperti Mobil Baru Kembali",
+                'about_story'        => "Bagi pecinta otomotif, kendaraan bersih adalah sumber kebanggaan. {$biz} menggunakan lap microfiber bersih dan obat poles compound terpercaya untuk mengembalikan kilau asli body mobil Anda.",
                 'values' => [
-                    ['icon' => 'sparkles', 'title' => 'Shampo pH Netral Bersalju', 'desc' => 'Melindungi lapisan clear coat cat mobil dari kusam dan baret swirl mark.'],
-                    ['icon' => 'car', 'title' => 'Lift Hidrolik H-Track Aman', 'desc' => 'Pembersihan kolong mobil menyeluruh dari kotoran dan lumpur jalanan.'],
-                    ['icon' => 'eye', 'title' => 'Microfiber Khusus Bersih', 'desc' => 'Kain lap dipisahkan khusus bodi, velg, dan kaca agar tidak menimbulkan goresan.'],
-                    ['icon' => 'coffee', 'title' => 'Ruang Tunggu Dingin Ber-AC', 'desc' => 'Tersedia kopi, teh, free Wi-Fi, dan sofa nyaman selagi kendaraan Anda dicuci.'],
+                    ['icon' => 'car', 'title' => 'Lift Hidrolik Aman', 'desc' => 'Kolong mobil dibersihkan tuntas dari lumpur dan pasir yang memicu karat.'],
+                    ['icon' => 'sparkles', 'title' => 'Compound Poles Impor', 'desc' => 'Menghilangkan baret halus dan swirl mark tanpa membuat cat botak.'],
+                    ['icon' => 'shield-check', 'title' => 'Garansi Nano Coating', 'desc' => 'Efek daun talas (hydrophobic) melindungi body mobil dari noda air hujan.'],
                 ],
                 'services' => [
-                    ['title' => 'Cuci Mobil Hidrolik + Vacuum Interior', 'desc' => 'Bodi salju, kolong hidrolik, semir ban, dan vacuum karpet serta jok.', 'price' => 'Rp 45.000', 'badge' => 'Reguler'],
-                    ['title' => 'Cuci Motor Salju + Semir Ban Detil', 'desc' => 'Pembersihan sela-sela mesin, rantai, velg, dan bodi mengkilap.', 'price' => 'Mulai Rp 15.000', 'badge' => 'Motor'],
-                    ['title' => 'Pembersihan Jamur Kaca & Bodi Waterspot', 'desc' => 'Kaca bening bebas buram saat hujan malam hari dan bodi kembali cerah.', 'price' => 'Rp 150.000', 'badge' => 'Perawatan'],
-                    ['title' => 'Paket Full Detailing + Paint Protection', 'desc' => 'Poles bodi 3 step, detailing ruang mesin, interior spa, dan proteksi seal wax.', 'price' => 'Mulai Rp 650.000', 'badge' => 'Salon Mobil'],
+                    ['title' => 'Cuci Mobil Hidrolik + Vakum Interior Bersih', 'desc' => 'Cuci kolong, body busa salju, semir ban basah, dan vakum karpet debu.', 'price' => 'Rp 45.000', 'badge' => 'Reguler'],
+                    ['title' => 'Pembersihan Jamur Kaca Depan & Samping', 'desc' => 'Pandangan kembali jernih dan bebas buram saat hujan lebat di malam hari.', 'price' => 'Mulai Rp 100.000', 'badge' => 'Kaca'],
+                    ['title' => 'Paket Salon Mobil Full Interior & Eksterior', 'desc' => 'Pembersihan jok, plafon, ruang mesin, dan poles body 3 step mengkilap.', 'price' => 'Mulai Rp 550.000', 'badge' => 'Salon'],
                 ],
                 'faqs' => [
-                    ['question' => 'Berapa lama proses cuci mobil reguler?', 'answer' => 'Rata-rata 30-40 menit dikerjakan oleh tim 3 orang per kendaraan secara cepat dan teliti.'],
-                    ['question' => 'Apakah aman mencuci mobil saat mesin masih panas?', 'answer' => 'Kami selalu mendiamkan kendaraan sejenak agar suhu rem dan mesin turun sebelum disemprot air dingin.'],
+                    ['question' => 'Berapa lama durasi pengerjaan cuci mobil hidrolik?', 'answer' => 'Rata-rata 30 hingga 45 menit sudah termasuk pembersihan vakum interior.'],
                 ],
                 'testimonials' => [
-                    ['name' => 'Wahyudi Pratama', 'role' => 'Pemilik Honda CR-V', 'quote' => 'Paling suka cuci di sini karena kolongnya benar-benar disemprot bersih dan interiornya bebas debu.', 'rating' => 5],
-                    ['name' => 'Eko Prasetyo', 'role' => 'Pengguna NMAX', 'quote' => 'Motor keluar kinclong sampai ke sela knalpot. Ruang tunggunya ber-AC enak buat santai.', 'rating' => 5],
+                    ['name' => 'Denny Pratama', 'role' => 'Penggemar Otomotif', 'quote' => 'Kolong mobil bersih kinclong, pengerjaannya teliti sampai ke sela-sela velg. Ruang tunggunya juga nyaman ber-AC.', 'rating' => 5],
                 ],
             ],
 
-            // 15. STUDIO FOTO & VIDEO
-            'studio_foto' => [
-                'theme_color'        => '#7C3AED',
-                'headline'           => "Abadikan Momen Berharga dengan Sentuhan Visual Berkelas",
-                'subheadline'        => "Foto wisuda, foto keluarga, maternity, pas foto formal kedutaan/ijazah, foto produk komersial, prewedding, dan self photo studio kekinian.",
-                'announcement_badge' => "📸 Studio Ber-AC Luas • Properti Lengkap & Hasil Cetak HD",
-                'cta_primary_text'   => "Booking Sesi Foto via WhatsApp",
-                'cta_secondary_text' => "Pilihan Paket Foto & Portofolio",
-                'about_title'        => "Menyimpan Cerita Terbaik dalam Setiap Jepretan",
-                'about_story'        => "Di {$biz}, kami menangkap ekspresi tulus dan kehangatan Anda dengan pencahayaan studio profesional, arahan gaya yang santai, dan proses editing warna yang alami.",
-                'values' => [
-                    ['icon' => 'camera', 'title' => 'Lighting Studio Standar Pro', 'desc' => 'Pencahayaan lembut dan kontras seimbang untuk hasil foto memukau.'],
-                    ['icon' => 'smile', 'title' => 'Pengarah Gaya Ramah', 'desc' => 'Tidak perlu kaku di depan kamera, fotografer kami siap memandu pose terbaik.'],
-                    ['icon' => 'printer', 'title' => 'Cetak Kanvas & Bingkai Premium', 'desc' => 'Hasil cetak foto tajam anti pudar hingga puluhan tahun.'],
-                    ['icon' => 'zap', 'title' => 'Semua File Master Diberikan', 'desc' => 'Dapatkan seluruh softcopy foto resolusi tinggi via Google Drive.'],
-                ],
-                'services' => [
-                    ['title' => 'Paket Foto Wisuda / Sarjana Keluarga', 'desc' => 'Sesi studio 45 menit, 10 foto edit terpilih, 1 cetak 12R + frame bingkai elegan.', 'price' => 'Rp 275.000', 'badge' => 'Populer'],
-                    ['title' => 'Self Photo Studio Praktis (15 Menit)', 'desc' => 'Foto sepuasnya dengan remote shutter mandiri, bebas ganti background dan properti.', 'price' => 'Rp 75.000 / 2 orang', 'badge' => 'Tren Muda'],
-                    ['title' => 'Pas Foto Formal Lamaran Kerja / Visa / Ijazah', 'desc' => 'Editing rapi, ganti jas/warna background, cetak 4x6 & 3x4 dalam 15 menit.', 'price' => 'Rp 35.000', 'badge' => 'Kilat'],
-                    ['title' => 'Foto Produk Katalog & E-Commerce UMKM', 'desc' => 'Foto produk studio bersih background putih/lifestyle untuk konten jualan online.', 'price' => 'Mulai Rp 25.000 / foto', 'badge' => 'Bisnis'],
-                ],
-                'faqs' => [
-                    ['question' => 'Berapa lama softcopy foto bisa diterima setelah sesi?', 'answer' => 'Semua softcopy mentah dikirim di hari yang sama, sedangkan foto edit terpilih selesai dalam 2-3 hari.'],
-                    ['question' => 'Berapa kapasitas orang untuk foto keluarga besar di studio?', 'answer' => 'Studio utama kami mampu menampung hingga 20-25 orang sekaligus dengan nyaman.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Dr. Rian Hermawan', 'role' => 'Keluarga Wisudawan', 'quote' => 'Fotografernya sangat mengarahkan gaya dengan sabar, orang tua kami yang sudah sepuh jadi tidak capek.', 'rating' => 5],
-                    ['name' => 'Tiara Maharani', 'role' => 'Pelanggan Self Studio', 'quote' => 'Seru banget foto sendiri sama sahabat tanpa malu-malu di depan fotografer. Hasil warnanya estetik!', 'rating' => 5],
-                ],
-            ],
-
-            // 16. GYM & FITNESS
-            'gym' => [
-                'theme_color'        => '#DC2626',
-                'headline'           => "Bentuk Tubuh Ideal & Gaya Hidup Sehat di {$biz}",
-                'subheadline'        => "Peralatan angkat beban lengkap, cardio zone, kelas zumba, yoga, muay thai, dan bimbingan Personal Trainer (PT) berpengalaman.",
-                'announcement_badge' => "💪 Free Trial 1 Hari untuk Member Baru",
-                'cta_primary_text'   => "Daftar Member / Trial via WA",
-                'cta_secondary_text' => "Daftar Harga Member & Fasilitas",
-                'about_title'        => "Kebugaran Fisik untuk Kualitas Hidup Maksimal",
-                'about_story'        => "{$biz} hadir memberikan ruang latihan yang suportif, bersih, dan memotivasi siapa pun untuk hidup lebih kuat, sehat, dan bugar tanpa rasa canggung.",
-                'values' => [
-                    ['icon' => 'dumbbell', 'title' => 'Alat Beban Lengkap & Terawat', 'desc' => 'Dumbbell hingga 50kg, barbel olimpiade, smith machine, dan isolasi otot.'],
-                    ['icon' => 'heart-pulse', 'title' => 'Personal Trainer Bersertifikat', 'desc' => 'Program latihan terukur dan panduan pola makan sehat (nutrisi).'],
-                    ['icon' => 'users', 'title' => 'Kelas Komunitas Seru', 'desc' => 'Zumba, aerobic, body pump, dan yoga rutin setiap minggu.'],
-                    ['icon' => 'shower-head', 'title' => 'Loker & Kamar Mandi Bersih', 'desc' => 'Fasilitas kamar mandi air hangat dan loker berkunci aman.'],
-                ],
-                'services' => [
-                    ['title' => 'Membership Bulanan All-Access', 'desc' => 'Akses bebas tanpa batas ke seluruh alat gym dan ruang latihan setiap hari.', 'price' => 'Rp 175.000 / bulan', 'badge' => 'Best Value'],
-                    ['title' => 'Harian / Per Visit (Datang Langsung)', 'desc' => 'Cocok untuk Anda yang ingin mencoba alat atau sedang singgah di kota ini.', 'price' => 'Rp 25.000 / visit', 'badge' => 'Harian'],
-                    ['title' => 'Paket 10 Sesi Personal Trainer (PT)', 'desc' => 'Pendampingan 1-on-1, program penurunan berat badan atau penambahan massa otot.', 'price' => 'Rp 750.000', 'badge' => 'Bimbingan'],
-                    ['title' => 'Membership Pelajar & Mahasiswa', 'desc' => 'Tarif khusus untuk pelajar aktif dengan menunjukkan kartu tanda pelajar.', 'price' => 'Rp 135.000 / bulan', 'badge' => 'Diskon'],
-                ],
-                'faqs' => [
-                    ['question' => 'Jam berapa gym beroperasi?', 'answer' => 'Kami buka setiap Senin - Sabtu pukul 06.00 - 22.00 WIB dan Minggu pukul 07.00 - 20.00 WIB.'],
-                    ['question' => 'Saya pemula dan belum pernah ke gym, apakah ada yang mengajari?', 'answer' => 'Tentu! Staf gym kami akan memberikan tour pengenalan alat gratis dan tips dasar latihan yang aman.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Bagus Wicaksono', 'role' => 'Member Turun 14 Kg', 'quote' => 'Berkat bimbingan PT di sini, saya berhasil turun dari 88kg ke 74kg dalam 4 bulan secara sehat.', 'rating' => 5],
-                    ['name' => 'Siska Permata', 'role' => 'Member Kelas Zumba', 'quote' => 'Komunitas ceweknya seru dan instrukturnya asik banget. Suasana latihannya tidak bikin minder.', 'rating' => 5],
-                ],
-            ],
-
-            // 17. BIMBEL & KURSUS
-            'bimbel' => [
-                'theme_color'        => '#2563EB',
-                'headline'           => "Raih Prestasi Akademik & Sukses Masuk Sekolah/PTN Impian",
-                'subheadline'        => "Bimbingan belajar SD, SMP, SMA, persiapan UTBK SNBT, kedinasan, kursus bahasa Inggris, dan les privat dengan tutor juara yang asyik.",
-                'announcement_badge' => "🎓 92% Siswa Kami Sukses Lolos PTN Favorit",
-                'cta_primary_text'   => "Daftar / Konsultasi Belajar via WA",
-                'cta_secondary_text' => "Program Kelas & Biaya Belajar",
-                'about_title'        => "Membangun Pemahaman Konsep, Bukan Sekadar Menghafal",
-                'about_story'        => "{$biz} membimbing siswa belajar dengan metode interaktif, rumus cerdas penyelesaian soal cepat, dan pendampingan personal agar siswa mencintai proses belajar.",
-                'values' => [
-                    ['icon' => 'graduation-cap', 'title' => 'Tutor Lulusan PTN Terkemuka', 'desc' => 'Pengajar muda, komunikatif, dan sabar dalam menjelaskan materi rumit.'],
-                    ['icon' => 'book-open', 'title' => 'Modul & Bank Soal Terupdate', 'desc' => 'Sesuai dengan kurikulum merdeka dan pola soal UTBK terbaru.'],
-                    ['icon' => 'bar-chart', 'title' => 'Tryout Berkala & Evaluasi', 'desc' => 'Laporan perkembangan nilai siswa dilaporkan secara berkala kepada orang tua.'],
-                    ['icon' => 'users', 'title' => 'Kelas Kecil Maksimal 8 Siswa', 'desc' => 'Memastikan setiap anak mendapatkan perhatian dan bimbingan maksimal.'],
-                ],
-                'services' => [
-                    ['title' => 'Program Intensif Sukses UTBK / SNBT SMA', 'desc' => 'Penalaran umum, kuantitatif, literasi, tryout komputer mingguan, dan bedah soal.', 'price' => 'Mulai Rp 450.000 / bln', 'badge' => 'Unggulan'],
-                    ['title' => 'Bimbel Reguler SD & SMP (Semua Mapel)', 'desc' => 'Bantu pekerjaan rumah (PR), pendalaman materi sekolah, dan persiapan ujian akhir.', 'price' => 'Mulai Rp 250.000 / bln', 'badge' => 'Dasar'],
-                    ['title' => 'Les Privat Guru Datang ke Rumah (1-on-1)', 'desc' => 'Jadwal fleksibel disesuaikan dengan kebutuhan belajar spesifik anak Anda.', 'price' => 'Rp 75.000 / sesi', 'badge' => 'Privat'],
-                    ['title' => 'Kursus Bahasa Inggris Speaking & TOEFL', 'desc' => 'Lancar percakapan sehari-hari dan strategi menaikkan skor tes TOEFL.', 'price' => 'Rp 300.000 / bln', 'badge' => 'Bahasa'],
-                ],
-                'faqs' => [
-                    ['question' => 'Apakah ada kelas uji coba (trial class)?', 'answer' => 'Ya, kami menyediakan 1 sesi trial gratis agar calon siswa bisa merasakan metode belajar kami terlebih dahulu.'],
-                    ['question' => 'Apakah jadwal les bisa menyesuaikan kegiatan ekstrakurikuler sekolah?', 'answer' => 'Bisa, kami menyediakan pilihan sesi sore dan malam hari yang fleksibel.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Fadhil Muhammad', 'role' => 'Lolos Kedokteran Unair', 'quote' => 'Metode penalaran logikanya ngebantu banget pas ngerjain soal UTBK yang susah. Tutornya asik!', 'rating' => 5],
-                    ['name' => 'Ibu Endang', 'role' => 'Orang Tua Siswa Kelas 6 SD', 'quote' => 'Nilai rapor anak saya meningkat signifikan dan dia jadi semangat belajar tidak malas lagi.', 'rating' => 5],
-                ],
-            ],
-
-            // 18. AGEN EKSPEDISI & LOGISTIK
-            'ekspedisi' => [
+            // ─── 24. DISTRIBUTOR GROSIR & LOGISTIK ────────────────────────────
+            'distributor_fmcg' => [
                 'theme_color'        => '#F97316',
-                'headline'           => "Kirim Paket Cepat, Aman & Ongkir Termurah ke Seluruh Nusantara",
-                'subheadline'        => "Drop point resmi multi-ekspedisi (J&T, JNE, SiCepat, Anteraja, Pos Indonesia), kargo murah, pick-up paket gratis untuk toko online.",
-                'announcement_badge' => "📦 Drop Point Resmi Multi-Kurir • Diskon Ongkir s/d 20%",
-                'cta_primary_text'   => "Request Pick-Up Paket via WA",
-                'cta_secondary_text' => "Cek Tarif Ongkir & Layanan",
-                'about_title'        => "Solusi Pengiriman Terpadu untuk Seller & Warga",
-                'about_story'        => "{$biz} memudahkan pengiriman paket Anda ke seluruh Indonesia tanpa perlu pindah-pindah counter. Cukup bawa paket Anda ke sini, kami carikan kurir tercepat dengan ongkir paling hemat.",
+                'headline'           => "Pusat Distribusi Grosir Produk Cepat Habis & Jasa Logistik di {$biz}",
+                'subheadline'        => "Pasokan sembako kartonan, makanan ringan, minuman kemasan, dan sabun mandi untuk toko kelontong, warung, minimarket dengan armada kirim cepat.",
+                'announcement_badge' => "Harga Grosir Langsung Pabrik - Siap Kirim Armada Truk",
+                'cta_primary_text'   => "Minta Pricelist Grosir / Order",
+                'cta_secondary_text' => "Katalog Produk Kartonan",
+                'about_title'        => "Mitra Pasokan Terpercaya Warung dan Toko Anda",
+                'about_story'        => "{$biz} menjembatani pabrik prinsipal dengan ribuan peritel tradisional. Kami menjaga kontinuitas ketersediaan stok barang dan harga yang menguntungkan bagi para pedagang.",
                 'values' => [
-                    ['icon' => 'truck', 'title' => 'Multi-Ekspedisi Lengkap', 'desc' => 'Bebas pilih kurir favorit pelanggan dalam satu tempat terpadu.'],
-                    ['icon' => 'tag', 'title' => 'Diskon Ongkir Khusus Seller', 'desc' => 'Cashback dan potongan ongkir reguler untuk pengiriman rutin UMKM.'],
-                    ['icon' => 'package-check', 'title' => 'Bantu Packing Aman & Rapi', 'desc' => 'Tersedia bubble wrap tebal, kardus, dan lakban fragile gratis.'],
-                    ['icon' => 'search', 'title' => 'Resi Otomatis & Tracking Cepat', 'desc' => 'Nomor resi langsung aktif dan dapat dilacak real-time via WhatsApp.'],
+                    ['icon' => 'truck', 'title' => 'Armada Kirim Terjadwal', 'desc' => 'Pengantaran barang sampai ke toko Anda dengan armada pick-up dan truk siaga.'],
+                    ['icon' => 'tag', 'title' => 'Harga Grosir Kartonan Terbaik', 'desc' => 'Makin besar volume pembelian, makin kompetitif harga yang Anda peroleh.'],
+                    ['icon' => 'check-circle-2', 'title' => 'Stok Melimpah Selalu Tersedia', 'desc' => 'Kapasitas gudang besar memastikan toko Anda tidak pernah kehabisan barang.'],
                 ],
                 'services' => [
-                    ['title' => 'Kirim Paket Reguler / Next Day Antar Kota', 'desc' => 'Pilihan ekspedisi tercepat sampai ke alamat tujuan dengan estimasi pasti.', 'price' => 'Mulai Rp 8.000 / kg', 'badge' => 'Cepat'],
-                    ['title' => 'Kargo Barang Besar & Berat (Min 10 Kg)', 'desc' => 'Solusi hemat untuk kirim barang dagangan, mesin, dan perabot antar pulau.', 'price' => 'Mulai Rp 3.500 / kg', 'badge' => 'Hemat'],
-                    ['title' => 'Free Pick-Up Paket Toko Online / Seller', 'desc' => 'Kurir kami mengambil paket langsung ke rumah atau toko Anda tanpa minimal jumlah.', 'price' => 'Gratis Jemput', 'badge' => 'Seller'],
-                    ['title' => 'Pengiriman Dokumen Penting Kilat', 'desc' => 'Berkas dikirim aman dalam amplop segel khusus bersegel anti air.', 'price' => 'Mulai Rp 10.000', 'badge' => 'Dokumen'],
+                    ['title' => 'Minyak Goreng Kemasan 1 Dus (Isi 6 x 2L)', 'desc' => 'Minyak goreng bermerek sertifikat SNI harga grosir kartonan.', 'price' => 'Harga Grosir Kompetitif', 'badge' => 'Karton'],
+                    ['title' => 'Mi Instan Aneka Rasa 1 Dus (Isi 40 Bungkus)', 'desc' => 'Stok selalu baru dengan tanggal kedaluwarsa panjang aman display.', 'price' => 'Harga Grosir Kompetitif', 'badge' => 'Mi'],
+                    ['title' => 'Gula Pasir Kristal Karungan 50 Kg', 'desc' => 'Gula tebu putih bersih kering cocok untuk industri makanan dan minuman.', 'price' => 'Harga Grosir Kompetitif', 'badge' => 'Karung'],
                 ],
                 'faqs' => [
-                    ['question' => 'Jam berapa batas pengiriman (cut-off) agar paket berangkat hari ini?', 'answer' => 'Paket yang masuk sebelum pukul 18.00 WIB akan langsung diberangkatkan ke sorting center pada malam yang sama.'],
-                    ['question' => 'Apakah bisa cetak label resi otomatis dari marketplace?', 'answer' => 'Bisa, Anda cukup mengirimkan nomor booking atau PDF resi, kami cetakkan secara gratis.'],
+                    ['question' => 'Berapa minimal pemesanan untuk pengantaran ke toko?', 'answer' => 'Minimal pemesanan pengantaran gratis adalah 5 karton gabungan untuk rute area reguler.'],
                 ],
                 'testimonials' => [
-                    ['name' => 'Renaldi', 'role' => 'Seller Shopee & TikTok Shop', 'quote' => 'Sangat terbantu ada layanan pick-up gratis, tidak perlu capek antre di counter kurir lagi tiap sore.', 'rating' => 5],
-                    ['name' => 'Wati Handayani', 'role' => 'Pengirim Paket Keluarga', 'quote' => 'Adminnya ramah bantu milihin kurir yang paling murah buat kirim oleh-oleh ke Kalimantan.', 'rating' => 5],
+                    ['name' => 'Pak Joko Santoso', 'role' => 'Pemilik Toko Kelontong', 'quote' => 'Barang selalu ada dan pengiriman cepat. Gak perlu repot tutup toko buat belanja ke pasar induk.', 'rating' => 5],
                 ],
             ],
 
-            // 19. FLORIST & TOKO BUNGA
-            'florist' => [
-                'theme_color'        => '#EC4899',
-                'headline'           => "Ungkapkan Kasih & Kebahagiaan Lewat Rangkaian Bunga Segar Indah",
-                'subheadline'        => "Bunga papan ucapan selamat & duka cita, buket bunga wisuda, standing flower, table flowers, bloom box, dan dekorasi bunga pernikahan.",
-                'announcement_badge' => "🌸 Pengiriman Hari yang Sama (Same-Day) Tepat Waktu",
-                'cta_primary_text'   => "Pesan Karangan Bunga via WA",
-                'cta_secondary_text' => "Katalog Buket & Bunga Papan",
-                'about_title'        => "Merangkai Cerita Lewat Keindahan Kelopak Alami",
-                'about_story'        => "Di {$biz}, setiap tangkai bunga dipilih segar dari kebun terbaik. Florist kami merangkainya dengan sentuhan seni estetika tinggi untuk menyempurnakan setiap momen bahagia dan haru Anda.",
-                'values' => [
-                    ['icon' => 'flower-2', 'title' => 'Bunga Segar Tiap Pagi', 'desc' => 'Mawar, lily, krisan, dan baby breath mekar segar tahan lama.'],
-                    ['icon' => 'clock', 'title' => 'Pengerjaan Cepat 2-3 Jam', 'desc' => 'Pesanan bunga papan kilat untuk ucapan mendadak siap kirim tepat waktu.'],
-                    ['icon' => 'camera', 'title' => 'Foto Konfirmasi Sebelum Kirim', 'desc' => 'Foto hasil karangan bunga dan foto di lokasi penerima dikirimkan ke Anda.'],
-                    ['icon' => 'sparkles', 'title' => 'Desain Rangkaian Elegan', 'desc' => 'Kombinasi warna harmonis dan wrapping kertas import berkelas.'],
-                ],
-                'services' => [
-                    ['title' => 'Buket Bunga Mawar Segar Wisuda / Ultah', 'desc' => 'Buket cantik berisi 10-20 tangkai mawar segar plus kartu ucapan eksklusif.', 'price' => 'Mulai Rp 125.000', 'badge' => 'Favorit'],
-                    ['title' => 'Bunga Papan Ucapan (Selamat / Duka Cita)', 'desc' => 'Ukuran 2m x 1,25m dengan susunan bunga segar atas dan bawah rapi.', 'price' => 'Mulai Rp 350.000', 'badge' => 'Resmi'],
-                    ['title' => 'Standing Flower Akrilik / Besi Modern', 'desc' => 'Karangan bunga mewah untuk pembukaan toko baru (grand opening) dan kantor.', 'price' => 'Mulai Rp 450.000', 'badge' => 'Mewah'],
-                    ['title' => 'Buket Uang (Money Bouquet) & Snack', 'desc' => 'Rangkaian lembaran uang kertas asli yang disusun rapi dan aman.', 'price' => 'Jasa Rp 75.000', 'badge' => 'Tren'],
-                ],
-                'faqs' => [
-                    ['question' => 'Apakah bisa kirim di hari yang sama (same day)?', 'answer' => 'Bisa! Untuk buket bunga dan bunga papan standar bisa selesai dan terkirim dalam 2-4 jam.'],
-                    ['question' => 'Apakah ada kartu ucapan yang disertakan?', 'answer' => 'Tentu, setiap pesanan bunga sudah termasuk kartu ucapan gratis dengan tulisan pesan kustom dari Anda.'],
-                ],
-                'testimonials' => [
-                    ['name' => 'Gabriella Novita', 'role' => 'Pemesanan Buket Wisuda', 'quote' => 'Bunganya fresh banget, mawarnya mekar sempurna dan bungkusannya rapi estetik.', 'rating' => 5],
-                    ['name' => 'Drs. H. Mulyono', 'role' => 'Pemesanan Bunga Papan Kantor', 'quote' => 'Pesanan bunga papan selamat sukses kantor rekanan datang tepat pagi hari sebelum acara dimulai. Sangat profesional!', 'rating' => 5],
-                ],
-            ],
-
-            // 20. TOKO PERTANIAN & HIDROPONIK
-            'pertanian' => [
+            // ─── 25. PERTANIAN & AGRIBISNIS ───────────────────────────────────
+            'agri_farming' => [
                 'theme_color'        => '#15803D',
-                'headline'           => "Solusi Tani Subur & Panen Melimpah Terlengkap di {$biz}",
-                'subheadline'        => "Bibit unggul bersertifikat, pupuk organik & NPK, pestisida terdaftar, instalasi hidroponik, media tanam, dan perlengkapan perkebunan.",
-                'announcement_badge' => "🌱 Konsultasi Masalah Hama & Pemupukan Gratis",
-                'cta_primary_text'   => "Konsultasi & Order via WhatsApp",
-                'cta_secondary_text' => "Katalog Pupuk & Benih Tani",
-                'about_title'        => "Mitra Petani & Pecinta Tanaman Nusantara",
-                'about_story'        => "{$biz} mendampingi para petani lokal dan pecinta tanaman hias/hidroponik perkotaan untuk mendapatkan bibit berdaya tumbuh tinggi serta nutrisi tanaman yang tepat dan hemat biaya.",
+                'headline'           => "Pusat Bibit Tanaman Unggul, Pupuk & Perlengkapan Tani di {$biz}",
+                'subheadline'        => "Benih bersertifikat tahan hama, pupuk organik, nutrisi hidroponik AB Mix, media tanam gembur, pakan ternak berprotein, dan obat pengendali hama tanaman.",
+                'announcement_badge' => "Benih Unggul Bersertifikasi Resmi - Daya Tumbuh Tinggi",
+                'cta_primary_text'   => "Belanja Kebutuhan Tani Online",
+                'cta_secondary_text' => "Katalog Benih & Pupuk",
+                'about_title'        => "Mendukung Kesuburan Bumi dan Kemakmuran Petani",
+                'about_story'        => "{$biz} hadir mendampingi para petani konvensional maupun penggiat urban farming hidroponik. Kami menyediakan saprotan berkualitas untuk hasil panen yang melimpah.",
                 'values' => [
-                    ['icon' => 'sprout', 'title' => 'Benih Bersertifikat Resmi', 'desc' => 'Daya berkecambah di atas 85% dengan potensi hasil panen optimal.'],
-                    ['icon' => 'shield-check', 'title' => 'Obat & Pupuk 100% Asli', 'desc' => 'Menjual produk resmi berizin Kementan tanpa oplosan kimia berbahaya.'],
-                    ['icon' => 'message-circle', 'title' => 'Edukasi Budidaya Tani', 'desc' => 'Bantu diagnosis penyakit tanaman dan rekomendasi dosis obat yang tepat.'],
-                    ['icon' => 'truck', 'title' => 'Melayani Partai & Karungan', 'desc' => 'Harga grosir siap kirim ke kebun/lahan pertanian Anda.'],
+                    ['icon' => 'sprout', 'title' => 'Benih Daya Kecambah >85%', 'desc' => 'Kemasan kedap udara menjaga kualitas benih tetap segar dan vigor tinggi.'],
+                    ['icon' => 'leaf', 'title' => 'Pupuk Organik & Ramah Hayati', 'desc' => 'Menyuburkan struktur tanah tanpa merusak ekosistem mikroba alami.'],
+                    ['icon' => 'help-circle', 'title' => 'Konsultasi Perawatan Tanaman', 'desc' => 'Bantu diagnosa penyakit daun dan takaran pemupukan yang tepat.'],
                 ],
                 'services' => [
-                    ['title' => 'Pupuk NPK Mutiara / Phonska / Urea Asli', 'desc' => 'Pupuk penyubur daun, akar, dan perangsang buah berkualitas tinggi.', 'price' => 'Mulai Rp 18.000 / kg', 'badge' => 'Subur'],
-                    ['title' => 'Benih Cabai, Tomat & Sayuran Unggul', 'desc' => 'Kemasan pabrik segel tahan simpan dan tahan terhadap serangan virus.', 'price' => 'Mulai Rp 25.000 / bks', 'badge' => 'Benih'],
-                    ['title' => 'Insektisida & Fungisida Hama Tanaman', 'desc' => 'Basmi ulat, kutu kebul, wereng, dan jamur busuk daun dengan tuntas.', 'price' => 'Mulai Rp 35.000', 'badge' => 'Proteksi'],
-                    ['title' => 'Paket Starter Kit Hidroponik Pemula', 'desc' => 'Netpot, rockwool, nutrisi AB Mix sayur, dan panduan semai lengkap.', 'price' => 'Rp 85.000 / set', 'badge' => 'Urban Farming'],
+                    ['title' => 'Benih Cabai Rawit & Keriting Unggul (Isi 1.750 Butir)', 'desc' => 'Tahan layu bakteri dan virus kuning dengan potensi panen tinggi.', 'price' => 'Rp 65.000 / bks', 'badge' => 'Benih'],
+                    ['title' => 'Nutrisi Hidroponik AB Mix Sayur Daun (1 Liter Pekatan)', 'desc' => 'Formula hara lengkap untuk selada, pakcoy, kangkung dan bayam hijau subur.', 'price' => 'Rp 35.000 / set', 'badge' => 'Hidroponik'],
+                    ['title' => 'Pupuk Kandang Fermentasi Halus 10 Kg', 'desc' => 'Bebas bau menyengat dan sudah matang, siap pakai untuk campuran pot.', 'price' => 'Rp 18.000 / sak', 'badge' => 'Pupuk'],
                 ],
                 'faqs' => [
-                    ['question' => 'Tanaman cabai saya daunnya keriting, obat apa yang cocok?', 'answer' => 'Daun keriting biasanya disebabkan oleh kutu thrips/aphids. Anda bisa konsultasikan foto tanamannya via WA kami untuk dosis yang tepat.'],
-                    ['question' => 'Apakah bisa beli pupuk dalam jumlah sak-sakan (50kg)?', 'answer' => 'Tentu, kami menyediakan harga grosir partai karungan dengan armada pengiriman ke lokasi.'],
+                    ['question' => 'Apakah melayani pengiriman benih ke luar pulau?', 'answer' => 'Ya, kami melayani pengiriman benih dan nutrisi ke seluruh wilayah Indonesia.'],
                 ],
                 'testimonials' => [
-                    ['name' => 'Pak Sukardi', 'role' => 'Petani Sayur Hidroponik', 'quote' => 'Nutrisi AB Mix-nya bagus banget, selada saya tumbuh segar dan daunnya tebal-tebal.', 'rating' => 5],
-                    ['name' => 'Bambang Irawan', 'role' => 'Pekebun Melon', 'quote' => 'Adminnya sangat paham obat pertanian. Rekomendasi obat hamanya manjur banget menyelamatkan kebun saya.', 'rating' => 5],
+                    ['name' => 'Wahyudi', 'role' => 'Petani Sayur Hidroponik', 'quote' => 'Nutrisi AB Mix-nya bagus banget, daun selada tebal renyah dan cepat panen. Langganan terus di sini.', 'rating' => 5],
                 ],
             ],
         ];

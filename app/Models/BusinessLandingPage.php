@@ -112,4 +112,139 @@ class BusinessLandingPage extends Model
 
         return $msg ? "https://wa.me/{$phone}?text=" . rawurlencode($msg) : "https://wa.me/{$phone}";
     }
+
+    /**
+     * Return operational hours normalized to a standard list:
+     * [['day' => string, 'hours' => string, 'is_open' => bool], ...]
+     */
+    public function getNormalizedOperationalHours(): array
+    {
+        $hours = $this->operational_hours;
+        if (empty($hours) || !is_array($hours)) {
+            return [];
+        }
+
+        $dayTranslations = [
+            'monday' => 'Senin',
+            'tuesday' => 'Selasa',
+            'wednesday' => 'Rabu',
+            'thursday' => 'Kamis',
+            'friday' => 'Jumat',
+            'saturday' => 'Sabtu',
+            'sunday' => 'Minggu',
+        ];
+
+        $normalized = [];
+        foreach ($hours as $key => $item) {
+            if (!is_array($item)) {
+                if (is_string($item)) {
+                    $normalized[] = [
+                        'day' => is_string($key) ? ucfirst($key) : 'Hari',
+                        'hours' => $item,
+                        'is_open' => strtolower($item) !== 'tutup',
+                    ];
+                }
+                continue;
+            }
+
+            if (isset($item['day'])) {
+                $normalized[] = [
+                    'day' => (string) $item['day'],
+                    'hours' => (string) ($item['hours'] ?? ''),
+                    'is_open' => !empty($item['is_open']),
+                ];
+                continue;
+            }
+
+            $dayKey = is_string($key) ? strtolower($key) : '';
+            $dayName = $dayTranslations[$dayKey] ?? (is_string($key) && !is_numeric($key) ? ucfirst($key) : 'Hari ' . ($key + 1));
+            $isOpen = !empty($item['is_open']) || (!empty($item['open']) && $item['open'] !== 'closed');
+            $openTime = $item['open'] ?? '';
+            $closeTime = $item['close'] ?? '';
+            $hoursText = $item['hours'] ?? ($isOpen && $openTime && $closeTime ? "{$openTime} - {$closeTime} WIB" : ($isOpen ? 'Buka' : 'Tutup'));
+
+            $normalized[] = [
+                'day' => $dayName,
+                'hours' => $hoursText,
+                'is_open' => $isOpen,
+            ];
+        }
+
+        return $normalized;
+    }
+
+    public function getHeroImageUrlAttribute(?string $value): ?string
+    {
+        return $this->normalizeImageUrl($value);
+    }
+
+    public function getLogoUrlAttribute(?string $value): ?string
+    {
+        return $this->normalizeImageUrl($value);
+    }
+
+    public function getAboutImageUrlAttribute(?string $value): ?string
+    {
+        return $this->normalizeImageUrl($value);
+    }
+
+    public function getOgImageUrlAttribute(?string $value): ?string
+    {
+        return $this->normalizeImageUrl($value);
+    }
+
+    public function getGalleryImagesAttribute($value): array
+    {
+        $images = is_string($value) ? json_decode($value, true) : $value;
+        if (!is_array($images)) {
+            return [];
+        }
+
+        return array_map(function ($item) {
+            if (is_array($item)) {
+                if (isset($item['url'])) {
+                    $item['url'] = $this->normalizeImageUrl($item['url']);
+                }
+                return $item;
+            }
+            return $this->normalizeImageUrl((string) $item);
+        }, $images);
+    }
+
+    public function getCustomServicesAttribute($value): array
+    {
+        $services = is_string($value) ? json_decode($value, true) : $value;
+        if (!is_array($services)) {
+            return [];
+        }
+
+        return array_map(function ($item) {
+            if (is_array($item) && isset($item['image_url'])) {
+                $item['image_url'] = $this->normalizeImageUrl($item['image_url']);
+            }
+            return $item;
+        }, $services);
+    }
+
+    private function normalizeImageUrl(?string $url): ?string
+    {
+        if (empty($url)) {
+            return null;
+        }
+
+        // If it's an absolute URL pointing to any domain's storage/ path (e.g. https://umkm.cooca.id/storage/...)
+        if (preg_match('#^https?://[^/]+/storage/(.*)$#i', $url, $matches)) {
+            return asset('storage/' . $matches[1]);
+        }
+
+        if (str_starts_with($url, 'storage/') || str_starts_with($url, '/storage/')) {
+            return asset(ltrim($url, '/'));
+        }
+
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            return $url;
+        }
+
+        return asset('storage/' . ltrim($url, '/'));
+    }
 }

@@ -33,7 +33,7 @@
     $isWhatsAppRoute = request()->routeIs('whatsapp.*');
     $isFinanceRoute = request()->routeIs('finance.*');
     $isReportsRoute = request()->routeIs('reports.*') || request()->routeIs('pos.reports.*');
-    $isStorefrontRoute = request()->routeIs('storefront.*');
+    $isStorefrontRoute = request()->routeIs('storefront.*') || request()->routeIs('landing-page.*');
     $isSettingsRoute =
         request()->routeIs('settings.*') ||
         request()->routeIs('billing.*') ||
@@ -99,6 +99,10 @@
     $canAccessStorefront =
         \App\Support\Context::hasPermission('storefront.orders.view') ||
         \App\Support\Context::hasPermission('storefront.manage') ||
+        \App\Support\Context::hasPermission('storefront.shipping.manage') ||
+        \App\Support\Context::hasPermission('storefront.reservations.manage') ||
+        \App\Support\Context::hasPermission('storefront.po.manage') ||
+        \App\Support\Context::hasPermission('cms.manage') ||
         \App\Support\Context::isOwner();
 
     $canAccessSettings = \App\Support\Context::hasPermission('settings.view') || \App\Support\Context::isOwner();
@@ -829,20 +833,19 @@
                     class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/10">
                 </div>
 
-                {{-- 0. TOKO ONLINE (STOREFRONT) --}}
+                {{-- 0. WEBSITE & TOKO ONLINE --}}
                 @if ($canAccessStorefront)
                     <div class="relative group" x-data="{ flyoutOpen: false }"
                         @mouseenter="if(sidebarCollapsed) flyoutOpen = true" @mouseleave="flyoutOpen = false">
                         <button type="button" id="tour-group-storefront" data-tour-group="storefront"
                             @click="storefrontOpen = !storefrontOpen" role="button"
                             :aria-expanded="storefrontOpen ? 'true' : 'false'"
-                            :title="sidebarCollapsed ? 'Toko Online' : ''"
+                            :title="sidebarCollapsed ? 'Website & Toko Online' : ''"
                             class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isStorefrontRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                             <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                                 <i data-lucide="store"
                                     class="w-4 h-4 {{ $isStorefrontRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Toko
-                                    Online</span>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Website &amp; Toko</span>
                             </div>
                             <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
                                 class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
@@ -852,6 +855,13 @@
                         <div x-show="storefrontOpen && !sidebarCollapsed"
                             x-transition:enter="transition-all ease-out duration-150"
                             class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
+                            @if (\App\Support\Context::hasPermission('cms.manage') || \App\Support\Context::isOwner())
+                                <a href="{{ route('landing-page.edit') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('landing-page.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
+                                    <i data-lucide="globe" class="w-3.5 h-3.5 shrink-0"></i>
+                                    <span class="truncate">Website &amp; Profil</span>
+                                </a>
+                            @endif
                             @if (\App\Support\Context::hasPermission('storefront.orders.view') || \App\Support\Context::isOwner())
                                 <a href="{{ route('storefront.orders.index') }}"
                                     class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.orders.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
@@ -859,11 +869,11 @@
                                     <span class="truncate">Pesanan Masuk</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('storefront.manage') || \App\Support\Context::isOwner())
-                                <a href="{{ route('storefront.settings.index') }}"
-                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.settings.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
-                                    <i data-lucide="settings-2" class="w-3.5 h-3.5 shrink-0"></i>
-                                    <span class="truncate">Pengaturan Toko</span>
+                            @if (\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner())
+                                <a href="{{ route('storefront.reservations.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.reservations.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
+                                    <i data-lucide="calendar-check" class="w-3.5 h-3.5 shrink-0"></i>
+                                    <span class="truncate">Reservasi &amp; Booking</span>
                                 </a>
                             @endif
                             @if (\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isOwner())
@@ -873,11 +883,11 @@
                                     <span class="truncate">Ongkir &amp; Pengiriman</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner())
-                                <a href="{{ route('storefront.reservations.index') }}"
-                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.reservations.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
-                                    <i data-lucide="calendar-check" class="w-3.5 h-3.5 shrink-0"></i>
-                                    <span class="truncate">Reservasi &amp; Booking</span>
+                            @if (\App\Support\Context::hasPermission('storefront.manage') || \App\Support\Context::isOwner())
+                                <a href="{{ route('storefront.settings.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.settings.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
+                                    <i data-lucide="settings-2" class="w-3.5 h-3.5 shrink-0"></i>
+                                    <span class="truncate">Pengaturan Etalase</span>
                                 </a>
                             @endif
                         </div>
@@ -1914,20 +1924,7 @@
                     </div>
                 @endif
 
-                {{-- Landing Page CMS --}}
-                @if (\App\Support\Context::hasPermission('cms.manage'))
-                    <a href="{{ route('landing-page.edit') }}" id="tour-nav-landing-page"
-                        {{ request()->routeIs('landing-page.*') ? 'aria-current="page"' : '' }}
-                        :title="sidebarCollapsed ? 'Landing Page' : ''"
-                        class="sidebar-item flex items-center gap-2.5 px-2.5 py-1.5 rounded-[8px] text-[13px] font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('landing-page.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                        <i data-lucide="globe"
-                            class="w-4 h-4 {{ request()->routeIs('landing-page.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                        <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Landing Page</span>
-                        <span x-show="!sidebarCollapsed"
-                            class="ml-auto text-[10px] px-1.5 py-0.2 rounded-full {{ request()->routeIs('landing-page.*') ? 'bg-white/20 text-white' : 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' }} font-semibold shrink-0">Live
-                            CMS</span>
-                    </a>
-                @endif
+                {{-- Landing Page CMS has been unified into Website & Toko Online group menu --}}
             </div>
         @endif
 
