@@ -1,7 +1,7 @@
 @extends('layouts.admin', [
     'title' => 'Verifikasi Pembayaran #' . $payment->order_number . ' - Admin Console',
     'headerTitle' => 'Verifikasi Pembayaran Langganan',
-    'headerSubtitle' => 'Periksa kesesuaian mutasi bank dan setujui aktivasi lisensi Cooca UMKM',
+    'headerSubtitle' => 'Periksa kesesuaian mutasi bank dan setujui aktivasi lisensi Cooca',
 ])
 
 @section('content')
@@ -36,7 +36,7 @@
                     <div class="font-semibold text-black dark:text-white">Pembayaran Telah Disetujui</div>
                     <div class="text-[#34C759] dark:text-[#30D158]">Disetujui oleh <strong
                             class="text-black dark:text-white">{{ $payment->approver->name ?? 'Admin' }}</strong> pada
-                        {{ $payment->approved_at?->format('d M Y H:i:s') }}. Paket Cooca UMKM bisnis telah aktif.</div>
+                        {{ $payment->approved_at?->format('d M Y H:i:s') }}. Paket Cooca bisnis telah aktif.</div>
                     @if ($payment->admin_notes)
                         <div class="text-[12px] text-black/50 dark:text-white/50">Catatan: {{ $payment->admin_notes }}</div>
                     @endif
@@ -89,7 +89,7 @@
                                 {{ $payment->package_name ?: 'Topup Storage Disk' }}
                                 (+{{ $payment->topup_storage_bytes ? round($payment->topup_storage_bytes / 1073741824, 1) . ' GB' : '-' }})
                             @else
-                                {{ $payment->package_name ?: ($payment->cycle === 'annual' || $payment->plan_code === 'core_annual' ? 'Cooca UMKM Tahunan' : 'Cooca UMKM Bulanan') }}
+                                {{ $payment->package_name ?: ($payment->cycle === 'annual' || $payment->plan_code === 'core_annual' ? 'Cooca Tahunan' : 'Cooca Bulanan') }}
                                 ({{ $payment->package_duration_days ? $payment->package_duration_days . ' Hari' : ($payment->cycle === 'annual' ? '365 Hari' : '30 Hari') }})
                             @endif
                         </span>
@@ -214,7 +214,7 @@
                 </div>
                 <div class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">Setujui pembayaran <strong
                         class="text-black dark:text-white tabular-nums">#{{ $payment->order_number }}</strong>? Paket
-                    Cooca UMKM untuk bisnis <strong
+                    Cooca untuk bisnis <strong
                         class="text-[#34C759] dark:text-[#30D158]">{{ $payment->business->name }}</strong> akan langsung
                     diaktifkan dengan kuota 10.000.000 Token AI.</div>
                 <form method="POST" action="{{ route('admin.subscriptions.approve', $payment) }}" class="space-y-4">

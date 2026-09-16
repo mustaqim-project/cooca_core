@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Pesanan Toko Online - Cooca UMKM',
+    'title' => 'Pesanan Toko Online - Cooca',
     'headerTitle' => 'Pesanan Toko Online',
     'headerSubtitle' => 'Pantau pesanan masuk dari storefront publik, verifikasi bukti transfer pelanggan, dan kelola pemenuhan order',
 ])

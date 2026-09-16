@@ -20,10 +20,14 @@ final class CustomerGoogleAuthController extends Controller
 {
     private function configureGoogle(): bool
     {
+        if (SystemSetting::get('allow_customer_google_login', '1') !== '1') {
+            return false;
+        }
+
         $clientId     = SystemSetting::get('google_client_id')     ?: config('services.google.client_id');
         $clientSecret = SystemSetting::get('google_client_secret') ?: config('services.google.client_secret');
-        $redirectUri  = config('services.google.customer_redirect',
-                            url('/customer/auth/google/callback'));
+        $redirectUri  = SystemSetting::get('google_customer_redirect_uri')
+            ?: config('services.google.customer_redirect', url('/customer/auth/google/callback'));
 
         if (empty($clientId) || empty($clientSecret)) {
             return false;
@@ -43,6 +47,11 @@ final class CustomerGoogleAuthController extends Controller
      */
     public function redirect(): RedirectResponse
     {
+        if (SystemSetting::get('allow_customer_google_login', '1') !== '1') {
+            return redirect()->route('customer.login')
+                ->withErrors(['google' => 'Login Google untuk pelanggan sedang dinonaktifkan oleh administrator.']);
+        }
+
         if (request()->has('redirect')) {
             $redirectUrl = (string) request()->query('redirect');
             if (str_starts_with($redirectUrl, '/') || filter_var($redirectUrl, FILTER_VALIDATE_URL)) {
@@ -63,9 +72,14 @@ final class CustomerGoogleAuthController extends Controller
      */
     public function callback(): RedirectResponse
     {
+        if (SystemSetting::get('allow_customer_google_login', '1') !== '1') {
+            return redirect()->route('customer.login')
+                ->withErrors(['google' => 'Login Google untuk pelanggan sedang dinonaktifkan oleh administrator.']);
+        }
+
         if (! $this->configureGoogle()) {
             return redirect()->route('customer.login')
-                ->withErrors(['google' => 'Konfigurasi Google tidak valid.']);
+                ->withErrors(['google' => 'Konfigurasi Google tidak valid atau dinonaktifkan.']);
         }
 
         try {

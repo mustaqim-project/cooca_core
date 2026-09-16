@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Pengaturan Toko Online & Pembayaran - Cooca UMKM',
+    'title' => 'Pengaturan Toko Online & Pembayaran - Cooca',
     'headerTitle' => 'Pengaturan Toko Online',
     'headerSubtitle' => 'Konfigurasi operasional storefront, visibilitas publik, dan rekening penerimaan transfer bank / QRIS',
 ])

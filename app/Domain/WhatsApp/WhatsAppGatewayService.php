@@ -15,15 +15,19 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+use App\Domain\WhatsApp\Drivers\MetaWhatsAppCloudDriver;
+
 class WhatsAppGatewayService
 {
     protected string $baseUrl;
     protected string $token;
+    protected MetaWhatsAppCloudDriver $metaDriver;
 
-    public function __construct()
+    public function __construct(?MetaWhatsAppCloudDriver $metaDriver = null)
     {
         $this->baseUrl = rtrim(config('services.wa_server.url', 'http://127.0.0.1:3000'), '/');
         $this->token   = config('services.wa_server.token', 'secret-worker-token');
+        $this->metaDriver = $metaDriver ?? app(MetaWhatsAppCloudDriver::class);
     }
 
     /**
@@ -164,12 +168,71 @@ class WhatsAppGatewayService
     }
 
     /**
-     * Send a WhatsApp message via the microservice for a given business session.
+     * Send a WhatsApp message via the configured provider for a given business session.
      */
     public function sendMessage(Business $business, string $phone, string $message, array $options = []): array
     {
+        $session = WhatsAppSession::where('business_id', $business->id)->first();
+        if ($session && ! $session->is_active) {
+            return [
+                'success' => false,
+                'error'   => 'Layanan WhatsApp bisnis sedang dinonaktifkan.',
+            ];
+        }
+
+        if ($session && $session->provider === 'meta_cloud') {
+            $token = $session->meta_access_token ?: config('services.meta_whatsapp.token');
+            $phoneId = $session->meta_phone_number_id ?: config('services.meta_whatsapp.phone_number_id');
+
+            if (empty($token) || empty($phoneId)) {
+                return [
+                    'success' => false,
+                    'error'   => 'Kredensial Meta WhatsApp Cloud API belum lengkap diatur.',
+                ];
+            }
+
+            return $this->metaDriver->sendTextMessage($phone, $message, $token, $phoneId);
+        }
+
         $sessionId = $this->sessionId($business);
         return $this->sendRawMessage($sessionId, $phone, $message, $options);
+    }
+
+    /**
+     * Update or save session provider and credentials for a business.
+     */
+    public function updateSessionProvider(Business $business, array $data): WhatsAppSession
+    {
+        $session = WhatsAppSession::firstOrNew(['business_id' => $business->id]);
+        $session->session_id = $session->session_id ?: $this->sessionId($business);
+
+        if (isset($data['provider'])) {
+            $session->provider = $data['provider'];
+        }
+        if (isset($data['is_active'])) {
+            $session->is_active = (bool) $data['is_active'];
+        }
+        if (array_key_exists('meta_phone_number_id', $data)) {
+            $session->meta_phone_number_id = $data['meta_phone_number_id'];
+        }
+        if (! empty($data['meta_access_token'])) {
+            $session->meta_access_token = $data['meta_access_token'];
+        }
+        if (array_key_exists('meta_waba_id', $data)) {
+            $session->meta_waba_id = $data['meta_waba_id'];
+        }
+        if (array_key_exists('meta_template_name', $data)) {
+            $session->meta_template_name = $data['meta_template_name'];
+        }
+
+        if ($session->provider === 'meta_cloud' && ! empty($session->meta_access_token) && ! empty($session->meta_phone_number_id)) {
+            $session->status = 'connected';
+            $session->last_connected_at = now();
+        }
+
+        $session->save();
+
+        return $session;
     }
 
     /**
@@ -207,7 +270,11 @@ class WhatsAppGatewayService
         }
 
         $session = WhatsAppSession::where('business_id', $business->id)->first();
-        if (! $session || $session->status !== 'connected') {
+        if (! $session || ! $session->is_active) {
+            return false;
+        }
+
+        if ($session->provider === 'baileys' && $session->status !== 'connected') {
             return false;
         }
 
@@ -374,8 +441,17 @@ class WhatsAppGatewayService
 
             $ok ? $sent++ : $failed++;
 
-            // Throttle 1.5s per message to avoid WhatsApp spam filter
-            usleep(1_500_000);
+            // Humanized throttling to prevent ban
+            $session = WhatsAppSession::where('business_id', $business->id)->first();
+            if ($session && $session->provider === 'meta_cloud') {
+                usleep(200_000); // 200ms for Meta Cloud API
+            } else {
+                // Baileys: 3 - 5 seconds randomized delay + 10s cooldown every 10 messages
+                sleep(random_int(3, 5));
+                if ($sent > 0 && $sent % 10 === 0) {
+                    sleep(10);
+                }
+            }
         }
 
         $campaign->update([

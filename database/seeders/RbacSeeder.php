@@ -146,7 +146,7 @@ final class RbacSeeder extends Seeder
 
             // ─── Billing / SaaS ───────────────────────────────────────
             'billing.view'                => ['Lihat Paket & Tagihan',                  'billing',     'Melihat paket langganan dan riwayat tagihan.'],
-            'billing.manage'              => ['Kelola Langganan & Upgrade',             'billing',     'Mengelola paket langganan Cooca UMKM, upgrade, dan riwayat tagihan.'],
+            'billing.manage'              => ['Kelola Langganan & Upgrade',             'billing',     'Mengelola paket langganan Cooca, upgrade, dan riwayat tagihan.'],
 
             // ─── AI Assistant ─────────────────────────────────────────
             'ai.access'                   => ['AI Assistant & Rekomendasi',             'ai',          'Mengakses fitur prediksi stok, analitik pintar, dan chatbot AI.'],

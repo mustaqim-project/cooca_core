@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Reservasi & Booking Jadwal - Cooca UMKM'])
+@extends('layouts.app', ['title' => 'Reservasi & Booking Jadwal - Cooca'])
 
 @section('content')
     <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{
@@ -215,7 +215,8 @@
                                                 class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#5856D6]/10 text-[#5856D6]">
                                                 <i data-lucide="layout-grid" class="w-3 h-3"></i>
                                                 <span>Meja #{{ $rsv->posTable->table_number }}
-                                                    ({{ $rsv->posTable->name }})</span>
+                                                    ({{ $rsv->posTable->name }})
+                                                </span>
                                             </span>
                                         @elseif($rsv->product)
                                             <span

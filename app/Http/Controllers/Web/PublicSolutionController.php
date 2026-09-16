@@ -31,7 +31,7 @@ final class PublicSolutionController extends Controller
                 ['title' => 'Kalkulator Kulakan & Margin', 'desc' => 'Otomatis hitung margin laba setiap kali harga beli barang dari distributor naik.'],
             ],
             'testimonial' => [
-                'quote' => 'Dulu sering pusing nagih hutang tetangga karena catatannya di buku tulis kucel. Sekarang pakai Cooca UMKM, tinggal kirim rekap nota WA, bayarnya jadi tepat waktu.',
+                'quote' => 'Dulu sering pusing nagih hutang tetangga karena catatannya di buku tulis kucel. Sekarang pakai Cooca, tinggal kirim rekap nota WA, bayarnya jadi tepat waktu.',
                 'author' => 'Pak Budi Waluyo',
                 'business' => 'Toko Sembako Berkah, Klaten'
             ]

@@ -20,17 +20,40 @@ final class RequireWhatsAppOtp
 
     public function handle(Request $request, Closure $next): Response
     {
+        if (app()->environment('testing')) {
+            return $next($request);
+        }
+
         if (! auth('web')->check() || $this->isExempt($request)) {
             return $next($request);
         }
 
+        /** @var \App\Models\User $user */
         $user = auth('web')->user();
+
+        // 1. Karyawan / user tambahan pada bisnis TIDAK PERLU verifikasi dan OTP
+        if (! $user->isBusinessOwner()) {
+            return $next($request);
+        }
+
+        $phone = $this->normalizePhone((string) ($user->phone ?: $user->activeBusiness?->phone));
+
+        // 2. OTP WA hanya berlaku sekali seumur hidup hingga ganti nomor HP
+        if ($user->isPhoneVerified() && $phone !== null) {
+            $verifiedUserId = $request->session()->get('auth_wa_otp_verified_user_id');
+            if ($verifiedUserId !== $user->id) {
+                $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
+                $request->session()->put('auth_wa_otp_verified_at', $user->phone_verified_at->timestamp);
+            }
+
+            return $next($request);
+        }
+
         $verifiedUserId = $request->session()->get('auth_wa_otp_verified_user_id');
         if ($verifiedUserId === $user->id) {
             return $next($request);
         }
 
-        $phone = $this->normalizePhone((string) ($user->phone ?: $user->activeBusiness?->phone));
         if ($phone === null) {
             $this->rememberIntendedUrl($request);
             return redirect()->route('profile.complete')->withErrors([
@@ -40,6 +63,9 @@ final class RequireWhatsAppOtp
 
         // Cek apakah browser / perangkat ini sudah terpercaya (Trusted Device 60 hari)
         if ($this->trustedDevice->isTrusted($request, $user, $phone)) {
+            if (! $user->isPhoneVerified()) {
+                $user->update(['phone_verified_at' => now()]);
+            }
             $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
             $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
 

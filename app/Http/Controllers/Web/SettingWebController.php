@@ -51,9 +51,21 @@ final class SettingWebController extends Controller
         $allModules = \App\Domain\Template\ModuleRegistry::definitions();
 
         return view('app.settings.index', compact(
-            'business', 'templates', 'currencies', 'locations', 'members',
-            'suppliers', 'materialCategories', 'productCategories', 'customUnits', 'systemUnits', 'availableUnits',
-            'unitConversions', 'canAddMember', 'roles', 'allModules'
+            'business',
+            'templates',
+            'currencies',
+            'locations',
+            'members',
+            'suppliers',
+            'materialCategories',
+            'productCategories',
+            'customUnits',
+            'systemUnits',
+            'availableUnits',
+            'unitConversions',
+            'canAddMember',
+            'roles',
+            'allModules'
         ));
     }
 
@@ -258,7 +270,7 @@ final class SettingWebController extends Controller
         $entitlement = app(\App\Domain\Billing\EntitlementService::class);
 
         if (! $entitlement->canAddMember($business)) {
-            return back()->with('error', 'Paket Free Plan dibatasi untuk 1 pengguna (Solo Owner). Silakan upgrade ke Cooca UMKM untuk menambahkan karyawan tanpa batas.');
+            return back()->with('error', 'Paket Free Plan dibatasi untuk 1 pengguna (Solo Owner). Silakan upgrade ke Cooca untuk menambahkan karyawan tanpa batas.');
         }
 
         if (! $request->filled('role_id')) {

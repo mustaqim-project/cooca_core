@@ -1,20 +1,33 @@
 @extends('layouts.app', [
-    'title' => 'Klien & Pelanggan Komersial - Cooca UMKM',
-    'headerTitle' => 'Manajemen Pelanggan (Customers)',
-    'headerSubtitle' => 'Kelola direktori klien komersial, profil perusahaan, kontak penagihan, termin kredit pembayaran, dan riwayat transaksi',
+    'title' => 'Pusat Pelanggan & Loyalitas - Cooca',
+    'headerTitle' => 'Pusat Pelanggan & Loyalitas CRM',
+    'headerSubtitle' => 'Kelola direktori kontak pelanggan, program loyalty member, saldo poin, pelunasan kasbon tempo, dan voucher diskon kasir dalam satu pusat kendali terpadu.',
 ])
 
 @section('content')
     <script>
         window.COOCA_CUSTOMERS = @json($customers->items());
+        window.COOCA_MEMBERS = @json($members->items());
     </script>
 
-    <div class="space-y-6 pb-12" x-data="{
+    <div class="space-y-6 pb-16" x-data="{
+        activeTab: new URLSearchParams(window.location.search).get('tab') || '{{ $tab ?? 'customers' }}',
         customersList: window.COOCA_CUSTOMERS || [],
+        membersList: window.COOCA_MEMBERS || [],
         showAddModal: false,
         showEditModal: false,
         showDetailModal: false,
+        showCreditModal: false,
+        showPointsModal: false,
+        showVoucherModal: false,
         selectedCustomer: null,
+        loadingPoints: false,
+        pointHistories: [],
+        creditRepayAmount: '',
+        creditRawAmount: 0,
+        creditNotes: '',
+        copiedVoucherCode: null,
+    
         editCustomer: {
             id: '',
             slug: '',
@@ -30,8 +43,20 @@
             notes: ''
         },
     
+        switchTab(tab) {
+            this.activeTab = tab;
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', tab);
+            window.history.replaceState({}, '', url);
+        },
+    
+        openDetailModal(id) {
+            this.selectedCustomer = this.customersList.find(c => c.id == id) || this.membersList.find(m => m.id == id) || null;
+            this.showDetailModal = true;
+        },
+    
         openEditModal(id) {
-            const c = this.customersList.find(item => item.id == id);
+            const c = this.customersList.find(item => item.id == id) || this.membersList.find(item => item.id == id);
             if (!c) return;
             this.editCustomer = {
                 id: c.id || '',
@@ -50,1162 +75,1174 @@
             this.showEditModal = true;
         },
     
-        openDetailModal(id) {
-            this.selectedCustomer = this.customersList.find(item => item.id == id) || null;
-            this.showDetailModal = true;
+        openCreditModal(customer) {
+            this.selectedCustomer = customer;
+            const maxDebt = Number(customer.current_credit_balance || 0);
+            this.creditRawAmount = maxDebt;
+            this.creditRepayAmount = this.formatCurrency(maxDebt);
+            this.creditNotes = 'Pelunasan piutang kasbon';
+            this.showCreditModal = true;
         },
     
-        copyBillingToShipping(target) {
-            if (target === 'add') {
-                const billing = document.getElementById('add_billing_address');
-                const shipping = document.getElementById('add_shipping_address');
-                if (billing && shipping) {
-                    shipping.value = billing.value;
+        setQuickCredit(percent) {
+            if (!this.selectedCustomer) return;
+            const maxDebt = Number(this.selectedCustomer.current_credit_balance || 0);
+            const amt = Math.round(maxDebt * (percent / 100));
+            this.creditRawAmount = amt;
+            this.creditRepayAmount = this.formatCurrency(amt);
+        },
+    
+        onCreditInput(e) {
+            let clean = e.target.value.replace(/[^0-9]/g, '');
+            let num = parseInt(clean, 10) || 0;
+            if (this.selectedCustomer) {
+                const maxDebt = Number(this.selectedCustomer.current_credit_balance || 0);
+                if (num > maxDebt) num = maxDebt;
+            }
+            this.creditRawAmount = num;
+            this.creditRepayAmount = num > 0 ? this.formatCurrency(num) : '';
+        },
+    
+        async openPointHistory(customer) {
+            this.selectedCustomer = customer;
+            this.showPointsModal = true;
+            this.loadingPoints = true;
+            this.pointHistories = [];
+    
+            try {
+                const res = await fetch('/crm/customers/' + customer.id + '/points', {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    this.pointHistories = data.histories || [];
                 }
-            } else if (target === 'edit') {
-                this.editCustomer.shipping_address = this.editCustomer.billing_address;
+            } catch (e) {
+                console.error('Gagal mengambil data poin:', e);
+            } finally {
+                this.loadingPoints = false;
             }
         },
     
-        setPaymentTerm(days, target) {
-            if (target === 'add') {
-                const input = document.getElementById('add_payment_terms_days');
-                if (input) input.value = days;
-            } else if (target === 'edit') {
-                this.editCustomer.payment_terms_days = days;
+        copyVoucher(code) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(code);
             }
+            this.copiedVoucherCode = code;
+            setTimeout(() => this.copiedVoucherCode = null, 2500);
+        },
+    
+        formatCurrency(num) {
+            return new Intl.NumberFormat('id-ID').format(num);
         }
     }">
 
-        <!-- 0. Standard Breadcrumb Bar -->
-        <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}"
-                class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
+        <!-- 0. Breadcrumb Bar Apple HIG -->
+        <nav class="flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50 print:hidden" aria-label="Breadcrumb">
+            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors flex items-center gap-1.5 font-medium text-black/70 dark:text-white/70">
+                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                 <span>Dashboard</span>
             </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
+            <span class="text-black/50 dark:text-white/50 flex items-center gap-1.5">
                 <i data-lucide="users" class="w-3.5 h-3.5"></i>
-                <span>Master Data</span>
+                <span>Operasional Bisnis</span>
             </span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-900 dark:text-white font-bold flex items-center gap-1.5">
-                <span>Direktori Pelanggan &amp; Klien</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
+            <span class="text-black dark:text-white font-semibold">
+                Pusat Pelanggan &amp; Loyalitas CRM
             </span>
         </nav>
 
-        <!-- 1. Top Header Banner (Seukuran Dashboard Penuh) -->
-        <div
-            class="bg-white dark:bg-slate-900/90 p-5 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 transition-colors">
-            <div class="space-y-1.5 max-w-3xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold border inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90">
-                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
-                        <span>Direktori Klien Komersial</span>
-                    </span>
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold border inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 font-mono">
-                        Total: {{ number_format($totalCustomers ?? $customers->total(), 0, ',', '.') }} Klien
-                    </span>
-                </div>
-                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Direktori Klien &amp; Pelanggan Komersial
-                </h1>
-                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Kelola basis data klien komersial, profil perusahaan B2B, kontak penagihan, termin tempo kredit (Net D),
-                    serta rekam jejak pesanan dan faktur.
-                </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-                @if (\App\Support\Context::hasPermission('crm.view') || \App\Support\Context::hasPermission('crm.manage'))
-                    <a href="{{ route('crm.members.index') }}"
-                        class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition cursor-pointer shadow-2xs flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
-                        <i data-lucide="award" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                        <span>Loyalitas CRM</span>
-                    </a>
-                    <a href="{{ route('crm.vouchers.index') }}"
-                        class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition cursor-pointer shadow-2xs flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
-                        <i data-lucide="ticket" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i>
-                        <span>Voucher Kasir</span>
-                    </a>
-                @endif
-                @if (\App\Support\Context::hasPermission('customers.create'))
-                    <button type="button" @click="showAddModal = true"
-                        class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        <span>Tambah Pelanggan</span>
-                    </button>
-                @endif
-            </div>
-        </div>
-
-        <!-- Flash Alert -->
-        @if (session('success'))
-            <div
-                class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-3 shadow-xs">
-                <div class="flex items-center gap-2.5">
-                    <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                    <span class="font-semibold">{{ session('success') }}</span>
-                </div>
-                <button type="button" @click="$el.parentElement.remove()"
-                    class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-        @endif
-
-        <!-- 2. 4 Command Pillars KPI Cards (Grid Penuh 4 Kolom) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <!-- Pillar 1: Total Customers -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Total
-                            Klien Terdaftar</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800/80 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                            <i data-lucide="users" class="w-4 h-4"></i>
-                        </div>
+        <!-- 1. Header Hero Banner (Apple HIG Card Squircle) -->
+        <div class="relative overflow-hidden rounded-[24px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.03)] transition-all">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div class="space-y-2 max-w-3xl">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
+                            <i data-lucide="heart-handshake" class="w-3.5 h-3.5"></i>
+                            <span>Pusat Pelanggan &amp; Loyalitas</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 border border-black/[0.06] dark:border-white/[0.08] tabular-nums">
+                            {{ number_format($totalCustomers, 0, ',', '.') }} Terdaftar
+                        </span>
                     </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight truncate">
-                        {{ number_format($totalCustomers ?? $customers->total(), 0, ',', '.') }}
-                    </div>
-                </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Database</span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300">Pelanggan Aktif</span>
-                </div>
-            </div>
-
-            <!-- Pillar 2: Corporate Clients -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Entitas
-                            Korporat / PT</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200/80 dark:border-cyan-800/80 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
-                            <i data-lucide="building-2" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight truncate">
-                        {{ number_format($totalCorporate ?? 0, 0, ',', '.') }}
-                    </div>
-                </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Segmen</span>
-                    <span class="font-bold text-cyan-600 dark:text-cyan-400">Badan Usaha</span>
-                </div>
-            </div>
-
-            <!-- Pillar 3: Average Payment Terms -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span
-                            class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Rata-Rata
-                            Termin Bayar</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                            <i data-lucide="calendar-clock" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-amber-600 dark:text-amber-400 font-mono tracking-tight truncate">
-                        Net {{ $avgPaymentTerms ?? 30 }} Hari
-                    </div>
-                </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Kebijakan</span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300">Tempo Penagihan</span>
-                </div>
-            </div>
-
-            <!-- Pillar 4: Total Orders & Invoices Handled -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span
-                            class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Aktivitas
-                            Transaksi</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                            <i data-lucide="receipt" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight truncate">
-                        {{ number_format($customers->sum('invoices_count') + $customers->sum('purchase_orders_count'), 0, ',', '.') }}
-                    </div>
-                </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Dokumen</span>
-                    <span class="font-bold text-emerald-600 dark:text-emerald-400 font-mono">PO &amp; Faktur</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. Toolbar Filter & Search Container -->
-        <div
-            class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-4 sm:p-5">
-            <form method="GET" action="{{ route('customers.index') }}"
-                class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center">
-                <!-- Search Query Input -->
-                <div class="sm:col-span-9 relative">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="search" class="w-4 h-4"></i>
-                    </div>
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari nama pelanggan, nama perusahaan/PT, kode klien, nomor telepon/WhatsApp, atau email..."
-                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-hidden transition">
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-black dark:text-white">
+                        Pusat Pelanggan &amp; Loyalitas CRM
+                    </h1>
+                    <p class="text-[13px] sm:text-[14px] text-black/60 dark:text-white/60 leading-relaxed">
+                        Kelola data klien komersial, pantau tier keanggotaan loyalty, riwayat poin belanja, pelunasan kasbon tempo, dan kode kupon diskon kasir dalam satu antarmuka terpadu.
+                    </p>
                 </div>
 
-                <!-- Submit & Reset Buttons -->
-                <div class="sm:col-span-3 flex items-center gap-2">
-                    <button type="submit"
-                        class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]">
-                        <i data-lucide="filter" class="w-3.5 h-3.5"></i>
-                        <span>Cari Pelanggan</span>
-                    </button>
-                    @if (request('search'))
-                        <a href="{{ route('customers.index') }}"
-                            class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition border border-slate-200 dark:border-slate-700 flex items-center gap-1"
-                            title="Reset Pencarian">
-                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                            <span class="hidden sm:inline">Reset</span>
-                        </a>
+                <!-- Action CTA Buttons -->
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    @if (\App\Support\Context::hasPermission('customers.create'))
+                        <button type="button" @click="showAddModal = true"
+                            class="h-11 sm:h-12 px-5 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] sm:text-[14px] font-semibold shadow-[0_2px_8px_rgba(0,122,255,0.3)] active:scale-[0.98] transition flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            <span>+ Tambah Pelanggan Baru</span>
+                        </button>
+                    @endif
+
+                    @if (\App\Support\Context::hasPermission('crm.manage'))
+                        <button type="button" @click="showVoucherModal = true"
+                            class="h-11 sm:h-12 px-4 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] sm:text-[14px] font-semibold active:scale-[0.98] transition flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer border border-black/[0.06] dark:border-white/[0.08]">
+                            <i data-lucide="ticket-plus" class="w-4 h-4 text-[#FF9500]"></i>
+                            <span>+ Buat Voucher Diskon</span>
+                        </button>
                     @endif
                 </div>
-            </form>
-        </div>
-
-        <!-- 4. High-Density Data Table Container -->
-        <div
-            class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs overflow-hidden">
-
-            <!-- Table Header Bar -->
-            <div
-                class="p-5 border-b border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div>
-                    <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="contact-2" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                        <span>Daftar Klien &amp; Pelanggan Komersial</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Basis data pelanggan B2B dan ritel untuk
-                        penerbitan Purchase Order &amp; Faktur Penjualan.</p>
-                </div>
-                <span
-                    class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800">
-                    Menampilkan {{ $customers->count() }} dari {{ $customers->total() }} pelanggan
-                </span>
             </div>
 
-            @if ($customers->count() > 0)
-                <!-- Desktop View: Dense Data Table (Hidden on Mobile) -->
-                <div class="hidden md:block overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead
-                            class="bg-slate-50/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-mono uppercase text-[10px] font-bold border-b border-slate-200 dark:border-slate-800 tracking-wider whitespace-nowrap">
-                            <tr>
-                                <th scope="col" class="py-3.5 px-5">Nama &amp; Perusahaan</th>
-                                <th scope="col" class="py-3.5 px-4">ID Klien</th>
-                                <th scope="col" class="py-3.5 px-4">Kontak &amp; Email</th>
-                                <th scope="col" class="py-3.5 px-4">Alamat Penagihan</th>
-                                <th scope="col" class="py-3.5 px-4 text-center">Termin Bayar</th>
-                                <th scope="col" class="py-3.5 px-4 text-center">Aktivitas Transaksi</th>
-                                <th scope="col" class="py-3.5 px-5 text-right">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-sans">
-                            @foreach ($customers as $customer)
-                                @php
-                                    $termsDays = (int) ($customer->payment_terms_days ?? 30);
-                                    $termBadge = match (true) {
-                                        $termsDays <= 0
-                                            => 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90',
-                                        $termsDays <= 14
-                                            => 'bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400 border-teal-200/90 dark:border-teal-800/90',
-                                        $termsDays <= 30
-                                            => 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 border-blue-200/90 dark:border-blue-800/90',
-                                        default
-                                            => 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200/90 dark:border-amber-800/90',
-                                    };
-                                    $termLabel = $termsDays <= 0 ? 'Tunai / Cash' : 'Net ' . $termsDays . ' Hari';
-                                @endphp
-                                <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+            <!-- No-Panic Microcopy Banner -->
+            <div class="mt-5 pt-4 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center gap-2 text-[12px] text-black/55 dark:text-white/55">
+                <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0"></i>
+                <span>💡 <strong>Tenang:</strong> Seluruh riwayat transaksi, saldo poin, dan catatan piutang pelanggan Anda selalu aman dan terenkripsi otomatis di sistem.</span>
+            </div>
+        </div>
 
-                                    <!-- 1. Name & Company -->
-                                    <td class="py-3.5 px-5">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                                                {{ strtoupper(substr($customer->name, 0, 1)) }}
-                                            </div>
-                                            <div class="min-w-0">
-                                                <button type="button" @click="openDetailModal('{{ $customer->id }}')"
-                                                    class="font-black text-slate-900 dark:text-white text-sm hover:text-emerald-600 dark:hover:text-emerald-400 transition text-left truncate block cursor-pointer">
-                                                    {{ $customer->name }}
-                                                </button>
-                                                @if ($customer->company_name)
-                                                    <div
-                                                        class="text-[11px] text-cyan-700 dark:text-cyan-300 font-medium flex items-center gap-1 mt-0.5 truncate">
-                                                        <i data-lucide="building-2"
-                                                            class="w-3 h-3 text-cyan-600 dark:text-cyan-400 shrink-0"></i>
-                                                        <span class="truncate">{{ $customer->company_name }}</span>
+        <!-- 2. Bento Hero Metrics (3-Second Glanceability) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Bento Tile 1: Total Pelanggan -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2 transition hover:-translate-y-0.5">
+                <div class="flex items-center justify-between text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase tracking-wider">
+                    <span>Total Pelanggan</span>
+                    <i data-lucide="users" class="w-4 h-4 text-[#007AFF]"></i>
+                </div>
+                <div class="text-2xl sm:text-3xl font-bold tracking-tight text-black dark:text-white tabular-nums">
+                    {{ number_format($totalCustomers, 0, ',', '.') }}
+                </div>
+                <p class="text-[12px] text-black/50 dark:text-white/50">
+                    {{ $totalCorporate }} Klien Perusahaan / B2B
+                </p>
+            </div>
+
+            <!-- Bento Tile 2: Poin Loyalitas Beredar -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2 transition hover:-translate-y-0.5">
+                <div class="flex items-center justify-between text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase tracking-wider">
+                    <span>Poin Loyalty Beredar</span>
+                    <i data-lucide="award" class="w-4 h-4 text-[#FF9500]"></i>
+                </div>
+                <div class="text-2xl sm:text-3xl font-bold tracking-tight text-[#FF9500] tabular-nums">
+                    {{ number_format($totalPointsIssued, 0, ',', '.') }}
+                </div>
+                <p class="text-[12px] text-black/50 dark:text-white/50">
+                    Siap ditukar diskon di kasir
+                </p>
+            </div>
+
+            <!-- Bento Tile 3: Total Piutang Kasbon -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2 transition hover:-translate-y-0.5">
+                <div class="flex items-center justify-between text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase tracking-wider">
+                    <span>Piutang Kasbon Pelanggan</span>
+                    <i data-lucide="receipt" class="w-4 h-4 text-[#FF3B30]"></i>
+                </div>
+                <div class="text-xl sm:text-2xl font-bold tracking-tight text-[#FF3B30] tabular-nums">
+                    Rp {{ number_format($totalCreditReceivable, 0, ',', '.') }}
+                </div>
+                <p class="text-[12px] text-black/50 dark:text-white/50">
+                    Rata-rata tempo {{ $avgPaymentTerms }} hari
+                </p>
+            </div>
+
+            <!-- Bento Tile 4: Voucher Promosi -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2 transition hover:-translate-y-0.5">
+                <div class="flex items-center justify-between text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase tracking-wider">
+                    <span>Voucher Kasir POS</span>
+                    <i data-lucide="ticket" class="w-4 h-4 text-[#34C759]"></i>
+                </div>
+                <div class="text-2xl sm:text-3xl font-bold tracking-tight text-[#34C759] tabular-nums">
+                    {{ $activeVouchers }} <span class="text-sm font-normal text-black/40 dark:text-white/40">/ {{ $totalVouchers }}</span>
+                </div>
+                <p class="text-[12px] text-black/50 dark:text-white/50">
+                    Kupon promo aktif berjalan
+                </p>
+            </div>
+        </div>
+
+        <!-- 3. Apple HIG Segmented Control Navigation -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-1.5 rounded-[16px] backdrop-blur-md bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.06]">
+            <div class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] gap-1">
+                <button type="button" @click="switchTab('customers')"
+                    :class="activeTab === 'customers' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                    class="h-9 px-4 rounded-[10px] text-[13px] transition-all flex items-center gap-2 cursor-pointer">
+                    <i data-lucide="users" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>Direktori Pelanggan</span>
+                    <span class="ml-1 text-[11px] px-1.5 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] tabular-nums">{{ $customers->total() }}</span>
+                </button>
+
+                <button type="button" @click="switchTab('members')"
+                    :class="activeTab === 'members' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                    class="h-9 px-4 rounded-[10px] text-[13px] transition-all flex items-center gap-2 cursor-pointer">
+                    <i data-lucide="award" class="w-4 h-4 text-[#FF9500]"></i>
+                    <span>Member &amp; Loyalitas Poin</span>
+                    <span class="ml-1 text-[11px] px-1.5 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] tabular-nums">{{ $members->total() }}</span>
+                </button>
+
+                <button type="button" @click="switchTab('vouchers')"
+                    :class="activeTab === 'vouchers' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                    class="h-9 px-4 rounded-[10px] text-[13px] transition-all flex items-center gap-2 cursor-pointer">
+                    <i data-lucide="ticket" class="w-4 h-4 text-[#34C759]"></i>
+                    <span>Voucher Diskon Kasir</span>
+                    <span class="ml-1 text-[11px] px-1.5 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] tabular-nums">{{ $vouchers->total() }}</span>
+                </button>
+            </div>
+
+            <div class="text-[12px] text-black/50 dark:text-white/50 px-3 text-right hidden sm:block">
+                <span>Tab Aktif: <strong class="text-black dark:text-white capitalize" x-text="activeTab"></strong></span>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 1: DIREKTORI PELANGGAN & KLIEN KOMERSIAL                              -->
+        <!-- ========================================================================= -->
+        <div x-show="activeTab === 'customers'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-4">
+            <!-- Search & Filter Bar -->
+            <div class="p-4 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+                <form method="GET" action="{{ route('customers.index') }}" class="flex flex-col sm:flex-row items-center gap-3">
+                    <input type="hidden" name="tab" value="customers">
+                    <div class="relative flex-1 w-full">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"></i>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari nama pelanggan, nomor WhatsApp, nama perusahaan, atau email..."
+                            class="w-full h-11 pl-10 pr-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white placeholder-black/40 dark:placeholder-white/40 focus:outline-hidden focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 transition">
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button type="submit"
+                            class="h-11 px-5 rounded-[12px] bg-[#007AFF] text-white text-[13px] font-semibold hover:bg-[#0071E3] transition cursor-pointer flex items-center justify-center gap-2 flex-1 sm:flex-none">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                            <span>Cari Pelanggan</span>
+                        </button>
+                        @if (request('search'))
+                            <a href="{{ route('customers.index', ['tab' => 'customers']) }}"
+                                class="h-11 px-3.5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white text-[13px] font-semibold transition flex items-center justify-center cursor-pointer">
+                                <span>Reset</span>
+                            </a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
+            <!-- Customer Table Bento Container -->
+            <div class="rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div class="px-5 py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-[14px] font-bold text-black dark:text-white">Direktori Klien &amp; Pelanggan</h2>
+                        <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-[#007AFF]/10 text-[#007AFF]">{{ $customers->total() }} Kontak</span>
+                    </div>
+                </div>
+                @if ($customers->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-[13px]">
+                            <thead>
+                                <tr class="border-b border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02] text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4 sm:px-6">Pelanggan / Klien</th>
+                                    <th class="py-3.5 px-4">Kontak WhatsApp &amp; Email</th>
+                                    <th class="py-3.5 px-4 text-center">Termin Tempo</th>
+                                    <th class="py-3.5 px-4 text-center">Transaksi</th>
+                                    <th class="py-3.5 px-4 text-right pr-6">Aksi Cepat</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-black/[0.05] dark:divide-white/[0.06]">
+                                @foreach ($customers as $c)
+                                    <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
+                                        <!-- Customer Identity -->
+                                        <td class="py-4 px-4 sm:px-6">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] font-bold flex items-center justify-center shrink-0 border border-[#007AFF]/20 text-[14px]">
+                                                    {{ strtoupper(substr($c->name, 0, 2)) }}
+                                                </div>
+                                                <div class="space-y-0.5">
+                                                    <div class="font-semibold text-black dark:text-white flex items-center gap-2">
+                                                        <span>{{ $c->name }}</span>
+                                                        @if ($c->code)
+                                                            <span class="px-1.5 py-0.5 text-[10px] font-mono rounded-md bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60">{{ $c->code }}</span>
+                                                        @endif
                                                     </div>
+                                                    @if ($c->company_name)
+                                                        <div class="text-[12px] text-black/55 dark:text-white/55 flex items-center gap-1">
+                                                            <i data-lucide="building" class="w-3 h-3 text-black/40 dark:text-white/40"></i>
+                                                            <span>{{ $c->company_name }}</span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Contact Info & Quick WA -->
+                                        <td class="py-4 px-4">
+                                            <div class="space-y-1">
+                                                @if ($c->phone)
+                                                    @php
+                                                        $cleanPhone = preg_replace('/[^0-9]/', '', $c->phone);
+                                                        if (str_starts_with($cleanPhone, '0')) {
+                                                            $cleanPhone = '62' . substr($cleanPhone, 1);
+                                                        }
+                                                    @endphp
+                                                    <a href="https://wa.me/{{ $cleanPhone }}" target="_blank"
+                                                        class="inline-flex items-center gap-1.5 font-mono text-[12px] text-[#34C759] hover:underline">
+                                                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                                        <span>{{ $c->phone }}</span>
+                                                    </a>
                                                 @else
-                                                    <span
-                                                        class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">Personal
-                                                        Client</span>
+                                                    <span class="text-black/30 dark:text-white/30 text-[11px]">- Telepon Belum Diset -</span>
+                                                @endif
+
+                                                @if ($c->email)
+                                                    <div class="text-[12px] text-black/50 dark:text-white/50 flex items-center gap-1">
+                                                        <i data-lucide="mail" class="w-3 h-3 text-black/30 dark:text-white/30"></i>
+                                                        <span class="truncate max-w-[180px]">{{ $c->email }}</span>
+                                                    </div>
                                                 @endif
                                             </div>
-                                        </div>
-                                    </td>
+                                        </td>
 
-                                    <!-- 2. Client Code -->
-                                    <td class="py-3.5 px-4 font-mono">
-                                        @if ($customer->code)
-                                            <span
-                                                class="px-2 py-0.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[11px]">
-                                                {{ $customer->code }}
+                                        <!-- Payment Terms -->
+                                        <td class="py-4 px-4 text-center">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 tabular-nums">
+                                                {{ $c->payment_terms_days > 0 ? 'Net ' . $c->payment_terms_days . ' Hari' : 'Tunai / Cash' }}
                                             </span>
-                                        @else
-                                            <span class="text-slate-400 dark:text-slate-600 font-mono text-xs">-</span>
-                                        @endif
-                                    </td>
+                                        </td>
 
-                                    <!-- 3. Contact & Email -->
-                                    <td class="py-3.5 px-4">
-                                        <div class="space-y-1">
-                                            @if ($customer->phone)
-                                                <div
-                                                    class="font-mono text-slate-900 dark:text-slate-200 flex items-center gap-1.5">
-                                                    <i data-lucide="phone"
-                                                        class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                                                    <a href="tel:{{ $customer->phone }}"
-                                                        class="hover:underline hover:text-emerald-600 dark:hover:text-emerald-300">{{ $customer->phone }}</a>
-                                                </div>
-                                            @endif
-                                            @if ($customer->email)
-                                                <div
-                                                    class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 text-[11px]">
-                                                    <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
-                                                    <a href="mailto:{{ $customer->email }}"
-                                                        class="hover:underline hover:text-slate-800 dark:hover:text-slate-200 truncate max-w-[180px]">{{ $customer->email }}</a>
-                                                </div>
-                                            @endif
-                                            @if (!$customer->phone && !$customer->email)
-                                                <span class="text-slate-400 dark:text-slate-500 italic text-[11px]">Belum
-                                                    diisi</span>
-                                            @endif
-                                        </div>
-                                    </td>
-
-                                    <!-- 4. Billing Address -->
-                                    <td class="py-3.5 px-4 text-slate-700 dark:text-slate-300 max-w-[200px]">
-                                        @if ($customer->billing_address)
-                                            <div class="truncate text-xs" title="{{ $customer->billing_address }}">
-                                                {{ $customer->billing_address }}
+                                        <!-- Transactions Count -->
+                                        <td class="py-4 px-4 text-center">
+                                            <div class="inline-flex flex-col text-[11px] font-mono">
+                                                <span class="font-bold text-[#007AFF]">{{ $c->invoices_count }} Faktur</span>
+                                                <span class="text-black/40 dark:text-white/40">{{ $c->purchase_orders_count }} PO</span>
                                             </div>
-                                            @if ($customer->tax_identification_number)
-                                                <div
-                                                    class="text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1">
-                                                    <i data-lucide="file-text" class="w-3 h-3 text-slate-400"></i>
-                                                    <span>NPWP: {{ $customer->tax_identification_number }}</span>
-                                                </div>
-                                            @endif
-                                        @else
-                                            <span class="text-slate-400 dark:text-slate-600 text-xs">-</span>
-                                        @endif
-                                    </td>
+                                        </td>
 
-                                    <!-- 5. Payment Terms -->
-                                    <td class="py-3.5 px-4 text-center font-mono whitespace-nowrap">
-                                        <span
-                                            class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $termBadge }}">
-                                            {{ $termLabel }}
-                                        </span>
-                                    </td>
-
-                                    <!-- 6. Transactions Count -->
-                                    <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                                        <div
-                                            class="inline-flex items-center justify-center gap-2 p-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                                            <span
-                                                class="text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300"
-                                                title="Total Pesanan Pembelian">
-                                                {{ $customer->purchase_orders_count }} PO
-                                            </span>
-                                            <span class="text-slate-300 dark:text-slate-700">•</span>
-                                            <span
-                                                class="text-[11px] font-mono font-black text-emerald-600 dark:text-emerald-400"
-                                                title="Total Faktur Penjualan">
-                                                {{ $customer->invoices_count }} Faktur
-                                            </span>
-                                        </div>
-                                    </td>
-
-                                    <!-- 7. Actions -->
-                                    <td class="py-3.5 px-5 text-right whitespace-nowrap">
-                                        <div class="flex items-center justify-end gap-1.5">
-                                            <!-- Quick Detail -->
-                                            <button type="button" @click="openDetailModal('{{ $customer->id }}')"
-                                                class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white transition cursor-pointer"
-                                                title="Lihat Detail Profil">
-                                                <i data-lucide="eye" class="w-4 h-4"></i>
-                                            </button>
-
-                                            @if (\App\Support\Context::hasPermission('customers.edit'))
-                                                <!-- Edit -->
-                                                <button type="button" @click="openEditModal('{{ $customer->id }}')"
-                                                    class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white transition cursor-pointer"
-                                                    title="Edit Pelanggan">
-                                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                        <!-- Action Buttons -->
+                                        <td class="py-4 px-4 text-right pr-6">
+                                            <div class="flex items-center justify-end gap-1.5">
+                                                <button type="button" @click="openDetailModal('{{ $c->id }}')"
+                                                    class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/70 dark:text-white/70 transition cursor-pointer flex items-center gap-1">
+                                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                                    <span>Profil</span>
                                                 </button>
-                                            @endif
 
-                                            @if (\App\Support\Context::hasPermission('customers.delete'))
-                                                <!-- Delete -->
-                                                <form method="POST"
-                                                    action="{{ route('customers.destroy', $customer->slug) }}"
-                                                    onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus data pelanggan {{ addslashes($customer->name) }}?', 'Hapus Pelanggan?', 'danger')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                        class="p-1.5 hover:bg-rose-50 dark:hover:bg-rose-500/20 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition cursor-pointer"
-                                                        title="Hapus Pelanggan">
-                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                @if (\App\Support\Context::hasPermission('customers.edit'))
+                                                    <button type="button" @click="openEditModal('{{ $c->id }}')"
+                                                        class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 transition cursor-pointer flex items-center gap-1">
+                                                        <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                                                        <span>Edit</span>
                                                     </button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                                                @endif
 
-                <!-- Mobile View: Clean Card Stream -->
-                <div class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/80">
-                    @foreach ($customers as $customer)
-                        @php
-                            $termsDays = (int) ($customer->payment_terms_days ?? 30);
-                            $termBadge = match (true) {
-                                $termsDays <= 0
-                                    => 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90',
-                                $termsDays <= 14
-                                    => 'bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400 border-teal-200/90 dark:border-teal-800/90',
-                                $termsDays <= 30
-                                    => 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 border-blue-200/90 dark:border-blue-800/90',
-                                default
-                                    => 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200/90 dark:border-amber-800/90',
-                            };
-                            $termLabel = $termsDays <= 0 ? 'Tunai (Cash)' : 'Net ' . $termsDays . ' Hari';
-                        @endphp
-                        <div class="p-5 space-y-4 hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition">
-
-                            <!-- Card Top: Client Avatar, Name, Company & Term Badge -->
-                            <div class="flex items-start justify-between gap-3">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                                        {{ strtoupper(substr($customer->name, 0, 1)) }}
-                                    </div>
-                                    <div class="min-w-0">
-                                        <button type="button" @click="openDetailModal('{{ $customer->id }}')"
-                                            class="font-black text-slate-900 dark:text-white text-sm hover:text-emerald-600 dark:hover:text-emerald-400 transition text-left truncate block cursor-pointer">
-                                            {{ $customer->name }}
-                                        </button>
-                                        @if ($customer->company_name)
-                                            <div
-                                                class="text-[11px] text-cyan-700 dark:text-cyan-300 font-medium flex items-center gap-1 truncate">
-                                                <i data-lucide="building-2"
-                                                    class="w-3 h-3 text-cyan-600 dark:text-cyan-400 shrink-0"></i>
-                                                <span class="truncate">{{ $customer->company_name }}</span>
+                                                @if (\App\Support\Context::hasPermission('customers.delete'))
+                                                    <form method="POST" action="{{ route('customers.destroy', $c->slug) }}"
+                                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelanggan {{ addslashes($c->name) }}? Data historis transaksi akan tetap aman.')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            class="h-8 w-8 rounded-[8px] text-black/40 hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 transition flex items-center justify-center cursor-pointer">
+                                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             </div>
-                                        @endif
-                                    </div>
-                                </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
 
-                                <div class="flex flex-col items-end gap-1 shrink-0">
-                                    <span
-                                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $termBadge }}">
-                                        {{ $termLabel }}
-                                    </span>
-                                    @if ($customer->code)
-                                        <span
-                                            class="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">{{ $customer->code }}</span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <!-- Card Body: Contact Quick Actions & Micro Stats -->
-                            <div
-                                class="grid grid-cols-2 gap-2 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-center">
-                                <div class="space-y-0.5">
-                                    <span
-                                        class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-mono font-bold">Purchase
-                                        Orders</span>
-                                    <div class="text-xs font-mono font-bold text-slate-900 dark:text-slate-200">
-                                        {{ $customer->purchase_orders_count }} PO Terbit
-                                    </div>
-                                </div>
-                                <div class="space-y-0.5 border-l border-slate-200 dark:border-slate-800">
-                                    <span
-                                        class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-mono font-bold">Faktur
-                                        Penjualan</span>
-                                    <div class="text-xs font-mono font-black text-emerald-600 dark:text-emerald-400">
-                                        {{ $customer->invoices_count }} Faktur Terbit
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Contact & Address Snippet -->
-                            <div class="space-y-1 text-xs text-slate-600 dark:text-slate-400">
-                                @if ($customer->phone)
-                                    <div class="flex items-center gap-2">
-                                        <i data-lucide="phone"
-                                            class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                                        <a href="tel:{{ $customer->phone }}"
-                                            class="text-slate-900 dark:text-slate-200 font-mono hover:underline">{{ $customer->phone }}</a>
-                                    </div>
-                                @endif
-                                @if ($customer->email)
-                                    <div class="flex items-center gap-2">
-                                        <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
-                                        <span class="truncate">{{ $customer->email }}</span>
-                                    </div>
-                                @endif
-                                @if ($customer->billing_address)
-                                    <div
-                                        class="flex items-start gap-2 text-[11px] text-slate-500 dark:text-slate-400 pt-0.5">
-                                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5"></i>
-                                        <span class="line-clamp-1">{{ $customer->billing_address }}</span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <!-- Card Footer: Action Buttons -->
-                            <div
-                                class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
-                                <button type="button" @click="openDetailModal('{{ $customer->id }}')"
-                                    class="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold cursor-pointer">
-                                    <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-400"></i>
-                                    <span>Detail Profil</span>
+                    <!-- Pagination Customers -->
+                    @if ($customers->hasPages())
+                        <div class="p-4 border-t border-black/[0.05] dark:border-white/[0.06]">
+                            {{ $customers->links() }}
+                        </div>
+                    @endif
+                @else
+                    <div class="py-16 text-center space-y-3">
+                        <div class="w-14 h-14 rounded-full bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center mx-auto text-black/40 dark:text-white/40">
+                            <i data-lucide="users" class="w-7 h-7"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-[15px] font-bold text-black dark:text-white">Belum Ada Pelanggan Ditemukan</h4>
+                            <p class="text-[13px] text-black/50 dark:text-white/50 max-w-sm mx-auto">
+                                Mulai tambahkan kontak pelanggan untuk mencatat penjualan kasir, bon tempo, dan faktur resmi.
+                            </p>
+                        </div>
+                        @if (\App\Support\Context::hasPermission('customers.create'))
+                            <div class="pt-2">
+                                <button type="button" @click="showAddModal = true"
+                                    class="h-11 px-5 rounded-[12px] bg-[#007AFF] text-white text-[13px] font-semibold hover:bg-[#0071E3] transition cursor-pointer">
+                                    + Tambah Pelanggan Pertama
                                 </button>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        </div>
 
-                                <div class="flex items-center gap-1.5">
-                                    @if (\App\Support\Context::hasPermission('customers.edit'))
-                                        <button type="button" @click="openEditModal('{{ $customer->id }}')"
-                                            class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer">
-                                            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                                            <span>Edit</span>
+        <!-- ========================================================================= -->
+        <!-- TAB 2: MEMBERSHIP, POIN LOYALITAS & PELUNASAN PIUTANG                     -->
+        <!-- ========================================================================= -->
+        <div x-show="activeTab === 'members'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-4">
+            <!-- Filter Bar for Members -->
+            <div class="p-4 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+                <form method="GET" action="{{ route('customers.index') }}" class="flex flex-col lg:flex-row items-center gap-3">
+                    <input type="hidden" name="tab" value="members">
+
+                    <div class="relative flex-1 w-full">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"></i>
+                        <input type="text" name="member_search" value="{{ request('member_search') }}"
+                            placeholder="Cari nama member, nomor telepon, atau email..."
+                            class="w-full h-11 pl-10 pr-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white placeholder-black/40 dark:placeholder-white/40 focus:outline-hidden focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 transition">
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full lg:w-auto">
+                        <select name="tier"
+                            class="h-11 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[13px] font-medium text-black dark:text-white focus:outline-hidden">
+                            <option value="all">Semua Tier</option>
+                            <option value="Bronze" {{ request('tier') === 'Bronze' ? 'selected' : '' }}>Bronze</option>
+                            <option value="Silver" {{ request('tier') === 'Silver' ? 'selected' : '' }}>Silver</option>
+                            <option value="Gold" {{ request('tier') === 'Gold' ? 'selected' : '' }}>Gold</option>
+                            <option value="Platinum" {{ request('tier') === 'Platinum' ? 'selected' : '' }}>Platinum</option>
+                        </select>
+
+                        <select name="segment"
+                            class="h-11 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[13px] font-medium text-black dark:text-white focus:outline-hidden">
+                            <option value="all">Semua Segmen</option>
+                            <option value="VIP" {{ request('segment') === 'VIP' ? 'selected' : '' }}>VIP</option>
+                            <option value="Regular" {{ request('segment') === 'Regular' ? 'selected' : '' }}>Regular</option>
+                            <option value="New" {{ request('segment') === 'New' ? 'selected' : '' }}>New</option>
+                            <option value="At Risk" {{ request('segment') === 'At Risk' ? 'selected' : '' }}>At Risk</option>
+                        </select>
+
+                        <button type="submit"
+                            class="h-11 px-4 rounded-[12px] bg-[#007AFF] text-white text-[13px] font-semibold hover:bg-[#0071E3] transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0">
+                            <i data-lucide="filter" class="w-4 h-4"></i>
+                            <span>Filter</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Members List Table -->
+            <div class="rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
+                @if ($members->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-[13px]">
+                            <thead>
+                                <tr class="border-b border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02] text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4 sm:px-6">Member Pelanggan</th>
+                                    <th class="py-3.5 px-4">Tier &amp; Segmen</th>
+                                    <th class="py-3.5 px-4 text-center">Saldo Poin Belanja</th>
+                                    <th class="py-3.5 px-4 text-right">Total Belanja (Lifetime)</th>
+                                    <th class="py-3.5 px-4 text-right">Piutang Kasbon</th>
+                                    <th class="py-3.5 px-4 text-right pr-6">Aksi Member</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-black/[0.05] dark:divide-white/[0.06]">
+                                @foreach ($members as $m)
+                                    <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
+                                        <!-- Member Name -->
+                                        <td class="py-4 px-4 sm:px-6">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] font-bold flex items-center justify-center shrink-0 border border-[#FF9500]/20 text-[14px]">
+                                                    {{ strtoupper(substr($m->name, 0, 2)) }}
+                                                </div>
+                                                <div class="space-y-0.5">
+                                                    <div class="font-semibold text-black dark:text-white">{{ $m->name }}</div>
+                                                    <div class="text-[12px] font-mono text-black/50 dark:text-white/50">{{ $m->phone ?: '-' }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Tier & Segment Badges -->
+                                        <td class="py-4 px-4">
+                                            <div class="flex flex-wrap items-center gap-1.5">
+                                                @php
+                                                    $tier = $m->membership_tier ?: 'Bronze';
+                                                    $tierColors = [
+                                                        'Platinum' => 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
+                                                        'Gold' => 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/20',
+                                                        'Silver' => 'bg-slate-500/10 text-slate-600 dark:text-slate-300 border-slate-500/20',
+                                                        'Bronze' => 'bg-amber-600/10 text-amber-700 dark:text-amber-400 border-amber-600/20',
+                                                    ];
+                                                    $tColor = $tierColors[$tier] ?? 'bg-black/5 text-black/60 border-black/10';
+                                                @endphp
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border {{ $tColor }}">
+                                                    <i data-lucide="award" class="w-3 h-3"></i>
+                                                    <span>{{ $tier }}</span>
+                                                </span>
+
+                                                @if ($m->segment)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-black/60 dark:text-white/60">
+                                                        {{ $m->segment }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </td>
+
+                                        <!-- Points Balance & Action -->
+                                        <td class="py-4 px-4 text-center">
+                                            <div class="space-y-1">
+                                                <div class="text-[15px] font-bold text-[#FF9500] tabular-nums font-mono">
+                                                    {{ number_format($m->points_balance, 0, ',', '.') }}
+                                                </div>
+                                                <button type="button" @click="openPointHistory(@js($m))"
+                                                    class="inline-flex items-center gap-1 text-[11px] text-[#007AFF] hover:underline font-semibold cursor-pointer">
+                                                    <i data-lucide="history" class="w-3 h-3"></i>
+                                                    <span>Riwayat Poin</span>
+                                                </button>
+                                            </div>
+                                        </td>
+
+                                        <!-- Total Spent -->
+                                        <td class="py-4 px-4 text-right font-mono tabular-nums">
+                                            <div class="font-semibold text-black dark:text-white">
+                                                Rp {{ number_format($m->total_spent, 0, ',', '.') }}
+                                            </div>
+                                            <span class="text-[11px] text-black/40 dark:text-white/40">{{ $m->pos_orders_count }} Order Kasir</span>
+                                        </td>
+
+                                        <!-- Credit Debt Balance -->
+                                        <td class="py-4 px-4 text-right">
+                                            @if ($m->current_credit_balance > 0)
+                                                <div class="space-y-1">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20 font-mono tabular-nums">
+                                                        Rp {{ number_format($m->current_credit_balance, 0, ',', '.') }}
+                                                    </span>
+                                                    @if (\App\Support\Context::hasPermission('crm.manage'))
+                                                        <div>
+                                                            <button type="button" @click="openCreditModal(@js($m))"
+                                                                class="inline-flex items-center gap-1 text-[11px] font-bold text-[#34C759] hover:underline cursor-pointer">
+                                                                <i data-lucide="banknote" class="w-3.5 h-3.5"></i>
+                                                                <span>Bayar Kasbon</span>
+                                                            </button>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 text-[11px] font-medium text-[#34C759]">
+                                                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                                                    <span>Lunas (Rp 0)</span>
+                                                </span>
+                                            @endif
+                                        </td>
+
+                                        <!-- Action Column -->
+                                        <td class="py-4 px-4 text-right pr-6">
+                                            <div class="flex items-center justify-end gap-1.5">
+                                                <button type="button" @click="openDetailModal('{{ $m->id }}')"
+                                                    class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/70 dark:text-white/70 transition cursor-pointer flex items-center gap-1">
+                                                    <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                                                    <span>Profil</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if ($members->hasPages())
+                        <div class="p-4 border-t border-black/[0.05] dark:border-white/[0.06]">
+                            {{ $members->links() }}
+                        </div>
+                    @endif
+                @else
+                    <div class="py-16 text-center space-y-3">
+                        <div class="w-14 h-14 rounded-full bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center mx-auto text-black/40 dark:text-white/40">
+                            <i data-lucide="award" class="w-7 h-7"></i>
+                        </div>
+                        <h4 class="text-[15px] font-bold text-black dark:text-white">Tidak Ada Data Member Sesuai Filter</h4>
+                        <p class="text-[13px] text-black/50 dark:text-white/50 max-w-sm mx-auto">
+                            Coba sesuaikan filter tier atau segmen di atas untuk menampilkan member lainnya.
+                        </p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 3: VOUCHER DISKON KASIR POS                                           -->
+        <!-- ========================================================================= -->
+        <div x-show="activeTab === 'vouchers'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-4">
+            <!-- Voucher Top Banner -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+                <div class="space-y-1">
+                    <h3 class="text-base font-bold text-black dark:text-white">Kupon &amp; Voucher Diskon Promosi</h3>
+                    <p class="text-[13px] text-black/60 dark:text-white/60">
+                        Kode kupon dapat diinput oleh kasir pada saat checkout POS untuk memberikan potongan harga otomatis.
+                    </p>
+                </div>
+                @if (\App\Support\Context::hasPermission('crm.manage'))
+                    <button type="button" @click="showVoucherModal = true"
+                        class="h-11 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-semibold transition cursor-pointer flex items-center gap-2 shrink-0">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>+ Buat Kupon Baru</span>
+                    </button>
+                @endif
+            </div>
+
+            <!-- Vouchers Grid Bento -->
+            @if ($vouchers->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    @foreach ($vouchers as $v)
+                        <div class="rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] relative space-y-4 transition hover:-translate-y-0.5">
+                            <!-- Header Voucher Card -->
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono text-base font-black tracking-wider text-black dark:text-white bg-black/[0.05] dark:bg-white/[0.08] px-2.5 py-1 rounded-[8px] border border-black/[0.08] dark:border-white/[0.1]">
+                                            {{ $v->code }}
+                                        </span>
+                                        <button type="button" @click="copyVoucher('{{ $v->code }}')"
+                                            class="p-1.5 rounded-[8px] text-black/40 hover:text-[#007AFF] hover:bg-[#007AFF]/10 transition cursor-pointer" title="Salin Kode">
+                                            <i data-lucide="copy" class="w-4 h-4"></i>
                                         </button>
+                                    </div>
+                                    <h4 class="font-bold text-[14px] text-black dark:text-white">{{ $v->name }}</h4>
+                                </div>
+
+                                <!-- Status Badge -->
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $v->is_active ? 'bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20' : 'bg-black/10 dark:bg-white/10 text-black/50 dark:text-white/50' }}">
+                                    {{ $v->is_active ? 'Aktif' : 'Nonaktif' }}
+                                </span>
+                            </div>
+
+                            <!-- Discount Detail -->
+                            <div class="p-3 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-1">
+                                <div class="text-[11px] text-black/50 dark:text-white/50 uppercase font-semibold">Potongan Diskon</div>
+                                <div class="text-xl font-bold text-[#FF9500]">
+                                    @if ($v->discount_type === 'percentage')
+                                        {{ $v->discount_value }}%
+                                        @if ($v->max_discount_amount)
+                                            <span class="text-xs font-normal text-black/50 dark:text-white/50">(Maks. Rp {{ number_format($v->max_discount_amount, 0, ',', '.') }})</span>
+                                        @endif
+                                    @else
+                                        Rp {{ number_format($v->discount_value, 0, ',', '.') }}
                                     @endif
-                                    @if (\App\Support\Context::hasPermission('customers.delete'))
-                                        <form method="POST" action="{{ route('customers.destroy', $customer->slug) }}"
-                                            onsubmit="return AppAlert.confirmSubmit(event, this, 'Hapus data pelanggan {{ addslashes($customer->name) }}?', 'Hapus Pelanggan?', 'danger')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="p-1.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/20 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition cursor-pointer">
-                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                            </button>
-                                        </form>
-                                    @endif
+                                </div>
+                                <div class="text-[11px] text-black/60 dark:text-white/60">
+                                    Min. Belanja: <strong>Rp {{ number_format($v->min_order_amount ?: 0, 0, ',', '.') }}</strong>
                                 </div>
                             </div>
 
+                            <!-- Usage & Validity Info -->
+                            <div class="text-[12px] space-y-1 text-black/60 dark:text-white/60">
+                                <div class="flex items-center justify-between">
+                                    <span>Pemakaian:</span>
+                                    <span class="font-mono font-bold text-black dark:text-white tabular-nums">
+                                        {{ $v->used_count }} / {{ $v->usage_limit ?: '∞' }} kali
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>Berlaku s/d:</span>
+                                    <span>{{ $v->valid_until ? $v->valid_until->format('d M Y') : 'Tanpa Batas Waktu' }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Toggle Status Button -->
+                            @if (\App\Support\Context::hasPermission('crm.manage'))
+                                <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06]">
+                                    <form method="POST" action="{{ route('crm.vouchers.toggle', $v->id) }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="w-full h-9 rounded-[10px] text-[12px] font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 {{ $v->is_active ? 'bg-[#FF3B30]/10 text-[#FF3B30] hover:bg-[#FF3B30]/20' : 'bg-[#34C759]/10 text-[#34C759] hover:bg-[#34C759]/20' }}">
+                                            <i data-lucide="{{ $v->is_active ? 'power-off' : 'power' }}" class="w-3.5 h-3.5"></i>
+                                            <span>{{ $v->is_active ? 'Nonaktifkan Kupon' : 'Aktifkan Kupon' }}</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>
+
+                @if ($vouchers->hasPages())
+                    <div class="p-4 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08]">
+                        {{ $vouchers->links() }}
+                    </div>
+                @endif
             @else
-                <!-- Empty State -->
-                <div class="py-16 px-6 text-center space-y-4">
-                    <div
-                        class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 flex items-center justify-center mx-auto shadow-inner">
-                        <i data-lucide="users" class="w-8 h-8"></i>
+                <div class="p-12 text-center rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                    <div class="w-14 h-14 rounded-full bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center mx-auto text-black/40 dark:text-white/40">
+                        <i data-lucide="ticket" class="w-7 h-7"></i>
                     </div>
-                    <div class="space-y-1 max-w-sm mx-auto">
-                        <h4 class="text-sm font-black text-slate-900 dark:text-white">Tidak Ada Data Pelanggan Ditemukan
-                        </h4>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Coba ubah kata kunci pencarian Anda atau tambahkan pelanggan baru untuk mulai mencatat pesanan
-                            pembelian dan menerbitkan faktur penjualan.
-                        </p>
-                    </div>
-                    @if (\App\Support\Context::hasPermission('customers.create'))
+                    <h4 class="text-[15px] font-bold text-black dark:text-white">Belum Ada Kupon Diskon Aktif</h4>
+                    <p class="text-[13px] text-black/50 dark:text-white/50 max-w-sm mx-auto">
+                        Buat kode voucher promo untuk menarik pelanggan kembali berbelanja di kasir POS Anda.
+                    </p>
+                    @if (\App\Support\Context::hasPermission('crm.manage'))
                         <div class="pt-2">
-                            <button type="button" @click="showAddModal = true"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 transition cursor-pointer">
-                                <i data-lucide="user-plus" class="w-4 h-4"></i>
-                                <span>Tambah Pelanggan Baru</span>
+                            <button type="button" @click="showVoucherModal = true"
+                                class="h-11 px-5 rounded-[12px] bg-[#007AFF] text-white text-[13px] font-semibold hover:bg-[#0071E3] transition cursor-pointer">
+                                + Buat Kupon Diskon Pertama
                             </button>
                         </div>
                     @endif
                 </div>
             @endif
-
-            <!-- Pagination -->
-            @if ($customers->hasPages())
-                <div class="p-4 border-t border-slate-100 dark:border-slate-800">
-                    {{ $customers->links() }}
-                </div>
-            @endif
-
         </div>
 
+        <!-- ========================================================================= -->
+        <!-- MODALS (APPLE HIG ACTION SHEETS & FLOATING DIALOGS)                       -->
+        <!-- ========================================================================= -->
+
+        <!-- MODAL 1: TAMBAH PELANGGAN (DENGAN KAIDAH 3 INPUT POKOK) -->
         @if (\App\Support\Context::hasPermission('customers.create'))
-            <!-- Modal 1: Tambah Pelanggan Baru -->
             <div x-show="showAddModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-all"
                 @keydown.escape.window="showAddModal = false">
-
-                <div class="w-full max-w-2xl p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-5 relative max-h-[90vh] overflow-y-auto"
+                <div class="w-full max-w-xl p-6 sm:p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto"
                     @click.away="showAddModal = false">
-
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                    
+                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
                         <div class="flex items-center gap-2.5">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
                                 <i data-lucide="user-plus" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h3 class="text-base font-black text-slate-900 dark:text-white">Tambah Pelanggan Baru</h3>
-                                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Form Registrasi
-                                    Klien &amp; B2B Account</span>
+                                <h3 class="text-base font-bold text-black dark:text-white">Tambah Pelanggan Baru</h3>
+                                <p class="text-[11px] text-black/50 dark:text-white/50">Lengkapi data dasar untuk mulai melayani pelanggan.</p>
                             </div>
                         </div>
-                        <button type="button" @click="showAddModal = false"
-                            class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+                        <button type="button" @click="showAddModal = false" class="text-black/40 hover:text-black dark:hover:text-white p-1 rounded-lg">
                             <i data-lucide="x" class="w-5 h-5"></i>
                         </button>
                     </div>
 
-                    <form method="POST" action="{{ route('customers.store') }}" class="space-y-4 text-xs">
+                    <form method="POST" action="{{ route('customers.store') }}" class="space-y-4">
                         @csrf
 
-                        <!-- Section 1: Data Identitas Klien -->
-                        <div
-                            class="space-y-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
-                            <span
-                                class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 uppercase font-bold tracking-wider block">1.
-                                Identitas Klien &amp; Badan Usaha</span>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        Nama Pelanggan (PIC) <span class="text-rose-500">*</span>
-                                    </label>
-                                    <input type="text" name="name" required placeholder="Contoh: Ahmad Zaki"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-medium focus:outline-hidden transition">
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        Nama Perusahaan / Instansi <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="text" name="company_name"
-                                        placeholder="Contoh: PT Maju Bersama Sentosa"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        ID / Kode Klien <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="text" name="code" placeholder="Contoh: CUST-001"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 font-mono text-slate-900 dark:text-white uppercase focus:outline-hidden transition">
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        NPWP / Nomor Pokok Wajib Pajak <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="text" name="tax_identification_number"
-                                        placeholder="01.234.567.8-901.000"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 font-mono text-slate-900 dark:text-white focus:outline-hidden transition">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Section 2: Kontak Penagihan & Termin -->
-                        <div
-                            class="space-y-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
-                            <span
-                                class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 uppercase font-bold tracking-wider block">2.
-                                Kontak &amp; Kebijakan Pembayaran</span>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        No. Telepon / WhatsApp <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="text" name="phone" placeholder="0812-8888-9999"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 font-mono text-slate-900 dark:text-white focus:outline-hidden transition">
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        Alamat Email Penagihan <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="email" name="email" placeholder="finance@majubersama.com"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
-                                </div>
-                            </div>
-
-                            <!-- Payment Terms & Quick Chips -->
-                            <div class="space-y-2 pt-1">
-                                <div class="flex items-center justify-between">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        Termin Pembayaran Kredit (Hari)
-                                    </label>
-                                    <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">Pilih
-                                        Cepat:</span>
-                                </div>
-
-                                <div class="flex flex-wrap gap-2">
-                                    <button type="button" @click="setPaymentTerm(0, 'add')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Tunai
-                                        (0 Hari)</button>
-                                    <button type="button" @click="setPaymentTerm(14, 'add')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Net
-                                        14 Hari</button>
-                                    <button type="button" @click="setPaymentTerm(30, 'add')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Net
-                                        30 Hari</button>
-                                    <button type="button" @click="setPaymentTerm(45, 'add')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Net
-                                        45 Hari</button>
-                                    <button type="button" @click="setPaymentTerm(60, 'add')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Net
-                                        60 Hari</button>
-                                </div>
-
-                                <input type="number" id="add_payment_terms_days" name="payment_terms_days"
-                                    value="30" min="0" max="365"
-                                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-mono font-bold focus:outline-hidden transition">
-                            </div>
-                        </div>
-
-                        <!-- Section 3: Alamat Penagihan & Pengiriman -->
-                        <div
-                            class="space-y-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
-                            <div class="flex items-center justify-between">
-                                <span
-                                    class="text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase font-bold tracking-wider block">3.
-                                    Alamat Operasional &amp; Pengiriman</span>
-                                <button type="button" @click="copyBillingToShipping('add')"
-                                    class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-1 transition cursor-pointer">
-                                    <i data-lucide="copy" class="w-3 h-3"></i>
-                                    <span>Salin ke Alamat Pengiriman</span>
-                                </button>
-                            </div>
-
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                    Alamat Penagihan (Billing Address)
-                                </label>
-                                <textarea id="add_billing_address" name="billing_address" rows="2"
-                                    placeholder="Gedung Cyber 2 Lt. 10, Jl. HR Rasuna Said, Jakarta Selatan"
-                                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition"></textarea>
-                            </div>
-
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                    Alamat Pengiriman (Shipping Address)
-                                </label>
-                                <textarea id="add_shipping_address" name="shipping_address" rows="2"
-                                    placeholder="Gudang Logistik Kawasan Industri Pulogadung"
-                                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition"></textarea>
-                            </div>
-
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                    Catatan Khusus Klien <span
-                                        class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                </label>
-                                <input type="text" name="notes"
-                                    placeholder="Diskon khusus pesanan repeat order > 100 unit / syarat DO"
-                                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div
-                            class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-                            <button type="button" @click="showAddModal = false"
-                                class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition cursor-pointer">
-                                Batal
-                            </button>
-                            <button type="submit"
-                                class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition flex items-center gap-1.5 cursor-pointer">
-                                <i data-lucide="check" class="w-4 h-4"></i>
-                                <span>Simpan Pelanggan</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        @endif
-
-        @if (\App\Support\Context::hasPermission('customers.edit'))
-            <!-- Modal 2: Edit Data Pelanggan -->
-            <div x-show="showEditModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all"
-                @keydown.escape.window="showEditModal = false">
-
-                <div class="w-full max-w-2xl p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-5 relative max-h-[90vh] overflow-y-auto"
-                    @click.away="showEditModal = false">
-
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                        <div class="flex items-center gap-2.5">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200 dark:border-cyan-800 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
-                                <i data-lucide="edit-3" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-black text-slate-900 dark:text-white">Edit Data Pelanggan</h3>
-                                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono"
-                                    x-text="editCustomer.name"></span>
-                            </div>
-                        </div>
-                        <button type="button" @click="showEditModal = false"
-                            class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
-                            <i data-lucide="x" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-
-                    <form :action="'/customers/' + (editCustomer.slug || editCustomer.id)" method="POST"
-                        class="space-y-4 text-xs">
-                        @csrf
-                        @method('PUT')
-
-                        <!-- Section 1: Data Identitas Klien -->
-                        <div
-                            class="space-y-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
-                            <span
-                                class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 uppercase font-bold tracking-wider block">1.
-                                Identitas Klien &amp; Badan Usaha</span>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        Nama Pelanggan (PIC) <span class="text-rose-500">*</span>
-                                    </label>
-                                    <input type="text" name="name" x-model="editCustomer.name" required
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-medium focus:outline-hidden transition">
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        Nama Perusahaan / Instansi <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="text" name="company_name" x-model="editCustomer.company_name"
-                                        placeholder="Contoh: PT Maju Bersama Sentosa"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        ID / Kode Klien <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="text" name="code" x-model="editCustomer.code"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 font-mono text-slate-900 dark:text-white uppercase focus:outline-hidden transition">
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        NPWP / Nomor Pokok Wajib Pajak <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="text" name="tax_identification_number"
-                                        x-model="editCustomer.tax_identification_number"
-                                        placeholder="01.234.567.8-901.000"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 font-mono text-slate-900 dark:text-white focus:outline-hidden transition">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Section 2: Kontak Penagihan & Termin -->
-                        <div
-                            class="space-y-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
-                            <span
-                                class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 uppercase font-bold tracking-wider block">2.
-                                Kontak &amp; Kebijakan Pembayaran</span>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        No. Telepon / WhatsApp <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="text" name="phone" x-model="editCustomer.phone"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 font-mono text-slate-900 dark:text-white focus:outline-hidden transition">
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        Alamat Email Penagihan <span
-                                            class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                    </label>
-                                    <input type="email" name="email" x-model="editCustomer.email"
-                                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
-                                </div>
-                            </div>
-
-                            <!-- Payment Terms & Quick Chips -->
-                            <div class="space-y-2 pt-1">
-                                <div class="flex items-center justify-between">
-                                    <label
-                                        class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                        Termin Pembayaran Kredit (Hari)
-                                    </label>
-                                    <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">Pilih
-                                        Cepat:</span>
-                                </div>
-
-                                <div class="flex flex-wrap gap-2">
-                                    <button type="button" @click="setPaymentTerm(0, 'edit')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Tunai
-                                        (0 Hari)</button>
-                                    <button type="button" @click="setPaymentTerm(14, 'edit')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Net
-                                        14 Hari</button>
-                                    <button type="button" @click="setPaymentTerm(30, 'edit')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Net
-                                        30 Hari</button>
-                                    <button type="button" @click="setPaymentTerm(45, 'edit')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Net
-                                        45 Hari</button>
-                                    <button type="button" @click="setPaymentTerm(60, 'edit')"
-                                        class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Net
-                                        60 Hari</button>
-                                </div>
-
-                                <input type="number" name="payment_terms_days"
-                                    x-model.number="editCustomer.payment_terms_days" min="0" max="365"
-                                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-mono font-bold focus:outline-hidden transition">
-                            </div>
-                        </div>
-
-                        <!-- Section 3: Alamat Penagihan & Pengiriman -->
-                        <div
-                            class="space-y-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
-                            <div class="flex items-center justify-between">
-                                <span
-                                    class="text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase font-bold tracking-wider block">3.
-                                    Alamat Operasional &amp; Pengiriman</span>
-                                <button type="button" @click="copyBillingToShipping('edit')"
-                                    class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-1 transition cursor-pointer">
-                                    <i data-lucide="copy" class="w-3 h-3"></i>
-                                    <span>Salin ke Alamat Pengiriman</span>
-                                </button>
-                            </div>
-
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                    Alamat Penagihan (Billing Address)
-                                </label>
-                                <textarea name="billing_address" rows="2" x-model="editCustomer.billing_address"
-                                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition"></textarea>
-                            </div>
-
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                    Alamat Pengiriman (Shipping Address)
-                                </label>
-                                <textarea name="shipping_address" rows="2" x-model="editCustomer.shipping_address"
-                                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition"></textarea>
-                            </div>
-
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                    Catatan Khusus Klien <span
-                                        class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                                </label>
-                                <input type="text" name="notes" x-model="editCustomer.notes"
-                                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div
-                            class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-                            <button type="button" @click="showEditModal = false"
-                                class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition cursor-pointer">
-                                Batal
-                            </button>
-                            <button type="submit"
-                                class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition flex items-center gap-1.5 cursor-pointer">
-                                <i data-lucide="check" class="w-4 h-4"></i>
-                                <span>Simpan Perubahan</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        @endif
-
-        @if (\App\Support\Context::hasPermission('customers.view'))
-            <!-- Modal 3: Detail Profil Klien Lengkap (Quick Inspection Modal) -->
-            <div x-show="showDetailModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all"
-                @keydown.escape.window="showDetailModal = false">
-
-                <div class="w-full max-w-lg p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-5 relative"
-                    @click.away="showDetailModal = false">
-
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 font-bold text-sm flex items-center justify-center">
-                                <span
-                                    x-text="selectedCustomer ? selectedCustomer.name.substring(0, 1).toUpperCase() : 'C'"></span>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-black text-slate-900 dark:text-white"
-                                    x-text="selectedCustomer ? selectedCustomer.name : ''"></h3>
-                                <span class="text-[10px] text-cyan-600 dark:text-cyan-400 font-mono"
-                                    x-text="selectedCustomer && selectedCustomer.company_name ? selectedCustomer.company_name : 'Personal Client'"></span>
-                            </div>
-                        </div>
-                        <button type="button" @click="showDetailModal = false"
-                            class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
-                            <i data-lucide="x" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-
-                    <div class="space-y-4 text-xs">
-                        <!-- 3 Pillars Info Card -->
-                        <div
-                            class="grid grid-cols-3 gap-2 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-center font-mono">
-                            <div>
-                                <span class="text-[9px] uppercase text-slate-500 dark:text-slate-400 font-bold block">ID
-                                    Klien</span>
-                                <span class="font-bold text-slate-900 dark:text-white text-xs"
-                                    x-text="selectedCustomer && selectedCustomer.code ? selectedCustomer.code : '-'"></span>
-                            </div>
-                            <div class="border-x border-slate-200 dark:border-slate-800">
-                                <span
-                                    class="text-[9px] uppercase text-slate-500 dark:text-slate-400 font-bold block">Termin
-                                    Bayar</span>
-                                <span class="font-bold text-amber-600 dark:text-amber-400 text-xs"
-                                    x-text="selectedCustomer ? (selectedCustomer.payment_terms_days <= 0 ? 'Tunai' : 'Net ' + selectedCustomer.payment_terms_days + ' Hari') : 'Net 30'"></span>
-                            </div>
-                            <div>
-                                <span
-                                    class="text-[9px] uppercase text-slate-500 dark:text-slate-400 font-bold block">Faktur
-                                    Terbit</span>
-                                <span class="font-bold text-emerald-600 dark:text-emerald-400 text-xs"
-                                    x-text="selectedCustomer ? (selectedCustomer.invoices_count || 0) + ' Faktur' : '0 Faktur'"></span>
-                            </div>
-                        </div>
-
-                        <!-- Contact & NPWP Details -->
-                        <div
-                            class="space-y-2 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
-                            <div
-                                class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/60">
-                                <span class="text-slate-500 dark:text-slate-400">Telepon / WA:</span>
-                                <span class="font-mono font-bold text-slate-800 dark:text-slate-200"
-                                    x-text="selectedCustomer && selectedCustomer.phone ? selectedCustomer.phone : '-'"></span>
-                            </div>
-                            <div
-                                class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/60">
-                                <span class="text-slate-500 dark:text-slate-400">Email:</span>
-                                <span class="font-mono font-bold text-slate-800 dark:text-slate-200 truncate max-w-[220px]"
-                                    x-text="selectedCustomer && selectedCustomer.email ? selectedCustomer.email : '-'"></span>
-                            </div>
-                            <div class="flex justify-between items-center py-1">
-                                <span class="text-slate-500 dark:text-slate-400">NPWP:</span>
-                                <span class="font-mono font-bold text-slate-800 dark:text-slate-200"
-                                    x-text="selectedCustomer && selectedCustomer.tax_identification_number ? selectedCustomer.tax_identification_number : '-'"></span>
-                            </div>
-                        </div>
-
-                        <!-- Addresses -->
-                        <div
-                            class="space-y-3 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
+                        <!-- 3 Input Pokok Ramah Boomer -->
+                        <div class="space-y-3.5">
+                            <!-- Input 1: Nama Pelanggan -->
                             <div class="space-y-1">
-                                <span
-                                    class="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase font-bold block">Alamat
-                                    Penagihan:</span>
-                                <p class="text-slate-700 dark:text-slate-300 leading-relaxed"
-                                    x-text="selectedCustomer && selectedCustomer.billing_address ? selectedCustomer.billing_address : 'Belum diisi'">
-                                </p>
+                                <label class="block text-[13px] font-bold text-black dark:text-white">
+                                    1. Nama Lengkap Pelanggan <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <input type="text" name="name" required placeholder="Contoh: Pak Haji Bambang / Ibu Rina"
+                                    class="w-full h-12 px-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] text-black dark:text-white focus:outline-hidden focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 transition">
                             </div>
-                            <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800/60">
-                                <span
-                                    class="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase font-bold block">Alamat
-                                    Pengiriman:</span>
-                                <p class="text-slate-700 dark:text-slate-300 leading-relaxed"
-                                    x-text="selectedCustomer && selectedCustomer.shipping_address ? selectedCustomer.shipping_address : 'Belum diisi'">
-                                </p>
+
+                            <!-- Input 2: Nomor WhatsApp / Telepon -->
+                            <div class="space-y-1">
+                                <label class="block text-[13px] font-bold text-black dark:text-white">
+                                    2. Nomor WhatsApp / Handphone <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <input type="tel" name="phone" required placeholder="Contoh: 081234567890"
+                                    class="w-full h-12 px-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] font-mono text-black dark:text-white focus:outline-hidden focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 transition">
+                                <span class="text-[11px] text-black/50 dark:text-white/50">Digunakan untuk kirim nota struk otomatis dan reminder jatuh tempo.</span>
                             </div>
-                            <template x-if="selectedCustomer && selectedCustomer.notes">
-                                <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800/60">
-                                    <span
-                                        class="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase font-bold block">Catatan
-                                        Tambahan:</span>
-                                    <p class="text-amber-700 dark:text-amber-300 italic" x-text="selectedCustomer.notes">
-                                    </p>
+
+                            <!-- Input 3: Tipe Pelanggan / Perusahaan -->
+                            <div class="space-y-1">
+                                <label class="block text-[13px] font-bold text-black dark:text-white">
+                                    3. Nama Perusahaan / Toko <span class="text-black/40 dark:text-white/40 text-[11px] font-normal">(Kosongkan jika perorangan)</span>
+                                </label>
+                                <input type="text" name="company_name" placeholder="Contoh: CV Berkah Jaya"
+                                    class="w-full h-12 px-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] text-black dark:text-white focus:outline-hidden focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 transition">
+                            </div>
+                        </div>
+
+                        <!-- Akordeon Pilihan Lanjutan (Anti-Intimidasi Form) -->
+                        <div x-data="{ openAdvance: false }" class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
+                            <button type="button" @click="openAdvance = !openAdvance"
+                                class="flex items-center justify-between w-full py-2 text-[13px] font-semibold text-[#007AFF] hover:underline cursor-pointer">
+                                <span>⚙️ Atur Termin Tempo, Email &amp; Alamat (Opsional)</span>
+                                <i data-lucide="chevron-down" :class="openAdvance ? 'rotate-180' : ''" class="w-4 h-4 transition-transform"></i>
+                            </button>
+
+                            <div x-show="openAdvance" x-collapse class="space-y-3 pt-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="space-y-1">
+                                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Email Pelanggan</label>
+                                        <input type="email" name="email" placeholder="nama@email.com"
+                                            class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Termin Tempo (Hari)</label>
+                                        <input type="number" name="payment_terms_days" value="30" min="0" max="365"
+                                            class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden">
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Alamat Lengkap</label>
+                                    <textarea name="billing_address" rows="2" placeholder="Alamat jalan, nomor ruko, kota..."
+                                        class="w-full p-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button Primary -->
+                        <div class="pt-3">
+                            <button type="submit"
+                                class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[14px] font-bold shadow-[0_2px_8px_rgba(0,122,255,0.3)] active:scale-[0.98] transition cursor-pointer">
+                                💾 Simpan Pelanggan Baru
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
+
+        <!-- MODAL 2: EDIT PELANGGAN -->
+        <div x-show="showEditModal" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-all"
+            @keydown.escape.window="showEditModal = false">
+            <div class="w-full max-w-xl p-6 sm:p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto"
+                @click.away="showEditModal = false">
+                <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                    <h3 class="text-base font-bold text-black dark:text-white">Edit Profil Pelanggan</h3>
+                    <button type="button" @click="showEditModal = false" class="text-black/40 hover:text-black dark:hover:text-white p-1">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form method="POST" :action="'/customers/' + editCustomer.slug" class="space-y-4">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-bold text-black dark:text-white">Nama Pelanggan <span class="text-[#FF3B30]">*</span></label>
+                        <input type="text" name="name" x-model="editCustomer.name" required
+                            class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="block text-[12px] font-bold text-black dark:text-white">Nomor WhatsApp / HP</label>
+                            <input type="text" name="phone" x-model="editCustomer.phone"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] font-mono text-black dark:text-white focus:outline-hidden">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[12px] font-bold text-black dark:text-white">Perusahaan / Instansi</label>
+                            <input type="text" name="company_name" x-model="editCustomer.company_name"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="block text-[12px] font-bold text-black dark:text-white">Email</label>
+                            <input type="email" name="email" x-model="editCustomer.email"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[12px] font-bold text-black dark:text-white">Termin Tempo (Hari)</label>
+                            <input type="number" name="payment_terms_days" x-model="editCustomer.payment_terms_days" min="0" max="365"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-bold text-black dark:text-white">Alamat Penagihan / Pengiriman</label>
+                        <textarea name="billing_address" x-model="editCustomer.billing_address" rows="2"
+                            class="w-full p-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden"></textarea>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit"
+                            class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[14px] font-bold transition cursor-pointer">
+                            💾 Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL 3: DETAIL PROFIL PELANGGAN -->
+        <div x-show="showDetailModal" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-all"
+            @keydown.escape.window="showDetailModal = false">
+            <div class="w-full max-w-lg p-6 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto"
+                @click.away="showDetailModal = false">
+                <template x-if="selectedCustomer">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] font-bold text-lg flex items-center justify-center">
+                                    <span x-text="selectedCustomer.name.substring(0,2).toUpperCase()"></span>
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-bold text-black dark:text-white" x-text="selectedCustomer.name"></h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50" x-text="selectedCustomer.company_name || 'Pelanggan Perorangan'"></p>
+                                </div>
+                            </div>
+                            <button type="button" @click="showDetailModal = false" class="text-black/40 hover:text-black dark:hover:text-white p-1">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-2.5 text-[13px]">
+                            <div class="flex justify-between py-1.5 border-b border-black/[0.04] dark:border-white/[0.05]">
+                                <span class="text-black/50 dark:text-white/50">WhatsApp:</span>
+                                <span class="font-mono font-semibold text-black dark:text-white" x-text="selectedCustomer.phone || '-'"></span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-black/[0.04] dark:border-white/[0.05]">
+                                <span class="text-black/50 dark:text-white/50">Email:</span>
+                                <span class="text-black dark:text-white" x-text="selectedCustomer.email || '-'"></span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-black/[0.04] dark:border-white/[0.05]">
+                                <span class="text-black/50 dark:text-white/50">Termin Tempo:</span>
+                                <span class="font-bold text-black dark:text-white" x-text="(selectedCustomer.payment_terms_days || 30) + ' Hari'"></span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-black/[0.04] dark:border-white/[0.05]">
+                                <span class="text-black/50 dark:text-white/50">Saldo Piutang Kasbon:</span>
+                                <span class="font-mono font-bold text-[#FF3B30]" x-text="'Rp ' + formatCurrency(selectedCustomer.current_credit_balance || 0)"></span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-black/[0.04] dark:border-white/[0.05]">
+                                <span class="text-black/50 dark:text-white/50">Poin Loyalitas:</span>
+                                <span class="font-mono font-bold text-[#FF9500]" x-text="formatCurrency(selectedCustomer.points_balance || 0) + ' Poin'"></span>
+                            </div>
+                            <div class="py-1.5">
+                                <span class="block text-black/50 dark:text-white/50 text-[11px] uppercase font-semibold">Alamat:</span>
+                                <p class="text-[13px] text-black/70 dark:text-white/70 pt-0.5" x-text="selectedCustomer.billing_address || 'Belum mencantumkan alamat'"></p>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 flex items-center gap-2">
+                            <button type="button" @click="showDetailModal = false; openEditModal(selectedCustomer.id)"
+                                class="flex-1 h-11 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] text-black dark:text-white font-semibold text-[13px]">
+                                Edit Data
+                            </button>
+                            <button type="button" @click="showDetailModal = false"
+                                class="h-11 px-5 rounded-[12px] bg-[#007AFF] text-white font-semibold text-[13px]">
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- MODAL 4: RECORD CREDIT PAYMENT (BAYAR PIUTANG KASBON) -->
+        <div x-show="showCreditModal" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-all"
+            @keydown.escape.window="showCreditModal = false">
+            <div class="w-full max-w-md p-6 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl space-y-4 relative"
+                @click.away="showCreditModal = false">
+                <template x-if="selectedCustomer">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                                    <i data-lucide="banknote" class="w-5 h-5"></i>
+                                </div>
+                                <h3 class="text-base font-bold text-black dark:text-white">Pelunasan Piutang Kasbon</h3>
+                            </div>
+                            <button type="button" @click="showCreditModal = false" class="text-black/40 hover:text-black dark:hover:text-white">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+
+                        <form method="POST" :action="'/crm/customers/' + selectedCustomer.id + '/credit-payment'" class="space-y-4 pt-3">
+                            @csrf
+                            <input type="hidden" name="amount" :value="creditRawAmount">
+
+                            <!-- Info Sisa Tagihan -->
+                            <div class="p-3.5 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 space-y-1">
+                                <div class="text-[11px] font-semibold text-[#FF3B30] uppercase">Sisa Tagihan Piutang Saat Ini</div>
+                                <div class="text-xl font-bold font-mono text-[#FF3B30] tabular-nums" x-text="'Rp ' + formatCurrency(selectedCustomer.current_credit_balance || 0)"></div>
+                                <div class="text-[12px] text-black/60 dark:text-white/60" x-text="'Atas nama: ' + selectedCustomer.name"></div>
+                            </div>
+
+                            <!-- Input Nominal dengan Format Ribuan Otomatis -->
+                            <div class="space-y-1.5">
+                                <label class="block text-[13px] font-bold text-black dark:text-white">
+                                    Nominal Pembayaran Diterima (Rp) <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-black/40 dark:text-white/40">Rp</span>
+                                    <input type="text" x-model="creditRepayAmount" @input="onCreditInput($event)" required
+                                        placeholder="0"
+                                        class="w-full h-12 pl-12 pr-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[18px] font-bold font-mono text-black dark:text-white focus:outline-hidden focus:border-[#34C759] focus:ring-2 focus:ring-[#34C759]/20 transition">
+                                </div>
+                            </div>
+
+                            <!-- Tombol Cepat Pecahan -->
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="setQuickCredit(25)"
+                                    class="flex-1 py-1.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[11px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.08] cursor-pointer">
+                                    25%
+                                </button>
+                                <button type="button" @click="setQuickCredit(50)"
+                                    class="flex-1 py-1.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[11px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.08] cursor-pointer">
+                                    50%
+                                </button>
+                                <button type="button" @click="setQuickCredit(100)"
+                                    class="flex-1 py-1.5 rounded-[8px] bg-[#34C759]/10 text-[#34C759] text-[11px] font-bold hover:bg-[#34C759]/20 cursor-pointer">
+                                    100% (Lunas)
+                                </button>
+                            </div>
+
+                            <!-- Catatan Pelunasan -->
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan Kasir / Pembayaran</label>
+                                <input type="text" name="notes" x-model="creditNotes" placeholder="Contoh: Diterima tunai di kasir"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-hidden">
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="submit" :disabled="creditRawAmount <= 0"
+                                    class="w-full h-12 rounded-[14px] bg-[#34C759] hover:bg-[#2DB04D] disabled:opacity-50 text-white font-bold text-[14px] shadow-[0_2px_8px_rgba(52,199,89,0.3)] transition cursor-pointer">
+                                    💵 Catat Pelunasan Piutang
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- MODAL 5: RIWAYAT POIN LOYALITAS -->
+        <div x-show="showPointsModal" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-all"
+            @keydown.escape.window="showPointsModal = false">
+            <div class="w-full max-w-lg p-6 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl space-y-4 relative max-h-[85vh] overflow-y-auto"
+                @click.away="showPointsModal = false">
+                <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="history" class="w-5 h-5 text-[#FF9500]"></i>
+                        <h3 class="text-base font-bold text-black dark:text-white">Riwayat Poin Loyalitas</h3>
+                    </div>
+                    <button type="button" @click="showPointsModal = false" class="text-black/40 hover:text-black dark:hover:text-white">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <template x-if="selectedCustomer">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04]">
+                            <div>
+                                <span class="text-[12px] text-black/50 dark:text-white/50">Member:</span>
+                                <h4 class="font-bold text-black dark:text-white" x-text="selectedCustomer.name"></h4>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[11px] text-black/50 dark:text-white/50">Total Saldo:</span>
+                                <div class="font-mono font-bold text-[#FF9500] text-base" x-text="formatCurrency(selectedCustomer.points_balance || 0) + ' Poin'"></div>
+                            </div>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div x-show="loadingPoints" class="py-8 text-center text-black/40 dark:text-white/40 text-xs">
+                            <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-[#007AFF]"></i>
+                            <span>Memuat catatan mutasi poin...</span>
+                        </div>
+
+                        <!-- Histories List -->
+                        <div x-show="!loadingPoints && pointHistories.length > 0" class="space-y-2">
+                            <template x-for="hist in pointHistories" :key="hist.id">
+                                <div class="p-3 rounded-[12px] border border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
+                                    <div class="space-y-0.5">
+                                        <div class="text-[13px] font-semibold text-black dark:text-white" x-text="hist.description || 'Penyesuaian Poin Belanja'"></div>
+                                        <div class="text-[11px] text-black/40 dark:text-white/40" x-text="new Date(hist.created_at).toLocaleString('id-ID')"></div>
+                                    </div>
+                                    <div class="text-right font-mono font-bold"
+                                        :class="hist.points_change >= 0 ? 'text-[#34C759]' : 'text-[#FF3B30]'"
+                                        x-text="(hist.points_change >= 0 ? '+' : '') + formatCurrency(hist.points_change)">
+                                    </div>
                                 </div>
                             </template>
                         </div>
-                    </div>
 
-                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                        @if (\App\Support\Context::hasPermission('customers.edit'))
-                            <button type="button"
-                                @click="showDetailModal = false; openEditModal(selectedCustomer ? selectedCustomer.id : '')"
-                                class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                                <span>Edit Profil Ini</span>
-                            </button>
-                        @endif
-                        <button type="button" @click="showDetailModal = false"
-                            class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition cursor-pointer ml-auto">
-                            Tutup
+                        <div x-show="!loadingPoints && pointHistories.length === 0" class="py-8 text-center text-black/40 dark:text-white/40 text-xs">
+                            Belum ada riwayat mutasi poin untuk pelanggan ini.
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- MODAL 6: BUAT VOUCHER DISKON BARU -->
+        @if (\App\Support\Context::hasPermission('crm.manage'))
+            <div x-show="showVoucherModal" x-cloak
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-all"
+                @keydown.escape.window="showVoucherModal = false">
+                <div class="w-full max-w-lg p-6 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl space-y-4 relative max-h-[90vh] overflow-y-auto"
+                    @click.away="showVoucherModal = false">
+                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-9 h-9 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                                <i data-lucide="ticket-plus" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-black dark:text-white">Buat Kode Kupon Voucher Baru</h3>
+                        </div>
+                        <button type="button" @click="showVoucherModal = false" class="text-black/40 hover:text-black dark:hover:text-white">
+                            <i data-lucide="x" class="w-5 h-5"></i>
                         </button>
                     </div>
+
+                    <form method="POST" action="{{ route('crm.vouchers.store') }}" class="space-y-4 pt-2">
+                        @csrf
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-bold text-black dark:text-white">Kode Kupon (Ketik Huruf Besar) <span class="text-[#FF3B30]">*</span></label>
+                                <input type="text" name="code" required placeholder="DISKON10"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] font-mono uppercase font-bold text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden focus:border-[#007AFF]">
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-bold text-black dark:text-white">Nama Kupon Promo <span class="text-[#FF3B30]">*</span></label>
+                                <input type="text" name="name" required placeholder="Contoh: Promo Akhir Pekan"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden focus:border-[#007AFF]">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-bold text-black dark:text-white">Tipe Diskon</label>
+                                <select name="discount_type"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[13px] font-semibold text-black dark:text-white focus:outline-hidden">
+                                    <option value="percentage">Persentase (%)</option>
+                                    <option value="fixed">Nominal Tetap (Rp)</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-bold text-black dark:text-white">Nilai Diskon (% atau Rp) <span class="text-[#FF3B30]">*</span></label>
+                                <input type="number" name="discount_value" required min="0" step="any" placeholder="Contoh: 10 atau 15000"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] font-mono font-bold text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Min. Belanja Transaksi (Rp)</label>
+                                <input type="number" name="min_order_amount" min="0" placeholder="0"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] font-mono text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-hidden">
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Maks. Potongan (Jika %)</label>
+                                <input type="number" name="max_discount_amount" min="0" placeholder="Contoh: 25000"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] font-mono text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-hidden">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Batas Kuota Pemakaian</label>
+                                <input type="number" name="usage_limit" min="1" placeholder="Kosongkan jika tak terbatas"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-hidden">
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Berlaku Sampai Tanggal</label>
+                                <input type="date" name="valid_until"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white focus:outline-hidden">
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit"
+                                class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[14px] shadow-[0_2px_8px_rgba(0,122,255,0.3)] transition cursor-pointer">
+                                🎟️ Terbitkan Voucher Promo
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         @endif

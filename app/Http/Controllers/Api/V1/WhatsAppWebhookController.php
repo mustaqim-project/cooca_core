@@ -49,10 +49,25 @@ class WhatsAppWebhookController extends Controller
 
         // 2. Update session status if status update payload
         if ($status && $sessionId) {
+            $normalizedStatus = strtolower((string) $status);
+
             WhatsAppSession::where('session_id', $sessionId)->update([
-                'status'     => strtolower($status),
+                'status'     => $normalizedStatus,
                 'updated_at' => now(),
             ]);
+
+            $adminSessionUpdate = [
+                'status'     => $normalizedStatus,
+                'updated_at' => now(),
+            ];
+            if ($normalizedStatus === 'connected') {
+                $adminSessionUpdate['last_connected_at'] = now();
+                $phone = $request->input('phone') ?? ($request->input('user.id') ? explode(':', (string) $request->input('user.id'))[0] : null);
+                if ($phone) {
+                    $adminSessionUpdate['phone_number'] = $phone;
+                }
+            }
+            \App\Models\WhatsAppAdminSession::where('session_id', $sessionId)->update($adminSessionUpdate);
         }
 
         // 3. Log incoming message to message logs if associated with a session

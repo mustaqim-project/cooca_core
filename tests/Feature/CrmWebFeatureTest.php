@@ -29,6 +29,9 @@ class CrmWebFeatureTest extends TestCase
         $this->owner = User::create([
             'name' => 'Owner CRM',
             'email' => 'crm-owner@cooca.test',
+            'email_verified_at' => now(),
+            'phone' => '081234567890',
+            'phone_verified_at' => now(),
             'password' => 'password',
         ]);
 

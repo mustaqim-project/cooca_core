@@ -15,7 +15,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+  final currencyFormatter =
+      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
   @override
   void initState() {
@@ -52,14 +53,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 gradient: AppColors.logoGradient,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.dashboard_rounded, color: Colors.white, size: 20),
+              child: const Icon(Icons.dashboard_rounded,
+                  color: Colors.white, size: 20),
             ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  auth.activeBusiness?.name ?? 'Cooca UMKM',
+                  auth.activeBusiness?.name ?? 'Cooca',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -80,7 +82,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.textSecondary),
+            icon: const Icon(Icons.refresh_rounded,
+                color: AppColors.textSecondary),
             onPressed: () {
               report.fetchReports();
               inventory.fetchStocks();
@@ -114,7 +117,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(10),
@@ -131,10 +135,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         color: AppColors.textPrimary,
                       ),
                       items: const [
-                        DropdownMenuItem(value: 'today', child: Text('Hari Ini')),
-                        DropdownMenuItem(value: 'week', child: Text('Minggu Ini')),
-                        DropdownMenuItem(value: 'month', child: Text('Bulan Ini')),
-                        DropdownMenuItem(value: 'year', child: Text('Tahun Ini')),
+                        DropdownMenuItem(
+                            value: 'today', child: Text('Hari Ini')),
+                        DropdownMenuItem(
+                            value: 'week', child: Text('Minggu Ini')),
+                        DropdownMenuItem(
+                            value: 'month', child: Text('Bulan Ini')),
+                        DropdownMenuItem(
+                            value: 'year', child: Text('Tahun Ini')),
                       ],
                       onChanged: (val) {
                         if (val != null) report.setPeriod(val);
@@ -263,7 +271,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: report.topProducts.length > 5 ? 5 : report.topProducts.length,
+                  itemCount: report.topProducts.length > 5
+                      ? 5
+                      : report.topProducts.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final item = report.topProducts[index];
@@ -312,7 +322,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ),
                           Text(
-                            currencyFormatter.format((item['total_revenue'] ?? 0).toDouble()),
+                            currencyFormatter.format(
+                                (item['total_revenue'] ?? 0).toDouble()),
                             style: GoogleFonts.plusJakartaSans(
                               fontWeight: FontWeight.w700,
                               color: AppColors.teal,
@@ -428,4 +439,3 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
-

@@ -43,4 +43,12 @@ return [
         'token' => env('WA_WORKER_TOKEN', 'secret-worker-token'),
     ],
 
+    'meta_whatsapp' => [
+        'version'         => env('META_WA_API_VERSION', 'v20.0'),
+        'token'           => env('META_WA_TOKEN', ''),
+        'phone_number_id' => env('META_WA_PHONE_NUMBER_ID', ''),
+        'waba_id'         => env('META_WA_WABA_ID', ''),
+        'otp_template'    => env('META_WA_OTP_TEMPLATE', 'cooca_otp'),
+    ],
+
 ];

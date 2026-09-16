@@ -27,6 +27,9 @@ class CustomerWebFeatureTest extends TestCase
         $this->owner = User::create([
             'name' => 'Owner Commercial',
             'email' => 'commercial-owner@cooca.test',
+            'email_verified_at' => now(),
+            'phone' => '081234567890',
+            'phone_verified_at' => now(),
             'password' => 'password',
         ]);
 

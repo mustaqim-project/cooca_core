@@ -52,7 +52,9 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: _cycle == 'monthly' ? AppColors.primary : Colors.transparent,
+                          color: _cycle == 'monthly'
+                              ? AppColors.primary
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
@@ -61,7 +63,9 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.w700,
                               fontSize: 12,
-                              color: _cycle == 'monthly' ? Colors.white : AppColors.textMuted,
+                              color: _cycle == 'monthly'
+                                  ? Colors.white
+                                  : AppColors.textMuted,
                             ),
                           ),
                         ),
@@ -75,7 +79,9 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: _cycle == 'annual' ? AppColors.primary : Colors.transparent,
+                          color: _cycle == 'annual'
+                              ? AppColors.primary
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -86,17 +92,24 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
                               style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 12,
-                                color: _cycle == 'annual' ? Colors.white : AppColors.textMuted,
+                                color: _cycle == 'annual'
+                                    ? Colors.white
+                                    : AppColors.textMuted,
                               ),
                             ),
                             const SizedBox(width: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 1),
                               decoration: BoxDecoration(
                                 color: AppColors.amber,
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: const Text('HEMAT', style: TextStyle(color: Colors.black, fontSize: 8, fontWeight: FontWeight.w900)),
+                              child: const Text('HEMAT',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w900)),
                             ),
                           ],
                         ),
@@ -129,9 +142,13 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
 
             // 2. CORE Card (Hero)
             _buildPlanCard(
-              title: 'Cooca UMKM Plan',
-              price: _cycle == 'monthly' ? 'Rp 129.000 / bln' : 'Rp 1.290.000 / thn',
-              subtitle: _cycle == 'annual' ? 'Setara 10 bulan (Gratis 2 bulan)' : 'Akses penuh tanpa batas',
+              title: 'Cooca Plan',
+              price: _cycle == 'monthly'
+                  ? 'Rp 129.000 / bln'
+                  : 'Rp 1.290.000 / thn',
+              subtitle: _cycle == 'annual'
+                  ? 'Setara 10 bulan (Gratis 2 bulan)'
+                  : 'Akses penuh tanpa batas',
               features: [
                 'Multi-Bisnis Tanpa Batas',
                 'Produk & Resep HPP Tanpa Batas',
@@ -145,7 +162,8 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
               color: AppColors.purple,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Mengalihkan ke gateway pembayaran...')),
+                  const SnackBar(
+                      content: Text('Mengalihkan ke gateway pembayaran...')),
                 );
               },
             ),
@@ -191,7 +209,8 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
               ),
               if (isCurrent)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppColors.primaryGlow,
                     borderRadius: BorderRadius.circular(20),
@@ -213,7 +232,8 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
             style: GoogleFonts.inter(
               fontSize: 22,
               fontWeight: FontWeight.w900,
-              color: isHighlight ? AppColors.purpleLight : AppColors.textPrimary,
+              color:
+                  isHighlight ? AppColors.purpleLight : AppColors.textPrimary,
             ),
           ),
           Text(
@@ -228,7 +248,8 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 16),
+                    const Icon(Icons.check_circle_rounded,
+                        color: AppColors.primary, size: 16),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -246,7 +267,8 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: onTap,
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.purple),
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: AppColors.purple),
               child: const Text('Pilih & Berlangganan'),
             ),
           ],
@@ -255,4 +277,3 @@ class _BillingUpgradeScreenState extends State<BillingUpgradeScreen> {
     );
   }
 }
-

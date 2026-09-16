@@ -441,7 +441,7 @@
     </main>
 
     <footer class="py-6 text-center text-[12px] text-black/40 dark:text-white/40">
-        Didukung oleh platform <strong>COOCA UMKM</strong>
+        Didukung oleh platform <strong>Cooca</strong>
     </footer>
 
     <script>

@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Buat Pesanan Penjualan (SO) - Cooca UMKM',
+    'title' => 'Buat Pesanan Penjualan (SO) - Cooca',
     'headerTitle' => 'Buat Pesanan Penjualan',
     'headerSubtitle' => 'Buat pesanan penjualan terkonfirmasi baru - langsung atau dari konversi penawaran harga (Quotation).',
 ])

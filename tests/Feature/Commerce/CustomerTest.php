@@ -31,6 +31,9 @@ final class CustomerTest extends TestCase
         $this->user = User::create([
             'name' => 'Owner Bisnis',
             'email' => 'owner@example.com',
+            'email_verified_at' => now(),
+            'phone' => '081234567890',
+            'phone_verified_at' => now(),
             'password' => bcrypt('password123'),
         ]);
 

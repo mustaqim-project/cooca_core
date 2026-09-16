@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Kalkulator BEP (Break Even Point) Online Gratis | Cooca UMKM')
-@section('description', 'Kalkulator BEP (Titik Impas) online gratis untuk UMKM. Hitung berapa unit produk atau nominal
+@section('title', 'Kalkulator BEP (Break Even Point) Online Gratis | Cooca')
+@section('description',
+    'Kalkulator BEP (Titik Impas) online gratis untuk UMKM. Hitung berapa unit produk atau nominal
     rupiah omzet yang harus dicapai agar bisnis tidak merugi.')
-@section('keywords', 'kalkulator bep, hitung titik impas online, rumus break even point rupiah, bep unit warung,
+@section('keywords',
+    'kalkulator bep, hitung titik impas online, rumus break even point rupiah, bep unit warung,
     kalkulator bep umkm')
 
 @section('content')
@@ -179,7 +181,7 @@
                             <!-- CTA -->
                             <div class="pt-5 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2">
                                 <p class="text-[11px] text-[#6E6E73] dark:text-[#86868B] text-center">
-                                    Pantau posisi BEP Anda otomatis setiap hari di dashboard Cooca UMKM.
+                                    Pantau posisi BEP Anda otomatis setiap hari di dashboard Cooca.
                                 </p>
                                 <a href="{{ route('register') }}"
                                     class="w-full glow-btn py-3.5 rounded-[14px] text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">

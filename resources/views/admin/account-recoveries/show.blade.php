@@ -1,5 +1,5 @@
 @extends('layouts.admin', [
-    'title' => "Verifikasi Tiket {$recovery->ticket_number} — Admin Console",
+    'title' => "Verifikasi Tiket {$recovery->ticket_number} - Admin Console",
     'headerTitle' => "Verifikasi Pemulihan Akun #{$recovery->ticket_number}",
     'headerSubtitle' => "Tinjau kecocokan berkas identitas KTP dan dokumen usaha sebelum memperbarui akses login akun"
 ])
@@ -351,7 +351,7 @@
                 <span class="text-[10px] font-bold text-black/40 dark:text-white/40 uppercase tracking-wider block mb-1">Informasi Jejak Audit Keamanan</span>
                 <div class="flex justify-between py-1 border-b border-black/[0.04] dark:border-white/[0.04]">
                     <span>Alamat IP Pemohon:</span>
-                    <span class="font-mono font-semibold text-black dark:text-white">{{ $recovery->ip_address ?? '—' }}</span>
+                    <span class="font-mono font-semibold text-black dark:text-white">{{ $recovery->ip_address ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between py-1 border-b border-black/[0.04] dark:border-white/[0.04]">
                     <span>Waktu Submit:</span>

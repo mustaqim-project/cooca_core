@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Paket Langganan & Kuota Penggunaan - Cooca UMKM',
+    'title' => 'Paket Langganan & Kuota Penggunaan - Cooca',
     'headerTitle' => 'Paket Langganan & Kuota Bisnis',
     'headerSubtitle' => 'Pantau kapasitas sumber daya, kelola kuota transaksi, dan nikmati fitur tanpa batas',
 ])
@@ -48,7 +48,7 @@
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                     Pantau kapasitas pemakaian sumber daya bisnis secara real-time. Dapatkan akses fitur komersial
-                    terintegrasi tanpa batas dengan program patungan Cooca UMKM.
+                    terintegrasi tanpa batas dengan program patungan Cooca.
                 </p>
             </div>
             <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
@@ -284,7 +284,7 @@
                             class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 shadow-2xs">
                             <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"
                                 aria-hidden="true"></i>
-                            <span>PROGRAM PATUNGAN SAAS COOCA UMKM</span>
+                            <span>PROGRAM PATUNGAN SAAS Cooca</span>
                         </div>
 
                         <h2 id="upgrade-plan-heading"
@@ -294,7 +294,7 @@
                         </h2>
 
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                            Tingkatkan dari Paket Free ke Cooca UMKM mulai dari <strong
+                            Tingkatkan dari Paket Free ke Cooca mulai dari <strong
                                 class="text-slate-900 dark:text-white font-mono">Rp
                                 {{ number_format($monthlyPrice, 0, ',', '.') }}/bulan</strong>. Dapatkan produk &amp; resep
                             unlimited, multi-gudang, transaksi tanpa batas, serta integrasi ekspor Excel lengkap.
@@ -1085,7 +1085,7 @@
                         <span>Matriks Perbandingan Kemampuan Paket</span>
                     </h3>
                     <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">Perbedaan hak akses dan skala
-                        bisnis antara Paket Free Solo dan Program Patungan Cooca UMKM.</p>
+                        bisnis antara Paket Free Solo dan Program Patungan Cooca.</p>
                 </div>
                 @if (!$usage['is_core'])
                     @if (\App\Support\Context::hasPermission('billing.manage'))
@@ -1109,7 +1109,7 @@
                             <th scope="col" class="py-3 px-4 text-center w-1/4">Paket Free (Solo)</th>
                             <th scope="col"
                                 class="py-3 px-4 text-center w-1/4 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 rounded-t-xl font-bold border-t border-x border-emerald-200 dark:border-emerald-500/30">
-                                Cooca UMKM (Patungan)
+                                Cooca (Patungan)
                             </th>
                         </tr>
                     </thead>
@@ -1228,7 +1228,7 @@
                     Privasi: Bebas Dari Hukuman Data (No Data Punishment)</h4>
                 <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
                     Data bisnis Anda adalah aset milik Anda seutuhnya. Jika langganan berakhir atau mencapai kuota
-                    pemakaian, Cooca UMKM <strong class="text-emerald-700 dark:text-emerald-300 font-semibold">tidak akan
+                    pemakaian, Cooca <strong class="text-emerald-700 dark:text-emerald-300 font-semibold">tidak akan
                         pernah menghapus, membatasi baca, ataupun mengunci akses data riwayat Anda</strong>. Seluruh laporan
                     transaksi, pembukuan kas, dan rekam jejak stok tetap dapat diekspor dan dilihat kapan saja.
                 </p>

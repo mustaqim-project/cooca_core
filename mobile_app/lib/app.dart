@@ -25,7 +25,7 @@ class CoocaPosApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cooca UMKM',
+      title: 'Cooca',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       initialRoute: '/',
@@ -52,4 +52,3 @@ class CoocaPosApp extends StatelessWidget {
     );
   }
 }
-

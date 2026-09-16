@@ -27,7 +27,7 @@ final class ReportExcelExporter
     {
         $writer = (new XlsxWriter)
             ->setTitle('Laporan ' . $business->name)
-            ->setCreator('Cooca Core');
+            ->setCreator('Cooca');
 
         match ($type) {
             'cash_flow' => $this->buildCashFlow($writer, $business, $startDate, $endDate),

@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'CRM & Membership Pelanggan - Cooca UMKM',
-    'headerTitle' => 'CRM & Loyalitas Pelanggan',
-    'headerSubtitle' => 'Kelola database pelanggan setia, tier membership, perolehan poin belanja, dan pelunasan piutang tempo',
+    'title' => 'CRM & Membership Pelanggan - Cooca',
+    'headerTitle' => 'CRM & Membership Pelanggan',
+    'headerSubtitle' => 'Pantau riwayat perolehan poin belanja member, klasifikasi segmen pelanggan VIP, serta kelola batas tempo dan pelunasan piutang bisnis Anda.',
 ])
 
 @section('content')
@@ -9,435 +9,375 @@
         window.COOCA_MEMBERS = @json($customers->items());
     </script>
 
-    <div class="space-y-6 pb-12" x-data="{
+    <div class="space-y-6 pb-16" x-data="{
         membersList: window.COOCA_MEMBERS || [],
         showCreditModal: false,
         showPointsModal: false,
         selectedCustomer: null,
-        paymentAmount: 0,
-        paymentNotes: '',
-        pointHistories: [],
         loadingPoints: false,
-    
-        openCreditPayment(id) {
-            const cust = this.membersList.find(m => m.id == id);
-            if (!cust) return;
-            this.selectedCustomer = cust;
-            this.paymentAmount = Number(cust.current_credit_balance || 0);
-            this.paymentNotes = '';
+        pointHistories: [],
+        creditRepayAmount: '',
+        creditRawAmount: 0,
+        creditNotes: '',
+
+        openCreditModal(customer) {
+            this.selectedCustomer = customer;
+            const maxDebt = Number(customer.current_credit_balance || 0);
+            this.creditRawAmount = maxDebt;
+            this.creditRepayAmount = this.formatCurrency(maxDebt);
+            this.creditNotes = 'Pelunasan piutang kasbon';
             this.showCreditModal = true;
         },
-    
-        async openPointHistory(id) {
-            const cust = this.membersList.find(m => m.id == id);
-            if (!cust) return;
-            this.selectedCustomer = cust;
+
+        setQuickCredit(percent) {
+            if (!this.selectedCustomer) return;
+            const maxDebt = Number(this.selectedCustomer.current_credit_balance || 0);
+            const amt = Math.round(maxDebt * (percent / 100));
+            this.creditRawAmount = amt;
+            this.creditRepayAmount = this.formatCurrency(amt);
+        },
+
+        onCreditInput(e) {
+            let clean = e.target.value.replace(/[^0-9]/g, '');
+            let num = parseInt(clean, 10) || 0;
+            if (this.selectedCustomer) {
+                const maxDebt = Number(this.selectedCustomer.current_credit_balance || 0);
+                if (num > maxDebt) num = maxDebt;
+            }
+            this.creditRawAmount = num;
+            this.creditRepayAmount = this.formatCurrency(num);
+        },
+
+        formatCurrency(val) {
+            if (!val || isNaN(val)) return '0';
+            return new Intl.NumberFormat('id-ID').format(val);
+        },
+
+        async openPointHistory(customer) {
+            this.selectedCustomer = customer;
             this.showPointsModal = true;
             this.loadingPoints = true;
             this.pointHistories = [];
-    
+
             try {
-                const res = await fetch('/crm/customers/' + cust.id + '/points', {
+                const res = await fetch('/crm/customers/' + customer.id + '/points', {
                     headers: { 'Accept': 'application/json' }
                 });
                 const data = await res.json();
                 if (data.success) {
                     this.pointHistories = data.histories || [];
                 }
-            } catch (e) {
-                console.error('Failed to load point histories:', e);
+            } catch (err) {
+                console.error('Failed to load point histories:', err);
             } finally {
                 this.loadingPoints = false;
             }
-        },
-    
-        setQuickAmount(val) {
-            this.paymentAmount = Math.max(0, Math.min(val, Number(this.selectedCustomer ? this.selectedCustomer.current_credit_balance : 0)));
         }
     }">
 
-        <!-- 0. Standard Breadcrumb Bar -->
-        <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}"
-                class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                <span>Dashboard</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <i data-lucide="heart-handshake" class="w-3.5 h-3.5"></i>
-                <span>CRM &amp; Loyalitas</span>
-            </span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-900 dark:text-white font-bold flex items-center gap-1.5">
-                <span>Membership &amp; Poin Pelanggan</span>
-            </span>
-        </nav>
+        <!-- ========================================================================= -->
+        <!-- 0. APPLE HIG BREADCRUMB & UNIFIED SEGMENTED CONTROL                        -->
+        <!-- ========================================================================= -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <nav class="flex items-center gap-2 text-xs font-medium text-black/45 dark:text-white/45" aria-label="Breadcrumb">
+                <a href="{{ route('dashboard') }}" class="hover:text-black dark:hover:text-white transition-colors flex items-center gap-1.5">
+                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                    <span>Dashboard</span>
+                </a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
+                <a href="{{ route('customers.index') }}" class="hover:text-black dark:hover:text-white transition-colors">
+                    Pelanggan &amp; Loyalitas
+                </a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
+                <span class="text-black dark:text-white font-bold">CRM &amp; Membership</span>
+            </nav>
 
-        <!-- 1. Top Header Banner (Seukuran Dashboard Penuh) -->
-        <div
-            class="bg-white dark:bg-slate-900/90 p-5 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 transition-colors">
-            <div class="space-y-1.5 max-w-3xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold border inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90">
-                        <i data-lucide="heart-handshake" class="w-3.5 h-3.5"></i>
-                        <span>CRM &amp; Loyalty Program</span>
-                    </span>
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold border inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 font-mono">
-                        Total: {{ number_format($totalMembers, 0, ',', '.') }} Pelanggan
-                    </span>
-                </div>
-                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                    CRM &amp; Membership Pelanggan
-                </h1>
-                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Pantau riwayat perolehan poin belanja member, klasifikasi segmen pelanggan VIP, serta kelola batas tempo
-                    dan pelunasan piutang bisnis Anda.
-                </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-                @if (\App\Support\Context::hasPermission('crm.manage'))
-                    <a href="{{ route('crm.vouchers.index') }}"
-                        class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition cursor-pointer shadow-2xs flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
-                        <i data-lucide="ticket" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                        <span>Kelola Voucher</span>
-                    </a>
-                @endif
-                @if (\App\Support\Context::hasPermission('customers.create'))
-                    <a href="{{ route('customers.index') }}"
-                        class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        <span>Tambah Pelanggan</span>
-                    </a>
-                @endif
+            <!-- Apple HIG Segmented Control -->
+            <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] backdrop-blur-md border border-black/[0.04] dark:border-white/[0.06] self-stretch sm:self-auto overflow-x-auto">
+                <a href="{{ route('customers.index', ['tab' => 'customers']) }}"
+                    class="h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold transition-all flex items-center justify-center gap-2 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white whitespace-nowrap cursor-pointer">
+                    <i data-lucide="users" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>Direktori Pelanggan</span>
+                </a>
+                <a href="{{ route('crm.members.index') }}"
+                    class="h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold transition-all flex items-center justify-center gap-2 bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs whitespace-nowrap cursor-pointer">
+                    <i data-lucide="award" class="w-4 h-4 text-[#FF9500]"></i>
+                    <span>Member &amp; Poin</span>
+                    <span class="ml-1 text-[11px] px-1.5 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] tabular-nums">{{ $customers->total() }}</span>
+                </a>
+                <a href="{{ route('crm.vouchers.index') }}"
+                    class="h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold transition-all flex items-center justify-center gap-2 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white whitespace-nowrap cursor-pointer">
+                    <i data-lucide="ticket" class="w-4 h-4 text-[#34C759]"></i>
+                    <span>Voucher Diskon Kasir</span>
+                </a>
             </div>
         </div>
 
-        <!-- Flash Notification -->
-        @if (session('success'))
-            <div
-                class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-3 shadow-xs">
-                <div class="flex items-center gap-2.5">
-                    <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                    <span class="font-semibold">{{ session('success') }}</span>
-                </div>
-                <button type="button" @click="$el.parentElement.remove()"
-                    class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-        @endif
-
-        <!-- 2. 4 Command Pillars KPI Cards (Grid Penuh 4 Kolom) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <!-- Pillar 1: Total Members -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Total
-                            Pelanggan</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                            <i data-lucide="users" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight truncate">
-                        {{ number_format($totalMembers, 0, ',', '.') }}
+        <!-- ========================================================================= -->
+        <!-- 1. BENTO HERO KPI TILES                                                   -->
+        <!-- ========================================================================= -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Tile 1: Total Members -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Total Member Terdaftar</span>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                        <i data-lucide="users" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Database CRM</span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300">Member Aktif</span>
+                <div class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-black dark:text-white tabular-nums">
+                    {{ number_format($totalMembers, 0, ',', '.') }}
+                </div>
+                <div class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-1">
+                    <span class="font-semibold text-[#007AFF]">Database Loyalitas</span>
+                    <span>• Kasir &amp; Toko</span>
                 </div>
             </div>
 
-            <!-- Pillar 2: Loyalty Points Issued -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Poin
-                            Loyalitas</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-800/80 flex items-center justify-center text-teal-600 dark:text-teal-400">
-                            <i data-lucide="coins" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight truncate">
-                        {{ number_format($totalPointsIssued, 0, ',', '.') }}
+            <!-- Tile 2: Poin Beredar -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Total Poin Beredar</span>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center">
+                        <i data-lucide="award" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Konversi</span>
-                    <span class="font-bold text-emerald-600 dark:text-emerald-400 font-mono">1 Poin = Rp 100</span>
+                <div class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-[#FF9500] tabular-nums">
+                    {{ number_format($totalPointsIssued, 0, ',', '.') }}
+                </div>
+                <div class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-1">
+                    <span>Dapat ditukar diskon di kasir POS</span>
                 </div>
             </div>
 
-            <!-- Pillar 3: Total Credit Receivable -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Piutang
-                            Belanja</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                            <i data-lucide="clock" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-amber-600 dark:text-amber-400 font-mono tracking-tight truncate">
-                        Rp {{ number_format($totalCreditReceivable, 0, ',', '.') }}
+            <!-- Tile 3: Piutang Kasbon -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Total Piutang Kasbon</span>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Tempo Piutang</span>
-                    <span class="font-bold text-amber-600 dark:text-amber-400">Belum Lunas</span>
+                <div class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-[#FF3B30] tabular-nums">
+                    Rp {{ number_format($totalCreditReceivable, 0, ',', '.') }}
+                </div>
+                <div class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-1">
+                    <span>Bon belanja tempo belum lunas</span>
                 </div>
             </div>
 
-            <!-- Pillar 4: Tier Membership -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Tier
-                            Membership</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200/80 dark:border-cyan-800/80 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
-                            <i data-lucide="award" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div class="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
-                        4 Tingkatan Tier
-                    </div>
-                </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Tingkatan</span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300 font-mono">Bronze – Platinum</span>
+            <!-- Tile 4: Quick Action Tray -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Aksi CRM Cepat</span>
+                <div class="space-y-2 pt-2">
+                    @if (\App\Support\Context::hasPermission('customers.create'))
+                        <a href="{{ route('customers.index') }}"
+                            class="w-full h-10 px-3 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-semibold transition flex items-center justify-center gap-2 cursor-pointer shadow-[0_1px_4px_rgba(0,122,255,0.25)]">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            <span>+ Tambah Pelanggan</span>
+                        </a>
+                    @endif
+                    @if (\App\Support\Context::hasPermission('crm.manage'))
+                        <a href="{{ route('crm.vouchers.index') }}"
+                            class="w-full h-9 px-3 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/70 dark:text-white/70 text-[12px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i data-lucide="ticket" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                            <span>Kelola Voucher Diskon</span>
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <!-- 3. Toolbar Filter & Search Container -->
-        <div
-            class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs p-4 sm:p-5">
-            <form method="GET" action="{{ route('crm.members.index') }}"
-                class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center">
-                <!-- Search Query -->
-                <div class="sm:col-span-5 relative">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="search" class="w-4 h-4"></i>
-                    </div>
+        <!-- ========================================================================= -->
+        <!-- 2. FILTER & SEARCH BAR                                                    -->
+        <!-- ========================================================================= -->
+        <div class="p-4 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+            <form method="GET" action="{{ route('crm.members.index') }}" class="flex flex-col lg:flex-row items-center gap-3">
+                <div class="relative flex-1 w-full">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"></i>
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari nama pelanggan, nomor telepon, atau email..."
-                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-hidden transition">
+                        placeholder="Cari nama member, nomor telepon WhatsApp, atau email..."
+                        class="w-full h-11 pl-10 pr-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[14px] text-black dark:text-white placeholder-black/40 dark:placeholder-white/40 focus:outline-hidden focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 transition">
                 </div>
 
-                <!-- Tier Filter -->
-                <div class="sm:col-span-3">
+                <div class="flex items-center gap-2 w-full lg:w-auto">
                     <select name="tier"
-                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-hidden transition">
-                        <option value="">Semua Tier Membership</option>
-                        <option value="bronze" {{ request('tier') === 'bronze' ? 'selected' : '' }}>Tier: Bronze</option>
-                        <option value="silver" {{ request('tier') === 'silver' ? 'selected' : '' }}>Tier: Silver</option>
-                        <option value="gold" {{ request('tier') === 'gold' ? 'selected' : '' }}>Tier: Gold</option>
-                        <option value="platinum" {{ request('tier') === 'platinum' ? 'selected' : '' }}>Tier: Platinum
-                        </option>
+                        class="h-11 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[13px] font-medium text-black dark:text-white focus:outline-hidden">
+                        <option value="all">Semua Tier</option>
+                        <option value="bronze" {{ strtolower((string) request('tier')) === 'bronze' ? 'selected' : '' }}>Bronze</option>
+                        <option value="silver" {{ strtolower((string) request('tier')) === 'silver' ? 'selected' : '' }}>Silver</option>
+                        <option value="gold" {{ strtolower((string) request('tier')) === 'gold' ? 'selected' : '' }}>Gold</option>
+                        <option value="platinum" {{ strtolower((string) request('tier')) === 'platinum' ? 'selected' : '' }}>Platinum</option>
                     </select>
-                </div>
 
-                <!-- Segment Filter -->
-                <div class="sm:col-span-2">
                     <select name="segment"
-                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-hidden transition">
-                        <option value="">Semua Segmen</option>
-                        <option value="regular" {{ request('segment') === 'regular' ? 'selected' : '' }}>Regular</option>
-                        <option value="vip" {{ request('segment') === 'vip' ? 'selected' : '' }}>VIP</option>
-                        <option value="wholesale" {{ request('segment') === 'wholesale' ? 'selected' : '' }}>Wholesale /
-                            Grosir</option>
+                        class="h-11 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[13px] font-medium text-black dark:text-white focus:outline-hidden">
+                        <option value="all">Semua Segmen</option>
+                        <option value="VIP" {{ request('segment') === 'VIP' ? 'selected' : '' }}>VIP</option>
+                        <option value="Regular" {{ request('segment') === 'Regular' ? 'selected' : '' }}>Regular</option>
+                        <option value="New" {{ request('segment') === 'New' ? 'selected' : '' }}>New</option>
+                        <option value="At Risk" {{ request('segment') === 'At Risk' ? 'selected' : '' }}>At Risk</option>
                     </select>
-                </div>
 
-                <!-- Submit & Reset Buttons -->
-                <div class="sm:col-span-2 flex items-center gap-2">
                     <button type="submit"
-                        class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]">
-                        <i data-lucide="filter" class="w-3.5 h-3.5"></i>
-                        <span>Terapkan</span>
+                        class="h-11 px-5 rounded-[12px] bg-[#007AFF] text-white text-[13px] font-semibold hover:bg-[#0071E3] transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0">
+                        <i data-lucide="filter" class="w-4 h-4"></i>
+                        <span>Filter</span>
                     </button>
-                    @if (request()->hasAny(['search', 'tier', 'segment']))
+
+                    @if (request('search') || request('tier') || request('segment'))
                         <a href="{{ route('crm.members.index') }}"
-                            class="px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition border border-slate-200 dark:border-slate-700"
-                            title="Reset Filter">
-                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            class="h-11 px-3.5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white text-[13px] font-semibold transition flex items-center justify-center cursor-pointer shrink-0">
+                            <span>Reset</span>
                         </a>
                     @endif
                 </div>
             </form>
         </div>
 
-        <!-- 4. High-Density Data Table Container -->
-        <div
-            class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs overflow-hidden">
-
-            <!-- Table Header Bar -->
-            <div
-                class="p-5 border-b border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div>
-                    <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="contact" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                        <span>Daftar Pelanggan CRM &amp; Poin Loyalitas</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Urutan berdasarkan akumulasi nilai
-                        transaksi belanja tertinggi.</p>
+        <!-- ========================================================================= -->
+        <!-- 3. MEMBERS BENTO TABLE CONTAINER                                          -->
+        <!-- ========================================================================= -->
+        <div class="rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
+            <div class="px-5 py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-[14px] font-bold text-black dark:text-white">CRM &amp; Membership Pelanggan</h2>
+                    <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-[#FF9500]/10 text-[#FF9500]">{{ $customers->total() }} Member</span>
                 </div>
-                <span
-                    class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800">
-                    Menampilkan {{ $customers->count() }} dari {{ $customers->total() }} pelanggan
-                </span>
             </div>
 
             @if ($customers->count() > 0)
-                <!-- Desktop View: Dense Data Table (Hidden on Mobile) -->
-                <div class="hidden md:block overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead
-                            class="bg-slate-50/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-mono uppercase text-[10px] font-bold border-b border-slate-200 dark:border-slate-800 tracking-wider whitespace-nowrap">
-                            <tr>
-                                <th scope="col" class="py-3.5 px-5">Nama Pelanggan</th>
-                                <th scope="col" class="py-3.5 px-4">Kontak</th>
-                                <th scope="col" class="py-3.5 px-4 text-center">Tier &amp; Segmen</th>
-                                <th scope="col" class="py-3.5 px-4 text-right">Saldo Poin</th>
-                                <th scope="col" class="py-3.5 px-4 text-right">Akumulasi Belanja</th>
-                                <th scope="col" class="py-3.5 px-4 text-right">Saldo Piutang</th>
-                                <th scope="col" class="py-3.5 px-5 text-right">Tindakan</th>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[13px]">
+                        <thead>
+                            <tr class="border-b border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02] text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">
+                                <th class="py-3.5 px-4 sm:px-6">Member Pelanggan</th>
+                                <th class="py-3.5 px-4">Tier &amp; Segmen</th>
+                                <th class="py-3.5 px-4 text-center">Saldo Poin Belanja</th>
+                                <th class="py-3.5 px-4 text-right">Total Belanja (Lifetime)</th>
+                                <th class="py-3.5 px-4 text-right">Piutang Kasbon</th>
+                                <th class="py-3.5 px-4 text-right pr-6">Aksi Member</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-sans">
-                            @foreach ($customers as $c)
-                                @php
-                                    $tier = strtolower($c->membership_tier ?? 'bronze');
-                                    $tierBadge = match ($tier) {
-                                        'platinum'
-                                            => 'bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400 border-cyan-200/90 dark:border-cyan-800/90',
-                                        'gold'
-                                            => 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200/90 dark:border-amber-800/90',
-                                        'silver'
-                                            => 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
-                                        default
-                                            => 'bg-orange-50 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400 border-orange-200/90 dark:border-orange-800/90',
-                                    };
-                                @endphp
-                                <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                                    <!-- Name & Avatar -->
-                                    <td class="py-3.5 px-5">
+                        <tbody class="divide-y divide-black/[0.05] dark:divide-white/[0.06]">
+                            @foreach ($customers as $m)
+                                <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
+                                    <!-- Member Name -->
+                                    <td class="py-4 px-4 sm:px-6">
                                         <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                                                {{ strtoupper(substr($c->name, 0, 1)) }}
+                                            <div class="w-10 h-10 rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] font-bold flex items-center justify-center shrink-0 border border-[#FF9500]/20 text-[14px]">
+                                                {{ strtoupper(substr($m->name, 0, 2)) }}
                                             </div>
-                                            <div class="min-w-0">
-                                                <div class="font-bold text-slate-900 dark:text-white text-sm truncate">
-                                                    {{ $c->name }}</div>
-                                                <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                                                    {{ $c->company_name ?: 'Personal Member' }}</div>
+                                            <div class="space-y-0.5">
+                                                <div class="font-semibold text-black dark:text-white">{{ $m->name }}</div>
+                                                @if ($m->phone)
+                                                    @php
+                                                        $cleanPhone = preg_replace('/[^0-9]/', '', $m->phone);
+                                                        if (str_starts_with($cleanPhone, '0')) {
+                                                            $cleanPhone = '62' . substr($cleanPhone, 1);
+                                                        }
+                                                    @endphp
+                                                    <a href="https://wa.me/{{ $cleanPhone }}" target="_blank"
+                                                        class="inline-flex items-center gap-1 font-mono text-[11px] text-[#34C759] hover:underline">
+                                                        <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                                        <span>{{ $m->phone }}</span>
+                                                    </a>
+                                                @else
+                                                    <span class="text-black/30 dark:text-white/30 text-[11px] font-mono">-</span>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
 
-                                    <!-- Contact -->
-                                    <td class="py-3.5 px-4">
-                                        <div class="font-mono text-slate-800 dark:text-slate-200">{{ $c->phone ?: '-' }}
-                                        </div>
-                                        <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                                            {{ $c->email ?: '-' }}</div>
-                                    </td>
-
-                                    <!-- Tier & Segment -->
-                                    <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                                        <div class="inline-flex items-center gap-1.5">
-                                            <span
-                                                class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $tierBadge }}">
-                                                {{ $c->membership_tier ?: 'Bronze' }}
+                                    <!-- Tier & Segment Badges -->
+                                    <td class="py-4 px-4">
+                                        <div class="flex flex-wrap items-center gap-1.5">
+                                            @php
+                                                $tierRaw = strtolower((string) ($m->membership_tier ?: 'bronze'));
+                                                $tierMap = [
+                                                    'platinum' => ['label' => 'Platinum', 'class' => 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'],
+                                                    'gold'     => ['label' => 'Gold',     'class' => 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/20'],
+                                                    'silver'   => ['label' => 'Silver',   'class' => 'bg-slate-500/10 text-slate-600 dark:text-slate-300 border-slate-500/20'],
+                                                    'bronze'   => ['label' => 'Bronze',   'class' => 'bg-amber-600/10 text-amber-700 dark:text-amber-400 border-amber-600/20'],
+                                                ];
+                                                $tConfig = $tierMap[$tierRaw] ?? ['label' => ucfirst($tierRaw), 'class' => 'bg-black/5 text-black/60 border-black/10'];
+                                            @endphp
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border {{ $tConfig['class'] }}">
+                                                <i data-lucide="award" class="w-3 h-3"></i>
+                                                <span>{{ $tConfig['label'] }}</span>
                                             </span>
-                                            <span
-                                                class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                                                {{ $c->segment ?: 'Regular' }}
-                                            </span>
+
+                                            @if ($m->segment)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-black/60 dark:text-white/60">
+                                                    {{ strtoupper($m->segment) === 'VIP' ? 'VIP' : ucfirst($m->segment) }}
+                                                </span>
+                                            @endif
                                         </div>
                                     </td>
 
-                                    <!-- Loyalty Points with History Shortcut -->
-                                    <td class="py-3.5 px-4 text-right">
-                                        <button type="button" @click="openPointHistory('{{ $c->id }}')"
-                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/25 transition text-emerald-700 dark:text-emerald-400 font-mono font-bold text-xs group cursor-pointer"
-                                            title="Klik untuk melihat riwayat mutasi poin">
-                                            <i data-lucide="coins"
-                                                class="w-3.5 h-3.5 group-hover:rotate-12 transition-transform"></i>
-                                            <span>{{ number_format($c->points_balance, 0, ',', '.') }}</span>
-                                            <i data-lucide="chevron-right" class="w-3 h-3 opacity-60"></i>
-                                        </button>
-                                    </td>
-
-                                    <!-- Total Spent & Transaction Count -->
-                                    <td class="py-3.5 px-4 text-right">
-                                        <div class="font-mono font-bold text-slate-900 dark:text-white">
-                                            Rp {{ number_format($c->total_spent, 0, ',', '.') }}
-                                        </div>
-                                        <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
-                                            {{ $c->total_orders_count ?? ($c->pos_orders_count ?? 0) }} Pesanan
-                                        </div>
-                                    </td>
-
-                                    <!-- Credit Balance (Piutang) -->
-                                    <td class="py-3.5 px-4 text-right">
-                                        @if ($c->current_credit_balance > 0)
-                                            <div class="font-mono font-black text-amber-600 dark:text-amber-400">
-                                                Rp {{ number_format($c->current_credit_balance, 0, ',', '.') }}
+                                    <!-- Points Balance & Action -->
+                                    <td class="py-4 px-4 text-center">
+                                        <div class="space-y-1">
+                                            <div class="text-[15px] font-bold text-[#FF9500] tabular-nums font-mono">
+                                                {{ number_format($m->points_balance, 0, ',', '.') }}
                                             </div>
-                                            <span
-                                                class="inline-block px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                                                Tempo Aktif
-                                            </span>
+                                            <button type="button" @click="openPointHistory(@js($m))"
+                                                class="inline-flex items-center gap-1 text-[11px] text-[#007AFF] hover:underline font-semibold cursor-pointer">
+                                                <i data-lucide="history" class="w-3 h-3"></i>
+                                                <span>Riwayat Poin</span>
+                                            </button>
+                                        </div>
+                                    </td>
+
+                                    <!-- Total Spent -->
+                                    <td class="py-4 px-4 text-right font-mono tabular-nums">
+                                        <div class="font-semibold text-black dark:text-white">
+                                            Rp {{ number_format($m->total_spent, 0, ',', '.') }}
+                                        </div>
+                                        <span class="text-[11px] text-black/40 dark:text-white/40">{{ $m->pos_orders_count }} Order Kasir</span>
+                                    </td>
+
+                                    <!-- Credit Debt Balance -->
+                                    <td class="py-4 px-4 text-right">
+                                        @if ($m->current_credit_balance > 0)
+                                            <div class="space-y-1">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20 font-mono tabular-nums">
+                                                    Rp {{ number_format($m->current_credit_balance, 0, ',', '.') }}
+                                                </span>
+                                                @if (\App\Support\Context::hasPermission('crm.manage'))
+                                                    <div>
+                                                        <button type="button" @click="openCreditModal(@js($m))"
+                                                            class="inline-flex items-center gap-1 text-[11px] font-bold text-[#34C759] hover:underline cursor-pointer">
+                                                            <i data-lucide="banknote" class="w-3.5 h-3.5"></i>
+                                                            <span>Bayar Kasbon</span>
+                                                        </button>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         @else
-                                            <span class="font-mono text-xs text-slate-400 dark:text-slate-500">Rp 0</span>
-                                            <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Lunas
-                                            </div>
+                                            <span class="inline-flex items-center gap-1 text-[11px] font-medium text-[#34C759]">
+                                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                                                <span>Lunas (Rp 0)</span>
+                                            </span>
                                         @endif
                                     </td>
 
                                     <!-- Action Buttons -->
-                                    <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                                    <td class="py-4 px-4 text-right pr-6">
                                         <div class="flex items-center justify-end gap-1.5">
-                                            @if ($c->current_credit_balance > 0)
-                                                @if (
-                                                    \App\Support\Context::hasPermission('finance.receivables') ||
-                                                        \App\Support\Context::hasPermission('crm.manage') ||
-                                                        \App\Support\Context::hasPermission('invoices.record_payment'))
-                                                    <button type="button"
-                                                        @click="openCreditPayment('{{ $c->id }}')"
-                                                        class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition flex items-center gap-1 shadow-sm shadow-amber-500/20 cursor-pointer">
-                                                        <i data-lucide="hand-coins" class="w-3.5 h-3.5"></i>
-                                                        <span>Pelunasan</span>
-                                                    </button>
-                                                @endif
-                                            @else
-                                                <button type="button" @click="openPointHistory('{{ $c->id }}')"
-                                                    class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
-                                                    title="Riwayat Poin">
-                                                    <i data-lucide="history" class="w-3.5 h-3.5"></i>
+                                            @if ($m->current_credit_balance > 0 && \App\Support\Context::hasPermission('crm.manage'))
+                                                <button type="button" @click="openCreditModal(@js($m))"
+                                                    class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold bg-[#34C759]/10 text-[#34C759] hover:bg-[#34C759]/20 transition cursor-pointer flex items-center gap-1">
+                                                    <i data-lucide="hand-coins" class="w-3.5 h-3.5"></i>
+                                                    <span>Pelunasan</span>
                                                 </button>
                                             @endif
+                                            <a href="{{ route('customers.index', ['search' => $m->name]) }}"
+                                                class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/70 dark:text-white/70 transition cursor-pointer flex items-center gap-1"
+                                                title="Lihat Profil Lengkap">
+                                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                                <span>Profil</span>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -446,253 +386,108 @@
                     </table>
                 </div>
 
-                <!-- Mobile View: Clean Card Stream -->
-                <div class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/80">
-                    @foreach ($customers as $c)
-                        @php
-                            $tier = strtolower($c->membership_tier ?? 'bronze');
-                            $tierBadge = match ($tier) {
-                                'platinum'
-                                    => 'bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400 border-cyan-200/90 dark:border-cyan-800/90',
-                                'gold'
-                                    => 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200/90 dark:border-amber-800/90',
-                                'silver'
-                                    => 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
-                                default
-                                    => 'bg-orange-50 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400 border-orange-200/90 dark:border-orange-800/90',
-                            };
-                        @endphp
-                        <div class="p-5 space-y-4 hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition">
-                            <!-- Card Top: Customer Name & Tier Badges -->
-                            <div class="flex items-start justify-between gap-3">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                                        {{ strtoupper(substr($c->name, 0, 1)) }}
-                                    </div>
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-slate-900 dark:text-white text-sm truncate">
-                                            {{ $c->name }}</div>
-                                        <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                                            {{ $c->phone ?: ($c->email ?: 'Personal') }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-col items-end gap-1">
-                                    <span
-                                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $tierBadge }}">
-                                        {{ $c->membership_tier ?: 'Bronze' }}
-                                    </span>
-                                    <span
-                                        class="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase">{{ $c->segment ?: 'Regular' }}</span>
-                                </div>
-                            </div>
-
-                            <!-- Card Body: 3-Pillar Micro Stats -->
-                            <div
-                                class="grid grid-cols-3 gap-2 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-center">
-                                <div class="space-y-0.5">
-                                    <span
-                                        class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-mono font-bold">Poin</span>
-                                    <button type="button" @click="openPointHistory('{{ $c->id }}')"
-                                        class="text-xs font-mono font-black text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
-                                        {{ number_format($c->points_balance, 0, ',', '.') }}
-                                    </button>
-                                </div>
-                                <div class="space-y-0.5 border-x border-slate-200 dark:border-slate-800">
-                                    <span
-                                        class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-mono font-bold">Total
-                                        Belanja</span>
-                                    <div class="text-xs font-mono font-bold text-slate-900 dark:text-white">
-                                        Rp {{ number_format($c->total_spent, 0, ',', '.') }}
-                                    </div>
-                                </div>
-                                <div class="space-y-0.5">
-                                    <span
-                                        class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-mono font-bold">Piutang</span>
-                                    <div
-                                        class="text-xs font-mono font-black {{ $c->current_credit_balance > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400 dark:text-slate-500' }}">
-                                        Rp {{ number_format($c->current_credit_balance, 0, ',', '.') }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Card Footer: Actions -->
-                            <div class="flex items-center justify-between gap-3 pt-1">
-                                <button type="button" @click="openPointHistory('{{ $c->id }}')"
-                                    class="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition font-semibold cursor-pointer">
-                                    <i data-lucide="history" class="w-3.5 h-3.5"></i>
-                                    <span>Riwayat Poin</span>
-                                </button>
-
-                                @if ($c->current_credit_balance > 0)
-                                    @if (
-                                        \App\Support\Context::hasPermission('finance.receivables') ||
-                                            \App\Support\Context::hasPermission('crm.manage') ||
-                                            \App\Support\Context::hasPermission('invoices.record_payment'))
-                                        <button type="button" @click="openCreditPayment('{{ $c->id }}')"
-                                            class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow-sm shadow-amber-500/20 cursor-pointer">
-                                            <i data-lucide="hand-coins" class="w-4 h-4"></i>
-                                            <span>Pelunasan Piutang</span>
-                                        </button>
-                                    @endif
-                                @else
-                                    <span
-                                        class="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                                        <span>Lunas</span>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                <!-- Pagination -->
+                @if ($customers->hasPages())
+                    <div class="p-4 border-t border-black/[0.05] dark:border-white/[0.06]">
+                        {{ $customers->links() }}
+                    </div>
+                @endif
             @else
                 <!-- Empty State -->
                 <div class="py-16 px-6 text-center space-y-4">
-                    <div
-                        class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 flex items-center justify-center mx-auto shadow-inner">
-                        <i data-lucide="user-x" class="w-8 h-8"></i>
+                    <div class="w-14 h-14 rounded-[18px] bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
+                        <i data-lucide="users" class="w-7 h-7"></i>
                     </div>
                     <div class="space-y-1 max-w-sm mx-auto">
-                        <h4 class="text-sm font-black text-slate-900 dark:text-white">Tidak Ada Data Pelanggan Ditemukan
-                        </h4>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Coba ubah kriteria pencarian atau tambahkan pelanggan baru untuk mulai mencatat poin loyalitas
-                            kasir.
+                        <h4 class="text-[15px] font-bold text-black dark:text-white">Tidak Ada Data Member Ditemukan</h4>
+                        <p class="text-[13px] text-black/50 dark:text-white/50 leading-relaxed">
+                            Coba sesuaikan kata kunci pencarian atau filter tier untuk menemukan member yang diinginkan.
                         </p>
                     </div>
                     @if (\App\Support\Context::hasPermission('customers.create'))
                         <div class="pt-2">
                             <a href="{{ route('customers.index') }}"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 transition cursor-pointer">
+                                class="inline-flex items-center gap-2 h-11 px-5 rounded-[12px] bg-[#007AFF] text-white text-[13px] font-semibold hover:bg-[#0071E3] transition cursor-pointer">
                                 <i data-lucide="user-plus" class="w-4 h-4"></i>
-                                <span>Tambah Pelanggan Sekarang</span>
+                                <span>+ Tambah Pelanggan Baru</span>
                             </a>
                         </div>
                     @endif
                 </div>
             @endif
-
-            <!-- Pagination -->
-            @if ($customers->hasPages())
-                <div class="p-4 border-t border-slate-100 dark:border-slate-800">
-                    {{ $customers->links() }}
-                </div>
-            @endif
-
         </div>
 
-        @if (
-            \App\Support\Context::hasPermission('finance.receivables') ||
-                \App\Support\Context::hasPermission('crm.manage') ||
-                \App\Support\Context::hasPermission('invoices.record_payment'))
-            <!-- Modal 1: Catat Pelunasan Piutang (Credit Repayment) -->
+        <!-- ========================================================================= -->
+        <!-- MODAL: CATAT PELUNASAN KASBON PIUTANG TEMPO                               -->
+        <!-- ========================================================================= -->
+        @if (\App\Support\Context::hasPermission('crm.manage'))
             <div x-show="showCreditModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all"
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition"
                 @keydown.escape.window="showCreditModal = false">
-
-                <div class="w-full max-w-md p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-5 relative"
+                <div class="w-full max-w-md rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl overflow-hidden p-6 space-y-5"
                     @click.away="showCreditModal = false">
-
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                    
+                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
                         <div class="flex items-center gap-2.5">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                                <i data-lucide="hand-coins" class="w-5 h-5"></i>
+                            <div class="w-9 h-9 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                                <i data-lucide="banknote" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h3 class="text-base font-black text-slate-900 dark:text-white">Catat Pelunasan Piutang
-                                </h3>
-                                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Transaksi Tempo
-                                    Pelanggan</span>
+                                <h3 class="font-bold text-[15px] text-black dark:text-white">Catat Pelunasan Kasbon</h3>
+                                <p class="text-[12px] text-black/50 dark:text-white/50" x-text="selectedCustomer ? selectedCustomer.name : ''"></p>
                             </div>
                         </div>
                         <button type="button" @click="showCreditModal = false"
-                            class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+                            class="p-1 rounded-[8px] text-black/40 hover:text-black dark:hover:text-white transition cursor-pointer">
                             <i data-lucide="x" class="w-5 h-5"></i>
                         </button>
                     </div>
 
-                    <form
-                        :action="'{{ url('/crm/customers') }}/' + (selectedCustomer ? selectedCustomer.id : '') +
-                        '/credit-payment'"
-                        method="POST" class="space-y-4 text-xs">
+                    <!-- Microcopy Penenang Jiwa -->
+                    <div class="p-3 rounded-[12px] bg-[#007AFF]/5 border border-[#007AFF]/15 text-[12px] text-[#007AFF] flex items-start gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                        <span>💡 Tenang: Riwayat nota penjualan dan pembukuan masa lalu Anda tetap aman tersimpan.</span>
+                    </div>
+
+                    <form method="POST" :action="'/crm/customers/' + (selectedCustomer ? selectedCustomer.id : '') + '/credit-payment'" class="space-y-4">
                         @csrf
-
-                        <!-- Customer Info Banner -->
-                        <div
-                            class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                            <div>
-                                <div class="font-bold text-slate-900 dark:text-white text-sm"
-                                    x-text="selectedCustomer ? selectedCustomer.name : ''"></div>
-                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Total Piutang Berjalan:</div>
-                            </div>
-                            <span class="font-bold font-mono text-lg text-amber-600 dark:text-amber-400"
-                                x-text="'Rp ' + Number(selectedCustomer ? selectedCustomer.current_credit_balance : 0).toLocaleString('id-ID')"></span>
-                        </div>
-
-                        <!-- Fast Nominal Quick-fill Chips -->
                         <div class="space-y-1.5">
-                            <label
-                                class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">Pilih
-                                Cepat Nominal Pelunasan:</label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button type="button"
-                                    @click="setQuickAmount(Number(selectedCustomer ? selectedCustomer.current_credit_balance : 0))"
-                                    class="py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 font-bold text-xs border border-slate-200 dark:border-slate-700 transition cursor-pointer">
-                                    Lunasi Penuh
-                                </button>
-                                <button type="button"
-                                    @click="setQuickAmount(Math.round(Number(selectedCustomer ? selectedCustomer.current_credit_balance : 0) / 2))"
-                                    class="py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs border border-slate-200 dark:border-slate-700 transition cursor-pointer">
-                                    50% Piutang
-                                </button>
-                                <button type="button" @click="setQuickAmount(50000)"
-                                    class="py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs border border-slate-200 dark:border-slate-700 transition cursor-pointer">
-                                    Rp 50.000
-                                </button>
-                            </div>
+                            <label class="block text-[12px] font-bold text-black dark:text-white">Nominal Pelunasan (Rp)</label>
+                            <input type="text" :value="creditRepayAmount" @input="onCreditInput($event)" required
+                                class="w-full h-12 px-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] font-mono font-bold text-xl text-black dark:text-white focus:outline-hidden focus:border-[#34C759]">
+                            <input type="hidden" name="amount" :value="creditRawAmount">
                         </div>
 
-                        <!-- Input Nominal -->
-                        <div class="space-y-1.5">
-                            <label
-                                class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                Nominal Pembayaran (Rp) <span class="text-rose-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <span
-                                    class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-bold text-sm">Rp</span>
-                                <input type="number" name="amount" required min="1"
-                                    x-model.number="paymentAmount"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl pl-10 pr-4 py-2.5 text-base font-bold font-mono text-slate-900 dark:text-white focus:outline-hidden transition">
-                            </div>
+                        <!-- Quick Percentage Fill -->
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" @click="setQuickCredit(25)"
+                                class="h-9 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-[12px] font-semibold text-black dark:text-white transition cursor-pointer">
+                                25%
+                            </button>
+                            <button type="button" @click="setQuickCredit(50)"
+                                class="h-9 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-[12px] font-semibold text-black dark:text-white transition cursor-pointer">
+                                50%
+                            </button>
+                            <button type="button" @click="setQuickCredit(100)"
+                                class="h-9 rounded-[10px] bg-[#34C759]/15 hover:bg-[#34C759]/25 text-[12px] font-bold text-[#34C759] transition cursor-pointer">
+                                100% (Lunas)
+                            </button>
                         </div>
 
-                        <!-- Input Notes -->
-                        <div class="space-y-1.5">
-                            <label
-                                class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                Catatan / Nomor Bukti Transfer <span
-                                    class="text-slate-400 text-[11px] font-normal">(Opsional)</span>
-                            </label>
-                            <input type="text" name="notes" x-model="paymentNotes"
-                                placeholder="Misal: Transfer Bank BCA / Tunai di Kasir..."
-                                class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-hidden transition">
+                        <div class="space-y-1">
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan Pembayaran (Opsional)</label>
+                            <input type="text" name="notes" x-model="creditNotes" placeholder="Contoh: Transfer BCA, Titip Tunai, dll."
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-hidden">
                         </div>
 
-                        <!-- Modal Action Buttons -->
-                        <div
-                            class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <div class="pt-2 flex items-center gap-3">
                             <button type="button" @click="showCreditModal = false"
-                                class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition cursor-pointer">
+                                class="h-12 px-4 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 font-semibold text-[13px] hover:text-black dark:hover:text-white transition cursor-pointer">
                                 Batal
                             </button>
                             <button type="submit"
-                                class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition flex items-center gap-1.5 cursor-pointer">
-                                <i data-lucide="check" class="w-4 h-4"></i>
-                                <span>Simpan Pelunasan</span>
+                                class="flex-1 h-12 rounded-[12px] bg-[#34C759] hover:bg-[#2FB350] text-white font-bold text-[14px] shadow-[0_2px_8px_rgba(52,199,89,0.3)] transition cursor-pointer">
+                                💳 Simpan Pembayaran
                             </button>
                         </div>
                     </form>
@@ -700,89 +495,66 @@
             </div>
         @endif
 
-        <!-- Modal 2: Riwayat Poin Loyalitas Pelanggan (Interactive Timeline) -->
+        <!-- ========================================================================= -->
+        <!-- MODAL: RIWAYAT PEROLEHAN & PENUKARAN POIN                                 -->
+        <!-- ========================================================================= -->
         <div x-show="showPointsModal" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition"
             @keydown.escape.window="showPointsModal = false">
-
-            <div class="w-full max-w-lg p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-5 relative"
+            <div class="w-full max-w-lg rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl overflow-hidden p-6 space-y-4"
                 @click.away="showPointsModal = false">
-
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                
+                <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
                     <div class="flex items-center gap-2.5">
-                        <div
-                            class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                            <i data-lucide="coins" class="w-5 h-5"></i>
+                        <div class="w-9 h-9 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center">
+                            <i data-lucide="history" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h3 class="text-base font-black text-slate-900 dark:text-white">Riwayat Mutasi Poin</h3>
-                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono"
-                                x-text="selectedCustomer ? selectedCustomer.name : ''"></span>
+                            <h3 class="font-bold text-[15px] text-black dark:text-white">Riwayat Poin Belanja</h3>
+                            <p class="text-[12px] text-black/50 dark:text-white/50" x-text="selectedCustomer ? selectedCustomer.name : ''"></p>
                         </div>
                     </div>
                     <button type="button" @click="showPointsModal = false"
-                        class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+                        class="p-1 rounded-[8px] text-black/40 hover:text-black dark:hover:text-white transition cursor-pointer">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
 
-                <!-- Total Point Balance Card -->
-                <div
-                    class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                    <div>
-                        <span
-                            class="text-[10px] font-mono uppercase text-slate-500 dark:text-slate-400 font-bold block">Saldo
-                            Poin Saat Ini</span>
-                        <div class="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-0.5"
-                            x-text="(selectedCustomer ? Number(selectedCustomer.points_balance).toLocaleString('id-ID') : '0') + ' Poin'">
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono block">Nilai Diskon</span>
-                        <div class="text-xs font-bold text-slate-900 dark:text-slate-200"
-                            x-text="'Rp ' + (selectedCustomer ? (Number(selectedCustomer.points_balance) * 100).toLocaleString('id-ID') : '0')">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Loading Spinner -->
-                <div x-show="loadingPoints" class="py-12 text-center space-y-2">
-                    <i data-lucide="loader-2"
-                        class="w-8 h-8 text-emerald-600 dark:text-emerald-400 animate-spin mx-auto"></i>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Memuat riwayat transaksi poin...</p>
-                </div>
-
-                <!-- Points Timeline List -->
-                <div x-show="!loadingPoints" class="space-y-3 max-h-72 overflow-y-auto pr-1">
-                    <template x-for="h in pointHistories" :key="h.id">
-                        <div
-                            class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 flex items-start justify-between gap-3 text-xs">
-                            <div class="space-y-0.5">
-                                <div class="font-bold text-slate-900 dark:text-slate-200"
-                                    x-text="h.notes || h.description || (h.type === 'pos_earn' || h.type === 'earned' ? 'Perolehan Poin Belanja' : (h.type === 'pos_redeem' ? 'Penukaran Diskon Poin' : 'Mutasi Poin Member'))">
-                                </div>
-                                <div class="text-[10px] font-mono text-slate-400 dark:text-slate-500"
-                                    x-text="new Date(h.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })">
-                                </div>
-                            </div>
-                            <div class="text-right font-mono font-black"
-                                :class="Number(h.points_change) >= 0 ? 'text-emerald-600 dark:text-emerald-400' :
-                                    'text-rose-600 dark:text-rose-400'">
-                                <span
-                                    x-text="(Number(h.points_change) >= 0 ? '+' : '') + Number(h.points_change).toLocaleString('id-ID') + ' Poin'"></span>
-                            </div>
+                <!-- Points List Container -->
+                <div class="max-h-[360px] overflow-y-auto space-y-2 pr-1">
+                    <template x-if="loadingPoints">
+                        <div class="py-12 text-center text-[13px] text-black/40 dark:text-white/40">
+                            Memuat riwayat poin...
                         </div>
                     </template>
 
-                    <div x-show="pointHistories.length === 0"
-                        class="py-8 text-center text-xs text-slate-400 dark:text-slate-500 italic">
-                        Belum ada riwayat mutasi poin untuk member ini.
-                    </div>
+                    <template x-if="!loadingPoints && pointHistories.length === 0">
+                        <div class="py-12 text-center text-[13px] text-black/40 dark:text-white/40">
+                            Belum ada riwayat perolehan atau penukaran poin.
+                        </div>
+                    </template>
+
+                    <template x-if="!loadingPoints && pointHistories.length > 0">
+                        <div class="divide-y divide-black/[0.05] dark:divide-white/[0.06]">
+                            <template x-for="h in pointHistories" :key="h.id">
+                                <div class="py-3 flex items-center justify-between">
+                                    <div class="space-y-0.5">
+                                        <div class="font-semibold text-[13px] text-black dark:text-white" x-text="h.notes || 'Transaksi Kasir POS'"></div>
+                                        <div class="text-[11px] text-black/40 dark:text-white/40 font-mono" x-text="h.created_at ? new Date(h.created_at).toLocaleString('id-ID') : '-'"></div>
+                                    </div>
+                                    <div class="font-mono font-bold text-[14px] tabular-nums"
+                                        :class="h.points_change >= 0 ? 'text-[#34C759]' : 'text-[#FF3B30]'"
+                                        x-text="(h.points_change >= 0 ? '+' : '') + h.points_change + ' Poin'">
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
                 </div>
 
-                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] text-right">
                     <button type="button" @click="showPointsModal = false"
-                        class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition cursor-pointer">
+                        class="h-10 px-5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 font-semibold text-[13px] hover:text-black dark:hover:text-white transition cursor-pointer">
                         Tutup
                     </button>
                 </div>

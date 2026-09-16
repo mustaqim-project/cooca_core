@@ -1,6 +1,6 @@
 # Panduan Sistem Keuangan (Finance & Accounting) COOCA ERP
 
-Dokumen ini merupakan panduan komprehensif mengenai arsitektur, cara kerja (workflow), aturan bisnis, data yang diolah, serta petunjuk operasional sistem keuangan dan akuntansi pada **COOCA Core ERP**.
+Dokumen ini merupakan panduan komprehensif mengenai arsitektur, cara kerja (workflow), aturan bisnis, data yang diolah, serta petunjuk operasional sistem keuangan dan akuntansi pada **Cooca ERP**.
 
 ---
 
@@ -324,4 +324,4 @@ Berikut adalah entitas database utama yang diproses dalam siklus keuangan:
 
 ---
 
-*Dokumen ini diperbarui secara berkala mengikuti pengembangan sistem COOCA Core ERP.*
+*Dokumen ini diperbarui secara berkala mengikuti pengembangan sistem Cooca ERP.*

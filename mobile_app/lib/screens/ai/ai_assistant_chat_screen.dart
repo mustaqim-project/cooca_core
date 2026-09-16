@@ -14,7 +14,8 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
   final List<Map<String, String>> _messages = [
     {
       'role': 'assistant',
-      'text': 'Halo! Saya AI Business Assistant Cooca UMKM. Tanyakan apa saja tentang HPP, margin keuntungan, atau tren penjualan toko Anda hari ini.',
+      'text':
+          'Halo! Saya AI Business Assistant Cooca. Tanyakan apa saja tentang HPP, margin keuntungan, atau tren penjualan toko Anda hari ini.',
     },
   ];
   bool _isLoading = false;
@@ -36,7 +37,8 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
         _isLoading = false;
         _messages.add({
           'role': 'assistant',
-          'text': 'Berdasarkan data penjualan dan kalkulasi HPP aktif:\n\n• Margin kotor rata-rata toko Anda saat ini berada di angka **34.8%**.\n• Produk dengan margin terendah adalah **Kopi Susu Literan (18%)** karena kenaikan harga bahan baku susu.\n• Saran: Naikkan harga jual sebesar Rp 2.000 atau cari supplier alternatif untuk mengembalikan margin ke target 30%.'
+          'text':
+              'Berdasarkan data penjualan dan kalkulasi HPP aktif:\n\n• Margin kotor rata-rata toko Anda saat ini berada di angka **34.8%**.\n• Produk dengan margin terendah adalah **Kopi Susu Literan (18%)** karena kenaikan harga bahan baku susu.\n• Saran: Naikkan harga jual sebesar Rp 2.000 atau cari supplier alternatif untuk mengembalikan margin ke target 30%.'
         });
       });
     });
@@ -56,7 +58,8 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
                 gradient: AppColors.purpleGradient,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.psychology_rounded, color: Colors.white, size: 20),
+              child: const Icon(Icons.psychology_rounded,
+                  color: Colors.white, size: 20),
             ),
             const SizedBox(width: 10),
             Column(
@@ -95,9 +98,11 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
                 final isUser = msg['role'] == 'user';
 
                 return Align(
-                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
-                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+                    constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.8),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: isUser ? AppColors.primary : AppColors.surface,
@@ -105,7 +110,10 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
                         bottomRight: isUser ? Radius.zero : null,
                         bottomLeft: !isUser ? Radius.zero : null,
                       ),
-                      border: Border.all(color: isUser ? AppColors.primaryDark : AppColors.border),
+                      border: Border.all(
+                          color: isUser
+                              ? AppColors.primaryDark
+                              : AppColors.border),
                     ),
                     child: Text(
                       msg['text'] ?? '',
@@ -126,9 +134,15 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.purpleLight)),
+                  const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: AppColors.purpleLight)),
                   const SizedBox(width: 8),
-                  Text('AI sedang menganalisis data bisnis...', style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 12)),
+                  Text('AI sedang menganalisis data bisnis...',
+                      style: GoogleFonts.inter(
+                          color: AppColors.textMuted, fontSize: 12)),
                 ],
               ),
             ),
@@ -144,17 +158,20 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _messageController,
-                      style: GoogleFonts.inter(color: AppColors.textPrimary, fontSize: 14),
+                      style: GoogleFonts.inter(
+                          color: AppColors.textPrimary, fontSize: 14),
                       decoration: const InputDecoration(
                         hintText: 'Tanyakan sesuatu tentang bisnismu...',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   IconButton(
                     onPressed: _sendMessage,
-                    icon: const Icon(Icons.send_rounded, color: AppColors.purpleLight),
+                    icon: const Icon(Icons.send_rounded,
+                        color: AppColors.purpleLight),
                   ),
                 ],
               ),
@@ -165,4 +182,3 @@ class _AiAssistantChatScreenState extends State<AiAssistantChatScreen> {
     );
   }
 }
-

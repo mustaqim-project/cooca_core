@@ -134,27 +134,90 @@ class WhatsAppWebController extends Controller
     }
 
     /**
-     * Save WhatsApp gateway settings (auto-send receipt, footer note).
+     * Save WhatsApp gateway settings (provider, credentials, auto-send receipt, footer note).
+     * Non-destructive partial updates: only modifies fields explicitly provided in the request.
      */
     public function updateSettings(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
-            'auto_send_receipt' => 'boolean',
-            'receipt_template'  => 'nullable|string|max:1000',
+            'auto_send_receipt'    => ['nullable', 'boolean'],
+            'receipt_template'     => ['nullable', 'string', 'max:1000'],
+            'provider'             => ['nullable', 'in:baileys,meta_cloud'],
+            'is_active'            => ['nullable', 'boolean'],
+            'meta_phone_number_id' => ['nullable', 'string', 'max:100'],
+            'meta_access_token'    => ['nullable', 'string', 'max:500'],
+            'meta_waba_id'         => ['nullable', 'string', 'max:100'],
+            'meta_template_name'   => ['nullable', 'string', 'max:100'],
         ]);
 
-        WhatsAppSession::updateOrCreate(
-            ['business_id' => $business->id],
-            [
-                'session_id'        => $this->gateway->sessionId($business),
-                'auto_send_receipt' => $validated['auto_send_receipt'] ?? false,
-                'receipt_template'  => $validated['receipt_template'] ?? null,
-            ]
-        );
+        $sessionData = [];
+        if ($request->has('provider')) {
+            $sessionData['provider'] = $validated['provider'] ?? 'baileys';
+        }
+        if ($request->has('is_active')) {
+            $sessionData['is_active'] = $request->boolean('is_active');
+        }
+        if ($request->filled('meta_phone_number_id')) {
+            $sessionData['meta_phone_number_id'] = trim((string) $validated['meta_phone_number_id']);
+        }
+        if ($request->filled('meta_access_token')) {
+            $sessionData['meta_access_token'] = trim((string) $validated['meta_access_token']);
+        }
+        if ($request->filled('meta_waba_id')) {
+            $sessionData['meta_waba_id'] = trim((string) $validated['meta_waba_id']);
+        }
+        if ($request->filled('meta_template_name')) {
+            $sessionData['meta_template_name'] = trim((string) $validated['meta_template_name']);
+        }
 
-        return back()->with('success', 'Pengaturan WhatsApp Gateway berhasil disimpan.');
+        if (!empty($sessionData)) {
+            $this->gateway->updateSessionProvider($business, $sessionData);
+        }
+
+        $session = WhatsAppSession::where('business_id', $business->id)->first();
+        if ($session) {
+            if ($request->has('auto_send_receipt')) {
+                $session->auto_send_receipt = $request->boolean('auto_send_receipt');
+            }
+            if ($request->has('receipt_template')) {
+                $session->receipt_template = $validated['receipt_template'] ?? null;
+            }
+            $session->save();
+        }
+
+        return back()->with('success', 'Pengaturan WhatsApp Gateway & Provider berhasil disimpan.');
+    }
+
+    /**
+     * AJAX: Verify Meta WhatsApp Cloud API credentials for business.
+     */
+    public function verifyMetaCredentials(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $session = WhatsAppSession::where('business_id', $business->id)->first();
+
+        $validated = $request->validate([
+            'token'           => ['nullable', 'string', 'max:500'],
+            'phone_number_id' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $token = trim((string) ($validated['token'] ?? ($session?->meta_access_token ?? '')));
+        $phoneId = trim((string) ($validated['phone_number_id'] ?? ($session?->meta_phone_number_id ?? '')));
+
+        if (empty($token) || empty($phoneId)) {
+            return response()->json([
+                'success' => false,
+                'error'   => 'Token dan Phone Number ID Meta wajib diisi terlebih dahulu untuk pengujian verifikasi.',
+            ], 422);
+        }
+
+        /** @var \App\Domain\WhatsApp\Drivers\MetaWhatsAppCloudDriver $metaDriver */
+        $metaDriver = app(\App\Domain\WhatsApp\Drivers\MetaWhatsAppCloudDriver::class);
+        $result = $metaDriver->verifyCredentials($token, $phoneId);
+
+        return response()->json($result);
     }
 
     /**

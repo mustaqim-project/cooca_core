@@ -87,4 +87,22 @@ class GlobalCustomer extends Authenticatable
     {
         return $this->phone_verified_at !== null;
     }
+
+    /**
+     * Determine if customer email is verified.
+     * Google registration is automatically verified.
+     * Non-Google registration with email requires email verification.
+     */
+    public function hasVerifiedEmail(): bool
+    {
+        if (! empty($this->google_id)) {
+            return true;
+        }
+
+        if (empty($this->email)) {
+            return true;
+        }
+
+        return ! is_null($this->email_verified_at);
+    }
 }

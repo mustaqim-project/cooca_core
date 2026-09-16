@@ -31,7 +31,7 @@ class TemplateLead extends Model
             $cleanPhone = '62' . substr($cleanPhone, 1);
         }
 
-        $message = urlencode("Halo {$this->name}, terima kasih telah mengunduh {$this->template_name} dari Cooca UMKM. Ada yang bisa kami bantu seputar pembukuan usaha Anda?");
+        $message = urlencode("Halo {$this->name}, terima kasih telah mengunduh {$this->template_name} dari Cooca. Ada yang bisa kami bantu seputar pembukuan usaha Anda?");
 
         return "https://wa.me/{$cleanPhone}?text={$message}";
     }

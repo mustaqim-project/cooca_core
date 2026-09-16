@@ -13,39 +13,53 @@ use Illuminate\View\View;
 final class AdminSettingController extends Controller
 {
     /**
-     * Display Google API & System Settings view.
+     * Retrieve all unified platform, Google OAuth, and SMTP settings data for views.
+     *
+     * @return array<string, mixed>
      */
-    public function index(): View
+    public static function getUnifiedSettingData(): array
     {
-        $googleClientId = SystemSetting::get('google_client_id') ?? config('services.google.client_id', '');
-        $googleClientSecret = SystemSetting::get('google_client_secret') ?? config('services.google.client_secret', '');
-        $googleRedirectUri = SystemSetting::get('google_redirect_uri') ?? config('services.google.redirect', url('/auth/google/callback'));
-        $allowGoogleLogin = SystemSetting::get('allow_google_login', '1');
-        $appName = SystemSetting::get('app_name', config('app.name', 'Universal HPP Calculator'));
+        return [
+            'googleClientId' => SystemSetting::get('google_client_id') ?? config('services.google.client_id', ''),
+            'googleClientSecret' => SystemSetting::get('google_client_secret') ?? config('services.google.client_secret', ''),
+            'googleRedirectUri' => SystemSetting::get('google_redirect_uri') ?? config('services.google.redirect', url('/auth/google/callback')),
+            'googleCustomerRedirectUri' => SystemSetting::get('google_customer_redirect_uri') ?? config('services.google.customer_redirect', url('/customer/auth/google/callback')),
+            'allowGoogleLogin' => SystemSetting::get('allow_google_login', '1'),
+            'allowCustomerGoogleLogin' => SystemSetting::get('allow_customer_google_login', '1'),
+            'appName' => SystemSetting::get('app_name', config('app.name', 'Universal HPP Calculator')),
 
-        // Subscription Pricing Settings
-        $subscriptionPriceMonthly = SystemSetting::get('subscription_price_monthly', '25000');
-        $subscriptionPriceAnnual = SystemSetting::get('subscription_price_annual', '250000');
-        $subscriptionAiTokensMonthly = SystemSetting::get('subscription_ai_tokens_monthly', '10000000');
-        $subscriptionAnnualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
-        $aiTokenTopupPrice = SystemSetting::get('ai_token_topup_price', '50000');
-        $aiTokenTopupAmount = SystemSetting::get('ai_token_topup_amount', '1000000');
-        $ownerStorageLimitGb = SystemSetting::get('owner_storage_limit_gb', '3');
-        $storageTopupPrice = SystemSetting::get('storage_topup_price', '50000');
-        $storageTopupGb = SystemSetting::get('storage_topup_gb', '1');
+            // Subscription Pricing Settings
+            'subscriptionPriceMonthly' => SystemSetting::get('subscription_price_monthly', '25000'),
+            'subscriptionPriceAnnual' => SystemSetting::get('subscription_price_annual', '250000'),
+            'subscriptionAiTokensMonthly' => SystemSetting::get('subscription_ai_tokens_monthly', '10000000'),
+            'subscriptionAnnualDiscountBadge' => SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan'),
+            'aiTokenTopupPrice' => SystemSetting::get('ai_token_topup_price', '50000'),
+            'aiTokenTopupAmount' => SystemSetting::get('ai_token_topup_amount', '1000000'),
+            'ownerStorageLimitGb' => SystemSetting::get('owner_storage_limit_gb', '3'),
+            'storageTopupPrice' => SystemSetting::get('storage_topup_price', '50000'),
+            'storageTopupGb' => SystemSetting::get('storage_topup_gb', '1'),
 
-        return view('admin.settings.index', compact(
-            'googleClientId',
-            'googleClientSecret',
-            'googleRedirectUri',
-            'allowGoogleLogin',
-            'appName',
-            'subscriptionPriceMonthly',
-            'subscriptionPriceAnnual',
-            'subscriptionAiTokensMonthly',
-            'subscriptionAnnualDiscountBadge', 'aiTokenTopupPrice', 'aiTokenTopupAmount',
-            'ownerStorageLimitGb', 'storageTopupPrice', 'storageTopupGb'
-        ));
+            // SMTP & Email Configuration
+            'mailMailer' => SystemSetting::get('mail_mailer') ?? config('mail.default', 'smtp'),
+            'mailHost' => SystemSetting::get('mail_host') ?? config('mail.mailers.smtp.host', 'smtp.gmail.com'),
+            'mailPort' => SystemSetting::get('mail_port') ?? (string) config('mail.mailers.smtp.port', 587),
+            'mailUsername' => SystemSetting::get('mail_username') ?? config('mail.mailers.smtp.username', ''),
+            'mailPassword' => '',
+            'mailEncryption' => SystemSetting::get('mail_encryption') ?? config('mail.mailers.smtp.encryption', 'tls'),
+            'mailFromAddress' => SystemSetting::get('mail_from_address') ?? config('mail.from.address', 'no-reply@cooca.id'),
+            'mailFromName' => SystemSetting::get('mail_from_name') ?? config('mail.from.name', 'Cooca Platform'),
+        ];
+    }
+
+    /**
+     * Display Google API, System Settings & SMTP Unified Hub view.
+     */
+    public function index(Request $request): View
+    {
+        $data = static::getUnifiedSettingData();
+        $data['defaultTab'] = $request->query('tab', 'system');
+
+        return view('admin.settings.index', $data);
     }
 
     /**
@@ -58,7 +72,9 @@ final class AdminSettingController extends Controller
             'google_client_id' => ['nullable', 'string', 'max:500'],
             'google_client_secret' => ['nullable', 'string', 'max:500'],
             'google_redirect_uri' => ['nullable', 'string', 'max:500'],
+            'google_customer_redirect_uri' => ['nullable', 'string', 'max:500'],
             'allow_google_login' => ['nullable', 'boolean'],
+            'allow_customer_google_login' => ['nullable', 'boolean'],
             'subscription_price_monthly' => ['nullable', 'numeric', 'min:0'],
             'subscription_price_annual' => ['nullable', 'numeric', 'min:0'],
             'subscription_ai_tokens_monthly' => ['nullable', 'integer', 'min:0'],
@@ -78,7 +94,9 @@ final class AdminSettingController extends Controller
         }
 
         SystemSetting::set('google_redirect_uri', $validated['google_redirect_uri'] ?? url('/auth/google/callback'), 'google_api');
+        SystemSetting::set('google_customer_redirect_uri', $validated['google_customer_redirect_uri'] ?? url('/customer/auth/google/callback'), 'google_api');
         SystemSetting::set('allow_google_login', $request->has('allow_google_login') ? '1' : '0', 'google_api');
+        SystemSetting::set('allow_customer_google_login', $request->has('allow_customer_google_login') ? '1' : '0', 'google_api');
 
         // Save Subscription Pricing if provided
         if (isset($validated['subscription_price_monthly'])) {
@@ -117,17 +135,24 @@ final class AdminSettingController extends Controller
             'storage_topup_gb' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        foreach ([
-            'subscription_price_monthly', 'subscription_price_annual',
-            'subscription_ai_tokens_monthly', 'subscription_annual_discount_badge',
-            'ai_token_topup_price', 'ai_token_topup_amount',
-            'owner_storage_limit_gb', 'storage_topup_price', 'storage_topup_gb',
-        ] as $setting) {
+        foreach (
+            [
+                'subscription_price_monthly',
+                'subscription_price_annual',
+                'subscription_ai_tokens_monthly',
+                'subscription_annual_discount_badge',
+                'ai_token_topup_price',
+                'ai_token_topup_amount',
+                'owner_storage_limit_gb',
+                'storage_topup_price',
+                'storage_topup_gb',
+            ] as $setting
+        ) {
             if (isset($validated[$setting])) {
                 SystemSetting::set($setting, (string) $validated[$setting], 'billing');
             }
         }
 
-        return back()->with('success', 'Harga & kuota default billing Cooca UMKM berhasil diperbarui.');
+        return back()->with('success', 'Harga & kuota default billing Cooca berhasil diperbarui.');
     }
 }

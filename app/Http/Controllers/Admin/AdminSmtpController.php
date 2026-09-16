@@ -16,29 +16,14 @@ use Throwable;
 final class AdminSmtpController extends Controller
 {
     /**
-     * Display CMS SMTP & Mail Configuration.
+     * Display CMS SMTP & Mail Configuration within Unified Settings Hub.
      */
     public function index(): View
     {
-        $mailMailer = SystemSetting::get('mail_mailer') ?? config('mail.default', 'smtp');
-        $mailHost = SystemSetting::get('mail_host') ?? config('mail.mailers.smtp.host', 'smtp.gmail.com');
-        $mailPort = SystemSetting::get('mail_port') ?? (string) config('mail.mailers.smtp.port', 587);
-        $mailUsername = SystemSetting::get('mail_username') ?? config('mail.mailers.smtp.username', '');
-        $mailPassword = '';
-        $mailEncryption = SystemSetting::get('mail_encryption') ?? config('mail.mailers.smtp.encryption', 'tls');
-        $mailFromAddress = SystemSetting::get('mail_from_address') ?? config('mail.from.address', 'no-reply@cooca.id');
-        $mailFromName = SystemSetting::get('mail_from_name') ?? config('mail.from.name', 'Cooca UMKM Platform');
+        $data = AdminSettingController::getUnifiedSettingData();
+        $data['defaultTab'] = 'smtp';
 
-        return view('admin.smtp.index', compact(
-            'mailMailer',
-            'mailHost',
-            'mailPort',
-            'mailUsername',
-            'mailPassword',
-            'mailEncryption',
-            'mailFromAddress',
-            'mailFromName'
-        ));
+        return view('admin.settings.index', $data);
     }
 
     /**
@@ -68,7 +53,7 @@ final class AdminSmtpController extends Controller
 
         SystemSetting::set('mail_encryption', $validated['mail_encryption'] ?? 'tls', 'mail');
         SystemSetting::set('mail_from_address', $validated['mail_from_address'] ?? 'no-reply@cooca.id', 'mail');
-        SystemSetting::set('mail_from_name', $validated['mail_from_name'] ?? 'Cooca UMKM Platform', 'mail');
+        SystemSetting::set('mail_from_name', $validated['mail_from_name'] ?? 'Cooca Platform', 'mail');
 
         // Immediately update runtime config
         DynamicMailConfig::bootstrap();
@@ -88,7 +73,7 @@ final class AdminSmtpController extends Controller
         try {
             DynamicMailConfig::bootstrap();
 
-            $appName = SystemSetting::get('app_name', 'Cooca UMKM');
+            $appName = SystemSetting::get('app_name', 'Cooca');
             $testEmail = $validated['test_email'];
 
             Mail::raw(

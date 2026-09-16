@@ -357,7 +357,7 @@ Ran terminal command: Select-String -Path 'app/Http/Controllers/Api/V1/WhatsAppW
 
 Ran terminal command: Select-String -Path 'app/Http/Controllers/Api/V1/MemberController.php','app/Http/Controllers/Api/V1/BusinessController.php','app/Http/Controllers/Api/V1/Pos/PosOrderController.php','app/Domain/Pos/PosOrderService.php','app/Http/Controllers/Api/V1/AuthController.php','app/Http/Controllers/Web/AuthWebController.php','app/Http/Controllers/Admin/AdminAuthController.php','app/Http/Controllers/Web/Pos/PosTerminalWebController.php' -Pattern 'public function (index|store|update|destroy|void|refund|checkout|login)|Business \$business|Customer::find|Product::find|unit_price|discount_amount|payments\.\*\.amount|password|createToken|session\(\)->regenerate' | ForEach-Object { "{0}:{1}: {2}" -f $_.Path.Replace((Get-Location).Path + '',''), $_.LineNumber, $_.Line.Trim() }
 
-# COOCA UMKM SECURITY AUDIT
+# Cooca SECURITY AUDIT
 
 Audit dilakukan secara read-only berdasarkan source code, routes, middleware, controllers, services, models, konfigurasi, Blade, API, dependency, queue/scheduler, upload, POS, inventory, finance, AI, dan billing. Tidak ada source code atau data yang diubah.
 

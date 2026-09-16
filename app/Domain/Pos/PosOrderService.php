@@ -101,7 +101,7 @@ final class PosOrderService
         if (! $sub->isCorePlan()) {
             $allowed = $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_POS, \App\Domain\Billing\EntitlementService::FREE_POS_MONTHLY_LIMIT);
             if (! $allowed) {
-                throw new \DomainException('Batas kuota transaksi POS bulanan (maks. 100 transaksi/bulan untuk Free Plan) telah tercapai. Silakan tingkatkan ke paket Cooca UMKM.');
+                throw new \DomainException('Batas kuota transaksi POS bulanan (maks. 100 transaksi/bulan untuk Free Plan) telah tercapai. Silakan tingkatkan ke paket Cooca.');
             }
         }
 

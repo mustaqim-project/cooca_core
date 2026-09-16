@@ -87,7 +87,7 @@ class PostSeeder extends Seeder
     <li><strong>Catat Arus Kas Harian (Cashflow):</strong> Buat tabel sederhana berisi Tanggal, Keterangan, Kas Masuk, Kas Keluar, dan Saldo Terakhir.</li>
     <li><strong>Buat Laporan Laba Rugi Akhir Bulan:</strong> Pendapatan Penjualan dikurangi HPP = Laba Kotor. Laba Kotor dikurangi biaya operasional (listrik, gaji, sewa) = Laba Bersih.</li>
 </ol>
-<p>Unduh gratis <a href="/template-pembukuan-gratis" class="text-cyan-400 font-bold underline">Template Excel Pembukuan Warung</a> atau gunakan aplikasi Cooca UMKM untuk pencatatan otomatis.</p>',
+<p>Unduh gratis <a href="/template-pembukuan-gratis" class="text-cyan-400 font-bold underline">Template Excel Pembukuan Warung</a> atau gunakan aplikasi Cooca untuk pencatatan otomatis.</p>',
                 'cover_image' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
                 'meta_title' => 'Cara Membuat Laporan Keuangan Sederhana UMKM | COOCA',
                 'meta_description' => 'Tutorial lengkap membuat pembukuan buku kas dan laporan laba rugi sederhana untuk pelaku usaha kecil dan UMKM.',
@@ -163,7 +163,7 @@ class PostSeeder extends Seeder
     <li><strong>Laporan Penjualan Real-time:</strong> Pemilik bisnis bisa memantau penjualan harian dari mana saja tanpa harus menunggui toko seharian.</li>
     <li><strong>Database Pelanggan:</strong> Kumpulkan nomor WhatsApp pembeli untuk promosi dan promo loyalitas.</li>
 </ol>
-<p>Mulai gunakan <a href="/solusi/kasir-warung" class="text-cyan-400 font-bold underline">Aplikasi Kasir Cooca UMKM</a> gratis selamanya tanpa biaya bulanan.</p>',
+<p>Mulai gunakan <a href="/solusi/kasir-warung" class="text-cyan-400 font-bold underline">Aplikasi Kasir Cooca</a> gratis selamanya tanpa biaya bulanan.</p>',
                 'cover_image' => 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1200&q=80',
                 'meta_title' => '5 Keunggulan Kasir Digital POS untuk Toko & UMKM | COOCA',
                 'meta_description' => 'Alasan penting mengapa warung dan toko wajib menggunakan aplikasi kasir POS digital untuk mencegah kebocoran kas dan stok.',
@@ -182,7 +182,7 @@ class PostSeeder extends Seeder
 <p>Dahulu, analisis data bisnis mendalam seperti <em>sales forecasting</em>, analisis produk terlaris, dan optimasi harga hanya bisa dinikmati oleh perusahaan korporasi besar dengan tim analis data.</p>
 
 <h3>Bagaimana AI Assistant Membantu Bisnis Sehari-hari?</h3>
-<p>Dengan integrasi AI di Cooca UMKM, pemilik usaha dapat berdialog langsung layaknya memiliki asisten pribadi:</p>
+<p>Dengan integrasi AI di Cooca, pemilik usaha dapat berdialog langsung layaknya memiliki asisten pribadi:</p>
 <ul>
     <li><em>“Menu apa yang menghasilkan margin terbesar bulan ini?”</em></li>
     <li><em>“Kapan waktu puncak kunjungan pelanggan terbanyak di toko saya?”</em></li>

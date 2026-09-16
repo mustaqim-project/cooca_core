@@ -62,14 +62,21 @@ final class AuthWebController extends Controller
                 session(['active_business_id' => $user->active_business_id]);
             }
 
-            // Jika browser ini sudah terpercaya (Trusted Device 60 hari), set sesi terverifikasi
+            // Jika user adalah karyawan (non-owner) atau nomor HP owner sudah terverifikasi seumur hidup
             $userPhone = $this->normalizePhone((string) ($user->phone ?: $user->activeBusiness?->phone));
-            if ($userPhone && $trustedDevice->isTrusted($request, $user, $userPhone)) {
+            if (! $user->isBusinessOwner() || ($user->isPhoneVerified() && $userPhone)) {
+                $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
+                $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
+            } elseif ($userPhone && $trustedDevice->isTrusted($request, $user, $userPhone)) {
+                if (! $user->isPhoneVerified()) {
+                    $user->update(['phone_verified_at' => now()]);
+                }
                 $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
                 $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
             } elseif (app()->isLocal() && in_array($user->email, ['testing@cooca.id', 'demo@cooca.id'])) {
                 if ($userPhone) {
                     $trustedDevice->trustDevice($user, $userPhone);
+                    $user->update(['phone_verified_at' => now()]);
                 }
                 $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
                 $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
@@ -177,7 +184,7 @@ final class AuthWebController extends Controller
             'last_sent_at' => now()->timestamp,
         ];
 
-        $result = $adminWa->sendMessage($phone, "Kode OTP pendaftaran Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        $result = $adminWa->sendOtp($phone, $otp);
         if (! ($result['success'] ?? false)) {
             // Pola konsisten: tetap lanjut ke halaman OTP, user bisa mencoba "Kirim ulang OTP".
             $pending['otp_hash'] = null;
@@ -252,6 +259,7 @@ final class AuthWebController extends Controller
                 'name' => $pending['name'],
                 'email' => $pending['email'],
                 'phone' => $pending['phone'],
+                'phone_verified_at' => now(),
                 'password' => $pending['password'],
                 'google_id' => $pending['google_id'] ?? null,
                 'avatar' => $pending['avatar'] ?? null,
@@ -303,6 +311,11 @@ final class AuthWebController extends Controller
             app(WhatsAppTrustedDeviceService::class)->trustDevice($user, $phone);
         }
 
+        // Jika mendaftar dengan Google, email sudah diverifikasi oleh Google, langsung ke dashboard
+        if (isset($pending['google_id'])) {
+            return redirect()->intended(route('dashboard'))->with('success', 'Selamat datang! Bisnis Anda telah berhasil didaftarkan.');
+        }
+
         return redirect()->route('verification.notice')->with('status', 'Selamat datang! Bisnis Anda telah berhasil dibuat. Tautan verifikasi email telah dikirimkan ke alamat email Anda.');
     }
 
@@ -321,7 +334,7 @@ final class AuthWebController extends Controller
         }
 
         $otp = (string) random_int(100000, 999999);
-        $result = $adminWa->sendMessage((string) $pending['phone'], "Kode OTP pendaftaran Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        $result = $adminWa->sendOtp((string) $pending['phone'], $otp);
         if (! ($result['success'] ?? false)) {
             return back()->withErrors(['otp' => 'OTP gagal dikirim. Coba lagi.']);
         }
@@ -360,7 +373,7 @@ final class AuthWebController extends Controller
         }
 
         $otp = (string) random_int(100000, 999999);
-        $result = $adminWa->sendMessage($phone, "Kode OTP pendaftaran Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        $result = $adminWa->sendOtp($phone, $otp);
         $sent = (bool) ($result['success'] ?? false);
 
         $pending['phone'] = $phone;
@@ -437,7 +450,7 @@ final class AuthWebController extends Controller
 
         $entitlement = app(\App\Domain\Billing\EntitlementService::class);
         if (! $entitlement->canCreateBusiness($user)) {
-            return redirect()->route('billing.limits')->with('error', 'Paket Free dibatasi untuk 1 bisnis per akun. Silakan tingkatkan ke paket Cooca UMKM untuk mengelola banyak cabang/bisnis.');
+            return redirect()->route('billing.limits')->with('error', 'Paket Free dibatasi untuk 1 bisnis per akun. Silakan tingkatkan ke paket Cooca untuk mengelola banyak cabang/bisnis.');
         }
 
         $business = DB::transaction(function () use ($user, $validated, $templateService): Business {
@@ -534,10 +547,16 @@ final class AuthWebController extends Controller
         /** @var User $user */
         $user = Auth::guard('web')->user();
 
-        $user->update([
+        $phoneChanged = $user->phone !== $validated['phone'];
+        $userUpdates = [
             'name' => $validated['name'],
             'phone' => $validated['phone'],
-        ]);
+        ];
+        if ($phoneChanged) {
+            $userUpdates['phone_verified_at'] = null;
+        }
+
+        $user->update($userUpdates);
 
         $business = Context::hasBusiness() ? Context::business() : $user->businesses()->first();
         if ($business) {

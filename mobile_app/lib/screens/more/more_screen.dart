@@ -41,11 +41,12 @@ class _MoreScreenState extends State<MoreScreen> {
                 gradient: AppColors.purpleGradient,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.stars_rounded, color: Colors.white, size: 32),
+              child: const Icon(Icons.stars_rounded,
+                  color: Colors.white, size: 32),
             ),
             const SizedBox(height: 16),
             Text(
-              'Upgrade ke Cooca UMKM',
+              'Upgrade ke Cooca',
               style: GoogleFonts.inter(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -66,7 +67,9 @@ class _MoreScreenState extends State<MoreScreen> {
               onPressed: () {
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Silakan hubungi administrator atau kunjungi web cooca.id untuk proses pembayaran.')),
+                  const SnackBar(
+                      content: Text(
+                          'Silakan hubungi administrator atau kunjungi web cooca.id untuk proses pembayaran.')),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -123,7 +126,8 @@ class _MoreScreenState extends State<MoreScreen> {
                       gradient: AppColors.logoGradient,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(Icons.storefront_rounded, color: Colors.white, size: 28),
+                    child: const Icon(Icons.storefront_rounded,
+                        color: Colors.white, size: 28),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -147,9 +151,12 @@ class _MoreScreenState extends State<MoreScreen> {
                         ),
                         const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: sub.isCore ? AppColors.primaryGlow : AppColors.amberGlow,
+                            color: sub.isCore
+                                ? AppColors.primaryGlow
+                                : AppColors.amberGlow,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -157,7 +164,9 @@ class _MoreScreenState extends State<MoreScreen> {
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
-                              color: sub.isCore ? AppColors.primaryLight : AppColors.amber,
+                              color: sub.isCore
+                                  ? AppColors.primaryLight
+                                  : AppColors.amber,
                             ),
                           ),
                         ),
@@ -165,7 +174,8 @@ class _MoreScreenState extends State<MoreScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.swap_horiz_rounded, color: AppColors.primaryLight),
+                    icon: const Icon(Icons.swap_horiz_rounded,
+                        color: AppColors.primaryLight),
                     onPressed: () {
                       Navigator.pushNamed(context, '/business-select');
                     },
@@ -190,18 +200,20 @@ class _MoreScreenState extends State<MoreScreen> {
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.purple.withValues(alpha: 0.5)),
+                    border: Border.all(
+                        color: AppColors.purple.withValues(alpha: 0.5)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.bolt_rounded, color: AppColors.amber, size: 28),
+                      const Icon(Icons.bolt_rounded,
+                          color: AppColors.amber, size: 28),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Upgrade ke Cooca UMKM',
+                              'Upgrade ke Cooca',
                               style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
@@ -218,7 +230,8 @@ class _MoreScreenState extends State<MoreScreen> {
                           ],
                         ),
                       ),
-                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 14),
+                      const Icon(Icons.arrow_forward_ios_rounded,
+                          color: Colors.white, size: 14),
                     ],
                   ),
                 ),
@@ -282,7 +295,8 @@ class _MoreScreenState extends State<MoreScreen> {
               icon: Icons.print_rounded,
               color: AppColors.cyan,
               title: 'Printer Struk Kasir',
-              subtitle: 'Konfigurasi printer thermal Bluetooth / USB (58mm/80mm)',
+              subtitle:
+                  'Konfigurasi printer thermal Bluetooth / USB (58mm/80mm)',
               onTap: () => Navigator.pushNamed(context, '/settings/printer'),
             ),
 
@@ -291,7 +305,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 icon: Icons.stars_rounded,
                 color: AppColors.purple,
                 title: 'Paket & Langganan',
-                subtitle: 'Periksa penggunaan kuota & upgrade Cooca UMKM',
+                subtitle: 'Periksa penggunaan kuota & upgrade Cooca',
                 onTap: () => Navigator.pushNamed(context, '/billing/upgrade'),
               ),
 
@@ -306,7 +320,8 @@ class _MoreScreenState extends State<MoreScreen> {
 
             // Logout Button
             ListTile(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
               tileColor: AppColors.rose.withValues(alpha: 0.1),
               leading: const Icon(Icons.logout_rounded, color: AppColors.rose),
               title: Text(
@@ -387,9 +402,9 @@ class _MoreScreenState extends State<MoreScreen> {
             color: AppColors.textMuted,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textDim),
+        trailing:
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textDim),
       ),
     );
   }
 }
-

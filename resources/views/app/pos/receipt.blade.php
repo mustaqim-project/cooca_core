@@ -246,7 +246,7 @@
         <!-- Footer Message -->
         <div class="pt-3 text-center text-[10px] text-gray-600 space-y-0.5">
             <div>{{ $business->pos_receipt_footer_note ?? 'Terima Kasih Atas Kunjungan Anda!' }}</div>
-            <div class="text-[8px] text-gray-400">Powered by Cooca UMKM (cooca.id)</div>
+            <div class="text-[8px] text-gray-400">Powered by Cooca (cooca.id)</div>
         </div>
     </div>
 

@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Kalkulator HPP - Cooca UMKM',
+    'title' => 'Kalkulator HPP - Cooca',
     'headerTitle' => 'Kalkulator HPP & Penetapan Harga',
     'headerSubtitle' => 'Hitung modal bersih per porsi/pcs secara mudah dan tentukan harga jual yang menguntungkan',
 ])

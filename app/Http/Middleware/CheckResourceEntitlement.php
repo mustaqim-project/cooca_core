@@ -72,7 +72,7 @@ final class CheckResourceEntitlement
                 return response()->json([
                     'success' => false,
                     'code' => 'RESOURCE_LIMIT_EXCEEDED',
-                    'message' => "Batas kuota {$label} telah tercapai. Tingkatkan ke Cooca UMKM (Rp129.000/bln) untuk akses tanpa batas.",
+                    'message' => "Batas kuota {$label} telah tercapai. Tingkatkan ke Cooca (Rp129.000/bln) untuk akses tanpa batas.",
                     'upgrade_url' => route('billing.limits'),
                 ], 403);
             }
@@ -84,4 +84,3 @@ final class CheckResourceEntitlement
         return $next($request);
     }
 }
-

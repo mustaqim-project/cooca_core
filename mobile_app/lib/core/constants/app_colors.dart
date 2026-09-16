@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Cooca UMKM Mobile - Apple HIG v2.0 Design Tokens
+/// Cooca Mobile - Apple HIG v2.0 Design Tokens
 /// System Blue primary, Apple System Gray palette, Inter (SF Pro-compatible).
 class AppColors {
   AppColors._();

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Portal Pelanggan' }} - COOCA UMKM</title>
+    <title>{{ $title ?? 'Portal Pelanggan' }} - Cooca</title>
 
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,8 @@
                 extend: {
                     fontFamily: {
                         sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'SF Pro Text', 'system-ui',
-                            'sans-serif'],
+                            'sans-serif'
+                        ],
                     },
                     colors: {
                         apple: {
@@ -87,9 +88,16 @@
 
 <body
     class="bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] min-h-screen flex flex-col antialiased selection:bg-[#007AFF] selection:text-white"
-    x-data="{ mobileMenuOpen: false, toastMessage: null, toastTimeout: null, showToast(msg) { this.toastMessage = msg;
+    x-data="{
+        mobileMenuOpen: false,
+        toastMessage: null,
+        toastTimeout: null,
+        showToast(msg) {
+            this.toastMessage = msg;
             clearTimeout(this.toastTimeout);
-            this.toastTimeout = setTimeout(() => { this.toastMessage = null; }, 3500); } }">
+            this.toastTimeout = setTimeout(() => { this.toastMessage = null; }, 3500);
+        }
+    }">
 
     {{-- Dynamic Island Toast Notification --}}
     <div x-show="toastMessage" x-cloak x-transition:enter="transition ease-out duration-300 transform"
@@ -301,7 +309,7 @@
     <footer
         class="border-t border-black/5 dark:border-white/5 py-6 text-center text-[12px] text-black/45 dark:text-white/45">
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p>&copy; {{ date('Y') }} COOCA UMKM. Hak cipta dilindungi undang-undang.</p>
+            <p>&copy; {{ date('Y') }} Cooca. Hak cipta dilindungi undang-undang.</p>
             <p>Platform Operasi Bisnis Terpadu UMKM Indonesia</p>
         </div>
     </footer>

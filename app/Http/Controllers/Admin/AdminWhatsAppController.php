@@ -62,6 +62,16 @@ final class AdminWhatsAppController extends Controller
         $liveStatus = strtolower($waStatus['status'] ?? 'disconnected');
         $qrDataUrl  = null;
 
+        // Dual Gateway (Meta WhatsApp Cloud API vs Baileys QR)
+        $otpDriver    = $this->adminWa->getOtpDriver();
+        $blastDriver  = $this->adminWa->getBlastDriver();
+        $isOtpActive  = $this->adminWa->isOtpActive();
+        $isBlastActive = $this->adminWa->isBlastActive();
+        $metaCreds    = $this->adminWa->getMetaCredentials();
+
+        // Multi-Session Admin Pool
+        $adminSessions = $this->adminWa->getSessions();
+
         return view('admin.whatsapp.index', compact(
             'tab',
             'waStatus',
@@ -71,26 +81,78 @@ final class AdminWhatsAppController extends Controller
             'templates',
             'recentReminders',
             'blasts',
-            'targetCounts'
+            'targetCounts',
+            'otpDriver',
+            'blastDriver',
+            'isOtpActive',
+            'isBlastActive',
+            'metaCreds',
+            'adminSessions'
         ));
     }
 
     /**
-     * AJAX: Get QR Code data URL and live status for admin session.
+     * AJAX: Get list of all admin WhatsApp sessions.
      */
-    public function getQr(): JsonResponse
+    public function getSessions(): JsonResponse
     {
-        $data = $this->adminWa->getQrCode();
+        $sessions = $this->adminWa->getSessions();
+
+        return response()->json([
+            'success'  => true,
+            'sessions' => $sessions,
+        ]);
+    }
+
+    /**
+     * AJAX: Create and start a new admin WhatsApp session in pool.
+     */
+    public function createSession(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $session = $this->adminWa->createSession($validated['name'] ?? null);
+
+        return response()->json([
+            'success'   => true,
+            'session'   => $session,
+            'sessionId' => $session->session_id,
+            'message'   => "Sesi WhatsApp '{$session->name}' berhasil dibuat.",
+        ]);
+    }
+
+    /**
+     * AJAX: Get QR Code data URL and live status for specific admin session.
+     */
+    public function getQr(Request $request, ?string $sessionId = null): JsonResponse
+    {
+        $resolvedSessionId = $sessionId ?: (string) (
+            $request->route('sessionId')
+            ?? $request->route('session')
+            ?? $request->query('sessionId')
+            ?? $request->query('session_id')
+            ?? ''
+        );
+        $data = $this->adminWa->getQrCode($resolvedSessionId ?: null);
 
         return response()->json($data);
     }
 
     /**
-     * AJAX: Get live status.
+     * AJAX: Get live status for specific admin session or aggregate.
      */
-    public function checkStatus(): JsonResponse
+    public function checkStatus(Request $request, ?string $sessionId = null): JsonResponse
     {
-        $data = $this->adminWa->getStatus();
+        $resolvedSessionId = $sessionId ?: (string) (
+            $request->route('sessionId')
+            ?? $request->route('session')
+            ?? $request->query('sessionId')
+            ?? $request->query('session_id')
+            ?? ''
+        );
+        $data = $this->adminWa->getStatus($resolvedSessionId ?: null);
 
         $userId = $data['user']['id'] ?? null;
         $phone = $data['phone'] ?? ($userId ? explode(':', (string) $userId)[0] : null);
@@ -105,9 +167,16 @@ final class AdminWhatsAppController extends Controller
     /**
      * Start / trigger session on wa-server.
      */
-    public function startSession(): JsonResponse
+    public function startSession(Request $request, ?string $sessionId = null): JsonResponse
     {
-        $result = $this->adminWa->startSession();
+        $resolvedSessionId = $sessionId ?: (string) (
+            $request->route('sessionId')
+            ?? $request->route('session')
+            ?? $request->input('sessionId')
+            ?? $request->input('session_id')
+            ?? ''
+        );
+        $result = $this->adminWa->startSession($resolvedSessionId ?: null);
 
         $success = $result['success'] ?? true;
 
@@ -115,26 +184,107 @@ final class AdminWhatsAppController extends Controller
     }
 
     /**
-     * Disconnect Admin WhatsApp.
+     * Disconnect Admin WhatsApp session.
      */
-    public function disconnect(): JsonResponse
+    public function disconnect(Request $request, ?string $sessionId = null): JsonResponse
     {
-        $this->adminWa->disconnect();
+        $resolvedSessionId = $sessionId ?: (string) (
+            $request->route('sessionId')
+            ?? $request->route('session')
+            ?? $request->input('sessionId')
+            ?? $request->input('session_id')
+            ?? ''
+        );
+        $this->adminWa->disconnect($resolvedSessionId ?: null);
 
         return response()->json(['success' => true, 'message' => 'Sesi WhatsApp Admin berhasil diputus.']);
     }
 
     /**
-     * Test sending from Admin Bot.
+     * AJAX: Disconnect specific session.
+     */
+    public function disconnectSession(string $sessionId): JsonResponse
+    {
+        $this->adminWa->disconnectSession($sessionId);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Sesi {$sessionId} berhasil diputus.",
+        ]);
+    }
+
+    /**
+     * AJAX: Delete specific session from database and wa-server.
+     */
+    public function deleteSession(string $sessionId): JsonResponse
+    {
+        $this->adminWa->deleteSession($sessionId);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Nomor WhatsApp berhasil dihapus.",
+        ]);
+    }
+
+    /**
+     * AJAX: Toggle session inclusion in random pool.
+     */
+    public function toggleSessionActive(string $sessionId): JsonResponse
+    {
+        $isActive = $this->adminWa->toggleSessionActive($sessionId);
+
+        return response()->json([
+            'success'   => true,
+            'is_active' => $isActive,
+            'message'   => $isActive ? 'Sesi diaktifkan dalam rotasi acak.' : 'Sesi dinonaktifkan dari rotasi acak.',
+        ]);
+    }
+
+    /**
+     * Test sending from Admin Bot (Baileys or Meta Cloud).
      */
     public function testSend(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'phone'   => 'required|string|min:8|max:20',
             'message' => 'required|string|min:1|max:1000',
+            'driver'  => 'nullable|string|in:baileys,meta_cloud',
         ]);
 
-        $result = $this->adminWa->sendMessage($validated['phone'], $validated['message']);
+        $options = [];
+        if (!empty($validated['driver'])) {
+            $options['driver'] = $validated['driver'];
+        }
+
+        $result = $this->adminWa->sendMessage($validated['phone'], $validated['message'], $options);
+
+        return response()->json($result);
+    }
+
+    /**
+     * AJAX: Verify Meta WhatsApp Cloud API credentials.
+     */
+    public function verifyMetaCredentials(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'token'           => ['nullable', 'string', 'max:500'],
+            'phone_number_id' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $creds = $this->adminWa->getMetaCredentials();
+        $token = trim((string) ($validated['token'] ?? $creds['token']));
+        $phoneId = trim((string) ($validated['phone_number_id'] ?? $creds['phone_number_id']));
+
+        if (empty($token) || empty($phoneId)) {
+            return response()->json([
+                'success' => false,
+                'error'   => 'Token dan Phone Number ID Meta wajib diisi terlebih dahulu untuk pengujian verifikasi.',
+            ], 422);
+        }
+
+        /** @var \App\Domain\WhatsApp\Drivers\MetaWhatsAppCloudDriver $metaDriver */
+        $metaDriver = app(\App\Domain\WhatsApp\Drivers\MetaWhatsAppCloudDriver::class);
+        $result = $metaDriver->verifyCredentials($token, $phoneId);
 
         return response()->json($result);
     }
@@ -228,5 +378,48 @@ final class AdminWhatsAppController extends Controller
         $recipients = $blast->recipients()->latest()->paginate(30);
 
         return view('admin.whatsapp.blast_show', compact('blast', 'recipients'));
+    }
+
+    /**
+     * Save Dual Gateway WhatsApp configuration (Drivers & Meta credentials).
+     */
+    public function updateGatewayConfig(Request $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validate([
+            'otp_driver'            => ['required', 'in:meta_cloud,baileys,disabled'],
+            'blast_driver'          => ['required', 'in:baileys,meta_cloud,disabled'],
+            'otp_active'            => ['nullable', 'boolean'],
+            'blast_active'          => ['nullable', 'boolean'],
+            'meta_token'            => ['nullable', 'string', 'max:500'],
+            'meta_phone_number_id'  => ['nullable', 'string', 'max:100'],
+            'meta_waba_id'          => ['nullable', 'string', 'max:100'],
+            'meta_otp_template'     => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $this->adminWa->saveGatewaySettings([
+            'otp_driver'            => $validated['otp_driver'],
+            'blast_driver'          => $validated['blast_driver'],
+            'otp_active'            => $request->boolean('otp_active'),
+            'blast_active'          => $request->boolean('blast_active'),
+            'meta_token'            => isset($validated['meta_token']) ? trim((string) $validated['meta_token']) : null,
+            'meta_phone_number_id'  => isset($validated['meta_phone_number_id']) ? trim((string) $validated['meta_phone_number_id']) : null,
+            'meta_waba_id'          => isset($validated['meta_waba_id']) ? trim((string) $validated['meta_waba_id']) : null,
+            'meta_otp_template'     => isset($validated['meta_otp_template']) ? trim((string) $validated['meta_otp_template']) : 'cooca_otp',
+        ]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pilihan jalur WhatsApp berhasil disimpan otomatis.',
+                'data'    => [
+                    'otp_driver'   => $validated['otp_driver'],
+                    'blast_driver' => $validated['blast_driver'],
+                    'otp_active'   => $request->boolean('otp_active'),
+                    'blast_active' => $request->boolean('blast_active'),
+                ],
+            ]);
+        }
+
+        return back()->with('success', 'Konfigurasi Dual Gateway WhatsApp (OTP & Blast) berhasil disimpan.');
     }
 }

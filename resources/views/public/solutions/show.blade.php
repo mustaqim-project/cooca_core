@@ -1,6 +1,6 @@
 @extends('layouts.public_marketing')
 
-@section('title', $solution['title'] . ' - 100% Gratis Selamanya | Cooca UMKM')
+@section('title', $solution['title'] . ' - 100% Gratis Selamanya | Cooca')
 @section('description', $solution['subheadline'])
 @section('keywords', strtolower($solution['title']) . ', aplikasi kasir gratis indonesia, software pos ' .
     strtolower($solution['badge']) . ', aplikasi pembukuan ' . strtolower($solution['slug']))
@@ -82,7 +82,7 @@
                         class="text-[10px] uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#0A84FF] block">Fitur
                         Unggulan</span>
                     <h2 class="text-xl sm:text-3xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
-                        Bagaimana Cooca UMKM Membantu Bisnis Anda</h2>
+                        Bagaimana Cooca Membantu Bisnis Anda</h2>
                 </div>
                 <!-- Bento 2-Col Mobile / 2-Col Desktop -->
                 <div class="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-6">

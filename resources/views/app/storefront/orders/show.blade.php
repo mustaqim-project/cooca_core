@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Detail Pesanan #' . $order->order_number . ' - Cooca UMKM',
+    'title' => 'Detail Pesanan #' . $order->order_number . ' - Cooca',
     'headerTitle' => 'Pesanan #' . $order->order_number,
     'headerSubtitle' => 'Kelola rincian pesanan online, verifikasi bukti bayar, dan perbarui status pemenuhan',
 ])

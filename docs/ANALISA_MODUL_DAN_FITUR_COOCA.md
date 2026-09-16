@@ -1,6 +1,6 @@
-# Analisa Komprehensif Modul & Fitur Sistem COOCA Core ERP
+# Analisa Komprehensif Modul & Fitur Sistem Cooca ERP
 
-Dokumen ini merupakan laporan audit, inventarisasi modul, pemetaan fitur, serta analisis kemampuan teknis dan fungsional dari seluruh sistem **COOCA Core ERP & POS Ecosystem**.
+Dokumen ini merupakan laporan audit, inventarisasi modul, pemetaan fitur, serta analisis kemampuan teknis dan fungsional dari seluruh sistem **Cooca ERP & POS Ecosystem**.
 
 ---
 
@@ -32,7 +32,7 @@ Dokumen ini merupakan laporan audit, inventarisasi modul, pemetaan fitur, serta 
 
 ```
 +---------------------------------------------------------------------------------------------------+
-|                                  COOCA CORE ENTERPRISE ECOSYSTEM                                  |
+|                                  Cooca ENTERPRISE ECOSYSTEM                                  |
 +---------------------------------------------------------------------------------------------------+
 | [FRONTEND WEB & CLIENTS]                                                                          |
 |   ├── Enterprise Web Panel (Blade + Tailwind CSS + Alpine.js + Apple HIG v2.0)                    |
@@ -424,7 +424,7 @@ Dokumen ini merupakan laporan audit, inventarisasi modul, pemetaan fitur, serta 
 ## 16. Modul Super Admin Control Center
 
 ### 16.1 Manajemen Tenant & Pengguna Global
-* **Tujuan Utama:** Panel kendali pusat untuk pemilik platform COOCA Core.
+* **Tujuan Utama:** Panel kendali pusat untuk pemilik platform Cooca.
 * **Kemampuan Fitur:**
   - Melihat daftar seluruh bisnis yang terdaftar, status masa aktif, dan paket yang digunakan.
   - Fitur *Suspend / Activate* akun bisnis yang melanggar ketentuan atau menunggak pembayaran.
@@ -490,11 +490,11 @@ Dokumen ini merupakan laporan audit, inventarisasi modul, pemetaan fitur, serta 
 
 ## 19. Kesimpulan & Keunggulan Kompetitif
 
-Ekosistem **COOCA Core** bukan sekadar aplikasi kasir (POS) biasa ataupun software akuntansi terpisah, melainkan **Full-Suite Enterprise ERP** yang memadukan:
+Ekosistem **Cooca** bukan sekadar aplikasi kasir (POS) biasa ataupun software akuntansi terpisah, melainkan **Full-Suite Enterprise ERP** yang memadukan:
 1. **Ketelitian HPP Ilmiah:** Mengetahui biaya riil produk hingga ke butir gram bahan dan menit kerja mesin.
 2. **Otomatisasi Akuntansi Penuh:** Tanpa perlu menjurnal manual, setiap struk kasir, nota belanja pasar, atau penerimaan barang langsung membentuk jurnal double-entry yang seimbang.
 3. **Pengalaman Pengguna Kelas Dunia:** Mengadopsi standar Apple Human Interface Guidelines (macOS Sonoma & iOS 18) untuk kecepatan, densitas informasi tinggi, dan estetika visual premium.
 4. **Kesiapan Multi-Channel & Multi-Outlet:** Mendukung operasional terpusat dari smartphone kasir, monitor dapur, hingga kontrol eksekutif pemilik bisnis.
 
 ---
-*Dokumen ini diperbarui secara berkala sebagai standar referensi teknis dan fungsional COOCA Core ERP.*
+*Dokumen ini diperbarui secara berkala sebagai standar referensi teknis dan fungsional Cooca ERP.*

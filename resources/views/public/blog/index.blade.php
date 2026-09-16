@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Blog & Edukasi Bisnis UMKM | Panduan Finansial & Kasir - Cooca UMKM')
-@section('description', 'Pusat edukasi dan panduan praktis UMKM Indonesia. Pelajari tutorial cara hitung HPP, BEP,
+@section('title', 'Blog & Edukasi Bisnis UMKM | Panduan Finansial & Kasir - Cooca')
+@section('description',
+    'Pusat edukasi dan panduan praktis UMKM Indonesia. Pelajari tutorial cara hitung HPP, BEP,
     pembukuan kas, serta wawasan seputar kasir POS digital dan AI bisnis.')
-@section('keywords', 'blog umkm indonesia, tutorial pembukuan usaha, cara hitung hpp makanan, cara hitung bep, tips
+@section('keywords',
+    'blog umkm indonesia, tutorial pembukuan usaha, cara hitung hpp makanan, cara hitung bep, tips
     bisnis toko kecil, ai untuk umkm')
 
 @section('content')

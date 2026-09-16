@@ -147,12 +147,115 @@ final class CustomerAuthController extends Controller
         Auth::guard('customer')->login($globalCustomer, true);
         $request->session()->regenerate();
 
+        if ($email) {
+            \App\Domain\Mail\DynamicMailConfig::bootstrap();
+            $verificationUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                'customer.verification.verify',
+                now()->addMinutes(60),
+                [
+                    'id' => $globalCustomer->id,
+                    'hash' => sha1($email),
+                ]
+            );
+            try {
+                \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\CustomerVerifyEmailMail($globalCustomer, $verificationUrl));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Gagal mengirim email verifikasi customer: ' . $e->getMessage());
+            }
+
+            return redirect()->route('customer.verification.notice')
+                ->with('status', 'Akun berhasil dibuat! Silakan periksa email Anda untuk memverifikasi akun.');
+        }
+
         $redirectTo = $request->input('redirect_to');
         if ($redirectTo && str_starts_with($redirectTo, '/')) {
             return redirect($redirectTo)->with('success', 'Akun berhasil dibuat! Selamat berbelanja.');
         }
 
-        return redirect()->route('customer.dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di COOCA UMKM.');
+        return redirect()->route('customer.dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di Cooca.');
+    }
+
+    /**
+     * Show customer email verification prompt.
+     */
+    public function showVerificationNotice(Request $request): View|RedirectResponse
+    {
+        /** @var GlobalCustomer|null $customer */
+        $customer = Auth::guard('customer')->user();
+        if (! $customer) {
+            return redirect()->route('customer.login');
+        }
+
+        if ($customer->hasVerifiedEmail()) {
+            return redirect()->route('customer.dashboard');
+        }
+
+        return view('customer.auth.verify-email');
+    }
+
+    /**
+     * Verify customer email via signed link.
+     */
+    public function verifyEmail(Request $request, string $id, string $hash): RedirectResponse
+    {
+        /** @var GlobalCustomer|null $customer */
+        $customer = GlobalCustomer::find($id);
+
+        if (! $customer) {
+            abort(404, 'Akun pelanggan tidak ditemukan.');
+        }
+
+        if (! hash_equals((string) $hash, sha1((string) $customer->email))) {
+            abort(403, 'Tautan verifikasi tidak valid.');
+        }
+
+        if ($customer->hasVerifiedEmail()) {
+            return redirect()->route('customer.dashboard')->with('info', 'Email Anda sudah diverifikasi sebelumnya.');
+        }
+
+        $customer->update(['email_verified_at' => now()]);
+
+        if (! Auth::guard('customer')->check()) {
+            Auth::guard('customer')->login($customer, true);
+        }
+
+        return redirect()->route('customer.dashboard')->with('success', 'Email berhasil diverifikasi! Selamat datang di Cooca.');
+    }
+
+    /**
+     * Resend customer verification email.
+     */
+    public function resendVerificationEmail(Request $request): RedirectResponse
+    {
+        /** @var GlobalCustomer|null $customer */
+        $customer = Auth::guard('customer')->user();
+
+        if (! $customer) {
+            return redirect()->route('customer.login');
+        }
+
+        if ($customer->hasVerifiedEmail()) {
+            return redirect()->route('customer.dashboard');
+        }
+
+        if (! empty($customer->email)) {
+            \App\Domain\Mail\DynamicMailConfig::bootstrap();
+            $verificationUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                'customer.verification.verify',
+                now()->addMinutes(60),
+                [
+                    'id' => $customer->id,
+                    'hash' => sha1((string) $customer->email),
+                ]
+            );
+            try {
+                \Illuminate\Support\Facades\Mail::to($customer->email)->send(new \App\Mail\CustomerVerifyEmailMail($customer, $verificationUrl));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Gagal kirim ulang email verifikasi customer: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('status', 'verification-link-sent');
     }
 
     /**

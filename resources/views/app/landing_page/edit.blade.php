@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Website & Landing Page Bisnis - Cooca UMKM',
+    'title' => 'Website & Landing Page Bisnis - Cooca',
     'headerTitle' => 'Website & Landing Page Bisnis',
     'headerSubtitle' => 'Kelola profil digital, katalog produk & layanan, galeri, serta kontak online ' . $business->name,
 ])

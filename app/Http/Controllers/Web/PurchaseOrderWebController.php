@@ -40,8 +40,8 @@ final class PurchaseOrderWebController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('po_number', 'like', "%{$search}%")
                     ->orWhere('reference_number', 'like', "%{$search}%")
-                    ->orWhereHas('customer', fn ($c) => $c->where('name', 'like', "%{$search}%")->orWhere('company_name', 'like', "%{$search}%"))
-                    ->orWhereHas('supplier', fn ($s) => $s->where('name', 'like', "%{$search}%"));
+                    ->orWhereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%")->orWhere('company_name', 'like', "%{$search}%"))
+                    ->orWhereHas('supplier', fn($s) => $s->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -142,7 +142,7 @@ final class PurchaseOrderWebController extends Controller
         if (! $sub->isCorePlan()) {
             $allowed = $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_PO, \App\Domain\Billing\EntitlementService::FREE_PO_MONTHLY_LIMIT);
             if (! $allowed) {
-                return redirect()->route('billing.limits')->with('error', 'Batas kuota Purchase Order bulanan (maks. 10 PO/bulan untuk Free Plan) telah tercapai. Tingkatkan ke Cooca UMKM untuk akses tanpa batas.');
+                return redirect()->route('billing.limits')->with('error', 'Batas kuota Purchase Order bulanan (maks. 10 PO/bulan untuk Free Plan) telah tercapai. Tingkatkan ke Cooca untuk akses tanpa batas.');
             }
         }
 

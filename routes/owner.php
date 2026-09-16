@@ -483,6 +483,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
                 Route::post('/disconnect', [WhatsAppWebController::class, 'disconnect'])->name('disconnect');
                 Route::post('/settings', [WhatsAppWebController::class, 'updateSettings'])->name('settings');
                 Route::post('/test', [WhatsAppWebController::class, 'testSend'])->name('test');
+                Route::post('/verify-meta', [WhatsAppWebController::class, 'verifyMetaCredentials'])->name('verify-meta');
             });
 
             // WhatsApp Broadcast Promosi

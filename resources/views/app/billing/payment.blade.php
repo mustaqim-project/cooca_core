@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Pembayaran ' . $payment->order_number . ' - Cooca UMKM',
+    'title' => 'Pembayaran ' . $payment->order_number . ' - Cooca',
     'headerTitle' => 'Instruksi Pembayaran & Konfirmasi',
-    'headerSubtitle' => 'Selesaikan transfer dana dan upload bukti struk untuk aktivasi instan paket Cooca UMKM',
+    'headerSubtitle' => 'Selesaikan transfer dana dan upload bukti struk untuk aktivasi instan paket Cooca',
 ])
 
 @section('content')
@@ -280,7 +280,7 @@
                     <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                         Bukti transfer telah diterima pada <strong
                             class="text-slate-900 dark:text-white font-mono">{{ $payment->proof_uploaded_at?->format('d M Y, H:i') }}
-                            WIB</strong>. Tim Billing Cooca sedang memverifikasi mutasi rekening. Akses paket Cooca UMKM
+                            WIB</strong>. Tim Billing Cooca sedang memverifikasi mutasi rekening. Akses paket Cooca
                         bisnis Anda akan langsung terbuka otomatis setelah disetujui.
                     </p>
                     <div class="flex items-center gap-2 pt-1 text-[11px] text-cyan-700 dark:text-cyan-300 font-semibold">
@@ -308,11 +308,11 @@
                                 {{ $payment->approved_at?->format('d M Y H:i') }}</span>
                         </div>
                         <h4 id="status-approved-heading"
-                            class="font-black text-slate-900 dark:text-white text-base sm:text-lg">Paket Cooca UMKM Anda
+                            class="font-black text-slate-900 dark:text-white text-base sm:text-lg">Paket Cooca Anda
                             Telah Aktif!</h4>
                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             Terima kasih atas kepercayaan Anda. Fitur unggulan paket <strong
-                                class="text-emerald-700 dark:text-emerald-400 font-semibold">{{ $payment->package_name ?? 'Cooca UMKM' }}</strong>
+                                class="text-emerald-700 dark:text-emerald-400 font-semibold">{{ $payment->package_name ?? 'Cooca' }}</strong>
                             kini aktif untuk bisnis Anda hingga <strong
                                 class="text-slate-900 dark:text-white font-mono">{{ $payment->business->subscription?->ends_at?->format('d M Y') ?? 'Masa Berlaku Aktif' }}</strong>.
                         </p>

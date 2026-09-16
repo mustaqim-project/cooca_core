@@ -23,7 +23,21 @@ final class AuthOtpController extends Controller
         }
 
         $user = auth('web')->user();
+
+        // 1. Karyawan / user tambahan pada bisnis tidak perlu OTP
+        if (! $user->isBusinessOwner()) {
+            return redirect()->route('dashboard');
+        }
+
         $userPhone = $this->normalizePhone((string) ($user->phone ?: $user->activeBusiness?->phone));
+
+        // 2. Jika nomor HP owner sudah terverifikasi seumur hidup, langsung ke dashboard
+        if ($user->isPhoneVerified() && $userPhone) {
+            $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
+            $request->session()->put('auth_wa_otp_verified_at', $user->phone_verified_at->timestamp);
+
+            return redirect()->route('dashboard');
+        }
 
         // Jika user sudah terverifikasi OTP di sesi ini, langsung alihkan ke dashboard
         if ($request->session()->get('auth_wa_otp_verified_user_id') === $user->id) {
@@ -32,6 +46,9 @@ final class AuthOtpController extends Controller
 
         // Jika browser/perangkat ini adalah Trusted Device yang masih valid, tandai sesi dan langsung alihkan ke dashboard
         if ($userPhone && $trustedDevice->isTrusted($request, $user, $userPhone)) {
+            if (! $user->isPhoneVerified()) {
+                $user->update(['phone_verified_at' => now()]);
+            }
             $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
             $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
 
@@ -50,7 +67,7 @@ final class AuthOtpController extends Controller
         ) {
             if ($userPhone) {
                 $otp = (string) random_int(100000, 999999);
-                $result = $adminWa->sendMessage($userPhone, "Kode OTP keamanan login Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+                $result = $adminWa->sendOtp($userPhone, $otp);
                 $sent = (bool) ($result['success'] ?? false);
 
                 // In local dev, allow testing OTP even if WhatsApp server is offline
@@ -136,6 +153,9 @@ final class AuthOtpController extends Controller
         $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
         $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
 
+        // Verifikasi seumur hidup di database hingga ganti nomor HP
+        $user->update(['phone_verified_at' => now()]);
+
         $targetPhone = $this->normalizePhone((string) ($user->phone ?: $user->activeBusiness?->phone)) ?: (string) ($challenge['phone'] ?? '');
         if ($targetPhone !== '') {
             $trustedDevice->trustDevice($user, $targetPhone);
@@ -153,6 +173,11 @@ final class AuthOtpController extends Controller
     {
         $challenge = $request->session()->get('auth_wa_otp_challenge');
         $user = auth('web')->user();
+
+        if (! $user->isBusinessOwner() || $user->isPhoneVerified()) {
+            return redirect()->route('dashboard');
+        }
+
         if (! is_array($challenge) || ($challenge['user_id'] ?? null) !== $user->id) {
             return redirect()->route('auth.otp')->withErrors(['otp' => 'Sesi OTP tidak ditemukan.']);
         }
@@ -164,7 +189,7 @@ final class AuthOtpController extends Controller
         $targetPhone = $userPhone ?: (string) ($challenge['phone'] ?? '');
 
         $otp = (string) random_int(100000, 999999);
-        $result = $adminWa->sendMessage($targetPhone, "Kode OTP keamanan login Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        $result = $adminWa->sendOtp($targetPhone, $otp);
         $sent = (bool) ($result['success'] ?? false);
 
         if (! $sent && ! app()->isLocal()) {

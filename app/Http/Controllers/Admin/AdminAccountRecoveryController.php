@@ -125,9 +125,13 @@ final class AdminAccountRecoveryController extends Controller
             $user = $recovery->user ?: User::where('email', $recovery->old_email)->first();
 
             if ($user) {
+                $phoneChanged = $user->phone !== $recovery->new_phone;
                 $user->email = $recovery->new_email;
                 $user->phone = $recovery->new_phone;
                 $user->email_verified_at = now();
+                if ($phoneChanged) {
+                    $user->phone_verified_at = null;
+                }
                 $user->save();
 
                 // Sinkronkan nomor pada profil bisnis aktif jika diperlukan
@@ -148,7 +152,7 @@ final class AdminAccountRecoveryController extends Controller
         try {
             $loginUrl = route('login');
             $msg = "Halo *{$recovery->applicant_name}*,\n\n"
-                . "Pengajuan pemulihan akun Cooca UMKM (Tiket: *{$recovery->ticket_number}*) untuk bisnis *{$recovery->business_name}* telah *DISETUJUI* oleh Administrator.\n\n"
+                . "Pengajuan pemulihan akun Cooca (Tiket: *{$recovery->ticket_number}*) untuk bisnis *{$recovery->business_name}* telah *DISETUJUI* oleh Administrator.\n\n"
                 . "Data login Anda telah diperbarui ke:\n"
                 . "- Email Baru: *{$recovery->new_email}*\n"
                 . "- WhatsApp Baru: *{$recovery->new_phone}*\n\n"
@@ -196,7 +200,7 @@ final class AdminAccountRecoveryController extends Controller
         // Beritahu pemohon via WhatsApp ke nomor baru
         try {
             $msg = "Halo *{$recovery->applicant_name}*,\n\n"
-                . "Mohon maaf, permohonan pemulihan akun Cooca UMKM (Tiket: *{$recovery->ticket_number}*) untuk bisnis *{$recovery->business_name}* *BELUM DAPAT DISETUJUI* oleh tim verifikasi.\n\n"
+                . "Mohon maaf, permohonan pemulihan akun Cooca (Tiket: *{$recovery->ticket_number}*) untuk bisnis *{$recovery->business_name}* *BELUM DAPAT DISETUJUI* oleh tim verifikasi.\n\n"
                 . "Alasan:\n\"{$validated['rejection_reason']}\"\n\n"
                 . "Silakan ajukan kembali dengan melampirkan berkas identitas & dokumen usaha yang jelas dan sesuai.";
 

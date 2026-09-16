@@ -453,9 +453,18 @@ final class CustomerPortalController extends Controller
             $customer->password = Hash::make($validated['new_password']);
         }
 
+        if (! empty($validated['email'])) {
+            $customer->email = $validated['email'];
+        }
+
+        $phoneChanged = $customer->phone !== $validated['phone'];
+        if ($phoneChanged) {
+            $customer->phone = $validated['phone'];
+            $customer->phone_verified_at = null;
+            $request->session()->forget('customer_otp_challenge');
+        }
+
         $customer->name             = $validated['name'];
-        $customer->phone            = $validated['phone'];
-        $customer->email            = ! empty($validated['email']) ? $validated['email'] : null;
         $customer->shipping_address = $validated['shipping_address'] ?? $customer->shipping_address;
         $customer->save();
 
@@ -469,6 +478,10 @@ final class CustomerPortalController extends Controller
                     'shipping_address' => $customer->shipping_address,
                     'is_active'        => true,
                 ]);
+        }
+
+        if ($phoneChanged) {
+            return redirect()->route('customer.otp')->with('info', 'Nomor WhatsApp berhasil diubah. Silakan verifikasi nomor baru Anda.');
         }
 
         return back()->with('success', 'Profil berhasil diperbarui.');

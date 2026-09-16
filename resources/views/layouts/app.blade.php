@@ -22,7 +22,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
-    <title>{{ $title ?? 'Cooca UMKM' }} - cooca.id</title>
+    <title>{{ $title ?? 'Cooca' }} - cooca.id</title>
 
     <style>
         [x-cloak] {
@@ -1510,7 +1510,7 @@
             <!-- Footer (macOS Minimalist Footnote) -->
             <footer
                 class="px-6 lg:px-10 py-4 border-t border-black/5 dark:border-white/5 text-black/45 dark:text-white/45 text-[12px] flex flex-col sm:flex-row items-center justify-between gap-2 mb-16 lg:mb-0">
-                <div>&copy; {{ date('Y') }} Cooca UMKM (cooca.id). Business Operating System.</div>
+                <div>&copy; {{ date('Y') }} Cooca (cooca.id). Business Operating System.</div>
                 <div class="flex items-center gap-3">
                     <a href="{{ url('/api/v1/docs') }}" target="_blank"
                         class="hover:text-[#007AFF] transition-colors">API Docs</a>

@@ -1,5 +1,5 @@
 @extends('layouts.admin', [
-    'title' => 'Pemulihan Akun — Admin Console',
+    'title' => 'Pemulihan Akun - Admin Console',
     'headerTitle' => 'Pusat Verifikasi Pemulihan Akun',
     'headerSubtitle' => 'Verifikasi bukti identitas (KTP) dan dokumen usaha untuk permohonan ganti kontak WhatsApp & email pemilik bisnis'
 ])
@@ -168,7 +168,7 @@
                             <!-- Old Contact -->
                             <td class="py-4 px-4 font-mono text-[11px]">
                                 <span class="text-black/60 dark:text-white/60 block">{{ $rec->old_email }}</span>
-                                <span class="text-black/40 dark:text-white/40 text-[10px]">{{ $rec->old_phone ?? '—' }}</span>
+                                <span class="text-black/40 dark:text-white/40 text-[10px]">{{ $rec->old_phone ?? '-' }}</span>
                             </td>
 
                             <!-- New Contact -->

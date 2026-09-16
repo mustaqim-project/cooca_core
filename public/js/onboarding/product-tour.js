@@ -1,5 +1,5 @@
 /**
- * Cooca UMKM - Product Tour Engine (Multi-Device & High-Precision Mobile Support)
+ * Cooca - Product Tour Engine (Multi-Device & High-Precision Mobile Support)
  * Supports dynamic industry selection during onboarding, direct HPP simulation guide,
  * and high-precision target coordinate tracking with auto-drawer open/close.
  */
@@ -289,7 +289,7 @@ class GuidedProductTour {
                             ${isLast ? `
                                 <button id="tour-btn-finish" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-bold shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-1.5">
                                     <i data-lucide="calculator" class="w-4 h-4"></i>
-                                    <span>${step.actionUrl ? 'Buka Dashboard Cooca UMKM' : 'Selesai & Mulai'}</span>
+                                    <span>${step.actionUrl ? 'Buka Dashboard Cooca' : 'Selesai & Mulai'}</span>
                                 </button>
                             ` : `
                                 <button id="tour-btn-next" class="px-3.5 sm:px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-1.5">

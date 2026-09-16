@@ -32,11 +32,12 @@ final class CrmWebController extends Controller
             ->withCount('posOrders')
             ->latest('total_spent');
 
-        if ($request->filled('tier')) {
-            $query->where('membership_tier', $request->get('tier'));
+        if ($request->filled('tier') && $request->get('tier') !== 'all') {
+            $tierVal = strtolower((string) $request->get('tier'));
+            $query->whereRaw('LOWER(membership_tier) = ?', [$tierVal]);
         }
 
-        if ($request->filled('segment')) {
+        if ($request->filled('segment') && $request->get('segment') !== 'all') {
             $query->where('segment', $request->get('segment'));
         }
 
@@ -52,8 +53,8 @@ final class CrmWebController extends Controller
         $customers = $query->paginate(20)->withQueryString();
 
         $totalMembers = Customer::where('business_id', $business->id)->count();
-        $totalPointsIssued = Customer::where('business_id', $business->id)->sum('points_balance');
-        $totalCreditReceivable = Customer::where('business_id', $business->id)->sum('current_credit_balance');
+        $totalPointsIssued = (int) Customer::where('business_id', $business->id)->sum('points_balance');
+        $totalCreditReceivable = (float) Customer::where('business_id', $business->id)->sum('current_credit_balance');
 
         return view('app.crm.members', compact(
             'business',
@@ -108,9 +109,13 @@ final class CrmWebController extends Controller
 
         $vouchers = Voucher::where('business_id', $business->id)
             ->latest('created_at')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('app.crm.vouchers', compact('business', 'vouchers'));
+        $totalVouchers = Voucher::where('business_id', $business->id)->count();
+        $activeVouchers = Voucher::where('business_id', $business->id)->where('is_active', true)->count();
+
+        return view('app.crm.vouchers', compact('business', 'vouchers', 'totalVouchers', 'activeVouchers'));
     }
 
     /**

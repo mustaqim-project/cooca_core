@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminBillingPackageController;
 use App\Http\Controllers\Admin\AdminBusinessController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminErrorLogController;
 use App\Http\Controllers\Admin\AdminFeedbackController;
 use App\Http\Controllers\Admin\AdminLeadController;
 use App\Http\Controllers\Admin\AdminPasswordResetController;
@@ -144,11 +145,31 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::post('/start', [AdminWhatsAppController::class, 'startSession'])->name('start');
             Route::post('/disconnect', [AdminWhatsAppController::class, 'disconnect'])->name('disconnect');
             Route::post('/test', [AdminWhatsAppController::class, 'testSend'])->name('test');
+            Route::post('/verify-meta', [AdminWhatsAppController::class, 'verifyMetaCredentials'])->name('verify-meta');
             Route::post('/reminders/{subscription}/send', [AdminWhatsAppController::class, 'sendSingleReminder'])->name('reminders.send');
             Route::post('/reminders/send-all', [AdminWhatsAppController::class, 'sendAllReminders'])->name('reminders.send-all');
             Route::post('/reminders/templates', [AdminWhatsAppController::class, 'updateTemplates'])->name('reminders.templates');
             Route::post('/blasts', [AdminWhatsAppController::class, 'storeBlast'])->name('blasts.store');
             Route::get('/blasts/{blast}', [AdminWhatsAppController::class, 'showBlast'])->name('blasts.show');
+            Route::post('/config', [AdminWhatsAppController::class, 'updateGatewayConfig'])->name('config');
+
+            // Multi-Session WhatsApp Admin Pool
+            Route::prefix('sessions')->name('sessions.')->group(function (): void {
+                Route::get('/', [AdminWhatsAppController::class, 'getSessions'])->name('index');
+                Route::post('/', [AdminWhatsAppController::class, 'createSession'])->name('store');
+                Route::get('/{sessionId}/qr', [AdminWhatsAppController::class, 'getQr'])->name('qr');
+                Route::get('/{sessionId}/status', [AdminWhatsAppController::class, 'checkStatus'])->name('status');
+                Route::post('/{sessionId}/disconnect', [AdminWhatsAppController::class, 'disconnectSession'])->name('disconnect');
+                Route::delete('/{sessionId}', [AdminWhatsAppController::class, 'deleteSession'])->name('destroy');
+                Route::post('/{sessionId}/toggle-active', [AdminWhatsAppController::class, 'toggleSessionActive'])->name('toggle-active');
+            });
+        });
+
+        // Error Logs & System Diagnostics
+        Route::prefix('error-logs')->name('error-logs.')->group(function (): void {
+            Route::get('/', [AdminErrorLogController::class, 'index'])->name('index');
+            Route::get('/download', [AdminErrorLogController::class, 'download'])->name('download');
+            Route::delete('/clear', [AdminErrorLogController::class, 'clear'])->name('clear');
         });
     });
 });

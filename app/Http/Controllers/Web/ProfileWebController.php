@@ -103,7 +103,7 @@ final class ProfileWebController extends Controller
         }
 
         $otp = (string) random_int(100000, 999999);
-        $result = $adminWa->sendMessage($phone, "Kode OTP perubahan nomor WhatsApp Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        $result = $adminWa->sendOtp($phone, $otp);
 
         if (! ($result['success'] ?? false)) {
             return back()->withErrors(['phone' => 'OTP gagal dikirim. Coba lagi.'])->withInput();
@@ -182,7 +182,7 @@ final class ProfileWebController extends Controller
         }
 
         $otp = (string) random_int(100000, 999999);
-        $result = $adminWa->sendMessage($phone, "Kode OTP perubahan kontak Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        $result = $adminWa->sendOtp($phone, $otp);
 
         if (! ($result['success'] ?? false)) {
             return back()->withErrors(['phone' => 'OTP gagal dikirim. Coba lagi.'])->withInput();
@@ -250,6 +250,7 @@ final class ProfileWebController extends Controller
         $oldPhone = $user->phone;
         $updates = [
             'phone' => $pending['phone'],
+            'phone_verified_at' => now(),
         ];
 
         // Jika sesi legacy mencakup pembaruan email
@@ -259,6 +260,9 @@ final class ProfileWebController extends Controller
         }
 
         $user->forceFill($updates)->save();
+
+        $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
+        $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
 
         if ($user->activeBusiness && (empty($user->activeBusiness->phone) || $user->activeBusiness->phone === $oldPhone)) {
             $user->activeBusiness->update(['phone' => $pending['phone']]);
@@ -293,7 +297,7 @@ final class ProfileWebController extends Controller
         }
 
         $otp = (string) random_int(100000, 999999);
-        $result = $adminWa->sendMessage((string) $pending['phone'], "Kode OTP perubahan nomor WhatsApp Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        $result = $adminWa->sendOtp((string) $pending['phone'], $otp);
         if (! ($result['success'] ?? false)) {
             return back()->withErrors(['otp' => 'OTP gagal dikirim. Coba lagi.']);
         }

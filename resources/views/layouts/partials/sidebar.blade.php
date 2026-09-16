@@ -699,7 +699,7 @@
             </div>
             <div x-show="!sidebarCollapsed" x-transition.opacity
                 class="sidebar-brand-text overflow-hidden whitespace-nowrap">
-                <div class="font-semibold text-[15px] text-black dark:text-white tracking-tight leading-none">Cooca UMKM
+                <div class="font-semibold text-[15px] text-black dark:text-white tracking-tight leading-none">Cooca
                 </div>
                 <div class="text-[10px] text-black/45 dark:text-white/45 font-medium tracking-wide mt-0.5">Business OS
                 </div>
@@ -2116,12 +2116,12 @@
             <!-- Collapsed Sidebar: Compact Squircle Action -->
             <div x-show="sidebarCollapsed" class="sidebar-plan-collapsed flex justify-center py-1">
                 @if ($isCorePlan)
-                    <a href="{{ route('billing.limits') }}" title="Cooca UMKM (∞ Unlimited) - Kelola Kuota"
+                    <a href="{{ route('billing.limits') }}" title="Cooca (∞ Unlimited) - Kelola Kuota"
                         class="w-10 h-10 rounded-[10px] bg-[#34C759]/12 border border-[#34C759]/30 text-[#34C759] dark:text-[#30D158] flex items-center justify-center hover:bg-[#34C759]/20 active:scale-95 transition-all shadow-2xs">
                         <i data-lucide="shield-check" class="w-5 h-5"></i>
                     </a>
                 @else
-                    <a href="{{ route('billing.patungan') }}" title="Paket Free (Solo) - Tingkatkan ke Cooca UMKM"
+                    <a href="{{ route('billing.patungan') }}" title="Paket Free (Solo) - Tingkatkan ke Cooca"
                         class="w-10 h-10 rounded-[10px] bg-gradient-to-br from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-[0_2px_8px_rgba(0,122,255,0.3)]">
                         <i data-lucide="sparkles" class="w-5 h-5"></i>
                     </a>
@@ -2240,7 +2240,7 @@
                             </a>
                             <a href="{{ route('billing.limits') }}"
                                 class="block text-center text-[11px] text-black/55 dark:text-white/55 hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition">
-                                Tingkatkan ke Cooca UMKM ›
+                                Tingkatkan ke Cooca ›
                             </a>
                         </div>
                     </div>

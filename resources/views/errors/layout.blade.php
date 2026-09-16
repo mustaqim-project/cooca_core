@@ -1,5 +1,5 @@
 @extends('layouts.public_marketing', [
-    'title' => ($code ?? '404') . ' - ' . ($title ?? 'Halaman Tidak Ditemukan') . ' | Cooca UMKM',
+    'title' => ($code ?? '404') . ' - ' . ($title ?? 'Halaman Tidak Ditemukan') . ' | Cooca',
     'noindex' => true,
 ])
 

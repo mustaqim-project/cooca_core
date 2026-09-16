@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Riwayat Pembayaran Langganan - Cooca UMKM',
+    'title' => 'Riwayat Pembayaran Langganan - Cooca',
     'headerTitle' => 'Riwayat Pembayaran & Tagihan',
     'headerSubtitle' => 'Daftar seluruh transaksi langganan, top-up kuota, dan status verifikasi bisnis Anda',
 ])

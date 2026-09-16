@@ -21,10 +21,10 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? View::yieldContent('title', 'Cooca UMKM - Business Operating System 100% Gratis untuk UMKM') }}
+    <title>{{ $title ?? View::yieldContent('title', 'Cooca - Business Operating System 100% Gratis untuk UMKM') }}
     </title>
-    <meta name="description" content="@yield('description', 'Cooca UMKM: Software kasir POS, pembukuan otomatis, kalkulator bisnis & AI Assistant gratis selamanya untuk UMKM Indonesia.')">
-    <meta name="keywords" content="@yield('keywords', 'software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, cooca umkm')">
+    <meta name="description" content="@yield('description', 'Cooca: Software kasir POS, pembukuan otomatis, kalkulator bisnis & AI Assistant gratis selamanya untuk UMKM Indonesia.')">
+    <meta name="keywords" content="@yield('keywords', 'software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, Cooca')">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
@@ -32,7 +32,7 @@
     <meta property="og:locale" content="id_ID">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title"
-        content="{{ $title ?? View::yieldContent('title', 'Cooca UMKM - Business Operating System') }}">
+        content="{{ $title ?? View::yieldContent('title', 'Cooca - Business Operating System') }}">
     <meta property="og:description" content="@yield('description', 'Software kasir, pembukuan, kalkulator bisnis & AI Assistant gratis selamanya.')">
     <meta property="og:image" content="@yield('og_image', 'https://cooca.id/assets/image/cooca.png')">
     <meta property="og:image:width" content="1200">
@@ -232,11 +232,11 @@
             class="sticky top-0 z-50 backdrop-blur-2xl bg-white/80 dark:bg-[#1C1C1E]/80 border-b border-black/5 dark:border-white/10 transition-colors">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between">
 
-                <!-- Logo Cooca UMKM -->
+                <!-- Logo Cooca -->
                 <a href="{{ route('landing') }}" class="flex items-center gap-3 group shrink-0">
-                    <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="COOCA UMKM"
+                    <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="Cooca"
                         class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden">
-                    <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="COOCA UMKM"
+                    <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="Cooca"
                         class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block">
                     <div class="border-l border-black/10 dark:border-white/10 pl-3 hidden xs:block">
                         <span
@@ -674,9 +674,9 @@
                     <!-- Col 1: Brand & Contact (Full width on mobile/tablet, 2 cols on desktop) -->
                     <div class="space-y-4 lg:col-span-2">
                         <div class="flex items-center gap-3">
-                            <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="COOCA UMKM"
+                            <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="Cooca"
                                 class="h-7 w-auto object-contain dark:hidden">
-                            <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="COOCA UMKM"
+                            <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="Cooca"
                                 class="h-7 w-auto object-contain hidden dark:block">
                             <div class="border-l border-black/10 dark:border-white/10 pl-3">
                                 <span

@@ -43,16 +43,37 @@
             </div>
         </header>
 
-        <!-- Warning if WhatsApp is Not Connected (Apple Tinted Warning Banner) -->
-        @if (!$waSession || $waSession->status !== 'connected')
-            <div
-                class="p-4 rounded-[14px] bg-[#FF9500]/12 border border-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] text-[13px] font-medium flex items-center gap-3">
+        <!-- Gateway Status & Warning Banner (Apple Tinted Banner) -->
+        @if (! $waSession || ! $waSession->is_active)
+            <div class="p-4 rounded-[14px] bg-[#FF3B30]/12 border border-[#FF3B30]/20 text-[#C41E17] dark:text-[#FF453A] text-[13px] font-medium flex items-center gap-3">
+                <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 text-[#FF3B30]"></i>
+                <div>
+                    <strong class="font-semibold">Layanan WhatsApp Bisnis Sedang Nonaktif!</strong>
+                    <span class="ml-1">Silakan aktifkan kembali layanan WhatsApp di <a href="{{ route('whatsapp.index') }}" class="underline font-semibold hover:opacity-80">Pengaturan Gateway</a> untuk mendistribusikan blast pesan.</span>
+                </div>
+            </div>
+        @elseif ($waSession->provider === 'meta_cloud' && (empty($waSession->meta_access_token) || empty($waSession->meta_phone_number_id)))
+            <div class="p-4 rounded-[14px] bg-[#FF9500]/12 border border-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] text-[13px] font-medium flex items-center gap-3">
+                <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 text-[#FF9500]"></i>
+                <div>
+                    <strong class="font-semibold">Kredensial Meta Cloud API Belum Lengkap!</strong>
+                    <span class="ml-1">Lengkapi Token dan Phone Number ID di <a href="{{ route('whatsapp.index') }}" class="underline font-semibold hover:opacity-80">Pengaturan WhatsApp</a> terlebih dahulu.</span>
+                </div>
+            </div>
+        @elseif ($waSession->provider === 'baileys' && $waSession->status !== 'connected')
+            <div class="p-4 rounded-[14px] bg-[#FF9500]/12 border border-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] text-[13px] font-medium flex items-center gap-3">
                 <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 text-[#FF9500]"></i>
                 <div>
                     <strong class="font-semibold">WhatsApp Gateway Belum Terhubung!</strong>
-                    <span class="ml-1">Anda harus <a href="{{ route('whatsapp.index') }}"
-                            class="underline font-semibold hover:opacity-80">memindai QR code WhatsApp</a> terlebih dahulu
-                        agar sistem dapat mendistribusikan blast pesan ke pelanggan.</span>
+                    <span class="ml-1">Anda harus <a href="{{ route('whatsapp.index') }}" class="underline font-semibold hover:opacity-80">memindai QR code WhatsApp</a> terlebih dahulu agar sistem dapat mendistribusikan blast pesan ke pelanggan.</span>
+                </div>
+            </div>
+        @elseif ($waSession->provider === 'baileys' && $waSession->status === 'connected')
+            <div class="p-4 rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[12.5px] text-black/75 dark:text-white/75 flex items-start gap-3">
+                <i data-lucide="shield-alert" class="w-5 h-5 shrink-0 text-[#FF9500] mt-0.5"></i>
+                <div>
+                    <strong class="text-[#B25E00] dark:text-[#FF9F0A] font-bold">⚠️ Peringatan Risiko Blokir (Baileys Scan QR):</strong>
+                    <span class="ml-1">Mengirimkan blast promosi ke banyak kontak via scan QR berisiko memicu banned dari Meta. Sistem akan menerapkan jeda acak 3–5 detik antar pesan otomatis demi keselamatan nomor bisnis Anda.</span>
                 </div>
             </div>
         @endif

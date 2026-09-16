@@ -138,7 +138,8 @@
             <div class="warning-box">
                 <h3>Jangan Biarkan Operasional Bisnis Terhenti!</h3>
                 <p>Masa aktif paket <strong>{{ $subscription->plan_code }}</strong> untuk usaha
-                    <strong>{{ $subscription->business?->name }}</strong> akan segera berakhir.</p>
+                    <strong>{{ $subscription->business?->name }}</strong> akan segera berakhir.
+                </p>
             </div>
 
             <table class="info-table">
@@ -148,7 +149,7 @@
                 </tr>
                 <tr>
                     <td class="label">Status Saat Ini</td>
-                    <td class="val" style="color: #34d399;">Aktif (Cooca UMKM)</td>
+                    <td class="val" style="color: #34d399;">Aktif (Cooca)</td>
                 </tr>
                 <tr>
                     <td class="label">Tanggal Berakhir</td>

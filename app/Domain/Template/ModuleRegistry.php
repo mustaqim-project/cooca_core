@@ -23,7 +23,7 @@ final class ModuleRegistry
     public const MODULE_MERCHANT_SHIPPING = 'merchant_shipping';
 
     /**
-     * Complete definition of all modular features in Cooca UMKM.
+     * Complete definition of all modular features in Cooca.
      *
      * @return array<string, array{
      *     name: string,

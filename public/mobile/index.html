@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cooca UMKM - Mobile Business & POS</title>
+    <title>Cooca - Mobile Business & POS</title>
     <meta name="theme-color" content="#030712">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="/mobile/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+        rel="stylesheet">
     <script src="/js/app-alert.js"></script>
     <style>
         :root {
@@ -176,7 +179,10 @@
             white-space: nowrap;
             scrollbar-width: none;
         }
-        .categories-bar::-webkit-scrollbar { display: none; }
+
+        .categories-bar::-webkit-scrollbar {
+            display: none;
+        }
 
         .cat-chip {
             padding: 6px 14px;
@@ -208,7 +214,9 @@
         }
 
         @media (max-width: 480px) {
-            .product-grid { grid-template-columns: repeat(2, 1fr); }
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .product-card {
@@ -480,7 +488,10 @@
         /* Universal Modals */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(8px);
             z-index: 100;
@@ -488,7 +499,9 @@
             align-items: flex-end;
         }
 
-        .modal-overlay.active { display: flex; }
+        .modal-overlay.active {
+            display: flex;
+        }
 
         .modal-sheet {
             background: var(--surface);
@@ -503,8 +516,13 @@
         }
 
         @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
         }
 
         .sheet-header {
@@ -514,7 +532,10 @@
             margin-bottom: 14px;
         }
 
-        .sheet-header h2 { font-size: 17px; font-weight: 700; }
+        .sheet-header h2 {
+            font-size: 17px;
+            font-weight: 700;
+        }
 
         .sheet-content {
             flex: 1;
@@ -574,11 +595,12 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 12px;
             line-height: 1.4;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
             white-space: pre-wrap;
         }
     </style>
 </head>
+
 <body>
 
     <!-- Top Header -->
@@ -666,7 +688,8 @@
                         <span style="color:var(--text-sec);">Biaya Operasional (BOP):</span>
                         <strong style="color:var(--warning);">- Rp 5.950.000</strong>
                     </div>
-                    <div style="border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:space-between; font-size:14px;">
+                    <div
+                        style="border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:space-between; font-size:14px;">
                         <strong>Laba Bersih Operasional:</strong>
                         <strong style="color:var(--success);">Rp 18.250.000</strong>
                     </div>
@@ -710,7 +733,8 @@
         <div class="dash-container">
             <div style="text-align:center; padding:10px 0;">
                 <h2 style="font-size:22px; font-weight:800;">Pilih Paket Bisnis Cooca</h2>
-                <p style="color:var(--text-sec); font-size:13px; margin-top:4px;">Upgrade untuk membuka fitur AI, Multi-Cabang, dan Unlimited Kasir</p>
+                <p style="color:var(--text-sec); font-size:13px; margin-top:4px;">Upgrade untuk membuka fitur AI,
+                    Multi-Cabang, dan Unlimited Kasir</p>
             </div>
 
             <!-- Free Starter Plan -->
@@ -733,11 +757,13 @@
             <div class="plan-card featured">
                 <div class="plan-header">
                     <div>
-                        <span style="background:var(--primary); color:white; font-size:9px; font-weight:800; padding:2px 6px; border-radius:4px;">POPULER</span>
+                        <span
+                            style="background:var(--primary); color:white; font-size:9px; font-weight:800; padding:2px 6px; border-radius:4px;">POPULER</span>
                         <div style="font-weight:800; font-size:17px; margin-top:2px;">Pro Business</div>
                         <div style="color:var(--text-sec); font-size:12px;">Untuk outlet berkembang & ramai</div>
                     </div>
-                    <div class="plan-price">Rp 99.000<span style="font-size:11px; color:var(--text-sec);">/bln</span></div>
+                    <div class="plan-price">Rp 99.000<span style="font-size:11px; color:var(--text-sec);">/bln</span>
+                    </div>
                 </div>
                 <ul style="font-size:12px; color:var(--text); padding-left:18px; line-height:1.6; margin-bottom:12px;">
                     <li>Hingga 3 Outlet Cabang</li>
@@ -746,7 +772,8 @@
                     <li>Cetak Struk Thermal Bluetooth (58/80mm)</li>
                     <li>Mode Offline + Auto-Sync</li>
                 </ul>
-                <button class="checkout-btn" style="width:100%; text-align:center; justify-content:center;" onclick="processUpgrade('PRO', 99000)">
+                <button class="checkout-btn" style="width:100%; text-align:center; justify-content:center;"
+                    onclick="processUpgrade('PRO', 99000)">
                     Upgrade ke Pro Sekarang ➔
                 </button>
             </div>
@@ -758,15 +785,19 @@
                         <div style="font-weight:800; font-size:17px;">Core AI Enterprise</div>
                         <div style="color:var(--text-sec); font-size:12px;">Fitur lengkap + AI Intelligence</div>
                     </div>
-                    <div class="plan-price">Rp 199.000<span style="font-size:11px; color:var(--text-sec);">/bln</span></div>
+                    <div class="plan-price">Rp 199.000<span style="font-size:11px; color:var(--text-sec);">/bln</span>
+                    </div>
                 </div>
-                <ul style="font-size:12px; color:var(--text-sec); padding-left:18px; line-height:1.6; margin-bottom:12px;">
+                <ul
+                    style="font-size:12px; color:var(--text-sec); padding-left:18px; line-height:1.6; margin-bottom:12px;">
                     <li>Unlimited Cabang & Multi-Gudang</li>
                     <li>Asisten AI Bisnis (Forecasting & Fraud Detector)</li>
                     <li>Siklus Purchasing & Invoicing Otomatis</li>
                     <li>API Integrasi Custom & Support Prioritas 24/7</li>
                 </ul>
-                <button class="checkout-btn" style="width:100%; text-align:center; justify-content:center; background:var(--card); border:1px solid var(--border);" onclick="processUpgrade('CORE', 199000)">
+                <button class="checkout-btn"
+                    style="width:100%; text-align:center; justify-content:center; background:var(--card); border:1px solid var(--border);"
+                    onclick="processUpgrade('CORE', 199000)">
                     Pilih Enterprise ➔
                 </button>
             </div>
@@ -781,9 +812,11 @@
                     <span>🤖 Cooca Intelligence (AI Advisor)</span>
                     <span style="color:var(--accent); font-size:11px;">Aktif</span>
                 </div>
-                <div id="aiChatLog" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:12px; max-height:55vh;">
-                    <div style="background:var(--card); padding:12px; border-radius:12px; font-size:13px; line-height:1.4;">
-                        👋 Halo! Saya asisten AI Cooca UMKM. Saya telah menganalisis data penjualan Anda:
+                <div id="aiChatLog"
+                    style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:12px; max-height:55vh;">
+                    <div
+                        style="background:var(--card); padding:12px; border-radius:12px; font-size:13px; line-height:1.4;">
+                        👋 Halo! Saya asisten AI Cooca. Saya telah menganalisis data penjualan Anda:
                         <br><br>
                         📊 <b>Insight Hari Ini:</b>
                         <br>• Produk terlaris: <b>Kopi Susu Gula Aren (28 cup)</b>.
@@ -792,7 +825,8 @@
                     </div>
                 </div>
                 <div style="display:flex; gap:8px;">
-                    <input type="text" id="aiInput" placeholder="Tanya AI: Berapa laba minggu ini?..." style="flex:1; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-size:13px;">
+                    <input type="text" id="aiInput" placeholder="Tanya AI: Berapa laba minggu ini?..."
+                        style="flex:1; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-size:13px;">
                     <button class="cat-chip active" onclick="sendAiQuery()">Kirim</button>
                 </div>
             </div>
@@ -836,7 +870,8 @@
                     <span style="color: var(--text-sec);">Total Tagihan:</span>
                     <strong style="color: var(--accent); font-size: 18px;" id="modalCartTotal">Rp 0</strong>
                 </div>
-                <button class="checkout-btn" style="width: 100%;" onclick="closeModal('cartModal'); openPaymentModal();">
+                <button class="checkout-btn" style="width: 100%;"
+                    onclick="closeModal('cartModal'); openPaymentModal();">
                     Lanjut ke Pembayaran ➔
                 </button>
             </div>
@@ -851,14 +886,16 @@
                 <button class="btn-icon" onclick="closeModal('paymentModal')">✕</button>
             </div>
             <div class="sheet-content">
-                <div style="background: rgba(99,102,241,0.1); border: 1px solid var(--primary); padding: 14px; border-radius: 12px; text-align: center; margin-bottom: 12px;">
+                <div
+                    style="background: rgba(99,102,241,0.1); border: 1px solid var(--primary); padding: 14px; border-radius: 12px; text-align: center; margin-bottom: 12px;">
                     <div style="font-size: 12px; color: var(--text-sec);">Total Bayar</div>
                     <div style="font-size: 26px; font-weight: 800; color: var(--accent);" id="payTotalAmount">Rp 0</div>
                 </div>
 
                 <div class="quick-cash-row" id="quickCashList"></div>
 
-                <div style="background: var(--card); padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div
+                    style="background: var(--card); padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 12px; color: var(--text-sec);">Diterima:</span>
                     <strong style="font-size: 18px; color: var(--text);" id="tenderedDisplay">Rp 0</strong>
                 </div>
@@ -883,7 +920,8 @@
                     <button class="key-btn" style="color: var(--danger);" onclick="pressBackspace()">⌫</button>
                 </div>
             </div>
-            <button class="checkout-btn" style="width: 100%; margin-top: 10px;" id="confirmPayBtn" onclick="submitCheckout()">
+            <button class="checkout-btn" style="width: 100%; margin-top: 10px;" id="confirmPayBtn"
+                onclick="submitCheckout()">
                 ✓ Konfirmasi & Cetak Struk
             </button>
         </div>
@@ -920,8 +958,10 @@
             <div class="sheet-content">
                 <div class="section-card" style="margin-bottom:12px;">
                     <div style="font-weight:700; font-size:14px; margin-bottom:4px;">1. Bluetooth Thermal Printer</div>
-                    <p style="color:var(--text-sec); font-size:12px; margin-bottom:10px;">Hubungkan langsung printer struk Bluetooth (58mm / 80mm ESC/POS)</p>
-                    <button class="checkout-btn" style="width:100%; justify-content:center; background:var(--primary);" onclick="connectBluetoothPrinter()">
+                    <p style="color:var(--text-sec); font-size:12px; margin-bottom:10px;">Hubungkan langsung printer
+                        struk Bluetooth (58mm / 80mm ESC/POS)</p>
+                    <button class="checkout-btn" style="width:100%; justify-content:center; background:var(--primary);"
+                        onclick="connectBluetoothPrinter()">
                         📶 Scan & Hubungkan Bluetooth Printer
                     </button>
                 </div>
@@ -951,11 +991,14 @@
                 <div class="section-card" style="margin-bottom:12px;">
                     <div class="section-title">Pilih Outlet Aktif</div>
                     <div style="display:flex; flex-direction:column; gap:6px;">
-                        <div class="cat-chip active" style="border-radius:10px; text-align:left;">☕ Cooca Coffee - Main Outlet</div>
-                        <div class="cat-chip" style="border-radius:10px; text-align:left;">🥐 Cooca Bakery - Cabang 2</div>
+                        <div class="cat-chip active" style="border-radius:10px; text-align:left;">☕ Cooca Coffee - Main
+                            Outlet</div>
+                        <div class="cat-chip" style="border-radius:10px; text-align:left;">🥐 Cooca Bakery - Cabang 2
+                        </div>
                     </div>
                 </div>
-                <button class="checkout-btn" style="width:100%; justify-content:center; background:var(--danger);" onclick="AppAlert.success('Berhasil Logout.')">
+                <button class="checkout-btn" style="width:100%; justify-content:center; background:var(--danger);"
+                    onclick="AppAlert.success('Berhasil Logout.')">
                     Keluar Akun
                 </button>
             </div>
@@ -1023,7 +1066,7 @@
                     renderProducts();
                     renderInventory();
                     renderCustomers();
-                } catch(e){}
+                } catch (e) { }
             }
 
             // 2. Fetch fresh catalog from API
@@ -1040,7 +1083,7 @@
                         renderCustomers();
                         syncOfflineOrders();
                     }
-                } catch(err) {
+                } catch (err) {
                     console.log("Offline mode: Using cached data");
                 }
             }
@@ -1250,7 +1293,7 @@
                             payments: [{ payment_method: 'cash', amount: total, tendered: tendered }]
                         })
                     });
-                } catch(e) {
+                } catch (e) {
                     offlineQueue.push({ ...lastOrder, offline: true });
                     localStorage.setItem('cooca_offline_orders', JSON.stringify(offlineQueue));
                     updateNetworkStatus();
@@ -1378,4 +1421,5 @@
         window.onload = initPos;
     </script>
 </body>
+
 </html>

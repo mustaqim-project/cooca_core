@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Buat Retur Penjualan - Cooca UMKM',
+    'title' => 'Buat Retur Penjualan - Cooca',
     'headerTitle' => 'Formulir Retur Penjualan',
     'headerSubtitle' => 'Pilih sumber transaksi (Faktur Penjualan atau Kasir POS), tentukan kuantitas yang diretur, dan atur kompensasi pengembalian dana.',
 ])

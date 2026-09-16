@@ -1,5 +1,5 @@
 @extends('layouts.public_marketing', [
-    'title' => 'Status Pemulihan Akses Akun - Cooca UMKM',
+    'title' => 'Status Pemulihan Akses Akun - Cooca',
     'noindex' => true,
 ])
 

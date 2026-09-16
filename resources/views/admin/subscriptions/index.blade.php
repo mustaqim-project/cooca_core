@@ -1,7 +1,7 @@
 @extends('layouts.admin', [
     'title' => 'Langganan & Pembayaran - Admin Console',
     'headerTitle' => 'Kelola Langganan & Pembayaran',
-    'headerSubtitle' => 'Verifikasi bukti transfer, persetujuan aktivasi paket Cooca UMKM, dan monitoring omzet SaaS',
+    'headerSubtitle' => 'Verifikasi bukti transfer, persetujuan aktivasi paket Cooca, dan monitoring omzet SaaS',
 ])
 
 @section('content')
@@ -26,7 +26,7 @@
                 <a href="{{ route('admin.subscriptions.index', ['view' => 'tenants']) }}"
                     class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 {{ $view === 'tenants' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55 hover:text-black/80 dark:hover:text-white/80' }} transition-all">
                     <i data-lucide="building-2" class="w-4 h-4" stroke-width="1.5"></i>
-                    <span>Status Langganan Tenant</span>
+                    <span>Status Langganan Tenant Bisnis</span>
                     <span
                         class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55">{{ $tenantCounts['all'] }}</span>
                 </a>
@@ -58,7 +58,7 @@
                     </div>
                     <div class="text-[22px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">
                         {{ number_format($tenantCounts['core_active'], 0, ',', '.') }}</div>
-                    <p class="text-[11px] text-[#34C759]/80 dark:text-[#30D158]/80 mt-1">Berlangganan Cooca Core</p>
+                    <p class="text-[11px] text-[#34C759]/80 dark:text-[#30D158]/80 mt-1">Berlangganan Cooca</p>
                 </div>
                 <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4">
                     <div class="flex items-center justify-between mb-2">
@@ -331,27 +331,36 @@
                 <!-- Row 1: Status Tabs -->
                 <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[13px] font-medium">
                     <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'all', 'page' => 1])) }}"
-                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'all' ? 'bg-[#007AFF] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Semua
-                            Status</span><span
-                            class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'all' ? 'bg-[#007AFF]/20 text-white' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55' }}">{{ $paymentCounts['all'] }}</span></a>
+                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'all' ? 'bg-[#007AFF] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all">
+                        <span>Semua Status</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'all' ? 'bg-[#007AFF]/20 text-white' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55' }}">{{ $paymentCounts['all'] }}</span>
+                    </a>
                     <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'awaiting_approval', 'page' => 1])) }}"
-                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'awaiting_approval' ? 'bg-[#FF9500] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Perlu
-                            Verifikasi</span><span
-                            class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $status === 'awaiting_approval' ? 'bg-[#FF9500]/20 text-white' : ($paymentCounts['awaiting_approval'] > 0 ? 'bg-[#FF9500]/10 text-[#FF9500] dark:text-[#FF9F0A]' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55') }}">{{ $paymentCounts['awaiting_approval'] }}</span></a>
+                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'awaiting_approval' ? 'bg-[#FF9500] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all">
+                        <span>Perlu Verifikasi</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $status === 'awaiting_approval' ? 'bg-[#FF9500]/20 text-white' : ($paymentCounts['awaiting_approval'] > 0 ? 'bg-[#FF9500]/10 text-[#FF9500] dark:text-[#FF9F0A]' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55') }}">{{ $paymentCounts['awaiting_approval'] }}</span>
+                    </a>
                     <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'approved', 'page' => 1])) }}"
-                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'approved' ? 'bg-[#34C759] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Disetujui</span><span
-                            class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'approved' ? 'bg-[#34C759]/20 text-white' : 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' }}">{{ $paymentCounts['approved'] }}</span></a>
+                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'approved' ? 'bg-[#34C759] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all">
+                        <span>Disetujui</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'approved' ? 'bg-[#34C759]/20 text-white' : 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' }}">{{ $paymentCounts['approved'] }}</span>
+                    </a>
                     <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'pending', 'page' => 1])) }}"
-                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'pending' ? 'bg-black/20 dark:bg-white/20 text-black dark:text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Belum
-                            Bayar (Pending)</span><span
-                            class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'pending' ? 'bg-black/10 dark:bg-white/15 text-black/60 dark:text-white/60' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55' }}">{{ $paymentCounts['pending'] }}</span></a>
+                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'pending' ? 'bg-black/20 dark:bg-white/20 text-black dark:text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all">
+                        <span>Belum Bayar (Pending)</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'pending' ? 'bg-black/10 dark:bg-white/15 text-black/60 dark:text-white/60' : 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55' }}">{{ $paymentCounts['pending'] }}</span>
+                    </a>
                     <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'rejected', 'page' => 1])) }}"
-                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'rejected' ? 'bg-[#FF3B30] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Ditolak</span><span
-                            class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'rejected' ? 'bg-[#FF3B30]/20 text-white' : 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#FF453A]' }}">{{ $paymentCounts['rejected'] }}</span></a>
+                        class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'rejected' ? 'bg-[#FF3B30] text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all">
+                        <span>Ditolak</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold {{ $status === 'rejected' ? 'bg-[#FF3B30]/20 text-white' : 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#FF453A]' }}">{{ $paymentCounts['rejected'] }}</span>
+                    </a>
                     @if ($paymentCounts['cancelled'] > 0)
                         <a href="{{ route('admin.subscriptions.index', array_merge(request()->query(), ['status' => 'cancelled', 'page' => 1])) }}"
-                            class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'cancelled' ? 'bg-black/20 dark:bg-white/20 text-black dark:text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all"><span>Dibatalkan</span><span
-                                class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55">{{ $paymentCounts['cancelled'] }}</span></a>
+                            class="px-3 py-1.5 rounded-[7px] inline-flex items-center gap-1.5 shrink-0 {{ $status === 'cancelled' ? 'bg-black/20 dark:bg-white/20 text-black dark:text-white' : 'text-black/55 dark:text-white/55 hover:bg-black/5 dark:hover:bg-white/10' }} transition-all">
+                            <span>Dibatalkan</span>
+                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55">{{ $paymentCounts['cancelled'] }}</span>
+                        </a>
                     @endif
                 </div>
 
@@ -473,8 +482,8 @@
                                         $pkgTitle =
                                             $p->package_name ?:
                                             ($p->cycle === 'annual' || $p->plan_code === 'core_annual'
-                                                ? 'Cooca Core Tahunan'
-                                                : 'Cooca Core Bulanan');
+                                                ? 'Cooca Tahunan'
+                                                : 'Cooca Bulanan');
                                         $durationText = $p->package_duration_days
                                             ? $p->package_duration_days . ' Hari'
                                             : ($p->cycle === 'annual' || $p->plan_code === 'core_annual'
@@ -552,7 +561,8 @@
                                             class="font-medium text-black/80 dark:text-white/80 flex items-center gap-1.5">
                                             <i data-lucide="{{ $method['icon'] ?? 'credit-card' }}"
                                                 class="w-3.5 h-3.5 text-[#30B0C7] dark:text-[#40C8E0] shrink-0"
-                                                stroke-width="1.5"></i><span>{{ $method['name'] }}</span></div>
+                                                stroke-width="1.5"></i><span>{{ $method['name'] }}</span>
+                                        </div>
                                         @if ($p->sender_account_name)
                                             <div class="text-[10px] text-[#34C759] dark:text-[#30D158] mt-0.5 font-medium">
                                                 a/n {{ $p->sender_account_name }} ({{ $p->sender_bank ?: 'Bank' }})

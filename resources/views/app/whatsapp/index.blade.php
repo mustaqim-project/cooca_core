@@ -89,11 +89,176 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
             <!-- ========================================== -->
-            <!-- LEFT COLUMN: GATEWAY CONNECTION & QR SCAN  -->
+            <!-- LEFT COLUMN: PROVIDER SELECTOR & CONNECTION -->
             <!-- ========================================== -->
             <div class="lg:col-span-7 space-y-6">
 
-                <div
+                <!-- 1. PROVIDER SWITCHER & STATUS TOGGLE CARD -->
+                <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 shadow-[0_1px_2px_rgba(0,0,0,0.02)] p-5 sm:p-6 space-y-5 transition-colors">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center shrink-0 shadow-sm shadow-[#007AFF]/20">
+                                <i data-lucide="layers" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-[15px] font-bold text-black dark:text-white">Pilihan Gateway WhatsApp</h2>
+                                <p class="text-[12px] text-black/50 dark:text-white/50">Pilih penyedia jalur komunikasi yang sesuai dengan skala bisnis</p>
+                            </div>
+                        </div>
+
+                        <!-- Provider Switcher Buttons (Apple Segmented Style) -->
+                        <div class="p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] inline-flex items-center gap-1 text-[12px] font-medium">
+                            <button type="button" @click="provider = 'meta_cloud'"
+                                :class="provider === 'meta_cloud' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black'"
+                                class="px-3.5 py-1.5 rounded-[9px] transition-all flex items-center gap-1.5">
+                                <i data-lucide="cloud" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Meta Cloud API</span>
+                            </button>
+                            <button type="button" @click="provider = 'baileys'"
+                                :class="provider === 'baileys' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black'"
+                                class="px-3.5 py-1.5 rounded-[9px] transition-all flex items-center gap-1.5">
+                                <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#25D366]"></i>
+                                <span>Scan QR (Baileys)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Provider Details & Settings Form -->
+                    <form action="{{ route('whatsapp.settings') }}" method="POST" class="space-y-4">
+                        @csrf
+                        <input type="hidden" name="provider" :value="provider">
+
+                        <!-- Active Toggle Row -->
+                        <div class="flex items-center justify-between p-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
+                            <div class="pr-2">
+                                <p class="text-[13px] font-semibold text-black dark:text-white">Status Layanan WhatsApp Bisnis</p>
+                                <p class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">Aktifkan untuk mengizinkan sistem mengirim struk dan broadcast otomatis</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" name="is_active" value="1" class="sr-only peer"
+                                    {{ ($waSession?->is_active ?? true) ? 'checked' : '' }}>
+                                <div class="w-11 h-6 bg-black/[0.12] dark:bg-white/[0.15] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#34C759]"></div>
+                            </label>
+                        </div>
+
+                        <!-- META CLOUD API CONFIGURATION (Shown when meta_cloud selected) -->
+                        <div x-show="provider === 'meta_cloud'" x-transition class="space-y-4 pt-1">
+                            <div class="p-4 rounded-[14px] bg-[#007AFF]/8 border border-[#007AFF]/20 text-[12px] text-black/75 dark:text-white/75 space-y-1.5">
+                                <div class="flex items-center justify-between font-bold text-[#007AFF]">
+                                    <span class="flex items-center gap-1.5">
+                                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                        Jalur Resmi Meta Facebook (Bebas Pemblokiran)
+                                    </span>
+                                    <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1">
+                                        <span>Meta Portal</span>
+                                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                                    </a>
+                                </div>
+                                <p class="leading-relaxed">
+                                    Gunakan Meta WhatsApp Cloud API langsung dengan kuota gratis <strong>1.000 percakapan per bulan</strong> langsung dari Facebook tanpa memerlukan server QR berjalan lokal.
+                                </p>
+                            </div>
+
+                            {{-- PANDUAN LENGKAP STEP-BY-STEP SETUP META CLOUD API --}}
+                            @include('partials.whatsapp-meta-setup-guide', ['mode' => 'owner'])
+
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">Permanent Access Token</label>
+                                        <button type="button" @click="showMetaToken = !showMetaToken" class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
+                                            <span x-text="showMetaToken ? 'Sembunyikan' : 'Tampilkan Token'"></span>
+                                        </button>
+                                    </div>
+                                    <div class="relative">
+                                        <input :type="showMetaToken ? 'text' : 'password'" name="meta_access_token" x-model="metaToken" placeholder="EAAG... (System User Token Meta)"
+                                            class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[10px] px-3.5 pr-10 py-2.5 text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                        <button type="button" @click="showMetaToken = !showMetaToken" class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                                            <i data-lucide="eye" x-show="!showMetaToken" class="w-4 h-4"></i>
+                                            <i data-lucide="eye-off" x-show="showMetaToken" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1">Phone Number ID</label>
+                                        <input type="text" name="meta_phone_number_id" x-model="metaPhoneId" placeholder="Contoh: 104523984712398"
+                                            class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[10px] px-3.5 py-2.5 text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1">WABA Account ID</label>
+                                        <input type="text" name="meta_waba_id" x-model="metaWabaId" placeholder="Contoh: 109283746501928"
+                                            class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[10px] px-3.5 py-2.5 text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                    </div>
+                                </div>
+
+                                {{-- Verification Action Row --}}
+                                <div class="pt-1">
+                                    <div class="flex items-center justify-between p-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
+                                        <div class="text-[12px] text-black/70 dark:text-white/70">
+                                            <span>Pastikan kredensial aktif sebelum menyimpan</span>
+                                        </div>
+                                        <button type="button" @click="verifyMetaCredentials()" :disabled="metaVerifyLoading"
+                                            class="min-h-[34px] px-3.5 rounded-[8px] text-[11.5px] font-bold bg-[#007AFF]/12 hover:bg-[#007AFF]/20 text-[#007AFF] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 disabled:opacity-50">
+                                            <i data-lucide="loader-2" x-show="metaVerifyLoading" class="w-3.5 h-3.5 animate-spin"></i>
+                                            <i data-lucide="shield-check" x-show="!metaVerifyLoading" class="w-3.5 h-3.5"></i>
+                                            <span x-text="metaVerifyLoading ? 'Memeriksa...' : 'Uji Kredensial Meta'"></span>
+                                        </button>
+                                    </div>
+
+                                    {{-- Live Verification Success --}}
+                                    <div x-show="metaVerifyResult" x-transition class="mt-2.5 p-3 rounded-[12px] bg-[#34C759]/12 border border-[#34C759]/30 text-[12px] text-[#248A3D] dark:text-[#30D158] flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
+                                            <span><strong>Terverifikasi:</strong> <span x-text="metaVerifyResult?.verified_name || 'Akun Meta Valid'"></span> (<span class="font-mono" x-text="metaVerifyResult?.display_phone_number || metaPhoneId"></span>)</span>
+                                        </div>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/20 shrink-0" x-text="'Kualitas: ' + (metaVerifyResult?.quality_rating || 'GREEN')"></span>
+                                    </div>
+
+                                    {{-- Live Verification Error --}}
+                                    <div x-show="metaVerifyError" x-transition class="mt-2.5 p-3 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12px] text-[#C41E17] dark:text-[#FF453A] flex items-start gap-2">
+                                        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                                        <div x-text="metaVerifyError"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (\App\Support\Context::hasPermission('whatsapp.manage'))
+                                <button type="submit"
+                                    class="w-full h-11 rounded-[12px] text-[13.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_4px_14px_rgba(0,122,255,0.28)]">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                    <span>Simpan Pengaturan Meta Cloud API</span>
+                                </button>
+                            @endif
+                        </div>
+
+                        <!-- BAILEYS QR NOTICE (Shown when baileys selected) -->
+                        <div x-show="provider === 'baileys'" x-transition class="space-y-4 pt-1">
+                            {{-- Apple HIG Ban Warning Banner --}}
+                            <div class="p-4 sm:p-4.5 rounded-[14px] bg-[#FF9500]/12 border border-[#FF9500]/30 text-[12.5px] space-y-2">
+                                <div class="flex items-center gap-2 font-bold text-[#B25E00] dark:text-[#FF9F0A]">
+                                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+                                    <span>⚠️ Peringatan Tingkat Blokir Sangat Besar</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A] font-bold ml-auto">Risiko Tinggi</span>
+                                </div>
+                                <p class="text-black/75 dark:text-white/75 leading-relaxed">
+                                    Penggunaan sesi WhatsApp melalui Scan QR (Baileys) dapat memicu <strong>pemblokiran permanen oleh pihak Meta/WhatsApp</strong> jika nomor sering digunakan mengirim blast promosi atau pesan otomatis. Gunakan nomor khusus atau beralih ke Meta Cloud API untuk proteksi penuh.
+                                </p>
+                            </div>
+
+                            @if (\App\Support\Context::hasPermission('whatsapp.manage'))
+                                <button type="submit"
+                                    class="w-full h-10 rounded-[10px] text-[13px] font-bold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                    <span>Tetapkan Baileys Sebagai Provider</span>
+                                </button>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 2. BAILEYS SCAN QR & CONNECTION CARD (Shown when provider === 'baileys') -->
+                <div x-show="provider === 'baileys'"
                     class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 shadow-[0_1px_2px_rgba(0,0,0,0.02)] p-5 sm:p-6 space-y-5 transition-colors">
 
                     <!-- Card Header with Real-Time Status Badge -->
@@ -104,10 +269,8 @@
                                 <i data-lucide="qr-code" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h2 class="text-[15px] font-semibold text-black dark:text-white">Status Koneksi WhatsApp
-                                </h2>
-                                <p class="text-[12px] text-black/50 dark:text-white/50">Sinkronisasi nomor HP bisnis ke
-                                    sistem cloud Cooca</p>
+                                <h2 class="text-[15px] font-semibold text-black dark:text-white">Status Koneksi Scan QR (Baileys)</h2>
+                                <p class="text-[12px] text-black/50 dark:text-white/50">Sinkronisasi nomor HP bisnis ke server scan barcode</p>
                             </div>
                         </div>
 
@@ -392,6 +555,9 @@
     <script>
         function waGateway() {
             return {
+                provider: '{{ $waSession?->provider ?? 'baileys' }}',
+                isActive: {{ ($waSession?->is_active ?? true) ? 'true' : 'false' }},
+                isMetaConfigured: {{ (!empty($waSession?->meta_access_token) && !empty($waSession?->meta_phone_number_id)) ? 'true' : 'false' }},
                 status: '{{ $liveStatus ?? ($waSession?->status ?? 'disconnected') }}',
                 phone: '{{ $waSession?->phone_number ?? '' }}',
                 deviceName: '{{ $waSession?->device_name ?? '' }}',
@@ -404,15 +570,61 @@
                 testResult: '',
                 testOk: false,
 
+                metaToken: '{{ addslashes($waSession?->meta_access_token ?? '') }}',
+                metaPhoneId: '{{ addslashes($waSession?->meta_phone_number_id ?? '') }}',
+                metaWabaId: '{{ addslashes($waSession?->meta_waba_id ?? '') }}',
+                showMetaToken: false,
+                metaVerifyLoading: false,
+                metaVerifyResult: null,
+                metaVerifyError: null,
+
+                async verifyMetaCredentials() {
+                    if (!this.metaToken.trim() || !this.metaPhoneId.trim()) {
+                        this.metaVerifyError = '⚠️ Mohon isi Access Token dan Phone Number ID terlebih dahulu.';
+                        this.metaVerifyResult = null;
+                        return;
+                    }
+                    this.metaVerifyLoading = true;
+                    this.metaVerifyResult = null;
+                    this.metaVerifyError = null;
+                    try {
+                        const res = await fetch('{{ route('whatsapp.verify-meta') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                            },
+                            body: JSON.stringify({
+                                token: this.metaToken.trim(),
+                                phone_number_id: this.metaPhoneId.trim()
+                            })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.metaVerifyResult = data.data;
+                        } else {
+                            this.metaVerifyError = data.error || 'Gagal memverifikasi kredensial Meta.';
+                        }
+                    } catch (e) {
+                        this.metaVerifyError = 'Kesalahan koneksi saat menghubungi server verifikasi.';
+                    } finally {
+                        this.metaVerifyLoading = false;
+                    }
+                },
+
                 init() {
                     // Hanya cek status existing - TIDAK auto-start sesi baru.
                     // Polling dimulai hanya jika sesi sebelumnya masih di scan_qr,
                     // atau jika user klik tombol "Mulai Scan QR Code".
-                    this.checkStatus();
+                    if (this.provider === 'baileys') {
+                        this.checkStatus();
+                    }
                 },
 
                 // Cek status existing sesi tanpa memulai sesi baru.
                 async checkStatus() {
+                    if (this.provider === 'meta_cloud') return;
                     try {
                         const res = await fetch('{{ route('whatsapp.qr') }}', {
                             headers: {

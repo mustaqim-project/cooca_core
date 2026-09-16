@@ -1,4 +1,4 @@
-@extends('layouts.public_marketing', ['title' => 'Pemulihan Akses Akun & Reset Kontak - Cooca UMKM', 'noindex' => true])
+@extends('layouts.public_marketing', ['title' => 'Pemulihan Akses Akun & Reset Kontak - Cooca', 'noindex' => true])
 
 @section('content')
     <div class="min-h-[calc(100vh-16rem)] flex flex-col justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8">

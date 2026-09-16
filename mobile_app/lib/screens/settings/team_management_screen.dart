@@ -36,7 +36,9 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                   ?.map((e) => Map<String, dynamic>.from(e as Map))
                   .toList() ??
               [];
-          _quota = res['quota'] != null ? Map<String, dynamic>.from(res['quota'] as Map) : null;
+          _quota = res['quota'] != null
+              ? Map<String, dynamic>.from(res['quota'] as Map)
+              : null;
           _isLoading = false;
         });
       } else {
@@ -67,12 +69,36 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
     bool isSubmitting = false;
 
     final roles = [
-      {'slug': 'admin', 'name': 'Admin Operasional', 'desc': 'Akses penuh seluruh modul bisnis kecuali billing'},
-      {'slug': 'cashier', 'name': 'Kasir / Sales', 'desc': 'Operasional kasir POS (HPP/margin dirahasiakan)'},
-      {'slug': 'warehouse', 'name': 'Staf Gudang', 'desc': 'Penerimaan barang dari PO & mutasi stok'},
-      {'slug': 'finance', 'name': 'Staf Keuangan', 'desc': 'Faktur, beban operasional, dan laporan keuangan'},
-      {'slug': 'staff', 'name': 'Staf Operasional', 'desc': 'Akses umum kasir dan inventori'},
-      {'slug': 'viewer', 'name': 'Viewer (Read-Only)', 'desc': 'Hanya melihat laporan tanpa hak edit'},
+      {
+        'slug': 'admin',
+        'name': 'Admin Operasional',
+        'desc': 'Akses penuh seluruh modul bisnis kecuali billing'
+      },
+      {
+        'slug': 'cashier',
+        'name': 'Kasir / Sales',
+        'desc': 'Operasional kasir POS (HPP/margin dirahasiakan)'
+      },
+      {
+        'slug': 'warehouse',
+        'name': 'Staf Gudang',
+        'desc': 'Penerimaan barang dari PO & mutasi stok'
+      },
+      {
+        'slug': 'finance',
+        'name': 'Staf Keuangan',
+        'desc': 'Faktur, beban operasional, dan laporan keuangan'
+      },
+      {
+        'slug': 'staff',
+        'name': 'Staf Operasional',
+        'desc': 'Akses umum kasir dan inventori'
+      },
+      {
+        'slug': 'viewer',
+        'name': 'Viewer (Read-Only)',
+        'desc': 'Hanya melihat laporan tanpa hak edit'
+      },
     ];
 
     showModalBottomSheet(
@@ -106,7 +132,8 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: AppColors.textMuted),
+                    icon: const Icon(Icons.close_rounded,
+                        color: AppColors.textMuted),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
@@ -123,7 +150,8 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                   hintStyle: const TextStyle(color: AppColors.textDim),
                   filled: true,
                   fillColor: AppColors.surfaceDeep,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -137,7 +165,8 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                   hintStyle: const TextStyle(color: AppColors.textDim),
                   filled: true,
                   fillColor: AppColors.surfaceDeep,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -152,7 +181,8 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                   hintStyle: const TextStyle(color: AppColors.textDim),
                   filled: true,
                   fillColor: AppColors.surfaceDeep,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 16),
@@ -172,7 +202,8 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: AppColors.surfaceDeep,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 items: roles.map((r) {
                   return DropdownMenuItem<String>(
@@ -199,40 +230,52 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
 
                         setModalState(() => isSubmitting = true);
                         try {
-                          final res = await ApiClient.post(ApiEndpoints.members, body: {
+                          final res =
+                              await ApiClient.post(ApiEndpoints.members, body: {
                             'email': email,
-                            'name': nameCtrl.text.trim().isNotEmpty ? nameCtrl.text.trim() : null,
-                            'password': passCtrl.text.trim().isNotEmpty ? passCtrl.text.trim() : null,
+                            'name': nameCtrl.text.trim().isNotEmpty
+                                ? nameCtrl.text.trim()
+                                : null,
+                            'password': passCtrl.text.trim().isNotEmpty
+                                ? passCtrl.text.trim()
+                                : null,
                             'role': selectedRole,
                           });
 
-                          if (res is Map<String, dynamic> && res['success'] == true) {
+                          if (res is Map<String, dynamic> &&
+                              res['success'] == true) {
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(res['message']?.toString() ?? 'Anggota berhasil ditambahkan.')),
+                              SnackBar(
+                                  content: Text(res['message']?.toString() ??
+                                      'Anggota berhasil ditambahkan.')),
                             );
                             _fetchMembers();
-                          } else if (res is Map<String, dynamic> && res['error_code'] == 'RESOURCE_LIMIT_EXCEEDED') {
+                          } else if (res is Map<String, dynamic> &&
+                              res['error_code'] == 'RESOURCE_LIMIT_EXCEEDED') {
                             Navigator.pop(ctx);
                             _showUpgradePlanModal();
                           }
                         } catch (e) {
                           setModalState(() => isSubmitting = false);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Gagal menambah anggota: $e')),
+                            SnackBar(
+                                content: Text('Gagal menambah anggota: $e')),
                           );
                         }
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                 ),
                 child: isSubmitting
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2),
                       )
                     : Text(
                         'Simpan Karyawan',
@@ -268,7 +311,8 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                 gradient: AppColors.purpleGradient,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.group_add_rounded, color: Colors.white, size: 32),
+              child: const Icon(Icons.group_add_rounded,
+                  color: Colors.white, size: 32),
             ),
             const SizedBox(height: 16),
             Text(
@@ -282,7 +326,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Paket Free Plan dibatasi 1 pengguna (Solo Owner). Tingkatkan ke Cooca UMKM untuk menambahkan kasir, staf gudang, dan tim tanpa batas.',
+              'Paket Free Plan dibatasi 1 pengguna (Solo Owner). Tingkatkan ke Cooca untuk menambahkan kasir, staf gudang, dan tim tanpa batas.',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 13,
@@ -295,16 +339,19 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
               onPressed: () {
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Kunjungi web cooca.id atau menu Billing untuk aktivasi Core Plan.')),
+                  const SnackBar(
+                      content: Text(
+                          'Kunjungi web cooca.id atau menu Billing untuk aktivasi Core Plan.')),
                 );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.purple,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
               ),
               child: Text(
-                'Upgrade Cooca UMKM (Rp 129.000/bln)',
+                'Upgrade Cooca (Rp 129.000/bln)',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -367,7 +414,8 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: AppColors.surfaceDeep,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 items: roles.map((r) {
                   return DropdownMenuItem<String>(
@@ -387,13 +435,17 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                         setModalState(() => isSubmitting = true);
                         try {
                           final userId = member['user_id'];
-                          final res = await ApiClient.patch('${ApiEndpoints.members}/$userId', body: {
-                            'role': selectedRole,
-                          });
-                          if (res is Map<String, dynamic> && res['success'] == true) {
+                          final res = await ApiClient.patch(
+                              '${ApiEndpoints.members}/$userId',
+                              body: {
+                                'role': selectedRole,
+                              });
+                          if (res is Map<String, dynamic> &&
+                              res['success'] == true) {
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Peran berhasil diperbarui.')),
+                              const SnackBar(
+                                  content: Text('Peran berhasil diperbarui.')),
                             );
                             _fetchMembers();
                           }
@@ -407,13 +459,15 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                 ),
                 child: isSubmitting
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2),
                       )
                     : Text(
                         'Simpan Perubahan',
@@ -433,7 +487,8 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
   void _confirmDeleteMember(Map<String, dynamic> member) {
     if (member['is_owner'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak dapat menghapus Owner Utama bisnis.')),
+        const SnackBar(
+            content: Text('Tidak dapat menghapus Owner Utama bisnis.')),
       );
       return;
     }
@@ -457,14 +512,16 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal', style: TextStyle(color: AppColors.textMuted)),
+            child: const Text('Batal',
+                style: TextStyle(color: AppColors.textMuted)),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);
               try {
                 final userId = member['user_id'];
-                final res = await ApiClient.delete('${ApiEndpoints.members}/$userId');
+                final res =
+                    await ApiClient.delete('${ApiEndpoints.members}/$userId');
                 if (res is Map<String, dynamic> && res['success'] == true) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Anggota berhasil dihapus.')),
@@ -505,14 +562,16 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
         actions: [
           if (isOwnerOrAdmin)
             IconButton(
-              icon: const Icon(Icons.person_add_alt_1_rounded, color: AppColors.primary),
+              icon: const Icon(Icons.person_add_alt_1_rounded,
+                  color: AppColors.primary),
               tooltip: 'Tambah Anggota',
               onPressed: _showAddMemberModal,
             ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary))
           : RefreshIndicator(
               onRefresh: _fetchMembers,
               color: AppColors.primary,
@@ -531,7 +590,9 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                               ),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: _quota!['is_core'] == true ? AppColors.purpleLight.withValues(alpha: 0.3) : AppColors.borderLight,
+                          color: _quota!['is_core'] == true
+                              ? AppColors.purpleLight.withValues(alpha: 0.3)
+                              : AppColors.borderLight,
                         ),
                       ),
                       child: Row(
@@ -543,7 +604,9 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
-                              _quota!['is_core'] == true ? Icons.workspace_premium_rounded : Icons.people_outline_rounded,
+                              _quota!['is_core'] == true
+                                  ? Icons.workspace_premium_rounded
+                                  : Icons.people_outline_rounded,
                               color: Colors.white,
                               size: 24,
                             ),
@@ -579,8 +642,10 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                               onPressed: _showUpgradePlanModal,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.purple,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
                               ),
                               child: Text(
                                 'Upgrade',
@@ -613,11 +678,13 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                       alignment: Alignment.center,
                       child: Column(
                         children: [
-                          const Icon(Icons.people_outline_rounded, size: 48, color: AppColors.textMuted),
+                          const Icon(Icons.people_outline_rounded,
+                              size: 48, color: AppColors.textMuted),
                           const SizedBox(height: 12),
                           Text(
                             'Belum ada anggota tim tambahan.',
-                            style: GoogleFonts.inter(color: AppColors.textMuted),
+                            style:
+                                GoogleFonts.inter(color: AppColors.textMuted),
                           ),
                         ],
                       ),
@@ -626,7 +693,8 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                     ..._members.map((m) {
                       final isOwner = m['is_owner'] == true;
                       final role = m['role']?.toString() ?? 'staff';
-                      final roleLabel = m['role_label']?.toString() ?? role.toUpperCase();
+                      final roleLabel =
+                          m['role_label']?.toString() ?? role.toUpperCase();
 
                       Color badgeColor = AppColors.teal;
                       if (role == 'owner') badgeColor = AppColors.primary;
@@ -641,14 +709,19 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.surface,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.borderLight.withValues(alpha: 0.5)),
+                          border: Border.all(
+                              color:
+                                  AppColors.borderLight.withValues(alpha: 0.5)),
                         ),
                         child: Row(
                           children: [
                             CircleAvatar(
-                              backgroundColor: badgeColor.withValues(alpha: 0.2),
+                              backgroundColor:
+                                  badgeColor.withValues(alpha: 0.2),
                               child: Text(
-                                (m['name']?.toString() ?? 'U').substring(0, 1).toUpperCase(),
+                                (m['name']?.toString() ?? 'U')
+                                    .substring(0, 1)
+                                    .toUpperCase(),
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w800,
                                   color: badgeColor,
@@ -675,10 +748,13 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                                       ),
                                       const SizedBox(width: 8),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: badgeColor.withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(6),
+                                          color: badgeColor.withValues(
+                                              alpha: 0.15),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
                                         child: Text(
                                           roleLabel,
@@ -704,12 +780,14 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                             ),
                             if (isOwnerOrAdmin && !isOwner) ...[
                               IconButton(
-                                icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.textSecondary),
+                                icon: const Icon(Icons.edit_outlined,
+                                    size: 20, color: AppColors.textSecondary),
                                 tooltip: 'Ubah Role',
                                 onPressed: () => _showEditRoleModal(m),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.danger),
+                                icon: const Icon(Icons.delete_outline_rounded,
+                                    size: 20, color: AppColors.danger),
                                 tooltip: 'Hapus',
                                 onPressed: () => _confirmDeleteMember(m),
                               ),
@@ -724,4 +802,3 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
     );
   }
 }
-

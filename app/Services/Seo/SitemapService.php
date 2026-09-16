@@ -95,7 +95,7 @@ final class SitemapService
             'changefreq' => 'daily',
             'priority' => '1.0',
             'category' => 'Halaman Utama',
-            'title' => 'Beranda Cooca UMKM',
+            'title' => 'Beranda Cooca',
         ];
 
         $urls[] = [
@@ -131,7 +131,7 @@ final class SitemapService
             'changefreq' => 'monthly',
             'priority' => '0.7',
             'category' => 'Informasi',
-            'title' => 'Hubungi Tim Cooca UMKM',
+            'title' => 'Hubungi Tim Cooca',
         ];
 
         $urls[] = [
@@ -209,7 +209,7 @@ final class SitemapService
         // 6. Public Business Single-Page Landings (/b/{slug})
         try {
             $businessLandings = BusinessLandingPage::where('is_published', true)
-                ->whereHas('business', fn ($q) => $q->where('is_active', true))
+                ->whereHas('business', fn($q) => $q->where('is_active', true))
                 ->with('business')
                 ->get();
 
@@ -234,7 +234,7 @@ final class SitemapService
         try {
             $discoverableStores = \App\Models\CommerceStoreSetting::where('is_storefront_enabled', true)
                 ->where('is_discoverable', true)
-                ->whereHas('business', fn ($q) => $q->where('is_active', true))
+                ->whereHas('business', fn($q) => $q->where('is_active', true))
                 ->with('business')
                 ->get();
 

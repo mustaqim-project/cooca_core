@@ -1,5 +1,5 @@
 /**
- * Cooca UMKM - Complete sidebar and workflow tour configuration.
+ * Cooca - Complete sidebar and workflow tour configuration.
  */
 window.TOUR_VERSION = 3;
 
@@ -15,7 +15,7 @@ const tourStep = (id, target, title, description, icon = 'circle-help', badge = 
 });
 
 window.TOUR_STEPS = [
-    tourStep('welcome', null, 'Selamat Datang di Cooca UMKM', 'Panduan ini mengenalkan seluruh menu bisnis Anda dari data dasar sampai laporan.', 'sparkles', 'Mulai'),
+    tourStep('welcome', null, 'Selamat Datang di Cooca', 'Panduan ini mengenalkan seluruh menu bisnis Anda dari data dasar sampai laporan.', 'sparkles', 'Mulai'),
     {
         id: 'select-industry',
         target: null,
@@ -23,7 +23,7 @@ window.TOUR_STEPS = [
         title: 'Pilih template bisnis Anda',
         badge: 'Setup Data',
         icon: 'layers',
-        description: 'Pilih template industri agar Cooca UMKM membantu menyiapkan kategori, satuan, dan struktur biaya awal bisnis Anda.',
+        description: 'Pilih template industri agar Cooca membantu menyiapkan kategori, satuan, dan struktur biaya awal bisnis Anda.',
         placement: 'center',
         route: '/dashboard'
     },
@@ -87,10 +87,10 @@ window.TOUR_STEPS = [
     {
         id: 'finish',
         target: null,
-        title: 'Tour Cooca UMKM selesai',
+        title: 'Tour Cooca selesai',
         badge: 'Selesai',
         icon: 'check-circle-2',
-        description: 'Anda sudah melihat seluruh menu utama Cooca UMKM. Mulai dari Master Data, input bahan, buat produk dan BOM, hitung HPP, lalu jalankan penjualan.',
+        description: 'Anda sudah melihat seluruh menu utama Cooca. Mulai dari Master Data, input bahan, buat produk dan BOM, hitung HPP, lalu jalankan penjualan.',
         placement: 'center',
         route: '/dashboard',
         actionUrl: '/dashboard'

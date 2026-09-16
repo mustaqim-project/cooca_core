@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Retur Penjualan - Cooca UMKM',
+    'title' => 'Retur Penjualan - Cooca',
     'headerTitle' => 'Retur Penjualan & Pengembalian Barang',
     'headerSubtitle' => 'Kelola pengembalian barang pelanggan atas faktur penjualan atau kasir POS, penerbitan credit note, dan pengembalian stok gudang.',
 ])

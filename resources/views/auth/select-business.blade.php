@@ -1,4 +1,4 @@
-@extends('layouts.public_marketing', ['title' => 'Pilih Bisnis - Cooca UMKM', 'noindex' => true])
+@extends('layouts.public_marketing', ['title' => 'Pilih Bisnis - Cooca', 'noindex' => true])
 
 @section('content')
     <div class="min-h-[calc(100vh-16rem)] flex flex-col justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8"
@@ -63,7 +63,8 @@
                                             <div
                                                 class="text-xs text-black/50 dark:text-white/50 flex items-center gap-2 mt-0.5">
                                                 <span>Mata Uang: <strong>{{ $biz->currency_code }}</strong>
-                                                    ({{ $biz->currency_symbol }})</span>
+                                                    ({{ $biz->currency_symbol }})
+                                                </span>
                                                 <span>•</span>
                                                 <span class="text-[#007AFF] dark:text-[#0A84FF] font-medium">Buka Kasir &
                                                     Dashboard</span>
@@ -154,7 +155,8 @@
                                 <option value="">-- Setup Manual (Semua Fitur Tersedia) --</option>
                                 @foreach ($templates as $tmpl)
                                     <option value="{{ $tmpl->code }}">{{ $tmpl->name }}
-                                        ({{ strtoupper($tmpl->industry_category) }})</option>
+                                        ({{ strtoupper($tmpl->industry_category) }})
+                                    </option>
                                 @endforeach
                             </select>
 

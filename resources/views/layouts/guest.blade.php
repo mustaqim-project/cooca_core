@@ -1,5 +1,5 @@
 @extends('layouts.public_marketing', [
-    'title' => $title ?? 'Cooca UMKM - Business Operating System',
+    'title' => $title ?? 'Cooca - Business Operating System',
     'noindex' => true,
 ])
 

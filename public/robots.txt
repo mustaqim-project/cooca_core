@@ -1,5 +1,5 @@
 # ==============================================================================
-# COOCA UMKM (cooca.id) - robots.txt
+# Cooca (cooca.id) - robots.txt
 # Business Operating System & POS Kasir untuk UMKM Indonesia
 # ==============================================================================
 

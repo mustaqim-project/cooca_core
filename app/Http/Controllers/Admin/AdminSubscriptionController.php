@@ -127,7 +127,7 @@ final class AdminSubscriptionController extends Controller
                         ->orWhere('slug', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%")
-                        ->orWhereHas('users', fn ($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
+                        ->orWhereHas('users', fn($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
                 });
             }
 
@@ -160,12 +160,12 @@ final class AdminSubscriptionController extends Controller
             if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('order_number', 'like', "%{$search}%")
-                      ->orWhere('package_name', 'like', "%{$search}%")
-                      ->orWhere('sender_account_name', 'like', "%{$search}%")
-                      ->orWhere('sender_account_number', 'like', "%{$search}%")
-                      ->orWhere('sender_bank', 'like', "%{$search}%")
-                      ->orWhereHas('business', fn ($b) => $b->where('name', 'like', "%{$search}%")->orWhere('slug', 'like', "%{$search}%"))
-                      ->orWhereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
+                        ->orWhere('package_name', 'like', "%{$search}%")
+                        ->orWhere('sender_account_name', 'like', "%{$search}%")
+                        ->orWhere('sender_account_number', 'like', "%{$search}%")
+                        ->orWhere('sender_bank', 'like', "%{$search}%")
+                        ->orWhereHas('business', fn($b) => $b->where('name', 'like', "%{$search}%")->orWhere('slug', 'like', "%{$search}%"))
+                        ->orWhereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
                 });
             }
 
@@ -224,7 +224,7 @@ final class AdminSubscriptionController extends Controller
         $message = match ($payment->payment_type) {
             'ai_token' => "Pembayaran #{$payment->order_number} disetujui. Batch token AI telah ditambahkan.",
             'storage' => "Pembayaran #{$payment->order_number} disetujui. Kapasitas storage owner telah ditambahkan.",
-            default => "Pembayaran #{$payment->order_number} berhasil disetujui! Paket Cooca UMKM untuk bisnis {$payment->business->name} telah aktif.",
+            default => "Pembayaran #{$payment->order_number} berhasil disetujui! Paket Cooca untuk bisnis {$payment->business->name} telah aktif.",
         };
 
         return redirect()->route('admin.subscriptions.show', $payment)->with('success', $message);

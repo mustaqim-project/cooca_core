@@ -142,7 +142,7 @@ final class GoogleAuthController extends Controller
         }
 
         $otp = (string) random_int(100000, 999999);
-        $result = $adminWa->sendMessage($phone, "Kode OTP pendaftaran Google Cooca Anda adalah *{$otp}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.");
+        $result = $adminWa->sendOtp($phone, $otp);
         if (! ($result['success'] ?? false)) {
             return back()->withErrors(['phone' => 'OTP gagal dikirim. Coba lagi.'])->withInput();
         }

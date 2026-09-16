@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faktur Tagihan {{ $payment->order_number }} - Cooca UMKM</title>
+    <title>Faktur Tagihan {{ $payment->order_number }} - Cooca</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +27,7 @@
         if (typeof html2pdf === 'undefined') {
             document.write(
                 '<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>'
-                );
+            );
         }
     </script>
 
@@ -132,7 +132,7 @@
                     class="w-2.5 h-2.5 rounded-full {{ $isApproved ? 'bg-emerald-500' : ($payment->isRejected() ? 'bg-rose-500' : 'bg-amber-500') }}"
                     aria-hidden="true"></span>
                 <span class="text-xs font-bold tracking-tight text-slate-800 dark:text-slate-200">Dokumen Faktur Resmi
-                    Cooca UMKM (A4 Siap Cetak)</span>
+                    Cooca (A4 Siap Cetak)</span>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
@@ -271,7 +271,7 @@
                             <td class="py-3 px-3 text-center font-mono text-slate-600">1</td>
                             <td class="py-3 px-3">
                                 <div class="font-bold text-slate-950 leading-tight">
-                                    {{ $payment->package_name ?? ($payment->cycle === 'annual' ? 'Paket Core Cooca UMKM (Tahunan)' : ($payment->cycle === 'monthly' ? 'Paket Core Cooca UMKM (Bulanan)' : 'Top Up Kuota Bisnis')) }}
+                                    {{ $payment->package_name ?? ($payment->cycle === 'annual' ? 'Paket Core Cooca (Tahunan)' : ($payment->cycle === 'monthly' ? 'Paket Core Cooca (Bulanan)' : 'Top Up Kuota Bisnis')) }}
                                 </div>
                                 <div class="text-[10px] text-slate-500 font-mono mt-0.5">
                                     Kode: {{ $payment->plan_code ?: 'COOCA-SUB' }}

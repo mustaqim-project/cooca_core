@@ -56,6 +56,52 @@ final class AdminDashboardController extends Controller
         $recentUsers = User::with('activeBusiness')->latest()->take(6)->get();
         $recentBusinesses = Business::with(['users', 'subscription'])->latest()->take(6)->get();
 
+        // 6-Month Trends for Visual Charts (Apple HIG Chart.js)
+        $chartMonths = [];
+        $businessMonthlyTrend = [];
+        $userMonthlyTrend = [];
+        $revenueMonthlyTrend = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $year = $date->year;
+            $month = $date->month;
+            $chartMonths[] = $date->format('M y');
+
+            $businessMonthlyTrend[] = Business::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->count();
+
+            $userMonthlyTrend[] = User::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->count();
+
+            $revenueMonthlyTrend[] = (int) SubscriptionPayment::where('status', SubscriptionPayment::STATUS_APPROVED)
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->sum('total_payable');
+        }
+
+        // Subscription plan distribution
+        $subscriptionBreakdown = [
+            'free' => $freeSubscribersCount,
+            'monthly' => $coreMonthlyCount,
+            'annual' => $coreAnnualCount,
+        ];
+
+        // Ecosystem activity metrics
+        $ecosystemStats = [
+            'total_products' => $totalProducts,
+            'total_costing_runs' => $totalCostingRuns,
+            'total_ai_tokens_k' => (int) round($totalAiTokensConsumed / 1000),
+            'total_businesses' => $totalBusinesses,
+            'total_users' => $totalUsers,
+        ];
+
+        $conversionRate = $totalBusinesses > 0 ? round(($totalPaidSubscribers / $totalBusinesses) * 100, 1) : 0;
+        $avgProductsPerBusiness = $totalBusinesses > 0 ? round($totalProducts / $totalBusinesses, 1) : 0;
+        $avgCostingRunsPerBusiness = $totalBusinesses > 0 ? round($totalCostingRuns / $totalBusinesses, 1) : 0;
+
         return view('admin.dashboard', compact(
             'totalUsers',
             'totalBusinesses',
@@ -71,7 +117,16 @@ final class AdminDashboardController extends Controller
             'pendingSubscriptionsCount',
             'pendingSubscriptions',
             'recentUsers',
-            'recentBusinesses'
+            'recentBusinesses',
+            'chartMonths',
+            'businessMonthlyTrend',
+            'userMonthlyTrend',
+            'revenueMonthlyTrend',
+            'subscriptionBreakdown',
+            'ecosystemStats',
+            'conversionRate',
+            'avgProductsPerBusiness',
+            'avgCostingRunsPerBusiness'
         ));
     }
 }

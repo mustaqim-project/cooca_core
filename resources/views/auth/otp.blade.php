@@ -1,4 +1,4 @@
-@extends('layouts.public_marketing', ['title' => 'Verifikasi Keamanan - Cooca UMKM', 'noindex' => true])
+@extends('layouts.public_marketing', ['title' => 'Verifikasi Keamanan - Cooca', 'noindex' => true])
 
 @section('content')
     <div class="min-h-[calc(100vh-16rem)] flex flex-col justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8"
@@ -36,8 +36,11 @@
                         <i data-lucide="check-circle-2"
                             class="w-4 h-4 mt-0.5 text-[#34C759] dark:text-[#30D158] shrink-0"></i>
                         <div>
-                            <strong class="font-bold block text-[#34C759] dark:text-[#30D158]">Pemulihan Akun Berhasil Disetujui</strong>
-                            <p class="text-xs text-black/70 dark:text-white/70 mt-0.5">Nomor kontak pemulihan akun Anda telah dialihkan ke <span class="font-mono font-semibold">{{ $activeRecovery->new_phone }}</span>.</p>
+                            <strong class="font-bold block text-[#34C759] dark:text-[#30D158]">Pemulihan Akun Berhasil
+                                Disetujui</strong>
+                            <p class="text-xs text-black/70 dark:text-white/70 mt-0.5">Nomor kontak pemulihan akun Anda
+                                telah dialihkan ke <span
+                                    class="font-mono font-semibold">{{ $activeRecovery->new_phone }}</span>.</p>
                         </div>
                     </div>
                 @endif

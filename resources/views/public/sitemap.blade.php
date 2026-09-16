@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Peta Situs (HTML Sitemap) - Cooca UMKM')
-@section('description', 'Jelajahi seluruh halaman resmi Cooca UMKM: kalkulator bisnis gratis, panduan HPP & BEP, solusi
+@section('title', 'Peta Situs (HTML Sitemap) - Cooca')
+@section('description',
+    'Jelajahi seluruh halaman resmi Cooca: kalkulator bisnis gratis, panduan HPP & BEP, solusi
     kasir per industri, template pembukuan Excel, dan direktori bisnis.')
-@section('keywords', 'sitemap cooca, peta situs, navigasi cooca umkm, daftar kalkulator bisnis, direktori software
+@section('keywords',
+    'sitemap cooca, peta situs, navigasi Cooca, daftar kalkulator bisnis, direktori software
     kasir')
 
 @section('content')
@@ -17,7 +19,7 @@
             </div>
             <h1
                 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-tight">
-                Peta Situs Resmi <span class="text-[#007AFF] dark:text-[#0A84FF]">Cooca UMKM</span>
+                Peta Situs Resmi <span class="text-[#007AFF] dark:text-[#0A84FF]">Cooca</span>
             </h1>
             <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B] max-w-2xl mx-auto leading-relaxed">
                 Daftar lengkap seluruh halaman publik, modul kalkulator, solusi vertikal industri, dan pustaka edukasi

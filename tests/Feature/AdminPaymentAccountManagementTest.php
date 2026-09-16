@@ -45,6 +45,9 @@ class AdminPaymentAccountManagementTest extends TestCase
             'name' => 'Tenant Owner',
             'email' => 'owner@warung.com',
             'password' => Hash::make('password123'),
+            'email_verified_at' => now(),
+            'phone' => '6281234567890',
+            'phone_verified_at' => now(),
         ]);
 
         $this->business = Business::create([

@@ -21,6 +21,12 @@ class WhatsAppSession extends Model
         'phone_number',
         'device_name',
         'status',
+        'provider',
+        'meta_phone_number_id',
+        'meta_access_token',
+        'meta_waba_id',
+        'meta_template_name',
+        'is_active',
         'auto_send_receipt',
         'receipt_template',
         'last_connected_at',
@@ -32,6 +38,7 @@ class WhatsAppSession extends Model
     protected function casts(): array
     {
         return [
+            'is_active' => 'boolean',
             'auto_send_receipt' => 'boolean',
             'last_connected_at' => 'datetime',
         ];

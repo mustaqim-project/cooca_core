@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Pesanan Penjualan (Sales Orders) - Cooca UMKM',
+    'title' => 'Pesanan Penjualan (Sales Orders) - Cooca',
     'headerTitle' => 'Pesanan Penjualan (Sales Orders)',
     'headerSubtitle' => 'Kelola pesanan pelanggan terkonfirmasi, alokasi stok pengiriman, dan terbitkan faktur penagihan (Invoice).',
 ])

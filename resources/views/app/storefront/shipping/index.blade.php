@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Aturan Ongkir & Kurir Toko - Cooca UMKM'])
+@extends('layouts.app', ['title' => 'Aturan Ongkir & Kurir Toko - Cooca'])
 
 @section('content')
     <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{

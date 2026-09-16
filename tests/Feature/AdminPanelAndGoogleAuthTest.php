@@ -260,6 +260,44 @@ class AdminPanelAndGoogleAuthTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_update_customer_google_oauth_settings(): void
+    {
+        $admin = $this->makeAdmin();
+
+        $response = $this->actingAs($admin, 'admin')
+            ->post(route('admin.settings.update'), [
+                'app_name' => 'Universal HPP Enterprise',
+                'google_client_id' => 'test-client-id.apps.googleusercontent.com',
+                'google_client_secret' => 'GOCSPX-test-secret',
+                'google_redirect_uri' => 'https://example.com/auth/google/callback',
+                'google_customer_redirect_uri' => 'https://example.com/customer/auth/google/callback',
+                'allow_google_login' => '1',
+                'allow_customer_google_login' => '1',
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('system_settings', [
+            'key' => 'google_customer_redirect_uri',
+            'value' => 'https://example.com/customer/auth/google/callback',
+        ]);
+        $this->assertDatabaseHas('system_settings', [
+            'key' => 'allow_customer_google_login',
+            'value' => '1',
+        ]);
+    }
+
+    public function test_customer_google_redirect_is_blocked_when_disabled(): void
+    {
+        SystemSetting::set('allow_customer_google_login', '0');
+
+        $response = $this->get(route('customer.auth.google'));
+
+        $response->assertRedirect(route('customer.login'));
+        $response->assertSessionHasErrors(['google']);
+    }
+
     public function test_non_admin_cannot_access_admin_settings(): void
     {
         $user = $this->makeUser();

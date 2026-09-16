@@ -43,10 +43,18 @@ Route::prefix('customer')->name('customer.')->group(function (): void {
     Route::get('/auth/google', [CustomerGoogleAuthController::class, 'redirect'])->name('auth.google');
     Route::get('/auth/google/callback', [CustomerGoogleAuthController::class, 'callback'])->name('auth.google.callback');
 
-    // 2. Login Page (Displays Google OAuth CTA)
+    // 2. Login & Registration Pages
     Route::middleware('guest:customer')->group(function (): void {
         Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [CustomerAuthController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
+        Route::get('/register', [CustomerAuthController::class, 'showRegisterForm'])->name('register');
+        Route::post('/register', [CustomerAuthController::class, 'register'])->middleware('throttle:5,1')->name('register.submit');
     });
+
+    // Email verification link handler (signed public link)
+    Route::get('/email/verify/{id}/{hash}', [CustomerAuthController::class, 'verifyEmail'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
 
     Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
 
@@ -68,6 +76,10 @@ Route::prefix('customer')->name('customer.')->group(function (): void {
         Route::get('/otp', [CustomerOtpController::class, 'show'])->name('otp');
         Route::post('/otp/send', [CustomerOtpController::class, 'sendOtp'])->middleware('throttle:3,1')->name('otp.send');
         Route::post('/otp/verify', [CustomerOtpController::class, 'verify'])->middleware('throttle:10,1')->name('otp.verify');
+
+        // Customer Email Verification
+        Route::get('/email/verify', [CustomerAuthController::class, 'showVerificationNotice'])->name('verification.notice');
+        Route::post('/email/verification-notification', [CustomerAuthController::class, 'resendVerificationEmail'])->middleware('throttle:6,1')->name('verification.send');
 
         // Store Directory Browser
         Route::get('/stores', [CustomerPortalController::class, 'stores'])->name('stores');

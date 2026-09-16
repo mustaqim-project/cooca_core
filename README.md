@@ -1,11 +1,11 @@
-# 🏪 COOCA CORE - Platform Ekosistem SaaS Manajemen Bisnis & POS UMKM
+# 🏪 Cooca - Platform Ekosistem SaaS Manajemen Bisnis & POS UMKM
 
 [![Production](https://img.shields.io/badge/Production-umkm.cooca.id-emerald?style=flat-square&logo=googlechrome)](https://umkm.cooca.id)
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-red?style=flat-square&logo=laravel)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue?style=flat-square&logo=php)](https://php.net)
 [![License](https://img.shields.io/badge/License-Proprietary-slate?style=flat-square)](#)
 
-**COOCA Core** adalah platform manajemen bisnis all-in-one yang dirancang untuk UMKM Indonesia, mencakup kalkulasi Harga Pokok Penjualan (HPP) berbasis aktivitas (ABC), Point of Sale (POS), manajemen inventori multi-gudang, purchase & sales order, invoicing, CRM/loyalty, landing page builder publik, hingga integrasi WhatsApp Gateway otomatis.
+**Cooca** adalah platform manajemen bisnis all-in-one yang dirancang untuk UMKM Indonesia, mencakup kalkulasi Harga Pokok Penjualan (HPP) berbasis aktivitas (ABC), Point of Sale (POS), manajemen inventori multi-gudang, purchase & sales order, invoicing, CRM/loyalty, landing page builder publik, hingga integrasi WhatsApp Gateway otomatis.
 
 ---
 
@@ -19,7 +19,7 @@
 
 ---
 
-## 🚀 Fitur Utama COOCA Core
+## 🚀 Fitur Utama Cooca
 
 1. **POS & Terminal Kasir Modern**:
    - Dukungan scan barcode, hold/resume transaksi kasir, split bill, cetak struk A4/thermal, dan kirim struk instan via WhatsApp.
@@ -81,4 +81,4 @@ Akses lokal di browser: `http://127.0.0.1:1986`.
 ---
 
 ## 🔒 Lisensi
-Hak Cipta © 2026 **COOCA UMKM**. Seluruh hak cipta dilindungi undang-undang.
+Hak Cipta © 2026 **Cooca**. Seluruh hak cipta dilindungi undang-undang.

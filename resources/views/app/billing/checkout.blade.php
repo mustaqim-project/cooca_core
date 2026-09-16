@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Checkout Paket & Pembayaran - Cooca UMKM',
+    'title' => 'Checkout Paket & Pembayaran - Cooca',
     'headerTitle' => 'Pilih Paket & Metode Pembayaran',
-    'headerSubtitle' => 'Ikut program Patungan Cooca UMKM untuk akses fitur tanpa batas dan kolaborasi bisnis',
+    'headerSubtitle' => 'Ikut program Patungan Cooca untuk akses fitur tanpa batas dan kolaborasi bisnis',
 ])
 
 @section('content')
@@ -186,7 +186,7 @@
                     Pilih Paket &amp; Metode Pembayaran
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Ikut program Patungan Cooca UMKM untuk akses fitur tanpa batas dan kolaborasi bisnis berlisensi resmi.
+                    Ikut program Patungan Cooca untuk akses fitur tanpa batas dan kolaborasi bisnis berlisensi resmi.
                 </p>
             </div>
             <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
@@ -565,7 +565,7 @@
                                 Aktif Otomatis</h4>
                             <p class="text-emerald-800 dark:text-emerald-300 leading-relaxed">
                                 Anda memilih paket promo khusus (Rp 0). Bisnis Anda <strong>tidak perlu melakukan transfer
-                                    dana</strong> maupun mengunggah bukti bayar. Fitur Cooca UMKM akan langsung aktif
+                                    dana</strong> maupun mengunggah bukti bayar. Fitur Cooca akan langsung aktif
                                 seketika setelah menekan tombol konfirmasi.
                             </p>
                         </div>
@@ -664,7 +664,7 @@
                         <span
                             class="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">Ringkasan
                             Pesanan</span>
-                        <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-1">Cooca UMKM -
+                        <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-1">Cooca -
                             Patungan</h4>
                         <p
                             class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 flex items-center gap-1.5">

@@ -127,8 +127,8 @@ final class XlsxWriter
 
         return self::xmlHeader()
             . '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-            . '<dc:creator>' . self::esc($this->creator ?? 'Cooca Core') . '</dc:creator>'
-            . '<cp:lastModifiedBy>' . self::esc($this->creator ?? 'Cooca Core') . '</cp:lastModifiedBy>'
+            . '<dc:creator>' . self::esc($this->creator ?? 'Cooca') . '</dc:creator>'
+            . '<cp:lastModifiedBy>' . self::esc($this->creator ?? 'Cooca') . '</cp:lastModifiedBy>'
             . '<dcterms:created xsi:type="dcterms:W3CDTF">' . $created . '</dcterms:created>'
             . '<dcterms:modified xsi:type="dcterms:W3CDTF">' . $created . '</dcterms:modified>'
             . ($this->title !== null ? '<dc:title>' . self::esc($this->title) . '</dc:title>' : '')
@@ -139,7 +139,7 @@ final class XlsxWriter
     {
         return self::xmlHeader()
             . '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
-            . '<Application>Cooca Core</Application>'
+            . '<Application>Cooca</Application>'
             . '<TitlesOfParts><vt:vector size="' . $sheetCount . '" baseType="lpstr">'
             . str_repeat('<vt:lpstr>Cooca</vt:lpstr>', $sheetCount)
             . '</vt:vector></TitlesOfParts>'

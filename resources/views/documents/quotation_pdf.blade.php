@@ -244,7 +244,7 @@
         </div>
 
         <div class="footer">
-            Dibuat secara resmi melalui <strong>Cooca UMKM</strong> - cooca.id
+            Dibuat secara resmi melalui <strong>Cooca</strong> - cooca.id
         </div>
     </div>
 </body>

@@ -54,10 +54,7 @@ final class CustomerOtpController extends Controller
             if ($phone !== null) {
                 $otp    = (string) random_int(100000, 999999);
                 $wa     = $this->wa ?? app(\App\Domain\WhatsApp\AdminWhatsAppService::class);
-                $result = $wa->sendMessage(
-                    $phone,
-                    "Kode verifikasi WhatsApp COOCA Anda adalah *{$otp}*. Berlaku 10 menit. Jangan bagikan kode ini."
-                );
+                $result = $wa->sendOtp($phone, $otp);
 
                 $sent = (bool) ($result['success'] ?? false);
                 $isLocal = app()->environment('local', 'testing');
@@ -102,10 +99,7 @@ final class CustomerOtpController extends Controller
 
         $otp    = (string) random_int(100000, 999999);
         $wa     = $this->wa ?? app(\App\Domain\WhatsApp\AdminWhatsAppService::class);
-        $result = $wa->sendMessage(
-            $phone,
-            "Kode verifikasi WhatsApp COOCA Anda adalah *{$otp}*. Berlaku 10 menit. Jangan bagikan kode ini."
-        );
+        $result = $wa->sendOtp($phone, $otp);
 
         $sent = (bool) ($result['success'] ?? false);
         $isLocal = app()->environment('local', 'testing');

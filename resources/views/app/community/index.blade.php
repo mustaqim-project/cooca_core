@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'title' => 'Komunitas Owner - Cooca UMKM',
+    'title' => 'Komunitas Owner - Cooca',
     'headerTitle' => 'Komunitas Owner',
     'headerSubtitle' => 'Wadah eksklusif berbagi insight, kolaborasi bisnis, dan tips pertumbuhan UMKM',
 ])
@@ -60,7 +60,7 @@
                     </span>
                 </div>
                 <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Komunitas Owner Cooca UMKM
+                    Komunitas Owner Cooca
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                     Wadah eksklusif berbagi insight bisnis, bertukar pengalaman optimasi omset kasir, dan menjalin

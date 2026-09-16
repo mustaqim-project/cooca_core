@@ -15,18 +15,24 @@ use Illuminate\View\View;
 final class CustomerWebController extends Controller
 {
     /**
-     * Display a listing of customers with search and transaction counts.
+     * Display a unified listing of customers, members, and vouchers with segmented tabs.
      */
     public function index(Request $request): View
     {
         $business = Context::requireBusiness();
+        $tab = (string) $request->get('tab', 'customers');
+        if (! in_array($tab, ['customers', 'members', 'vouchers'], true)) {
+            $tab = 'customers';
+        }
 
-        $query = Customer::withCount(['invoices', 'purchaseOrders'])
+        // Tab 1: Commercial & General Customers
+        $customersQuery = Customer::where('business_id', $business->id)
+            ->withCount(['invoices', 'purchaseOrders'])
             ->latest();
 
         if ($request->filled('search')) {
             $search = (string) $request->get('search');
-            $query->where(function ($q) use ($search) {
+            $customersQuery->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('company_name', 'like', "%{$search}%")
                     ->orWhere('code', 'like', "%{$search}%")
@@ -34,17 +40,74 @@ final class CustomerWebController extends Controller
                     ->orWhere('email', 'like', "%{$search}%");
             });
         }
+        $customers = $customersQuery->paginate(15, ['*'], 'customers_page')->withQueryString();
 
-        $customers = $query->paginate(15)->withQueryString();
+        // Tab 2: CRM Members & Loyalty
+        $membersQuery = Customer::where('business_id', $business->id)
+            ->withCount('posOrders')
+            ->latest('total_spent');
 
+        if ($request->filled('tier') && $request->get('tier') !== 'all') {
+            $tierVal = strtolower((string) $request->get('tier'));
+            $membersQuery->whereRaw('LOWER(membership_tier) = ?', [$tierVal]);
+        }
+
+        if ($request->filled('segment') && $request->get('segment') !== 'all') {
+            $membersQuery->where('segment', $request->get('segment'));
+        }
+
+        if ($request->filled('search')) {
+            $search = (string) $request->get('search');
+            $membersQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('company_name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('member_search')) {
+            $mSearch = (string) $request->get('member_search');
+            $membersQuery->where(function ($q) use ($mSearch) {
+                $q->where('name', 'like', "%{$mSearch}%")
+                    ->orWhere('phone', 'like', "%{$mSearch}%")
+                    ->orWhere('email', 'like', "%{$mSearch}%");
+            });
+        }
+        $members = $membersQuery->paginate(15, ['*'], 'members_page')->withQueryString();
+
+        // Tab 3: Promotional Vouchers
+        $vouchers = \App\Models\Voucher::where('business_id', $business->id)
+            ->latest('created_at')
+            ->paginate(15, ['*'], 'vouchers_page')
+            ->withQueryString();
+
+        // Unified High-Level Bento Metrics
         $totalCustomers = Customer::where('business_id', $business->id)->count();
         $totalCorporate = Customer::where('business_id', $business->id)
             ->whereNotNull('company_name')
             ->where('company_name', '!=', '')
             ->count();
         $avgPaymentTerms = (int) round((float) (Customer::where('business_id', $business->id)->avg('payment_terms_days') ?: 30));
+        $totalPointsIssued = (int) Customer::where('business_id', $business->id)->sum('points_balance');
+        $totalCreditReceivable = (float) Customer::where('business_id', $business->id)->sum('current_credit_balance');
+        $totalVouchers = \App\Models\Voucher::where('business_id', $business->id)->count();
+        $activeVouchers = \App\Models\Voucher::where('business_id', $business->id)->where('is_active', true)->count();
 
-        return view('app.customers.index', compact('business', 'customers', 'totalCustomers', 'totalCorporate', 'avgPaymentTerms'));
+        return view('app.customers.index', compact(
+            'business',
+            'tab',
+            'customers',
+            'members',
+            'vouchers',
+            'totalCustomers',
+            'totalCorporate',
+            'avgPaymentTerms',
+            'totalPointsIssued',
+            'totalCreditReceivable',
+            'totalVouchers',
+            'activeVouchers'
+        ));
     }
 
     /**

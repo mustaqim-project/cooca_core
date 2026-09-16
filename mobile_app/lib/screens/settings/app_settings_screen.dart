@@ -67,7 +67,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _settingTile(
               icon: Icons.dns_rounded,
               title: 'API Base URL',
-              subtitle: 'Alamat server Laravel backend Cooca UMKM',
+              subtitle: 'Alamat server Laravel backend Cooca',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -225,7 +225,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _settingTile(
               icon: Icons.business_center_outlined,
               title: 'Powered By',
-              subtitle: 'Cooca UMKM - Platform Bisnis UMKM Indonesia',
+              subtitle: 'Cooca - Platform Bisnis UMKM Indonesia',
             ),
           ]),
           const SizedBox(height: 32),

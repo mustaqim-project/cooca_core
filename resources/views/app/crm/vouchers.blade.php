@@ -1,593 +1,360 @@
 @extends('layouts.app', [
-    'title' => 'Voucher & Kode Promo - Cooca UMKM',
-    'headerTitle' => 'Voucher & Kupon Promo',
-    'headerSubtitle' => 'Kelola kampanye kupon diskon, promosi kasir POS, dan reward loyalitas member',
+    'title' => 'Voucher & Kode Promo - Cooca',
+    'headerTitle' => 'Voucher & Kode Promo Kasir',
+    'headerSubtitle' => 'Kelola kampanye kupon diskon persentase (%) atau nominal potongan langsung (Rp) untuk transaksi checkout kasir POS.',
 ])
 
 @section('content')
-    <div class="space-y-6 pb-12" x-data="{
-        showCreateModal: false,
+    <div class="space-y-6 pb-16" x-data="{
+        showVoucherModal: false,
         copiedCode: null,
-        previewCode: 'DISKON10',
-        previewName: 'Promo Spesial Member',
-        previewType: 'percentage',
-        previewValue: 10,
-        previewMinOrder: 50000,
-        previewMaxDiscount: 20000,
-        previewTier: 'all',
-    
-        copyCode(code) {
+
+        copyVoucher(code) {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(code);
             }
             this.copiedCode = code;
             setTimeout(() => this.copiedCode = null, 2500);
-        },
-    
-        setPreset(type, val, name, code) {
-            this.previewType = type;
-            this.previewValue = val;
-            this.previewName = name;
-            this.previewCode = code;
-            const codeInput = document.querySelector('input[name=\'code\']');
-            const nameInput = document.querySelector('input[name=\'name\']');
-            const typeSelect = document.querySelector('select[name=\'discount_type\']');
-            const valInput = document.querySelector('input[name=\'discount_value\']');
-            if (codeInput) codeInput.value = code;
-            if (nameInput) nameInput.value = name;
-            if (typeSelect) typeSelect.value = type;
-            if (valInput) valInput.value = val;
         }
     }">
 
-        <!-- 0. Standard Breadcrumb Bar -->
-        <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}"
-                class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                <span>Dashboard</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <a href="{{ route('crm.members.index') }}"
-                class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                <i data-lucide="heart-handshake" class="w-3.5 h-3.5"></i>
-                <span>CRM &amp; Loyalitas</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-900 dark:text-white font-bold flex items-center gap-1.5">
-                <span>Voucher &amp; Kupon Promo</span>
-            </span>
-        </nav>
-
-        <!-- 1. Top Header Banner (Seukuran Dashboard Penuh) -->
-        <div
-            class="bg-white dark:bg-slate-900/90 p-5 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 transition-colors">
-            <div class="space-y-1.5 max-w-3xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold border inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90">
-                        <i data-lucide="ticket" class="w-3.5 h-3.5"></i>
-                        <span>Marketing &amp; Diskon POS</span>
-                    </span>
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs font-bold border inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 font-mono">
-                        Total: {{ $vouchers->total() }} Kupon
-                    </span>
-                </div>
-                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Voucher &amp; Kode Promo Kasir
-                </h1>
-                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Tingkatkan frekuensi belanja pelanggan dengan kode kupon diskon persentase (%) atau nominal tetap (Rp)
-                    saat transaksi POS.
-                </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-                <a href="{{ route('crm.members.index') }}"
-                    class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition cursor-pointer shadow-2xs flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span>Kembali ke CRM</span>
+        <!-- ========================================================================= -->
+        <!-- 0. APPLE HIG BREADCRUMB & UNIFIED SEGMENTED CONTROL                        -->
+        <!-- ========================================================================= -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <nav class="flex items-center gap-2 text-xs font-medium text-black/45 dark:text-white/45" aria-label="Breadcrumb">
+                <a href="{{ route('dashboard') }}" class="hover:text-black dark:hover:text-white transition-colors flex items-center gap-1.5">
+                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                    <span>Dashboard</span>
                 </a>
-                @if (\App\Support\Context::hasPermission('crm.manage'))
-                    <button type="button" @click="showCreateModal = true"
-                        class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                        <span>Buat Voucher Baru</span>
-                    </button>
-                @endif
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
+                <a href="{{ route('customers.index') }}" class="hover:text-black dark:hover:text-white transition-colors">
+                    Pelanggan &amp; Loyalitas
+                </a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
+                <span class="text-black dark:text-white font-bold">Voucher Diskon Kasir</span>
+            </nav>
+
+            <!-- Apple HIG Segmented Control -->
+            <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] backdrop-blur-md border border-black/[0.04] dark:border-white/[0.06] self-stretch sm:self-auto overflow-x-auto">
+                <a href="{{ route('customers.index', ['tab' => 'customers']) }}"
+                    class="h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold transition-all flex items-center justify-center gap-2 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white whitespace-nowrap cursor-pointer">
+                    <i data-lucide="users" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>Direktori Pelanggan</span>
+                </a>
+                <a href="{{ route('crm.members.index') }}"
+                    class="h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold transition-all flex items-center justify-center gap-2 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white whitespace-nowrap cursor-pointer">
+                    <i data-lucide="award" class="w-4 h-4 text-[#FF9500]"></i>
+                    <span>Member &amp; Poin</span>
+                </a>
+                <a href="{{ route('crm.vouchers.index') }}"
+                    class="h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold transition-all flex items-center justify-center gap-2 bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs whitespace-nowrap cursor-pointer">
+                    <i data-lucide="ticket" class="w-4 h-4 text-[#34C759]"></i>
+                    <span>Voucher Diskon Kasir</span>
+                    <span class="ml-1 text-[11px] px-1.5 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] tabular-nums">{{ $vouchers->total() }}</span>
+                </a>
             </div>
         </div>
 
         <!-- Flash Alert -->
         @if (session('success'))
-            <div
-                class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-3 shadow-xs">
+            <div class="p-4 rounded-[16px] bg-[#34C759]/10 border border-[#34C759]/20 text-[#34C759] text-[13px] font-semibold flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5">
-                    <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                    <span class="font-semibold">{{ session('success') }}</span>
+                    <i data-lucide="check-circle-2" class="w-5 h-5 shrink-0"></i>
+                    <span>{{ session('success') }}</span>
                 </div>
-                <button type="button" @click="$el.parentElement.remove()"
-                    class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200">
+                <button type="button" @click="$el.parentElement.remove()" class="text-[#34C759] hover:opacity-70">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
         @endif
 
-        <!-- 2. 4 Command Pillars KPI Cards (Grid Penuh 4 Kolom) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <!-- Pillar 1: Total Vouchers -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Total
-                            Kupon Promo</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                            <i data-lucide="ticket" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight truncate">
-                        {{ $vouchers->total() }}
+        <!-- ========================================================================= -->
+        <!-- 1. BENTO HERO KPI TILES                                                   -->
+        <!-- ========================================================================= -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Tile 1: Total Vouchers -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Total Kupon Promo</span>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                        <i data-lucide="ticket" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Kampanye</span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300">Dibuat</span>
+                <div class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-black dark:text-white tabular-nums">
+                    {{ $totalVouchers }}
+                </div>
+                <div class="text-[11px] text-black/50 dark:text-white/50">
+                    <span>Program potongan belanja kasir</span>
                 </div>
             </div>
 
-            <!-- Pillar 2: Active Coupons -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Kupon
-                            Siap Pakai</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-800/80 flex items-center justify-center text-teal-600 dark:text-teal-400">
-                            <i data-lucide="check-circle" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight truncate">
-                        {{ $vouchers->where('is_active', true)->count() }}
+            <!-- Tile 2: Active Vouchers -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Voucher Aktif</span>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                        <i data-lucide="zap" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Status</span>
-                    <span class="font-bold text-emerald-600 dark:text-emerald-400">Aktif di Kasir POS</span>
+                <div class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-[#007AFF] tabular-nums">
+                    {{ $activeVouchers }}
+                </div>
+                <div class="text-[11px] text-black/50 dark:text-white/50">
+                    <span>Dapat langsung dipakai kasir saat ini</span>
                 </div>
             </div>
 
-            <!-- Pillar 3: Total Claims / Usage -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Total
-                            Klaim Voucher</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200/80 dark:border-cyan-800/80 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div
-                        class="text-xl sm:text-2xl lg:text-3xl font-black text-cyan-600 dark:text-cyan-400 font-mono tracking-tight truncate">
-                        {{ number_format($vouchers->sum('used_count'), 0, ',', '.') }}
+            <!-- Tile 3: Total Pemakaian -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Total Klaim Kasir</span>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Penebusan Diskon</span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300 font-mono">Pelanggan</span>
+                <div class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-[#FF9500] tabular-nums">
+                    {{ $vouchers->sum('used_count') }} <span class="text-base font-normal">Kali</span>
+                </div>
+                <div class="text-[11px] text-black/50 dark:text-white/50">
+                    <span>Total pemakaian kupon diskon</span>
                 </div>
             </div>
 
-            <!-- Pillar 4: Integrasi POS -->
-            <div
-                class="bg-white dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Metode
-                            Promo</span>
-                        <div
-                            class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                            <i data-lucide="percent" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div class="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
-                        % dan Nominal Tetap
-                    </div>
-                </div>
-                <div
-                    class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Penerapan</span>
-                    <span class="font-bold text-amber-600 dark:text-amber-400 font-mono">Otomatis Kasir</span>
+            <!-- Tile 4: Action Tray -->
+            <div class="p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Aksi Kupon</span>
+                <div class="pt-2">
+                    @if (\App\Support\Context::hasPermission('crm.manage'))
+                        <button type="button" @click="showVoucherModal = true"
+                            class="w-full h-11 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold shadow-[0_2px_8px_rgba(0,122,255,0.3)] transition cursor-pointer flex items-center justify-center gap-2">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                            <span>+ Buat Kupon Baru</span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <!-- 3. Vouchers Perforated Card Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse($vouchers as $v)
-                @php
-                    $isPercentage = $v->discount_type === 'percentage';
-                    $isActive = (bool) $v->is_active;
-                    $tierEligible = strtolower($v->tier_eligibility ?? 'all');
-                    $tierLabel = match ($tierEligible) {
-                        'platinum' => 'Platinum Member',
-                        'gold' => 'Gold Member',
-                        'silver' => 'Silver Member',
-                        'bronze' => 'Bronze Member',
-                        default => 'Semua Pelanggan',
-                    };
-                    $usagePct = $v->usage_limit ? min(100, round(($v->used_count / $v->usage_limit) * 100)) : 0;
-                @endphp
+        <!-- ========================================================================= -->
+        <!-- 2. VOUCHERS GRID BENTO CONTAINER                                          -->
+        <!-- ========================================================================= -->
+        <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+                <div class="space-y-1">
+                    <h3 class="text-base font-bold text-black dark:text-white">Voucher &amp; Kode Promo Kasir</h3>
+                    <p class="text-[13px] text-black/60 dark:text-white/60">
+                        Kode kupon dapat diinput oleh kasir pada saat checkout POS untuk memberikan potongan harga otomatis.
+                    </p>
+                </div>
+                @if (\App\Support\Context::hasPermission('crm.manage'))
+                    <button type="button" @click="showVoucherModal = true"
+                        class="h-11 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-semibold transition cursor-pointer flex items-center gap-2 shrink-0">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>+ Buat Kupon Baru</span>
+                    </button>
+                @endif
+            </div>
 
-                <!-- Perforated Ticket Card Style -->
-                <div
-                    class="rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 shadow-xs flex flex-col justify-between relative overflow-hidden transition hover:border-emerald-500/40 group">
+            <!-- Vouchers Grid -->
+            @if ($vouchers->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    @foreach ($vouchers as $v)
+                        <div class="rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] relative space-y-4 transition hover:-translate-y-0.5">
+                            <!-- Header Voucher Card -->
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono text-base font-black tracking-wider text-black dark:text-white bg-black/[0.05] dark:bg-white/[0.08] px-2.5 py-1 rounded-[8px] border border-black/[0.08] dark:border-white/[0.1]">
+                                            {{ $v->code }}
+                                        </span>
+                                        <button type="button" @click="copyVoucher('{{ $v->code }}')"
+                                            class="p-1.5 rounded-[8px] text-black/40 hover:text-[#007AFF] hover:bg-[#007AFF]/10 transition cursor-pointer" title="Salin Kode">
+                                            <i data-lucide="copy" class="w-4 h-4"></i>
+                                        </button>
+                                        <template x-if="copiedCode === '{{ $v->code }}'">
+                                            <span class="text-[11px] text-[#34C759] font-bold">Tersalin!</span>
+                                        </template>
+                                    </div>
+                                    <h4 class="font-bold text-[14px] text-black dark:text-white">{{ $v->name }}</h4>
+                                </div>
 
-                    <!-- Card Top: Voucher Name & Code -->
-                    <div class="p-5 sm:p-6 space-y-4">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="space-y-1 min-w-0">
-                                <span
-                                    class="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold block truncate">
-                                    {{ $v->name }}
+                                <!-- Status Badge -->
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $v->is_active ? 'bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20' : 'bg-black/10 dark:bg-white/10 text-black/50 dark:text-white/50' }}">
+                                    {{ $v->is_active ? 'Aktif' : 'Nonaktif' }}
                                 </span>
+                            </div>
 
-                                <!-- Discount Highlight -->
-                                <div
-                                    class="text-2xl sm:text-3xl font-black font-mono tracking-tight {{ $isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500' }}">
-                                    @if ($isPercentage)
-                                        {{ $v->discount_value }}% <span
-                                            class="text-xs font-sans uppercase font-bold text-slate-500 dark:text-slate-400">OFF</span>
+                            <!-- Discount Detail -->
+                            <div class="p-3 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-1">
+                                <div class="text-[11px] text-black/50 dark:text-white/50 uppercase font-semibold">Potongan Diskon</div>
+                                <div class="text-xl font-bold text-[#FF9500]">
+                                    @if ($v->discount_type === 'percentage')
+                                        {{ (float) $v->discount_value }}%
+                                        @if ($v->max_discount_amount)
+                                            <span class="text-xs font-normal text-black/50 dark:text-white/50">(Maks. Rp {{ number_format($v->max_discount_amount, 0, ',', '.') }})</span>
+                                        @endif
                                     @else
-                                        <span class="text-sm font-sans">Rp</span>
-                                        {{ number_format($v->discount_value, 0, ',', '.') }} <span
-                                            class="text-xs font-sans uppercase font-bold text-slate-500 dark:text-slate-400">POTONGAN</span>
+                                        Rp {{ number_format($v->discount_value, 0, ',', '.') }}
                                     @endif
+                                </div>
+                                <div class="text-[11px] text-black/60 dark:text-white/60">
+                                    Min. Belanja: <strong>Rp {{ number_format($v->min_order_amount ?: 0, 0, ',', '.') }}</strong>
                                 </div>
                             </div>
 
-                            <!-- Active Toggle Button -->
-                            <form action="{{ route('crm.vouchers.toggle', $v->id) }}" method="POST" class="shrink-0">
-                                @csrf
-                                <button type="submit"
-                                    class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border transition shadow-2xs cursor-pointer {{ $isActive ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200' }}"
-                                    title="Klik untuk mengubah status aktif/non-aktif">
-                                    {{ $isActive ? 'Aktif' : 'Non-Aktif' }}
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Ticket Voucher Code Copy Box -->
-                        <div
-                            class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 shadow-inner">
-                            <div class="flex items-center gap-2 min-w-0">
-                                <i data-lucide="tag" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                                <span
-                                    class="font-mono font-black text-sm tracking-wider text-slate-900 dark:text-white truncate">
-                                    {{ $v->code }}
-                                </span>
-                            </div>
-                            <button type="button" @click="copyCode('{{ $v->code }}')"
-                                class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center gap-1 shrink-0 cursor-pointer shadow-2xs"
-                                title="Salin Kode Kupon">
-                                <i data-lucide="copy" class="w-3 h-3" x-show="copiedCode !== '{{ $v->code }}'"></i>
-                                <i data-lucide="check" class="w-3 h-3 text-emerald-600 dark:text-emerald-400"
-                                    x-show="copiedCode === '{{ $v->code }}'" x-cloak></i>
-                                <span class="text-[10px]"
-                                    x-text="copiedCode === '{{ $v->code }}' ? 'Tersalin' : 'Salin'"></span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Perforated Ticket Divider with Notches -->
-                    <div class="relative flex items-center">
-                        <div
-                            class="w-4 h-8 bg-slate-100 dark:bg-slate-950 rounded-r-full -ml-2 border-r border-slate-200 dark:border-slate-800">
-                        </div>
-                        <div class="flex-1 border-b-2 border-dashed border-slate-200 dark:border-slate-800 mx-2"></div>
-                        <div
-                            class="w-4 h-8 bg-slate-100 dark:bg-slate-950 rounded-l-full -mr-2 border-l border-slate-200 dark:border-slate-800">
-                        </div>
-                    </div>
-
-                    <!-- Card Bottom: Conditions, Tier, Usage & Validity -->
-                    <div class="p-5 sm:p-6 space-y-4 pt-4">
-                        <div class="space-y-2 text-xs text-slate-700 dark:text-slate-300">
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-500 dark:text-slate-400">Min. Belanja:</span>
-                                <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
-                                    {{ $v->min_order_amount > 0 ? 'Rp ' . number_format($v->min_order_amount, 0, ',', '.') : 'Tanpa Minimum' }}
-                                </span>
-                            </div>
-
-                            @if ($v->max_discount_amount)
-                                <div class="flex justify-between items-center">
-                                    <span class="text-slate-500 dark:text-slate-400">Maks. Potongan:</span>
-                                    <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
-                                        Rp {{ number_format($v->max_discount_amount, 0, ',', '.') }}
+                            <!-- Usage & Validity Info -->
+                            <div class="text-[12px] space-y-1 text-black/60 dark:text-white/60">
+                                <div class="flex items-center justify-between">
+                                    <span>Pemakaian:</span>
+                                    <span class="font-mono font-bold text-black dark:text-white tabular-nums">
+                                        {{ $v->used_count }} / {{ $v->usage_limit ?: '∞' }} kali
                                     </span>
                                 </div>
-                            @endif
-
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-500 dark:text-slate-400">Target Member:</span>
-                                <span
-                                    class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-amber-700 dark:text-amber-300 uppercase">
-                                    {{ $tierLabel }}
-                                </span>
+                                <div class="flex items-center justify-between">
+                                    <span>Berlaku s/d:</span>
+                                    <span>{{ $v->valid_until ? $v->valid_until->format('d M Y') : 'Tanpa Batas Waktu' }}</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Usage Progress Bar (If limit exists) -->
-                        <div class="space-y-1.5 pt-1">
-                            <div class="flex items-center justify-between text-[11px] font-mono">
-                                <span class="text-slate-500 dark:text-slate-400">
-                                    Terpakai: <strong
-                                        class="text-slate-900 dark:text-white font-bold">{{ $v->used_count }}</strong>{{ $v->usage_limit ? ' / ' . $v->usage_limit : '' }}
-                                    kali
-                                </span>
-                                @if ($v->usage_limit)
-                                    <span class="text-slate-500 font-bold">{{ $usagePct }}%</span>
-                                @else
-                                    <span
-                                        class="text-emerald-600 dark:text-emerald-400 font-bold text-[10px]">Unlimited</span>
-                                @endif
-                            </div>
-                            @if ($v->usage_limit)
-                                <div
-                                    class="w-full h-1.5 bg-slate-100 dark:bg-slate-950 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800">
-                                    <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
-                                        style="width: {{ $usagePct }}%"></div>
+                            <!-- Toggle Status Button -->
+                            @if (\App\Support\Context::hasPermission('crm.manage'))
+                                <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06]">
+                                    <form method="POST" action="{{ route('crm.vouchers.toggle', $v->id) }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="w-full h-9 rounded-[10px] text-[12px] font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 {{ $v->is_active ? 'bg-[#FF3B30]/10 text-[#FF3B30] hover:bg-[#FF3B30]/20' : 'bg-[#34C759]/10 text-[#34C759] hover:bg-[#34C759]/20' }}">
+                                            <i data-lucide="{{ $v->is_active ? 'power-off' : 'power' }}" class="w-3.5 h-3.5"></i>
+                                            <span>{{ $v->is_active ? 'Nonaktifkan Kupon' : 'Aktifkan Kupon' }}</span>
+                                        </button>
+                                    </form>
                                 </div>
                             @endif
                         </div>
-
-                        <!-- Validity Period -->
-                        <div
-                            class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                            <div class="flex items-center gap-1">
-                                <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
-                                <span>
-                                    @if ($v->valid_until)
-                                        Berlaku s/d {{ $v->valid_until->format('d/m/Y') }}
-                                    @else
-                                        Tanpa Masa Kadaluarsa
-                                    @endif
-                                </span>
-                            </div>
-                            <span class="text-slate-400 dark:text-slate-600">ID: {{ substr($v->id, 0, 6) }}</span>
-                        </div>
-                    </div>
-
+                    @endforeach
                 </div>
-            @empty
-                <!-- Empty State -->
-                <div
-                    class="col-span-full py-16 px-6 text-center space-y-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-dashed border-slate-200 dark:border-slate-800 shadow-xs">
-                    <div
-                        class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 flex items-center justify-center mx-auto shadow-inner">
-                        <i data-lucide="ticket-x" class="w-8 h-8"></i>
+
+                <!-- Pagination Vouchers -->
+                @if ($vouchers->hasPages())
+                    <div class="p-4 rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08]">
+                        {{ $vouchers->links() }}
+                    </div>
+                @endif
+            @else
+                <!-- Empty State Vouchers -->
+                <div class="rounded-[20px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/[0.06] dark:border-white/[0.08] py-16 px-6 text-center space-y-4">
+                    <div class="w-14 h-14 rounded-[18px] bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
+                        <i data-lucide="ticket" class="w-7 h-7"></i>
                     </div>
                     <div class="space-y-1 max-w-sm mx-auto">
-                        <h4 class="text-base font-black text-slate-900 dark:text-white">Belum Ada Kupon Voucher Dibuat</h4>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Buat kode promo diskon menarik untuk pelanggan setia atau kampanye potongan harga saat checkout
-                            kasir POS.
+                        <h4 class="text-[15px] font-bold text-black dark:text-white">Belum Ada Kupon Promosi</h4>
+                        <p class="text-[13px] text-black/50 dark:text-white/50 leading-relaxed">
+                            Buat kode voucher pertama untuk menarik pelanggan lama datang kembali belanja di kasir toko Anda.
                         </p>
                     </div>
                     @if (\App\Support\Context::hasPermission('crm.manage'))
                         <div class="pt-2">
-                            <button type="button" @click="showCreateModal = true"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 transition cursor-pointer">
-                                <i data-lucide="plus" class="w-4 h-4"></i>
-                                <span>Buat Voucher Pertama</span>
+                            <button type="button" @click="showVoucherModal = true"
+                                class="h-11 px-5 rounded-[12px] bg-[#007AFF] text-white text-[13px] font-semibold hover:bg-[#0071E3] transition cursor-pointer">
+                                + Terbitkan Kupon Pertama
                             </button>
                         </div>
                     @endif
                 </div>
-            @endforelse
+            @endif
         </div>
 
-        <!-- Pagination -->
-        @if ($vouchers->hasPages())
-            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
-                {{ $vouchers->links() }}
-            </div>
-        @endif
-
+        <!-- ========================================================================= -->
+        <!-- MODAL: BUAT VOUCHER DISKON PROMOSI BARU                                   -->
+        <!-- ========================================================================= -->
         @if (\App\Support\Context::hasPermission('crm.manage'))
-            <!-- Modal: Buat Voucher Baru (With Live Coupon Preview) -->
-            <div x-show="showCreateModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all"
-                @keydown.escape.window="showCreateModal = false">
-
-                <div class="w-full max-w-xl p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-5 relative max-h-[90vh] overflow-y-auto"
-                    @click.away="showCreateModal = false">
-
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div x-show="showVoucherModal" x-cloak
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition"
+                @keydown.escape.window="showVoucherModal = false">
+                <div class="w-full max-w-lg rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl overflow-hidden p-6 space-y-5"
+                    @click.away="showVoucherModal = false">
+                    
+                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
                         <div class="flex items-center gap-2.5">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                                <i data-lucide="ticket-plus" class="w-5 h-5"></i>
+                            <div class="w-9 h-9 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                                <i data-lucide="ticket" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h3 class="text-base font-black text-slate-900 dark:text-white">Buat Voucher Promo Baru
-                                </h3>
-                                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Diskon Kasir &amp;
-                                    Loyalty POS</span>
+                                <h3 class="font-bold text-[15px] text-black dark:text-white">Buat Voucher Promosi Baru</h3>
+                                <p class="text-[12px] text-black/50 dark:text-white/50">Diskon kasir POS dan loyalitas pelanggan</p>
                             </div>
                         </div>
-                        <button type="button" @click="showCreateModal = false"
-                            class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+                        <button type="button" @click="showVoucherModal = false"
+                            class="p-1 rounded-[8px] text-black/40 hover:text-black dark:hover:text-white transition cursor-pointer">
                             <i data-lucide="x" class="w-5 h-5"></i>
                         </button>
                     </div>
 
-                    <!-- Quick Presets -->
-                    <div class="space-y-1.5">
-                        <span
-                            class="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider block">Pilih
-                            Template Promo Cepat:</span>
-                        <div class="flex flex-wrap gap-2">
-                            <button type="button" @click="setPreset('percentage', 10, 'Diskon Spesial 10%', 'HEMAT10')"
-                                class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Diskon
-                                10%</button>
-                            <button type="button" @click="setPreset('percentage', 20, 'Diskon Spesial 20%', 'DISKON20')"
-                                class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Diskon
-                                20%</button>
-                            <button type="button" @click="setPreset('fixed', 15000, 'Potongan Rp 15 Ribu', 'POTONG15K')"
-                                class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Potongan
-                                15K</button>
-                            <button type="button" @click="setPreset('fixed', 50000, 'Potongan Rp 50 Ribu', 'VIP50K')"
-                                class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer">Potongan
-                                50K</button>
-                        </div>
-                    </div>
-
-                    <!-- Live Ticket Preview Card -->
-                    <div
-                        class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-emerald-500/30 flex items-center justify-between gap-3 shadow-inner">
-                        <div class="space-y-0.5 min-w-0">
-                            <span
-                                class="text-[9px] font-mono uppercase text-emerald-600 dark:text-emerald-400 font-bold tracking-wider block">Live
-                                Preview Kupon POS</span>
-                            <div class="text-xs font-bold text-slate-900 dark:text-white truncate"
-                                x-text="previewName || 'Nama Kupon'"></div>
-                            <div class="text-sm sm:text-base font-black font-mono text-emerald-600 dark:text-emerald-400"
-                                x-text="previewType === 'percentage' ? ((previewValue || 0) + '% OFF') : ('Rp ' + Number(previewValue || 0).toLocaleString('id-ID') + ' OFF')">
-                            </div>
-                        </div>
-                        <div class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-mono font-black text-xs text-slate-900 dark:text-white tracking-widest uppercase shrink-0 shadow-2xs"
-                            x-text="previewCode || 'KODE'"></div>
-                    </div>
-
-                    <form action="{{ route('crm.vouchers.store') }}" method="POST" class="space-y-4 text-xs">
+                    <form method="POST" action="{{ route('crm.vouchers.store') }}" class="space-y-4 pt-2">
                         @csrf
-
-                        <!-- Code & Name -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                    Kode Voucher <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text" name="code" required x-model="previewCode"
-                                    placeholder="Contoh: PROMO10"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 uppercase font-mono text-slate-900 dark:text-white font-bold focus:outline-hidden transition">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-bold text-black dark:text-white">Kode Voucher <span class="text-[#FF3B30]">*</span></label>
+                                <input type="text" name="code" required placeholder="Contoh: HEMAT10K"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] font-mono font-bold text-[16px] sm:text-[14px] uppercase text-black dark:text-white focus:outline-hidden focus:border-[#007AFF]">
                             </div>
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                    Nama Kampanye Promo <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text" name="name" required x-model="previewName"
-                                    placeholder="Contoh: Diskon Pelanggan Baru"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
+
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-bold text-black dark:text-white">Nama Kupon <span class="text-[#FF3B30]">*</span></label>
+                                <input type="text" name="name" required placeholder="Contoh: Diskon Pembukaan"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-hidden focus:border-[#007AFF]">
                             </div>
                         </div>
 
-                        <!-- Discount Type & Value -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">Tipe
-                                    Diskon</label>
-                                <select name="discount_type" x-model="previewType"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-bold text-black dark:text-white">Tipe Potongan <span class="text-[#FF3B30]">*</span></label>
+                                <select name="discount_type" required
+                                    class="w-full h-11 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white focus:outline-hidden">
                                     <option value="percentage">Persentase (%)</option>
                                     <option value="fixed">Nominal Tetap (Rp)</option>
                                 </select>
                             </div>
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
-                                    Besaran Nilai Diskon <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="number" step="any" name="discount_value" required
-                                    x-model.number="previewValue" placeholder="Misal: 10 atau 20000"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-mono font-bold focus:outline-hidden transition">
+
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-bold text-black dark:text-white">Nilai Diskon (% atau Rp) <span class="text-[#FF3B30]">*</span></label>
+                                <input type="number" name="discount_value" required min="0" step="any" placeholder="Contoh: 10 atau 15000"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] font-mono font-bold text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-hidden">
                             </div>
                         </div>
 
-                        <!-- Min Order & Max Discount -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">Min.
-                                    Belanja Pesanan (Rp)</label>
-                                <input type="number" name="min_order_amount" value="0"
-                                    placeholder="0 jika tanpa batas"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-mono focus:outline-hidden transition">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Min. Belanja Transaksi (Rp)</label>
+                                <input type="number" name="min_order_amount" min="0" placeholder="0"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] font-mono text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-hidden">
                             </div>
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">Maks.
-                                    Potongan Diskon (Rp)</label>
-                                <input type="number" name="max_discount_amount" placeholder="Kosongkan jika tanpa batas"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-mono focus:outline-hidden transition">
+
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Maks. Potongan (Jika %)</label>
+                                <input type="number" name="max_discount_amount" min="0" placeholder="Contoh: 25000"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] font-mono text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-hidden">
                             </div>
                         </div>
 
-                        <!-- Validity & Usage Limit -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">Berlaku
-                                    Dari</label>
-                                <input type="date" name="valid_from"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Batas Kuota Pemakaian</label>
+                                <input type="number" name="usage_limit" min="1" placeholder="Kosongkan jika tak terbatas"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-hidden">
                             </div>
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">Berlaku
-                                    Sampai</label>
+
+                            <div class="space-y-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Berlaku Sampai Tanggal</label>
                                 <input type="date" name="valid_until"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
-                            </div>
-                            <div class="space-y-1.5">
-                                <label
-                                    class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">Batas
-                                    Kuota Pakai</label>
-                                <input type="number" name="usage_limit" placeholder="Bebas / Unlimited"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-mono focus:outline-hidden transition">
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white focus:outline-hidden">
                             </div>
                         </div>
 
-                        <!-- Tier Eligibility -->
-                        <div class="space-y-1.5">
-                            <label
-                                class="block text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">Target
-                                Khusus Tier Membership</label>
-                            <select name="tier_eligibility"
-                                class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-hidden transition">
-                                <option value="all">Semua Pelanggan / Umum</option>
-                                <option value="bronze">Khusus Member Bronze Ke Atas</option>
-                                <option value="silver">Khusus Member Silver Ke Atas</option>
-                                <option value="gold">Khusus Member Gold Ke Atas</option>
-                                <option value="platinum">Eksklusif Member Platinum</option>
-                            </select>
-                        </div>
-
-                        <!-- Actions -->
-                        <div
-                            class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-                            <button type="button" @click="showCreateModal = false"
-                                class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition cursor-pointer">
-                                Batal
-                            </button>
+                        <div class="pt-2">
                             <button type="submit"
-                                class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition flex items-center gap-1.5 cursor-pointer">
-                                <i data-lucide="check" class="w-4 h-4"></i>
-                                <span>Simpan &amp; Rilis Voucher</span>
+                                class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[14px] shadow-[0_2px_8px_rgba(0,122,255,0.3)] transition cursor-pointer">
+                                🎟️ Terbitkan Voucher Promo
                             </button>
                         </div>
                     </form>
