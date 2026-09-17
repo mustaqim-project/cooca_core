@@ -320,4 +320,109 @@ final class PaymentGatewayRemediationSuiteTest extends TestCase
         $response = $this->actingAs($this->user)->post(route('storefront.orders.sync_gateway', $order->id));
         $response->assertStatus(302); // Redirect back with flash notification
     }
+
+    public function test_pos_terminal_incoming_orders_endpoint_exposes_paid_status_and_gateway_data(): void
+    {
+        $order = PosOrder::create([
+            'business_id' => $this->business->id,
+            'user_id' => $this->user->id,
+            'order_number' => 'ORD-INCOMING-001',
+            'order_date' => Carbon::today()->toDateString(),
+            'subtotal' => 25000,
+            'total_amount' => 25000,
+            'paid_amount' => 25000,
+            'status' => PosOrder::STATUS_CONFIRMED,
+            'payment_gateway' => PosOrder::GATEWAY_TRIPAY,
+            'payment_channel' => 'QRIS',
+            'gateway_reference' => 'DEV-TINCOMING001',
+            'table_or_reference' => 'Meja 05',
+        ]);
+
+        $response = $this->actingAs($this->user)->getJson(route('pos.incoming-orders'));
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'success',
+            'orders' => [
+                '*' => ['id', 'order_number', 'is_paid', 'payment_gateway', 'paid_amount', 'status_badge'],
+            ],
+        ]);
+    }
+
+    public function test_pos_terminal_pay_table_order_with_paid_qr_order_completes_without_double_charge(): void
+    {
+        $order = PosOrder::create([
+            'business_id' => $this->business->id,
+            'user_id' => $this->user->id,
+            'order_number' => 'ORD-TABLE-PAID-001',
+            'order_date' => Carbon::today()->toDateString(),
+            'subtotal' => 50000,
+            'total_amount' => 50000,
+            'paid_amount' => 50000,
+            'status' => PosOrder::STATUS_CONFIRMED,
+            'payment_gateway' => PosOrder::GATEWAY_TRIPAY,
+            'payment_channel' => 'QRIS',
+            'gateway_reference' => 'DEV-TPAID001',
+            'table_or_reference' => 'Meja 02',
+        ]);
+
+        // When cashier closes an already paid table order, no payments array is required
+        $response = $this->actingAs($this->user)->postJson(route('pos.orders.pay-table', $order->id), []);
+        $response->assertOk();
+        $response->assertJson(['success' => true]);
+
+        $order->refresh();
+        $this->assertEquals(PosOrder::STATUS_COMPLETED, $order->status);
+    }
+
+    public function test_payment_settlement_web_controller_index_and_reconcile_endpoints(): void
+    {
+        // 1. Test Index View
+        $response = $this->actingAs($this->user)->get(route('finance.settlements.index'));
+        $response->assertOk();
+        $response->assertViewIs('app.finance.settlements.index');
+
+        // 2. Test Reconcile POST action
+        $commerceOrder = CommerceOrder::create([
+            'business_id' => $this->business->id,
+            'order_number' => 'ORD-SETTLE-HTTP-001',
+            'tracking_token' => (string) Str::uuid(),
+            'customer_name' => 'Pelanggan Settle HTTP',
+            'customer_phone' => '081299998888',
+            'order_type' => CommerceOrder::TYPE_DIRECT_CHECKOUT,
+            'status' => CommerceOrder::STATUS_PAID,
+            'payment_status' => CommerceOrder::PAYMENT_PAID,
+            'payment_gateway' => CommerceOrder::GATEWAY_TRIPAY,
+            'payment_channel' => 'QRIS',
+            'gateway_fee' => 700,
+            'subtotal' => 100000,
+            'shipping_cost' => 0,
+            'total_amount' => 100000,
+            'paid_at' => now(),
+        ]);
+
+        $postData = [
+            'settlement_number' => 'STL-HTTP-001',
+            'settlement_date' => Carbon::today()->toDateString(),
+            'destination_bank' => 'BCA Toko Operasional',
+            'notes' => 'Pencairan TriPay via Web Controller',
+            'fee_amount' => 700,
+            'allocations' => [
+                [
+                    'payment_type' => 'commerce_order',
+                    'payment_id' => $commerceOrder->id,
+                    'amount' => 100000,
+                ],
+            ],
+        ];
+
+        $reconcileResponse = $this->actingAs($this->user)->post(route('finance.settlements.reconcile'), $postData);
+        $reconcileResponse->assertStatus(302); // Redirect back with success toast
+        $reconcileResponse->assertSessionHas('success');
+
+        $this->assertDatabaseHas('payment_settlements', [
+            'business_id' => $this->business->id,
+            'settlement_number' => 'STL-HTTP-001',
+            'status' => 'completed',
+        ]);
+    }
 }
