@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Pos;
 
+use App\Domain\Payment\TripayService;
 use App\Domain\Pos\PosOrderService;
 use App\Http\Controllers\Controller;
 use App\Models\PosOrder;
 use App\Models\PosTable;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,7 +20,8 @@ use Throwable;
 final class PublicQrOrderWebController extends Controller
 {
     public function __construct(
-        private readonly PosOrderService $orderService = new PosOrderService
+        private readonly PosOrderService $orderService = new PosOrderService,
+        private readonly TripayService $tripayService = new TripayService()
     ) {}
 
     /**
@@ -105,6 +108,8 @@ final class PublicQrOrderWebController extends Controller
             'customer_name' => ['required', 'string', 'min:2', 'max:150'],
             'customer_phone' => ['required', 'string', 'min:8', 'max:30'],
             'notes' => ['nullable', 'string', 'max:500'],
+            'payment_mode' => ['nullable', 'string', 'in:pay_now,pay_at_cashier'],
+            'payment_channel' => ['nullable', 'string', 'max:64'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'string'],
             'items.*.quantity' => ['required', 'numeric', 'min:1'],
@@ -122,18 +127,54 @@ final class PublicQrOrderWebController extends Controller
                 orderNotes: $validated['notes'] ?? null
             );
 
+            $paymentMode = $validated['payment_mode'] ?? 'pay_at_cashier';
+            $paymentChannel = $validated['payment_channel'] ?? 'QRIS';
+            $paymentData = null;
+
+            if ($paymentMode === 'pay_now') {
+                $tripayRes = $this->tripayService->createPosOrderTransaction($order, $paymentChannel);
+
+                if ($tripayRes['success'] ?? false) {
+                    $order->update([
+                        'status' => PosOrder::STATUS_WAITING_PAYMENT,
+                        'payment_gateway' => PosOrder::GATEWAY_TRIPAY,
+                        'payment_channel' => $tripayRes['payment_method'] ?? $paymentChannel,
+                        'gateway_reference' => $tripayRes['reference'] ?? null,
+                        'gateway_pay_code' => $tripayRes['pay_code'] ?? null,
+                        'gateway_pay_url' => $tripayRes['checkout_url'] ?? null,
+                        'gateway_qr_url' => $tripayRes['qr_url'] ?? null,
+                        'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
+                        'gateway_fee' => (float) ($tripayRes['fee'] ?? 0.0),
+                        'gateway_expired_at' => isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                    ]);
+
+                    $paymentData = [
+                        'gateway' => 'tripay',
+                        'channel' => $tripayRes['payment_method'] ?? $paymentChannel,
+                        'reference' => $tripayRes['reference'] ?? null,
+                        'pay_code' => $tripayRes['pay_code'] ?? null,
+                        'qr_url' => $tripayRes['qr_url'] ?? null,
+                        'qr_string' => $tripayRes['qr_string'] ?? null,
+                        'checkout_url' => $tripayRes['checkout_url'] ?? null,
+                        'expired_time' => $tripayRes['expired_time'] ?? (time() + 1800),
+                    ];
+                }
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'Pesanan berhasil dikirim ke kasir.',
+                'message' => $paymentMode === 'pay_now' ? 'Silakan scan QRIS untuk menyelesaikan pesanan.' : 'Pesanan berhasil dikirim ke kasir.',
                 'order' => [
                     'id' => $order->id,
                     'order_number' => $order->order_number,
                     'total_amount' => (float) $order->total_amount,
                     'status' => $order->status,
+                    'is_paid' => $order->isPaid(),
                     'table_number' => $table->table_number,
                     'customer_name' => $order->customer_name_guest,
                     'created_at' => $order->created_at->format('H:i'),
                 ],
+                'payment' => $paymentData,
             ]);
         } catch (Throwable $e) {
             return response()->json([
@@ -159,6 +200,12 @@ final class PublicQrOrderWebController extends Controller
                 'id' => $order->id,
                 'order_number' => $order->order_number,
                 'status' => $order->status,
+                'is_paid' => $order->isPaid(),
+                'payment_gateway' => $order->payment_gateway,
+                'payment_channel' => $order->payment_channel,
+                'gateway_qr_url' => $order->gateway_qr_url,
+                'gateway_qr_string' => $order->gateway_qr_string,
+                'gateway_pay_code' => $order->gateway_pay_code,
                 'total_amount' => (float) $order->total_amount,
                 'rejection_reason' => $order->rejection_reason,
                 'items' => $order->items->map(fn ($item) => [
@@ -168,6 +215,29 @@ final class PublicQrOrderWebController extends Controller
                     'notes' => $item->notes,
                 ]),
             ],
+        ]);
+    }
+
+    /**
+     * Polling endpoint for live table order payment status.
+     */
+    public function checkStatus(string $qrToken, PosOrder $order): JsonResponse
+    {
+        $table = PosTable::where('qr_token', $qrToken)->firstOrFail();
+        if ($order->pos_table_id !== $table->id) {
+            abort(403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'order_number' => $order->order_number,
+            'status' => $order->status,
+            'is_paid' => $order->isPaid(),
+            'payment_gateway' => $order->payment_gateway,
+            'payment_channel' => $order->payment_channel,
+            'gateway_qr_url' => $order->gateway_qr_url,
+            'paid_amount' => (float) $order->paid_amount,
+            'total_amount' => (float) $order->total_amount,
         ]);
     }
 }

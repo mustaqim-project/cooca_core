@@ -24,15 +24,16 @@ class WhatsAppWebController extends Controller
      */
     public function index(): View
     {
-        $business  = Context::requireBusiness();
-        $waSession = WhatsAppSession::where('business_id', $business->id)->first();
+        $business        = Context::requireBusiness();
+        $waSession       = WhatsAppSession::where('business_id', $business->id)->first();
+        $whatsAppAccount = \App\Models\WhatsAppAccount::where('business_id', $business->id)->first();
 
         // Hanya baca status dari database lokal - jangan hit WA server saat halaman dibuka.
         // QR akan diambil via AJAX (/qr endpoint) hanya saat user klik tombol secara eksplisit.
         $qrDataUrl  = null;
-        $liveStatus = strtolower($waSession?->status ?? 'disconnected');
+        $liveStatus = strtolower($waSession?->status ?? ($whatsAppAccount?->status ?? 'disconnected'));
 
-        return view('app.whatsapp.index', compact('business', 'waSession', 'qrDataUrl', 'liveStatus'));
+        return view('app.whatsapp.index', compact('business', 'waSession', 'whatsAppAccount', 'qrDataUrl', 'liveStatus'));
     }
 
     /**
@@ -266,7 +267,7 @@ class WhatsAppWebController extends Controller
 
         return response()->json([
             'success' => $ok,
-            'message' => $ok ? 'Struk berhasil dikirim via WhatsApp! ✅' : 'Gagal mengirim struk. Pastikan WhatsApp terhubung.',
+            'message' => $ok ? 'Struk berhasil dikirim via WhatsApp.' : 'Gagal mengirim struk. Pastikan WhatsApp terhubung.',
         ]);
     }
 

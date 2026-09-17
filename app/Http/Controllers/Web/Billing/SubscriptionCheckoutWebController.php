@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\Billing;
 
 use App\Domain\Billing\EntitlementService;
+use App\Domain\Payment\TripayService;
 use App\Http\Controllers\Controller;
 use App\Models\PaymentAccount;
 use App\Models\BillingPackage;
 use App\Models\SubscriptionPayment;
 use App\Models\SystemSetting;
 use App\Support\Context;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 final class SubscriptionCheckoutWebController extends Controller
 {
     public function __construct(
-        private readonly EntitlementService $entitlementService = new EntitlementService
+        private readonly EntitlementService $entitlementService = new EntitlementService(),
+        private readonly TripayService $tripayService = new TripayService()
     ) {}
 
     /**
@@ -154,9 +159,43 @@ final class SubscriptionCheckoutWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
 
+        // If payment method is QRIS and gateway not initialized, trigger TriPay dynamic QRIS
+        if ($payment->payment_method === 'qris' && empty($payment->gateway_qr_url) && $payment->status === SubscriptionPayment::STATUS_PENDING) {
+            try {
+                $tripayRes = $this->tripayService->createSubscriptionTransaction($payment, 'QRIS');
+                if ($tripayRes['success'] ?? false) {
+                    $payment->update([
+                        'payment_gateway'   => SubscriptionPayment::GATEWAY_TRIPAY,
+                        'gateway_reference' => $tripayRes['reference'] ?? null,
+                        'gateway_pay_code'  => $tripayRes['pay_code'] ?? null,
+                        'gateway_pay_url'   => $tripayRes['checkout_url'] ?? null,
+                        'gateway_qr_url'    => $tripayRes['qr_url'] ?? null,
+                        'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
+                        'gateway_fee'       => (float) ($tripayRes['fee'] ?? 0.0),
+                        'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                    ]);
+                    $payment->refresh();
+                }
+            } catch (\Throwable $e) {
+                Log::warning('[SubscriptionCheckout] TriPay subscription auto-init failed: ' . $e->getMessage());
+            }
+        }
+
         $methodDetails = $payment->getPaymentMethodDetails();
 
         return view('app.billing.payment', compact('business', 'payment', 'methodDetails'));
+    }
+
+    public function checkStatus(SubscriptionPayment $payment): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($payment->business_id === $business->id, 403);
+
+        return response()->json([
+            'success' => true,
+            'status'  => $payment->status,
+            'is_paid' => $payment->isPaid(),
+        ]);
     }
 
     /**

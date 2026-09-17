@@ -43,37 +43,25 @@
             </div>
         </header>
 
+        @php
+            $isWaConnected = ($whatsAppAccount && $whatsAppAccount->isConnected()) || ($waSession && $waSession->isConnected());
+        @endphp
+
         <!-- Gateway Status & Warning Banner (Apple Tinted Banner) -->
-        @if (! $waSession || ! $waSession->is_active)
-            <div class="p-4 rounded-[14px] bg-[#FF3B30]/12 border border-[#FF3B30]/20 text-[#C41E17] dark:text-[#FF453A] text-[13px] font-medium flex items-center gap-3">
-                <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 text-[#FF3B30]"></i>
-                <div>
-                    <strong class="font-semibold">Layanan WhatsApp Bisnis Sedang Nonaktif!</strong>
-                    <span class="ml-1">Silakan aktifkan kembali layanan WhatsApp di <a href="{{ route('whatsapp.index') }}" class="underline font-semibold hover:opacity-80">Pengaturan Gateway</a> untuk mendistribusikan blast pesan.</span>
-                </div>
-            </div>
-        @elseif ($waSession->provider === 'meta_cloud' && (empty($waSession->meta_access_token) || empty($waSession->meta_phone_number_id)))
+        @if (! $isWaConnected)
             <div class="p-4 rounded-[14px] bg-[#FF9500]/12 border border-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] text-[13px] font-medium flex items-center gap-3">
                 <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 text-[#FF9500]"></i>
                 <div>
-                    <strong class="font-semibold">Kredensial Meta Cloud API Belum Lengkap!</strong>
-                    <span class="ml-1">Lengkapi Token dan Phone Number ID di <a href="{{ route('whatsapp.index') }}" class="underline font-semibold hover:opacity-80">Pengaturan WhatsApp</a> terlebih dahulu.</span>
+                    <strong class="font-semibold">WhatsApp Resmi Meta Belum Terhubung!</strong>
+                    <span class="ml-1">Silakan sambungkan akun WhatsApp Business API Anda di <a href="{{ route('whatsapp.index') }}" class="underline font-semibold hover:opacity-80">Pengaturan WhatsApp</a> terlebih dahulu agar sistem dapat mendistribusikan blast pesan ke pelanggan.</span>
                 </div>
             </div>
-        @elseif ($waSession->provider === 'baileys' && $waSession->status !== 'connected')
-            <div class="p-4 rounded-[14px] bg-[#FF9500]/12 border border-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] text-[13px] font-medium flex items-center gap-3">
-                <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 text-[#FF9500]"></i>
+        @else
+            <div class="p-4 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[12.5px] font-medium flex items-center gap-3">
+                <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 text-[#34C759]"></i>
                 <div>
-                    <strong class="font-semibold">WhatsApp Gateway Belum Terhubung!</strong>
-                    <span class="ml-1">Anda harus <a href="{{ route('whatsapp.index') }}" class="underline font-semibold hover:opacity-80">memindai QR code WhatsApp</a> terlebih dahulu agar sistem dapat mendistribusikan blast pesan ke pelanggan.</span>
-                </div>
-            </div>
-        @elseif ($waSession->provider === 'baileys' && $waSession->status === 'connected')
-            <div class="p-4 rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[12.5px] text-black/75 dark:text-white/75 flex items-start gap-3">
-                <i data-lucide="shield-alert" class="w-5 h-5 shrink-0 text-[#FF9500] mt-0.5"></i>
-                <div>
-                    <strong class="text-[#B25E00] dark:text-[#FF9F0A] font-bold">⚠️ Peringatan Risiko Blokir (Baileys Scan QR):</strong>
-                    <span class="ml-1">Mengirimkan blast promosi ke banyak kontak via scan QR berisiko memicu banned dari Meta. Sistem akan menerapkan jeda acak 3–5 detik antar pesan otomatis demi keselamatan nomor bisnis Anda.</span>
+                    <span class="font-semibold">Meta WhatsApp Cloud API Terhubung:</span>
+                    <span class="ml-1 text-black/70 dark:text-white/70">Pesan blast promosi akan dikirim melalui WhatsApp resmi ({{ $whatsAppAccount?->display_phone_number ?? $whatsAppAccount?->phone_number_id ?? 'Akun Toko' }}) dengan jaminan keamanan delivery Meta.</span>
                 </div>
             </div>
         @endif
@@ -197,7 +185,7 @@
                         </div>
 
                         <textarea name="message" id="msgTextarea" x-model="message" rows="6" required
-                            placeholder="Halo {nama} 👋&#10;Ada promo spesial dari {{ $business->name }} untuk tier {tier}!&#10;&#10;Dapatkan diskon 20% khusus hari ini. Tunjukkan pesan ini ke kasir 🎉"
+                            placeholder="Halo {nama},&#10;Ada promo spesial dari {{ $business->name }} untuk tier {tier}!&#10;&#10;Dapatkan diskon 20% khusus hari ini. Tunjukkan pesan ini ke kasir."
                             @input="updatePreview()"
                             class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] p-3.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none font-sans placeholder:text-black/35 dark:placeholder:text-white/35 leading-relaxed transition-colors">{{ old('message') }}</textarea>
 

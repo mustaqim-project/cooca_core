@@ -182,11 +182,13 @@ Dilarang `p-6`/`p-8` pada kartu mobile (memotong 48–64px dari layar 360–390p
 - Dark: background `#000000`/`#1C1C1E`, kartu `#1C1C1E`/`#2C2C2E`, teks utama `#FFFFFF`, sekunder `dark:text-white/60`, hairline `border-white/[0.08]`.
 - Dilarang fill solid jenuh di kartu/banner — gunakan tinted badge pill (`bg-{color}/12 text-{color}`) hanya untuk status siklus hidup (lihat §3).
 
-## 14. Modal-First & Apple Bottom Sheets
+## 14. Modal-First Standar Full Layout XXL & Responsif Multi-Device
 
 - Halaman index: Create/Show/Edit **wajib** modal sheet, zero page-jumps. Filter, pencarian, sorting, posisi pagination tetap tersimpan saat modal ditutup.
-- **Desktop (md+)**: Centered Modal, frosted glass (`sm:max-w-xl sm:rounded-[20px]`).
-- **Mobile (<md)**: Apple Bottom Sheet dari bawah, `rounded-t-[28px]`, grab bar (`w-10 h-1.5 bg-gray-300 rounded-full mx-auto my-2`), `max-h-[85vh] overflow-y-auto`.
+- **Mandat Full Layout XXL**: Dilarang modal sempit (`max-w-md` atau `max-w-lg`) untuk form operasional ERP/transaksi/master-detail.
+- **Desktop (>= 1024px)**: **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto rounded-[24px] max-h-[90vh] flex flex-col`), frosted glass (`backdrop-blur-2xl bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] shadow-2xl`), layout multi-kolom Bento (8 kolom utama + 4 kolom ringkasan), sticky header & sticky footer action bar.
+- **Tablet (640px – 1023px)**: **Centered Responsive Bento Modal** (`w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl mx-auto rounded-[22px] max-h-[90vh] flex flex-col`), layout 2-kolom seimbang, touch target tombol 44px–48px.
+- **Mobile (< 640px)**: **Apple Full-Responsive Bottom Sheet** dari bawah layar (`w-full inset-x-0 bottom-0 rounded-t-[28px] max-h-[94vh] flex flex-col overflow-hidden`), grab bar (`w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto my-2.5 shrink-0`), input font minimal 16px (`text-[16px] sm:text-[14px]`) anti auto-zoom, sticky bottom action bar dengan safe area padding (`pb-[max(1rem,env(safe-area-inset-bottom))]`).
 
 ## 15. Inline Quick-Add `[ + ]`
 

@@ -58,11 +58,11 @@ AI Agent bertindak sebagai:
 6. **Otomasi Sistem Penuh (*Total System Automation Directive*):** Mengeliminasi pekerjaan manual pengguna. Transaksi, jurnal akuntansi, pemotongan stok bahan baku (BOM), penerbitan invoice, dan notifikasi WhatsApp wajib berjalan otomatis di latar belakang.
 7. **Bento UI Lintas Perangkat:** Smartphone (360px–430px), Tablet Kasir POS (768px–1024px), dan Desktop (1280px–1920px+) wajib menggunakan konsep Bento Apple HIG yang terpadu (squircle kontinu, frosted glass vibrancy, palet semantik resmi, tipografi tabular, white space 8pt grid).
 8. **Dual-Footer Architecture:** Antarmuka smartphone/tablet dilengkapi **Full-Style Floating Bottom Navigation Bar (iOS 18)** mengambang di bawah layar (`fixed bottom-3`) dengan *Elevated Center Action Button*, sedangkan desktop memakai **Clean Minimalist Hairline Footer**.
-9. **Modal-First pada Halaman Index:** Seluruh aksi Show (Detail), Create (Tambah Baru), dan Edit (Ubah) disajikan dalam bentuk pop-up modal sheet langsung di halaman index tanpa redirect (*zero navigation jumps*), menjaga filter, pencarian, dan pagination tetap utuh.
+9. **Modal-First pada Halaman Index (Full Layout XXL & Responsif):** Seluruh aksi Show (Detail), Create (Tambah Baru), dan Edit (Ubah) disajikan dalam bentuk pop-up modal sheet berukuran **Full Layout XXL (`max-w-5xl` s/d `max-w-7xl`)** langsung di halaman index tanpa redirect (*zero navigation jumps*), menjaga filter, pencarian, dan pagination tetap utuh, dengan adaptabilitas responsif sempurna di Desktop, Tablet, dan Mobile.
 10. **Inline Quick-Add `[ + ]` pada Dropdown:** Menyediakan tombol `[ + ]` di samping dropdown master relasi yang membuka pop-up instan, menyimpan via AJAX, dan memilih opsi baru secara otomatis (*auto-select*) tanpa me-reset form utama.
 11. **Pengujian Otomatis 100% Bebas Eror:** Seluruh kode wajib dibuktikan dengan eksekusi testing otomatis nyata yang lolos 100% (0 failure, 0 error) sebelum dinyatakan selesai.
 12. **Source Code Siap Produksi & Pembersihan Data Testing:** Kode program bersih dari mock/stub/bypass, bebas fungsi debug mentah (`dd()`, `dump()`, `ray()`, `console.log()`), database dibersihkan dari record testing, dan aset terkompilasi rilis produksi.
-13. **Dokumentasi Berkelanjutan 3 Lapis:** Memperbarui Layer 1 (`docs/AiWorkHistory.md`), Layer 2 (`docs/system/`), dan Layer 3 (`docs/SYSTEM_GUIDE.md`) secara konsisten di setiap siklus rekayasa.
+13. **Dokumentasi Berkelanjutan 3 Lapis (Mandat Pembaruan Simultan Wajib):** Setiap pekerjaan rekayasa WAJIB memperbarui Layer 1 (`docs/AiWorkHistory.md`), Layer 2 (`docs/system/`), dan Layer 3 (`docs/SYSTEM_GUIDE.md`). **Selain mencatatkan riwayat pada `docs/AiWorkHistory.md`, AI Agent WAJIB secara bersamaan memperbarui Master System Guide `docs/SYSTEM_GUIDE.md`!** Dilarang keras hanya mencatat riwayat pada `AiWorkHistory.md` tanpa menyelaraskan `SYSTEM_GUIDE.md`.
 
 ---
 
@@ -171,7 +171,7 @@ FIX AND RETEST (Wajib 100% lolos tanpa eror)
     ↓
 PRODUCTION HARDENING (De-mocking, Test Data Purge, Zero Debug)
     ↓
-UPDATE DOCUMENTATION (AiWorkHistory.md, docs/system/, SYSTEM_GUIDE.md)
+UPDATE DOCUMENTATION (AiWorkHistory.md + SYSTEM_GUIDE.md + docs/system/ — WAJIB SIMULTAN)
     ↓
 FINAL AUDIT (Verifikasi Checklist DoD)
 ```
@@ -583,12 +583,119 @@ Dirancang khusus agar dapat dioperasikan secara percaya diri oleh generasi **Boo
 
 # 17. MANDAT MASTER-DETAIL POP-UP / MODAL SHEET FIRST & INLINE QUICK-ADD
 
-## 17.1 Modal-First Architecture pada Halaman Index
+## 17.1 Modal-First Architecture pada Halaman Index & Standar Full Layout XXL
 * Operasi **Show (Detail)**, **Create (Tambah Baru)**, dan **Edit (Ubah)** pada seluruh halaman index **WAJIB DISEDIAKAN DALAM BENTUK POP-UP / MODAL SHEET LANGSUNG DI HALAMAN INDEX TANPA REDIRECT (*Zero Navigation Jumps*)**.
 * Filter pencarian, filter kategori, sorting, dan posisi pagination tetap utuh saat modal ditutup.
-* **Tampilan Adaptif Modal:**
-  - **Desktop (md+)**: Centered Modal frosted glass halus (`sm:max-w-xl sm:rounded-[20px]`).
-  - **Mobile (< md)**: **Apple Bottom Sheet** meluncur dari bawah (`rounded-t-[28px]`, grab bar indikator `w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto my-2`, `max-h-[85vh] overflow-y-auto`).
+* **Standar Ukuran: Wajib Full Layout XXL untuk Seluruh Operasi Utama**:
+  - DILARANG menggunakan modal sempit (`max-w-md` atau `max-w-lg`) untuk form ERP, transaksi, dan master-detail karena membuat form berjejal, memicu scroll vertikal berlebihan, dan memotong tabel rincian transaksi.
+  - Seluruh modal operasional (Tambah/Ubah Produk, Pembelian, Penjualan POS, Customer CRM, Kas & Bank, Approval Langganan, Jurnal, dan Laporan) **WAJIB menggunakan Full Layout XXL (`max-w-5xl` hingga `max-w-7xl` / `max-w-[95vw]`)** yang lapang, elegan, dan memanfaatkan ruang layar monitor desktop secara optimal.
+
+### 17.1.1 Matriks Responsivitas Modal Pop-Up Lintas Perangkat (Desktop, Tablet, Mobile)
+
+| Parameter Desain | Layar Desktop (>= 1024px) | Layar Tablet Kasir & iPad (640px – 1023px) | Layar Smartphone Mobile (< 640px) |
+|---|---|---|---|
+| **Tipe Kontainer** | **Full Layout XXL Centered Bento Dialog** | **Centered Responsive Bento Modal** | **Apple Full-Responsive Bottom Sheet** meluncur dari bawah layar |
+| **Dimensi Lebar** | `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto` | `w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl mx-auto` | `w-full max-w-full inset-x-0 bottom-0` |
+| **Ketinggian (Height)** | `max-h-[90vh] sm:max-h-[92vh] flex flex-col my-auto` | `max-h-[90vh] flex flex-col my-auto` | `max-h-[94vh] flex flex-col` |
+| **Radius Sudut** | `rounded-[24px]` squircle kontinu Apple | `rounded-[22px]` squircle kontinu Apple | `rounded-t-[28px]` membulat di sudut atas |
+| **Pegangan (Grab Bar)** | Tidak ada | Tidak ada | Wajib (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5`) |
+| **Struktur Grid Body** | **Multi-Kolom Bento 2 s/d 3 Kolom** (`grid grid-cols-1 lg:grid-cols-12 gap-6`) | **2 Kolom Seimbang** (`grid grid-cols-1 md:grid-cols-2 gap-4`) | **1 Kolom Vertikal Murni** (`grid-cols-1 gap-3.5`) |
+| **Header Modal** | Sticky frosted glass, Title 20px, subheadline, close button | Sticky frosted glass, Title 18px, close button | Sticky header ringkas, Title 17px, close button (target 44px) |
+| **Footer Aksi** | Sticky bottom frosted glass, tombol rata kanan `justify-end gap-3.5` | Sticky bottom frosted glass, tombol rata kanan `justify-end gap-3` | Sticky bottom action bar menempel jempol, tombol full-width, padding safe area |
+| **Font Input Form** | `text-[14px]` | `text-[14px]` – `text-[15px]` | **Wajib minimal 16px (`text-[16px] sm:text-[14px]`) (anti auto-zoom iOS)** |
+| **Touch Target Tombol** | `h-10` s/d `h-11` (40px–44px) | `h-11` s/d `h-12` (44px–48px) | `h-12` (48px–52px) nyaman jempol |
+
+### 17.1.2 Anatomi 3-Bagian Baku Modal XXL Bento Apple HIG
+1. **Header Modal (Sticky Top)**:
+   - Kontainer: `sticky top-0 z-20 backdrop-blur-xl bg-white/95 dark:bg-[#1C1C1E]/95 border-b border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between gap-4`.
+   - Sisi Kiri: Ikon squircle berlatar lembut (`w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF]`) + Judul Title 2 tebal + Subtitle teks murni (*Zero Eyebrow Pill / Zero Emoji*).
+   - Sisi Kanan: Tombol tutup Apple Circle Close Button (`w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.1] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] text-black/60 dark:text-white/60 flex items-center justify-center active:scale-95 transition-all`).
+2. **Body Konten XXL (Scrollable Bento Container)**:
+   - Kontainer: `flex-1 overflow-y-auto p-5 sm:p-8 space-y-6 overscroll-contain sidebar-scroll`.
+   - Di Desktop: Mampu memuat grid 12 kolom bento (misal: 8 kolom rincian barang/transaksi + 4 kolom kartu kalkulasi moneter, status, dan data relasi) tanpa sesak.
+   - Di Tablet: Mampu memuat 2 kolom modular berdampingan yang seimbang dan mudah diisi saat tablet kasir diposisikan landscape/portrait.
+   - Di Mobile: Alur 1 kolom vertikal yang lapang dengan ruang sentuh lega.
+3. **Footer Aksi (Sticky Bottom Action Bar)**:
+   - Kontainer: `sticky bottom-0 z-20 backdrop-blur-xl bg-white/95 dark:bg-[#1C1C1E]/95 border-t border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-8 py-3.5 sm:py-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-3`.
+   - Sisi Kiri: Pesan penenang jiwa (*No-Panic Feedback*) dengan ikon Lucide `info`: *"Tenang, riwayat transaksi Anda aman tersimpan."*
+   - Sisi Kanan: Tombol pemicu aksi satu kata kerja murni (**"Batal"** sekunder + **"Simpan"** primary Apple System Blue `h-11 sm:h-12 px-6 rounded-[12px] font-semibold text-white bg-[#007AFF] shadow-sm hover:brightness-105 active:scale-[0.98]`).
+
+### 17.1.3 Template Kode Baku Blade Modal XXL Responsif
+```html
+<!-- Modal Backdrop & Container Wrapper -->
+<div x-show="showModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-modal="true" role="dialog">
+    <!-- Backdrop Overlay -->
+    <div x-show="showModal"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @click="showModal = false"
+        class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm transition-opacity"></div>
+
+    <!-- Alignment Wrapper: Bottom Sheet di Mobile, Centered di Tablet & Desktop -->
+    <div class="fixed inset-0 z-10 overflow-y-auto flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6">
+        <!-- Modal Card XXL -->
+        <div x-show="showModal"
+            x-transition:enter="ease-out duration-300 transform"
+            x-transition:enter-start="translate-y-full sm:translate-y-0 sm:scale-95 opacity-0"
+            x-transition:enter-end="translate-y-0 sm:scale-100 opacity-100"
+            x-transition:leave="ease-in duration-200 transform"
+            x-transition:leave-start="translate-y-0 sm:scale-100 opacity-100"
+            x-transition:leave-end="translate-y-full sm:translate-y-0 sm:scale-95 opacity-0"
+            @click.outside="showModal = false"
+            class="w-full max-w-full sm:max-w-[92vw] md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[94vh] sm:max-h-[90vh] flex flex-col rounded-t-[28px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border-t sm:border border-black/[0.08] dark:border-white/[0.12] shadow-2xl overflow-hidden">
+            
+            <!-- Mobile Grabber Bar -->
+            <div class="w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5 sm:hidden shrink-0"></div>
+
+            <!-- Sticky Modal Header -->
+            <div class="sticky top-0 z-20 backdrop-blur-xl bg-white/95 dark:bg-[#1C1C1E]/95 border-b border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5 min-w-0">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-lg sm:text-xl font-bold text-black dark:text-white truncate">Judul Modal XXL</h3>
+                        <p class="text-xs sm:text-sm text-black/50 dark:text-white/50 truncate">Subheadline penjelasan fungsional singkat</p>
+                    </div>
+                </div>
+                <button type="button" @click="showModal = false" class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.1] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] text-black/60 dark:text-white/60 flex items-center justify-center active:scale-95 transition-all" title="Tutup">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Scrollable Content Body (Multi-Kolom Bento) -->
+            <div class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6 overscroll-contain">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Area Utama (8 Kolom di Desktop) -->
+                    <div class="lg:col-span-8 space-y-5">
+                        <!-- Komponen Form / Tabel Bento -->
+                    </div>
+                    <!-- Area Samping / Ringkasan (4 Kolom di Desktop) -->
+                    <div class="lg:col-span-4 space-y-5">
+                        <!-- Ringkasan Moneter / Status Bento -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sticky Modal Footer -->
+            <div class="sticky bottom-0 z-20 backdrop-blur-xl bg-white/95 dark:bg-[#1C1C1E]/95 border-t border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-8 py-3.5 sm:py-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                <div class="hidden sm:flex items-center gap-2 text-xs text-black/50 dark:text-white/50">
+                    <i data-lucide="info" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>Data tersimpan dengan enkripsi aman di cloud.</span>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <button type="button" @click="showModal = false" class="w-full sm:w-auto h-11 px-5 rounded-[12px] text-sm font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] active:scale-[0.98] transition-all">Batal</button>
+                    <button type="button" class="w-full sm:w-auto h-11 px-6 rounded-[12px] text-sm font-semibold bg-[#007AFF] text-white shadow-sm hover:brightness-105 active:scale-[0.98] transition-all">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+```
 
 ## 17.2 Inline Quick-Add Trigger `[ + ]` pada Dropdown / Select Option
 Setiap dropdown master yang membutuhkan data relasi (Kategori, Satuan, Supplier, Pelanggan, Rekening Kas) **WAJIB menyediakan tombol `[ + ]` tepat di samping kanan dropdown**:
@@ -740,7 +847,17 @@ Memperbarui representasi kondisi sistem saat ini (*Current State Knowledge*):
 * `permissions/` & `architecture/`
 
 ## Layer 3: Panduan Induk Kurasi (`docs/SYSTEM_GUIDE.md`)
-Panduan induk tingkat tertinggi bagi Business Owner, Developer, QA, dan AI Agent. Wajib diperbarui jika terjadi perubahan cara kerja modul, arsitektur, atau alur bisnis.
+Panduan induk tingkat tertinggi bagi Business Owner, Developer, QA, dan AI Agent. Wajib diperbarui jika terjadi perubahan cara kerja modul, arsitektur, standar UI/UX, atau alur bisnis.
+
+---
+
+### 22.1 Mandat Mutlak Pembaruan Simultan: `AiWorkHistory.md` + `SYSTEM_GUIDE.md`
+> **ATURAN MUTLAK REKAYASA:**  
+> *"Pencatatan riwayat pada `docs/AiWorkHistory.md` TIDAK PERNAH BERDIRI SENDIRI. Selain mencatatkan riwayat pada `docs/AiWorkHistory.md`, AI Agent WAJIB SELALU memperbarui Master System Guide `docs/SYSTEM_GUIDE.md` (serta berkas terkait di `docs/system/`) pada setiap task rekayasa!"*
+
+1. **Anti-Log Saja (No Isolated History Logging):** DILARANG KERAS hanya menambahkan Work ID di `docs/AiWorkHistory.md` sementara `docs/SYSTEM_GUIDE.md` dibiarkan usang atau tidak tersentuh.
+2. **System Guide Sebagai Sumber Kebenaran Hidup (*Living Source of Truth*):** `docs/SYSTEM_GUIDE.md` dibaca oleh Business Owner dan Developer untuk memahami kapabilitas sistem saat ini. Setiap penambahan fitur, perubahan alur, perbaikan bug krusial, penyesuaian aturan bisnis, atau pembaruan standar UI/UX (seperti standar Modal Pop-Up XXL) wajib langsung tercermin di `docs/SYSTEM_GUIDE.md`.
+3. **Pekerjaan Dianggap Belum Selesai (Incomplete):** Jika AI Agent hanya memperbarui `docs/AiWorkHistory.md` tanpa memperbarui `docs/SYSTEM_GUIDE.md`, maka pekerjaan diklasifikasikan sebagai `PARTIAL` / `NEEDS_REVIEW` dan TIDAK BISA dinyatakan `VERIFIED` atau `COMPLETED`.
 
 > **Aturan Sinkronisasi:** Ketiga layer harus konsisten 100% dan tidak boleh memiliki kebenaran yang saling bertentangan!
 
@@ -756,7 +873,7 @@ Pekerjaan hanya dapat dinyatakan selesai jika seluruh butir checklist ini tercen
 - [ ] **Bento UI Multi-Device Luwes**: Tata letak modular bento grid adaptif di smartphone, tablet kasir, dan desktop.
 - [ ] **Keseragaman Konsep UI Lintas Perangkat**: 100% mewarisi bahasa desain Bento Apple HIG yang sama persis (squircle, frosted glass, tipografi tabular, warna semantik).
 - [ ] **Full-Style Floating Bottom Navbar**: Tersedia bottom navigation bar mengambang bergaya iOS 18 pada smartphone/tablet (`fixed bottom-3`) dengan elevated center quick-action.
-- [ ] **Modal-First pada Index**: Seluruh aksi Show, Create, dan Edit disajikan via pop-up modal sheet langsung di halaman index tanpa redirect (*zero navigation jumps*).
+- [ ] **Modal-First pada Index (Full Layout XXL & Responsif)**: Seluruh aksi Show, Create, dan Edit disajikan via pop-up modal sheet Full Layout XXL (`max-w-5xl` s/d `max-w-7xl`) langsung di halaman index tanpa redirect (*zero navigation jumps*), responsif sempurna di Desktop, Tablet, dan Mobile.
 - [ ] **Inline Quick-Add `[ + ]` pada Dropdown**: Dropdown relasi master memiliki tombol `[ + ]` inline dengan pop-up AJAX auto-select.
 - [ ] **Mandat Anti-AI-Template & Anti-Pill Terpenuhi**: Bebas eyebrow pills (gunakan Pure Typographic Overline), bebas metric cluttering, bebas fake pulse dots, pill status maksimal 1 per baris, dan seluruh teks fluff telah dihapus total.
 - [ ] **Mandat No-Emoji Terpenuhi**: 100% bebas dari emoji Unicode dan murni menggunakan Lucide Icons.
@@ -769,7 +886,7 @@ Pekerjaan hanya dapat dinyatakan selesai jika seluruh butir checklist ini tercen
 - [ ] **Pengujian Otomatis Lolos 100%**: `php artisan test` berstatus PASS (0 failure, 0 error), `route:list` valid, `php -l` bebas syntax error.
 - [ ] **Source Code Siap Produksi**: Bebas mock/stub/bypass, bebas fungsi debug (`dd()`, `dump()`, `ray()`, `console.log()`), aset terkompilasi rilis produksi.
 - [ ] **Data Testing Dibersihkan Tuntas**: Database operasional dan storage bersih dari record/file dummy testing.
-- [ ] **Dokumentasi 3 Lapis Terbarui**: `AiWorkHistory.md`, `docs/system/`, dan `SYSTEM_GUIDE.md` telah diselaraskan.
+- [ ] **Dokumentasi 3 Lapis Terbarui Simultan**: Selain mencatatkan riwayat di `AiWorkHistory.md`, Master System Guide `docs/SYSTEM_GUIDE.md` (dan berkas terkait di `docs/system/`) WAJIB diperbarui secara bersamaan dan konsisten 100%. Dilarang hanya memperbarui history tanpa menyelaraskan System Guide.
 
 ---
 
@@ -851,7 +968,7 @@ Sebelum dan selama melakukan pekerjaan apa pun:
 16. **Verifikasi responsivitas multi-device** (bebas overflow 360px, input 16px, touch target 48-52px, safe area `pb-28`).
 17. **Lakukan production hardening**: De-mocking, sanitasi debug (`dd()`, `console.log()`), test data purge.
 18. **Kompilasi aset & cache** (`npm run build`, `route:cache`, `view:cache`).
-19. **Perbarui dokumentasi berkelanjutan 3 lapis**.
+19. **Perbarui dokumentasi secara simultan** (Wajib `docs/AiWorkHistory.md` + `docs/SYSTEM_GUIDE.md` + `docs/system/`). Dilarang hanya memperbarui history log tanpa menyelaraskan System Guide.
 20. **Lakukan final audit** dan laporkan status berdasarkan bukti nyata.
 
 ---

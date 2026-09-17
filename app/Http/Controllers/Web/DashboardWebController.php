@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web;
 use App\Domain\Accounting\AutoJournalService;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\CommerceOrder;
 use App\Models\CostingRun;
 use App\Models\CostModel;
 use App\Models\Expense;
@@ -306,9 +307,19 @@ final class DashboardWebController extends Controller
         $today = Carbon::today();
         $startOfMonth = Carbon::now()->startOfMonth();
 
-        // 1. Sales & Cash Flow (POS + Invoices)
+        // 1. Sales & Cash Flow (POS + Invoices + Toko Online)
         $posToday = PosOrder::where('business_id', $business->id)
-            ->where('status', PosOrder::STATUS_COMPLETED)
+            ->where(function ($q) {
+                $q->where('status', PosOrder::STATUS_COMPLETED)
+                    ->orWhere(function ($q2) {
+                        $q2->whereIn('status', [
+                            PosOrder::STATUS_CONFIRMED,
+                            PosOrder::STATUS_PREPARING,
+                            PosOrder::STATUS_READY,
+                            PosOrder::STATUS_SERVED,
+                        ])->where('paid_amount', '>', 0);
+                    });
+            })
             ->whereDate('order_date', $today);
         $posTodaySales = (float) $posToday->sum('total_amount');
         $posTodayCount = $posToday->count();
@@ -318,10 +329,32 @@ final class DashboardWebController extends Controller
             ->whereDate('invoice_date', $today)
             ->sum('paid_amount');
 
-        $todayTotalRevenue = $posTodaySales + $invoiceTodaySales;
+        $onlineTodayQuery = CommerceOrder::where('business_id', $business->id)
+            ->whereIn('status', [
+                CommerceOrder::STATUS_PAID,
+                CommerceOrder::STATUS_PROCESSING,
+                CommerceOrder::STATUS_READY,
+                CommerceOrder::STATUS_FULFILLED,
+                CommerceOrder::STATUS_COMPLETED,
+            ])
+            ->whereDate('created_at', $today);
+        $onlineTodaySales = (float) $onlineTodayQuery->sum('total_amount');
+        $onlineTodayCount = $onlineTodayQuery->count();
+
+        $todayTotalRevenue = $posTodaySales + $invoiceTodaySales + $onlineTodaySales;
 
         $posMonthSales = (float) PosOrder::where('business_id', $business->id)
-            ->where('status', PosOrder::STATUS_COMPLETED)
+            ->where(function ($q) {
+                $q->where('status', PosOrder::STATUS_COMPLETED)
+                    ->orWhere(function ($q2) {
+                        $q2->whereIn('status', [
+                            PosOrder::STATUS_CONFIRMED,
+                            PosOrder::STATUS_PREPARING,
+                            PosOrder::STATUS_READY,
+                            PosOrder::STATUS_SERVED,
+                        ])->where('paid_amount', '>', 0);
+                    });
+            })
             ->whereDate('order_date', '>=', $startOfMonth)
             ->sum('total_amount');
 
@@ -330,7 +363,18 @@ final class DashboardWebController extends Controller
             ->whereDate('invoice_date', '>=', $startOfMonth)
             ->sum('paid_amount');
 
-        $monthTotalRevenue = $posMonthSales + $invoiceMonthSales;
+        $onlineMonthSales = (float) CommerceOrder::where('business_id', $business->id)
+            ->whereIn('status', [
+                CommerceOrder::STATUS_PAID,
+                CommerceOrder::STATUS_PROCESSING,
+                CommerceOrder::STATUS_READY,
+                CommerceOrder::STATUS_FULFILLED,
+                CommerceOrder::STATUS_COMPLETED,
+            ])
+            ->whereDate('created_at', '>=', $startOfMonth)
+            ->sum('total_amount');
+
+        $monthTotalRevenue = $posMonthSales + $invoiceMonthSales + $onlineMonthSales;
 
         // 2. Expenses & Net Profit
         $monthExpenses = (float) Expense::where('business_id', $business->id)
@@ -391,16 +435,40 @@ final class DashboardWebController extends Controller
         }
         $avgMargin = count($margins) > 0 ? round(array_sum($margins) / count($margins), 1) : 0.0;
 
-        // 7. Last 7 Days Sales Trend (Single Aggregated Query)
+        // 7. Last 7 Days Sales Trend (POS + Online Storefront)
         $sevenDaysTrend = [];
         $maxDaySales = 1000;
         $dayNamesIndo = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
         $sevenDaysAgo = Carbon::today()->subDays(6)->startOfDay();
 
-        $dailySales = PosOrder::where('business_id', $business->id)
-            ->where('status', PosOrder::STATUS_COMPLETED)
+        $dailyPosSales = PosOrder::where('business_id', $business->id)
+            ->where(function ($q) {
+                $q->where('status', PosOrder::STATUS_COMPLETED)
+                    ->orWhere(function ($q2) {
+                        $q2->whereIn('status', [
+                            PosOrder::STATUS_CONFIRMED,
+                            PosOrder::STATUS_PREPARING,
+                            PosOrder::STATUS_READY,
+                            PosOrder::STATUS_SERVED,
+                        ])->where('paid_amount', '>', 0);
+                    });
+            })
             ->where('order_date', '>=', $sevenDaysAgo)
             ->selectRaw('DATE(order_date) as order_dt, SUM(total_amount) as total_sales')
+            ->groupBy('order_dt')
+            ->pluck('total_sales', 'order_dt')
+            ->all();
+
+        $dailyOnlineSales = CommerceOrder::where('business_id', $business->id)
+            ->whereIn('status', [
+                CommerceOrder::STATUS_PAID,
+                CommerceOrder::STATUS_PROCESSING,
+                CommerceOrder::STATUS_READY,
+                CommerceOrder::STATUS_FULFILLED,
+                CommerceOrder::STATUS_COMPLETED,
+            ])
+            ->where('created_at', '>=', $sevenDaysAgo)
+            ->selectRaw('DATE(created_at) as order_dt, SUM(total_amount) as total_sales')
             ->groupBy('order_dt')
             ->pluck('total_sales', 'order_dt')
             ->all();
@@ -408,7 +476,7 @@ final class DashboardWebController extends Controller
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
             $dateKey = $date->toDateString();
-            $daySales = (float) ($dailySales[$dateKey] ?? 0);
+            $daySales = (float) ($dailyPosSales[$dateKey] ?? 0) + (float) ($dailyOnlineSales[$dateKey] ?? 0);
 
             if ($daySales > $maxDaySales) {
                 $maxDaySales = $daySales;
@@ -451,8 +519,10 @@ final class DashboardWebController extends Controller
             'today_sales' => $todayTotalRevenue,
             'today_pos_sales' => $posTodaySales,
             'today_invoice_sales' => $invoiceTodaySales,
-            'today_transactions_count' => $posTodayCount,
+            'today_online_sales' => $onlineTodaySales,
+            'today_transactions_count' => $posTodayCount + $onlineTodayCount,
             'month_sales' => $monthTotalRevenue,
+            'month_online_sales' => $onlineMonthSales,
             'month_expenses' => $monthTotalExpenses,
             'month_net_profit_est' => $monthNetProfitEst,
             'unpaid_invoices_amount' => $unpaidAmount,
@@ -544,9 +614,19 @@ final class DashboardWebController extends Controller
             'custom' => 'Range Custom',
         ];
 
-        // 1. Finansial aggregate: POS kasir + Faktur
+        // 1. Finansial aggregate: POS kasir + Faktur + Toko Online
         $posAgg = PosOrder::where('business_id', $business->id)
-            ->where('status', PosOrder::STATUS_COMPLETED)
+            ->where(function ($q) {
+                $q->where('status', PosOrder::STATUS_COMPLETED)
+                    ->orWhere(function ($q2) {
+                        $q2->whereIn('status', [
+                            PosOrder::STATUS_CONFIRMED,
+                            PosOrder::STATUS_PREPARING,
+                            PosOrder::STATUS_READY,
+                            PosOrder::STATUS_SERVED,
+                        ])->where('paid_amount', '>', 0);
+                    });
+            })
             ->whereBetween('order_date', [$fromStr, $toStr])
             ->selectRaw('COALESCE(SUM(total_amount), 0) as revenue, COALESCE(SUM(total_hpp_cost), 0) as hpp, COALESCE(SUM(total_gross_profit), 0) as profit, COUNT(*) as cnt')
             ->first();
@@ -557,19 +637,33 @@ final class DashboardWebController extends Controller
             ->selectRaw('COALESCE(SUM(paid_amount), 0) as revenue, COALESCE(SUM(total_hpp_cost), 0) as hpp, COALESCE(SUM(total_gross_profit), 0) as profit, COUNT(*) as cnt')
             ->first();
 
+        $onlineAgg = CommerceOrder::where('business_id', $business->id)
+            ->whereIn('status', [
+                CommerceOrder::STATUS_PAID,
+                CommerceOrder::STATUS_PROCESSING,
+                CommerceOrder::STATUS_READY,
+                CommerceOrder::STATUS_FULFILLED,
+                CommerceOrder::STATUS_COMPLETED,
+            ])
+            ->whereBetween('created_at', [$fromStr . ' 00:00:00', $toStr . ' 23:59:59'])
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as revenue, COUNT(*) as cnt')
+            ->first();
+
         $posRevenue = (float) ($posAgg?->revenue ?? 0);
         $invRevenue = (float) ($invAgg?->revenue ?? 0);
+        $onlineRevenue = (float) ($onlineAgg?->revenue ?? 0);
         $posHpp = (float) ($posAgg?->hpp ?? 0);
         $invHpp = (float) ($invAgg?->hpp ?? 0);
         $posProfit = (float) ($posAgg?->profit ?? 0);
         $invProfit = (float) ($invAgg?->profit ?? 0);
         $posCount = (int) ($posAgg?->cnt ?? 0);
         $invCount = (int) ($invAgg?->cnt ?? 0);
+        $onlineCount = (int) ($onlineAgg?->cnt ?? 0);
 
-        $omzet = $posRevenue + $invRevenue;
+        $omzet = $posRevenue + $invRevenue + $onlineRevenue;
         $hppTotal = $posHpp + $invHpp;
         $profit = $posProfit + $invProfit;
-        $transactions = $posCount + $invCount;
+        $transactions = $posCount + $invCount + $onlineCount;
         $avgTicket = $transactions > 0 ? round($omzet / $transactions, 0) : 0.0;
         $marginPct = $omzet > 0 ? round(($profit / $omzet) * 100, 1) : null;
 
@@ -675,10 +769,11 @@ final class DashboardWebController extends Controller
             }
         }
 
-        // 4. Distribusi omzet oleh kanal: Kasir vs Faktur
+        // 4. Distribusi omzet oleh kanal: Kasir vs Faktur vs Toko Online
         $channelSplit = [
             ['label' => 'Kasir (POS)', 'value' => round($posRevenue, 0)],
-            ['label' => 'Faktur', 'value' => round($invRevenue, 0)],
+            ['label' => 'Faktur B2B', 'value' => round($invRevenue, 0)],
+            ['label' => 'Toko Online', 'value' => round($onlineRevenue, 0)],
         ];
 
         // 5. Distribusi oleh jenis order kasir

@@ -487,7 +487,17 @@
 
                             <div
                                 class="p-4 bg-gray-50 rounded-[14px] border border-dashed border-gray-300 inline-block">
-                                @if (!empty($methodDetails['qr_image_url']))
+                                @if (!empty($payment->gateway_qr_url))
+                                    <img src="{{ $payment->gateway_qr_url }}" alt="QRIS Dinamis TriPay"
+                                        class="w-56 h-56 object-contain mx-auto rounded-[8px]">
+                                    <div class="mt-2 text-center">
+                                        <a href="{{ $payment->gateway_qr_url }}" download="qris-cooca-{{ $payment->order_number }}.png" target="_blank"
+                                            class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#007AFF] hover:underline">
+                                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                            <span>Unduh Gambar QRIS</span>
+                                        </a>
+                                    </div>
+                                @elseif (!empty($methodDetails['qr_image_url']))
                                     <img src="{{ $methodDetails['qr_image_url'] }}" alt="QRIS QR Code"
                                         class="w-56 h-56 object-contain mx-auto rounded-[8px]">
                                 @else
@@ -504,6 +514,12 @@
                                 <p class="font-bold text-black">Mendukung Seluruh Aplikasi Perbankan &amp; e-Wallet</p>
                                 <p class="text-[11px] text-gray-500">BCA, Mandiri Livin, BRImo, BNI+, GoPay, OVO, Dana,
                                     ShopeePay, LinkAja.</p>
+                                @if(!$payment->isPaid() && ($payment->isTripay() || $payment->payment_method === 'qris'))
+                                    <div class="pt-1 flex items-center justify-center gap-1.5 text-[11px] text-[#007AFF] font-bold">
+                                        <span class="w-2 h-2 rounded-full bg-[#007AFF] animate-ping"></span>
+                                        <span>Menunggu Pembayaran (Auto-Verifikasi Instan)</span>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -520,6 +536,27 @@
                             <p class="text-gray-500 dark:text-gray-400 leading-relaxed text-[11px]">
                                 {{ $methodDetails['instructions'] }}</p>
                         </div>
+                    @endif
+
+                    @if(!$payment->isPaid() && ($payment->isTripay() || $payment->payment_method === 'qris'))
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const pollInterval = setInterval(async () => {
+                                    try {
+                                        const res = await fetch("{{ route('billing.payment.status', $payment) }}", {
+                                            headers: { 'Accept': 'application/json' }
+                                        });
+                                        if (res.ok) {
+                                            const data = await res.json();
+                                            if (data.is_paid) {
+                                                clearInterval(pollInterval);
+                                                window.location.reload();
+                                            }
+                                        }
+                                    } catch(e) {}
+                                }, 4000);
+                            });
+                        </script>
                     @endif
 
                     <!-- WhatsApp Support Callout -->

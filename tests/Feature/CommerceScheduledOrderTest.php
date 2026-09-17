@@ -64,7 +64,7 @@ class CommerceScheduledOrderTest extends TestCase
         $this->location = Location::create([
             'business_id' => $this->business->id,
             'name' => 'Dapur Utama',
-            'is_default' => true,
+            'is_primary' => true,
         ]);
 
         $pcs = Unit::where('code', 'pcs')->first() ?? Unit::create([

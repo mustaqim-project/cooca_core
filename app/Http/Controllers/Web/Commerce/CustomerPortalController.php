@@ -58,13 +58,10 @@ final class CustomerPortalController extends Controller
         $hasPhone = !empty($customer->phone);
         $hasEmail = !empty($customer->email);
 
-        if (!$hasPhone && !$hasEmail) {
-            return $query->whereRaw('1 = 0');
-        }
-
         return $query->where(function ($q) use ($customer, $hasPhone, $hasEmail) {
+            $q->where('global_customer_id', $customer->id);
             if ($hasPhone) {
-                $q->where('customer_phone', $customer->phone);
+                $q->orWhere('customer_phone', $customer->phone);
                 if (str_starts_with($customer->phone, '62')) {
                     $q->orWhere('customer_phone', '0' . substr($customer->phone, 2));
                 } elseif (str_starts_with($customer->phone, '0')) {
@@ -72,11 +69,7 @@ final class CustomerPortalController extends Controller
                 }
             }
             if ($hasEmail) {
-                if ($hasPhone) {
-                    $q->orWhere('customer_email', $customer->email);
-                } else {
-                    $q->where('customer_email', $customer->email);
-                }
+                $q->orWhere('customer_email', $customer->email);
             }
         });
     }
@@ -93,7 +86,7 @@ final class CustomerPortalController extends Controller
         $ordersQuery = $this->scopeCustomerOrders(CommerceOrder::query(), $customer);
 
         $recentOrders = (clone $ordersQuery)
-            ->with(['business', 'items', 'latestProof'])
+            ->with(['business', 'items', 'latestProof', 'groupOrder'])
             ->latest()
             ->take(5)
             ->get();
@@ -177,7 +170,7 @@ final class CustomerPortalController extends Controller
         }
 
         $orders = $ordersQuery
-            ->with(['business', 'items.product', 'paymentMethod', 'latestProof'])
+            ->with(['business', 'items.product', 'paymentMethod', 'latestProof', 'groupOrder'])
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -191,10 +184,26 @@ final class CustomerPortalController extends Controller
 
         $order = $this->scopeCustomerOrders(CommerceOrder::query(), $customer)
             ->where(fn($q) => $q->where('id', $id)->orWhere('order_number', $id))
-            ->with(['business', 'items.product', 'paymentMethod', 'paymentProofs.verifier'])
+            ->with(['business', 'items.product', 'paymentMethod', 'paymentProofs.verifier', 'groupOrder.items.member', 'groupOrder.host'])
             ->firstOrFail();
 
         return view('customer.orders.show', compact('customer', 'order'));
+    }
+
+    public function checkOrderStatus(string $id): JsonResponse
+    {
+        $customer = $this->customer();
+
+        $order = $this->scopeCustomerOrders(CommerceOrder::query(), $customer)
+            ->where(fn($q) => $q->where('id', $id)->orWhere('order_number', $id))
+            ->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'status' => $order->status,
+            'is_paid' => $order->isPaid(),
+            'payment_status' => $order->payment_status,
+        ]);
     }
 
     public function uploadProof(Request $request, string $id): RedirectResponse
@@ -236,14 +245,14 @@ final class CustomerPortalController extends Controller
         $search = trim((string) $request->query('q', ''));
 
         $storesQuery = Business::where('is_active', true)
-            ->whereHas('commerceStoreSetting')
-            ->with('commerceStoreSetting');
+            ->whereHas('commerceStoreSetting', fn($q) => $q->where('is_storefront_enabled', true))
+            ->with(['commerceStoreSetting', 'landingPage']);
 
         if ($search !== '') {
             $storesQuery->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('city', 'like', "%{$search}%")
-                    ->orWhere('industry', 'like', "%{$search}%");
+                    ->orWhere('address', 'like', "%{$search}%")
+                    ->orWhere('industry_category', 'like', "%{$search}%");
             });
         }
 
@@ -260,7 +269,7 @@ final class CustomerPortalController extends Controller
         $business = Business::where('slug', $slug)
             ->where('is_active', true)
             ->whereHas('commerceStoreSetting')
-            ->with('commerceStoreSetting')
+            ->with(['commerceStoreSetting', 'landingPage'])
             ->firstOrFail();
 
         $search   = trim((string) $request->query('q', ''));

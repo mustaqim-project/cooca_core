@@ -15,6 +15,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\WhatsAppAccount;
 use App\Models\WhatsAppSession;
 use App\Support\Context;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -168,18 +169,31 @@ final class PosReceiptImageTest extends TestCase
 
     public function test_whatsapp_gateway_attaches_receipt_image_to_customer(): void
     {
+        WhatsAppAccount::create([
+            'business_id'          => $this->business->id,
+            'waba_id'              => '109988776655443',
+            'phone_number_id'      => '101122334455667',
+            'phone_number'         => '62811111111',
+            'display_phone_number' => '+62 811-1111-11',
+            'verified_name'        => 'Test Store',
+            'access_token'         => 'EAAG_TEST_TOKEN',
+            'status'               => 'CONNECTED',
+        ]);
+
         WhatsAppSession::create([
-            'business_id' => $this->business->id,
-            'session_id' => 'biz_' . str_replace('-', '', substr($this->business->id, 0, 8)),
-            'status' => 'connected',
-            'phone_number' => '62811111111',
+            'business_id'       => $this->business->id,
+            'session_id'        => 'biz_' . str_replace('-', '', substr($this->business->id, 0, 8)),
+            'provider'          => 'meta_cloud',
+            'status'            => 'connected',
+            'phone_number'      => '62811111111',
             'auto_send_receipt' => true,
         ]);
 
         Http::fake([
-            '*/send-message' => Http::response([
-                'success' => true,
-                'message' => 'Message sent',
+            'https://graph.facebook.com/v21.0/*/messages' => Http::response([
+                'messaging_product' => 'whatsapp',
+                'contacts'          => [['input' => '081987654321', 'wa_id' => '6281987654321']],
+                'messages'          => [['id' => 'wamid.HBgLTESTRECEIPT==']],
             ], 200),
         ]);
 
@@ -190,11 +204,11 @@ final class PosReceiptImageTest extends TestCase
 
         Http::assertSent(function ($request) {
             $data = $request->data();
-            return ($data['target'] ?? '') === '081987654321'
+            return str_contains($request->url(), '101122334455667/messages')
                 && ($data['type'] ?? '') === 'image'
-                && !empty($data['mediaUrl'])
-                && str_contains($data['mediaUrl'], 'receipt_')
-                && str_contains($data['message'] ?? '', 'STRUK PEMBELIAN');
+                && !empty($data['image']['link'])
+                && str_contains($data['image']['link'], 'receipt_')
+                && str_contains($data['image']['caption'] ?? '', 'STRUK PEMBELIAN');
         });
     }
 }

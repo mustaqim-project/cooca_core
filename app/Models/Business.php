@@ -132,6 +132,27 @@ class Business extends Model
         };
     }
 
+    public function getCityAttribute(): ?string
+    {
+        if (empty($this->address)) {
+            return null;
+        }
+
+        $parts = explode(',', $this->address);
+        return trim(end($parts)) ?: $this->address;
+    }
+
+    public function getIndustryAttribute(): ?string
+    {
+        return $this->industry_category;
+    }
+
+    public function getStoreLogoUrlAttribute(): ?string
+    {
+        return $this->logo_url ?: $this->landingPage?->logo_url;
+    }
+
+
     /**
      * Get users belonging to this business.
      *
@@ -143,6 +164,21 @@ class Business extends Model
             ->using(BusinessMembership::class)
             ->withPivot(['id', 'role', 'role_id'])
             ->withTimestamps();
+    }
+
+    /**
+     * Get the primary owner of this business.
+     */
+    public function owner(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    {
+        return $this->hasOneThrough(
+            User::class,
+            BusinessMembership::class,
+            'business_id',
+            'id',
+            'id',
+            'user_id'
+        )->where('business_users.role', 'owner');
     }
 
     /**
@@ -173,6 +209,16 @@ class Business extends Model
     public function storeSetting(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(CommerceStoreSetting::class);
+    }
+
+    public function whatsAppAccount(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(WhatsAppAccount::class);
+    }
+
+    public function whatsAppSession(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(WhatsAppSession::class);
     }
 
     public function paymentMethods(): HasMany
@@ -248,6 +294,11 @@ class Business extends Model
     public function storageFiles(): HasMany
     {
         return $this->hasMany(StorageFile::class, 'business_id');
+    }
+
+    public function socialMediaAccounts(): HasMany
+    {
+        return $this->hasMany(SocialMediaAccount::class, 'business_id');
     }
 
 

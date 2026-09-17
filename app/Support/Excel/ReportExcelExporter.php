@@ -58,6 +58,7 @@ final class ReportExcelExporter
             [['v' => 'PENDAPATAN / PENJUALAN', 's' => XlsxWriter::STYLE_SECTION]],
             ['Penjualan Kasir POS (Kotor)', $summary['revenues']['pos_gross_sales']],
             ['Penjualan Faktur Invoice (Kotor)', $summary['revenues']['invoice_gross_sales']],
+            ['Penjualan Toko Online Storefront (Kotor)', $summary['revenues']['online_gross_sales'] ?? 0],
             [['v' => 'Total Penjualan Kotor', 's' => XlsxWriter::STYLE_BOLD], ['v' => $summary['revenues']['total_gross_sales'], 's' => XlsxWriter::STYLE_TOTAL]],
             ['Potongan Diskon & Voucher', $summary['revenues']['total_discounts']],
             ['Retur Penjualan (Pengurang)', $summary['revenues']['sales_returns']],
@@ -66,6 +67,7 @@ final class ReportExcelExporter
             [['v' => 'HARGA POKOK PENJUALAN (HPP / COGS)', 's' => XlsxWriter::STYLE_SECTION]],
             ['HPP Penjualan Kasir POS', $summary['cogs']['pos_cogs']],
             ['HPP Penjualan Faktur Invoice', $summary['cogs']['invoice_cogs']],
+            ['HPP Penjualan Toko Online', $summary['cogs']['online_cogs'] ?? 0],
             ['Pemulihan HPP Retur (Pengurang)', $summary['cogs']['returns_cogs_recovery']],
             [['v' => 'TOTAL HPP BARANG TERJUAL', 's' => XlsxWriter::STYLE_TOTAL], ['v' => $summary['cogs']['total_cogs'], 's' => XlsxWriter::STYLE_TOTAL]],
 

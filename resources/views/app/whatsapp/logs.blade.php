@@ -47,21 +47,24 @@
                         'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
                         'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                     class="h-7 px-3 rounded-[8px] transition-all whitespace-nowrap flex items-center gap-1.5">
-                    <span>🧾 Struk POS</span>
+                    <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                    <span>Struk POS</span>
                 </button>
                 <button type="button" @click="filterType = 'broadcast'"
                     :class="filterType === 'broadcast' ?
                         'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
                         'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                     class="h-7 px-3 rounded-[8px] transition-all whitespace-nowrap flex items-center gap-1.5">
-                    <span>📢 Blast Promosi</span>
+                    <i data-lucide="megaphone" class="w-3.5 h-3.5"></i>
+                    <span>Blast Promosi</span>
                 </button>
                 <button type="button" @click="filterType = 'test'"
                     :class="filterType === 'test' ?
                         'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
                         'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                     class="h-7 px-3 rounded-[8px] transition-all whitespace-nowrap flex items-center gap-1.5">
-                    <span>🔧 Uji Coba</span>
+                    <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
+                    <span>Uji Coba</span>
                 </button>
             </div>
         </header>
@@ -174,8 +177,9 @@
                                         </div>
                                         @if ($log->error_message)
                                             <div
-                                                class="text-[#FF3B30] dark:text-[#FF453A] text-[11px] mt-0.5 truncate font-medium">
-                                                ⚠ {{ $log->error_message }}
+                                                class="text-[#FF3B30] dark:text-[#FF453A] text-[11px] mt-0.5 truncate font-medium flex items-center gap-1">
+                                                <i data-lucide="alert-circle" class="w-3 h-3 shrink-0"></i>
+                                                <span class="truncate">{{ $log->error_message }}</span>
                                             </div>
                                         @endif
                                     </td>
@@ -240,8 +244,9 @@
                                 class="text-black/75 dark:text-white/75 text-[12px] bg-black/[0.02] dark:bg-white/[0.02] p-2.5 rounded-[8px] leading-relaxed">
                                 {{ $log->message }}
                                 @if ($log->error_message)
-                                    <div class="text-[#FF3B30] dark:text-[#FF453A] text-[11px] mt-1 font-medium">
-                                        ⚠ {{ $log->error_message }}
+                                    <div class="text-[#FF3B30] dark:text-[#FF453A] text-[11px] mt-1 font-medium flex items-center gap-1">
+                                        <i data-lucide="alert-circle" class="w-3 h-3 shrink-0"></i>
+                                        <span class="truncate">{{ $log->error_message }}</span>
                                     </div>
                                 @endif
                             </div>

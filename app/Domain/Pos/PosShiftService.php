@@ -6,6 +6,7 @@ namespace App\Domain\Pos;
 
 use App\Models\Business;
 use App\Models\PosCashMovement;
+use App\Models\PosOrder;
 use App\Models\PosOrderPayment;
 use App\Models\PosShift;
 use App\Models\User;
@@ -117,18 +118,35 @@ final class PosShiftService
      */
     public function getShiftSummary(PosShift $shift): array
     {
-        $orders = $shift->orders()->where('status', 'completed')->with('payments')->get();
+        $orders = $shift->orders()
+            ->whereIn('status', [
+                PosOrder::STATUS_COMPLETED,
+                PosOrder::STATUS_CONFIRMED,
+                PosOrder::STATUS_PREPARING,
+                PosOrder::STATUS_READY,
+                PosOrder::STATUS_SERVED,
+            ])
+            ->with('payments')
+            ->get();
         $ordersCount = $orders->count();
 
         $cashSales = 0.0;
         $nonCashSales = 0.0;
+        $gatewaySales = 0.0;
 
         foreach ($orders as $order) {
             foreach ($order->payments as $payment) {
+                if ($payment->status !== 'paid') {
+                    continue;
+                }
+                $amount = (float) $payment->amount;
                 if ($payment->payment_method === PosOrderPayment::METHOD_CASH) {
-                    $cashSales += (float) $payment->amount;
+                    $cashSales += $amount;
                 } else {
-                    $nonCashSales += (float) $payment->amount;
+                    $nonCashSales += $amount;
+                    if ($payment->payment_method === PosOrderPayment::METHOD_QRIS_DYNAMIC || $order->payment_gateway === PosOrder::GATEWAY_TRIPAY) {
+                        $gatewaySales += $amount;
+                    }
                 }
             }
         }
@@ -143,6 +161,7 @@ final class PosShiftService
             'opening_cash' => $opening,
             'cash_sales' => $cashSales,
             'non_cash_sales' => $nonCashSales,
+            'gateway_sales' => $gatewaySales,
             'cash_in' => $cashIn,
             'cash_out' => $cashOut,
             'expected_cash' => $expectedCash,

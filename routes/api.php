@@ -72,7 +72,19 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->middleware('throttle:60,1')->group(function (): void {
     Route::post('/wa/webhook', [\App\Http\Controllers\Api\V1\WhatsAppWebhookController::class, 'handle']);
     Route::post('/wa/admin-webhook', [\App\Http\Controllers\Api\V1\WhatsAppWebhookController::class, 'handle']);
+
+    // Official Meta WhatsApp Cloud API Webhook (Verification & Event Handlers)
+    Route::get('/wa/meta/webhook', [\App\Http\Controllers\Api\V1\WhatsApp\MetaWhatsAppWebhookController::class, 'verify']);
+    Route::post('/wa/meta/webhook', [\App\Http\Controllers\Api\V1\WhatsApp\MetaWhatsAppWebhookController::class, 'handle']);
+
+    // Official Meta Social Media Webhook (Facebook Pages & Instagram Business)
+    Route::get('/social-media/meta/webhook', [\App\Http\Controllers\Api\V1\SocialMedia\MetaSocialMediaWebhookController::class, 'verify']);
+    Route::post('/social-media/meta/webhook', [\App\Http\Controllers\Api\V1\SocialMedia\MetaSocialMediaWebhookController::class, 'handle']);
+
+    // TriPay Payment Gateway Incoming Webhook (Model B)
+    Route::post('/payments/tripay/callback', [\App\Http\Controllers\Api\V1\Payment\TripayCallbackController::class, 'handle']);
 });
+
 
 Route::prefix('v1')->group(function (): void {
 

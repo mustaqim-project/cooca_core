@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             RestoranNusantaraLandingSeeder::class,
             CommerceSeeder::class,
             TwentyIndustriesShowcaseSeeder::class,
+            CustomerSeeder::class,
+            DapurSedapRasaSeeder::class,
         ]);
     }
 }

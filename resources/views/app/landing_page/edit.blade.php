@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-10" x-data="landingPageEditor()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-10" x-data="landingPageEditor()">
 
         {{-- 0. STOREFRONT & WEBSITE HUB NAVIGATION --}}
         @include('app.storefront.partials.navigation', ['title' => 'Website & Profil Bisnis'])
@@ -1216,8 +1216,12 @@
                                             <input type="text" x-model="testi.role" placeholder="Kota / Profesi"
                                                 class="flex-1 h-8 bg-white dark:bg-[#2C2C2E] border-none rounded-[8px] px-2.5 text-[16px] sm:text-[12px] text-black/70 dark:text-white/70 focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                                             <span
-                                                class="text-[#FF9500] text-[12px] font-bold font-mono whitespace-nowrap">★
-                                                5.0</span>
+                                                class="text-[#FF9500] text-[12px] font-bold font-mono whitespace-nowrap inline-flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5 fill-[#FF9500] text-[#FF9500]" viewBox="0 0 24 24" fill="currentColor">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                                </svg>
+                                                <span>5.0</span>
+                                            </span>
                                             <button type="button" @click="removeTestimonial(tIdx)"
                                                 class="h-8 w-8 rounded-[8px] text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 flex items-center justify-center transition cursor-pointer"
                                                 title="Hapus Ulasan">

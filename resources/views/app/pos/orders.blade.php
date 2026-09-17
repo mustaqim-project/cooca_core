@@ -398,6 +398,19 @@
                 </div>
             </div>
 
+            <template x-if="selectedOrder && selectedOrder.status !== 'completed' && selectedOrder.status !== 'voided' && selectedOrder.gateway_reference">
+                <form :action="'{{ url('/pos/orders') }}/' + selectedOrder.id + '/sync-gateway'" method="POST" class="pt-1">
+                    @csrf
+                    <button type="submit"
+                        class="w-full h-9 rounded-[8px] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[12px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        <span>Cek &amp; Sinkronkan Status TriPay</span>
+                    </button>
+                </form>
+            </template>
+
             <div class="flex justify-end pt-2">
                 <button type="button" @click="showDetailModal = false"
                     class="h-8 px-4 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 font-medium text-[12px] transition">

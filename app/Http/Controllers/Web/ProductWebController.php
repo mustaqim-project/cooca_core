@@ -97,6 +97,48 @@ final class ProductWebController extends Controller
     }
 
     /**
+     * Quick toggle product setting (channel visibility, web price, preorder, is_active).
+     */
+    public function toggleSetting(Request $request, Product $product): \Illuminate\Http\JsonResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($product->business_id === $business->id, 403);
+
+        $request->validate([
+            'field' => ['required', 'string', 'in:show_in_website,show_in_pos,show_in_sales_order,show_price_on_web,is_preorder,is_active'],
+            'value' => ['nullable', 'boolean'],
+        ]);
+
+        $field = (string) $request->input('field');
+        $newValue = $request->has('value')
+            ? $request->boolean('value')
+            : ! (bool) $product->{$field};
+
+        $product->update([
+            $field => $newValue,
+        ]);
+
+        $labels = [
+            'show_in_website' => 'Etalase Web',
+            'show_in_pos' => 'Kasir POS',
+            'show_in_sales_order' => 'Faktur SO',
+            'show_price_on_web' => 'Harga di Web',
+            'is_preorder' => 'Sistem Pre-Order',
+            'is_active' => 'Status Produk',
+        ];
+        $label = $labels[$field] ?? $field;
+        $stateText = $newValue ? 'diaktifkan' : 'dinonaktifkan';
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Pengaturan {$label} untuk '{$product->name}' berhasil {$stateText}.",
+            'field' => $field,
+            'value' => (bool) $newValue,
+            'product_id' => $product->id,
+        ]);
+    }
+
+    /**
      * Store a new product and auto-create default CostModel.
      */
     public function store(Request $request): RedirectResponse
@@ -126,6 +168,13 @@ final class ProductWebController extends Controller
             'business_type_hint' => ['nullable', 'string'],
             'description' => ['nullable', 'string', 'max:2000'],
             'costing_method' => ['required', 'string', 'in:simple,per_unit,recipe_bom,job,process,abc,service,retail,custom'],
+            'show_in_website' => ['nullable', 'boolean'],
+            'show_in_pos' => ['nullable', 'boolean'],
+            'show_in_sales_order' => ['nullable', 'boolean'],
+            'show_price_on_web' => ['nullable', 'boolean'],
+            'is_preorder' => ['nullable', 'boolean'],
+            'preorder_mode' => ['nullable', 'string', 'in:merchant_batch,customer_schedule'],
+            'preorder_lead_days' => ['nullable', 'integer', 'min:0', 'max:90'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
         ]);
 
@@ -142,6 +191,13 @@ final class ProductWebController extends Controller
             'selling_price' => (float) ($validated['selling_price'] ?? 0),
             'base_cost' => (float) ($validated['base_cost'] ?? 0),
             'min_stock' => (float) ($validated['min_stock'] ?? 0),
+            'show_in_website' => $request->has('show_in_website') ? $request->boolean('show_in_website') : true,
+            'show_in_pos' => $request->has('show_in_pos') ? $request->boolean('show_in_pos') : true,
+            'show_in_sales_order' => $request->has('show_in_sales_order') ? $request->boolean('show_in_sales_order') : true,
+            'show_price_on_web' => $request->has('show_price_on_web') ? $request->boolean('show_price_on_web') : true,
+            'is_preorder' => $request->boolean('is_preorder'),
+            'preorder_mode' => $validated['preorder_mode'] ?? Product::PREORDER_MODE_SCHEDULE,
+            'preorder_lead_days' => (int) ($validated['preorder_lead_days'] ?? 1),
         ]);
 
         if ($request->hasFile('image')) {
@@ -202,6 +258,13 @@ final class ProductWebController extends Controller
             'selling_price' => ['nullable', 'numeric', 'gte:0'],
             'min_stock' => ['nullable', 'numeric', 'gte:0'],
             'is_active' => ['nullable', 'boolean'],
+            'show_in_website' => ['nullable', 'boolean'],
+            'show_in_pos' => ['nullable', 'boolean'],
+            'show_in_sales_order' => ['nullable', 'boolean'],
+            'show_price_on_web' => ['nullable', 'boolean'],
+            'is_preorder' => ['nullable', 'boolean'],
+            'preorder_mode' => ['nullable', 'string', 'in:merchant_batch,customer_schedule'],
+            'preorder_lead_days' => ['nullable', 'integer', 'min:0', 'max:90'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
             'remove_image' => ['nullable', 'boolean'],
@@ -215,7 +278,14 @@ final class ProductWebController extends Controller
             'base_cost' => (float) ($validated['base_cost'] ?? $product->base_cost),
             'selling_price' => (float) ($validated['selling_price'] ?? $product->selling_price),
             'min_stock' => (float) ($validated['min_stock'] ?? $product->min_stock),
-            'is_active' => $request->has('is_active') ? (bool) $request->get('is_active') : $product->is_active,
+            'is_active' => $request->boolean('is_active'),
+            'show_in_website' => $request->boolean('show_in_website'),
+            'show_in_pos' => $request->boolean('show_in_pos'),
+            'show_in_sales_order' => $request->boolean('show_in_sales_order'),
+            'show_price_on_web' => $request->boolean('show_price_on_web'),
+            'is_preorder' => $request->boolean('is_preorder'),
+            'preorder_mode' => $validated['preorder_mode'] ?? $product->preorder_mode,
+            'preorder_lead_days' => isset($validated['preorder_lead_days']) ? (int) $validated['preorder_lead_days'] : $product->preorder_lead_days,
             'description' => $validated['description'] ?? $product->description,
         ]);
 

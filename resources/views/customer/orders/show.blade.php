@@ -41,15 +41,27 @@
                         Pesanan Dibatalkan
                     </span>
                 @endif
+
+                @if($order->groupOrder)
+                    <span class="px-3 py-1 rounded-full text-[12px] font-bold bg-[#AF52DE]/10 text-[#AF52DE] border border-[#AF52DE]/20 flex items-center gap-1.5">
+                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                        <span>Pesan Bareng</span>
+                    </span>
+                @endif
             </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
             @if($order->business)
                 <a href="{{ url('/b/' . $order->business->slug) }}" target="_blank"
                    class="h-9 px-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 text-black dark:text-white text-[12.5px] font-semibold transition active:scale-95 flex items-center gap-1.5">
                     <i data-lucide="store" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                     <span>Kunjungi Toko</span>
+                </a>
+                <a href="{{ url('/b/' . $order->business->slug . '/order/' . $order->tracking_token) }}" target="_blank"
+                   class="h-9 px-4 rounded-full bg-[#007AFF]/10 hover:bg-[#007AFF]/15 text-[#007AFF] text-[12.5px] font-semibold transition active:scale-95 flex items-center gap-1.5 border border-[#007AFF]/20">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <span>Lacak Publik</span>
                 </a>
             @endif
         </div>
@@ -122,6 +134,69 @@
 
         </div>
     </div>
+    @endif
+
+    {{-- GROUP ORDER & SPLIT BILL CARD (IF APPLICABLE) --}}
+    @if ($order->groupOrder)
+        @php
+            $group = $order->groupOrder;
+            $splitSummary = $group->getSplitBillSummary();
+            $waBillText = "Halo rekan-rekan! Rincian patungan pesanan {$order->business->name} ({$group->title}) - Order #{$order->order_number}:\n\n";
+            foreach ($splitSummary as $s) {
+                $waBillText .= "- {$s['member_name']}: Rp " . number_format($s['subtotal'], 0, ',', '.') . "\n";
+            }
+            $waBillText .= "\nTotal: Rp " . number_format($order->total_amount, 0, ',', '.') . "\nTerima kasih!";
+        @endphp
+        <div class="bento-card p-5 sm:p-6 bg-[#AF52DE]/5 border-[#AF52DE]/20 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#AF52DE]/15">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#AF52DE] text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-[15px] font-bold text-black dark:text-white tracking-tight">
+                                Pesanan Bersama: {{ $group->title }}
+                            </h3>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#AF52DE]/15 text-[#AF52DE]">
+                                Group Order
+                            </span>
+                        </div>
+                        <p class="text-[12px] text-black/60 dark:text-white/60 mt-0.5">
+                            Host: <strong class="text-black dark:text-white">{{ $group->host?->name ?? $order->customer_name }}</strong> &bull; Total {{ count($splitSummary) }} Anggota Bergabung
+                        </p>
+                    </div>
+                </div>
+
+                <button type="button"
+                    onclick="navigator.clipboard.writeText({{ json_encode($waBillText) }}).then(() => alert('Rincian tagihan patungan berhasil disalin! Silakan bagikan ke WhatsApp grup kantor.'));"
+                    class="h-9 px-4 rounded-full bg-[#AF52DE] hover:bg-[#AF52DE]/90 text-white font-semibold text-[12.5px] transition active:scale-[0.98] shadow-sm flex items-center gap-1.5 self-start sm:self-auto cursor-pointer">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span>Salin Tagihan Patungan</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                @foreach ($splitSummary as $s)
+                    <div class="p-3 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 space-y-1 shadow-2xs">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-[13px] text-black dark:text-white flex items-center gap-1.5">
+                                <i data-lucide="user" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                                <span>{{ $s['member_name'] }}</span>
+                            </span>
+                            <span class="font-bold text-[13px] text-[#AF52DE] tabular-nums">
+                                Rp {{ number_format($s['subtotal'], 0, ',', '.') }}
+                            </span>
+                        </div>
+                        <div class="text-[11.5px] text-black/50 dark:text-white/50 pl-5">
+                            @foreach ($s['items'] as $item)
+                                <div>{{ (float) $item->quantity }}x {{ $item->product?->name ?? 'Produk' }}</div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
     @endif
 
     {{-- Main 2-Column Grid --}}
@@ -240,12 +315,116 @@
             <div class="bento-card p-6 space-y-4">
                 <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/5">
                     <h2 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Metode Pembayaran</h2>
-                    <span class="text-[11px] font-bold uppercase px-2 py-0.5 rounded-full {{ $order->payment_status === 'paid' ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#FF9500]/10 text-[#FF9500]' }}">
-                        {{ $order->payment_status === 'paid' ? 'Lunas' : 'Belum Lunas' }}
+                    <span class="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full {{ $order->isPaid() ? 'bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20' : 'bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20' }}">
+                        {{ $order->isPaid() ? 'Lunas' : 'Menunggu Pembayaran' }}
                     </span>
                 </div>
 
-                @if($order->paymentMethod)
+                @if($order->isTripay())
+                    {{-- TriPay Automated Gateway Details --}}
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-[14px] text-black dark:text-white">{{ $order->payment_channel ?? 'TriPay Gateway' }}</span>
+                                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
+                                    Otomatis
+                                </span>
+                            </div>
+                            <span class="text-[11px] text-[#34C759] font-bold">Bebas Biaya Admin</span>
+                        </div>
+
+                        {{-- Case 1: QRIS Dynamic --}}
+                        @if($order->gateway_qr_url)
+                            <div class="p-4 rounded-[20px] bg-white border border-black/10 dark:border-white/10 shadow-inner flex flex-col items-center justify-center text-center space-y-3">
+                                @if(!$order->isPaid())
+                                    <img src="{{ $order->gateway_qr_url }}" alt="QRIS TriPay" class="w-52 h-52 object-contain rounded-lg shadow-sm">
+                                    <div class="space-y-1">
+                                        <div class="text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center justify-center gap-1.5">
+                                            <span class="w-2 h-2 rounded-full bg-[#007AFF] animate-ping"></span>
+                                            <span>Scan QRIS untuk Bayar</span>
+                                        </div>
+                                        <p class="text-[11px] text-black/50 dark:text-white/50 max-w-xs">
+                                            Buka BCA, Mandiri, BRI, GoPay, OVO, ShopeePay, atau DANA, lalu scan kode di atas.
+                                        </p>
+                                    </div>
+
+                                    <a href="{{ $order->gateway_qr_url }}" target="_blank" download="qris-order-{{ $order->order_number }}.png"
+                                        class="h-9 px-4 rounded-full bg-black/5 hover:bg-black/10 dark:bg-white/10 text-black dark:text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                        <span>Unduh Gambar QR</span>
+                                    </a>
+                                @else
+                                    <div class="py-6 text-center space-y-2">
+                                        <div class="w-12 h-12 rounded-full bg-[#34C759]/10 text-[#34C759] flex items-center justify-center mx-auto">
+                                            <i data-lucide="check" class="w-6 h-6"></i>
+                                        </div>
+                                        <h4 class="font-bold text-black text-sm">Pembayaran QRIS Berhasil</h4>
+                                        <p class="text-xs text-gray-500">Transaksi telah diverifikasi otomatis oleh sistem.</p>
+                                    </div>
+                                @endif
+                            </div>
+
+                        {{-- Case 2: Virtual Account --}}
+                        @elseif($order->gateway_pay_code)
+                            <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-2.5">
+                                <span class="text-[11px] text-black/50 dark:text-white/50 block font-medium">Nomor Virtual Account:</span>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="font-mono text-xl font-extrabold text-black dark:text-white tracking-wider tabular-nums select-all">
+                                        {{ $order->gateway_pay_code }}
+                                    </span>
+                                    <button type="button" onclick="navigator.clipboard.writeText('{{ $order->gateway_pay_code }}').then(() => alert('Nomor VA berhasil disalin!'));"
+                                        class="h-8 px-3 rounded-full bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 text-xs font-bold transition flex items-center gap-1">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                        <span>Salin</span>
+                                    </button>
+                                </div>
+                                <p class="text-[11.5px] text-black/60 dark:text-white/60">
+                                    Transfer tepat sesuai total tagihan agar pembayaran terverifikasi otomatis dalam beberapa detik.
+                                </p>
+                            </div>
+                        @endif
+
+                        {{-- Expiration Notice --}}
+                        @if(!$order->isPaid() && $order->gateway_expired_at)
+                            <div class="text-center text-[11.5px] text-black/50 dark:text-white/50 font-medium">
+                                Batas Pembayaran: <strong class="text-[#FF9500]">{{ $order->gateway_expired_at->translatedFormat('d M Y, H:i') }}</strong>
+                            </div>
+                        @endif
+
+                        {{-- Pay URL Fallback Button --}}
+                        @if(!$order->isPaid() && $order->gateway_pay_url)
+                            <a href="{{ $order->gateway_pay_url }}" target="_blank"
+                                class="w-full h-11 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13px] flex items-center justify-center gap-1.5 shadow-sm transition">
+                                <span>Buka Halaman Pembayaran TriPay</span>
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                            </a>
+                        @endif
+                    </div>
+
+                    {{-- Live Polling Script for TriPay Unpaid Orders --}}
+                    @if(!$order->isPaid())
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const statusCheckInterval = setInterval(async () => {
+                                    try {
+                                        const res = await fetch("{{ route('customer.orders.status', $order->id) }}", {
+                                            headers: { 'Accept': 'application/json' }
+                                        });
+                                        if (res.ok) {
+                                            const data = await res.json();
+                                            if (data.is_paid) {
+                                                clearInterval(statusCheckInterval);
+                                                window.location.reload();
+                                            }
+                                        }
+                                    } catch (e) {}
+                                }, 4000);
+                            });
+                        </script>
+                    @endif
+
+                @elseif($order->paymentMethod)
+                    {{-- Manual Bank Transfer Instruction --}}
                     <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="font-bold text-[14px] text-black dark:text-white">{{ $order->paymentMethod->bank_name }}</span>
@@ -270,6 +449,7 @@
                 @endif
             </div>
 
+            @if($order->isManualPayment())
             {{-- Payment Proof Upload Widget --}}
             <div id="upload-proof" class="bento-card p-6 space-y-4" x-data="{
                 previewUrl: null,
@@ -389,6 +569,7 @@
                     </div>
                 @endif
             </div>
+            @endif
 
         </div>
 

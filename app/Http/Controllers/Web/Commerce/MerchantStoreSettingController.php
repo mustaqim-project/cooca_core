@@ -59,6 +59,11 @@ final class MerchantStoreSettingController extends Controller
             'allow_scheduled_order' => ['boolean'],
             'allow_customer_po' => ['boolean'],
             'allow_reservation' => ['boolean'],
+            'allow_custom_date' => ['boolean'],
+            'quota_metric' => ['nullable', 'string', 'in:orders,quantity'],
+            'preorder_quota_unit' => ['nullable', 'string', 'max:30'],
+            'batch_dates_mode' => ['nullable', 'string', 'in:operating_days,custom_dates'],
+            'custom_batch_dates' => ['nullable'],
             'lead_time_hours' => ['nullable', 'integer', 'min:0', 'max:720'],
             'cut_off_time' => ['nullable', 'string', 'max:8'],
             'daily_order_quota' => ['nullable', 'integer', 'min:0', 'max:10000'],
@@ -79,6 +84,33 @@ final class MerchantStoreSettingController extends Controller
             ? array_values(array_filter($availableSlotsInput))
             : array_values(array_filter(array_map('trim', explode("\n", (string) $availableSlotsInput))));
 
+        $customBatchDatesInput = $request->input('custom_batch_dates');
+        $customBatchDates = null;
+        if (is_array($customBatchDatesInput)) {
+            $customBatchDates = array_values(array_filter($customBatchDatesInput, fn ($item): bool => ! empty($item['date'])));
+        } elseif (is_string($customBatchDatesInput) && trim($customBatchDatesInput) !== '') {
+            $lines = explode("\n", $customBatchDatesInput);
+            $parsed = [];
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line === '') {
+                    continue;
+                }
+                $parts = preg_split('/[:|]/', $line);
+                $date = trim($parts[0] ?? '');
+                if ($date !== '') {
+                    $parsed[] = [
+                        'date' => $date,
+                        'quota' => isset($parts[1]) && is_numeric(trim($parts[1])) ? (int) trim($parts[1]) : null,
+                        'note' => isset($parts[2]) ? trim($parts[2]) : null,
+                    ];
+                }
+            }
+            if (! empty($parsed)) {
+                $customBatchDates = $parsed;
+            }
+        }
+
         $setting = CommerceStoreSetting::firstOrCreate(['business_id' => $business->id]);
         $setting->update([
             'is_storefront_enabled' => $request->boolean('is_storefront_enabled'),
@@ -89,6 +121,11 @@ final class MerchantStoreSettingController extends Controller
             'allow_scheduled_order' => $request->boolean('allow_scheduled_order'),
             'allow_customer_po' => $request->boolean('allow_customer_po'),
             'allow_reservation' => $request->boolean('allow_reservation'),
+            'allow_custom_date' => $request->has('allow_custom_date') ? $request->boolean('allow_custom_date') : true,
+            'quota_metric' => $validated['quota_metric'] ?? 'orders',
+            'preorder_quota_unit' => ! empty($validated['preorder_quota_unit']) ? trim($validated['preorder_quota_unit']) : 'PCS',
+            'batch_dates_mode' => $validated['batch_dates_mode'] ?? 'operating_days',
+            'custom_batch_dates' => $customBatchDates,
             'operating_days' => ! empty($operatingDays) ? $operatingDays : null,
             'available_slots' => ! empty($availableSlots) ? $availableSlots : null,
             'lead_time_hours' => (int) ($validated['lead_time_hours'] ?? 0),

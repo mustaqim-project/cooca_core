@@ -14,7 +14,7 @@
                     <span class="text-[12px] text-black/50 dark:text-white/50">COOCA Loyalty ID: #{{ substr($customer->id, 0, 8) }}</span>
                 </div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight">
-                    Halo, {{ $customer->name }}! 👋
+                    Halo, {{ $customer->name }}!
                 </h1>
                 <p class="text-[13.5px] text-black/60 dark:text-white/60 max-w-xl leading-relaxed">
                     Selamat datang di portal pembeli COOCA. Kelola pesanan, unggah bukti transfer, dan kumpulkan poin belanja UMKM Anda di sini.
@@ -136,6 +136,12 @@
                         <div class="space-y-1.5 min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="font-mono font-bold text-[14px] text-black dark:text-white">{{ $order->order_number }}</span>
+                                @if($order->groupOrder)
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#5856D6]/10 text-[#5856D6] border border-[#5856D6]/20">
+                                        <i data-lucide="users" class="w-2.5 h-2.5"></i>
+                                        <span>Pesan Bareng</span>
+                                    </span>
+                                @endif
                                 <span class="text-black/30 dark:text-white/30">&bull;</span>
                                 <span class="text-[12.5px] font-semibold text-black/70 dark:text-white/70">{{ $order->business->name ?? 'Toko Mitra' }}</span>
                                 <span class="text-black/30 dark:text-white/30">&bull;</span>

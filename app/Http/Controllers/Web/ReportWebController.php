@@ -180,6 +180,7 @@ final class ReportWebController extends Controller
         fputcsv($file, ['PENDAPATAN / PENJUALAN', '']);
         fputcsv($file, ['  Penjualan Kasir POS (Kotor)', round($data['revenues']['pos_gross_sales'])]);
         fputcsv($file, ['  Penjualan Faktur Invoice (Kotor)', round($data['revenues']['invoice_gross_sales'])]);
+        fputcsv($file, ['  Penjualan Toko Online Storefront (Kotor)', round($data['revenues']['online_gross_sales'] ?? 0)]);
         fputcsv($file, ['  Total Penjualan Kotor', round($data['revenues']['total_gross_sales'])]);
         fputcsv($file, ['  Potongan Diskon & Voucher', round($data['revenues']['total_discounts'])]);
         fputcsv($file, ['  Retur Penjualan (Pengurang)', round($data['revenues']['sales_returns'])]);
@@ -197,6 +198,7 @@ final class ReportWebController extends Controller
         fputcsv($file, ['HARGA POKOK PENJUALAN (HPP / COGS)', '']);
         fputcsv($file, ['  HPP Penjualan Kasir POS', round($data['cogs']['pos_cogs'])]);
         fputcsv($file, ['  HPP Penjualan Faktur Invoice', round($data['cogs']['invoice_cogs'])]);
+        fputcsv($file, ['  HPP Penjualan Toko Online', round($data['cogs']['online_cogs'] ?? 0)]);
         fputcsv($file, ['  Pemulihan HPP Retur (Pengurang)', round($data['cogs']['returns_cogs_recovery'])]);
         fputcsv($file, ['TOTAL HPP BARANG TERJUAL', round($data['cogs']['total_cogs'])]);
         fputcsv($file, []);

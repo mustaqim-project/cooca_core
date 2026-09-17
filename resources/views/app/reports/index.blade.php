@@ -305,6 +305,10 @@
                         <span class="pl-2">Penjualan Faktur Invoice (Gross)</span>
                         <span class="tabular-nums font-medium text-black dark:text-white">{{ $business->currency_symbol }} {{ number_format($incomeStatement['revenues']['invoice_gross_sales'], 0, ',', '.') }}</span>
                     </div>
+                    <div class="flex justify-between py-1 text-black/70 dark:text-white/70">
+                        <span class="pl-2">Penjualan Toko Online (Storefront Gross)</span>
+                        <span class="tabular-nums font-medium text-black dark:text-white">{{ $business->currency_symbol }} {{ number_format($incomeStatement['revenues']['online_gross_sales'] ?? 0, 0, ',', '.') }}</span>
+                    </div>
                     <div class="flex justify-between py-1 text-[#FF3B30] dark:text-[#FF453A]">
                         <span class="pl-2">(-) Potongan Diskon Penjualan &amp; Voucher</span>
                         <span class="tabular-nums font-medium">({{ $business->currency_symbol }} {{ number_format($incomeStatement['revenues']['total_discounts'], 0, ',', '.') }})</span>
@@ -356,6 +360,10 @@
                     <div class="flex justify-between py-1 text-black/70 dark:text-white/70">
                         <span class="pl-2">HPP Penjualan Faktur Invoice</span>
                         <span class="tabular-nums font-medium text-black dark:text-white">{{ $business->currency_symbol }} {{ number_format($incomeStatement['cogs']['invoice_cogs'], 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-black/70 dark:text-white/70">
+                        <span class="pl-2">HPP Penjualan Toko Online</span>
+                        <span class="tabular-nums font-medium text-black dark:text-white">{{ $business->currency_symbol }} {{ number_format($incomeStatement['cogs']['online_cogs'] ?? 0, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between py-1 text-[#34C759] dark:text-[#30D158]">
                         <span class="pl-2">(-) Pemulihan HPP dari Retur Penjualan</span>
@@ -460,6 +468,10 @@
                     <div class="flex justify-between py-2 border-b border-black/5 dark:border-white/5">
                         <span class="text-black/70 dark:text-white/70">Pelunasan Piutang Invoice</span>
                         <span class="font-medium tabular-nums text-black dark:text-white">{{ $business->currency_symbol }} {{ number_format($cashFlow['inflows']['invoice_payments'], 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-black/5 dark:border-white/5">
+                        <span class="text-black/70 dark:text-white/70">Penerimaan Toko Online (Storefront)</span>
+                        <span class="font-medium tabular-nums text-black dark:text-white">{{ $business->currency_symbol }} {{ number_format($cashFlow['inflows']['online_payments'] ?? 0, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between py-2">
                         <span class="text-black/70 dark:text-white/70">Pemasukan Kas Non-Penjualan</span>

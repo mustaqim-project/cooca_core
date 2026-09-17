@@ -5,463 +5,566 @@
 ])
 
 @section('content')
-<div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
+<div class="w-full max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-10" x-data="{
     showAddModal: false,
     showEditModal: {{ $editService ? 'true' : 'false' }},
-    showNewCategoryInput: false,
+    showAddCategoryModal: false,
+    
+    // Dynamic categories array for zero-reload injection
+    categories: {{ Js::from($categories) }},
+    units: {{ Js::from($units) }},
+
+    // Form inputs state
+    addForm: {
+        name: '',
+        code: '',
+        category_id: '',
+        output_unit_id: '{{ $defaultUnit?->id ?? '' }}',
+        description: '',
+        selling_price: '',
+        base_cost: 0,
+        show_in_pos: true,
+        show_in_sales_order: true,
+        show_in_website: true,
+        show_price_on_web: true,
+        is_active: true
+    },
+
+    editForm: {
+        id: '{{ $editService?->id ?? '' }}',
+        name: {{ Js::from($editService?->name ?? '') }},
+        code: {{ Js::from($editService?->code ?? '') }},
+        category_id: '{{ $editService?->category_id ?? '' }}',
+        output_unit_id: '{{ $editService?->output_unit_id ?? $defaultUnit?->id ?? '' }}',
+        description: {{ Js::from($editService?->description ?? '') }},
+        selling_price: '{{ $editService ? (int)$editService->selling_price : '' }}',
+        base_cost: '{{ $editService ? (int)$editService->base_cost : 0 }}',
+        show_in_pos: {{ $editService ? ($editService->show_in_pos ? 'true' : 'false') : 'true' }},
+        show_in_sales_order: {{ $editService ? ($editService->show_in_sales_order ? 'true' : 'false') : 'true' }},
+        show_in_website: {{ $editService ? ($editService->show_in_website ? 'true' : 'false') : 'true' }},
+        show_price_on_web: {{ $editService ? ($editService->show_price_on_web ? 'true' : 'false') : 'true' }},
+        is_active: {{ $editService ? ($editService->is_active ? 'true' : 'false') : 'true' }}
+    },
+
+    // Quick-add category submodal state
+    quickCat: { name: '', isSubmitting: false, error: '' },
+
+    // Delete Alert State
     deleteModalOpen: false,
     deleteTarget: { id: '', name: '' },
-    sellingPriceRaw: '',
-    sellingPriceFormatted: '',
-    baseCostRaw: '',
-    baseCostFormatted: '',
-    editSellingPriceRaw: '{{ $editService ? (int)$editService->selling_price : '' }}',
-    editSellingPriceFormatted: '{{ $editService ? number_format((float)$editService->selling_price, 0, ',', '.') : '' }}',
 
     init() {
         window.addEventListener('pageshow', () => {
             this.showAddModal = false;
             this.deleteModalOpen = false;
+            this.showAddCategoryModal = false;
         });
     },
 
-    formatNumber(val) {
-        if (!val) return '';
-        const num = String(val).replace(/\D/g, '');
-        return num ? Number(num).toLocaleString('id-ID') : '';
+    formatRupiah(num) {
+        return new Intl.NumberFormat('id-ID').format(num || 0);
     },
 
-    onPriceInput(e, target) {
-        const raw = e.target.value.replace(/\D/g, '');
-        if (target === 'add_selling') {
-            this.sellingPriceRaw = raw;
-            this.sellingPriceFormatted = this.formatNumber(raw);
-        } else if (target === 'add_cost') {
-            this.baseCostRaw = raw;
-            this.baseCostFormatted = this.formatNumber(raw);
-        } else if (target === 'edit_selling') {
-            this.editSellingPriceRaw = raw;
-            this.editSellingPriceFormatted = this.formatNumber(raw);
-        }
+    openAdd() {
+        this.showAddModal = true;
+    },
+
+    openEdit(item) {
+        this.editForm = {
+            id: item.id,
+            name: item.name,
+            code: item.code || '',
+            category_id: item.category_id || '',
+            output_unit_id: item.output_unit_id || '{{ $defaultUnit?->id ?? '' }}',
+            description: item.description || '',
+            selling_price: Math.round(parseFloat(item.selling_price) || 0),
+            base_cost: Math.round(parseFloat(item.base_cost) || 0),
+            show_in_pos: item.show_in_pos !== undefined ? Boolean(item.show_in_pos) : true,
+            show_in_sales_order: item.show_in_sales_order !== undefined ? Boolean(item.show_in_sales_order) : true,
+            show_in_website: item.show_in_website !== undefined ? Boolean(item.show_in_website) : true,
+            show_price_on_web: item.show_price_on_web !== undefined ? Boolean(item.show_price_on_web) : true,
+            is_active: item.is_active !== undefined ? Boolean(item.is_active) : true
+        };
+        this.showEditModal = true;
     },
 
     openDelete(id, name) {
         this.deleteTarget = { id, name };
         this.deleteModalOpen = true;
     },
-
     closeDelete() {
         this.deleteModalOpen = false;
         this.deleteTarget = { id: '', name: '' };
     },
-
     submitDelete() {
         if (this.deleteTarget.id) {
             const form = document.getElementById('form-delete-' + this.deleteTarget.id);
             if (form) form.submit();
         }
+    },
+
+    async submitQuickCategory() {
+        if (!this.quickCat.name.trim()) return;
+        this.quickCat.isSubmitting = true;
+        this.quickCat.error = '';
+
+        try {
+            const res = await fetch('{{ route('product-categories.store') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    name: this.quickCat.name.trim()
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Gagal menyimpan kategori');
+
+            const newCat = data.category || data.data || data;
+            this.categories.push(newCat);
+            this.addForm.category_id = newCat.id;
+            if (this.showEditModal) this.editForm.category_id = newCat.id;
+
+            this.quickCat = { name: '', isSubmitting: false, error: '' };
+            this.showAddCategoryModal = false;
+        } catch (e) {
+            this.quickCat.error = e.message;
+            this.quickCat.isSubmitting = false;
+        }
     }
 }">
 
     <!-- ===================================================== -->
-    <!-- 1. SENIOR-FRIENDLY INFORMATIVE BANNER                -->
+    <!-- 1. UNIFIED APPLE SEGMENTED CONTROL (Section 16 Mandate) -->
     <!-- ===================================================== -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 border border-blue-200/80 dark:border-blue-900/50 rounded-2xl p-4 sm:p-5 shadow-sm">
-        <div class="flex items-start gap-3.5">
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.32l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.32 4.486c.049.58.025 1.193-.139 1.743" />
-                </svg>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="rounded-[16px] bg-black/[0.04] dark:bg-white/[0.04] p-1.5 flex items-center gap-1.5 w-fit border border-black/[0.04] dark:border-white/[0.06]">
+            <a href="{{ route('products.index') }}"
+               class="px-4 py-2 rounded-[12px] text-[13px] font-medium text-[#8E8E93] dark:text-[#98989D] hover:text-[#1C1C1E] dark:hover:text-[#F2F2F7] transition-all">
+                Barang Fisik (Katalog)
+            </a>
+            <a href="{{ route('services.index') }}"
+               class="px-4 py-2 rounded-[12px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-[#F2F2F7] shadow-sm transition-all">
+                Jasa &amp; Layanan
+            </a>
+            <a href="{{ route('pos.modifiers.index') }}"
+               class="px-4 py-2 rounded-[12px] text-[13px] font-medium text-[#8E8E93] dark:text-[#98989D] hover:text-[#1C1C1E] dark:hover:text-[#F2F2F7] transition-all">
+                Varian &amp; Modifiers
+            </a>
+        </div>
+
+        <button type="button" @click="openAdd()"
+                class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            <span>Tambah Layanan Baru</span>
+        </button>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- 2. BENTO KPI METRICS SUMMARY                          -->
+    <!-- ===================================================== -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <!-- Tile 1: Total Layanan -->
+        <div class="rounded-[20px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+            <div class="flex items-center justify-between">
+                <span class="text-[12px] font-semibold text-[#8E8E93] dark:text-[#98989D] uppercase tracking-wider">Total Layanan</span>
+                <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879a3 3 0 11-4.242-4.242L9.757 9.757m0 0L19 19m-9.243-9.243a3 3 0 114.242-4.242L11.121 9.121"/></svg>
+                </div>
             </div>
-            <div class="flex-1 min-w-0">
-                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                    Layanan Jasa Bebas Stok (Selalu Siap Dijual)
-                </h3>
-                <p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-1 leading-relaxed">
-                    Menu ini khusus untuk usaha jasa seperti <strong>potong rambut, servis bengkel, klinik, cuci kendaraan, perbaikan, atau laundry</strong>. Anda tidak perlu memasukkan jumlah stok gudang karena jasa selalu siap ditransaksikan di Kasir POS dan Faktur Penjualan.
-                </p>
+            <div class="mt-3 flex items-baseline justify-between">
+                <span class="text-[26px] font-bold tabular-nums text-[#1C1C1E] dark:text-[#F2F2F7]">{{ number_format($totalServicesCount) }}</span>
+                <span class="text-[11px] font-medium text-[#8E8E93] dark:text-[#98989D]">Paket &amp; Servis</span>
             </div>
-            <div class="hidden lg:block shrink-0">
-                <button type="button" @click="showAddModal = true"
-                        class="h-12 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-md hover:shadow-lg transition-all flex items-center gap-2 active:scale-95">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                    <span>+ Tambah Layanan Baru</span>
-                </button>
+        </div>
+
+        <!-- Tile 2: Status di Kasir -->
+        <div class="rounded-[20px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+            <div class="flex items-center justify-between">
+                <span class="text-[12px] font-semibold text-[#8E8E93] dark:text-[#98989D] uppercase tracking-wider">Status di Kasir</span>
+                <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+            <div class="mt-3 flex items-baseline justify-between">
+                <span class="text-[20px] font-bold text-[#34C759] dark:text-[#30D158]">Bebas Stok &amp; Siap</span>
+                <span class="text-[11px] font-medium text-[#8E8E93] dark:text-[#98989D]">Tanpa Gudang</span>
+            </div>
+        </div>
+
+        <!-- Tile 3: Kategori Jasa -->
+        <div class="rounded-[20px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+            <div class="flex items-center justify-between">
+                <span class="text-[12px] font-semibold text-[#8E8E93] dark:text-[#98989D] uppercase tracking-wider">Kategori Jasa</span>
+                <div class="w-8 h-8 rounded-[10px] bg-[#5856D6]/10 text-[#5856D6] flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                </div>
+            </div>
+            <div class="mt-3 flex items-baseline justify-between">
+                <span class="text-[26px] font-bold tabular-nums text-[#5856D6]"><span x-text="categories.length">{{ $categories->count() }}</span></span>
+                <span class="text-[11px] font-medium text-[#8E8E93] dark:text-[#98989D]">Grup Jasa</span>
             </div>
         </div>
     </div>
 
     <!-- ===================================================== -->
-    <!-- 2. QUICK STATS SUMMARY                                -->
+    <!-- 3. SEARCH & FILTER BAR                                -->
     <!-- ===================================================== -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25-2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
-            </div>
-            <div>
-                <div class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Layanan</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums">{{ number_format($totalServicesCount) }}</div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <div>
-                <div class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status di Kasir</div>
-                <div class="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400">Selalu Siap Dijual</div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"/></svg>
-            </div>
-            <div>
-                <div class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Kategori Jasa</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums">{{ $categories->count() }}</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===================================================== -->
-    <!-- 3. ACTION BAR & FILTER                                -->
-    <!-- ===================================================== -->
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
-        <form method="GET" action="{{ route('services.index') }}" class="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-            <div class="flex-1 flex flex-col sm:flex-row gap-3">
-                <!-- Large Search Input (Min 16px to prevent auto-zoom on mobile) -->
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
-                    </div>
-                    <input type="text" name="search" value="{{ request('search') }}"
-                           placeholder="Ketik nama layanan atau kata kunci..."
-                           class="w-full h-12 pl-11 pr-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                </div>
-
-                <!-- Category Filter -->
-                <div class="w-full sm:w-64">
-                    <select name="category_id" onchange="this.form.submit()"
-                            class="w-full h-12 px-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-base text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
-                        <option value="">Semua Kategori</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
-                                {{ $cat->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+    <div class="rounded-[20px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] p-3.5 sm:p-4 shadow-xs">
+        <form method="GET" action="{{ route('services.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="relative flex-1 max-w-md">
+                <svg class="w-4 h-4 text-black/40 dark:text-white/40 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+                <input type="text" name="search" value="{{ request('search') }}"
+                       placeholder="Cari nama layanan, kode, atau deskripsi..."
+                       class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[12px] pl-10 pr-3.5 text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
             </div>
 
-            <!-- Buttons -->
-            <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center gap-2">
+                <select name="category_id" onchange="this.form.submit()"
+                        class="h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[12px] text-[13px] font-medium text-[#1C1C1E] dark:text-[#F2F2F7] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    <option value="">Semua Kategori</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+
                 @if(request('search') || request('category_id'))
-                    <a href="{{ route('services.index') }}"
-                       class="h-12 px-4 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-sm flex items-center justify-center transition">
-                        Reset Filter
-                    </a>
+                <a href="{{ route('services.index') }}" class="h-10 px-3.5 rounded-[12px] text-[13px] font-medium text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-[#F2F2F7] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] transition-all flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <span>Reset</span>
+                </a>
                 @endif
-                <button type="button" @click="showAddModal = true"
-                        class="w-full sm:w-auto h-12 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-md transition-all flex items-center justify-center gap-2 active:scale-95">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                    <span>+ Tambah Layanan Baru</span>
-                </button>
             </div>
         </form>
     </div>
 
     <!-- ===================================================== -->
-    <!-- 4. SERVICES LIST TABLE                                -->
+    <!-- 4. DENSE DATA TABLE (DESKTOP & TABLET)                 -->
     <!-- ===================================================== -->
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
+    <div class="hidden sm:block rounded-[20px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left text-[13px]">
                 <thead>
-                    <tr class="bg-slate-100/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-sm sm:text-base font-bold">
-                        <th class="py-4 px-4 sm:px-6">Nama Jasa / Layanan</th>
-                        <th class="py-4 px-4 hidden md:table-cell">Kategori</th>
-                        <th class="py-4 px-4 text-right">Tarif (Biaya Jual)</th>
-                        <th class="py-4 px-4 text-center hidden sm:table-cell">Status Stok</th>
-                        <th class="py-4 px-4 sm:px-6 text-right">Tindakan</th>
+                    <tr class="border-b border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02]">
+                        <th class="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] whitespace-nowrap">Layanan &amp; Kode</th>
+                        <th class="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] whitespace-nowrap">Kategori</th>
+                        <th class="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] whitespace-nowrap">Satuan Output</th>
+                        <th class="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] text-right whitespace-nowrap">Tarif / Harga Jual</th>
+                        <th class="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] text-center whitespace-nowrap">Kanal Penjualan</th>
+                        <th class="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] text-right whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200 text-base">
+                <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                     @forelse($services as $item)
-                        <tr class="hover:bg-blue-50/40 dark:hover:bg-slate-800/40 transition">
-                            <!-- Nama Layanan -->
-                            <td class="py-4 px-4 sm:px-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 font-bold text-sm">
-                                        🛠️
-                                    </div>
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
-                                            {{ $item->name }}
-                                        </div>
-                                        <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2">
-                                            @if($item->code)
-                                                <span class="font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300">{{ $item->code }}</span>
-                                            @endif
-                                            <span>{{ $item->outputUnit?->name ?? 'Jasa' }}</span>
-                                        </div>
-                                        @if($item->description)
-                                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
-                                                {{ $item->description }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
-
-                            <!-- Kategori -->
-                            <td class="py-4 px-4 hidden md:table-cell">
-                                @if($item->category)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-                                        {{ $item->category->name }}
-                                    </span>
-                                @else
-                                    <span class="text-xs text-slate-400 italic">Tanpa Kategori</span>
+                    <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                        <td class="py-3.5 px-4 font-medium text-[#1C1C1E] dark:text-[#F2F2F7]">
+                            <div class="font-semibold text-[13.5px]">{{ $item->name }}</div>
+                            <div class="text-[11px] text-[#8E8E93] dark:text-[#98989D] tabular-nums mt-0.5">
+                                {{ $item->code ?? 'No SKU' }}
+                                @if($item->description)
+                                    · <span class="text-[#3C3C43]/70 dark:text-[#EBEBF5]/70 truncate inline-block max-w-xs align-bottom">{{ $item->description }}</span>
                                 @endif
-                            </td>
-
-                            <!-- Tarif -->
-                            <td class="py-4 px-4 text-right">
-                                <div class="font-extrabold text-base sm:text-lg text-blue-600 dark:text-blue-400 tabular-nums">
-                                    Rp {{ number_format((float)$item->selling_price, 0, ',', '.') }}
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4 text-[#3C3C43]/80 dark:text-[#EBEBF5]/80">
+                            {{ $item->category?->name ?? 'Tanpa Kategori' }}
+                        </td>
+                        <td class="py-3.5 px-4 text-[#1C1C1E] dark:text-[#F2F2F7] font-medium">
+                            {{ $item->outputUnit?->name ?? 'Jasa' }}
+                        </td>
+                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                            <div class="font-bold text-[14px] text-[#007AFF] tabular-nums">
+                                Rp {{ number_format((float)$item->selling_price, 0, ',', '.') }}
+                            </div>
+                            @if($item->base_cost > 0)
+                                <div class="text-[11px] text-[#8E8E93] tabular-nums">
+                                    Modal: Rp {{ number_format((float)$item->base_cost, 0, ',', '.') }}
                                 </div>
-                                @if($item->base_cost > 0)
-                                    <div class="text-xs text-slate-400 tabular-nums">
-                                        Modal: Rp {{ number_format((float)$item->base_cost, 0, ',', '.') }}
-                                    </div>
-                                @endif
-                            </td>
-
-                            <!-- Status Stok (Penghilang Cemas) -->
-                            <td class="py-4 px-4 text-center hidden sm:table-cell">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-300/50">
-                                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                                    <span>Bebas Stok (Siap)</span>
+                            @endif
+                        </td>
+                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                            <div class="inline-flex items-center gap-1.5">
+                                <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-semibold {{ $item->show_in_pos ? 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]' : 'bg-black/[0.05] text-[#8E8E93]' }}">
+                                    POS
                                 </span>
-                            </td>
-
-                            <!-- Aksi (Tombol Nyaman Diklik) -->
-                            <td class="py-4 px-4 sm:px-6 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <!-- Edit Button -->
-                                    <a href="{{ route('services.index', ['edit' => $item->id]) }}"
-                                       class="h-10 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm flex items-center gap-1.5 transition active:scale-95"
-                                       title="Ubah Layanan">
-                                        <span>✏️ Ubah</span>
-                                    </a>
-
-                                    <!-- Delete Button -->
-                                    <button type="button" @click="openDelete('{{ $item->id }}', '{{ addslashes($item->name) }}')"
-                                            class="h-10 px-3.5 rounded-xl border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold text-sm flex items-center gap-1.5 transition active:scale-95"
-                                            title="Hapus Layanan">
-                                        <span>🗑️ Hapus</span>
-                                    </button>
-
-                                    <!-- Hidden Delete Form -->
-                                    <form id="form-delete-{{ $item->id }}" action="{{ route('services.destroy', $item) }}" method="POST" class="hidden">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
+                                <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-semibold {{ $item->show_in_website ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-black/[0.05] text-[#8E8E93]' }}">
+                                    Web
+                                </span>
+                                <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-semibold {{ $item->show_in_sales_order ? 'bg-[#5856D6]/10 text-[#5856D6]' : 'bg-black/[0.05] text-[#8E8E93]' }}">
+                                    SO
+                                </span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <button type="button" @click="openEdit({{ Js::from($item) }})"
+                                        class="h-8 px-3 rounded-[8px] text-[12px] font-medium text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] transition-colors" title="Ubah Layanan">
+                                    Edit
+                                </button>
+                                <button type="button" @click="openDelete('{{ $item->id }}', {{ Js::from($item->name) }})"
+                                        class="h-8 px-3 rounded-[8px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors" title="Hapus Layanan">
+                                    Hapus
+                                </button>
+                                <form id="form-delete-{{ $item->id }}" action="{{ route('services.destroy', $item) }}" method="POST" class="hidden">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="5" class="py-12 px-4 text-center">
-                                <div class="max-w-md mx-auto space-y-3">
-                                    <div class="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto text-2xl font-bold">
-                                        🛠️
-                                    </div>
-                                    <h4 class="text-lg font-bold text-slate-900 dark:text-white">
-                                        Belum Ada Layanan / Jasa yang Terdaftar
-                                    </h4>
-                                    <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
-                                        Daftarkan layanan pertama Anda seperti <em>Potong Rambut</em>, <em>Ganti Oli Motor</em>, <em>Servis AC</em>, atau <em>Jasa Foto</em>.
-                                    </p>
-                                    <div class="pt-2">
-                                        <button type="button" @click="showAddModal = true"
-                                                class="h-12 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-md transition-all inline-flex items-center gap-2 active:scale-95">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                                            <span>+ Daftarkan Layanan Sekarang</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="6" class="py-12 text-center text-[#8E8E93] dark:text-[#98989D]">
+                            Belum ada data jasa atau layanan ditemukan.
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
         @if($services->hasPages())
-            <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                {{ $services->links() }}
-            </div>
+        <div class="px-4 py-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-[13px] text-[#8E8E93]">
+            {{ $services->links() }}
+        </div>
         @endif
     </div>
 
     <!-- ===================================================== -->
-    <!-- 5. MODAL TAMBAH LAYANAN BARU (3 INPUT UTAMA)          -->
+    <!-- 5. MOBILE GROUPED INSET LIST (Standar Apple HIG)      -->
+    <!-- ===================================================== -->
+    <div class="sm:hidden space-y-3">
+        @forelse($services as $item)
+        <div class="rounded-[20px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] p-4 shadow-xs space-y-3">
+            <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                    <h3 class="text-[15px] font-bold text-[#1C1C1E] dark:text-[#F2F2F7] leading-tight truncate">{{ $item->name }}</h3>
+                    <div class="text-[12px] text-[#8E8E93] dark:text-[#98989D] mt-0.5">
+                        {{ $item->code ?? 'No SKU' }} · {{ $item->category?->name ?? 'Tanpa Kategori' }}
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="text-[16px] font-bold text-[#007AFF] tabular-nums block">
+                        Rp {{ number_format((float)$item->selling_price, 0, ',', '.') }}
+                    </span>
+                    <span class="text-[11px] text-[#8E8E93] dark:text-[#98989D]">/ {{ $item->outputUnit?->name ?? 'Jasa' }}</span>
+                </div>
+            </div>
+
+            @if($item->description)
+            <p class="text-[12px] text-[#3C3C43]/70 dark:text-[#EBEBF5]/70 line-clamp-2">
+                {{ $item->description }}
+            </p>
+            @endif
+
+            <div class="flex items-center justify-between pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
+                <div class="flex items-center gap-1.5">
+                    <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold {{ $item->show_in_pos ? 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]' : 'bg-black/[0.05] text-[#8E8E93]' }}">
+                        POS
+                    </span>
+                    <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold {{ $item->show_in_website ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-black/[0.05] text-[#8E8E93]' }}">
+                        Web
+                    </span>
+                    <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold {{ $item->show_in_sales_order ? 'bg-[#5856D6]/10 text-[#5856D6]' : 'bg-black/[0.05] text-[#8E8E93]' }}">
+                        SO
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <button type="button" @click="openEdit({{ Js::from($item) }})" class="h-9 px-3 rounded-[10px] text-[12px] font-medium text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.04] dark:bg-white/[0.06] active:scale-95 transition-all">
+                        Edit
+                    </button>
+                    <button type="button" @click="openDelete('{{ $item->id }}', {{ Js::from($item->name) }})" class="h-9 px-3 rounded-[10px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/10 active:scale-95 transition-all">
+                        Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+        @empty
+        <div class="rounded-[20px] bg-white/80 dark:bg-[#1C1C1E]/80 p-8 text-center text-[#8E8E93] border border-black/[0.06] dark:border-white/[0.08]">
+            Belum ada data jasa atau layanan ditemukan.
+        </div>
+        @endforelse
+
+        @if($services->hasPages())
+        <div class="pt-2">
+            {{ $services->links() }}
+        </div>
+        @endif
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- 6. MODAL: TAMBAH LAYANAN (FULL LAYOUT XXL BENTO)      -->
     <!-- ===================================================== -->
     <div x-show="showAddModal" x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto"
+         class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm"
          @keydown.escape.window="showAddModal = false">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-lg shadow-2xl overflow-hidden my-8"
+        
+        <div class="w-full inset-x-0 bottom-0 rounded-t-[28px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-[0_24px_60px_rgba(0,0,0,0.3)] max-h-[94vh] sm:max-h-[90vh] flex flex-col overflow-hidden sm:max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl transition-all"
              @click.outside="showAddModal = false">
+            
+            <div class="sm:hidden pt-2.5 pb-1 flex justify-center shrink-0">
+                <div class="w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20"></div>
+            </div>
 
-            <!-- Modal Header -->
-            <div class="p-5 sm:p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between">
+            <div class="px-5 sm:px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 bg-[#F2F2F7]/50 dark:bg-white/[0.02]">
                 <div>
-                    <h3 class="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
-                        <span>🛠️ Tambah Layanan Baru</span>
-                    </h3>
-                    <p class="text-xs sm:text-sm text-blue-100 mt-1">
-                        Cukup isi 3 informasi pokok di bawah ini
-                    </p>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">Formulir Layanan Bebas Stok</div>
+                    <h3 class="text-[18px] sm:text-[22px] font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight">Tambah Layanan Jasa Baru</h3>
                 </div>
-                <button type="button" @click="showAddModal = false"
-                        class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button type="button" @click="showAddModal = false" class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] text-black/60 dark:text-white/60 flex items-center justify-center transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
-            <!-- Modal Form -->
-            <form action="{{ route('services.store') }}" method="POST" class="p-5 sm:p-6 space-y-5">
+            <form method="POST" action="{{ route('services.store') }}" class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
                 @csrf
 
-                <!-- Input 1: Nama Layanan (Wajib, Font Besar 16px) -->
-                <div class="space-y-1.5">
-                    <label class="block text-base font-bold text-slate-900 dark:text-white">
-                        1. Nama Jasa / Layanan <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" name="name" required autofocus
-                           placeholder="Contoh: Potong Rambut Pria, Servis AC, Ganti Oli"
-                           class="w-full h-12 px-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition">
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Tuliskan nama jasa yang biasa dikenal oleh pelanggan Anda.</p>
-                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Kolom Kiri: 7 Kolom (Identitas Layanan) -->
+                    <div class="lg:col-span-7 space-y-5">
+                        <div class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.06] p-4 sm:p-5 space-y-4">
+                            <h4 class="text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">Identitas Layanan</h4>
 
-                <!-- Input 2: Kategori Layanan (Wajib/Opsional, Mudah Dipilih) -->
-                <div class="space-y-1.5" x-data="{ isTypingNew: false }">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-base font-bold text-slate-900 dark:text-white">
-                            2. Kategori Layanan
-                        </label>
-                        <button type="button" @click="isTypingNew = !isTypingNew"
-                                class="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-                            <span x-text="isTypingNew ? '← Pilih dari Kategori Ada' : '+ Ketik Kategori Baru'"></span>
-                        </button>
+                            <div>
+                                <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">
+                                    Nama Jasa / Layanan <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <input type="text" name="name" x-model="addForm.name" required
+                                       placeholder="Contoh: Potong Rambut Pria / Servis AC Rutin"
+                                       class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">Kode Jasa / SKU</label>
+                                    <input type="text" name="code" x-model="addForm.code"
+                                           placeholder="SRV-001 (opsional)"
+                                           class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">Satuan Durasi / Output</label>
+                                    <select name="output_unit_id" x-model="addForm.output_unit_id"
+                                            class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3 text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        <template x-for="u in units" :key="u.id">
+                                            <option :value="u.id" x-text="u.name + ' (' + u.code + ')'"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7]">Kategori Layanan</label>
+                                    <button type="button" @click="showAddCategoryModal = true" class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-0.5">
+                                        <span>[ + ]</span> <span>Kategori Baru</span>
+                                    </button>
+                                </div>
+                                <select name="category_id" x-model="addForm.category_id"
+                                        class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3 text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    <option value="">-- Tanpa Kategori --</option>
+                                    <template x-for="cat in categories" :key="cat.id">
+                                        <option :value="cat.id" x-text="cat.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">Deskripsi / Ruang Lingkup Layanan</label>
+                                <textarea name="description" x-model="addForm.description" rows="3"
+                                          placeholder="Jelaskan detail apa saja yang termasuk dalam paket layanan ini..."
+                                          class="w-full p-3.5 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition"></textarea>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Pilihan Dropdown Kategori yang Sudah Ada -->
-                    <template x-if="!isTypingNew">
-                        <select name="category_id"
-                                class="w-full h-12 px-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 text-base text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition cursor-pointer">
-                            <option value="">Pilih Kategori (Boleh Kosong)</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                            @endforeach
-                        </select>
-                    </template>
+                    <!-- Kolom Kanan: 5 Kolom (Tarif & Kanal Penjualan) -->
+                    <div class="lg:col-span-5 space-y-5">
+                        <!-- Tarif & Biaya Modal -->
+                        <div class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.06] p-4 sm:p-5 space-y-4">
+                            <h4 class="text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">Tarif &amp; Upah Kerja</h4>
+                            
+                            <div>
+                                <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">
+                                    Tarif Jasa / Harga Jual (Rp) <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <input type="number" name="selling_price" x-model="addForm.selling_price" required min="0" step="100" placeholder="75000"
+                                       class="w-full h-11 px-3.5 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[16px] sm:text-[15px] font-bold text-[#007AFF] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                            </div>
 
-                    <!-- Input Ketik Kategori Baru Langsung -->
-                    <template x-if="isTypingNew">
-                        <input type="text" name="new_category_name"
-                               placeholder="Ketik kategori baru, misal: Jasa Salon, Perawatan, Bengkel..."
-                               class="w-full h-12 px-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-blue-400 text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-600 transition">
-                    </template>
-                </div>
-
-                <!-- Input 3: Tarif yang Dibayar Pelanggan (Wajib, Live Rupiah Formatting) -->
-                <div class="space-y-1.5">
-                    <label class="block text-base font-bold text-slate-900 dark:text-white">
-                        3. Tarif / Biaya yang Dibayar Pelanggan (Rp) <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base font-bold text-slate-500">
-                            Rp
-                        </div>
-                        <input type="text" required
-                               @input="onPriceInput($event, 'add_selling')"
-                               :value="sellingPriceFormatted"
-                               placeholder="50.000"
-                               class="w-full h-12 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 text-lg font-extrabold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition tabular-nums">
-                        <input type="hidden" name="selling_price" :value="sellingPriceRaw">
-                    </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Harga atau ongkos yang akan ditagihkan ke pelanggan di kasir.</p>
-                </div>
-
-                <!-- Bagian Pengaturan Tambahan (Terlipat / Tidak Mengintimidasi) -->
-                <div x-data="{ expanded: false }" class="border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 bg-slate-50/50 dark:bg-slate-800/30">
-                    <button type="button" @click="expanded = !expanded"
-                            class="w-full flex items-center justify-between text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-blue-600 transition">
-                        <span class="flex items-center gap-1.5">
-                            <span>⚙️ Pengaturan Tambahan (Boleh Dikosongkan)</span>
-                        </span>
-                        <svg class="w-4 h-4 transition-transform duration-200" :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
-                    </button>
-
-                    <div x-show="expanded" x-collapse class="mt-4 space-y-4 pt-3 border-t border-slate-200 dark:border-slate-700">
-                        <!-- Kode Singkatan -->
-                        <div class="space-y-1">
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                Kode / Singkatan Layanan (Opsional)
-                            </label>
-                            <input type="text" name="code"
-                                   placeholder="Contoh: JSA-01, OLI-01"
-                                   class="w-full h-10 px-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white uppercase">
-                        </div>
-
-                        <!-- Estimasi Modal / Biaya Pokok -->
-                        <div class="space-y-1">
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                Estimasi Biaya Pokok / Komisi Tukang (Rp, Opsional)
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-xs font-bold text-slate-400">Rp</div>
-                                <input type="text"
-                                       @input="onPriceInput($event, 'add_cost')"
-                                       :value="baseCostFormatted"
-                                       placeholder="0"
-                                       class="w-full h-10 pl-9 pr-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-bold text-slate-900 dark:text-white tabular-nums">
-                                <input type="hidden" name="base_cost" :value="baseCostRaw">
+                            <div>
+                                <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">
+                                    Modal Dasar / Upah Teknisi (Rp)
+                                </label>
+                                <input type="number" name="base_cost" x-model="addForm.base_cost" min="0" step="100" placeholder="30000"
+                                       class="w-full h-11 px-3.5 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                                <span class="text-[11px] text-[#8E8E93] mt-1 block">Opsional. Digunakan untuk estimasi laba kotor layanan.</span>
                             </div>
                         </div>
 
-                        <!-- Catatan Layanan -->
-                        <div class="space-y-1">
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                Catatan / Deskripsi (Opsional)
+                        <!-- Multi-Channel Switches -->
+                        <div class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.06] p-4 sm:p-5 space-y-3">
+                            <h4 class="text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">Kanal &amp; Visibilitas</h4>
+
+                            <!-- Switch POS -->
+                            <label class="flex items-center justify-between p-2.5 rounded-[12px] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer">
+                                <div>
+                                    <span class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] block">Tampilkan di Kasir POS</span>
+                                    <span class="text-[11px] text-[#8E8E93]">Dapat dipilih kasir saat transaksi</span>
+                                </div>
+                                <input type="hidden" name="show_in_pos" value="0">
+                                <input type="checkbox" name="show_in_pos" value="1" x-model="addForm.show_in_pos"
+                                       class="w-5 h-5 rounded-[6px] text-[#007AFF] focus:ring-[#007AFF]/50 border-black/20 dark:border-white/20">
                             </label>
-                            <textarea name="description" rows="2"
-                                      placeholder="Keterangan singkat mengenai layanan ini..."
-                                      class="w-full p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white"></textarea>
+
+                            <!-- Switch Sales Order -->
+                            <label class="flex items-center justify-between p-2.5 rounded-[12px] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer">
+                                <div>
+                                    <span class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] block">Faktur &amp; Sales Order</span>
+                                    <span class="text-[11px] text-[#8E8E93]">Tersedia di surat pesanan B2B</span>
+                                </div>
+                                <input type="hidden" name="show_in_sales_order" value="0">
+                                <input type="checkbox" name="show_in_sales_order" value="1" x-model="addForm.show_in_sales_order"
+                                       class="w-5 h-5 rounded-[6px] text-[#007AFF] focus:ring-[#007AFF]/50 border-black/20 dark:border-white/20">
+                            </label>
+
+                            <!-- Switch Website Storefront -->
+                            <label class="flex items-center justify-between p-2.5 rounded-[12px] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer">
+                                <div>
+                                    <span class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] block">Toko Online Storefront</span>
+                                    <span class="text-[11px] text-[#8E8E93]">Dapat dibooking pelanggan lewat web</span>
+                                </div>
+                                <input type="hidden" name="show_in_website" value="0">
+                                <input type="checkbox" name="show_in_website" value="1" x-model="addForm.show_in_website"
+                                       class="w-5 h-5 rounded-[6px] text-[#007AFF] focus:ring-[#007AFF]/50 border-black/20 dark:border-white/20">
+                            </label>
+
+                            <!-- Switch Show Price on Web -->
+                            <label class="flex items-center justify-between p-2.5 rounded-[12px] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer">
+                                <div>
+                                    <span class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] block">Tampilkan Tarif di Web</span>
+                                    <span class="text-[11px] text-[#8E8E93]">Tampilkan nominal tarif di storefront</span>
+                                </div>
+                                <input type="hidden" name="show_price_on_web" value="0">
+                                <input type="checkbox" name="show_price_on_web" value="1" x-model="addForm.show_price_on_web"
+                                       class="w-5 h-5 rounded-[6px] text-[#007AFF] focus:ring-[#007AFF]/50 border-black/20 dark:border-white/20">
+                            </label>
                         </div>
                     </div>
                 </div>
 
-                <!-- Penjelasan Penenang -->
-                <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-xs sm:text-sm text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>Layanan ini akan otomatis siap dijual di Kasir POS tanpa perlu mencatat stok.</span>
-                </div>
-
-                <!-- Tombol Aksi (Tinggi 50px, Nyaman Ditekan) -->
-                <div class="flex items-center gap-3 pt-2">
+                <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 sticky bottom-0 bg-white dark:bg-[#1C1C1E] pb-2 sm:pb-0">
                     <button type="button" @click="showAddModal = false"
-                            class="w-1/3 h-12 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-base hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                            class="h-11 px-5 rounded-[12px] text-[14px] font-medium text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition-colors">
                         Batal
                     </button>
                     <button type="submit"
-                            class="flex-1 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-base shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        <span>Simpan Layanan Ini</span>
+                            class="h-11 px-6 rounded-[12px] text-[14px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all shadow-sm shadow-[#007AFF]/25">
+                        Simpan Layanan Jasa
                     </button>
                 </div>
             </form>
@@ -469,140 +572,254 @@
     </div>
 
     <!-- ===================================================== -->
-    <!-- 6. MODAL UBAH LAYANAN (EDIT)                          -->
+    <!-- 7. MODAL: EDIT LAYANAN (FULL LAYOUT XXL BENTO)        -->
     <!-- ===================================================== -->
-    @if($editService)
     <div x-show="showEditModal" x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto"
+         class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm"
          @keydown.escape.window="showEditModal = false">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-lg shadow-2xl overflow-hidden my-8"
+        
+        <div class="w-full inset-x-0 bottom-0 rounded-t-[28px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-[0_24px_60px_rgba(0,0,0,0.3)] max-h-[94vh] sm:max-h-[90vh] flex flex-col overflow-hidden sm:max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl transition-all"
              @click.outside="showEditModal = false">
-
-            <!-- Modal Header -->
-            <div class="p-5 sm:p-6 bg-slate-900 text-white flex items-center justify-between">
-                <div>
-                    <h3 class="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
-                        <span>✏️ Ubah Layanan</span>
-                    </h3>
-                    <p class="text-xs sm:text-sm text-slate-300 mt-1">
-                        Perbarui nama atau tarif untuk layanan {{ $editService->name }}
-                    </p>
-                </div>
-                <a href="{{ route('services.index') }}"
-                   class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </a>
+            
+            <div class="sm:hidden pt-2.5 pb-1 flex justify-center shrink-0">
+                <div class="w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20"></div>
             </div>
 
-            <!-- Modal Form -->
-            <form action="{{ route('services.update', $editService) }}" method="POST" class="p-5 sm:p-6 space-y-5">
+            <div class="px-5 sm:px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 bg-[#F2F2F7]/50 dark:bg-white/[0.02]">
+                <div>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">Edit Layanan</div>
+                    <h3 class="text-[18px] sm:text-[22px] font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight">Ubah Data Layanan Jasa</h3>
+                </div>
+                <button type="button" @click="showEditModal = false" class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] text-black/60 dark:text-white/60 flex items-center justify-center transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form :action="'/services/' + editForm.id" method="POST" class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
                 @csrf
                 @method('PUT')
 
-                <!-- Nama Layanan -->
-                <div class="space-y-1.5">
-                    <label class="block text-base font-bold text-slate-900 dark:text-white">
-                        Nama Jasa / Layanan <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" name="name" value="{{ old('name', $editService->name) }}" required
-                           class="w-full h-12 px-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 text-base text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500">
-                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Kolom Kiri: 7 Kolom (Identitas Layanan) -->
+                    <div class="lg:col-span-7 space-y-5">
+                        <div class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.06] p-4 sm:p-5 space-y-4">
+                            <h4 class="text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">Identitas Layanan</h4>
 
-                <!-- Kategori -->
-                <div class="space-y-1.5">
-                    <label class="block text-base font-bold text-slate-900 dark:text-white">
-                        Kategori Layanan
-                    </label>
-                    <select name="category_id"
-                            class="w-full h-12 px-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 text-base text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
-                        <option value="">Tanpa Kategori</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}" {{ $editService->category_id == $cat->id ? 'selected' : '' }}>
-                                {{ $cat->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                            <div>
+                                <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">
+                                    Nama Jasa / Layanan <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <input type="text" name="name" x-model="editForm.name" required
+                                       class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            </div>
 
-                <!-- Tarif Jual (Rp) -->
-                <div class="space-y-1.5">
-                    <label class="block text-base font-bold text-slate-900 dark:text-white">
-                        Tarif / Biaya Jual (Rp) <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base font-bold text-slate-500">Rp</div>
-                        <input type="text" required
-                               @input="onPriceInput($event, 'edit_selling')"
-                               :value="editSellingPriceFormatted"
-                               class="w-full h-12 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 text-lg font-extrabold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 tabular-nums">
-                        <input type="hidden" name="selling_price" :value="editSellingPriceRaw">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">Kode Jasa / SKU</label>
+                                    <input type="text" name="code" x-model="editForm.code"
+                                           class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">Satuan Durasi / Output</label>
+                                    <select name="output_unit_id" x-model="editForm.output_unit_id"
+                                            class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3 text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                        <template x-for="u in units" :key="u.id">
+                                            <option :value="u.id" x-text="u.name + ' (' + u.code + ')'"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7]">Kategori Layanan</label>
+                                    <button type="button" @click="showAddCategoryModal = true" class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-0.5">
+                                        <span>[ + ]</span> <span>Kategori Baru</span>
+                                    </button>
+                                </div>
+                                <select name="category_id" x-model="editForm.category_id"
+                                        class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3 text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    <option value="">-- Tanpa Kategori --</option>
+                                    <template x-for="cat in categories" :key="cat.id">
+                                        <option :value="cat.id" x-text="cat.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">Deskripsi / Ruang Lingkup Layanan</label>
+                                <textarea name="description" x-model="editForm.description" rows="3"
+                                          class="w-full p-3.5 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kolom Kanan: 5 Kolom (Tarif & Kanal Penjualan) -->
+                    <div class="lg:col-span-5 space-y-5">
+                        <div class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.06] p-4 sm:p-5 space-y-4">
+                            <h4 class="text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">Tarif &amp; Upah Kerja</h4>
+                            
+                            <div>
+                                <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">
+                                    Tarif Jasa / Harga Jual (Rp) <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <input type="number" name="selling_price" x-model="editForm.selling_price" required min="0" step="100"
+                                       class="w-full h-11 px-3.5 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[16px] sm:text-[15px] font-bold text-[#007AFF] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                            </div>
+
+                            <div>
+                                <label class="block text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1.5">
+                                    Modal Dasar / Upah Teknisi (Rp)
+                                </label>
+                                <input type="number" name="base_cost" x-model="editForm.base_cost" min="0" step="100"
+                                       class="w-full h-11 px-3.5 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[16px] sm:text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                            </div>
+                        </div>
+
+                        <!-- Multi-Channel Switches -->
+                        <div class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.06] p-4 sm:p-5 space-y-3">
+                            <h4 class="text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">Kanal &amp; Visibilitas</h4>
+
+                            <!-- Switch POS -->
+                            <label class="flex items-center justify-between p-2.5 rounded-[12px] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer">
+                                <div>
+                                    <span class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] block">Tampilkan di Kasir POS</span>
+                                    <span class="text-[11px] text-[#8E8E93]">Dapat dipilih kasir saat transaksi</span>
+                                </div>
+                                <input type="hidden" name="show_in_pos" value="0">
+                                <input type="checkbox" name="show_in_pos" value="1" x-model="editForm.show_in_pos"
+                                       class="w-5 h-5 rounded-[6px] text-[#007AFF] focus:ring-[#007AFF]/50 border-black/20 dark:border-white/20">
+                            </label>
+
+                            <!-- Switch Sales Order -->
+                            <label class="flex items-center justify-between p-2.5 rounded-[12px] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer">
+                                <div>
+                                    <span class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] block">Faktur &amp; Sales Order</span>
+                                    <span class="text-[11px] text-[#8E8E93]">Tersedia di surat pesanan B2B</span>
+                                </div>
+                                <input type="hidden" name="show_in_sales_order" value="0">
+                                <input type="checkbox" name="show_in_sales_order" value="1" x-model="editForm.show_in_sales_order"
+                                       class="w-5 h-5 rounded-[6px] text-[#007AFF] focus:ring-[#007AFF]/50 border-black/20 dark:border-white/20">
+                            </label>
+
+                            <!-- Switch Website Storefront -->
+                            <label class="flex items-center justify-between p-2.5 rounded-[12px] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer">
+                                <div>
+                                    <span class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] block">Toko Online Storefront</span>
+                                    <span class="text-[11px] text-[#8E8E93]">Dapat dibooking pelanggan lewat web</span>
+                                </div>
+                                <input type="hidden" name="show_in_website" value="0">
+                                <input type="checkbox" name="show_in_website" value="1" x-model="editForm.show_in_website"
+                                       class="w-5 h-5 rounded-[6px] text-[#007AFF] focus:ring-[#007AFF]/50 border-black/20 dark:border-white/20">
+                            </label>
+
+                            <!-- Switch Show Price on Web -->
+                            <label class="flex items-center justify-between p-2.5 rounded-[12px] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer">
+                                <div>
+                                    <span class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] block">Tampilkan Tarif di Web</span>
+                                    <span class="text-[11px] text-[#8E8E93]">Tampilkan nominal tarif di storefront</span>
+                                </div>
+                                <input type="hidden" name="show_price_on_web" value="0">
+                                <input type="checkbox" name="show_price_on_web" value="1" x-model="editForm.show_price_on_web"
+                                       class="w-5 h-5 rounded-[6px] text-[#007AFF] focus:ring-[#007AFF]/50 border-black/20 dark:border-white/20">
+                            </label>
+
+                            <!-- Status Aktif -->
+                            <label class="flex items-center justify-between p-2.5 rounded-[12px] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer border-t border-black/[0.04] dark:border-white/[0.06] pt-3">
+                                <div>
+                                    <span class="text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] block">Status Aktif Layanan</span>
+                                    <span class="text-[11px] text-[#8E8E93]">Dapat ditransaksikan saat ini</span>
+                                </div>
+                                <input type="hidden" name="is_active" value="0">
+                                <input type="checkbox" name="is_active" value="1" x-model="editForm.is_active"
+                                       class="w-5 h-5 rounded-[6px] text-[#34C759] focus:ring-[#34C759]/50 border-black/20 dark:border-white/20">
+                            </label>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Deskripsi & Kode -->
-                <div class="space-y-3">
-                    <div class="space-y-1">
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Kode Layanan (Opsional)</label>
-                        <input type="text" name="code" value="{{ old('code', $editService->code) }}"
-                               class="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white uppercase">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Deskripsi (Opsional)</label>
-                        <textarea name="description" rows="2"
-                                  class="w-full p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white">{{ old('description', $editService->description) }}</textarea>
-                    </div>
-                </div>
-
-                <!-- Tombol Aksi -->
-                <div class="flex items-center gap-3 pt-2">
-                    <a href="{{ route('services.index') }}"
-                       class="w-1/3 h-12 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-base flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 sticky bottom-0 bg-white dark:bg-[#1C1C1E] pb-2 sm:pb-0">
+                    <button type="button" @click="showEditModal = false"
+                            class="h-11 px-5 rounded-[12px] text-[14px] font-medium text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition-colors">
                         Batal
-                    </a>
+                    </button>
                     <button type="submit"
-                            class="flex-1 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-base shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        <span>Perbarui Layanan</span>
+                            class="h-11 px-6 rounded-[12px] text-[14px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all shadow-sm shadow-[#007AFF]/25">
+                        Simpan Perubahan
                     </button>
                 </div>
             </form>
         </div>
     </div>
-    @endif
 
     <!-- ===================================================== -->
-    <!-- 7. MODAL HAPUS DENGAN PESAN PENENANG (ANTI-KHAWATIR)  -->
+    <!-- 8. SUB-MODAL QUICK-ADD CATEGORY (Zero Page Reload)    -->
     <!-- ===================================================== -->
-    <div x-show="deleteModalOpen" x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
-         @keydown.escape.window="closeDelete()">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-md p-6 shadow-2xl space-y-4"
-             @click.outside="closeDelete()">
-            
-            <div class="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto text-2xl font-bold">
-                ⚠️
+    <div x-show="showAddCategoryModal" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+         @keydown.escape.window="showAddCategoryModal = false">
+        <div class="w-full max-w-md rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] p-5 sm:p-6 space-y-4 shadow-2xl"
+             @click.outside="showAddCategoryModal = false">
+            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                <h3 class="text-[16px] font-bold text-[#1C1C1E] dark:text-[#F2F2F7]">Tambah Kategori Layanan</h3>
+                <button type="button" @click="showAddCategoryModal = false" class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-black/50 dark:text-white/50">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
 
-            <div class="text-center space-y-2">
-                <h3 class="text-xl font-extrabold text-slate-900 dark:text-white">
-                    Hapus Layanan Ini?
-                </h3>
-                <p class="text-base text-slate-700 dark:text-slate-300 leading-relaxed">
-                    Anda akan menghapus layanan <strong class="text-slate-900 dark:text-white" x-text="'“' + deleteTarget.name + '”'"></strong>.
+            <template x-if="quickCat.error">
+                <div class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 text-[#FF3B30] text-[12px] font-medium" x-text="quickCat.error"></div>
+            </template>
+
+            <form @submit.prevent="submitQuickCategory" class="space-y-3.5 text-[13px]">
+                <div>
+                    <label class="block font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] mb-1">Nama Kategori <span class="text-[#FF3B30]">*</span></label>
+                    <input type="text" x-model="quickCat.name" required placeholder="Contoh: Perawatan Berkala / Bengkel"
+                           class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-[#1C1C1E] dark:text-[#F2F2F7] focus:ring-2 focus:ring-[#007AFF]/50">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" @click="showAddCategoryModal = false" class="h-9 px-3.5 rounded-[10px] text-[13px] bg-black/[0.06] dark:bg-white/[0.08] text-[#1C1C1E] dark:text-[#F2F2F7]">Batal</button>
+                    <button type="submit" :disabled="quickCat.isSubmitting" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold bg-[#007AFF] text-white flex items-center gap-1.5 shadow-sm shadow-[#007AFF]/25">
+                        <span x-show="quickCat.isSubmitting">Menyimpan...</span>
+                        <span x-show="!quickCat.isSubmitting">Simpan Kategori</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- 9. APPLE ALERT DIALOG (Hapus Layanan)                 -->
+    <!-- ===================================================== -->
+    <div x-show="deleteModalOpen" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+         @keydown.escape.window="closeDelete()">
+        <div class="w-full max-w-sm rounded-[24px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden shadow-2xl border border-black/[0.08] dark:border-white/[0.1] text-center"
+             @click.outside="closeDelete()">
+            <div class="p-6">
+                <div class="w-12 h-12 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <h3 class="text-[17px] font-bold text-[#1C1C1E] dark:text-[#F2F2F7]">Hapus Layanan Jasa?</h3>
+                <p class="text-[13px] text-[#8E8E93] dark:text-[#98989D] mt-1.5 leading-relaxed">
+                    Layanan <strong class="text-[#1C1C1E] dark:text-[#F2F2F7]" x-text="deleteTarget.name"></strong> akan dihapus dari katalog aktif toko.
                 </p>
-                <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    💡 <strong>Tenang</strong>: Riwayat transaksi kasir atau faktur penjualan masa lalu yang sudah selesai <strong>tidak akan hilang</strong>.
+
+                <!-- Penenang Jiwa Microcopy (Mandat Apple HIG) -->
+                <div class="mt-4 p-3 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] text-left flex items-start gap-2.5">
+                    <svg class="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p class="text-[11.5px] text-[#3C3C43]/70 dark:text-[#EBEBF5]/70 leading-relaxed">
+                        Tenang: Riwayat nota kasir POS, faktur penjualan, dan pembukuan masa lalu yang menggunakan layanan ini tetap aman tersimpan.
+                    </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-3 pt-2">
-                <button type="button" @click="closeDelete()"
-                        class="flex-1 h-12 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-base hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                    Batal (Kembali)
+            <div class="grid grid-cols-2 border-t border-black/[0.06] dark:border-white/[0.08] text-[15px] font-medium">
+                <button type="button" @click="closeDelete()" class="py-3.5 text-[#007AFF] border-r border-black/[0.06] dark:border-white/[0.08] active:bg-black/5 dark:active:bg-white/5 transition-colors">
+                    Batal
                 </button>
-                <button type="button" @click="submitDelete()"
-                        class="flex-1 h-12 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-base shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95">
-                    Ya, Hapus
+                <button type="button" @click="submitDelete()" class="py-3.5 text-[#FF3B30] font-semibold active:bg-black/5 dark:active:bg-white/5 transition-colors">
+                    Hapus
                 </button>
             </div>
         </div>

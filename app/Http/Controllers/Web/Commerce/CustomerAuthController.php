@@ -70,9 +70,11 @@ final class CustomerAuthController extends Controller
         Auth::guard('customer')->login($customer, $remember);
         $request->session()->regenerate();
 
-        $redirectTo = $request->input('redirect_to');
-        if ($redirectTo && str_starts_with($redirectTo, '/')) {
-            return redirect($redirectTo)->with('success', "Selamat datang kembali, {$customer->name}!");
+        $redirectTo = $request->input('redirect_to') ?: $request->input('redirect');
+        if ($redirectTo) {
+            if (str_starts_with($redirectTo, '/') || str_starts_with($redirectTo, url('/')) || str_starts_with($redirectTo, (string) config('app.url'))) {
+                return redirect($redirectTo)->with('success', "Selamat datang kembali, {$customer->name}!");
+            }
         }
 
         return redirect()->intended(route('customer.dashboard'))->with('success', "Selamat datang kembali, {$customer->name}!");

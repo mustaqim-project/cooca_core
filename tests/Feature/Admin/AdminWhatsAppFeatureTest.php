@@ -61,14 +61,15 @@ class AdminWhatsAppFeatureTest extends TestCase
         $response = $this->actingAs($admin, 'admin')->get(route('admin.whatsapp.index'));
 
         $response->assertOk();
-        $response->assertSee('WhatsApp Admin Center');
-        $response->assertSee('Status Gateway');
-        $response->assertSee('Pengingat Hari Ini');
-        $response->assertSee('Jangkauan Owner');
+        $response->assertSee('WhatsApp Platform Admin Center');
+        $response->assertSee('Bot Platform');
+        $response->assertSee('Merchant WABA');
+        $response->assertSee('Pengingat Tagihan');
         $response->assertSee('Keberhasilan Kirim');
-        $response->assertSee('Status &amp; Sesi QR', false);
+        $response->assertSee('Pengaturan Platform Meta');
+        $response->assertSee('Monitoring Merchant');
         $response->assertSee('Pengingat Langganan');
-        $response->assertSee('Broadcast Bisnis Owner');
+        $response->assertSee('Siaran Platform');
         $response->assertSee('Template Notifikasi');
     }
 
@@ -76,7 +77,7 @@ class AdminWhatsAppFeatureTest extends TestCase
     {
         $admin = $this->makeAdmin();
 
-        foreach (['connection', 'reminders', 'blast', 'templates'] as $tab) {
+        foreach (['parent_setup', 'merchants', 'reminders', 'blast', 'templates'] as $tab) {
             $response = $this->actingAs($admin, 'admin')->get(route('admin.whatsapp.index', ['tab' => $tab]));
             $response->assertOk();
         }
@@ -170,5 +171,69 @@ class AdminWhatsAppFeatureTest extends TestCase
         $showResponse->assertSee('Pengumuman Update Cooca v2.5');
         $showResponse->assertSee('Tampilan Pesan WhatsApp (Chat Mockup)');
         $showResponse->assertSee('Daftar Status Pengiriman Per Bisnis Owner');
+    }
+
+    public function test_admin_whatsapp_page_displays_tech_provider_fields(): void
+    {
+        $admin = $this->makeAdmin();
+
+        $response = $this->actingAs($admin, 'admin')->get(route('admin.whatsapp.index', ['tab' => 'parent_setup']));
+
+        $response->assertOk();
+        $response->assertSee('Meta App ID (META_WA_APP_ID)');
+        $response->assertSee('Meta App Secret (META_WA_APP_SECRET)');
+        $response->assertSee('Embedded Signup Config ID (META_WA_CONFIG_ID)');
+        $response->assertSee('Webhook Verify Token (META_WA_WEBHOOK_VERIFY_TOKEN)');
+        $response->assertSee('Graph API Version (META_WA_GRAPH_VERSION)');
+        $response->assertSee('Graph API Base URL (META_WA_GRAPH_URL)');
+        $response->assertSee('Webhook Callback URL (Meta Webhook Endpoint)');
+        $response->assertSee('api/v1/wa/meta/webhook');
+        $response->assertSee('Meta System User Permanent Access Token (META_WA_TOKEN)');
+    }
+
+    public function test_admin_can_save_and_retrieve_meta_platform_and_gateway_settings(): void
+    {
+        $admin = $this->makeAdmin();
+
+        $payload = [
+            'otp_active'                => '1',
+            'blast_active'              => '1',
+            'meta_app_id'               => '109876543210987',
+            'meta_app_secret'           => 'secret_xyz_1234567890abcdef',
+            'meta_webhook_verify_token' => 'custom_webhook_secret_token_99',
+            'meta_config_id'            => '876543210987654',
+            'meta_graph_version'        => 'v21.0',
+            'meta_graph_url'            => 'https://graph.facebook.com',
+            'meta_token'                => 'EAAG_dummy_test_platform_token_123',
+            'meta_phone_number_id'      => '104523984712398',
+            'meta_waba_id'              => '109283746501928',
+            'meta_otp_template'         => 'cooca_otp',
+        ];
+
+        $response = $this->actingAs($admin, 'admin')
+            ->from(route('admin.whatsapp.index', ['tab' => 'parent_setup']))
+            ->post(route('admin.whatsapp.config'), $payload);
+
+        $response->assertRedirect(route('admin.whatsapp.index', ['tab' => 'parent_setup']));
+        $response->assertSessionHas('success');
+
+        // Verify stored settings in database
+        $this->assertEquals('109876543210987', \App\Models\SystemSetting::get('meta_wa_app_id'));
+        $this->assertEquals('secret_xyz_1234567890abcdef', \App\Models\SystemSetting::get('meta_wa_app_secret'));
+        $this->assertEquals('custom_webhook_secret_token_99', \App\Models\SystemSetting::get('meta_wa_webhook_verify_token'));
+        $this->assertEquals('876543210987654', \App\Models\SystemSetting::get('meta_wa_config_id'));
+        $this->assertEquals('v21.0', \App\Models\SystemSetting::get('meta_wa_graph_version'));
+        $this->assertEquals('https://graph.facebook.com', \App\Models\SystemSetting::get('meta_wa_graph_url'));
+        $this->assertEquals('EAAG_dummy_test_platform_token_123', \App\Models\SystemSetting::get('meta_wa_token'));
+        $this->assertEquals('104523984712398', \App\Models\SystemSetting::get('meta_wa_phone_number_id'));
+        $this->assertEquals('109283746501928', \App\Models\SystemSetting::get('meta_wa_waba_id'));
+        $this->assertEquals('cooca_otp', \App\Models\SystemSetting::get('meta_wa_otp_template'));
+
+        // Verify page now reflects the saved settings
+        $viewResponse = $this->actingAs($admin, 'admin')->get(route('admin.whatsapp.index', ['tab' => 'parent_setup']));
+        $viewResponse->assertOk();
+        $viewResponse->assertSee('109876543210987');
+        $viewResponse->assertSee('custom_webhook_secret_token_99');
+        $viewResponse->assertSee('876543210987654');
     }
 }

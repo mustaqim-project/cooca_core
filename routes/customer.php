@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Web\Commerce\CommerceGroupOrderWebController;
 use App\Http\Controllers\Web\Commerce\CustomerAuthController;
 use App\Http\Controllers\Web\Commerce\CustomerGoogleAuthController;
 use App\Http\Controllers\Web\Commerce\CustomerOtpController;
@@ -23,8 +24,12 @@ use Illuminate\Support\Facades\Route;
 // Storefront convenience: direct Google login entry from store landing page
 Route::get('/b/{slug}/login', [CustomerAuthController::class, 'showLoginForm'])->name('public.storefront.customer.login');
 
+// Group Order (Pesan Bareng ala ShopeeFood/GrabFood): Live status & shared cart polling
+Route::get('/b/{slug}/group-order/{token}/data', [CommerceGroupOrderWebController::class, 'show'])
+    ->name('public.storefront.group_order.data');
+
 // Storefront Gated Actions (Requires GlobalCustomer Google Auth + Profile + Lifetime WhatsApp OTP)
-Route::middleware(['auth:customer', 'customer.profile', 'customer.otp', 'throttle:10,1'])->group(function (): void {
+Route::middleware(['auth:customer', 'customer.profile', 'customer.otp', 'throttle:30,1'])->group(function (): void {
     Route::post('/b/{slug}/checkout', [PublicOrderTrackingController::class, 'submitCheckout'])
         ->name('public.storefront.checkout');
     Route::post('/b/{slug}/request-order', [PublicOrderTrackingController::class, 'submitRequestOrder'])
@@ -34,6 +39,22 @@ Route::middleware(['auth:customer', 'customer.profile', 'customer.otp', 'throttl
     Route::post('/b/{slug}/reservasi', [PublicReservationController::class, 'submitReservation'])
         ->middleware('throttle:10,5')
         ->name('public.storefront.reservation.submit');
+
+    // Group Order actions
+    Route::post('/b/{slug}/group-order', [CommerceGroupOrderWebController::class, 'store'])
+        ->name('public.storefront.group_order.create');
+    Route::post('/b/{slug}/group-order/{token}/items', [CommerceGroupOrderWebController::class, 'addItem'])
+        ->name('public.storefront.group_order.add_item');
+    Route::put('/b/{slug}/group-order/{token}/items/{itemId}', [CommerceGroupOrderWebController::class, 'updateItem'])
+        ->name('public.storefront.group_order.update_item');
+    Route::delete('/b/{slug}/group-order/{token}/items/{itemId}', [CommerceGroupOrderWebController::class, 'removeItem'])
+        ->name('public.storefront.group_order.remove_item');
+    Route::post('/b/{slug}/group-order/{token}/lock', [CommerceGroupOrderWebController::class, 'lock'])
+        ->name('public.storefront.group_order.lock');
+    Route::post('/b/{slug}/group-order/{token}/unlock', [CommerceGroupOrderWebController::class, 'unlock'])
+        ->name('public.storefront.group_order.unlock');
+    Route::post('/b/{slug}/group-order/{token}/checkout', [CommerceGroupOrderWebController::class, 'checkout'])
+        ->name('public.storefront.group_order.checkout');
 });
 
 // Customer Portal (Google-Only Auth Guard)
@@ -64,6 +85,7 @@ Route::prefix('customer')->name('customer.')->group(function (): void {
         Route::get('/dashboard', [CustomerPortalController::class, 'dashboard'])->name('dashboard');
         Route::get('/orders', [CustomerPortalController::class, 'orders'])->name('orders');
         Route::get('/orders/{id}', [CustomerPortalController::class, 'orderDetail'])->name('orders.detail');
+        Route::get('/orders/{id}/status', [CustomerPortalController::class, 'checkOrderStatus'])->name('orders.status');
         Route::post('/orders/{id}/upload-proof', [CustomerPortalController::class, 'uploadProof'])->name('orders.upload_proof');
 
         // Profile & Address Completion

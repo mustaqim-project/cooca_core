@@ -29,7 +29,10 @@ final class PublicDiscoveryController extends Controller
             ->with([
                 'storeSetting',
                 'landingPage',
-                'locations' => fn ($q) => $q->where('is_default', true)->orWhere('is_active', true),
+                'locations' => fn ($q) => $q->where(function ($sub): void {
+                    $sub->where('is_primary', true)
+                        ->orWhere('is_active', true);
+                })->orderByDesc('is_primary'),
             ])
             ->withCount([
                 'products' => fn ($q) => $q->where('is_active', true),

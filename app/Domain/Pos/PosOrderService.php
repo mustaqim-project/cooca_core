@@ -583,10 +583,17 @@ final class PosOrderService
             $serviceChargeAmount = ($subtotal * $servicePercent) / 100.0;
             $finalTotal = round($subtotal + $taxAmount + $serviceChargeAmount, $business->currency_precision ?? 0);
 
+            $activeShift = PosShift::where('business_id', $business->id)
+                ->where('status', PosShift::STATUS_OPEN)
+                ->when($locationId, fn ($q) => $q->where('location_id', $locationId))
+                ->latest('opened_at')
+                ->first();
+
             $order = PosOrder::create([
                 'business_id' => $business->id,
                 'location_id' => $locationId,
-                'user_id' => $business->users()->first()?->id ?? null,
+                'user_id' => $activeShift?->user_id ?? $business->users()->first()?->id ?? null,
+                'pos_shift_id' => $activeShift?->id,
                 'order_number' => $orderNumber,
                 'order_date' => Carbon::today()->toDateString(),
                 'status' => PosOrder::STATUS_PENDING,
@@ -652,14 +659,18 @@ final class PosOrderService
      */
     public function acceptQrOrder(PosOrder $order, User $cashier): PosOrder
     {
-        if ($order->status !== PosOrder::STATUS_PENDING) {
-            throw new DomainException('Hanya pesanan berstatus pending yang dapat diterima.');
+        if (! in_array($order->status, [PosOrder::STATUS_PENDING, PosOrder::STATUS_CONFIRMED], true)) {
+            throw new DomainException('Pesanan ini tidak dapat diterima karena statusnya sudah ' . $order->status . '.');
         }
 
-        $order->update([
-            'status' => PosOrder::STATUS_CONFIRMED,
-            'user_id' => $cashier->id,
-        ]);
+        if ($order->status === PosOrder::STATUS_PENDING) {
+            $order->update([
+                'status' => PosOrder::STATUS_CONFIRMED,
+                'user_id' => $cashier->id,
+            ]);
+        } elseif (! $order->user_id) {
+            $order->update(['user_id' => $cashier->id]);
+        }
 
         if ($order->posTable) {
             $order->posTable->update(['status' => PosTable::STATUS_PREPARING]);
@@ -678,6 +689,10 @@ final class PosOrderService
             throw new DomainException('Alasan penolakan pesanan wajib diisi.');
         }
 
+        if ($order->isPaid()) {
+            throw new DomainException('Pesanan ini sudah lunas via QRIS/Gateway. Gunakan fitur refund untuk membatalkan pesanan yang telah lunas.');
+        }
+
         if ($order->status !== PosOrder::STATUS_PENDING) {
             throw new DomainException('Hanya pesanan berstatus pending yang dapat ditolak.');
         }
@@ -694,6 +709,38 @@ final class PosOrderService
         }
 
         return $order;
+    }
+
+    /**
+     * Complete an already paid QR table order safely without duplicate payments or double stock deductions.
+     */
+    public function completePaidQrOrder(PosOrder $order, User $cashier, ?PosShift $shift = null): PosOrder
+    {
+        if ($order->status === PosOrder::STATUS_COMPLETED) {
+            return $order;
+        }
+
+        if (! $order->isPaid()) {
+            throw new DomainException('Pesanan ini belum lunas. Silakan lakukan pembayaran terlebih dahulu.');
+        }
+
+        return DB::transaction(function () use ($order, $cashier, $shift) {
+            $order->update([
+                'status' => PosOrder::STATUS_COMPLETED,
+                'user_id' => $cashier->id,
+                'pos_shift_id' => $shift?->id ?? $order->pos_shift_id,
+            ]);
+
+            // Table Session closing if all orders in session are finished
+            $session = $order->tableSession;
+            if ($session && $session->canBeClosed()) {
+                $this->tableService->closeSession($session);
+            } elseif ($order->posTable) {
+                $this->tableService->syncTableStatus($order->posTable);
+            }
+
+            return $order->load(['items.modifiers', 'payments', 'posTable', 'tableSession']);
+        });
     }
 
     /**

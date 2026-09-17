@@ -52,6 +52,9 @@ class ComprehensiveFinancialReportingTest extends TestCase
             'name' => 'Owner Laporan',
             'email' => 'owner.report@cooca.id',
             'password' => bcrypt('secret123'),
+            'email_verified_at' => now(),
+            'phone' => '081234567890',
+            'phone_verified_at' => now(),
         ]);
 
         $this->business = Business::create([

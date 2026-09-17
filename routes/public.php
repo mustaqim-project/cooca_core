@@ -86,14 +86,18 @@ Route::post('/b/{slug}/shipping/calculate', [PublicOrderTrackingController::clas
     ->middleware('throttle:30,1')
     ->name('public.storefront.shipping.calculate');
 Route::get('/b/{slug}/order/{token}', [PublicOrderTrackingController::class, 'show'])->name('public.storefront.order.track');
+Route::get('/b/{slug}/order/{token}/status', [PublicOrderTrackingController::class, 'checkStatus'])->name('public.storefront.order.status');
 Route::get('/b/{slug}/reservasi/check', [PublicReservationController::class, 'checkAvailability'])->name('public.storefront.reservation.check');
+
 
 // 9. Public Customer QR Table Ordering
 Route::get('/t/{qrToken}', [PublicQrOrderWebController::class, 'showMenu'])->name('public.qr.menu');
 Route::post('/t/{qrToken}/order', [PublicQrOrderWebController::class, 'submitOrder'])->middleware('throttle:20,1')->name('public.qr.order');
 Route::get('/t/{qrToken}/order/{order}/track', [PublicQrOrderWebController::class, 'trackOrder'])->name('public.qr.track');
+Route::get('/t/{qrToken}/order/{order}/status', [PublicQrOrderWebController::class, 'checkStatus'])->name('public.qr.order.status');
 Route::get('/b/{slug}/table/{qrToken}', [PublicQrOrderWebController::class, 'showMenu'])->name('public.qr.menu.slug');
 Route::post('/b/{slug}/table/{qrToken}/order', [PublicQrOrderWebController::class, 'submitOrder'])->middleware('throttle:20,1')->name('public.qr.order.slug');
+Route::get('/b/{slug}/table/{qrToken}/order/{order}/status', [PublicQrOrderWebController::class, 'checkStatus'])->name('public.qr.order.status.slug');
 
 // 10. Sitemap XML & HTML (SEO & Web Crawlers)
 Route::get('/sitemap.xml', [SitemapController::class, 'xml'])->name('sitemap.xml');

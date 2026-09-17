@@ -15,7 +15,7 @@ Rekam jejak historis terstruktur. Catat:
 Pengetahuan kondisi sistem terkini (*Current State Knowledge*), diekstrak ke direktori sesuai: `modules/`, `features/`, `workflows/`, `business-rules/`, `permissions/`, `architecture/`. Mencakup: Modul, Fitur, Workflow, Business rules, Permission, Arsitektur, Integrasi, Current state.
 
 ### Layer 3 — `docs/SYSTEM_GUIDE.md`
-Panduan induk kurasi tertinggi — perbarui jika perubahan memengaruhi cara sistem dipahami oleh Business Owner, Developer, QA, AI Agent, atau Administrator.
+Panduan induk kurasi tertinggi bagi Business Owner, Developer, QA, dan AI Agent — **WAJIB diperbarui secara simultan bersama `docs/AiWorkHistory.md`** pada setiap pekerjaan rekayasa. Dilarang keras hanya mencatat riwayat pada history log tanpa menyelaraskan System Guide.
 
 ### Hierarki Kebenaran
 ```
@@ -68,7 +68,7 @@ Pekerjaan hanya dapat dinyatakan selesai — dan status akhir `VERIFIED` — jik
 - [ ] Tidak ada error yang belum diselesaikan.
 
 ### Dokumentasi
-- [ ] `docs/AiWorkHistory.md` telah mencatat entri lengkap & terstruktur.
-- [ ] `docs/system/` telah diperbarui merefleksikan kondisi sistem berjalan.
-- [ ] `docs/SYSTEM_GUIDE.md` telah diperbarui jika ada perubahan pemahaman alur/modul/aturan bisnis.
-- [ ] Final audit telah dilakukan.
+- [ ] `docs/AiWorkHistory.md` telah mencatat entri riwayat lengkap & terstruktur (Layer 1).
+- [ ] `docs/system/` telah diperbarui merefleksikan kondisi sistem berjalan (Layer 2).
+- [ ] `docs/SYSTEM_GUIDE.md` WAJIB telah diperbarui secara simultan bersama `AiWorkHistory.md` (Layer 3).
+- [ ] Final audit telah dilakukan dan seluruh layer dokumentasi konsisten 100%.

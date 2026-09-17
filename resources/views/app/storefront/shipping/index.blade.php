@@ -1,48 +1,51 @@
 @extends('layouts.app', ['title' => 'Aturan Ongkir & Kurir Toko - Cooca'])
 
 @section('content')
-    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 lg:pb-10" x-data="{
-        showAddModal: false,
-        editMode: false,
-        editRule: {
-            id: '',
-            name: '',
-            rule_type: 'flat',
-            rate_amount: 0,
-            min_distance_km: '',
-            max_distance_km: '',
-            min_order_for_free: '',
-            sort_order: 0
-        },
-        openEdit(rule) {
-            this.editMode = true;
-            this.editRule = {
-                id: rule.id,
-                name: rule.name,
-                rule_type: rule.rule_type,
-                rate_amount: rule.rate_amount,
-                min_distance_km: rule.min_distance_km || '',
-                max_distance_km: rule.max_distance_km || '',
-                min_order_for_free: rule.min_order_for_free || '',
-                sort_order: rule.sort_order || 0
-            };
-            this.showAddModal = true;
-        },
-        openAdd() {
-            this.editMode = false;
-            this.editRule = {
+    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 sm:pb-32 lg:pb-10"
+        x-data="{
+            showAddModal: false,
+            editMode: false,
+            deleteModalOpen: false,
+            ruleToDelete: null,
+            editRule: {
                 id: '',
                 name: '',
                 rule_type: 'flat',
-                rate_amount: 10000,
+                rate_amount: 0,
                 min_distance_km: '',
                 max_distance_km: '',
                 min_order_for_free: '',
                 sort_order: 0
-            };
-            this.showAddModal = true;
-        }
-    }">
+            },
+            openEdit(rule) {
+                this.editMode = true;
+                this.editRule = {
+                    id: rule.id,
+                    name: rule.name,
+                    rule_type: rule.rule_type,
+                    rate_amount: rule.rate_amount,
+                    min_distance_km: rule.min_distance_km || '',
+                    max_distance_km: rule.max_distance_km || '',
+                    min_order_for_free: rule.min_order_for_free || '',
+                    sort_order: rule.sort_order || 0
+                };
+                this.showAddModal = true;
+            },
+            openAdd() {
+                this.editMode = false;
+                this.editRule = {
+                    id: '',
+                    name: '',
+                    rule_type: 'flat',
+                    rate_amount: 10000,
+                    min_distance_km: '',
+                    max_distance_km: '',
+                    min_order_for_free: '',
+                    sort_order: 0
+                };
+                this.showAddModal = true;
+            }
+        }">
         {{-- UNIFIED STOREFRONT HUB NAVIGATION --}}
         @include('app.storefront.partials.navigation', ['title' => 'Aturan Ongkir & Kurir Toko'])
 
@@ -62,7 +65,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Delivery Mode Status Card -->
             <div
-                class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl p-5 shadow-sm">
+                class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-medium text-black/50 dark:text-white/50">Layanan Antar (Delivery)</span>
                     <span
@@ -82,7 +85,7 @@
 
             <!-- Active Rules Count -->
             <div
-                class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl p-5 shadow-sm">
+                class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-medium text-black/50 dark:text-white/50">Total Aturan Aktif</span>
                     <span class="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
@@ -106,7 +109,7 @@
                 $freeRule = $rules->firstWhere('rule_type', 'free_threshold');
             @endphp
             <div
-                class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl p-5 shadow-sm">
+                class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-medium text-black/50 dark:text-white/50">Bebas Ongkir Otomatis</span>
                     <span class="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
@@ -135,7 +138,7 @@
 
         <!-- Shipping Rules Table Card -->
         <div
-            class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+            class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[24px] shadow-sm overflow-hidden">
             <div class="p-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
                 <div>
                     <h2 class="text-base font-bold text-black dark:text-white">Daftar Tarif & Aturan Pengiriman</h2>
@@ -160,7 +163,7 @@
                         atau konfirmasi manual kurir toko.
                     </p>
                     <button type="button" @click="openAdd()"
-                        class="mt-4 inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold transition-all shadow-sm">
+                        class="mt-4 inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold transition-all shadow-sm cursor-pointer">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>Buat Aturan Ongkir Pertama</span>
                     </button>
@@ -172,12 +175,12 @@
                         <thead>
                             <tr
                                 class="border-b border-black/5 dark:border-white/5 text-[11px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-wider bg-black/[0.01] dark:bg-white/[0.01]">
-                                <th class="py-3 px-5">Nama Aturan</th>
-                                <th class="py-3 px-5">Tipe Logika</th>
-                                <th class="py-3 px-5">Kriteria & Batasan</th>
-                                <th class="py-3 px-5 text-right">Tarif Ongkir</th>
-                                <th class="py-3 px-5 text-center">Status</th>
-                                <th class="py-3 px-5 text-right">Aksi</th>
+                                <th class="py-3.5 px-5">Nama Aturan</th>
+                                <th class="py-3.5 px-5">Tipe Logika</th>
+                                <th class="py-3.5 px-5">Kriteria & Batasan</th>
+                                <th class="py-3.5 px-5 text-right">Tarif Ongkir</th>
+                                <th class="py-3.5 px-5 text-center">Status</th>
+                                <th class="py-3.5 px-5 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-black/5 dark:divide-white/5 text-xs">
@@ -229,7 +232,7 @@
                                         <form action="{{ route('storefront.shipping.toggle', $rule) }}" method="POST">
                                             @csrf
                                             <button type="submit"
-                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors {{ $rule->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 hover:bg-black/[0.08]' }}">
+                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors cursor-pointer {{ $rule->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 hover:bg-black/[0.08]' }}">
                                                 <span
                                                     class="w-1.5 h-1.5 rounded-full {{ $rule->is_active ? 'bg-emerald-500' : 'bg-black/30 dark:bg-white/30' }}"></span>
                                                 <span>{{ $rule->is_active ? 'Aktif' : 'Nonaktif' }}</span>
@@ -238,19 +241,16 @@
                                     </td>
                                     <td class="py-3.5 px-5 text-right space-x-1">
                                         <button type="button" @click='openEdit(@json($rule))'
-                                            class="p-1.5 rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-black/60 dark:text-white/60 transition-colors">
+                                            class="p-1.5 rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-black/60 dark:text-white/60 transition-colors cursor-pointer"
+                                            title="Edit Aturan">
                                             <i data-lucide="edit-3" class="w-4 h-4"></i>
                                         </button>
-                                        <form action="{{ route('storefront.shipping.destroy', $rule) }}" method="POST"
-                                            class="inline"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus aturan ongkir ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="p-1.5 rounded-lg hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 transition-colors">
-                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                            @click='ruleToDelete = @json($rule); deleteModalOpen = true;'
+                                            class="p-1.5 rounded-lg hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 transition-colors cursor-pointer"
+                                            title="Hapus Aturan">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -291,7 +291,7 @@
                                 <form action="{{ route('storefront.shipping.toggle', $rule) }}" method="POST">
                                     @csrf
                                     <button type="submit"
-                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors {{ $rule->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40' }}">
+                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors cursor-pointer {{ $rule->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40' }}">
                                         <span
                                             class="w-1.5 h-1.5 rounded-full {{ $rule->is_active ? 'bg-emerald-500' : 'bg-black/30 dark:bg-white/30' }}"></span>
                                         <span>{{ $rule->is_active ? 'Aktif' : 'Nonaktif' }}</span>
@@ -327,20 +327,16 @@
 
                             <div class="flex items-center justify-end gap-2 pt-1">
                                 <button type="button" @click='openEdit(@json($rule))'
-                                    class="h-8 px-3 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 text-xs font-semibold text-black/70 dark:text-white/70 flex items-center gap-1.5 transition">
+                                    class="h-8 px-3 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 text-xs font-semibold text-black/70 dark:text-white/70 flex items-center gap-1.5 transition cursor-pointer">
                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                     <span>Edit</span>
                                 </button>
-                                <form action="{{ route('storefront.shipping.destroy', $rule) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus aturan ongkir ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                        class="h-8 px-3 rounded-lg hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition">
-                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                        <span>Hapus</span>
-                                    </button>
-                                </form>
+                                <button type="button"
+                                    @click='ruleToDelete = @json($rule); deleteModalOpen = true;'
+                                    class="h-8 px-3 rounded-lg hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    <span>Hapus</span>
+                                </button>
                             </div>
                         </div>
                     @endforeach
@@ -348,19 +344,68 @@
             @endif
         </div>
 
-        <!-- Modal Form (Add / Edit Rule) -->
+        {{-- APPLE ALERT CONFIRMATION DIALOG (DELETE SHIPPING RULE) --}}
+        <div x-show="deleteModalOpen" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
+                @click.outside="deleteModalOpen = false">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-[14px] bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
+                        <i data-lucide="info" class="w-5 h-5"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Hapus Aturan Ongkir?</h3>
+                        <p class="text-[13px] text-black/60 dark:text-white/60 mt-1">
+                            Anda akan menghapus aturan <strong class="text-black dark:text-white font-semibold" x-text="ruleToDelete?.name"></strong>.
+                        </p>
+                    </div>
+                </div>
+
+                {{-- PENENANG JIWA MICROCOPY --}}
+                <div class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0 mt-0.5"></i>
+                    <span>Tenang: Riwayat pesanan dan ongkos kirim pada transaksi masa lalu tetap aman tercatat dan tidak akan berubah.</span>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" @click="deleteModalOpen = false"
+                        class="px-4 py-2 rounded-full text-[13px] font-semibold text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition cursor-pointer">
+                        Batal
+                    </button>
+                    <template x-if="ruleToDelete">
+                        <form :action="'{{ url('/storefront/shipping') }}/' + ruleToDelete.id" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="px-5 py-2.5 rounded-full bg-[#FF3B30] hover:bg-[#E0352B] text-white text-[13px] font-bold transition shadow-sm cursor-pointer">
+                                Ya, Hapus Aturan
+                            </button>
+                        </form>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        {{-- MODAL FORM (ADD / EDIT RULE) - APPLE HIG MULTI-DEVICE DIALOG --}}
         <div x-show="showAddModal" x-cloak
             class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm transition-opacity"
             @keydown.escape.window="showAddModal = false">
-            <div class="bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-t-[28px] sm:rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6"
+            <div class="bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-t-[28px] sm:rounded-[24px] p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto"
                 @click.away="showAddModal = false">
+
+                {{-- Mobile Grab Bar --}}
+                <div class="w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto mb-1 sm:hidden"></div>
+
                 <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-4">
                     <h3 class="text-lg font-bold text-black dark:text-white flex items-center gap-2">
                         <i data-lucide="truck" class="w-5 h-5 text-[#007AFF]"></i>
                         <span x-text="editMode ? 'Edit Aturan Ongkir' : 'Tambah Aturan Ongkir'"></span>
                     </h3>
                     <button type="button" @click="showAddModal = false"
-                        class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                        class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white cursor-pointer">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -439,12 +484,12 @@
 
                     <div class="pt-4 flex items-center justify-end gap-3 border-t border-black/5 dark:border-white/10">
                         <button type="button" @click="showAddModal = false"
-                            class="h-11 px-5 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-xs font-semibold text-black/80 dark:text-white/80 transition-all">
+                            class="h-11 px-5 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-xs font-semibold text-black/80 dark:text-white/80 transition-all cursor-pointer">
                             Batal
                         </button>
                         <button type="submit"
-                            class="h-11 px-6 rounded-xl bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold tracking-wide transition-all shadow-sm">
-                            Simpan
+                            class="h-11 px-6 rounded-xl bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold tracking-wide transition-all shadow-sm cursor-pointer">
+                            Simpan Aturan
                         </button>
                     </div>
                 </form>

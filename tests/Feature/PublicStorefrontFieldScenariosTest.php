@@ -71,7 +71,7 @@ final class PublicStorefrontFieldScenariosTest extends TestCase
         $this->location = Location::create([
             'business_id' => $this->business->id,
             'name' => 'Outlet Utama',
-            'is_default' => true,
+            'is_primary' => true,
         ]);
 
         $this->pcsUnit = Unit::where('code', 'pcs')->first() ?? Unit::create([

@@ -8,11 +8,13 @@ use App\Domain\Accounting\AutoJournalService;
 use App\Models\Business;
 use App\Models\CashTransaction;
 use App\Models\ChartOfAccount;
+use App\Models\CommerceOrder;
 use App\Models\InvoicePayment;
 use App\Models\JournalEntry;
 use App\Models\JournalEntryLine;
 use App\Models\PaymentSettlement;
 use App\Models\PaymentSettlementAllocation;
+use App\Models\PosOrder;
 use App\Models\PosOrderPayment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -55,14 +57,20 @@ final class PaymentSettlementService
                 $payment = match ($type) {
                     'pos_order_payment' => PosOrderPayment::whereKey($paymentId)->whereHas('order', fn ($query) => $query->where('business_id', $business->id))->lockForUpdate()->first(),
                     'invoice_payment' => InvoicePayment::whereKey($paymentId)->where('business_id', $business->id)->lockForUpdate()->first(),
+                    'commerce_order' => CommerceOrder::whereKey($paymentId)->where('business_id', $business->id)->where('payment_gateway', CommerceOrder::GATEWAY_TRIPAY)->lockForUpdate()->first(),
                     default => null,
                 };
-                if (! $payment || ($payment instanceof PosOrderPayment && $payment->payment_method === PosOrderPayment::METHOD_CASH) || ($payment instanceof PosOrderPayment && $payment->status !== 'paid')) {
+                if (! $payment
+                    || ($payment instanceof PosOrderPayment && $payment->payment_method === PosOrderPayment::METHOD_CASH)
+                    || ($payment instanceof PosOrderPayment && $payment->status !== 'paid')
+                    || ($payment instanceof CommerceOrder && ! $payment->isPaid())
+                ) {
                     throw new InvalidArgumentException('Pembayaran gateway tidak ditemukan atau tidak eligible.');
                 }
                 $alreadyAllocated = PaymentSettlementAllocation::where('business_id', $business->id)->where('payment_type', $type)->where('payment_id', $paymentId)->exists();
                 if ($alreadyAllocated) throw new InvalidArgumentException('Pembayaran sudah direkonsiliasi.');
-                if ($amount > (float) $payment->amount + 0.005) throw new InvalidArgumentException('Allocation melebihi nominal pembayaran.');
+                $maxAllocable = $payment instanceof CommerceOrder ? (float) $payment->total_amount : (float) $payment->amount;
+                if ($amount > $maxAllocable + 0.005) throw new InvalidArgumentException('Allocation melebihi nominal pembayaran.');
                 $resolved[] = [$type, $paymentId, $amount];
                 $allocationGross += $amount;
             }
@@ -103,5 +111,94 @@ final class PaymentSettlementService
         JournalEntryLine::create(['journal_entry_id' => $entry->id, 'account_id' => $bank->id, 'type' => JournalEntryLine::TYPE_DEBIT, 'amount' => $settlement->net_amount, 'notes' => 'Dana settlement masuk ke bank']);
         if ($settlement->fee_amount > 0) JournalEntryLine::create(['journal_entry_id' => $entry->id, 'account_id' => $fee->id, 'type' => JournalEntryLine::TYPE_DEBIT, 'amount' => $settlement->fee_amount, 'notes' => 'Fee gateway']);
         JournalEntryLine::create(['journal_entry_id' => $entry->id, 'account_id' => $clearing->id, 'type' => JournalEntryLine::TYPE_CREDIT, 'amount' => $settlement->gross_amount, 'notes' => 'Pelepasan saldo clearing gateway']);
+    }
+
+    /**
+     * Get all unsettled/pending gateway payments eligible for reconciliation.
+     *
+     * @return array<string, mixed>
+     */
+    public function getUnsettledPayments(Business $business): array
+    {
+        $allocatedPosPaymentIds = PaymentSettlementAllocation::where('business_id', $business->id)
+            ->where('payment_type', 'pos_order_payment')
+            ->pluck('payment_id')
+            ->all();
+
+        $allocatedCommerceOrderIds = PaymentSettlementAllocation::where('business_id', $business->id)
+            ->where('payment_type', 'commerce_order')
+            ->pluck('payment_id')
+            ->all();
+
+        // 1. POS QRIS / Gateway Payments
+        $posPayments = PosOrderPayment::whereHas('order', function ($q) use ($business) {
+            $q->where('business_id', $business->id)
+                ->whereNotIn('status', [PosOrder::STATUS_VOIDED, PosOrder::STATUS_DRAFT_HELD, PosOrder::STATUS_REJECTED]);
+        })
+            ->whereNotIn('payment_method', [PosOrderPayment::METHOD_CASH])
+            ->where('status', 'paid')
+            ->whereNotIn('id', $allocatedPosPaymentIds)
+            ->with(['order:id,order_number,order_source,order_date,customer_name_guest,payment_channel,gateway_reference,gateway_fee'])
+            ->latest('created_at')
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'payment_type' => 'pos_order_payment',
+                    'payment_id' => $p->id,
+                    'order_number' => $p->order?->order_number ?? '-',
+                    'source' => 'POS / QR Meja',
+                    'customer' => $p->order?->customer_name_guest ?: 'Pelanggan Meja/Kasir',
+                    'date' => $p->created_at?->format('d M Y H:i'),
+                    'channel' => $p->order?->payment_channel ?: strtoupper((string) $p->payment_method),
+                    'reference' => $p->reference_number ?: ($p->order?->gateway_reference ?? '-'),
+                    'gross_amount' => (float) $p->amount,
+                    'fee_amount' => (float) ($p->fee_amount > 0 ? $p->fee_amount : ($p->order?->gateway_fee ?? 0)),
+                    'net_amount' => (float) ($p->net_amount > 0 ? $p->net_amount : max(0.0, (float) $p->amount - (float) ($p->order?->gateway_fee ?? 0))),
+                ];
+            });
+
+        // 2. Toko Online (CommerceOrder) Gateway Payments
+        $onlineOrders = CommerceOrder::where('business_id', $business->id)
+            ->where('payment_gateway', CommerceOrder::GATEWAY_TRIPAY)
+            ->whereIn('status', [
+                CommerceOrder::STATUS_PAID,
+                CommerceOrder::STATUS_PROCESSING,
+                CommerceOrder::STATUS_READY,
+                CommerceOrder::STATUS_FULFILLED,
+                CommerceOrder::STATUS_COMPLETED,
+            ])
+            ->whereNotIn('id', $allocatedCommerceOrderIds)
+            ->latest('created_at')
+            ->get()
+            ->map(function ($o) {
+                return [
+                    'payment_type' => 'commerce_order',
+                    'payment_id' => $o->id,
+                    'order_number' => $o->order_number,
+                    'source' => 'Toko Online',
+                    'customer' => $o->customer_name ?: 'Pelanggan Storefront',
+                    'date' => $o->created_at?->format('d M Y H:i'),
+                    'channel' => $o->payment_channel ?: 'TriPay Gateway',
+                    'reference' => $o->gateway_reference ?: '-',
+                    'gross_amount' => (float) $o->total_amount,
+                    'fee_amount' => (float) ($o->gateway_fee ?? 0),
+                    'net_amount' => max(0.0, (float) $o->total_amount - (float) ($o->gateway_fee ?? 0)),
+                ];
+            });
+
+        $items = $posPayments->concat($onlineOrders)->values();
+        $totalGross = (float) $items->sum('gross_amount');
+        $totalFee = (float) $items->sum('fee_amount');
+        $totalNet = (float) $items->sum('net_amount');
+
+        return [
+            'items' => $items,
+            'summary' => [
+                'count' => $items->count(),
+                'total_gross' => $totalGross,
+                'total_fee' => $totalFee,
+                'total_net' => $totalNet,
+            ],
+        ];
     }
 }

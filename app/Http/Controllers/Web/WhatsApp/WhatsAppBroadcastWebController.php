@@ -50,6 +50,7 @@ class WhatsAppBroadcastWebController extends Controller
     {
         $business         = Context::requireBusiness();
         $waSession        = WhatsAppSession::where('business_id', $business->id)->first();
+        $whatsAppAccount  = \App\Models\WhatsAppAccount::where('business_id', $business->id)->first();
         $customerCount    = Customer::where('business_id', $business->id)
             ->where('is_active', true)
             ->whereNotNull('phone')
@@ -66,7 +67,7 @@ class WhatsAppBroadcastWebController extends Controller
             ->pluck('count', 'tier')
             ->toArray();
 
-        return view('app.whatsapp.create', compact('business', 'waSession', 'customerCount', 'tierCounts'));
+        return view('app.whatsapp.create', compact('business', 'waSession', 'whatsAppAccount', 'customerCount', 'tierCounts'));
     }
 
     /**
@@ -84,9 +85,12 @@ class WhatsAppBroadcastWebController extends Controller
         ]);
 
         // Ensure WA is connected before creating campaign
-        $waSession = WhatsAppSession::where('business_id', $business->id)->first();
-        if (! $waSession || $waSession->status !== 'connected') {
-            return back()->withErrors(['whatsapp' => 'WhatsApp Gateway belum terhubung. Harap scan QR code terlebih dahulu di halaman Integrasi WhatsApp.'])->withInput();
+        $whatsAppAccount = \App\Models\WhatsAppAccount::where('business_id', $business->id)->first();
+        $waSession       = WhatsAppSession::where('business_id', $business->id)->first();
+        $isConnected     = ($whatsAppAccount && $whatsAppAccount->isConnected()) || ($waSession && $waSession->isConnected());
+
+        if (! $isConnected) {
+            return back()->withErrors(['whatsapp' => 'Akun WhatsApp resmi Meta belum terhubung. Harap hubungkan nomor WhatsApp bisnis Anda di halaman Integrasi WhatsApp.'])->withInput();
         }
 
         $campaign = WhatsAppBroadcastCampaign::create([
@@ -108,7 +112,7 @@ class WhatsAppBroadcastWebController extends Controller
         }
 
         return redirect()->route('whatsapp.broadcast.show', $campaign)
-            ->with('success', "Blast promosi \"{$campaign->title}\" berhasil dikirim ke {$campaign->total_sent} pelanggan! 🚀");
+            ->with('success', "Blast promosi \"{$campaign->title}\" berhasil dikirim ke {$campaign->total_sent} pelanggan!");
     }
 
     /**

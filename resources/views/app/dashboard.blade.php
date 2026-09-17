@@ -248,7 +248,7 @@
                             data-kpi-value data-kpi="omzet">
                             Rp {{ number_format($analytics['kpis']['omzet'], 0, ',', '.') }}
                         </div>
-                        <div class="kpi-foot">Akumulasi Kasir POS &amp; Faktur Tagihan</div>
+                        <div class="kpi-foot">Akumulasi POS, Toko Online &amp; Faktur</div>
                     </div>
                 </div>
 

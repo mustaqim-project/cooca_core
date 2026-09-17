@@ -9,16 +9,19 @@ use Illuminate\Support\Facades\Log;
 
 class MetaWhatsAppCloudDriver
 {
+    protected string $baseUrl;
+
     public function __construct(
         protected ?string $defaultToken = null,
         protected ?string $defaultPhoneNumberId = null,
         protected ?string $defaultWabaId = null,
-        protected string $version = 'v20.0'
+        protected ?string $version = null
     ) {
-        $this->defaultToken = $defaultToken ?? (string) config('services.meta_whatsapp.token', '');
-        $this->defaultPhoneNumberId = $defaultPhoneNumberId ?? (string) config('services.meta_whatsapp.phone_number_id', '');
-        $this->defaultWabaId = $defaultWabaId ?? (string) config('services.meta_whatsapp.waba_id', '');
-        $this->version = config('services.meta_whatsapp.version', 'v20.0');
+        $this->defaultToken = $defaultToken ?? (string) (\App\Models\SystemSetting::get('meta_wa_token') ?: config('services.meta_whatsapp.token', ''));
+        $this->defaultPhoneNumberId = $defaultPhoneNumberId ?? (string) (\App\Models\SystemSetting::get('meta_wa_phone_number_id') ?: config('services.meta_whatsapp.phone_number_id', ''));
+        $this->defaultWabaId = $defaultWabaId ?? (string) (\App\Models\SystemSetting::get('meta_wa_waba_id') ?: config('services.meta_whatsapp.waba_id', ''));
+        $this->version = $version ?? (string) (\App\Models\SystemSetting::get('meta_wa_graph_version') ?: config('services.meta_whatsapp.version', 'v21.0'));
+        $this->baseUrl = (string) (\App\Models\SystemSetting::get('meta_wa_graph_url') ?: config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com'));
     }
 
     /**
@@ -55,7 +58,7 @@ class MetaWhatsAppCloudDriver
             ];
         }
 
-        $url = "https://graph.facebook.com/{$this->version}/{$phoneId}/messages";
+        $url = "{$this->baseUrl}/{$this->version}/{$phoneId}/messages";
 
         try {
             $response = Http::withToken($authToken)
@@ -132,7 +135,7 @@ class MetaWhatsAppCloudDriver
             ];
         }
 
-        $url = "https://graph.facebook.com/{$this->version}/{$phoneId}/messages";
+        $url = "{$this->baseUrl}/{$this->version}/{$phoneId}/messages";
 
         try {
             $response = Http::withToken($authToken)
@@ -177,7 +180,7 @@ class MetaWhatsAppCloudDriver
      */
     public function verifyCredentials(string $token, string $phoneNumberId): array
     {
-        $url = "https://graph.facebook.com/{$this->version}/{$phoneNumberId}";
+        $url = "{$this->baseUrl}/{$this->version}/{$phoneNumberId}";
 
         try {
             $response = Http::withToken($token)

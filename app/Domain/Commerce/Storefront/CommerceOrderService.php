@@ -212,6 +212,8 @@ final class CommerceOrderService
 
             $subtotal = 0.0;
             $processedItems = [];
+            $hasPreorder = false;
+            $maxPreorderLeadDays = 0;
 
             // Process Items and Reserve Stock Atomically
             foreach ($itemsData as $row) {
@@ -225,6 +227,18 @@ final class CommerceOrderService
                     ->where('is_active', true)
                     ->lockForUpdate()
                     ->findOrFail($productId);
+
+                if (! ($product->show_in_website ?? true)) {
+                    throw new DomainException("Produk '{$product->name}' tidak tersedia untuk pemesanan online.");
+                }
+
+                if ($product->isPreorder()) {
+                    $hasPreorder = true;
+                    $leadDays = (int) ($product->preorder_lead_days ?? 1);
+                    if ($leadDays > $maxPreorderLeadDays) {
+                        $maxPreorderLeadDays = $leadDays;
+                    }
+                }
 
                 $unitPrice = (float) $product->selling_price;
                 $lineSubtotal = $qty * $unitPrice;
@@ -254,6 +268,62 @@ final class CommerceOrderService
 
             if (empty($processedItems)) {
                 throw new InvalidArgumentException('Pesanan harus memiliki minimal 1 produk dengan jumlah lebih dari 0.');
+            }
+
+            if ($hasPreorder || ! empty($options['scheduled_date'])) {
+                if (empty($options['scheduled_date'])) {
+                    throw new DomainException('Pesanan Anda memuat produk Pre-Order. Silakan tentukan tanggal jadwal pengiriman/pengambilan.');
+                }
+                $targetDate = Carbon::parse($options['scheduled_date'])->startOfDay();
+                if ($hasPreorder) {
+                    $earliestDate = Carbon::today()->addDays($maxPreorderLeadDays);
+                    if ($targetDate->isBefore($earliestDate)) {
+                        throw new DomainException("Produk Pre-Order dalam pesanan Anda membutuhkan waktu persiapan minimal {$maxPreorderLeadDays} hari (paling cepat tanggal {$this->formatIndonesianDate($earliestDate, true)}).");
+                    }
+                }
+
+                // Concurrency Safety: Lock store setting & order items under transaction to prevent overbooking
+                $lockedSetting = CommerceStoreSetting::where('business_id', $business->id)->lockForUpdate()->first() ?? $setting;
+                $quota = (int) ($lockedSetting->daily_order_quota ?? 0);
+                $quotaMetric = $lockedSetting->quota_metric ?? 'orders';
+                $quotaUnit = $lockedSetting->preorder_quota_unit ?? 'PCS';
+                $batchMode = $lockedSetting->batch_dates_mode ?? 'operating_days';
+
+                if ($batchMode === 'custom_dates' && ! empty($lockedSetting->custom_batch_dates)) {
+                    foreach ($lockedSetting->custom_batch_dates as $cbd) {
+                        if (($cbd['date'] ?? '') === $targetDate->toDateString() && isset($cbd['quota']) && is_numeric($cbd['quota'])) {
+                            $quota = (int) $cbd['quota'];
+                            break;
+                        }
+                    }
+                }
+
+                if ($quota > 0) {
+                    if ($quotaMetric === 'quantity') {
+                        $existingQty = (float) CommerceOrderItem::whereHas('order', function ($q) use ($business, $targetDate): void {
+                            $q->where('business_id', $business->id)
+                                ->whereDate('scheduled_date', $targetDate->toDateString())
+                                ->whereNotIn('status', [CommerceOrder::STATUS_CANCELLED, CommerceOrder::STATUS_EXPIRED]);
+                        })->lockForUpdate()->sum('quantity');
+
+                        $incomingQty = (float) array_sum(array_map(fn ($it): float => (float) ($it['quantity'] ?? 0), $itemsData));
+                        $remainingQuota = max(0, $quota - (int) $existingQty);
+
+                        if (($existingQty + $incomingQty) > $quota) {
+                            throw new DomainException("Sisa kuota untuk batch tanggal {$this->formatIndonesianDate($targetDate, false)} tersisa {$remainingQuota} {$quotaUnit}. Pesanan Anda ({$incomingQty} {$quotaUnit}) melebihi kuota yang tersedia.");
+                        }
+                    } else {
+                        $existingCount = CommerceOrder::where('business_id', $business->id)
+                            ->whereDate('scheduled_date', $targetDate->toDateString())
+                            ->whereNotIn('status', [CommerceOrder::STATUS_CANCELLED, CommerceOrder::STATUS_EXPIRED])
+                            ->lockForUpdate()
+                            ->count();
+
+                        if ($existingCount >= $quota) {
+                            throw new DomainException("Kapasitas kuota pesanan untuk tanggal {$this->formatIndonesianDate($targetDate, false)} sudah penuh (Maks. {$quota} pesanan). Silakan pilih tanggal lain.");
+                        }
+                    }
+                }
             }
 
             if ($subtotal <= 0.0) {
@@ -306,7 +376,7 @@ final class CommerceOrderService
                 'discount_amount' => 0.0,
                 'total_amount' => $totalAmount,
                 'reserved_until' => $reservedUntil,
-                'notes' => $options['order_notes'] ?? null,
+                'notes' => $options['order_notes'] ?? ($options['notes'] ?? ($customerData['notes'] ?? null)),
             ]);
 
             foreach ($processedItems as $item) {
@@ -352,8 +422,8 @@ final class CommerceOrderService
             ['is_storefront_enabled' => true, 'allow_scheduled_order' => true]
         );
 
-        if (! $setting->is_storefront_enabled || ! ($setting->allow_scheduled_order ?? true)) {
-            throw new DomainException('Layanan Pesanan Terjadwal sedang dinonaktifkan oleh toko.');
+        if (! $setting->is_storefront_enabled || (! ($setting->allow_scheduled_order ?? true) && ! ($setting->allow_customer_po ?? false))) {
+            throw new DomainException('Layanan Pesanan Terjadwal / Batch sedang dinonaktifkan oleh toko.');
         }
 
         // Validate scheduled date format
@@ -380,16 +450,61 @@ final class CommerceOrderService
             }
         }
 
-        // Validate daily quota
-        $quota = (int) ($setting->daily_order_quota ?? 0);
-        if ($quota > 0) {
-            $existingCount = CommerceOrder::where('business_id', $business->id)
-                ->whereDate('scheduled_date', $targetDate->toDateString())
-                ->whereNotIn('status', [CommerceOrder::STATUS_CANCELLED, CommerceOrder::STATUS_EXPIRED])
-                ->count();
+        // Validate strict batch restriction when custom date is disabled
+        $allowCustomDate = (bool) ($setting->allow_custom_date ?? true);
+        $batchMode = $setting->batch_dates_mode ?? 'operating_days';
+        if (! $allowCustomDate) {
+            if ($batchMode === 'custom_dates') {
+                $customDates = array_filter((array) ($setting->custom_batch_dates ?? []), fn ($b) => ($b['date'] ?? '') === $targetDate->toDateString());
+                if (empty($customDates)) {
+                    throw new DomainException('Toko hanya menerima pemesanan pada jadwal batch yang telah ditentukan.');
+                }
+            } else {
+                $operatingDays = (array) ($setting->operating_days ?? []);
+                $dayName = strtolower($targetDate->format('l'));
+                if (! empty($operatingDays) && ! in_array($dayName, $operatingDays, true)) {
+                    throw new DomainException('Toko hanya menerima pemesanan pada jadwal batch pengiriman yang telah ditentukan.');
+                }
+            }
+        }
 
-            if ($existingCount >= $quota) {
-                throw new DomainException("Kapasitas kuota pesanan untuk tanggal {$targetDate->translatedFormat('d F Y')} sudah penuh (Maks. {$quota} pesanan). Silakan pilih tanggal lain.");
+        // Validate quota (by item quantity or order count)
+        $quota = (int) ($setting->daily_order_quota ?? 0);
+        $quotaMetric = $setting->quota_metric ?? 'orders';
+        $quotaUnit = $setting->preorder_quota_unit ?? 'PCS';
+
+        if ($batchMode === 'custom_dates' && ! empty($setting->custom_batch_dates)) {
+            foreach ($setting->custom_batch_dates as $cbd) {
+                if (($cbd['date'] ?? '') === $targetDate->toDateString() && isset($cbd['quota']) && is_numeric($cbd['quota'])) {
+                    $quota = (int) $cbd['quota'];
+                    break;
+                }
+            }
+        }
+
+        if ($quota > 0) {
+            if ($quotaMetric === 'quantity') {
+                $existingQty = (float) CommerceOrderItem::whereHas('order', function ($q) use ($business, $targetDate): void {
+                    $q->where('business_id', $business->id)
+                        ->whereDate('scheduled_date', $targetDate->toDateString())
+                        ->whereNotIn('status', [CommerceOrder::STATUS_CANCELLED, CommerceOrder::STATUS_EXPIRED]);
+                })->sum('quantity');
+
+                $incomingQty = (float) array_sum(array_map(fn ($it): float => (float) ($it['quantity'] ?? 0), $itemsData));
+                $remainingQuota = max(0, $quota - (int) $existingQty);
+
+                if (($existingQty + $incomingQty) > $quota) {
+                    throw new DomainException("Sisa kuota untuk batch tanggal {$this->formatIndonesianDate($targetDate, false)} tersisa {$remainingQuota} {$quotaUnit}. Pesanan Anda ({$incomingQty} {$quotaUnit}) melebihi kuota yang tersedia.");
+                }
+            } else {
+                $existingCount = CommerceOrder::where('business_id', $business->id)
+                    ->whereDate('scheduled_date', $targetDate->toDateString())
+                    ->whereNotIn('status', [CommerceOrder::STATUS_CANCELLED, CommerceOrder::STATUS_EXPIRED])
+                    ->count();
+
+                if ($existingCount >= $quota) {
+                    throw new DomainException("Kapasitas kuota pesanan untuk tanggal {$this->formatIndonesianDate($targetDate, false)} sudah penuh (Maks. {$quota} pesanan). Silakan pilih tanggal lain.");
+                }
             }
         }
 
@@ -581,7 +696,7 @@ final class CommerceOrderService
                 'shipping_cost' => 0.0,
                 'discount_amount' => 0.0,
                 'total_amount' => $subtotal,
-                'notes' => $options['order_notes'] ?? null,
+                'notes' => $options['order_notes'] ?? ($options['notes'] ?? ($customerData['notes'] ?? null)),
             ]);
 
             foreach ($processedItems as $item) {
@@ -721,5 +836,23 @@ final class CommerceOrderService
         }
 
         return $clean;
+    }
+
+    /**
+     * Format Carbon date deterministically into Indonesian locale format.
+     */
+    public function formatIndonesianDate(Carbon $date, bool $withDay = false): string
+    {
+        $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $dateStr = $date->day . ' ' . ($months[$date->month] ?? $date->format('F')) . ' ' . $date->year;
+        if ($withDay) {
+            return ($days[$date->dayOfWeek] ?? $date->format('l')) . ', ' . $dateStr;
+        }
+
+        return $dateStr;
     }
 }

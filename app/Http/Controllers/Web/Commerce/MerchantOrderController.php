@@ -69,7 +69,7 @@ final class MerchantOrderController extends Controller
             });
         }
 
-        $orders = $query->paginate(20)->withQueryString();
+        $orders = $query->with(['groupOrder', 'items'])->latest()->paginate(20)->withQueryString();
 
         $needsVerificationCount = CommerceOrder::where('business_id', $business->id)
             ->where('status', CommerceOrder::STATUS_PROOF_SUBMITTED)
@@ -87,7 +87,7 @@ final class MerchantOrderController extends Controller
         abort_unless($business && $order->business_id === $business->id, 403);
         abort_unless(Context::hasPermission('storefront.orders.view'), 403);
 
-        $order->load(['items.product', 'paymentMethod', 'paymentProofs.verifier', 'customer', 'batches']);
+        $order->load(['items.product', 'paymentMethod', 'paymentProofs.verifier', 'customer', 'batches', 'groupOrder.items.member', 'groupOrder.host']);
 
         return view('app.storefront.orders.show', compact('business', 'order'));
     }
@@ -266,5 +266,81 @@ final class MerchantOrderController extends Controller
         }
 
         return Storage::disk('local')->response($proof->file_path);
+    }
+
+    /**
+     * Manually re-sync payment status from TriPay gateway failover.
+     */
+    public function syncGatewayStatus(CommerceOrder $order): RedirectResponse
+    {
+        $business = Context::business();
+        abort_unless($business && $order->business_id === $business->id, 403);
+        abort_unless(Context::hasPermission('storefront.orders.process'), 403);
+
+        if ($order->isPaid()) {
+            return back()->with('info', 'Pesanan ini sudah berstatus lunas.');
+        }
+
+        $reference = $order->gateway_reference;
+        if (empty($reference)) {
+            return back()->with('error', 'Pesanan ini tidak memiliki referensi pembayaran gateway TriPay.');
+        }
+
+        try {
+            $tripayService = new \App\Domain\Payment\TripayService();
+            $detail = $tripayService->getTransactionDetail($reference);
+            $status = strtoupper(trim((string) ($detail['status'] ?? '')));
+
+            if ($status === 'PAID') {
+                $totalFee = (float) ($detail['total_fee'] ?? 0.0);
+                $paymentChannel = (string) ($detail['payment_method'] ?? ($order->payment_channel ?? 'QRIS'));
+                $calculatedFee = strtoupper($paymentChannel) === 'QRIS'
+                    ? $tripayService->calculateQrisFee((float) $order->total_amount)
+                    : ($totalFee > 0 ? $totalFee : (float) ($order->gateway_fee ?? 0.0));
+
+                \Illuminate\Support\Facades\DB::transaction(function () use ($order, $reference, $paymentChannel, $calculatedFee) {
+                    $order->update([
+                        'status' => CommerceOrder::STATUS_PAID,
+                        'payment_status' => CommerceOrder::PAYMENT_PAID,
+                        'payment_gateway' => CommerceOrder::GATEWAY_TRIPAY,
+                        'payment_channel' => $paymentChannel,
+                        'gateway_reference' => $reference,
+                        'gateway_fee' => $calculatedFee,
+                        'paid_at' => \Carbon\Carbon::now(),
+                        'rejection_reason' => null,
+                    ]);
+
+                    // Commit physical stock for goods
+                    foreach ($order->items as $item) {
+                        if ($item->product && $item->product->isGoods()) {
+                            $this->stockService->commitProductReservedStock(
+                                businessId: $order->business_id,
+                                locationId: $order->location_id,
+                                product: $item->product,
+                                productQuantity: (float) $item->quantity,
+                                unitCost: (float) $item->product->base_cost,
+                                referenceId: $order->id,
+                                referenceNumber: $order->order_number,
+                                userId: Auth::id()
+                            );
+                        }
+                    }
+                });
+
+                return back()->with('success', "Status pembayaran TriPay berhasil disinkronkan: LUNAS ({$paymentChannel}). Stok produk telah dialokasikan.");
+            } elseif (in_array($status, ['EXPIRED', 'FAILED'], true)) {
+                $order->update([
+                    'status' => $status === 'EXPIRED' ? CommerceOrder::STATUS_EXPIRED : CommerceOrder::STATUS_CANCELLED,
+                    'payment_status' => CommerceOrder::PAYMENT_FAILED,
+                    'cancelled_at' => \Carbon\Carbon::now(),
+                ]);
+
+                return back()->with('warning', "Status pembayaran TriPay berhasil disinkronkan: {$status}.");
+            } else {
+                return back()->with('info', "Status pembayaran di TriPay saat ini: {$status} (Menunggu Pembayaran).");
+            }
+        } catch (Throwable $e) {
+            return back()->with('error', 'Gagal menyinkronkan status TriPay: ' . $e->getMessage());
+        }
     }
 }

@@ -49,7 +49,16 @@
                 <i data-lucide="chevron-left" class="w-5 h-5 text-black/60 dark:text-white/60"></i>
                 <span class="font-semibold text-[14.5px] text-black dark:text-white">{{ $business->name }}</span>
             </a>
-            <span class="text-[12px] font-mono text-black/50 dark:text-white/50">#{{ $order->order_number }}</span>
+            <div class="flex items-center gap-3">
+                @if (auth('customer')->check())
+                    <a href="{{ route('customer.orders') }}"
+                        class="px-3 py-1 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/80 dark:text-white/80 text-[12px] font-semibold transition flex items-center gap-1.5">
+                        <i data-lucide="package" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                        <span>Pesanan Saya</span>
+                    </a>
+                @endif
+                <span class="text-[12px] font-mono text-black/50 dark:text-white/50">#{{ $order->order_number }}</span>
+            </div>
         </div>
     </header>
 
@@ -149,8 +158,252 @@
             @endif
         </div>
 
+        {{-- GROUP ORDER / SPLIT BILL BANNER (IF APPLICABLE) --}}
+        @if ($order->groupOrder)
+            @php
+                $group = $order->groupOrder;
+                $splitSummary = $group->getSplitBillSummary();
+                $waBillText = "Halo semuanya! Berikut rincian patungan pesanan {$business->name} ({$group->title}) - Pesanan #{$order->order_number}:\n\n";
+                foreach ($splitSummary as $s) {
+                    $waBillText .= "- {$s['member_name']}: Rp " . number_format($s['subtotal'], 0, ',', '.') . " (" . $s['items']->map(fn($it) => (float)$it->quantity . 'x ' . ($it->product?->name ?? 'Menu'))->join(', ') . ")\n";
+                }
+                $waBillText .= "\nTotal Tagihan: Rp " . number_format($order->total_amount, 0, ',', '.') . "\nSilakan transfer ke Host (" . ($group->host?->name ?? 'Host') . "). Terima kasih!";
+            @endphp
+            <div x-data="{ splitModalOpen: false }" class="p-5 sm:p-6 rounded-[24px] bg-[#AF52DE]/10 border border-[#AF52DE]/25 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-[#AF52DE] text-white flex items-center justify-center shrink-0 shadow-sm">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-[15px] font-bold text-black dark:text-white tracking-tight">
+                                    Pesanan Bersama: {{ $group->title }}
+                                </h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#AF52DE]/20 text-[#AF52DE]">
+                                    Pesan Bareng
+                                </span>
+                            </div>
+                            <p class="text-[12px] text-black/60 dark:text-white/60 mt-0.5">
+                                Host: <strong class="text-black dark:text-white">{{ $group->host?->name ?? $order->customer_name }}</strong> &bull; Total {{ count($splitSummary) }} Rekan Patungan
+                            </p>
+                        </div>
+                    </div>
+
+                    <button type="button" @click="splitModalOpen = true"
+                        class="h-9 px-4 rounded-full bg-[#AF52DE] hover:bg-[#AF52DE]/90 text-white font-semibold text-[12.5px] transition active:scale-[0.98] shadow-sm flex items-center gap-1.5 self-start sm:self-auto cursor-pointer">
+                        <i data-lucide="receipt" class="w-4 h-4"></i>
+                        <span>Rincian Patungan (Split Bill)</span>
+                    </button>
+                </div>
+
+                {{-- SPLIT BILL MODAL SHEET --}}
+                <div x-show="splitModalOpen" x-cloak
+                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    x-transition.opacity>
+                    <div @click.outside="splitModalOpen = false"
+                        class="w-full max-w-full sm:max-w-xl md:max-w-2xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-5 sm:p-7 space-y-4 max-h-[88vh] overflow-y-auto">
+                        
+                        <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/5">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center">
+                                    <i data-lucide="receipt" class="w-4 h-4"></i>
+                                </div>
+                                <h3 class="text-[16px] font-bold text-black dark:text-white">Rincian Patungan (Split Bill)</h3>
+                            </div>
+                            <button type="button" @click="splitModalOpen = false"
+                                class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 flex items-center justify-center text-black/60 dark:text-white/60">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-3 divide-y divide-black/5 dark:divide-white/5">
+                            @foreach ($splitSummary as $split)
+                                <div class="pt-3 first:pt-0 space-y-1">
+                                    <div class="flex items-center justify-between text-[13.5px]">
+                                        <span class="font-bold text-black dark:text-white flex items-center gap-1.5">
+                                            <i data-lucide="user" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                                            <span>{{ $split['member_name'] }}</span>
+                                        </span>
+                                        <span class="font-bold text-[#AF52DE] tabular-nums">
+                                            Rp {{ number_format($split['subtotal'], 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    <div class="text-[12px] text-black/55 dark:text-white/55 pl-5 space-y-0.5">
+                                        @foreach ($split['items'] as $item)
+                                            <div>&bull; {{ (float) $item->quantity }}x {{ $item->product?->name ?? 'Produk' }} @if($item->notes) <span class="italic text-black/40">({{ $item->notes }})</span> @endif</div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="pt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-[14px] font-bold">
+                            <span class="text-black dark:text-white">Total Tagihan Bersama:</span>
+                            <span class="text-[#007AFF] tabular-nums text-[16px]">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                        </div>
+
+                        <div class="pt-2 flex flex-col sm:flex-row gap-2">
+                            <button type="button"
+                                onclick="navigator.clipboard.writeText({{ json_encode($waBillText) }}).then(() => alert('Rincian tagihan berhasil disalin! Silakan tempel di WhatsApp grup kantor.'));"
+                                class="flex-1 h-10 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white text-[12.5px] font-semibold transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                <span>Salin Rincian</span>
+                            </button>
+                            <a href="https://api.whatsapp.com/send?text={{ rawurlencode($waBillText) }}" target="_blank"
+                                class="flex-1 h-10 rounded-full bg-[#25D366] hover:bg-[#25D366]/90 text-white text-[12.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-sm">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                <span>Kirim ke WA Rekan</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- PAYMENT INSTRUCTIONS (IF UNPAID) --}}
-        @if ($order->canSubmitProof())
+        {{-- TRIPAY AUTOMATIC PAYMENT CARD (QRIS & VIRTUAL ACCOUNT) --}}
+        @if ($order->isTripay() && !$order->isPaid())
+            <div class="p-4 sm:p-5 rounded-[20px] bg-gradient-to-r from-[#007AFF]/10 via-[#5856D6]/10 to-[#007AFF]/5 border border-[#007AFF]/30 flex items-start gap-3.5 shadow-2xs">
+                <div class="p-2 rounded-xl bg-[#007AFF]/15 text-[#007AFF] shrink-0 mt-0.5">
+                    <i data-lucide="zap" class="w-5 h-5"></i>
+                </div>
+                <div class="space-y-0.5">
+                    <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Pembayaran Otomatis Terintegrasi</h3>
+                    <p class="text-[12.5px] text-black/70 dark:text-white/70 leading-relaxed">
+                        Sistem memverifikasi pembayaran Anda secara langsung tanpa perlu konfirmasi manual atau upload foto struk. Halaman ini akan otomatis diperbarui saat Anda selesai membayar.
+                    </p>
+                </div>
+            </div>
+
+            <div class="p-6 sm:p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-6"
+                x-data="{ copied: false }">
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-[#007AFF] block">Instruksi Pembayaran Gateway</span>
+                        <h2 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight mt-0.5">
+                            {{ $order->payment_channel === 'QRIS' ? 'Pindai QRIS Dinamis' : ($order->payment_channel ?? 'Virtual Account') }}
+                        </h2>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Verifikasi Real-Time
+                    </span>
+                </div>
+
+                {{-- Total Tagihan Box --}}
+                <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <span class="text-[12.5px] text-black/60 dark:text-white/60 block">Total Pembayaran:</span>
+                        <span class="text-[24px] font-extrabold text-[#007AFF] font-mono tracking-tight">
+                            Rp {{ number_format($order->total_amount, 0, ',', '.') }}
+                        </span>
+                    </div>
+                    @if ($order->gateway_expired_at)
+                        <div class="text-left sm:text-right">
+                            <span class="text-[11.5px] text-black/50 dark:text-white/50 block">Batas Waktu Bayar:</span>
+                            <span class="text-[13px] font-semibold text-amber-600 dark:text-amber-400">
+                                {{ $order->gateway_expired_at->translatedFormat('d M Y, H:i') }} WIB
+                            </span>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- QRIS Section --}}
+                @if (strtoupper($order->payment_channel ?? '') === 'QRIS' || !empty($order->gateway_qr_url))
+                    <div class="flex flex-col items-center justify-center p-6 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-4 text-center">
+                        <div class="p-3 bg-white rounded-2xl border border-black/10 shadow-sm inline-block">
+                            @if ($order->gateway_qr_url)
+                                <img src="{{ $order->gateway_qr_url }}" alt="QRIS Dinamis" class="w-56 h-56 object-contain rounded-xl">
+                            @else
+                                <div class="w-56 h-56 flex flex-col items-center justify-center text-center p-4">
+                                    <i data-lucide="qr-code" class="w-16 h-16 text-black/40 mb-2"></i>
+                                    <span class="text-[12px] text-black/60 font-medium">Memuat kode QRIS...</span>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="space-y-1 max-w-md">
+                            <h4 class="text-[14px] font-bold text-black dark:text-white">Bisa Pindai dari Semua Aplikasi Pembayaran</h4>
+                            <p class="text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
+                                Buka aplikasi m-Banking (BCA, Mandiri, BRI, BNI) atau e-Wallet (GoPay, OVO, Dana, ShopeePay), pilih fitur scan QRIS, lalu arahkan kamera ke kode di atas.
+                            </p>
+                        </div>
+
+                        @if ($order->gateway_pay_url)
+                            <div class="pt-2">
+                                <a href="{{ $order->gateway_pay_url }}" target="_blank"
+                                    class="h-10 px-5 rounded-full bg-brand-primary text-white text-[12.5px] font-semibold transition hover:opacity-90 inline-flex items-center gap-1.5 shadow-xs">
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    <span>Buka Halaman Pembayaran TriPay</span>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+
+                {{-- Virtual Account Section --}}
+                @elseif ($order->gateway_pay_code)
+                    <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[12.5px] font-semibold text-black/70 dark:text-white/70">Nomor Virtual Account</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF]">
+                                {{ $order->payment_channel }}
+                            </span>
+                        </div>
+
+                        <div class="p-4 rounded-[16px] bg-white dark:bg-[#111112] border border-black/10 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                            <div class="min-w-0 flex-1">
+                                <span class="font-mono text-2xl sm:text-3xl font-bold tracking-wider text-black dark:text-white tabular-nums block break-all">
+                                    {{ $order->gateway_pay_code }}
+                                </span>
+                                <span class="text-[11.5px] text-black/50 dark:text-white/50 block mt-1">
+                                    Atas Nama: <strong>{{ $business->name }}</strong>
+                                </span>
+                            </div>
+
+                            <button type="button"
+                                @click="navigator.clipboard.writeText('{{ $order->gateway_pay_code }}'); copied = true; setTimeout(() => copied = false, 2500);"
+                                class="h-11 px-5 rounded-[12px] bg-brand-primary hover:opacity-90 active:scale-[0.98] text-white font-bold text-[13px] transition flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-xs">
+                                <i :data-lucide="copied ? 'check' : 'copy'" class="w-4 h-4"></i>
+                                <span x-text="copied ? 'Berhasil Disalin!' : 'Salin Nomor VA'"></span>
+                            </button>
+                        </div>
+
+                        <div class="text-[12px] text-black/60 dark:text-white/60 space-y-1.5 pt-1">
+                            <div class="flex items-center gap-1.5 font-semibold text-black/80 dark:text-white/80">
+                                <i data-lucide="info" class="w-4 h-4 text-brand-primary"></i>
+                                <span>Petunjuk Pembayaran:</span>
+                            </div>
+                            <p>1. Buka m-Banking atau ATM bank pilihan Anda.</p>
+                            <p>2. Pilih menu <strong>Transfer &gt; Virtual Account</strong>.</p>
+                            <p>3. Masukkan nomor VA di atas dan pastikan nominal tagihan sesuai.</p>
+                            <p>4. Konfirmasi transaksi dan status pesanan ini otomatis berubah menjadi lunas.</p>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Live Detection Notice --}}
+                <div class="p-3.5 rounded-[16px] bg-emerald-500/5 border border-emerald-500/15 flex items-center gap-3 text-[12.5px] text-emerald-800 dark:text-emerald-300">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
+                    <span>Sistem aktif memantau pembayaran Anda. Jangan tutup halaman ini jika Anda ingin melihat status berubah secara langsung.</span>
+                </div>
+            </div>
+        @endif
+
+        {{-- MANUAL PAYMENT INSTRUCTIONS & PROOF UPLOAD (IF MANUAL & UNPAID) --}}
+        @if ($order->isManualPayment() && $order->canSubmitProof())
+            <div class="p-4 sm:p-5 rounded-[20px] bg-gradient-to-r from-[#007AFF]/10 via-[#5856D6]/10 to-[#007AFF]/5 border border-[#007AFF]/30 flex items-start gap-3.5 shadow-2xs">
+                <div class="p-2 rounded-xl bg-[#007AFF]/15 text-[#007AFF] shrink-0 mt-0.5">
+                    <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                </div>
+                <div class="space-y-0.5">
+                    <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Selesaikan Pembayaran &amp; Unggah Bukti Transfer</h3>
+                    <p class="text-[12.5px] text-black/70 dark:text-white/70 leading-relaxed">
+                        Pesanan Anda telah tercatat dan kuota batch pengiriman berhasil diamankan. Silakan transfer sesuai nominal di bawah, lalu langsung unggah bukti transfer agar pesanan segera diverifikasi oleh tim restoran.
+                    </p>
+                </div>
+            </div>
+
             <div
                 class="p-6 sm:p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-6">
                 <div>
@@ -270,6 +523,7 @@
                 </form>
             </div>
         @endif
+
 
         {{-- MULTI-DROP BATCHES TRACKING --}}
         @if ($order->batches->isNotEmpty())
@@ -408,6 +662,20 @@
                 Pengiriman</h3>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[13px]">
+                @if ($order->scheduled_date)
+                    <div class="sm:col-span-2 p-3.5 rounded-[16px] bg-[#007AFF]/10 border border-[#007AFF]/20 space-y-1">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="calendar" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-[#007AFF]">Jadwal Pre-Order / Tanggal Kirim</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 text-[14px] font-bold text-black dark:text-white">
+                            <span>{{ $order->scheduled_date->translatedFormat('l, d F Y') }}</span>
+                            @if ($order->scheduled_time_slot)
+                                <span class="text-[11.5px] px-2.5 py-0.5 rounded-full bg-white dark:bg-[#1C1C1E] text-[#007AFF] font-semibold border border-[#007AFF]/20 shadow-xs">{{ $order->scheduled_time_slot }}</span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
                 <div>
                     <span class="text-[11.5px] text-black/45 dark:text-white/45 block font-medium">Nama Pemesan</span>
                     <span class="font-semibold text-black dark:text-white">{{ $order->customer_name }}</span>
@@ -445,7 +713,41 @@
 
     <script>
         lucide.createIcons();
+
+        // Real-Time Live Status Polling (Auto-Detect TriPay Payment)
+        document.addEventListener('DOMContentLoaded', () => {
+            @if (!$order->isPaid())
+                let isPolling = true;
+                const pollStatus = () => {
+                    if (!isPolling) return;
+                    fetch('{{ route('public.storefront.order.status', [$business->slug, $order->tracking_token]) }}')
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success && data.is_paid) {
+                                isPolling = false;
+                                // Smooth reload to show updated lunas state
+                                window.location.reload();
+                            }
+                        })
+                        .catch(() => {});
+                };
+
+                // Poll every 4.5 seconds
+                const timer = setInterval(pollStatus, 4500);
+
+                // Stop polling if tab becomes inactive for 10 minutes to save resources
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        isPolling = false;
+                    } else {
+                        isPolling = true;
+                        pollStatus();
+                    }
+                });
+            @endif
+        });
     </script>
 </body>
+
 
 </html>

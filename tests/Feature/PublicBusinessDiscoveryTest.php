@@ -69,7 +69,8 @@ class PublicBusinessDiscoveryTest extends TestCase
         $loc1 = Location::create([
             'business_id' => $this->discoverableStore->id,
             'name' => 'Outlet Senopati',
-            'is_default' => true,
+            'is_primary' => true,
+            'is_active' => true,
         ]);
 
         Product::create([

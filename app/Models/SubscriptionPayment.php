@@ -85,6 +85,9 @@ class SubscriptionPayment extends Model
         ],
     ];
 
+    public const GATEWAY_MANUAL = 'manual';
+    public const GATEWAY_TRIPAY = 'tripay';
+
     protected $fillable = [
         'business_id',
         'user_id',
@@ -101,6 +104,14 @@ class SubscriptionPayment extends Model
         'topup_quantity',
         'topup_storage_bytes',
         'payment_method',
+        'payment_gateway',
+        'gateway_reference',
+        'gateway_pay_code',
+        'gateway_pay_url',
+        'gateway_qr_url',
+        'gateway_qr_string',
+        'gateway_fee',
+        'gateway_expired_at',
         'status',
         'payment_proof_path',
         'sender_bank',
@@ -126,10 +137,27 @@ class SubscriptionPayment extends Model
             'topup_quantity' => 'integer',
             'topup_storage_bytes' => 'integer',
             'package_duration_days' => 'integer',
+            'gateway_fee' => 'float',
+            'gateway_expired_at' => 'datetime',
             'proof_uploaded_at' => 'datetime',
             'approved_at' => 'datetime',
             'rejected_at' => 'datetime',
         ];
+    }
+
+    public function isTripay(): bool
+    {
+        return $this->payment_gateway === self::GATEWAY_TRIPAY;
+    }
+
+    public function isManual(): bool
+    {
+        return $this->payment_gateway === self::GATEWAY_MANUAL || empty($this->payment_gateway);
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->status === self::STATUS_APPROVED;
     }
 
     /**

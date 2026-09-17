@@ -472,14 +472,105 @@
                             x-text="formatRupiah(cartTotalAmount)"></span>
                     </div>
                 </div>
+
+                <!-- Payment Method Selection Bento -->
+                <div class="space-y-1.5 pt-1">
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Pilih Metode Pembayaran</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <!-- Option 1: QRIS Pay Now -->
+                        <button type="button" @click="paymentMode = 'pay_now'"
+                            :class="paymentMode === 'pay_now' ? 'border-[#007AFF] bg-[#007AFF]/10 dark:bg-[#007AFF]/15 text-[#007AFF] ring-1 ring-[#007AFF]' : 'border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70'"
+                            class="p-2.5 rounded-[12px] border text-left transition-all flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-xs">QRIS di Meja</span>
+                                <span class="w-2 h-2 rounded-full" :class="paymentMode === 'pay_now' ? 'bg-[#007AFF]' : 'bg-transparent'"></span>
+                            </div>
+                            <span class="text-[10px] text-[#34C759] font-semibold mt-1">Bebas Biaya Admin</span>
+                        </button>
+
+                        <!-- Option 2: Pay Later at Cashier -->
+                        <button type="button" @click="paymentMode = 'pay_at_cashier'"
+                            :class="paymentMode === 'pay_at_cashier' ? 'border-[#007AFF] bg-[#007AFF]/10 dark:bg-[#007AFF]/15 text-[#007AFF] ring-1 ring-[#007AFF]' : 'border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70'"
+                            class="p-2.5 rounded-[12px] border text-left transition-all flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-xs">Bayar di Kasir</span>
+                                <span class="w-2 h-2 rounded-full" :class="paymentMode === 'pay_at_cashier' ? 'bg-[#007AFF]' : 'bg-transparent'"></span>
+                            </div>
+                            <span class="text-[10px] text-black/45 dark:text-white/45 mt-1">Tunai / Kartu EDC</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Submit Button with Double-Click Protection -->
             <div class="pt-2">
                 <button type="button" @click="submitOrderToCashier()" :disabled="isSubmitting"
                     class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-md">
-                    <span x-show="!isSubmitting">Kirim Pesanan ke Kasir</span>
-                    <span x-show="isSubmitting">Mengirim Pesanan...</span>
+                    <span x-show="!isSubmitting" x-text="paymentMode === 'pay_now' ? 'Bayar Langsung via QRIS (' + formatRupiah(cartTotalAmount) + ')' : 'Kirim Pesanan ke Kasir'"></span>
+                    <span x-show="isSubmitting">Memproses Pesanan...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL: PAY AT TABLE DYNAMIC QRIS (Apple Bento Sheet)      -->
+    <!-- ========================================================= -->
+    <div x-show="showQrisModal"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 sm:p-4"
+        style="display: none;">
+        <div class="w-full max-w-sm bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4 text-center transition-all"
+            @click.outside="closeQrisModal()">
+            <div class="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
+                <div class="text-left">
+                    <h3 class="font-bold text-[16px] text-black dark:text-white">QRIS Meja {{ $table->table_number }}</h3>
+                    <p class="text-[11px] text-black/50 dark:text-white/50">Scan dengan aplikasi e-Wallet atau m-Banking</p>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20">
+                    Bebas Biaya Admin
+                </span>
+            </div>
+
+            <!-- Amount Box -->
+            <div class="p-3 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-center justify-between">
+                <span class="text-xs text-black/60 dark:text-white/60 font-medium">Total Pembayaran</span>
+                <span class="font-black text-[18px] text-[#34C759] dark:text-[#30D158] tabular-nums"
+                    x-text="activePaymentData ? formatRupiah(activePaymentTotal) : ''"></span>
+            </div>
+
+            <!-- QR Code Render Card -->
+            <div class="p-4 rounded-[20px] bg-white border border-black/10 shadow-inner flex flex-col items-center justify-center relative">
+                <template x-if="activePaymentData && activePaymentData.qr_url">
+                    <img :src="activePaymentData.qr_url" alt="QRIS Code" class="w-56 h-56 object-contain rounded-lg">
+                </template>
+                <div class="mt-2 text-[10.5px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF] animate-ping"></span>
+                    <span>Menunggu Pembayaran...</span>
+                </div>
+            </div>
+
+            <!-- Countdown Timer & Auto Polling Notice -->
+            <div class="space-y-1 text-xs">
+                <div class="flex items-center justify-center gap-1.5 text-black/70 dark:text-white/70 font-semibold">
+                    <span>Sisa Waktu Bayar:</span>
+                    <span class="font-mono text-[#FF9500] font-extrabold tabular-nums" x-text="qrisCountdownFormatted">15:00</span>
+                </div>
+                <p class="text-[11px] text-black/40 dark:text-white/40">
+                    Halaman akan otomatis terverifikasi begitu Anda selesai membayar.
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-2 space-y-2">
+                <template x-if="activePaymentData && activePaymentData.qr_url">
+                    <a :href="activePaymentData.qr_url" target="_blank" download="qris-meja-{{ $table->table_number }}.png"
+                        class="w-full h-10 rounded-[12px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition">
+                        <span>Unduh / Simpan QR</span>
+                    </a>
+                </template>
+                <button type="button" @click="closeQrisModal()"
+                    class="w-full h-10 rounded-[12px] bg-black/5 dark:bg-white/5 hover:bg-black/10 text-black/60 dark:text-white/60 font-semibold text-xs transition">
+                    Tutup Sementara (Bayar Nanti di Kasir)
                 </button>
             </div>
         </div>
@@ -554,20 +645,33 @@
             </div>
 
             <!-- Recent Orders Feed -->
-            <div class="max-h-48 overflow-y-auto space-y-2 text-left pr-1">
+            <div class="max-h-56 overflow-y-auto space-y-2.5 text-left pr-1">
                 <template x-for="ord in recentOrders" :key="ord.id">
                     <div
-                        class="p-3 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-xs space-y-1">
-                        <div class="flex justify-between font-bold text-black dark:text-white">
+                        class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-xs space-y-1.5">
+                        <div class="flex justify-between items-center font-bold text-black dark:text-white">
                             <span x-text="'#' + ord.order_number"></span>
-                            <span class="text-[#007AFF] dark:text-[#0A84FF] uppercase text-[10px]"
-                                x-text="ord.status"></span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                    :class="ord.is_paid ? 'bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20' : 'bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20'"
+                                    x-text="ord.is_paid ? 'Lunas' : 'Belum Bayar'"></span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#007AFF]/10 text-[#007AFF] uppercase"
+                                    x-text="ord.status"></span>
+                            </div>
                         </div>
                         <div class="text-[11px] text-black/60 dark:text-white/60"
-                            x-text="ord.items ? ord.items.map(i => i.product_name + ' (' + i.quantity + ')').join(', ') : ''">
+                            x-text="ord.items ? ord.items.map(i => (i.product_name || i.product?.name || 'Item') + ' (' + i.quantity + ')').join(', ') : ''">
                         </div>
-                        <div class="text-xs font-extrabold text-[#34C759] dark:text-[#30D158] tabular-nums"
-                            x-text="formatRupiah(ord.total_amount)"></div>
+                        <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/5">
+                            <div class="text-xs font-extrabold text-[#34C759] dark:text-[#30D158] tabular-nums"
+                                x-text="formatRupiah(ord.total_amount)"></div>
+                            <template x-if="!ord.is_paid && ord.gateway_qr_url">
+                                <button type="button" @click="reopenPaymentModal(ord)"
+                                    class="h-7 px-3 rounded-[8px] bg-[#007AFF] hover:bg-[#0062CC] text-white text-[11px] font-bold shadow-xs active:scale-95 transition flex items-center gap-1">
+                                    <span>Bayar QRIS</span>
+                                </button>
+                            </template>
+                        </div>
                     </div>
                 </template>
             </div>
@@ -608,9 +712,20 @@
                 // Cart state
                 cart: [],
                 orderGeneralNotes: '',
+                paymentMode: 'pay_now',
                 showCartModal: false,
                 showTrackingModal: false,
                 isSubmitting: false,
+
+                // QRIS Pay-at-Table state
+                showQrisModal: false,
+                activePaymentData: null,
+                activePaymentTotal: 0,
+                activeOrderId: null,
+                pollingTimer: null,
+                countdownTimer: null,
+                qrisCountdown: 900,
+                qrisCountdownFormatted: '15:00',
 
                 init() {
                     this.filteredProducts = this.allProducts;
@@ -633,6 +748,81 @@
 
                 formatRupiah(val) {
                     return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
+                },
+
+                formatCountdown(seconds) {
+                    const mins = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                },
+
+                startCountdown(duration = 900) {
+                    if (this.countdownTimer) clearInterval(this.countdownTimer);
+                    this.qrisCountdown = duration;
+                    this.qrisCountdownFormatted = this.formatCountdown(this.qrisCountdown);
+                    this.countdownTimer = setInterval(() => {
+                        if (this.qrisCountdown > 0) {
+                            this.qrisCountdown--;
+                            this.qrisCountdownFormatted = this.formatCountdown(this.qrisCountdown);
+                        } else {
+                            clearInterval(this.countdownTimer);
+                            if (this.pollingTimer) clearInterval(this.pollingTimer);
+                            alert('Waktu pembayaran QRIS telah kedaluwarsa. Silakan lakukan pembayaran di kasir.');
+                            this.closeQrisModal();
+                        }
+                    }, 1000);
+                },
+
+                reopenPaymentModal(ord) {
+                    this.activeOrderId = ord.id;
+                    this.activePaymentTotal = ord.total_amount;
+                    this.activePaymentData = {
+                        qr_url: ord.gateway_qr_url,
+                        pay_code: ord.gateway_pay_code,
+                        channel: ord.payment_channel || 'QRIS'
+                    };
+                    this.showTrackingModal = false;
+                    this.showQrisModal = true;
+                    this.startCountdown(900);
+                    this.startQrisPolling(ord.id);
+                },
+
+                closeQrisModal() {
+                    if (this.pollingTimer) clearInterval(this.pollingTimer);
+                    if (this.countdownTimer) clearInterval(this.countdownTimer);
+                    this.showQrisModal = false;
+                    this.showTrackingModal = true;
+                },
+
+                startQrisPolling(orderId) {
+                    if (this.pollingTimer) clearInterval(this.pollingTimer);
+                    const baseUrl = "{{ route('public.qr.order.status', [$table->qr_token, 'ORDER_ID_PLACEHOLDER']) }}";
+                    const statusUrl = baseUrl.replace('ORDER_ID_PLACEHOLDER', orderId);
+
+                    this.pollingTimer = setInterval(async () => {
+                        try {
+                            const resp = await fetch(statusUrl, {
+                                headers: { 'Accept': 'application/json' }
+                            });
+                            if (!resp.ok) return;
+                            const data = await resp.json();
+                            if (data.is_paid) {
+                                clearInterval(this.pollingTimer);
+                                if (this.countdownTimer) clearInterval(this.countdownTimer);
+
+                                const targetOrd = this.recentOrders.find(o => o.id === orderId);
+                                if (targetOrd) {
+                                    targetOrd.is_paid = true;
+                                    targetOrd.status = data.status || 'confirmed';
+                                }
+
+                                this.showQrisModal = false;
+                                this.showTrackingModal = true;
+                            }
+                        } catch (e) {
+                            // network retry silent
+                        }
+                    }, 3000);
                 },
 
                 selectCategory(catId) {
@@ -814,6 +1004,8 @@
                                 customer_name: this.customerName.trim(),
                                 customer_phone: this.customerPhone.trim(),
                                 notes: this.orderGeneralNotes.trim(),
+                                payment_mode: this.paymentMode,
+                                payment_channel: 'QRIS',
                                 items: this.cart.map(item => ({
                                     product_id: item.product_id,
                                     quantity: item.quantity,
@@ -835,7 +1027,17 @@
                         this.orderGeneralNotes = '';
                         this.showCartModal = false;
                         this.recentOrders.unshift(res.order);
-                        this.showTrackingModal = true;
+
+                        if (res.payment && res.payment.qr_url) {
+                            this.activePaymentData = res.payment;
+                            this.activePaymentTotal = res.order.total_amount;
+                            this.activeOrderId = res.order.id;
+                            this.showQrisModal = true;
+                            this.startCountdown(900);
+                            this.startQrisPolling(res.order.id);
+                        } else {
+                            this.showTrackingModal = true;
+                        }
                     } catch (e) {
                         alert('Terjadi kesalahan jaringan: ' + e.message);
                     } finally {

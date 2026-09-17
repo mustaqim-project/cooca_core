@@ -94,6 +94,10 @@ final class ServiceWebController extends Controller
                 Rule::unique('products', 'code')->where(fn ($query) => $query->where('business_id', $business->id)),
             ],
             'description' => ['nullable', 'string', 'max:2000'],
+            'show_in_website' => ['nullable', 'boolean'],
+            'show_in_pos' => ['nullable', 'boolean'],
+            'show_in_sales_order' => ['nullable', 'boolean'],
+            'show_price_on_web' => ['nullable', 'boolean'],
         ]);
 
         // Auto create category if user typed a new category name directly
@@ -129,6 +133,10 @@ final class ServiceWebController extends Controller
             'base_cost' => (float) ($validated['base_cost'] ?? 0),
             'min_stock' => 0,
             'is_active' => true,
+            'show_in_website' => $request->has('show_in_website') ? $request->boolean('show_in_website') : true,
+            'show_in_pos' => $request->has('show_in_pos') ? $request->boolean('show_in_pos') : true,
+            'show_in_sales_order' => $request->has('show_in_sales_order') ? $request->boolean('show_in_sales_order') : true,
+            'show_price_on_web' => $request->has('show_price_on_web') ? $request->boolean('show_price_on_web') : true,
         ]);
 
         // Auto create service CostModel
@@ -165,6 +173,10 @@ final class ServiceWebController extends Controller
             ],
             'description' => ['nullable', 'string', 'max:2000'],
             'is_active' => ['nullable', 'boolean'],
+            'show_in_website' => ['nullable', 'boolean'],
+            'show_in_pos' => ['nullable', 'boolean'],
+            'show_in_sales_order' => ['nullable', 'boolean'],
+            'show_price_on_web' => ['nullable', 'boolean'],
         ]);
 
         $categoryId = $validated['category_id'] ?? $product->category_id;
@@ -186,6 +198,10 @@ final class ServiceWebController extends Controller
             'selling_price' => (float) $validated['selling_price'],
             'base_cost' => (float) ($validated['base_cost'] ?? $product->base_cost),
             'is_active' => $request->has('is_active') ? $request->boolean('is_active') : $product->is_active,
+            'show_in_website' => $request->has('show_in_website') ? $request->boolean('show_in_website') : $product->show_in_website,
+            'show_in_pos' => $request->has('show_in_pos') ? $request->boolean('show_in_pos') : $product->show_in_pos,
+            'show_in_sales_order' => $request->has('show_in_sales_order') ? $request->boolean('show_in_sales_order') : $product->show_in_sales_order,
+            'show_price_on_web' => $request->has('show_price_on_web') ? $request->boolean('show_price_on_web') : $product->show_price_on_web,
         ]);
 
         return redirect()->route('services.index')->with('success', "Layanan '{$product->name}' berhasil diperbarui.");

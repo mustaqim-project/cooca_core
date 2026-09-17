@@ -23,6 +23,10 @@ class Product extends Model
 
     public const TYPE_SERVICE = 'service';
 
+    public const PREORDER_MODE_BATCH = 'merchant_batch';
+
+    public const PREORDER_MODE_SCHEDULE = 'customer_schedule';
+
     protected $fillable = [
         'business_id',
         'type',
@@ -39,6 +43,13 @@ class Product extends Model
         'min_stock',
         'is_active',
         'business_type_hint',
+        'show_in_website',
+        'show_in_pos',
+        'show_in_sales_order',
+        'show_price_on_web',
+        'is_preorder',
+        'preorder_mode',
+        'preorder_lead_days',
     ];
 
     /**
@@ -49,6 +60,13 @@ class Product extends Model
     protected $attributes = [
         'type' => self::TYPE_GOODS,
         'is_active' => true,
+        'show_in_website' => true,
+        'show_in_pos' => true,
+        'show_in_sales_order' => true,
+        'show_price_on_web' => true,
+        'is_preorder' => false,
+        'preorder_mode' => self::PREORDER_MODE_SCHEDULE,
+        'preorder_lead_days' => 1,
     ];
 
     public function getTypeAttribute(?string $value): string
@@ -67,6 +85,13 @@ class Product extends Model
             'selling_price' => 'float',
             'min_stock' => 'float',
             'is_active' => 'boolean',
+            'show_in_website' => 'boolean',
+            'show_in_pos' => 'boolean',
+            'show_in_sales_order' => 'boolean',
+            'show_price_on_web' => 'boolean',
+            'is_preorder' => 'boolean',
+            'preorder_mode' => 'string',
+            'preorder_lead_days' => 'integer',
         ];
     }
 
@@ -80,6 +105,16 @@ class Product extends Model
         return ($this->type ?? self::TYPE_GOODS) !== self::TYPE_SERVICE;
     }
 
+    public function isPreorder(): bool
+    {
+        return (bool) ($this->is_preorder ?? false);
+    }
+
+    public function isPriceVisibleOnWeb(): bool
+    {
+        return (bool) ($this->show_price_on_web ?? true);
+    }
+
     public function scopeGoods($query)
     {
         return $query->where(function ($q) {
@@ -91,6 +126,26 @@ class Product extends Model
     public function scopeServices($query)
     {
         return $query->where('type', self::TYPE_SERVICE);
+    }
+
+    public function scopeForPos($query)
+    {
+        return $query->where('is_active', true)->where('show_in_pos', true);
+    }
+
+    public function scopeForStorefront($query)
+    {
+        return $query->where('is_active', true)->where('show_in_website', true);
+    }
+
+    public function scopeForSalesOrder($query)
+    {
+        return $query->where('is_active', true)->where('show_in_sales_order', true);
+    }
+
+    public function scopePreorders($query)
+    {
+        return $query->where('is_preorder', true);
     }
 
     public function getImageUrlAttribute(): ?string

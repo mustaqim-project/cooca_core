@@ -1823,6 +1823,11 @@
                         x-text="formatRupiah(shiftSummary.cash_sales)"></span>
                 </div>
                 <div class="flex justify-between text-black/60 dark:text-white/60">
+                    <span>Penjualan Non-Tunai / QRIS:</span>
+                    <span class="tabular-nums font-medium text-[#007AFF]"
+                        x-text="formatRupiah(shiftSummary.non_cash_sales || 0)"></span>
+                </div>
+                <div class="flex justify-between text-black/60 dark:text-white/60">
                     <span>Kas Masuk / Keluar:</span>
                     <span class="tabular-nums font-medium text-black dark:text-white"
                         x-text="formatRupiah(shiftSummary.cash_in - shiftSummary.cash_out)"></span>
@@ -2307,6 +2312,18 @@
                                         x-text="'Meja ' + (order.pos_table ? order.pos_table.table_number : '-')"></span>
                                     <span class="font-mono text-xs text-black/50 dark:text-white/50"
                                         x-text="'#' + (order.order_number || order.id)"></span>
+                                    <template x-if="order.is_paid">
+                                        <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] inline-flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                            <span x-text="'Lunas (' + (order.payment_channel || 'QRIS') + ')'"></span>
+                                        </span>
+                                    </template>
+                                    <template x-if="!order.is_paid">
+                                        <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#FF9500]/15 text-[#D97706] dark:text-[#FBBF24] inline-flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>Bayar di Kasir</span>
+                                        </span>
+                                    </template>
                                 </div>
                                 <div class="text-xs font-semibold text-black dark:text-white mt-1">
                                     <span x-text="order.customer_name_guest || 'Pelanggan'"></span>
@@ -2360,10 +2377,17 @@
                                     x-text="formatRupiah(order.total_amount)"></span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button type="button" @click="promptRejectOrder(order)"
-                                    class="h-9 px-3 rounded-[10px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] text-xs font-bold transition">
-                                    Tolak
-                                </button>
+                                <template x-if="!order.is_paid">
+                                    <button type="button" @click="promptRejectOrder(order)"
+                                        class="h-9 px-3 rounded-[10px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] text-xs font-bold transition">
+                                        Tolak
+                                    </button>
+                                </template>
+                                <template x-if="order.is_paid">
+                                    <span class="text-[11px] text-[#34C759] font-medium px-2 py-1 bg-[#34C759]/10 rounded-md">
+                                        Sudah Bayar
+                                    </span>
+                                </template>
                                 <button type="button" @click="acceptIncomingOrder(order.id)"
                                     class="h-9 px-3.5 rounded-[10px] bg-[#34C759]/15 hover:bg-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-xs font-bold transition flex items-center gap-1.5"
                                     title="Terima dan teruskan ke dapur">
@@ -2590,63 +2614,103 @@
                         </template>
                     </div>
 
-                    <!-- Total Amount Display -->
-                    <div class="text-center py-2 bg-[#007AFF]/10 rounded-[12px] border border-[#007AFF]/20">
-                        <span class="text-xs text-[#007AFF] font-medium block">Total yang Harus Dibayar</span>
-                        <span class="text-2xl font-black text-[#007AFF] tabular-nums"
-                            x-text="formatRupiah(activeTableOrder.total_amount)"></span>
-                    </div>
-
-                    <!-- Payment Method Selector -->
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-semibold text-black dark:text-white">Metode
-                            Pembayaran</label>
-                        <div class="grid grid-cols-4 gap-2">
-                            <button type="button"
-                                @click="selectedTablePayMethod = 'cash'; tableTenderAmount = activeTableOrder.total_amount"
-                                :class="selectedTablePayMethod === 'cash' ? 'bg-[#007AFF] text-white font-bold' :
-                                    'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
-                                class="h-9 rounded-[8px] text-xs transition">Tunai</button>
-                            <button type="button"
-                                @click="selectedTablePayMethod = 'qris'; tableTenderAmount = activeTableOrder.total_amount"
-                                :class="selectedTablePayMethod === 'qris' ? 'bg-[#007AFF] text-white font-bold' :
-                                    'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
-                                class="h-9 rounded-[8px] text-xs transition">QRIS</button>
-                            <button type="button"
-                                @click="selectedTablePayMethod = 'transfer'; tableTenderAmount = activeTableOrder.total_amount"
-                                :class="selectedTablePayMethod === 'transfer' ? 'bg-[#007AFF] text-white font-bold' :
-                                    'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
-                                class="h-9 rounded-[8px] text-xs transition">Transfer</button>
-                            <button type="button"
-                                @click="selectedTablePayMethod = 'debit'; tableTenderAmount = activeTableOrder.total_amount"
-                                :class="selectedTablePayMethod === 'debit' ? 'bg-[#007AFF] text-white font-bold' :
-                                    'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
-                                class="h-9 rounded-[8px] text-xs transition">Debit</button>
+                    <!-- Total Amount & Payment Status Display -->
+                    <template x-if="activeTableOrder.is_paid">
+                        <div class="p-4 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 space-y-2.5">
+                            <div class="flex items-center gap-2 text-[#248A3D] dark:text-[#30D158]">
+                                <div class="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-bold uppercase tracking-wider">Sudah Lunas via TriPay QRIS</span>
+                            </div>
+                            <div class="flex items-baseline justify-between pt-1">
+                                <span class="text-xs text-black/60 dark:text-white/60 font-medium">Total Terbayar:</span>
+                                <span class="text-xl font-black text-[#248A3D] dark:text-[#30D158] tabular-nums" x-text="formatRupiah(activeTableOrder.total_amount)"></span>
+                            </div>
+                            <div class="text-[11px] text-black/50 dark:text-white/50 border-t border-[#34C759]/15 pt-2 flex items-center justify-between">
+                                <span>Kanal: <b class="font-semibold text-black/80 dark:text-white/80" x-text="activeTableOrder.payment_channel || 'QRIS Dinamis'"></b></span>
+                                <span x-show="activeTableOrder.gateway_reference" class="font-mono text-[10px]" x-text="'Ref: ' + activeTableOrder.gateway_reference"></span>
+                            </div>
+                            <div class="p-2 rounded-[8px] bg-[#34C759]/15 text-[11px] text-[#248A3D] dark:text-[#30D158] font-medium leading-relaxed">
+                                Tamu meja telah melunasi tagihan ini secara mandiri. Jangan menagih uang tunai kembali ke pelanggan.
+                            </div>
                         </div>
-                    </div>
+                    </template>
 
-                    <!-- Tender Amount (for Cash) -->
-                    <div x-show="selectedTablePayMethod === 'cash'" class="space-y-1.5">
-                        <label class="block text-xs font-semibold text-black dark:text-white">Nominal Diterima</label>
-                        <input type="number" x-model.number="tableTenderAmount"
-                            class="w-full h-10 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 font-bold text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                        <div x-show="tableTenderAmount > activeTableOrder.total_amount"
-                            class="text-xs text-[#34C759] font-bold">
-                            Kembalian: <span
-                                x-text="formatRupiah(tableTenderAmount - activeTableOrder.total_amount)"></span>
+                    <template x-if="!activeTableOrder.is_paid">
+                        <div>
+                            <!-- Total Amount Display -->
+                            <div class="text-center py-2 bg-[#007AFF]/10 rounded-[12px] border border-[#007AFF]/20">
+                                <span class="text-xs text-[#007AFF] font-medium block">Total yang Harus Dibayar</span>
+                                <span class="text-2xl font-black text-[#007AFF] tabular-nums"
+                                    x-text="formatRupiah(activeTableOrder.total_amount)"></span>
+                            </div>
+
+                            <!-- Payment Method Selector -->
+                            <div class="space-y-1.5 mt-3">
+                                <label class="block text-xs font-semibold text-black dark:text-white">Metode Pembayaran</label>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <button type="button"
+                                        @click="selectedTablePayMethod = 'cash'; tableTenderAmount = activeTableOrder.total_amount"
+                                        :class="selectedTablePayMethod === 'cash' ? 'bg-[#007AFF] text-white font-bold' :
+                                            'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
+                                        class="h-9 rounded-[8px] text-xs transition">Tunai</button>
+                                    <button type="button"
+                                        @click="selectedTablePayMethod = 'qris'; tableTenderAmount = activeTableOrder.total_amount"
+                                        :class="selectedTablePayMethod === 'qris' ? 'bg-[#007AFF] text-white font-bold' :
+                                            'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
+                                        class="h-9 rounded-[8px] text-xs transition">QRIS</button>
+                                    <button type="button"
+                                        @click="selectedTablePayMethod = 'transfer'; tableTenderAmount = activeTableOrder.total_amount"
+                                        :class="selectedTablePayMethod === 'transfer' ? 'bg-[#007AFF] text-white font-bold' :
+                                            'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
+                                        class="h-9 rounded-[8px] text-xs transition">Transfer</button>
+                                    <button type="button"
+                                        @click="selectedTablePayMethod = 'debit'; tableTenderAmount = activeTableOrder.total_amount"
+                                        :class="selectedTablePayMethod === 'debit' ? 'bg-[#007AFF] text-white font-bold' :
+                                            'bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white'"
+                                        class="h-9 rounded-[8px] text-xs transition">Debit</button>
+                                </div>
+                            </div>
+
+                            <!-- Tender Amount (for Cash) -->
+                            <div x-show="selectedTablePayMethod === 'cash'" class="space-y-1.5 mt-3">
+                                <label class="block text-xs font-semibold text-black dark:text-white">Nominal Diterima</label>
+                                <input type="number" x-model.number="tableTenderAmount"
+                                    class="w-full h-10 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 font-bold text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                <div x-show="tableTenderAmount > activeTableOrder.total_amount"
+                                    class="text-xs text-[#34C759] font-bold">
+                                    Kembalian: <span
+                                        x-text="formatRupiah(tableTenderAmount - activeTableOrder.total_amount)"></span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </template>
 
                     <!-- Actions -->
                     <div
                         class="flex items-center justify-end gap-2 pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
                         <button type="button" @click="showTablePaymentModal = false"
                             class="h-10 px-4 rounded-[10px] text-xs font-semibold text-black/60 dark:text-white/60 hover:bg-black/[0.05] dark:hover:bg-white/[0.08]">Batal</button>
-                        <button type="button" @click="submitPayTableOrder()"
-                            :disabled="tableTenderAmount < activeTableOrder.total_amount || isProcessing"
-                            class="h-10 px-5 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm disabled:opacity-40">
-                            Konfirmasi Lunas
-                        </button>
+                        <template x-if="activeTableOrder.is_paid">
+                            <button type="button" @click="submitPayTableOrder()"
+                                :disabled="isProcessing"
+                                class="h-10 px-5 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm disabled:opacity-40 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                <span>Selesaikan & Bersihkan Meja</span>
+                            </button>
+                        </template>
+                        <template x-if="!activeTableOrder.is_paid">
+                            <button type="button" @click="submitPayTableOrder()"
+                                :disabled="tableTenderAmount < activeTableOrder.total_amount || isProcessing"
+                                class="h-10 px-5 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm disabled:opacity-40">
+                                Konfirmasi Lunas
+                            </button>
+                        </template>
                     </div>
                 </div>
             </template>
@@ -4052,7 +4116,7 @@
                     const order = table.active_session.orders.find(o => o.status !== 'completed' && o.status !== 'voided' &&
                         o.status !== 'rejected') || table.active_session.orders[0];
                     this.activeTableOrder = order;
-                    this.selectedTablePayMethod = 'cash';
+                    this.selectedTablePayMethod = order.payment_channel || 'cash';
                     this.tableTenderAmount = Number(order.total_amount || 0);
                     this.showTablesModal = false;
                     this.showTablePaymentModal = true;
@@ -4060,7 +4124,7 @@
 
                 async submitPayTableOrder() {
                     if (!this.activeTableOrder) return;
-                    if (this.tableTenderAmount < this.activeTableOrder.total_amount) {
+                    if (!this.activeTableOrder.is_paid && this.tableTenderAmount < this.activeTableOrder.total_amount) {
                         AppAlert.warning('Nominal pembayaran kurang.');
                         return;
                     }

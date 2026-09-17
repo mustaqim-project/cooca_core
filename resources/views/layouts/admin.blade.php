@@ -256,6 +256,7 @@
             { title: 'Pemulihan Akun', desc: 'Verifikasi identitas & persetujuan reset', url: '{{ route('admin.account-recoveries.index') }}', icon: 'shield-alert', cat: 'Operasional' },
             { title: 'Feedback & Bug', desc: 'Laporan bug & ide fitur dari tenant', url: '{{ route('admin.feedback.bugs.index') }}', icon: 'messages-square', cat: 'Operasional' },
             { title: 'WhatsApp Gateway', desc: 'Status dual gateway OTP & notifikasi', url: '{{ route('admin.whatsapp.index') }}', icon: 'message-circle', cat: 'Operasional' },
+            { title: 'Media Sosial Platform', desc: 'Konfigurasi Meta App, webhook & merchants', url: '{{ route('admin.social-media.index') }}', icon: 'share-2', cat: 'Operasional' },
             { title: 'Monitoring Token AI', desc: 'Pantau konsumsi Gemini 2.5 Flash', url: '{{ route('admin.ai-tokens.index') }}', icon: 'sparkles', cat: 'Operasional' },
             { title: 'Langganan & Billing', desc: 'Approval bukti bayar paket Core', url: '{{ route('admin.subscriptions.index') }}', icon: 'receipt', cat: 'Monetisasi' },
             { title: 'Paket & Harga', desc: 'Katalog paket Core & kuota token', url: '{{ route('admin.billing-packages.index') }}', icon: 'layers-3', cat: 'Monetisasi' },
@@ -378,6 +379,14 @@
                                 d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                         </svg>
                         <span class="whitespace-nowrap truncate min-w-0 flex-1">WhatsApp Gateway</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('admin.social-media.index') }}"
+                    class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.social-media.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <i data-lucide="share-2" class="w-4.5 h-4.5 text-[#1877F2] shrink-0" stroke-width="1.8"></i>
+                        <span class="whitespace-nowrap truncate min-w-0 flex-1">Media Sosial Platform</span>
                     </div>
                 </a>
 
@@ -862,6 +871,18 @@
                         <div>
                             <div class="text-[13px] font-bold text-black dark:text-white">Dual WhatsApp</div>
                             <div class="text-[10px] text-black/50 dark:text-white/50">Gateway OTP &amp; Notif</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.social-media.index') }}"
+                        class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] active:scale-[0.98] transition-all flex flex-col gap-2 min-h-[52px]">
+                        <div
+                            class="w-8 h-8 rounded-[10px] bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center">
+                            <i data-lucide="share-2" class="w-4.5 h-4.5" stroke-width="1.8"></i>
+                        </div>
+                        <div>
+                            <div class="text-[13px] font-bold text-black dark:text-white">Media Sosial</div>
+                            <div class="text-[10px] text-black/50 dark:text-white/50">Meta App &amp; Webhook</div>
                         </div>
                     </a>
 

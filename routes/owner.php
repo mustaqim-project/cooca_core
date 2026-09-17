@@ -17,6 +17,7 @@ use App\Http\Controllers\Web\CustomerWebController;
 use App\Http\Controllers\Web\DashboardWebController;
 use App\Http\Controllers\Web\FeedbackWebController;
 use App\Http\Controllers\Web\Finance\CashLedgerWebController;
+use App\Http\Controllers\Web\Finance\PaymentSettlementWebController;
 use App\Http\Controllers\Web\Finance\PosFinanceWebController;
 use App\Http\Controllers\Web\ImportWebController;
 use App\Http\Controllers\Web\Inventory\InventoryWebController;
@@ -50,10 +51,12 @@ use App\Http\Controllers\Web\SalesReturnWebController;
 use App\Http\Controllers\Web\ServiceWebController;
 use App\Http\Controllers\Web\SettingWebController;
 use App\Http\Controllers\Web\SimulationWebController;
+use App\Http\Controllers\Web\SocialMedia\SocialMediaWebController;
 use App\Http\Controllers\Web\SupplierWebController;
 use App\Http\Controllers\Web\UnitConversionWebController;
 use App\Http\Controllers\Web\UnitWebController;
 use App\Http\Controllers\Web\Warehouse\WarehouseWebController;
+use App\Http\Controllers\Web\WhatsApp\MetaWhatsAppOnboardingController;
 use App\Http\Controllers\Web\WhatsApp\WhatsAppBroadcastWebController;
 use App\Http\Controllers\Web\WhatsApp\WhatsAppWebController;
 use Illuminate\Support\Facades\Route;
@@ -143,6 +146,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
         Route::post('/products', [ProductWebController::class, 'store'])->middleware(['require.permission:products.create', 'entitlement:product'])->name('products.store');
         Route::post('/products/toggle-pos-images', [ProductWebController::class, 'togglePosImageVisibility'])->middleware('require.permission:products.edit')->name('products.toggle-pos-images');
+        Route::post('/products/{product}/toggle-setting', [ProductWebController::class, 'toggleSetting'])->middleware('require.permission:products.edit')->name('products.toggle-setting');
         Route::put('/products/{product}', [ProductWebController::class, 'update'])->middleware('require.permission:products.edit')->name('products.update');
         Route::post('/bom-headers/{bomHeader}/items', [ProductWebController::class, 'addBomItem'])->middleware(['require.permission:products.edit', 'entitlement:recipe'])->name('bom.items.store');
         Route::delete('/bom-items/{bomItem}', [ProductWebController::class, 'removeBomItem'])->middleware('require.permission:products.edit')->name('bom.items.destroy');
@@ -341,6 +345,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/billing/checkout', [SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.checkout');
         Route::post('/billing/order', [SubscriptionCheckoutWebController::class, 'store'])->name('billing.order.store');
         Route::get('/billing/payments/{payment}', [SubscriptionCheckoutWebController::class, 'payment'])->name('billing.payment.show');
+        Route::get('/billing/payments/{payment}/status', [SubscriptionCheckoutWebController::class, 'checkStatus'])->name('billing.payment.status');
         Route::get('/billing/payments/{payment}/invoice', [SubscriptionCheckoutWebController::class, 'invoice'])->name('billing.payment.invoice');
         Route::post('/billing/payments/{payment}/upload-proof', [SubscriptionCheckoutWebController::class, 'uploadProof'])->name('billing.payment.upload');
         Route::get('/billing/history', [SubscriptionCheckoutWebController::class, 'history'])->name('billing.history');
@@ -370,6 +375,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::middleware('require.permission:pos.orders')->group(function (): void {
             Route::get('/pos/orders', [PosOrderWebController::class, 'index'])->name('pos.orders.index');
             Route::get('/pos/orders/{order}', [PosOrderWebController::class, 'show'])->name('pos.orders.show');
+            Route::post('/pos/orders/{order}/sync-gateway', [PosOrderWebController::class, 'syncGatewayStatus'])->name('pos.orders.sync_gateway');
         });
         Route::post('/pos/orders/{order}/void', [PosOrderWebController::class, 'void'])->middleware('require.permission:pos.supervisor_pin,pos.orders')->name('pos.orders.void');
         Route::post('/pos/orders/{order}/refund', [PosOrderWebController::class, 'refund'])->middleware('require.permission:pos.supervisor_pin,pos.orders,sales.returns')->name('pos.orders.refund');
@@ -466,6 +472,12 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/finance/cash-bank/inflow', [CashLedgerWebController::class, 'storeInflow'])->name('finance.cash-bank.inflow');
             Route::post('/finance/cash-bank/outflow', [CashLedgerWebController::class, 'storeOutflow'])->name('finance.cash-bank.outflow');
             Route::post('/finance/cash-bank/transfer', [CashLedgerWebController::class, 'transfer'])->name('finance.cash-bank.transfer');
+
+            // Payment Gateway Settlement & Reconciliation
+            Route::get('/finance/settlements', [PaymentSettlementWebController::class, 'index'])->name('finance.settlements.index');
+            Route::get('/finance/settlements/unsettled', [PaymentSettlementWebController::class, 'getUnsettled'])->name('finance.settlements.unsettled');
+            Route::post('/finance/settlements/reconcile', [PaymentSettlementWebController::class, 'reconcile'])->name('finance.settlements.reconcile');
+            Route::get('/finance/settlements/{settlement}', [PaymentSettlementWebController::class, 'show'])->name('finance.settlements.show');
         });
         Route::get('/finance/receivables', [CashLedgerWebController::class, 'receivables'])->middleware('require.permission:finance.receivables')->name('finance.receivables');
         Route::get('/finance/payables', [CashLedgerWebController::class, 'payables'])->middleware('require.permission:finance.payables')->name('finance.payables');
@@ -486,6 +498,17 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
                 Route::post('/verify-meta', [WhatsAppWebController::class, 'verifyMetaCredentials'])->name('verify-meta');
             });
 
+            // Meta WhatsApp Cloud API Official Embedded Signup & Onboarding
+            Route::prefix('meta')->name('meta.')->group(function (): void {
+                Route::get('/config', [MetaWhatsAppOnboardingController::class, 'getSignupConfig'])->name('config');
+                Route::get('/status', [MetaWhatsAppOnboardingController::class, 'getStatus'])->name('status');
+
+                Route::middleware('require.permission:whatsapp.manage')->group(function (): void {
+                    Route::post('/exchange-code', [MetaWhatsAppOnboardingController::class, 'exchangeCode'])->name('exchange-code');
+                    Route::post('/disconnect', [MetaWhatsAppOnboardingController::class, 'disconnect'])->name('disconnect');
+                });
+            });
+
             // WhatsApp Broadcast Promosi
             Route::middleware('require.permission:whatsapp.manage')->group(function (): void {
                 Route::get('/broadcast', [WhatsAppBroadcastWebController::class, 'index'])->name('broadcast.index');
@@ -494,6 +517,32 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
                 Route::post('/broadcast', [WhatsAppBroadcastWebController::class, 'store'])->name('broadcast.store');
                 Route::get('/broadcast/{campaign}', [WhatsAppBroadcastWebController::class, 'show'])->name('broadcast.show');
             });
+        });
+
+        // Integrasi Media Sosial (Meta Facebook, Instagram, Threads, & TikTok)
+        Route::prefix('social-media')->name('social-media.')->middleware('require.permission:whatsapp.view')->group(function (): void {
+            Route::get('/', [SocialMediaWebController::class, 'index'])->name('index');
+            Route::get('/config', [SocialMediaWebController::class, 'getOAuthConfig'])->name('config');
+            Route::post('/exchange-token', [SocialMediaWebController::class, 'exchangeToken'])->name('exchange-token');
+            Route::post('/disconnect', [SocialMediaWebController::class, 'disconnect'])->name('disconnect');
+
+            // TikTok OAuth 2.0 Connect & Callback
+            Route::get('/tiktok/connect', [SocialMediaWebController::class, 'getTikTokAuthUrl'])->name('tiktok.connect');
+            Route::get('/tiktok/callback', [SocialMediaWebController::class, 'handleTikTokCallback'])->name('tiktok.callback');
+
+            // Posts, Targets & Publishing
+            Route::get('/posts', [SocialMediaWebController::class, 'posts'])->name('posts.index');
+            Route::post('/posts', [SocialMediaWebController::class, 'storePost'])->name('posts.store');
+            Route::post('/targets/{target}/retry', [SocialMediaWebController::class, 'retryTarget'])->name('targets.retry');
+            Route::get('/calendar', [SocialMediaWebController::class, 'calendar'])->name('calendar');
+
+            // Comments & Inbox
+            Route::get('/inbox', [SocialMediaWebController::class, 'inbox'])->name('inbox.index');
+            Route::post('/comments/{comment}/reply', [SocialMediaWebController::class, 'replyComment'])->name('comments.reply');
+
+            // Analytics & Insights
+            Route::get('/insights', [SocialMediaWebController::class, 'insights'])->name('insights.index');
+            Route::post('/insights/{post}/sync', [SocialMediaWebController::class, 'syncInsights'])->name('insights.sync');
         });
 
         // Business Landing Page & Mini Website CMS
@@ -513,6 +562,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/orders/{order}/status', [MerchantOrderController::class, 'updateStatus'])->name('orders.update_status');
             Route::post('/orders/{order}/quote', [MerchantOrderController::class, 'quoteRequestOrder'])->name('orders.quote');
             Route::post('/orders/{order}/batches/{batch}/status', [MerchantOrderController::class, 'updateBatchStatus'])->name('orders.batches.status');
+            Route::post('/orders/{order}/sync-gateway', [MerchantOrderController::class, 'syncGatewayStatus'])->name('orders.sync_gateway');
             Route::get('/proofs/{proof}/stream', [MerchantOrderController::class, 'streamProof'])->name('proofs.stream');
 
             Route::get('/shipping', [MerchantShippingRuleController::class, 'index'])->name('shipping.index');

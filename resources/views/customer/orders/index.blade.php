@@ -81,6 +81,12 @@
                             <span class="font-mono text-[12.5px] text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 px-2.5 py-1 rounded-full font-bold">
                                 {{ $order->order_number }}
                             </span>
+                            @if($order->groupOrder)
+                                <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#AF52DE]/10 text-[#AF52DE] border border-[#AF52DE]/20 flex items-center gap-1">
+                                    <i data-lucide="users" class="w-3 h-3"></i>
+                                    <span>Pesan Bareng</span>
+                                </span>
+                            @endif
 
                             {{-- Status Badges --}}
                             @if($order->status === 'pending_payment')

@@ -17,6 +17,8 @@ class PosOrderPayment extends Model
 
     public const METHOD_QRIS = 'qris';
 
+    public const METHOD_QRIS_DYNAMIC = 'qris_dynamic';
+
     public const METHOD_TRANSFER = 'transfer';
 
     public const METHOD_EDC_DEBIT = 'edc_debit';

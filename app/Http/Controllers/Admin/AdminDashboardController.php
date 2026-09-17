@@ -102,6 +102,54 @@ final class AdminDashboardController extends Controller
         $avgProductsPerBusiness = $totalBusinesses > 0 ? round($totalProducts / $totalBusinesses, 1) : 0;
         $avgCostingRunsPerBusiness = $totalBusinesses > 0 ? round($totalCostingRuns / $totalBusinesses, 1) : 0;
 
+        // TriPay Centralized Payment Gateway Hub Metrics (Multi-tenant Platform Overview)
+        $commerceGatewayGmv = (float) \App\Models\CommerceOrder::withoutGlobalScopes()
+            ->where('payment_gateway', \App\Models\CommerceOrder::GATEWAY_TRIPAY)
+            ->where('payment_status', \App\Models\CommerceOrder::PAYMENT_PAID)
+            ->sum('total_amount');
+        $commerceGatewayCount = \App\Models\CommerceOrder::withoutGlobalScopes()
+            ->where('payment_gateway', \App\Models\CommerceOrder::GATEWAY_TRIPAY)
+            ->where('payment_status', \App\Models\CommerceOrder::PAYMENT_PAID)
+            ->count();
+        $commerceGatewayFee = (float) \App\Models\CommerceOrder::withoutGlobalScopes()
+            ->where('payment_gateway', \App\Models\CommerceOrder::GATEWAY_TRIPAY)
+            ->where('payment_status', \App\Models\CommerceOrder::PAYMENT_PAID)
+            ->sum('gateway_fee');
+
+        $posGatewayGmv = (float) \App\Models\PosOrder::withoutGlobalScopes()
+            ->where('payment_gateway', \App\Models\PosOrder::GATEWAY_TRIPAY)
+            ->where('paid_amount', '>', 0)
+            ->sum('paid_amount');
+        $posGatewayCount = \App\Models\PosOrder::withoutGlobalScopes()
+            ->where('payment_gateway', \App\Models\PosOrder::GATEWAY_TRIPAY)
+            ->where('paid_amount', '>', 0)
+            ->count();
+        $posGatewayFee = (float) \App\Models\PosOrder::withoutGlobalScopes()
+            ->where('payment_gateway', \App\Models\PosOrder::GATEWAY_TRIPAY)
+            ->where('paid_amount', '>', 0)
+            ->sum('gateway_fee');
+
+        $subGatewayGmv = (float) SubscriptionPayment::where('status', SubscriptionPayment::STATUS_APPROVED)
+            ->where('payment_method', 'like', 'tripay%')
+            ->sum('total_payable');
+        $subGatewayCount = SubscriptionPayment::where('status', SubscriptionPayment::STATUS_APPROVED)
+            ->where('payment_method', 'like', 'tripay%')
+            ->count();
+        $subGatewayFee = (float) SubscriptionPayment::where('status', SubscriptionPayment::STATUS_APPROVED)
+            ->where('payment_method', 'like', 'tripay%')
+            ->sum('gateway_fee');
+
+        $tripayTotalGmv = $commerceGatewayGmv + $posGatewayGmv + $subGatewayGmv;
+        $tripayTotalCount = $commerceGatewayCount + $posGatewayCount + $subGatewayCount;
+        $tripayTotalMdr = $commerceGatewayFee + $posGatewayFee + $subGatewayFee;
+        $tripayNetVolume = max(0.0, $tripayTotalGmv - $tripayTotalMdr);
+
+        // Webhook callback health metrics
+        $totalCallbacks = \App\Models\PaymentGatewayCallbackLog::count();
+        $successCallbacks = \App\Models\PaymentGatewayCallbackLog::where('status', \App\Models\PaymentGatewayCallbackLog::STATUS_SUCCESS)->count();
+        $webhookHealthRate = $totalCallbacks > 0 ? round(($successCallbacks / $totalCallbacks) * 100, 1) : 100.0;
+        $recentCallbacks = \App\Models\PaymentGatewayCallbackLog::latest()->take(5)->get();
+
         return view('admin.dashboard', compact(
             'totalUsers',
             'totalBusinesses',
@@ -126,7 +174,20 @@ final class AdminDashboardController extends Controller
             'ecosystemStats',
             'conversionRate',
             'avgProductsPerBusiness',
-            'avgCostingRunsPerBusiness'
+            'avgCostingRunsPerBusiness',
+            'tripayTotalGmv',
+            'tripayTotalCount',
+            'tripayTotalMdr',
+            'tripayNetVolume',
+            'commerceGatewayGmv',
+            'commerceGatewayCount',
+            'posGatewayGmv',
+            'posGatewayCount',
+            'subGatewayGmv',
+            'subGatewayCount',
+            'webhookHealthRate',
+            'totalCallbacks',
+            'recentCallbacks'
         ));
     }
 }

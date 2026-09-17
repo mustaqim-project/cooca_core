@@ -260,6 +260,155 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- TRIPAY CENTRAL PAYMENT GATEWAY HUB (Multi-Tenant Omnichannel GMV)   -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="rounded-[22px] sm:rounded-[24px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-md p-4 sm:p-6 lg:p-7 shadow-xs space-y-5">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-black/[0.05] dark:border-white/[0.06]">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-[12px] bg-[#5856D6]/10 text-[#5856D6] dark:text-[#5E5CE6] flex items-center justify-center shrink-0">
+                    <i data-lucide="zap" class="w-5 h-5" stroke-width="2"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-[17px] sm:text-[18px] font-bold text-black dark:text-white tracking-tight">TriPay Gateway Central Hub</h2>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#5856D6]/12 text-[#5856D6] dark:text-[#5E5CE6]">
+                            Model B Terpusat
+                        </span>
+                    </div>
+                    <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">
+                        Agregasi volume transaksi (POS QRIS Meja, Toko Online &amp; Billing SaaS) serta audit trail webhook gateway.
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold {{ $webhookHealthRate >= 98 ? 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF9500]/10 text-[#B25E00] dark:text-[#FF9F0A]' }}">
+                    <span class="w-2 h-2 rounded-full {{ $webhookHealthRate >= 98 ? 'bg-[#34C759]' : 'bg-[#FF9500]' }}"></span>
+                    <span>Webhook Health: {{ $webhookHealthRate }}% Sukses</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- 4 Sub-Metrics Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05]">
+                <span class="text-[11.5px] font-medium text-black/50 dark:text-white/50">GMV Platform Terpusat</span>
+                <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-black dark:text-white mt-1.5">
+                    Rp {{ number_format($tripayTotalGmv, 0, ',', '.') }}
+                </div>
+                <span class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 block tabular-nums">
+                    {{ number_format($tripayTotalCount, 0, ',', '.') }} transaksi berhasil
+                </span>
+            </div>
+
+            <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05]">
+                <span class="text-[11.5px] font-medium text-black/50 dark:text-white/50">Estimasi Beban MDR</span>
+                <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A] mt-1.5">
+                    Rp {{ number_format($tripayTotalMdr, 0, ',', '.') }}
+                </div>
+                <span class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 block">
+                    Fee administrasi gateway
+                </span>
+            </div>
+
+            <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05]">
+                <span class="text-[11.5px] font-medium text-black/50 dark:text-white/50">Net Volume Ekosistem</span>
+                <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] mt-1.5">
+                    Rp {{ number_format($tripayNetVolume, 0, ',', '.') }}
+                </div>
+                <span class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 block">
+                    Dana bersih setelah MDR
+                </span>
+            </div>
+
+            <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05]">
+                <span class="text-[11.5px] font-medium text-black/50 dark:text-white/50">Total Webhook Log</span>
+                <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-[#007AFF] dark:text-[#0A84FF] mt-1.5">
+                    {{ number_format($totalCallbacks, 0, ',', '.') }}
+                </div>
+                <span class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 block">
+                    Audit trail callback tersimpan
+                </span>
+            </div>
+        </div>
+
+        <!-- Channel Breakdown & Recent Callbacks Stream -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 pt-1">
+            <!-- Channel Breakdown (7 cols) -->
+            <div class="lg:col-span-6 space-y-3">
+                <span class="text-[12px] font-bold text-black/70 dark:text-white/70 block">Distribusi Saluran Pembayaran Gateway:</span>
+                <div class="space-y-2 text-[12.5px]">
+                    <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05] flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="qr-code" class="w-4 h-4 text-[#007AFF]"></i>
+                            <div>
+                                <span class="font-semibold text-black dark:text-white">POS QR Meja (Pay-at-Table)</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45 block tabular-nums">{{ number_format($posGatewayCount) }} transaksi</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold tabular-nums text-black dark:text-white">Rp {{ number_format($posGatewayGmv, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05] flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="shopping-bag" class="w-4 h-4 text-[#34C759]"></i>
+                            <div>
+                                <span class="font-semibold text-black dark:text-white">Toko Online (Storefront)</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45 block tabular-nums">{{ number_format($commerceGatewayCount) }} transaksi</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold tabular-nums text-black dark:text-white">Rp {{ number_format($commerceGatewayGmv, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05] flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="layers" class="w-4 h-4 text-[#5856D6]"></i>
+                            <div>
+                                <span class="font-semibold text-black dark:text-white">Langganan Platform SaaS</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45 block tabular-nums">{{ number_format($subGatewayCount) }} transaksi</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold tabular-nums text-black dark:text-white">Rp {{ number_format($subGatewayGmv, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Webhook Callback Activity (6 cols) -->
+            <div class="lg:col-span-6 space-y-3">
+                <span class="text-[12px] font-bold text-black/70 dark:text-white/70 block">Audit Webhook Callback Terkini:</span>
+                @if($recentCallbacks->isNotEmpty())
+                    <div class="space-y-1.5">
+                        @foreach($recentCallbacks as $log)
+                            <div class="p-2.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05] flex items-center justify-between text-[12px]">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2 h-2 rounded-full shrink-0 {{ $log->status === 'success' ? 'bg-[#34C759]' : 'bg-[#FF3B30]' }}"></span>
+                                    <span class="font-mono text-[11px] font-semibold text-black dark:text-white truncate">{{ $log->merchant_ref ?: 'Unknown' }}</span>
+                                    <span class="px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase {{ $log->status === 'success' ? 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF3B30]/10 text-[#FF3B30]' }}">
+                                        {{ $log->status_code }}
+                                    </span>
+                                </div>
+                                <div class="text-right text-[11px] text-black/45 dark:text-white/45 shrink-0 tabular-nums">
+                                    {{ $log->created_at?->diffForHumans() ?? '-' }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="p-6 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05] text-center text-[12px] text-black/40 dark:text-white/40">
+                        Belum ada riwayat callback webhook tercatat di sistem.
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- BENTO CHARTS & ANALYTICS SECTION (Apple HIG & Chart.js)             -->
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="space-y-6">

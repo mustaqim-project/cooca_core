@@ -26,6 +26,7 @@ final class AdminSubscriptionController extends Controller
         $status = $request->get('status', 'all');
         $type = $request->get('type', 'all');
         $method = $request->get('method', 'all');
+        $source = $request->get('source', 'all');
         $search = $request->get('search');
         $dateFrom = $request->get('date_from');
         $dateTo = $request->get('date_to');
@@ -50,7 +51,12 @@ final class AdminSubscriptionController extends Controller
 
         $pendingCount = $paymentCounts['awaiting_approval'];
         $approvedCount = $paymentCounts['approved'];
-        $totalRevenue = (float) SubscriptionPayment::where('status', SubscriptionPayment::STATUS_APPROVED)->sum('total_payable');
+        $totalApprovedGross = (float) SubscriptionPayment::where('status', SubscriptionPayment::STATUS_APPROVED)->sum('total_payable');
+        $totalGatewayMdr = (float) SubscriptionPayment::where('status', SubscriptionPayment::STATUS_APPROVED)
+            ->where('payment_method', 'like', 'tripay%')
+            ->sum('gateway_fee');
+        $totalNetRevenue = max(0.0, $totalApprovedGross - $totalGatewayMdr);
+        $totalRevenue = $totalApprovedGross;
         $awaitingRevenue = (float) SubscriptionPayment::where('status', SubscriptionPayment::STATUS_AWAITING_APPROVAL)->sum('total_payable');
 
         // Tenant Subscription Counts
@@ -149,6 +155,15 @@ final class AdminSubscriptionController extends Controller
                 $query->where('payment_method', $method);
             }
 
+            if ($source === 'tripay') {
+                $query->where('payment_method', 'like', 'tripay%');
+            } elseif ($source === 'manual') {
+                $query->where(function ($q) {
+                    $q->where('payment_method', 'not like', 'tripay%')
+                        ->orWhereNull('payment_method');
+                });
+            }
+
             if ($dateFrom) {
                 $query->whereDate('created_at', '>=', $dateFrom);
             }
@@ -179,12 +194,16 @@ final class AdminSubscriptionController extends Controller
             'status',
             'type',
             'method',
+            'source',
             'search',
             'dateFrom',
             'dateTo',
             'pendingCount',
             'approvedCount',
             'totalRevenue',
+            'totalApprovedGross',
+            'totalGatewayMdr',
+            'totalNetRevenue',
             'awaitingRevenue',
             'paymentCounts',
             'typeCounts',

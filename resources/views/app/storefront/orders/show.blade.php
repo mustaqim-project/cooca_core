@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 pb-28 lg:pb-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8" x-data="{ rejectModalOpen: false, cancelModalOpen: false, imageModalOpen: false, activeImageUrl: '' }">
+    <div class="space-y-6 pb-28 sm:pb-32 lg:pb-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8" x-data="{ rejectModalOpen: false, cancelModalOpen: false, imageModalOpen: false, verifyModalOpen: false, activeImageUrl: '' }">
 
         {{-- FLASH NOTIFICATIONS --}}
         @if (session('success'))
@@ -143,6 +143,82 @@
                         </span>
                     </div>
                 @endif
+            </div>
+        @endif
+
+        {{-- GROUP ORDER / PESAN BERSAMA BANNER & KITCHEN PACKAGING BREAKDOWN --}}
+        @if ($order->groupOrder)
+            <div class="p-5 sm:p-6 rounded-[24px] bg-[#AF52DE]/10 border border-[#AF52DE]/25 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#AF52DE]/20">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-[#AF52DE] text-white flex items-center justify-center shrink-0 shadow-sm">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-[15px] font-bold text-black dark:text-white tracking-tight">
+                                    Pesanan Bersama (Group Order): {{ $order->groupOrder->title }}
+                                </h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#AF52DE]/20 text-[#AF52DE]">
+                                    Pesan Bareng
+                                </span>
+                            </div>
+                            <p class="text-[12px] text-black/60 dark:text-white/60 mt-0.5">
+                                Host Pembuat Grup: <strong class="text-black dark:text-white">{{ $order->groupOrder->host?->name ?? $order->customer_name }}</strong> &bull; Total {{ $order->groupOrder->items->groupBy('member_name')->count() }} Rekan Kantor
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-left sm:text-right shrink-0">
+                        <span class="text-[11px] font-semibold uppercase text-black/45 dark:text-white/45 block">Total Porsi Bersama</span>
+                        <span class="text-[15px] font-extrabold text-[#AF52DE] tabular-nums">
+                            {{ (int) $order->groupOrder->items->sum('quantity') }} Porsi
+                        </span>
+                    </div>
+                </div>
+
+                {{-- COLLEAGUE MEAL PACKAGING BREAKDOWN FOR KITCHEN --}}
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[12px] font-bold uppercase tracking-wider text-[#AF52DE] flex items-center gap-1.5">
+                            <i data-lucide="tag" class="w-3.5 h-3.5"></i>
+                            <span>Panduan Label Kotak Makanan (Kitchen Packaging Breakdown)</span>
+                        </span>
+                        <span class="text-[11.5px] text-black/50 dark:text-white/50">Tempelkan nama pemesan pada kemasan</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        @foreach ($order->groupOrder->items->groupBy('member_name') as $memberName => $memberItems)
+                            <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 space-y-2 shadow-xs">
+                                <div class="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-[#AF52DE]/15 text-[#AF52DE] font-bold text-[11px] flex items-center justify-center">
+                                            {{ strtoupper(substr($memberName, 0, 1)) }}
+                                        </div>
+                                        <span class="font-bold text-[13.5px] text-black dark:text-white">{{ $memberName }}</span>
+                                    </div>
+                                    <span class="text-[11px] font-mono text-black/45 dark:text-white/45">
+                                        {{ $memberItems->sum('quantity') }} item
+                                    </span>
+                                </div>
+                                <div class="space-y-1.5 text-[12.5px]">
+                                    @foreach ($memberItems as $mItem)
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div>
+                                                <span class="font-semibold text-black dark:text-white">{{ (float) $mItem->quantity }}x {{ $mItem->product?->name ?? 'Produk' }}</span>
+                                                @if ($mItem->notes)
+                                                    <p class="text-[11px] text-[#FF9500] font-medium italic">Catatan: {{ $mItem->notes }}</p>
+                                                @endif
+                                            </div>
+                                            <span class="text-black/60 dark:text-white/60 tabular-nums text-[12px]">
+                                                Rp {{ number_format($mItem->unit_price * $mItem->quantity, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         @endif
 
@@ -534,112 +610,170 @@
             {{-- RIGHT COLUMN: PAYMENT PROOF & OPERATIONS (4 COLS) --}}
             <div class="lg:col-span-4 space-y-6">
 
-                {{-- 1. PAYMENT PROOF CARD --}}
+                {{-- 1. PAYMENT PROOF & GATEWAY CARD --}}
                 <div
                     class="bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/5 dark:border-white/10 p-6 shadow-sm">
                     <div class="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/10 mb-4">
                         <div class="flex items-center gap-2.5">
-                            <i data-lucide="credit-card" class="w-5 h-5 text-[#34C759]"></i>
-                            <h2 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Bukti Transfer</h2>
+                            <i data-lucide="{{ $order->isTripay() ? 'zap' : 'credit-card' }}" class="w-5 h-5 {{ $order->isPaid() ? 'text-[#34C759]' : 'text-[#007AFF]' }}"></i>
+                            <h2 class="text-[16px] font-bold text-black dark:text-white tracking-tight">
+                                {{ $order->isTripay() ? 'TriPay Gateway' : 'Bukti Transfer' }}
+                            </h2>
                         </div>
                         @if ($order->isPaid())
                             <span
                                 class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">Lunas</span>
+                        @elseif ($order->isTripay())
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400">Menunggu Bayar</span>
                         @endif
                     </div>
 
-                    {{-- PAYMENT METHOD INFO --}}
-                    <div class="p-3.5 rounded-[16px] bg-black/5 dark:bg-white/5 mb-4 text-[12.5px] space-y-1">
-                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 block">Tujuan
-                            Transfer:</span>
-                        @if ($order->paymentMethod)
-                            <p class="font-bold text-black dark:text-white">{{ $order->paymentMethod->bank_name }}</p>
-                            @if ($order->paymentMethod->account_number)
-                                <p class="text-black/70 dark:text-white/70 font-mono">
-                                    {{ $order->paymentMethod->account_number }} a/n
-                                    {{ $order->paymentMethod->account_holder }}</p>
-                            @endif
-                        @else
-                            <p class="font-medium text-black/70 dark:text-white/70">Rekening Toko / Manual</p>
-                        @endif
-                    </div>
-
-                    @php
-                        $latestProof = $order->latestProof;
-                    @endphp
-
-                    @if ($latestProof)
-                        <div class="space-y-4">
-                            <div
-                                class="relative group rounded-[16px] overflow-hidden border border-black/10 dark:border-white/10 bg-black/5">
-                                <img src="{{ route('storefront.proofs.stream', $latestProof->id) }}" alt="Bukti Transfer"
-                                    class="w-full h-48 object-cover cursor-pointer group-hover:scale-105 transition duration-300"
-                                    @click="activeImageUrl = '{{ route('storefront.proofs.stream', $latestProof->id) }}'; imageModalOpen = true">
-                                <div
-                                    class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center pointer-events-none text-white font-medium text-[12px] gap-1.5">
-                                    <i data-lucide="zoom-in" class="w-4 h-4"></i> Klik untuk Memperbesar
+                    @if ($order->isTripay())
+                        {{-- TRIPAY GATEWAY SUMMARY --}}
+                        <div class="space-y-3.5">
+                            <div class="p-3.5 rounded-[16px] bg-brand-primary/[0.04] border border-brand-primary/15 space-y-2 text-[12.5px]">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-black/60 dark:text-white/60">Saluran Pembayaran:</span>
+                                    <span class="font-bold text-black dark:text-white">{{ $order->payment_channel ?? 'QRIS' }}</span>
+                                </div>
+                                @if ($order->gateway_reference)
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-black/60 dark:text-white/60">Ref TriPay:</span>
+                                        <span class="font-mono font-semibold text-brand-primary">{{ $order->gateway_reference }}</span>
+                                    </div>
+                                @endif
+                                @if ($order->gateway_pay_code)
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-black/60 dark:text-white/60">Kode Bayar / VA:</span>
+                                        <span class="font-mono font-bold text-black dark:text-white">{{ $order->gateway_pay_code }}</span>
+                                    </div>
+                                @endif
+                                <div class="pt-2 border-t border-black/5 dark:border-white/5 space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-black/60 dark:text-white/60">Total Bruto:</span>
+                                        <span class="font-bold text-black dark:text-white tabular-nums">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-[11.5px]">
+                                        <span class="text-amber-700 dark:text-amber-400">Biaya Gateway (Owner &amp; Admin):</span>
+                                        <span class="font-semibold text-amber-700 dark:text-amber-400 tabular-nums">- Rp {{ number_format($order->gateway_fee, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between font-bold text-[13px] pt-1 text-emerald-700 dark:text-emerald-400">
+                                        <span>Penerimaan Bersih:</span>
+                                        <span class="tabular-nums">Rp {{ number_format($order->net_revenue, 0, ',', '.') }}</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="text-[12px] space-y-1 text-black/60 dark:text-white/60">
-                                <div class="flex justify-between">
-                                    <span>Diunggah:</span>
-                                    <span
-                                        class="font-medium text-black dark:text-white">{{ $latestProof->created_at->translatedFormat('d M Y, H:i') }}</span>
+                            @if ($order->isPaid())
+                                <div class="p-3 rounded-[14px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[12px] flex items-center gap-2">
+                                    <i data-lucide="check-circle" class="w-4 h-4 shrink-0 text-emerald-600"></i>
+                                    <span>Terverifikasi otomatis via Webhook pada {{ $order->paid_at?->translatedFormat('d M Y, H:i') ?? '-' }}.</span>
                                 </div>
-                                @if ($latestProof->sender_bank)
-                                    <div class="flex justify-between">
-                                        <span>Bank Pengirim:</span>
-                                        <span
-                                            class="font-medium text-black dark:text-white">{{ $latestProof->sender_bank }}</span>
-                                    </div>
-                                @endif
-                                @if ($latestProof->sender_account_name)
-                                    <div class="flex justify-between">
-                                        <span>Nama Pemilik:</span>
-                                        <span
-                                            class="font-medium text-black dark:text-white">{{ $latestProof->sender_account_name }}</span>
-                                    </div>
-                                @endif
-                                <div class="flex justify-between items-center pt-1">
-                                    <span>Status Verifikasi:</span>
-                                    <span
-                                        class="px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase
-                                    {{ $latestProof->status === 'verified' ? 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]' : ($latestProof->status === 'rejected' ? 'bg-[#FF3B30]/10 text-[#FF3B30]' : 'bg-[#007AFF]/10 text-[#007AFF]') }}">
-                                        {{ $latestProof->status_label }}
-                                    </span>
+                            @else
+                                <div class="p-3 rounded-[14px] bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-[12px] flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                                    <span>Menunggu pembayaran pelanggan via {{ $order->payment_channel ?? 'QRIS' }}. Sistem otomatis mengonfirmasi saat lunas.</span>
                                 </div>
-                            </div>
-
-                            {{-- VERIFICATION BUTTONS --}}
-                            @if ($latestProof->isPending() || $order->status === 'proof_submitted')
-                                <div class="pt-3 border-t border-black/5 dark:border-white/10 space-y-2">
-                                    <form action="{{ route('storefront.orders.verify_payment', $order->id) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Verifikasi pembayaran pesanan ini? Stok akan dipotong resmi dan status order menjadi LUNAS.');">
+                                @if ($order->gateway_reference)
+                                    <form action="{{ route('storefront.orders.sync_gateway', $order->id) }}" method="POST" class="pt-1">
                                         @csrf
                                         <button type="submit"
-                                            class="w-full h-11 rounded-[14px] bg-[#34C759] hover:bg-[#30B752] text-white text-[13.5px] font-bold transition flex items-center justify-center gap-2 shadow-sm">
-                                            <i data-lucide="check-circle" class="w-4 h-4"></i>
-                                            <span>Verifikasi</span>
+                                            class="w-full h-9 rounded-[10px] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 text-[#007AFF] text-[12px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
+                                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                            <span>Cek &amp; Sinkronkan Status TriPay</span>
                                         </button>
                                     </form>
-
-                                    <button type="button" @click="rejectModalOpen = true"
-                                        class="w-full h-10 rounded-[14px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] text-[13px] font-bold transition flex items-center justify-center gap-2">
-                                        <i data-lucide="x-circle" class="w-4 h-4"></i>
-                                        <span>Tolak Bukti Transfer</span>
-                                    </button>
-                                </div>
+                                @endif
                             @endif
                         </div>
                     @else
-                        <div class="py-8 text-center text-black/45 dark:text-white/45">
-                            <i data-lucide="image-off" class="w-10 h-10 mx-auto stroke-1 mb-2 opacity-50"></i>
-                            <p class="text-[13px] font-medium">Belum ada bukti transfer yang diunggah pelanggan.</p>
+                        {{-- MANUAL PAYMENT METHOD INFO --}}
+                        <div class="p-3.5 rounded-[16px] bg-black/5 dark:bg-white/5 mb-4 text-[12.5px] space-y-1">
+                            <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 block">Tujuan Transfer:</span>
+                            @if ($order->paymentMethod)
+                                <p class="font-bold text-black dark:text-white">{{ $order->paymentMethod->bank_name }}</p>
+                                @if ($order->paymentMethod->account_number)
+                                    <p class="text-black/70 dark:text-white/70 font-mono">
+                                        {{ $order->paymentMethod->account_number }} a/n
+                                        {{ $order->paymentMethod->account_holder }}</p>
+                                @endif
+                            @else
+                                <p class="font-medium text-black/70 dark:text-white/70">Rekening Toko / Manual</p>
+                            @endif
                         </div>
+
+                        @php
+                            $latestProof = $order->latestProof;
+                        @endphp
+
+                        @if ($latestProof)
+                            <div class="space-y-4">
+                                <div
+                                    class="relative group rounded-[16px] overflow-hidden border border-black/10 dark:border-white/10 bg-black/5">
+                                    <img src="{{ route('storefront.proofs.stream', $latestProof->id) }}" alt="Bukti Transfer"
+                                        class="w-full h-48 object-cover cursor-pointer group-hover:scale-105 transition duration-300"
+                                        @click="activeImageUrl = '{{ route('storefront.proofs.stream', $latestProof->id) }}'; imageModalOpen = true">
+                                    <div
+                                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center pointer-events-none text-white font-medium text-[12px] gap-1.5">
+                                        <i data-lucide="zoom-in" class="w-4 h-4"></i> Klik untuk Memperbesar
+                                    </div>
+                                </div>
+
+                                <div class="text-[12px] space-y-1 text-black/60 dark:text-white/60">
+                                    <div class="flex justify-between">
+                                        <span>Diunggah:</span>
+                                        <span
+                                            class="font-medium text-black dark:text-white">{{ $latestProof->created_at->translatedFormat('d M Y, H:i') }}</span>
+                                    </div>
+                                    @if ($latestProof->sender_bank)
+                                        <div class="flex justify-between">
+                                            <span>Bank Pengirim:</span>
+                                            <span
+                                                class="font-medium text-black dark:text-white">{{ $latestProof->sender_bank }}</span>
+                                        </div>
+                                    @endif
+                                    @if ($latestProof->sender_account_name)
+                                        <div class="flex justify-between">
+                                            <span>Nama Pemilik:</span>
+                                            <span
+                                                class="font-medium text-black dark:text-white">{{ $latestProof->sender_account_name }}</span>
+                                        </div>
+                                    @endif
+                                    <div class="flex justify-between items-center pt-1">
+                                        <span>Status Verifikasi:</span>
+                                        <span
+                                            class="px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase
+                                        {{ $latestProof->status === 'verified' ? 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]' : ($latestProof->status === 'rejected' ? 'bg-[#FF3B30]/10 text-[#FF3B30]' : 'bg-[#007AFF]/10 text-[#007AFF]') }}">
+                                            {{ $latestProof->status_label }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {{-- VERIFICATION BUTTONS --}}
+                                @if ($latestProof->isPending() || $order->status === 'proof_submitted')
+                                    <div class="pt-3 border-t border-black/5 dark:border-white/10 space-y-2">
+                                        <button type="button" @click="verifyModalOpen = true"
+                                            class="w-full h-11 rounded-[14px] bg-[#34C759] hover:bg-[#30B752] text-white text-[13.5px] font-bold transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                            <span>Verifikasi Pembayaran</span>
+                                        </button>
+                                        <button type="button" @click="rejectModalOpen = true"
+                                            class="w-full h-10 rounded-[14px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] text-[13px] font-bold transition flex items-center justify-center gap-2 cursor-pointer">
+                                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                            <span>Tolak Bukti Transfer</span>
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="py-8 text-center text-black/45 dark:text-white/45">
+                                <i data-lucide="image-off" class="w-10 h-10 mx-auto stroke-1 mb-2 opacity-50"></i>
+                                <p class="text-[13px] font-medium">Belum ada bukti transfer yang diunggah pelanggan.</p>
+                            </div>
+                        @endif
                     @endif
                 </div>
+
 
                 {{-- 2. OPERATIONAL STATUS CARD --}}
                 <div
@@ -680,22 +814,25 @@
 
         </div>
 
-        {{-- MODAL TOLAK BUKTI BAYAR --}}
+        {{-- MODAL TOLAK BUKTI BAYAR (APPLE HIG DIALOG) --}}
         <div x-show="rejectModalOpen" x-cloak
             class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
+            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4 max-h-[92vh] overflow-y-auto"
                 @click.outside="rejectModalOpen = false">
+                {{-- Mobile Grab Bar --}}
+                <div class="w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto mb-1 sm:hidden"></div>
+
                 <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                     <div class="flex items-center gap-2 text-[#FF3B30]">
                         <i data-lucide="alert-triangle" class="w-5 h-5"></i>
                         <h3 class="text-[16px] font-bold text-black dark:text-white">Tolak Bukti Transfer</h3>
                     </div>
                     <button type="button" @click="rejectModalOpen = false"
-                        class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white">
+                        class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white cursor-pointer">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -718,15 +855,57 @@
 
                     <div class="flex items-center justify-end gap-2 pt-2">
                         <button type="button" @click="rejectModalOpen = false"
-                            class="px-4 py-2 rounded-full text-[13px] font-semibold text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white">
+                            class="px-4 py-2 rounded-full text-[13px] font-semibold text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white cursor-pointer">
                             Batal
                         </button>
                         <button type="submit"
-                            class="px-5 py-2 rounded-full bg-[#FF3B30] hover:bg-[#E0352B] text-white text-[13px] font-bold shadow-sm transition">
-                            Tolak
+                            class="px-5 py-2.5 rounded-full bg-[#FF3B30] hover:bg-[#E0352B] text-white text-[13px] font-bold shadow-sm transition cursor-pointer">
+                            Tolak Bukti
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        {{-- APPLE ALERT CONFIRMATION DIALOG (VERIFIKASI PEMBAYARAN) --}}
+        <div x-show="verifyModalOpen" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
+                @click.outside="verifyModalOpen = false">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-[14px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center shrink-0">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Verifikasi Pembayaran?</h3>
+                        <p class="text-[13px] text-black/60 dark:text-white/60 mt-1">
+                            Total tagihan <strong class="text-black dark:text-white font-semibold">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong> dari <span class="font-medium text-black dark:text-white">{{ $order->customer_name }}</span> akan dikonfirmasi LUNAS.
+                        </p>
+                    </div>
+                </div>
+
+                {{-- PENENANG JIWA & STOCK ALLOCATION NOTICE --}}
+                <div class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0 mt-0.5"></i>
+                    <span>Tenang: Verifikasi pembayaran akan mengubah status pesanan menjadi LUNAS dan stok produk terkait akan otomatis dialokasikan/dipotong secara sah di pembukuan.</span>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" @click="verifyModalOpen = false"
+                        class="px-4 py-2 rounded-full text-[13px] font-semibold text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition cursor-pointer">
+                        Batal
+                    </button>
+                    <form action="{{ route('storefront.orders.verify_payment', $order->id) }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-[#34C759] hover:bg-[#2EB04E] text-white text-[13px] font-bold transition shadow-sm cursor-pointer">
+                            Ya, Konfirmasi Lunas
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -736,7 +915,7 @@
             @click="imageModalOpen = false">
             <div class="relative max-w-2xl max-h-[90vh] overflow-hidden rounded-[20px] shadow-2xl" @click.stop>
                 <button type="button" @click="imageModalOpen = false"
-                    class="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition z-10">
+                    class="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition z-10 cursor-pointer">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
                 <img :src="activeImageUrl" alt="Preview Bukti Transfer"

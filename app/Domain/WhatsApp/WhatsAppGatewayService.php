@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\WhatsApp;
 
+use App\Domain\WhatsApp\CloudApi\WhatsAppClient;
 use App\Models\Business;
 use App\Models\Customer;
 use App\Models\PosOrder;
+use App\Models\WhatsAppAccount;
 use App\Models\WhatsAppBroadcastCampaign;
 use App\Models\WhatsAppBroadcastRecipient;
 use App\Models\WhatsAppMessageLog;
@@ -39,7 +41,7 @@ class WhatsAppGatewayService
     }
 
     /**
-     * Create an authenticated HTTP client.
+     * Create an authenticated HTTP client (kept for backwards compatibility).
      */
     protected function client(int $timeout = 15)
     {
@@ -52,28 +54,18 @@ class WhatsAppGatewayService
     }
 
     /**
-     * Start (or reconnect) a WhatsApp session for the given business.
+     * Start (or reconnect) a WhatsApp session for the given business (official Meta Cloud).
      */
     public function startSession(Business $business): array
     {
         $sessionId = $this->sessionId($business);
+        $account   = WhatsAppAccount::where('business_id', $business->id)->first();
 
-        try {
-            $response = $this->client(30)->post("{$this->baseUrl}/api/sessions/start", [
-                'sessionId'  => $sessionId,
-                'webhookUrl' => url('/api/wa/webhook'),
-            ]);
-
-            $waSession = WhatsAppSession::firstOrNew(['business_id' => $business->id]);
-            $waSession->session_id = $sessionId;
-            $waSession->status     = 'scan_qr';
-            $waSession->save();
-
-            return $response->json() ?? [];
-        } catch (\Throwable $e) {
-            Log::error("[WA] startSession error ({$sessionId}): " . $e->getMessage());
-            return ['success' => false, 'error' => $e->getMessage()];
+        if ($account && $account->isConnected()) {
+            return ['success' => true, 'status' => 'connected'];
         }
+
+        return ['success' => false, 'status' => 'disconnected', 'message' => 'Gunakan Meta Embedded Signup resmi.'];
     }
 
     /**
@@ -83,23 +75,22 @@ class WhatsAppGatewayService
     {
         $sessionId = $this->sessionId($business);
 
-        try {
-            $response = $this->client(15)->delete("{$this->baseUrl}/api/sessions/{$sessionId}");
-
-            $waSession = WhatsAppSession::where('business_id', $business->id)->first();
-            if ($waSession) {
-                $waSession->status            = 'disconnected';
-                $waSession->phone_number      = null;
-                $waSession->device_name       = null;
-                $waSession->last_connected_at = null;
-                $waSession->save();
-            }
-
-            return $response->json() ?? [];
-        } catch (\Throwable $e) {
-            Log::error("[WA] disconnectSession error ({$sessionId}): " . $e->getMessage());
-            return ['success' => false, 'error' => $e->getMessage()];
+        $account = WhatsAppAccount::where('business_id', $business->id)->first();
+        if ($account) {
+            $account->status = 'disconnected';
+            $account->save();
         }
+
+        $waSession = WhatsAppSession::where('business_id', $business->id)->first();
+        if ($waSession) {
+            $waSession->status            = 'disconnected';
+            $waSession->phone_number      = null;
+            $waSession->device_name       = null;
+            $waSession->last_connected_at = null;
+            $waSession->save();
+        }
+
+        return ['success' => true, 'message' => 'Sesi WhatsApp diputus.'];
     }
 
     /**
@@ -111,19 +102,29 @@ class WhatsAppGatewayService
     }
 
     /**
-     * Get live session status from the microservice.
+     * Get live session status (checks official Meta WhatsAppAccount or local session).
      */
     public function getSessionStatus(Business $business): array
     {
-        $sessionId = $this->sessionId($business);
-
-        try {
-            $response = $this->client(10)->get("{$this->baseUrl}/api/sessions/{$sessionId}/status");
-            return $response->json() ?? [];
-        } catch (\Throwable $e) {
-            Log::warning("[WA] getSessionStatus error ({$sessionId}): " . $e->getMessage());
-            return ['status' => 'error', 'error' => $e->getMessage()];
+        $account = WhatsAppAccount::where('business_id', $business->id)->first();
+        if ($account && $account->isConnected()) {
+            return [
+                'status' => 'connected',
+                'phone'  => $account->display_phone_number ?: $account->phone_number,
+                'driver' => 'meta_cloud',
+            ];
         }
+
+        $session = WhatsAppSession::where('business_id', $business->id)->first();
+        if ($session && $session->status === 'connected') {
+            return [
+                'status' => 'connected',
+                'phone'  => $session->phone_number,
+                'driver' => $session->provider ?? 'meta_cloud',
+            ];
+        }
+
+        return ['status' => 'disconnected', 'phone' => null];
     }
 
     /**
@@ -135,27 +136,16 @@ class WhatsAppGatewayService
     }
 
     /**
-     * Get live QR code and session metadata.
+     * Get live QR code and session metadata (stubbed for backward compatibility).
      */
     public function getQrData(Business $business): array
     {
-        $sessionId = $this->sessionId($business);
-
-        try {
-            $response = $this->client(10)->get("{$this->baseUrl}/api/sessions/{$sessionId}/qr");
-
-            if ($response->status() === 404) {
-                // Session belum dibuat di wa-server.
-                // Kembalikan disconnected agar user harus klik tombol secara eksplisit.
-                return ['status' => 'disconnected', 'qrDataUrl' => null];
-            }
-
-            $data = $response->json();
-            return is_array($data) ? $data : ['status' => 'disconnected', 'qrDataUrl' => null];
-        } catch (\Throwable $e) {
-            Log::warning("[WA] getQrData error ({$sessionId}): " . $e->getMessage());
-            return ['status' => 'disconnected', 'qrDataUrl' => null, 'error' => $e->getMessage()];
-        }
+        $status = $this->getSessionStatus($business);
+        return [
+            'status'    => $status['status'],
+            'qrDataUrl' => null,
+            'phone'     => $status['phone'] ?? null,
+        ];
     }
 
     /**
@@ -163,15 +153,31 @@ class WhatsAppGatewayService
      */
     public function getQrCode(Business $business): ?string
     {
-        $data = $this->getQrData($business);
-        return $data['qrDataUrl'] ?? null;
+        return null;
     }
 
     /**
-     * Send a WhatsApp message via the configured provider for a given business session.
+     * Send a WhatsApp message via official Meta Cloud API for a given business.
      */
     public function sendMessage(Business $business, string $phone, string $message, array $options = []): array
     {
+        // 1. Prioritaskan Akun Meta WhatsApp Cloud API resmi toko (WhatsAppAccount)
+        $account = WhatsAppAccount::where('business_id', $business->id)->first();
+        if ($account && $account->isConnected()) {
+            $client = WhatsAppClient::forAccount($account);
+            if (! empty($options['url'])) {
+                return $client->sendMediaMessage(
+                    $phone,
+                    $options['type'] ?? 'image',
+                    $options['url'],
+                    $message,
+                    $options['filename'] ?? null
+                );
+            }
+            return $client->sendTextMessage($phone, $message);
+        }
+
+        // 2. Cek Legacy WhatsAppSession jika telah menyimpan kredensial Meta manual
         $session = WhatsAppSession::where('business_id', $business->id)->first();
         if ($session && ! $session->is_active) {
             return [
@@ -180,22 +186,17 @@ class WhatsAppGatewayService
             ];
         }
 
-        if ($session && $session->provider === 'meta_cloud') {
-            $token = $session->meta_access_token ?: config('services.meta_whatsapp.token');
-            $phoneId = $session->meta_phone_number_id ?: config('services.meta_whatsapp.phone_number_id');
-
-            if (empty($token) || empty($phoneId)) {
-                return [
-                    'success' => false,
-                    'error'   => 'Kredensial Meta WhatsApp Cloud API belum lengkap diatur.',
-                ];
-            }
-
+        if ($session && ! empty($session->meta_access_token) && ! empty($session->meta_phone_number_id)) {
+            $token   = $session->meta_access_token;
+            $phoneId = $session->meta_phone_number_id;
             return $this->metaDriver->sendTextMessage($phone, $message, $token, $phoneId);
         }
 
-        $sessionId = $this->sessionId($business);
-        return $this->sendRawMessage($sessionId, $phone, $message, $options);
+        // 3. Fallback: Toko belum menghubungkan Meta WhatsApp resmi
+        return [
+            'success' => false,
+            'error'   => 'Akun WhatsApp Business resmi (Meta WABA) belum terhubung ke toko Anda. Silakan hubungkan melalui menu WhatsApp Gateway.',
+        ];
     }
 
     /**
@@ -378,9 +379,9 @@ class WhatsAppGatewayService
             return strtr($template, $replacements);
         }
 
-        $greeting = $custName ? "Halo Kak *{$custName}*! 🙏\n" : "Halo! 🙏\n";
+        $greeting = $custName ? "Halo Kak *{$custName}*!\n" : "Halo!\n";
 
-        $text  = "🧾 *STRUK PEMBELIAN*\n";
+        $text  = "*STRUK PEMBELIAN*\n";
         $text .= "*{$bizName}*\n\n";
         $text .= $greeting;
         $text .= "Terima kasih banyak telah berbelanja di *{$bizName}*.\n\n";
@@ -390,7 +391,7 @@ class WhatsAppGatewayService
             $text .= $footerNote . "\n\n";
         }
 
-        $text .= "Semoga hari Anda menyenangkan! ✨";
+        $text .= "Semoga hari Anda menyenangkan.";
 
         return $text;
     }
@@ -441,17 +442,8 @@ class WhatsAppGatewayService
 
             $ok ? $sent++ : $failed++;
 
-            // Humanized throttling to prevent ban
-            $session = WhatsAppSession::where('business_id', $business->id)->first();
-            if ($session && $session->provider === 'meta_cloud') {
-                usleep(200_000); // 200ms for Meta Cloud API
-            } else {
-                // Baileys: 3 - 5 seconds randomized delay + 10s cooldown every 10 messages
-                sleep(random_int(3, 5));
-                if ($sent > 0 && $sent % 10 === 0) {
-                    sleep(10);
-                }
-            }
+            // Throttling to respect Meta Cloud API rate limits
+            usleep(150_000); // 150ms delay between messages
         }
 
         $campaign->update([

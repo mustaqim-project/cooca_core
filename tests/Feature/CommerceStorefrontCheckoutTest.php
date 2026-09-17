@@ -70,7 +70,7 @@ final class CommerceStorefrontCheckoutTest extends TestCase
         $this->location = Location::create([
             'business_id' => $this->business->id,
             'name' => 'Toko Utama',
-            'is_default' => true,
+            'is_primary' => true,
         ]);
 
         $pcs = Unit::where('code', 'pcs')->first() ?? Unit::create([
@@ -624,5 +624,60 @@ final class CommerceStorefrontCheckoutTest extends TestCase
         $this->expectExceptionMessage('Jumlah item yang dipesan harus lebih dari 0.');
 
         $cartService->addItem($cart, $this->product, 0);
+    }
+
+    public function test_payment_proof_status_helpers_and_merchant_order_show_view(): void
+    {
+        $order = CommerceOrder::create([
+            'business_id' => $this->business->id,
+            'location_id' => $this->location->id,
+            'order_number' => 'ORD-PROOF-001',
+            'tracking_token' => Str::random(32),
+            'order_type' => CommerceOrder::TYPE_SCHEDULED_ORDER,
+            'fulfillment_type' => CommerceOrder::FULFILLMENT_PICKUP,
+            'status' => CommerceOrder::STATUS_PROOF_SUBMITTED,
+            'payment_status' => CommerceOrder::PAYMENT_VERIFYING,
+            'customer_name' => 'Ahmad Pelanggan',
+            'customer_phone' => '081298765432',
+            'subtotal' => 75000,
+            'total_amount' => 75000,
+            'scheduled_date' => now()->addDay()->toDateString(),
+        ]);
+
+        $proof = CommercePaymentProof::create([
+            'business_id' => $this->business->id,
+            'commerce_order_id' => $order->id,
+            'file_path' => 'proofs/dummy.jpg',
+            'file_size_kb' => 120,
+            'mime_type' => 'image/jpeg',
+            'sender_bank' => 'BCA',
+            'sender_account_name' => 'Ahmad',
+            'status' => CommercePaymentProof::STATUS_PENDING,
+        ]);
+
+        $this->assertTrue($proof->isPending());
+        $this->assertFalse($proof->isVerified());
+        $this->assertFalse($proof->isRejected());
+        $this->assertSame('Menunggu Verifikasi', $proof->status_label);
+
+        $proof->update(['status' => CommercePaymentProof::STATUS_VERIFIED]);
+        $this->assertTrue($proof->isVerified());
+        $this->assertSame('Terverifikasi', $proof->status_label);
+
+        $proof->update(['status' => CommercePaymentProof::STATUS_REJECTED]);
+        $this->assertTrue($proof->isRejected());
+        $this->assertSame('Ditolak', $proof->status_label);
+
+        // Reset to pending and check merchant order show page view
+        $proof->update(['status' => CommercePaymentProof::STATUS_PENDING]);
+
+        $response = $this->actingAs($this->merchantUser, 'web')
+            ->withSession(['active_business_id' => $this->business->id])
+            ->get(route('storefront.orders.show', $order));
+
+        $response->assertOk();
+        $response->assertSee('Verifikasi Pembayaran');
+        $response->assertSee('Tolak Bukti Transfer');
+        $response->assertSee('ORD-PROOF-001');
     }
 }

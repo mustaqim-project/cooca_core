@@ -3,12 +3,9 @@
 
 @section('content')
     @php
-        $validTabs = ['connection', 'reminders', 'blast', 'templates'];
-        $initialTab = in_array($tab, $validTabs, true) ? $tab : 'reminders';
+        $validTabs = ['parent_setup', 'reminders', 'blast', 'templates', 'merchants'];
+        $initialTab = in_array($tab, $validTabs, true) ? $tab : 'parent_setup';
         $initialPhone = $waStatus['phone'] ?? '';
-        if (!$initialPhone && isset($waStatus['user']['id'])) {
-            $initialPhone = explode(':', (string) $waStatus['user']['id'])[0];
-        }
         $totalDueCount = $dueData['stats']['total_due'] ?? 0;
         $pendingRemindersCount = $dueData['stats']['total_pending'] ?? 0;
         $sentRemindersCount = $dueData['stats']['total_sent'] ?? 0;
@@ -21,6 +18,8 @@
                     (($totalBlastSent + $sentRemindersCount) / max(1, $totalBlastRecipients + $totalDueCount)) * 100,
                 )
                 : 100;
+        $activeMerchantsCount = $merchantSummary['active'] ?? 0;
+        $totalMerchantsCount = $merchantSummary['total'] ?? 0;
     @endphp
 
     <div class="space-y-5 sm:space-y-6 max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="adminWaCenter()" x-init="init()">
@@ -29,56 +28,43 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 min-w-0">
             <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
                 <div
-                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[18px] bg-gradient-to-br from-[#25D366] to-[#128C7E] flex items-center justify-center shadow-md shadow-[#25D366]/20 shrink-0 text-white">
-                    <i data-lucide="message-square" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[18px] bg-gradient-to-br from-[#1877F2] to-[#007AFF] flex items-center justify-center shadow-md shadow-[#1877F2]/20 shrink-0 text-white">
+                    <i data-lucide="shield-check" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-[18px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight truncate">WhatsApp Admin Center</h1>
-                    <p class="text-[12px] sm:text-[13px] text-black/50 dark:text-white/50 mt-0.5 truncate">Pusat layanan WhatsApp untuk pengingat masa aktif langganan dan siaran informasi ke pemilik toko</p>
+                    <h1 class="text-[18px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight truncate">WhatsApp Platform Admin Center</h1>
+                    <p class="text-[12px] sm:text-[13px] text-black/50 dark:text-white/50 mt-0.5 truncate">Pusat konfigurasi resmi Meta Tech Provider, gateway OTP keamanan, pengingat langganan, dan pengawasan merchant</p>
                 </div>
             </div>
 
-            {{-- Live Status Indicator & Quick Connection Button --}}
+            {{-- Live Status Indicator & Quick Setup Button --}}
             <div class="grid grid-cols-1 xs:grid-cols-2 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto min-w-0">
                 <template x-if="status === 'connected'">
                     <div
                         class="flex items-center justify-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-[12px] bg-[#34C759]/12 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-[12px] font-semibold min-h-[40px] sm:min-h-[44px] min-w-0">
                         <span class="w-2 h-2 rounded-full bg-[#34C759] shrink-0"></span>
-                        <span class="truncate">Bot Aktif</span>
+                        <span class="truncate">Meta Resmi Aktif</span>
                         <span class="text-black/30 dark:text-white/30">|</span>
                         <span class="font-mono truncate" x-text="phone ? '+' + phone : 'Online'"></span>
                     </div>
                 </template>
-                <template x-if="status === 'scan_qr'">
-                    <div
-                        class="flex items-center justify-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-[12px] bg-[#FF9500]/12 border border-[#FF9500]/25 text-[#B25E00] dark:text-[#FF9F0A] text-[12px] font-semibold min-h-[40px] sm:min-h-[44px] min-w-0">
-                        <span class="w-2 h-2 rounded-full bg-[#FF9500] shrink-0"></span>
-                        <span class="truncate">Pindai Kode QR</span>
-                    </div>
-                </template>
-                <template x-if="status === 'disconnected' || status === ''">
+                <template x-if="status !== 'connected'">
                     <div
                         class="flex items-center justify-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/10 dark:border-white/10 text-black/55 dark:text-white/55 text-[12px] font-semibold min-h-[40px] sm:min-h-[44px] min-w-0">
-                        <span class="w-2 h-2 rounded-full bg-black/30 dark:bg-white/30 shrink-0"></span>
-                        <span class="truncate">Belum Terhubung</span>
+                        <span class="w-2 h-2 rounded-full bg-[#FF9500] shrink-0"></span>
+                        <span class="truncate">Meta Belum Terkonfigurasi</span>
                     </div>
                 </template>
 
-                <button type="button" @click="setTab('connection')"
-                    class="min-h-[40px] sm:min-h-[44px] px-4 rounded-[12px] text-[12.5px] sm:text-[13px] font-semibold bg-[#25D366] text-white hover:bg-[#1EBE5D] active:scale-[0.98] shadow-sm transition-all inline-flex items-center justify-center gap-2 min-w-0">
-                    <i data-lucide="qr-code" class="w-4 h-4 shrink-0"></i>
-                    <span class="truncate">Kelola WhatsApp</span>
+                <button type="button" @click="setTab('parent_setup')"
+                    class="min-h-[40px] sm:min-h-[44px] px-4 rounded-[12px] text-[12.5px] sm:text-[13px] font-semibold bg-[#1877F2] text-white hover:bg-[#166FE5] active:scale-[0.98] shadow-sm transition-all inline-flex items-center justify-center gap-2 min-w-0">
+                    <i data-lucide="sliders-horizontal" class="w-4 h-4 shrink-0"></i>
+                    <span class="truncate">Setup Platform Meta</span>
                 </button>
             </div>
         </div>
 
         {{-- NOTIFICATIONS / ALERTS --}}
-        {{--
-            NOTE: session('success') banner dihapus dari sini.
-            Layout admin.blade.php sudah menangani flash notifications via
-            AppAlert toast (session()->pull). Menampilkan banner inline di sini
-            DAN toast dari layout mengakibatkan double-notification.
-        --}}
         @if ($errors->any())
             <div
                 class="rounded-[18px] p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#C41E17] dark:text-[#FF453A] text-[13px] font-medium shadow-sm">
@@ -94,39 +80,56 @@
             </div>
         @endif
 
-
         {{-- 2. BENTO HERO KPI TILES (ADAPTIVE 2-COLUMN MOBILE, 4-COLUMN DESKTOP) --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 w-full min-w-0">
-            {{-- Tile 1: Status Gateway --}}
+            {{-- Tile 1: Status Gateway Platform --}}
             <div
                 class="rounded-[18px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-w-0">
                 <div class="flex items-center justify-between gap-2 min-w-0">
                     <span
-                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Status Gateway</span>
+                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Bot Platform</span>
                     <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-[9px] sm:rounded-[10px] flex items-center justify-center shrink-0"
-                        :class="status === 'connected' ? 'bg-[#34C759]/15 text-[#34C759]' : (status === 'scan_qr' ?
-                            'bg-[#FF9500]/15 text-[#FF9500]' :
-                            'bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40')">
-                        <i data-lucide="activity" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                        :class="status === 'connected' ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40'">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
                 </div>
                 <div class="mt-2.5 min-w-0">
                     <div
                         class="text-[18px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight flex items-center gap-1.5 truncate">
-                        <span
-                            x-text="status === 'connected' ? 'Aktif' : (status === 'scan_qr' ? 'Scan' : 'Offline')"></span>
+                        <span x-text="status === 'connected' ? 'Meta Resmi' : 'Offline'"></span>
                     </div>
                     <p class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 mt-0.5 font-mono truncate"
-                        x-text="phone ? '+' + phone : 'Belum Konek'"></p>
+                        x-text="phone ? '+' + phone : 'Kredensial Belum Lengkap'"></p>
                 </div>
             </div>
 
-            {{-- Tile 2: Pengingat Hari Ini --}}
+            {{-- Tile 2: Merchant Terhubung --}}
             <div
                 class="rounded-[18px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-w-0">
                 <div class="flex items-center justify-between gap-2 min-w-0">
                     <span
-                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Pengingat Hari Ini</span>
+                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Merchant WABA</span>
+                    <div
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-[9px] sm:rounded-[10px] bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center shrink-0">
+                        <i data-lucide="store" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2.5 min-w-0">
+                    <div
+                        class="text-[18px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight tabular-nums truncate">
+                        {{ $activeMerchantsCount }} <span
+                            class="text-[11px] sm:text-[12px] font-medium text-black/45 dark:text-white/45">aktif</span>
+                    </div>
+                    <p class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 mt-0.5 truncate tabular-nums">Total {{ $totalMerchantsCount }} toko terdaftar</p>
+                </div>
+            </div>
+
+            {{-- Tile 3: Pengingat Hari Ini --}}
+            <div
+                class="rounded-[18px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-w-0">
+                <div class="flex items-center justify-between gap-2 min-w-0">
+                    <span
+                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Pengingat Tagihan</span>
                     <div
                         class="w-7 h-7 sm:w-8 sm:h-8 rounded-[9px] sm:rounded-[10px] bg-[#FF9500]/15 text-[#FF9500] flex items-center justify-center shrink-0">
                         <i data-lucide="bell" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
@@ -140,26 +143,6 @@
                     </div>
                     <p class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 mt-0.5 truncate tabular-nums">Total
                         {{ $totalDueCount }} langganan</p>
-                </div>
-            </div>
-
-            {{-- Tile 3: Jangkauan Owner --}}
-            <div
-                class="rounded-[18px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-w-0">
-                <div class="flex items-center justify-between gap-2 min-w-0">
-                    <span
-                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Jangkauan Owner</span>
-                    <div
-                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-[9px] sm:rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center shrink-0">
-                        <i data-lucide="users" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                    </div>
-                </div>
-                <div class="mt-2.5 min-w-0">
-                    <div
-                        class="text-[18px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight tabular-nums truncate">
-                        {{ number_format($totalOwnersCount) }}
-                    </div>
-                    <p class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 mt-0.5 truncate">Owner di platform</p>
                 </div>
             </div>
 
@@ -180,7 +163,7 @@
                         {{ $overallSuccessRate }}%
                     </div>
                     <p class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 mt-0.5 truncate tabular-nums">
-                        {{ number_format($sentRemindersCount + $totalBlastSent) }} pesan sukses</p>
+                        {{ number_format($sentRemindersCount + $totalBlastSent) }} pesan terkirim</p>
                 </div>
             </div>
         </div>
@@ -189,16 +172,30 @@
         <div class="w-full max-w-full min-w-0 overflow-hidden">
             <div
                 class="p-1.5 bg-black/[0.05] dark:bg-white/[0.07] rounded-[16px] flex items-center gap-1.5 overflow-x-auto shadow-inner no-scrollbar">
-                <button type="button" @click="setTab('connection')"
-                    :class="activeTab === 'connection' ?
+                <button type="button" @click="setTab('parent_setup')"
+                    :class="activeTab === 'parent_setup' ?
                         'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-semibold' :
                         'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                     class="min-h-[42px] sm:min-h-[44px] px-3.5 sm:px-5 rounded-[12px] text-[12.5px] sm:text-[13px] transition-all flex items-center gap-2 sm:gap-2.5 shrink-0 whitespace-nowrap active:scale-[0.98]">
-                    <i data-lucide="qr-code" class="w-4 h-4 text-[#25D366]"></i>
-                    <span>Status &amp; Sesi QR</span>
+                    <i data-lucide="shield-check" class="w-4 h-4 text-[#1877F2]"></i>
+                    <span>Pengaturan Platform Meta</span>
                     <template x-if="status === 'connected'">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
                     </template>
+                </button>
+
+                <button type="button" @click="setTab('merchants')"
+                    :class="activeTab === 'merchants' ?
+                        'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-semibold' :
+                        'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                    class="min-h-[42px] sm:min-h-[44px] px-3.5 sm:px-5 rounded-[12px] text-[12.5px] sm:text-[13px] transition-all flex items-center gap-2 sm:gap-2.5 shrink-0 whitespace-nowrap active:scale-[0.98]">
+                    <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
+                    <span>Monitoring Merchant</span>
+                    @if ($activeMerchantsCount > 0)
+                        <span class="px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-[11px] font-bold tabular-nums">
+                            {{ $activeMerchantsCount }}
+                        </span>
+                    @endif
                 </button>
 
                 <button type="button" @click="setTab('reminders')"
@@ -221,7 +218,7 @@
                         'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                     class="min-h-[42px] sm:min-h-[44px] px-3.5 sm:px-5 rounded-[12px] text-[12.5px] sm:text-[13px] transition-all flex items-center gap-2 sm:gap-2.5 shrink-0 whitespace-nowrap active:scale-[0.98]">
                     <i data-lucide="send" class="w-4 h-4 text-[#FF9500]"></i>
-                    <span>Broadcast Bisnis Owner</span>
+                    <span>Siaran Platform</span>
                 </button>
 
                 <button type="button" @click="setTab('templates')"
@@ -236,577 +233,425 @@
         </div>
 
         {{-- ========================================================================= --}}
-        {{-- TAB 1: STATUS & KONEKSI QR CODE / DUAL GATEWAY CONFIGURATION              --}}
+        {{-- TAB 1: PENGATURAN PLATFORM META (PARENT SETUP)                            --}}
         {{-- ========================================================================= --}}
-        <div x-show="activeTab === 'connection'" x-transition:enter="transition ease-out duration-200"
+        <div x-show="activeTab === 'parent_setup'" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
             class="space-y-6">
 
-            {{-- 1. HIGH-RISK BAN WARNING BANNER (APPLE HIG VIBRANT CALLOUT) --}}
+            {{-- 1. HERO CARD: LIVE STATUS BOT PLATFORM META --}}
             <div
-                class="rounded-[20px] sm:rounded-[22px] p-4 sm:p-6 bg-gradient-to-br from-[#FF9500]/12 via-[#FF9500]/8 to-[#FF3B30]/10 border border-[#FF9500]/30 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full min-w-0">
-                <div class="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
-                    <div
-                        class="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] flex items-center justify-center shrink-0 mt-0.5 shadow-inner">
-                        <i data-lucide="alert-triangle" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                    </div>
-                    <div class="space-y-1 min-w-0 flex-1">
-                        <h3 class="text-[14px] sm:text-[15px] font-bold text-[#B25E00] dark:text-[#FF9F0A] tracking-tight">
-                            Peringatan Risiko Blokir Sangat Besar (Baileys / Scan QR)
-                        </h3>
-                        <p class="text-[12px] sm:text-[12.5px] text-black/75 dark:text-white/75 leading-relaxed max-w-3xl">
-                            Pengiriman kode OTP secara beruntun lewat protokol Scan QR berisiko diblokir oleh WhatsApp.
-                            Untuk kelancaran operasional bisnis, disarankan menggunakan <strong>Meta WhatsApp Cloud API
-                                resmi</strong> untuk kebutuhan OTP.
-                        </p>
-                    </div>
-                </div>
-                <a href="#dual-gateway-config"
-                    class="min-h-[42px] sm:min-h-[44px] px-4 sm:px-5 rounded-[12px] sm:rounded-[14px] text-[13px] font-bold bg-[#FF9500] hover:bg-[#E08500] text-white shrink-0 shadow-sm transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto self-stretch sm:self-start md:self-center active:scale-[0.98]">
-                    <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
-                    <span>Konfigurasi Dual Gateway</span>
-                </a>
-            </div>
-
-            {{-- 2. DUAL GATEWAY CONFIGURATION BENTO CARD (OTP & BLAST DRIVER MANAGER) --}}
-            <div id="dual-gateway-config"
-                class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-4 sm:p-7 space-y-6 w-full min-w-0">
-                <div
-                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08] min-w-0">
-                    <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+                class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
+                    <div class="flex items-start gap-4 min-w-0 flex-1">
                         <div
-                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-gradient-to-br from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center shadow-md shadow-[#007AFF]/20 shrink-0">
-                            <i data-lucide="git-fork" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                            class="w-12 h-12 sm:w-14 sm:h-14 rounded-[18px] bg-gradient-to-br from-[#1877F2] to-[#007AFF] text-white flex items-center justify-center shadow-lg shadow-[#1877F2]/25 shrink-0">
+                            <i data-lucide="shield-check" class="w-6 h-6 sm:w-7 sm:h-7"></i>
                         </div>
-                        <div class="min-w-0 flex-1">
-                            <h2 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight truncate sm:whitespace-normal">Manajemen Dual Gateway WhatsApp</h2>
-                            <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5 truncate sm:whitespace-normal">Tentukan gateway independen untuk lalu lintas OTP keamanan vs broadcast promosi guna meminimalkan risiko blokir</p>
-                        </div>
-                    </div>
-
-                    {{-- Status Pills & Auto-Save Indicator --}}
-                    <div class="flex flex-wrap items-center gap-2">
-                        <div x-show="gatewaySaving" x-cloak
-                            class="px-3 py-1.5 rounded-[12px] text-[11px] font-bold bg-[#007AFF]/12 text-[#007AFF] border border-[#007AFF]/25 flex items-center gap-1.5">
-                            <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                            <span>Menyimpan Otomatis...</span>
-                        </div>
-                        <div x-show="gatewaySavedToast" x-cloak
-                            class="px-3 py-1.5 rounded-[12px] text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 flex items-center gap-1.5">
-                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                            <span>Tersimpan Otomatis</span>
-                        </div>
-                        <div
-                            class="px-3 py-1.5 rounded-[12px] text-[11px] font-semibold flex items-center gap-1.5"
-                            :class="isOtpActive && otpDriver !== 'disabled' ? 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 border border-black/10 dark:border-white/10'">
-                            <span class="w-2 h-2 rounded-full" :class="isOtpActive && otpDriver !== 'disabled' ? 'bg-[#34C759]' : 'bg-black/30 dark:bg-white/30'"></span>
-                            <span>OTP: </span>
-                            <span x-text="!isOtpActive || otpDriver === 'disabled' ? 'Nonaktif' : (otpDriver === 'meta_cloud' ? 'Meta Cloud (Resmi)' : 'Baileys (QR)')">
-                                {{ $otpDriver === 'meta_cloud' ? 'Meta Cloud (Resmi)' : ($otpDriver === 'baileys' ? 'Baileys (QR)' : 'Nonaktif') }}
-                            </span>
-                        </div>
-                        <div
-                            class="px-3 py-1.5 rounded-[12px] text-[11px] font-semibold flex items-center gap-1.5"
-                            :class="isBlastActive && blastDriver !== 'disabled' ? 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/20' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 border border-black/10 dark:border-white/10'">
-                            <span
-                                class="w-2 h-2 rounded-full" :class="isBlastActive && blastDriver !== 'disabled' ? 'bg-[#FF9500]' : 'bg-black/30 dark:bg-white/30'"></span>
-                            <span>Blast: </span>
-                            <span x-text="!isBlastActive || blastDriver === 'disabled' ? 'Nonaktif' : (blastDriver === 'baileys' ? 'Baileys (QR)' : 'Meta Cloud')">
-                                {{ $blastDriver === 'baileys' ? 'Baileys (QR)' : ($blastDriver === 'meta_cloud' ? 'Meta Cloud' : 'Nonaktif') }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <form id="gatewayConfigForm" method="POST" action="{{ route('admin.whatsapp.config') }}" class="space-y-6">
-                    @csrf
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        {{-- Channel 1: OTP Gateway Driver --}}
-                        <div
-                            class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2.5">
-                                    <div
-                                        class="w-8 h-8 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
-                                        <i data-lucide="key-round" class="w-4 h-4"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-[14px] font-bold text-black dark:text-white">Jalur Kode Masuk (OTP)</h4>
-                                        <p class="text-[11.5px] text-black/50 dark:text-white/50">Kanal OTP Keamanan &bull; Untuk verifikasi saat login, daftar akun, dan ganti profil</p>
-                                    </div>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="otp_active" value="1" class="sr-only peer"
-                                        x-model="isOtpActive" @change="autoSaveGatewayConfig()"
-                                        {{ $isOtpActive ? 'checked' : '' }}>
-                                    <div
-                                        class="w-11 h-6 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#34C759]">
-                                    </div>
-                                </label>
+                        <div class="min-w-0 flex-1 space-y-1">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h2 class="text-[17px] sm:text-[19px] font-bold text-black dark:text-white tracking-tight">
+                                    Bot WhatsApp Platform Cooca
+                                </h2>
+                                <template x-if="status === 'connected'">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                        <span>Aktif Terhubung</span>
+                                    </span>
+                                </template>
+                                <template x-if="status !== 'connected'">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/25">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span>
+                                        <span>Belum Dikonfigurasi</span>
+                                    </span>
+                                </template>
                             </div>
-
-                            <div>
-                                <label
-                                    class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Pilihan Jalur OTP</label>
-                                <select name="otp_driver"
-                                    x-model="otpDriver" @change="autoSaveGatewayConfig()"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 font-medium transition-all">
-                                    <option value="meta_cloud" {{ $otpDriver === 'meta_cloud' ? 'selected' : '' }}>
-                                        Meta WhatsApp Cloud API (Resmi Facebook - Anti Blokir) - Sangat Stabil
-                                    </option>
-                                    <option value="baileys" {{ $otpDriver === 'baileys' ? 'selected' : '' }}>
-                                        Scan QR Baileys (Server Lokal)
-                                    </option>
-                                    <option value="disabled" {{ $otpDriver === 'disabled' ? 'selected' : '' }}>
-                                        Nonaktifkan Pengiriman OTP via WhatsApp
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="flex items-start gap-2 text-[11.5px] text-black/50 dark:text-white/50 leading-relaxed">
-                                <i data-lucide="info" class="w-3.5 h-3.5 text-[#007AFF] shrink-0 mt-0.5"></i>
-                                <span>Rekomendasi: Gunakan <strong>Meta WhatsApp Cloud API</strong> karena Meta menyediakan 1.000 pesan layanan gratis setiap bulan.</span>
-                            </div>
-                        </div>
-
-                        {{-- Channel 2: Broadcast / Blast Driver --}}
-                        <div
-                            class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2.5">
-                                    <div
-                                        class="w-8 h-8 rounded-[10px] bg-[#FF9500]/15 text-[#FF9500] flex items-center justify-center">
-                                        <i data-lucide="megaphone" class="w-4 h-4"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-[14px] font-bold text-black dark:text-white">Jalur Pesan Siaran &amp; Pengingat</h4>
-                                        <p class="text-[11.5px] text-black/50 dark:text-white/50">Kanal Broadcast &amp; Pengingat &bull; Untuk pengingat jatuh tempo langganan dan pesan pengumuman</p>
-                                    </div>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="blast_active" value="1" class="sr-only peer"
-                                        x-model="isBlastActive" @change="autoSaveGatewayConfig()"
-                                        {{ $isBlastActive ? 'checked' : '' }}>
-                                    <div
-                                        class="w-11 h-6 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#34C759]">
-                                    </div>
-                                </label>
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Pilihan Jalur Siaran</label>
-                                <select name="blast_driver"
-                                    x-model="blastDriver" @change="autoSaveGatewayConfig()"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 font-medium transition-all">
-                                    <option value="meta_cloud" {{ $blastDriver === 'meta_cloud' ? 'selected' : '' }}>
-                                        Meta WhatsApp Cloud API (Resmi &amp; Sangat Stabil)
-                                    </option>
-                                    <option value="baileys" {{ $blastDriver === 'baileys' ? 'selected' : '' }}>
-                                        Scan QR Baileys (Server Lokal - Bebas Biaya Template)
-                                    </option>
-                                    <option value="disabled" {{ $blastDriver === 'disabled' ? 'selected' : '' }}>
-                                        Nonaktifkan Broadcast &amp; Pengingat Otomatis
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="flex items-start gap-2 text-[11.5px] text-black/50 dark:text-white/50 leading-relaxed">
-                                <i data-lucide="info" class="w-3.5 h-3.5 text-[#FF9500] shrink-0 mt-0.5"></i>
-                                <span>Sistem telah menerapkan jeda pengiriman cerdas beberapa detik antar pesan agar pengiriman berjalan alami.</span>
-                            </div>
+                            <p class="text-[12.5px] text-black/60 dark:text-white/60 leading-relaxed max-w-2xl">
+                                Kanal resmi Meta WhatsApp Cloud API (Graph API v21.0) tingkat induk (Parent). Digunakan untuk pengiriman OTP otentikasi login, reset PIN, verifikasi akun, dan pengingat tagihan langganan SaaS.
+                            </p>
                         </div>
                     </div>
 
-                    {{-- PANDUAN LANGKAH-DEMI-LANGKAH SETUP META WHATSAPP CLOUD API --}}
-                    @include('partials.whatsapp-meta-setup-guide', ['mode' => 'admin'])
-
-                    {{-- Kredensial Meta WhatsApp Cloud API --}}
-                    <div
-                        class="p-5 sm:p-6 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] space-y-4">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div class="flex items-center gap-2.5">
-                                <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
-                                    <i data-lucide="cloud" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-[14px] font-bold text-black dark:text-white">Kredensial Meta WhatsApp Cloud API (Facebook Developers)</h4>
-                                    <p class="text-[11.5px] text-black/55 dark:text-white/55">Wajib diisi jika memilih driver Meta Cloud API untuk OTP atau Broadcast</p>
-                                </div>
-                            </div>
-                            <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener noreferrer"
-                                class="text-[12px] font-semibold text-[#007AFF] hover:underline inline-flex items-center gap-1 self-start sm:self-center">
-                                <span>Buka Meta Developer Portal</span>
-                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                            </a>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="md:col-span-2">
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <label
-                                        class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">Meta Permanent Access Token (System User Token)</label>
-                                    <button type="button" @click="showMetaToken = !showMetaToken"
-                                        class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
-                                        <span x-text="showMetaToken ? 'Sembunyikan' : 'Tampilkan Token'"></span>
-                                    </button>
-                                </div>
-                                <div class="relative">
-                                    <input :type="showMetaToken ? 'text' : 'password'" name="meta_token"
-                                        x-model="metaToken" placeholder="EAAG... (System User Token Meta Graph API)"
-                                        class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 pr-10 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                                    <button type="button" @click="showMetaToken = !showMetaToken"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
-                                        <i data-lucide="eye" class="w-4 h-4" x-show="!showMetaToken"></i>
-                                        <i data-lucide="eye-off" class="w-4 h-4" x-show="showMetaToken"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Phone Number ID</label>
-                                <input type="text" name="meta_phone_number_id" x-model="metaPhoneId"
-                                    placeholder="Contoh: 104523984712398"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">WhatsApp Business Account ID (WABA ID)</label>
-                                <input type="text" name="meta_waba_id" x-model="metaWabaId"
-                                    placeholder="Contoh: 109283746501928"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nama Template OTP Meta (Opsional)</label>
-                                <input type="text" name="meta_otp_template"
-                                    value="{{ $metaCreds['otp_template'] ?: 'cooca_otp' }}" placeholder="cooca_otp"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                            </div>
-
-                            <div class="flex items-center">
-                                <div
-                                    class="p-3 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.05] text-[11.5px] text-black/65 dark:text-white/65 leading-relaxed w-full flex items-start gap-2">
-                                    <i data-lucide="sparkles" class="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5"></i>
-                                    <span><strong>Kuota Gratis:</strong> 1.000 Service Conversation per bulan gratis langsung dari Meta untuk setiap akun WABA.</span>
-                                </div>
-                            </div>
-
-                            {{-- Action Button: Test & Verify Meta Credentials --}}
-                            <div class="md:col-span-2 pt-1">
-                                <div
-                                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 shadow-sm">
-                                    <div>
-                                        <div class="text-[13px] font-bold text-black dark:text-white">Uji &amp; Verifikasi Kredensial Meta</div>
-                                        <div class="text-[11.5px] text-black/55 dark:text-white/55">Hubungkan ke Meta Graph API untuk memeriksa validitas token dan status nomor telepon resmi</div>
-                                    </div>
-                                    <button type="button" @click="verifyMetaCredentials()" :disabled="metaVerifyLoading"
-                                        class="min-h-[40px] px-4 rounded-[10px] text-[12px] font-bold bg-[#007AFF]/12 hover:bg-[#007AFF]/20 text-[#007AFF] active:scale-[0.98] transition-all inline-flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50">
-                                        <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" x-show="metaVerifyLoading"></i>
-                                        <i data-lucide="shield-check" class="w-3.5 h-3.5" x-show="!metaVerifyLoading"></i>
-                                        <span x-text="metaVerifyLoading ? 'Memeriksa ke Meta...' : 'Uji Validitas Token Meta'"></span>
-                                    </button>
-                                </div>
-
-                                {{-- Live Verification Result Card --}}
-                                <div x-show="metaVerifyResult" x-transition
-                                    class="mt-3 p-4 rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/30 text-[12.5px] text-[#248A3D] dark:text-[#30D158] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                                    <div class="flex items-center gap-2.5">
-                                        <div
-                                            class="w-8 h-8 rounded-full bg-[#34C759] text-white flex items-center justify-center shrink-0">
-                                            <i data-lucide="check" class="w-4 h-4"></i>
-                                        </div>
-                                        <div>
-                                            <div class="font-bold text-[13px]">Kredensial Meta Valid &amp; Siap Digunakan!</div>
-                                            <div class="text-[11.5px] opacity-85">
-                                                Nama Bisnis: <strong x-text="metaVerifyResult?.verified_name || 'Terverifikasi'"></strong> |
-                                                No: <span class="font-mono" x-text="metaVerifyResult?.display_phone_number || metaPhoneId"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <span
-                                        class="text-[11px] font-semibold text-[#248A3D] dark:text-[#30D158] self-start sm:self-center uppercase tracking-wider"
-                                        x-text="'Kualitas: ' + (metaVerifyResult?.quality_rating || 'GREEN')"></span>
-                                </div>
-
-                                {{-- Verification Error Card --}}
-                                <div x-show="metaVerifyError" x-transition
-                                    class="mt-3 p-4 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12.5px] text-[#C41E17] dark:text-[#FF453A] flex items-start gap-2.5">
-                                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
-                                    <div>
-                                        <div class="font-bold text-[13px]">Verifikasi Kredensial Meta Gagal:</div>
-                                        <div class="text-[12px] opacity-90 mt-0.5" x-text="metaVerifyError"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <button type="submit"
-                            class="min-h-[48px] px-7 rounded-[14px] text-[14px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] shadow-sm transition-all inline-flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4"></i>
-                            <span>Simpan</span>
+                    <div class="flex items-center gap-2.5 shrink-0 self-stretch sm:self-auto">
+                        <button type="button" @click="checkStatus()" :disabled="isLoading"
+                            class="min-h-[44px] px-4 rounded-[12px] text-[12.5px] font-bold bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 w-full sm:w-auto">
+                            <i data-lucide="refresh-cw" class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''"></i>
+                            <span>Cek Status Meta</span>
                         </button>
                     </div>
-                </form>
+                </div>
+
+                {{-- Status Pills Grid --}}
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Nama Akun Bisnis</span>
+                        <div class="text-[13.5px] sm:text-[14px] font-bold text-black dark:text-white truncate" x-text="metaVerifyResult?.verified_name || '{{ $waStatus['verified_name'] ?? 'Cooca Platform' }}'">
+                            {{ $waStatus['verified_name'] ?? 'Cooca Platform' }}
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Nomor Telepon Bot</span>
+                        <div class="text-[13.5px] sm:text-[14px] font-bold font-mono text-black dark:text-white truncate" x-text="phone ? '+' + phone : '{{ $waStatus['display_phone'] ?? '-' }}'">
+                            {{ $waStatus['display_phone'] ?? '-' }}
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Kualitas Nomor</span>
+                        <div class="text-[13.5px] sm:text-[14px] font-bold text-[#248A3D] dark:text-[#30D158] flex items-center gap-1.5 truncate">
+                            <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
+                            <span x-text="metaVerifyResult?.quality_rating || '{{ $waStatus['quality_rating'] ?? 'GREEN' }}'">
+                                {{ $waStatus['quality_rating'] ?? 'GREEN' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Limit Kuota Harian</span>
+                        <div class="text-[13.5px] sm:text-[14px] font-bold text-black dark:text-white truncate" x-text="metaVerifyResult?.messaging_tier || '{{ $waStatus['messaging_tier'] ?? 'TIER_1K' }}'">
+                            {{ $waStatus['messaging_tier'] ?? 'TIER_1K' }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {{-- 3. SAMBUNGKAN WHATSAPP (SCAN QR) & MULTI-DEVICE POOL --}}
-            <div class="space-y-5">
+            {{-- FORM PENGATURAN PLATFORM & KREDENSIAL META WHATSAPP --}}
+            <form method="POST" action="{{ route('admin.whatsapp.config') }}" class="space-y-6">
+                @csrf
 
-                {{-- Section Header --}}
+                {{-- 2. META TECH PROVIDER & EMBEDDED SIGNUP (OFFICIAL INTEGRATION) --}}
                 <div
-                    class="rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="flex items-center gap-3.5">
+                    class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5 w-full min-w-0">
+                    <div class="flex items-center gap-3.5 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
                         <div
-                            class="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white flex items-center justify-center shadow-md shadow-[#25D366]/20 shrink-0">
-                            <i data-lucide="qr-code" class="w-6 h-6"></i>
+                            class="w-10 h-10 sm:w-11 sm:h-11 rounded-[14px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center shrink-0">
+                            <i data-lucide="webhook" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Sambungkan WhatsApp (Scan QR)</h2>
-                            <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">Hubungkan nomor WhatsApp via scan barcode untuk pesan pengingat dan siaran</p>
+                            <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
+                                Meta Tech Provider &amp; Webhook Terpadu
+                            </h3>
+                            <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
+                                Konfigurasi Meta App untuk Embedded Signup merchant dan endpoint penerimaan webhook status pesan
+                            </p>
                         </div>
                     </div>
 
-                    {{-- Action Button: Tambah Nomor Baru --}}
-                    <div class="flex items-center gap-2.5 shrink-0">
-                        <button type="button"
-                            @click="showNewSessionModal = true; newSessionName = 'Nomor WhatsApp Admin ' + (sessions.length + 1);"
-                            class="min-h-[44px] px-5 rounded-[14px] text-[13px] font-bold bg-[#25D366] hover:bg-[#1EBE5D] text-white shadow-sm active:scale-[0.98] transition-all inline-flex items-center gap-2">
-                            <i data-lucide="plus" class="w-4 h-4"></i>
-                            <span>Tambah Nomor</span>
-                        </button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                        {{-- Meta App ID --}}
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                    Meta App ID (META_WA_APP_ID)
+                                </label>
+                                <span class="text-[11px] text-black/40 dark:text-white/40 font-medium">Meta Developers Portal</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="text" name="meta_app_id" x-model="metaAppId"
+                                    placeholder="Contoh: 104829384729182"
+                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                                <template x-if="metaAppId">
+                                    <button type="button" @click="copyToClipboard(metaAppId, 'App ID')"
+                                        class="px-3 min-h-[46px] rounded-[12px] bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-black/10 text-[11.5px] font-medium shrink-0 inline-flex items-center gap-1.5 transition-all">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                        <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        {{-- Meta App Secret --}}
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                    Meta App Secret (META_WA_APP_SECRET)
+                                </label>
+                                <span class="text-[11px] text-[#248A3D] dark:text-[#30D158] font-bold">Auto-Encrypted</span>
+                            </div>
+                            <div class="relative">
+                                <input :type="showMetaAppSecret ? 'text' : 'password'" name="meta_app_secret"
+                                    x-model="metaAppSecret" placeholder="App Secret dari App Settings > Basic"
+                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 pr-10 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                                <button type="button" @click="showMetaAppSecret = !showMetaAppSecret"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                                    <i data-lucide="eye" class="w-4 h-4" x-show="!showMetaAppSecret"></i>
+                                    <i data-lucide="eye-off" class="w-4 h-4" x-show="showMetaAppSecret"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Embedded Signup Config ID --}}
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                    Embedded Signup Config ID (META_WA_CONFIG_ID)
+                                </label>
+                                <span class="text-[11px] text-black/40 dark:text-white/40 font-medium">WhatsApp Login Config</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="text" name="meta_config_id" x-model="metaConfigId"
+                                    placeholder="Contoh: 893472910482938"
+                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                                <template x-if="metaConfigId">
+                                    <button type="button" @click="copyToClipboard(metaConfigId, 'Config ID')"
+                                        class="px-3 min-h-[46px] rounded-[12px] bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-black/10 text-[11.5px] font-medium shrink-0 inline-flex items-center gap-1.5 transition-all">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                        <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        {{-- Webhook Verify Token --}}
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                    Webhook Verify Token (META_WA_WEBHOOK_VERIFY_TOKEN)
+                                </label>
+                                <span class="text-[11px] text-black/40 dark:text-white/40 font-medium">Custom Secret String</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="text" name="meta_webhook_verify_token" x-model="metaWebhookVerifyToken"
+                                    placeholder="cooca_meta_wa_webhook_secret"
+                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                                <template x-if="metaWebhookVerifyToken">
+                                    <button type="button" @click="copyToClipboard(metaWebhookVerifyToken, 'Verify Token')"
+                                        class="px-3 min-h-[46px] rounded-[12px] bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-black/10 text-[11.5px] font-medium shrink-0 inline-flex items-center gap-1.5 transition-all">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                        <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        {{-- Graph API Version --}}
+                        <div class="space-y-1.5">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                Graph API Version (META_WA_GRAPH_VERSION)
+                            </label>
+                            <input type="text" name="meta_graph_version" x-model="metaGraphVersion"
+                                placeholder="v21.0"
+                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                        </div>
+
+                        {{-- Graph API Base URL --}}
+                        <div class="space-y-1.5">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                Graph API Base URL (META_WA_GRAPH_URL)
+                            </label>
+                            <input type="text" name="meta_graph_url" x-model="metaGraphUrl"
+                                placeholder="https://graph.facebook.com"
+                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                        </div>
+
+                        {{-- Webhook Callback URL (Readonly Endpoint) --}}
+                        <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] space-y-2 md:col-span-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">Webhook Callback URL (Meta Webhook Endpoint)</span>
+                                <span class="text-[11px] text-[#248A3D] dark:text-[#30D158] font-bold">HMAC-SHA256 Verified</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 bg-white dark:bg-[#2C2C2E] p-2.5 rounded-[12px] border border-black/10 dark:border-white/10">
+                                <code class="text-[12px] sm:text-[12.5px] font-mono text-black dark:text-white break-all">{{ $platformApp['webhook_url'] }}</code>
+                                <button type="button" @click="copyToClipboard('{{ $platformApp['webhook_url'] }}', 'Webhook URL')"
+                                    class="px-3 py-1.5 rounded-[10px] bg-[#007AFF] text-white hover:bg-[#0071E3] text-[12px] font-bold shrink-0 inline-flex items-center gap-1.5 active:scale-[0.98] transition-all">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    <span>Salin URL</span>
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-black/45 dark:text-white/45">
+                                Tempelkan URL di atas pada dashboard Meta App di menu <strong>WhatsApp &gt; Configuration &gt; Callback URL</strong>, lalu isi <strong>Verify Token</strong> sesuai nilai di atas.
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Banner Edukasi: Rotasi Acak Otomatis (Anti-Blokir) --}}
+                {{-- 3. KREDENSIAL BOT INDUK PLATFORM META (PARENT CREDENTIALS) --}}
                 <div
-                    class="rounded-[20px] p-4 sm:p-5 bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex items-start gap-3.5">
-                    <div
-                        class="w-9 h-9 rounded-[12px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5 shadow-inner">
-                        <i data-lucide="shuffle" class="w-4 h-4"></i>
+                    class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
+                    <div class="flex items-center gap-3.5 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+                        <div
+                            class="w-10 h-10 sm:w-11 sm:h-11 rounded-[14px] bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center shrink-0">
+                            <i data-lucide="key" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
+                                Kredensial Bot Induk Platform Meta
+                            </h3>
+                            <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
+                                Kredensial System User Token resmi untuk eksekusi API otentikasi OTP dan pengingat tagihan langganan SaaS
+                            </p>
+                        </div>
                     </div>
-                    <div class="text-[12.5px] leading-relaxed text-black/75 dark:text-white/75 space-y-1">
-                        <div class="font-bold text-black dark:text-white">Rotasi Acak Otomatis (Sistem Multi-Device Anti-Blokir)</div>
-                        <p>
-                            Ketika menggunakan server Baileys lokal, setiap pesan OTP keamanan, broadcast siaran promosi,
-                            atau invoice pengingat langganan akan <strong>dikirim secara acak dari nomor-nomor WhatsApp yang
-                                sedang aktif terhubung</strong> di bawah. Menghubungkan beberapa nomor WhatsApp sekaligus
-                            akan membagi rata volume pengiriman dan melindungi akun bisnis Anda dari pemblokiran.
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                        {{-- Meta Permanent Access Token --}}
+                        <div class="space-y-1.5 md:col-span-2">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                    Meta System User Permanent Access Token (META_WA_TOKEN)
+                                </label>
+                                <span class="text-[11px] text-[#248A3D] dark:text-[#30D158] font-bold">Auto-Encrypted</span>
+                            </div>
+                            <div class="relative">
+                                <input :type="showMetaToken ? 'text' : 'password'" name="meta_token"
+                                    x-model="metaToken" placeholder="EAAG... (System User Token Meta Graph API)"
+                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 pr-10 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                                <button type="button" @click="showMetaToken = !showMetaToken"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                                    <i data-lucide="eye" class="w-4 h-4" x-show="!showMetaToken"></i>
+                                    <i data-lucide="eye-off" class="w-4 h-4" x-show="showMetaToken"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Phone Number ID --}}
+                        <div class="space-y-1.5">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                Phone Number ID (META_WA_PHONE_NUMBER_ID)
+                            </label>
+                            <input type="text" name="meta_phone_number_id" x-model="metaPhoneId"
+                                placeholder="Contoh: 104523984712398"
+                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                        </div>
+
+                        {{-- WABA ID --}}
+                        <div class="space-y-1.5">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                WhatsApp Business Account ID / WABA ID (META_WA_WABA_ID)
+                            </label>
+                            <input type="text" name="meta_waba_id" x-model="metaWabaId"
+                                placeholder="Contoh: 109283746501928"
+                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                        </div>
+
+                        {{-- Template OTP --}}
+                        <div class="space-y-1.5">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
+                                Nama Template OTP Meta (META_WA_OTP_TEMPLATE)
+                            </label>
+                            <input type="text" name="meta_otp_template"
+                                value="{{ $metaCreds['otp_template'] ?: 'cooca_otp' }}" placeholder="cooca_otp"
+                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                        </div>
+
+                        {{-- Free Tier Info Box --}}
+                        <div class="flex items-center">
+                            <div
+                                class="p-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.05] text-[11.5px] text-black/65 dark:text-white/65 leading-relaxed w-full flex items-start gap-2.5">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5"></i>
+                                <span><strong>Kuota Gratis Meta:</strong> Setiap akun WABA menerima 1.000 Service Conversation gratis per bulan langsung dari Meta.</span>
+                            </div>
+                        </div>
+
+                        {{-- Verification Action Block --}}
+                        <div class="md:col-span-2 pt-1">
+                            <div
+                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 shadow-sm">
+                                <div>
+                                    <div class="text-[13px] font-bold text-black dark:text-white">Uji &amp; Verifikasi Token Meta Graph API</div>
+                                    <div class="text-[11.5px] text-black/55 dark:text-white/55">Hubungi server Meta secara langsung untuk memvalidasi token dan mengecek status nomor telepon</div>
+                                </div>
+                                <button type="button" @click="verifyMetaCredentials()" :disabled="metaVerifyLoading"
+                                    class="min-h-[40px] px-4 rounded-[10px] text-[12px] font-bold bg-[#007AFF]/12 hover:bg-[#007AFF]/20 text-[#007AFF] active:scale-[0.98] transition-all inline-flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50">
+                                    <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" x-show="metaVerifyLoading"></i>
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5" x-show="!metaVerifyLoading"></i>
+                                    <span x-text="metaVerifyLoading ? 'Memeriksa ke Meta...' : 'Uji Validitas Token Meta'"></span>
+                                </button>
+                            </div>
+
+                            {{-- Verification Success Card --}}
+                            <div x-show="metaVerifyResult" x-transition
+                                class="mt-3 p-4 rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/30 text-[12.5px] text-[#248A3D] dark:text-[#30D158] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-[#34C759] text-white flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-[13px]">Kredensial Meta Graph API Valid &amp; Siap Digunakan</div>
+                                        <div class="text-[11.5px] opacity-85">
+                                            Nama Bisnis: <strong x-text="metaVerifyResult?.verified_name || 'Terverifikasi'"></strong> |
+                                            No: <span class="font-mono" x-text="metaVerifyResult?.display_phone_number || metaPhoneId"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span
+                                    class="text-[11px] font-semibold text-[#248A3D] dark:text-[#30D158] self-start sm:self-center uppercase tracking-wider"
+                                    x-text="'Kualitas: ' + (metaVerifyResult?.quality_rating || 'GREEN')"></span>
+                            </div>
+
+                            {{-- Verification Error Card --}}
+                            <div x-show="metaVerifyError" x-transition
+                                class="mt-3 p-4 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12.5px] text-[#C41E17] dark:text-[#FF453A] flex items-start gap-2.5">
+                                <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <div class="font-bold text-[13px]">Verifikasi Kredensial Meta Gagal:</div>
+                                    <div class="text-[12px] opacity-90 mt-0.5" x-text="metaVerifyError"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
+                        <button type="submit"
+                            class="min-h-[48px] px-8 rounded-[14px] text-[13.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] shadow-sm transition-all inline-flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4"></i>
+                            <span>Simpan Konfigurasi &amp; Kredensial Platform</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {{-- 4. CARD UJI KIRIM PESAN (LIVE DIAGNOSTIC) --}}
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5 w-full min-w-0">
+                <div class="flex items-center gap-3.5 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+                    <div
+                        class="w-10 h-10 sm:w-11 sm:h-11 rounded-[14px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
+                            Uji Kirim Pesan Langsung (Live Diagnostic)
+                        </h3>
+                        <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
+                            Kirim pesan uji coba langsung melalui Bot Meta WhatsApp Cloud API resmi untuk memvalidasi respon gateway
                         </p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
-                    {{-- Kolom Kiri: Daftar Nomor WhatsApp (Multi-Session Bento Cards) (7 Kolom) --}}
-                    <div class="lg:col-span-7 space-y-4">
-
-                        {{-- Empty State jika belum ada nomor terhubung sama sekali --}}
-                        <div x-show="connectedSessionsCount === 0 && (!sessions.length || (sessions.length === 1 && sessions[0].status === 'disconnected'))"
-                            class="rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm p-8 sm:p-10 text-center space-y-5">
-                            <div
-                                class="w-18 h-18 sm:w-20 sm:h-20 rounded-[24px] bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center mx-auto text-black/30 dark:text-white/30 shadow-inner">
-                                <i data-lucide="smartphone" class="w-9 h-9 sm:w-10 sm:h-10"></i>
-                            </div>
-                            <div class="max-w-md mx-auto">
-                                <h3 class="text-black dark:text-white font-bold text-[18px]">WhatsApp Admin Belum Terhubung</h3>
-                                <p class="text-black/55 dark:text-white/55 text-[13px] mt-1.5 leading-relaxed">Mulai sesi baru untuk menampilkan kode QR dan menghubungkan nomor WhatsApp resmi Cooca.</p>
-                            </div>
-                            <button type="button" @click="startDefaultSession()" :disabled="isLoading"
-                                class="min-h-[48px] px-8 rounded-[16px] text-[15px] font-bold text-white bg-[#25D366] hover:bg-[#1EBE5D] active:scale-[0.98] shadow-[0_6px_20px_rgba(37,211,102,0.35)] inline-flex items-center gap-2.5 transition-all">
-                                <i data-lucide="loader-2" class="w-5 h-5 animate-spin" x-show="isLoading"></i>
-                                <i data-lucide="qr-code" class="w-5 h-5" x-show="!isLoading"></i>
-                                <span
-                                    x-text="isLoading ? 'Menghubungkan ke Gateway WA...' : 'Mulai & Tampilkan Kode QR'">Mulai &amp; Tampilkan Kode QR</span>
-                            </button>
-                        </div>
-
-                        {{-- Daftar Nomor WhatsApp (Multi-Session Cards) --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <template x-for="(s, idx) in sessions" :key="s.session_id">
-                                <div
-                                    class="rounded-[20px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.07] dark:border-white/[0.08] p-4 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
-                                    <div>
-                                        <div class="flex items-start justify-between gap-2.5">
-                                            <div class="flex items-center gap-2.5 min-w-0">
-                                                <div class="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 shadow-inner"
-                                                    :class="s.status === 'connected' ? 'bg-[#34C759]/15 text-[#34C759]' : (s
-                                                        .status === 'scan_qr' ? 'bg-[#FF9500]/15 text-[#FF9500]' :
-                                                        'bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40'
-                                                        )">
-                                                    <i data-lucide="smartphone" class="w-5 h-5"></i>
-                                                </div>
-                                                <div class="min-w-0">
-                                                    <div class="text-[13.5px] font-bold text-black dark:text-white truncate"
-                                                        x-text="s.name || ('Nomor Admin ' + (idx + 1))"></div>
-                                                    <div class="text-[11px] font-mono text-black/50 dark:text-white/50 truncate"
-                                                        x-text="s.session_id"></div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Status Badge --}}
-                                            <div class="shrink-0">
-                                                <template x-if="s.status === 'connected'">
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
-                                                        <span>Terhubung</span>
-                                                    </span>
-                                                </template>
-                                                <template x-if="s.status === 'scan_qr'">
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/25">
-                                                        <span>Pindai QR</span>
-                                                    </span>
-                                                </template>
-                                                <template x-if="s.status !== 'connected' && s.status !== 'scan_qr'">
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 border border-black/10 dark:border-white/10">
-                                                        <span>Terputus</span>
-                                                    </span>
-                                                </template>
-                                            </div>
-                                        </div>
-
-                                        {{-- Nomor Telepon --}}
-                                        <div
-                                            class="mt-3.5 p-3 rounded-[13px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.05] flex items-center justify-between gap-2">
-                                            <div>
-                                                <div
-                                                    class="text-[10px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45">Nomor Ponsel WhatsApp</div>
-                                                <div class="text-[14px] font-bold font-mono text-black dark:text-white mt-0.5"
-                                                    x-text="s.phone_number ? '+' + s.phone_number : (s.status === 'connected' ? 'Aktif' : 'Belum Tersambung')">
-                                                </div>
-                                            </div>
-                                            <template x-if="s.status === 'connected'">
-                                                <i data-lucide="check-circle-2" class="w-5 h-5 text-[#34C759] shrink-0"></i>
-                                            </template>
-                                        </div>
-
-                                        {{-- Toggle Ikut Pool Acak --}}
-                                        <div class="mt-2.5 flex items-center justify-between text-[11.5px] px-1">
-                                            <span class="text-black/65 dark:text-white/65 font-medium">Ikut Acak Kirim (Pool)</span>
-                                            <button type="button" @click="toggleSessionPool(s.session_id)"
-                                                class="text-[11px] font-bold px-2 py-0.5 rounded-[8px] transition-all"
-                                                :class="s.is_active ? 'bg-[#007AFF]/12 text-[#007AFF]' :
-                                                    'bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40'">
-                                                <span x-text="s.is_active ? 'Aktif di Pool' : 'Dikecualikan'"></span>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {{-- Aksi Bawah --}}
-                                    <div
-                                        class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-2">
-                                        <div>
-                                            <template x-if="s.status !== 'connected'">
-                                                <button type="button" @click="openScanModal(s)"
-                                                    class="min-h-[38px] px-3.5 rounded-[10px] text-[12px] font-bold bg-[#25D366] hover:bg-[#1EBE5D] text-white active:scale-[0.98] transition-all inline-flex items-center gap-1.5 shadow-sm">
-                                                    <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
-                                                    <span>Pindai QR</span>
-                                                </button>
-                                            </template>
-                                            <template x-if="s.status === 'connected'">
-                                                <button type="button" @click="confirmDisconnectTarget(s)"
-                                                    class="min-h-[38px] px-3 rounded-[10px] text-[12px] font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 active:scale-[0.98] transition-all inline-flex items-center gap-1">
-                                                    <i data-lucide="unplug" class="w-3.5 h-3.5"></i>
-                                                    <span>Putus</span>
-                                                </button>
-                                            </template>
-                                        </div>
-
-                                        <template x-if="sessions.length > 1">
-                                            <button type="button" @click="deleteTarget(s)" title="Hapus Nomor Ini"
-                                                class="w-9 h-9 rounded-[10px] text-black/40 dark:text-white/40 hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-all flex items-center justify-center">
-                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                            </button>
-                                        </template>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                    <div>
+                        <label
+                            class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nomor Ponsel Tujuan</label>
+                        <input x-model="testPhone" type="tel"
+                            placeholder="Contoh: 081234567890 atau 6281234567890"
+                            class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition-all">
                     </div>
 
-                    {{-- Kolom Kanan: Panduan 3 Langkah & Form Uji Kirim (5 Kolom) --}}
-                    <div class="lg:col-span-5 space-y-5 sm:space-y-6">
+                    <div>
+                        <label
+                            class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Isi Pesan Uji Coba</label>
+                        <textarea x-model="testMessage" rows="2" placeholder="Pesan tes..."
+                            class="w-full bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] p-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition-all resize-none"></textarea>
+                    </div>
 
-                        {{-- Card Panduan 3 Langkah Ramah Boomer --}}
-                        <div
-                            class="rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm p-5 sm:p-6 space-y-4">
-                            <div class="flex items-center gap-2.5 text-black dark:text-white font-bold text-[15px]">
-                                <i data-lucide="help-circle" class="w-5 h-5 text-[#007AFF]"></i>
-                                <span>Cara Menghubungkan WhatsApp</span>
-                            </div>
-                            <div class="space-y-3 text-[13px]">
-                                <div
-                                    class="flex items-start gap-3 p-3 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04]">
-                                    <span
-                                        class="w-6 h-6 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-[11px] shrink-0">1</span>
-                                    <div class="text-black/75 dark:text-white/75">Buka aplikasi <strong>WhatsApp</strong> di ponsel resmi admin Cooca.</div>
-                                </div>
-                                <div
-                                    class="flex items-start gap-3 p-3 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04]">
-                                    <span
-                                        class="w-6 h-6 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-[11px] shrink-0">2</span>
-                                    <div class="text-black/75 dark:text-white/75">Ketuk ikon titik tiga (Android) atau <strong>Pengaturan</strong> (iPhone) &gt; pilih <strong>Perangkat Tertaut</strong>.</div>
-                                </div>
-                                <div
-                                    class="flex items-start gap-3 p-3 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04]">
-                                    <span
-                                        class="w-6 h-6 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-[11px] shrink-0">3</span>
-                                    <div class="text-black/75 dark:text-white/75">Ketuk <strong>Tautkan Perangkat</strong>, lalu arahkan kamera ponsel ke <strong>Kode Barcode QR</strong> yang muncul di layar.</div>
-                                </div>
-                            </div>
+                    <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                        <div class="flex-1 min-w-0">
+                            <div x-show="testResult" class="p-3.5 rounded-[12px] text-[12px] font-medium"
+                                :class="testOk ?
+                                    'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' :
+                                    'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/20'"
+                                x-text="testResult"></div>
                         </div>
-
-                        {{-- Card Uji Kirim Pesan --}}
-                        <div
-                            class="rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm p-5 sm:p-6 space-y-4">
-                            <div>
-                                <h3 class="text-[15px] font-bold text-black dark:text-white flex items-center gap-2">
-                                    <i data-lucide="send" class="w-4 h-4 text-[#25D366]"></i>
-                                    <span>Uji Kirim Pesan (Live Diagnostic)</span>
-                                </h3>
-                                <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">Kirimkan pesan percobaan untuk memastikan bot merespons dengan lancar</p>
-                            </div>
-
-                            <div class="space-y-3">
-                                <div>
-                                    <label
-                                        class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nomor Ponsel Tujuan</label>
-                                    <input x-model="testPhone" type="tel"
-                                        placeholder="Contoh: 081234567890 atau 6281234567890"
-                                        class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 transition-all">
-                                </div>
-
-                                <div>
-                                    <label
-                                        class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Isi Pesan Uji Coba</label>
-                                    <textarea x-model="testMessage" rows="3" placeholder="Pesan tes..."
-                                        class="w-full bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] p-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 transition-all resize-none"></textarea>
-                                </div>
-
-                                <button type="button" @click="sendTest()"
-                                    :disabled="testLoading || (status !== 'connected' && otpDriver !== 'meta_cloud' &&
-                                        blastDriver !== 'meta_cloud')"
-                                    class="w-full min-h-[48px] rounded-[14px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-sm">
-                                    <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="testLoading"></i>
-                                    <i data-lucide="send" class="w-4 h-4" x-show="!testLoading"></i>
-                                    <span x-text="testLoading ? 'Mengirim pesan tes...' : 'Kirim'"></span>
-                                </button>
-
-                                <div x-show="testResult" class="p-3.5 rounded-[12px] text-[12px] font-medium"
-                                    :class="testOk ?
-                                        'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' :
-                                        'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/20'"
-                                    x-text="testResult"></div>
-                            </div>
-                        </div>
-
+                        <button type="button" @click="sendTest()"
+                            :disabled="testLoading || !testPhone.trim() || !testMessage.trim()"
+                            class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#2DB34F] disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-sm shrink-0">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="testLoading"></i>
+                            <i data-lucide="send" class="w-4 h-4" x-show="!testLoading"></i>
+                            <span x-text="testLoading ? 'Mengirim pesan tes...' : 'Kirim Pesan Tes'"></span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1071,18 +916,7 @@
                     </div>
 
                     {{-- Driver Active Indicator & Warning --}}
-                    @if ($blastDriver === 'baileys')
-                        <div
-                            class="p-3.5 rounded-[14px] bg-[#007AFF]/8 border border-[#007AFF]/20 text-[12px] text-black/75 dark:text-white/75 space-y-1">
-                            <div class="flex items-center gap-1.5 font-bold text-[#007AFF]">
-                                <i data-lucide="zap" class="w-4 h-4"></i>
-                                <span>Gateway Scan QR Baileys Aktif</span>
-                            </div>
-                            <p class="text-[11.5px] leading-relaxed">
-                                Pesan broadcast dikirim secara bertahap dengan jeda cerdas di latar belakang untuk menjaga keandalan pengiriman.
-                            </p>
-                        </div>
-                    @elseif ($blastDriver === 'meta_cloud')
+                    @if ($isBlastActive && ($liveStatus === 'connected' || !empty($metaCreds['token'])))
                         <div
                             class="p-3.5 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 text-[12px] text-[#248A3D] dark:text-[#30D158] space-y-1">
                             <div class="flex items-center gap-1.5 font-bold">
@@ -1096,7 +930,7 @@
                     @else
                         <div
                             class="p-3.5 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12px] text-[#C41E17] dark:text-[#FF453A]">
-                            <strong>Kanal Broadcast Nonaktif:</strong> Aktifkan jalur broadcast di tab Status &amp; Sesi QR terlebih dahulu.
+                            <strong>Kanal Broadcast Belum Siap:</strong> Konfigurasi Token dan Phone Number ID Meta di tab Pengaturan Induk terlebih dahulu.
                         </div>
                     @endif
 
@@ -1401,199 +1235,144 @@
         </div>
 
         {{-- ========================================================================= --}}
-        {{-- MODAL SCAN BARCODE QR (MULTI-SESSION REAL-TIME SCANNER - APPLE BOTTOM SHEET) --}}
+        {{-- TAB 5: MONITORING MERCHANT WABA (PLATFORM PARENT OVERSIGHT)               --}}
         {{-- ========================================================================= --}}
-        <div x-show="showQrModal" x-cloak
-            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/65 backdrop-blur-md"
-            x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-            <div @click.away="closeQrModal()"
-                class="w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[28px] shadow-2xl border border-black/10 dark:border-white/10 p-5 sm:p-7 space-y-4 max-h-[92vh] overflow-y-auto">
+        <div x-show="activeTab === 'merchants'" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+            class="space-y-6 w-full min-w-0">
 
-                {{-- Mobile Drag Handle Bar --}}
-                <div class="w-12 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto -mt-1 mb-2 sm:hidden"></div>
-
-                {{-- Modal Header --}}
-                <div
-                    class="flex items-center justify-between pb-3.5 border-b border-black/[0.06] dark:border-white/[0.08]">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-[#25D366]/15 text-[#1A7341] dark:text-[#30D158] flex items-center justify-center shrink-0">
-                            <i data-lucide="qr-code" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-[16px] font-bold text-black dark:text-white"
-                                x-text="modalSession?.name || 'Pindai Kode QR WhatsApp'"></h3>
-                            <p class="text-[12px] text-black/50 dark:text-white/50"
-                                x-text="modalSession?.session_id ? 'ID Sesi: ' + modalSession.session_id : 'Gateway Baileys Lokal'">
-                            </p>
-                        </div>
+            {{-- Header Card --}}
+            <div
+                class="p-5 sm:p-6 rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full min-w-0">
+                <div class="flex items-center gap-3.5">
+                    <div
+                        class="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] bg-gradient-to-br from-[#1877F2] to-[#007AFF] text-white flex items-center justify-center shadow-md shadow-[#1877F2]/20 shrink-0">
+                        <i data-lucide="store" class="w-6 h-6"></i>
                     </div>
-                    <button type="button" @click="closeQrModal()"
-                        class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/15 transition-all flex items-center justify-center">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-
-                {{-- Modal Body: QR Scanner Display --}}
-                <div class="text-center space-y-4 py-1">
-                    {{-- State 1: Connected --}}
-                    <div x-show="modalStatus === 'connected'" class="py-6 space-y-3">
-                        <div
-                            class="w-16 h-16 rounded-full bg-[#34C759]/20 text-[#34C759] flex items-center justify-center mx-auto shadow-lg shadow-[#34C759]/20">
-                            <i data-lucide="check" class="w-8 h-8"></i>
-                        </div>
-                        <h4 class="text-[18px] font-bold text-black dark:text-white">WhatsApp Berhasil Terhubung!</h4>
-                        <p class="text-[13px] text-black/60 dark:text-white/60 max-w-sm mx-auto">
-                            Nomor telah aktif dan langsung dimasukkan ke dalam rotasi acak pesan sistem.
-                        </p>
-                        <button type="button" @click="closeQrModal()"
-                            class="mt-2 min-h-[44px] px-6 rounded-[12px] text-[13px] font-bold bg-[#34C759] text-white hover:bg-[#2EB14F] shadow-sm transition-all">
-                            Selesai &amp; Tutup
-                        </button>
-                    </div>
-
-                    {{-- State 2: Scan QR Display --}}
-                    <div x-show="modalStatus !== 'connected'">
-                        <div class="flex justify-center my-2">
-                            <div x-show="modalLoading && !modalQrDataUrl"
-                                class="w-64 h-64 rounded-[22px] bg-black/[0.03] dark:bg-white/[0.05] border border-dashed border-black/15 dark:border-white/20 flex flex-col items-center justify-center gap-3">
-                                <i data-lucide="loader-2" class="w-8 h-8 text-[#25D366] animate-spin"></i>
-                                <span class="text-[12.5px] text-black/50 dark:text-white/50 font-medium">Meminta kode QR dari gateway...</span>
-                            </div>
-                            <div x-show="modalQrDataUrl" class="space-y-2">
-                                <div
-                                    class="bg-white p-4 rounded-[24px] shadow-[0_16px_36px_rgba(0,0,0,0.14)] border border-black/10 transition-all inline-block">
-                                    <img :src="modalQrDataUrl" alt="WhatsApp QR Code"
-                                        class="w-56 h-56 rounded-[14px] block mx-auto">
-                                </div>
-                                <div>
-                                    <button type="button" @click="refreshSessionQr(modalSession?.session_id)"
-                                        class="px-3.5 py-1.5 rounded-[10px] text-[11.5px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-all inline-flex items-center gap-1.5">
-                                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                                        <span>Segarkan Kode QR</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Petunjuk Singkat 3 Langkah --}}
-                        <div
-                            class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] text-left text-[12px] space-y-1.5 border border-black/[0.04] dark:border-white/[0.06]">
-                            <div class="font-bold text-black dark:text-white">Petunjuk Hubungkan WhatsApp:</div>
-                            <p class="text-black/65 dark:text-white/65">1. Buka <strong>WhatsApp</strong> di HP Anda &gt; Menu Titik Tiga / Pengaturan</p>
-                            <p class="text-black/65 dark:text-white/65">2. Pilih <strong>Perangkat Tertaut</strong> &gt; <strong>Tautkan Perangkat</strong></p>
-                            <p class="text-black/65 dark:text-white/65">3. Arahkan kamera ke kode barcode di atas. Sistem otomatis mendeteksi koneksi!</p>
-                        </div>
-
-                        <div class="flex items-center justify-center gap-2.5 pt-2">
-                            <button type="button" @click="fetchSessionQr(modalSession?.session_id)"
-                                :disabled="modalLoading"
-                                class="min-h-[42px] px-4 rounded-[12px] text-[12px] font-semibold bg-black/[0.06] dark:bg-white/[0.1] text-black/80 dark:text-white/80 hover:bg-black/[0.09] dark:hover:bg-white/[0.15] transition-all inline-flex items-center gap-1.5">
-                                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" x-show="modalLoading"></i>
-                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5" x-show="!modalLoading"></i>
-                                <span>Segarkan Barcode QR</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ========================================================================= --}}
-        {{-- MODAL TAMBAH NOMOR WHATSAPP BARU (APPLE BOTTOM SHEET)                    --}}
-        {{-- ========================================================================= --}}
-        <div x-show="showNewSessionModal" x-cloak
-            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/65 backdrop-blur-md"
-            x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-            <div @click.away="showNewSessionModal = false"
-                class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[26px] shadow-2xl border border-black/10 dark:border-white/10 p-5 sm:p-6 space-y-4">
-
-                {{-- Mobile Drag Handle Bar --}}
-                <div class="w-12 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto -mt-1 mb-2 sm:hidden"></div>
-
-                <div class="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
-                    <div class="flex items-center gap-2.5">
-                        <div
-                            class="w-9 h-9 rounded-[12px] bg-[#25D366]/15 text-[#1A7341] dark:text-[#30D158] flex items-center justify-center shrink-0">
-                            <i data-lucide="plus" class="w-5 h-5"></i>
-                        </div>
-                        <h3 class="text-[16px] font-bold text-black dark:text-white">Tambah Nomor WhatsApp</h3>
-                    </div>
-                    <button type="button" @click="showNewSessionModal = false"
-                        class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/15 transition-all flex items-center justify-center">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-
-                <div class="space-y-3">
-                    <p class="text-[12.5px] text-black/60 dark:text-white/60 leading-relaxed">
-                        Beri nama pengenal untuk nomor ini agar mudah dibedakan (misal: <em>WA Admin CS 2</em> atau <em>Nomor Blast Promosi</em>).
-                    </p>
                     <div>
-                        <label
-                            class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nama Perangkat / Label</label>
-                        <input type="text" x-model="newSessionName" placeholder="Contoh: Nomor WhatsApp Admin 2"
-                            class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 transition-all">
+                        <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Monitoring Akun WhatsApp Merchant</h2>
+                        <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
+                            Pengawasan sentral seluruh akun WhatsApp Business resmi (WABA) merchant yang terhubung melalui Embedded Signup
+                        </p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 pt-2">
-                    <button type="button" @click="showNewSessionModal = false"
-                        class="w-1/2 min-h-[46px] rounded-[12px] text-[13px] font-semibold bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white hover:bg-black/[0.09] transition-all">
-                        Batal
-                    </button>
-                    <button type="button" @click="createSessionSubmit()" :disabled="creatingSession"
-                        class="w-1/2 min-h-[46px] rounded-[12px] text-[13px] font-bold bg-[#25D366] hover:bg-[#1EBE5D] text-white active:scale-[0.98] transition-all inline-flex items-center justify-center gap-1.5 disabled:opacity-50 shadow-sm">
-                        <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="creatingSession"></i>
-                        <i data-lucide="qr-code" class="w-4 h-4" x-show="!creatingSession"></i>
-                        <span x-text="creatingSession ? 'Membuat Sesi...' : 'Lanjut Scan QR'"></span>
-                    </button>
+                <div class="flex items-center gap-2">
+                    <span class="px-3.5 py-1.5 rounded-[12px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] text-[12px] font-bold border border-[#34C759]/20 tabular-nums">
+                        {{ $activeMerchantsCount }} Akun Aktif
+                    </span>
+                </div>
+            </div>
+
+            {{-- 4 Metric Cards --}}
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
+                    <span class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider block">Total Merchant</span>
+                    <div class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tabular-nums">
+                        {{ $merchantSummary['total'] ?? 0 }}
+                    </div>
+                </div>
+                <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
+                    <span class="text-[11px] font-semibold text-[#248A3D] dark:text-[#30D158] uppercase tracking-wider block">Terhubung Aktif</span>
+                    <div class="text-[20px] sm:text-[24px] font-bold text-[#248A3D] dark:text-[#30D158] tabular-nums">
+                        {{ $merchantSummary['connected'] ?? 0 }}
+                    </div>
+                </div>
+                <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
+                    <span class="text-[11px] font-semibold text-[#007AFF] uppercase tracking-wider block">Akun Mode Live</span>
+                    <div class="text-[20px] sm:text-[24px] font-bold text-[#007AFF] tabular-nums">
+                        {{ $merchantSummary['live_count'] ?? 0 }}
+                    </div>
+                </div>
+                <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
+                    <span class="text-[11px] font-semibold text-[#FF9500] uppercase tracking-wider block">Sandbox / Draft</span>
+                    <div class="text-[20px] sm:text-[24px] font-bold text-[#FF9500] tabular-nums">
+                        {{ $merchantSummary['sandbox_count'] ?? 0 }}
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bento Table: Merchant Accounts --}}
+            <div class="rounded-[22px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                    <h3 class="text-[15px] font-bold text-black dark:text-white">Daftar Akun WhatsApp Merchant</h3>
+                    <span class="text-[12px] text-black/50 dark:text-white/50 tabular-nums">Menampilkan {{ count($merchantSummary['accounts'] ?? []) }} akun</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[13px]">
+                        <thead>
+                            <tr class="bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/[0.06] dark:border-white/[0.08] text-black/50 dark:text-white/50 text-[11px] font-bold uppercase tracking-wider">
+                                <th class="py-3 px-4 sm:px-6">Nama Bisnis &amp; Pemilik</th>
+                                <th class="py-3 px-4">Nomor WhatsApp</th>
+                                <th class="py-3 px-4">WABA ID / Phone ID</th>
+                                <th class="py-3 px-4 text-center">Status</th>
+                                <th class="py-3 px-4 text-center">Mode</th>
+                                <th class="py-3 px-4 sm:px-6 text-right">Terhubung Sejak</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-black/[0.06] dark:divide-white/[0.08]">
+                            @forelse ($merchantSummary['accounts'] ?? [] as $acc)
+                                <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
+                                    <td class="py-3.5 px-4 sm:px-6">
+                                        <div class="font-bold text-black dark:text-white">{{ $acc->business->name ?? 'Bisnis #' . $acc->business_id }}</div>
+                                        <div class="text-[11.5px] text-black/50 dark:text-white/50">{{ $acc->business->owner->name ?? '-' }} ({{ $acc->business->owner->email ?? '-' }})</div>
+                                    </td>
+                                    <td class="py-3.5 px-4">
+                                        <div class="font-mono font-medium text-black dark:text-white">{{ $acc->display_phone_number ?: ($acc->phone_number ? '+' . $acc->phone_number : '-') }}</div>
+                                        <div class="text-[11px] text-black/40 dark:text-white/40">{{ $acc->verified_name ?: 'Nama Belum Terverifikasi' }}</div>
+                                    </td>
+                                    <td class="py-3.5 px-4 font-mono text-[11.5px] text-black/70 dark:text-white/70">
+                                        <div>WABA: {{ $acc->waba_id ?: '-' }}</div>
+                                        <div>PID: {{ $acc->phone_number_id ?: '-' }}</div>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center">
+                                        @if ($acc->status === 'connected')
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                                <span>Aktif</span>
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50">
+                                                <span>{{ ucfirst($acc->status) }}</span>
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center">
+                                        @if ($acc->environment === 'live')
+                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/12 text-[#007AFF]">Live</span>
+                                        @else
+                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">Sandbox</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3.5 px-4 sm:px-6 text-right text-black/50 dark:text-white/50 text-[12px] tabular-nums">
+                                        {{ $acc->created_at ? $acc->created_at->isoFormat('D MMM Y, HH:mm') : '-' }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-12 text-center text-black/45 dark:text-white/45">
+                                        <div class="w-12 h-12 rounded-[16px] bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40 flex items-center justify-center mx-auto mb-3">
+                                            <i data-lucide="store" class="w-6 h-6"></i>
+                                        </div>
+                                        <div class="text-[14px] font-bold text-black dark:text-white">Belum Ada Merchant Terhubung</div>
+                                        <p class="text-[12px] text-black/50 dark:text-white/50 max-w-sm mx-auto mt-1">
+                                            Merchant dapat menghubungkan akun WhatsApp resmi toko mereka secara mandiri melalui menu WhatsApp di dashboard pemilik toko.
+                                        </p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        {{-- MODAL KONFIRMASI PUTUS SESI (APPLE BOTTOM SHEET) --}}
-        <div x-show="confirmDisconnect" x-cloak
-            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100">
-            <div @click.away="confirmDisconnect = false"
-                class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] shadow-2xl border border-black/10 dark:border-white/10 p-5 sm:p-6 space-y-4">
-
-                {{-- Mobile Drag Handle Bar --}}
-                <div class="w-12 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto -mt-1 mb-2 sm:hidden"></div>
-
-                <div
-                    class="w-12 h-12 rounded-[16px] bg-[#FF3B30]/15 text-[#FF3B30] flex items-center justify-center mx-auto">
-                    <i data-lucide="unplug" class="w-6 h-6"></i>
-                </div>
-                <div class="text-center">
-                    <h3 class="text-[17px] font-bold text-black dark:text-white">Putus Sesi WhatsApp Admin?</h3>
-                    <p class="text-[13px] text-black/60 dark:text-white/60 mt-1.5"
-                        x-text="sessionToDisconnect ? 'Anda akan memutus koneksi sesi ' + (sessionToDisconnect.name || sessionToDisconnect.session_id) + '.' : 'Setelah sesi diputus, pengiriman pesan otomatis akan dialihkan ke nomor lain yang aktif.'">
-                    </p>
-                </div>
-                <div
-                    class="p-3.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] text-[12px] text-black/60 dark:text-white/60 flex items-center gap-2">
-                    <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
-                    <span>Tenang: Riwayat pesan terkirim dan template Anda tetap aman tersimpan.</span>
-                </div>
-
-                <div class="flex items-center gap-3 pt-2">
-                    <button type="button" @click="confirmDisconnect = false"
-                        class="w-1/2 min-h-[46px] rounded-[12px] text-[13px] font-semibold bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white hover:bg-black/[0.09] transition-all">
-                        Batal
-                    </button>
-                    <button type="button" @click="confirmDisconnect = false; disconnectTargetSession();"
-                        class="w-1/2 min-h-[46px] rounded-[12px] text-[13px] font-bold bg-[#FF3B30] text-white hover:bg-[#E02B20] transition-all shadow-sm">
-                        Putus Sesi
-                    </button>
-                </div>
-            </div>
+        {{-- Toast Notifikasi Salin Kredensial --}}
+        <div x-show="copyToast" x-cloak x-transition
+            class="fixed bottom-6 right-6 z-50 p-4 rounded-[16px] bg-black/90 dark:bg-white/95 text-white dark:text-black shadow-2xl flex items-center gap-2.5 text-[13px] font-bold">
+            <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759]"></i>
+            <span x-text="copyToastMessage"></span>
         </div>
 
     </div>
@@ -1605,47 +1384,32 @@
                     activeTab: @json($initialTab),
                     status: @json($liveStatus ?? 'disconnected'),
                     phone: @json($initialPhone),
-                    qrDataUrl: @json($qrDataUrl ?? null),
                     isLoading: false,
-                    pollTimer: null,
-                    confirmDisconnect: false,
-                    sessionToDisconnect: null,
                     blastMessage: '',
 
-                    // Multi-Session Pool
-                    sessions: @json($adminSessions ?? []),
-                    showQrModal: false,
-                    modalSession: null,
-                    modalQrDataUrl: null,
-                    modalStatus: 'disconnected',
-                    modalLoading: false,
-                    modalError: null,
-                    modalPollTimer: null,
-                    showNewSessionModal: false,
-                    newSessionName: '',
-                    creatingSession: false,
-
                     testPhone: '',
-                    testMessage: 'Pesan uji coba resmi dari WhatsApp Admin Gateway Cooca Platform.',
+                    testMessage: 'Pesan uji coba resmi dari WhatsApp Platform Cooca.',
                     testLoading: false,
                     testResult: '',
                     testOk: false,
 
-                    // Dual Gateway Configuration & Auto-Save
-                    otpDriver: @json($otpDriver ?? 'baileys'),
-                    blastDriver: @json($blastDriver ?? 'baileys'),
-                    isOtpActive: @json((bool) $isOtpActive),
-                    isBlastActive: @json((bool) $isBlastActive),
-                    gatewaySaving: false,
-                    gatewaySavedToast: false,
-
                     metaToken: @json($metaCreds['token'] ?? ''),
                     metaPhoneId: @json($metaCreds['phone_number_id'] ?? ''),
                     metaWabaId: @json($metaCreds['waba_id'] ?? ''),
+                    metaAppId: @json($platformApp['app_id'] ?? ''),
+                    metaAppSecret: @json($platformApp['app_secret'] ?? ''),
+                    metaConfigId: @json($platformApp['config_id'] ?? ''),
+                    metaWebhookVerifyToken: @json($platformApp['webhook_verify_token'] ?? ''),
+                    metaGraphVersion: @json($platformApp['graph_version'] ?? 'v21.0'),
+                    metaGraphUrl: @json($platformApp['graph_url'] ?? 'https://graph.facebook.com'),
                     showMetaToken: false,
+                    showMetaAppSecret: false,
                     metaVerifyLoading: false,
                     metaVerifyResult: null,
                     metaVerifyError: null,
+
+                    copyToast: false,
+                    copyToastMessage: '',
 
                     refreshIcons() {
                         this.$nextTick(() => {
@@ -1655,48 +1419,17 @@
                         });
                     },
 
-                    async autoSaveGatewayConfig() {
-                        this.gatewaySaving = true;
-                        try {
-                            const form = document.getElementById('gatewayConfigForm');
-                            const bodyObj = {
-                                otp_driver: this.otpDriver,
-                                blast_driver: this.blastDriver,
-                                otp_active: this.isOtpActive ? 1 : 0,
-                                blast_active: this.isBlastActive ? 1 : 0,
-                                meta_token: this.metaToken,
-                                meta_phone_number_id: this.metaPhoneId,
-                                meta_waba_id: this.metaWabaId,
-                                meta_otp_template: form?.querySelector('[name=meta_otp_template]')?.value || 'cooca_otp'
-                            };
-
-                            const response = await fetch('{{ route('admin.whatsapp.config') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                                },
-                                body: JSON.stringify(bodyObj)
-                            });
-
-                            const data = await response.json();
-                            if (data.success) {
-                                this.gatewaySavedToast = true;
-                                setTimeout(() => {
-                                    this.gatewaySavedToast = false;
-                                }, 3000);
-                            }
-                        } catch (e) {
-                            // Silent fail with fallback to manual save button
-                        } finally {
-                            this.gatewaySaving = false;
-                            this.refreshIcons();
-                        }
-                    },
-
-                    get connectedSessionsCount() {
-                        return (this.sessions || []).filter(s => s.status === 'connected').length;
+                    copyToClipboard(text, label) {
+                        if (!text) return;
+                        navigator.clipboard.writeText(text).then(() => {
+                            this.copyToastMessage = label + ' berhasil disalin ke clipboard';
+                            this.copyToast = true;
+                            setTimeout(() => {
+                                this.copyToast = false;
+                            }, 3000);
+                        }).catch(() => {
+                            prompt('Salin manual:', text);
+                        });
                     },
 
                     async verifyMetaCredentials() {
@@ -1725,6 +1458,10 @@
                             const data = await response.json();
                             if (response.ok && data.success) {
                                 this.metaVerifyResult = data.data;
+                                this.status = 'connected';
+                                if (data.data.display_phone_number) {
+                                    this.phone = data.data.display_phone_number;
+                                }
                             } else {
                                 this.metaVerifyError = data.error || 'Gagal memverifikasi akun Meta Graph API.';
                             }
@@ -1738,7 +1475,6 @@
 
                     init() {
                         this.checkStatus();
-                        this.fetchSessions();
                         this.refreshIcons();
                     },
 
@@ -1747,9 +1483,8 @@
                         const url = new URL(window.location.href);
                         url.searchParams.set('tab', tab);
                         window.history.replaceState({}, '', url);
-                        if (tab === 'connection') {
+                        if (tab === 'parent_setup') {
                             this.checkStatus();
-                            this.fetchSessions();
                         }
                         this.refreshIcons();
                     },
@@ -1767,6 +1502,7 @@
                     },
 
                     async checkStatus() {
+                        this.isLoading = true;
                         try {
                             const response = await fetch('{{ route('admin.whatsapp.status') }}', {
                                 headers: {
@@ -1778,279 +1514,16 @@
                         } catch (error) {
                             this.status = 'disconnected';
                         } finally {
+                            this.isLoading = false;
                             this.refreshIcons();
                         }
                     },
 
                     applyStatus(data) {
                         const rawStatus = String(data.status || '').toLowerCase();
-                        this.status = rawStatus === 'connected' ? 'connected' : (rawStatus === 'scan_qr' || data.qrDataUrl ?
-                            'scan_qr' : 'disconnected');
+                        this.status = rawStatus === 'connected' ? 'connected' : 'disconnected';
                         this.phone = data.phone || this.phone;
-                        if (data.qrDataUrl) {
-                            this.qrDataUrl = data.qrDataUrl;
-                        }
                         this.refreshIcons();
-                    },
-
-                    async fetchSessions() {
-                        try {
-                            const response = await fetch('{{ route('admin.whatsapp.sessions.index') }}', {
-                                headers: {
-                                    'Accept': 'application/json'
-                                }
-                            });
-                            const data = await response.json();
-                            if (data.success && Array.isArray(data.sessions)) {
-                                this.sessions = data.sessions;
-                            }
-                        } catch (e) {} finally {
-                            this.refreshIcons();
-                        }
-                    },
-
-                    async startDefaultSession() {
-                        let target = this.sessions[0];
-                        if (!target) {
-                            await this.createSessionSubmit('Nomor Admin Utama');
-                            return;
-                        }
-                        this.openScanModal(target);
-                    },
-
-                    async startSession() {
-                        // Backward-compatible for index button & tests
-                        await this.startDefaultSession();
-                    },
-
-                    async createSessionSubmit(customName = null) {
-                        const name = customName || this.newSessionName.trim() || ('Nomor WhatsApp Admin ' + (this.sessions
-                            .length + 1));
-                        this.creatingSession = true;
-                        try {
-                            const response = await fetch('{{ route('admin.whatsapp.sessions.store') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                                },
-                                body: JSON.stringify({
-                                    name
-                                })
-                            });
-                            const data = await response.json();
-                            if (data.success && data.session) {
-                                this.sessions.push(data.session);
-                                this.showNewSessionModal = false;
-                                this.newSessionName = '';
-                                this.openScanModal(data.session);
-                            } else {
-                                alert(data.error || 'Gagal menambahkan sesi nomor WhatsApp.');
-                            }
-                        } catch (e) {
-                            alert('Kesalahan jaringan saat membuat sesi WhatsApp.');
-                        } finally {
-                            this.creatingSession = false;
-                            this.refreshIcons();
-                        }
-                    },
-
-                    openScanModal(session) {
-                        this.modalSession = session;
-                        this.modalQrDataUrl = session.qr_data_url || null;
-                        this.modalStatus = session.status || 'scan_qr';
-                        this.modalLoading = !this.modalQrDataUrl;
-                        this.modalError = null;
-                        this.showQrModal = true;
-                        this.refreshIcons();
-
-                        // Pastikan session sudah di-start di wa-server
-                        fetch('{{ route('admin.whatsapp.start') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                            },
-                            body: JSON.stringify({ sessionId: session.session_id })
-                        }).catch(() => {});
-
-                        this.fetchSessionQr(session.session_id);
-                        this.startSessionPolling(session.session_id);
-                    },
-
-                    async fetchSessionQr(sessionId) {
-                        if (!sessionId) return;
-                        try {
-                            const response = await fetch(`/admin/whatsapp/sessions/${sessionId}/qr`, {
-                                headers: {
-                                    'Accept': 'application/json'
-                                }
-                            });
-                            const data = await response.json();
-                            if (data.qrDataUrl) {
-                                this.modalQrDataUrl = data.qrDataUrl;
-                                this.modalLoading = false;
-                            }
-                            if (data.status) {
-                                const raw = String(data.status).toLowerCase();
-                                this.modalStatus = raw === 'connected' ? 'connected' : (raw === 'scan_qr' ? 'scan_qr' :
-                                    'disconnected');
-
-                                // Update status di list sessions lokal
-                                const idx = this.sessions.findIndex(s => s.session_id === sessionId);
-                                if (idx !== -1) {
-                                    this.sessions[idx].status = this.modalStatus;
-                                    if (data.phone) {
-                                        this.sessions[idx].phone_number = data.phone;
-                                    }
-                                    if (data.qrDataUrl) {
-                                        this.sessions[idx].qr_data_url = data.qrDataUrl;
-                                    }
-                                }
-                                if (this.modalStatus === 'connected') {
-                                    this.status = 'connected';
-                                    this.modalLoading = false;
-                                    this.stopSessionPolling();
-                                }
-                            }
-                        } catch (e) {
-                            this.modalError = 'Gagal memuat barcode QR.';
-                        } finally {
-                            this.refreshIcons();
-                        }
-                    },
-
-                    async refreshSessionQr(sessionId) {
-                        if (!sessionId) return;
-                        this.modalLoading = true;
-                        this.modalQrDataUrl = null;
-                        try {
-                            await fetch('{{ route('admin.whatsapp.start') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                                },
-                                body: JSON.stringify({ sessionId })
-                            });
-                            await this.fetchSessionQr(sessionId);
-                        } catch (e) {
-                            this.modalError = 'Gagal menyegarkan kode QR.';
-                        } finally {
-                            this.refreshIcons();
-                        }
-                    },
-
-                    startSessionPolling(sessionId) {
-                        this.stopSessionPolling();
-                        this.modalPollTimer = setInterval(() => {
-                            this.fetchSessionQr(sessionId);
-                        }, 2500);
-                    },
-
-                    stopSessionPolling() {
-                        if (this.modalPollTimer) {
-                            clearInterval(this.modalPollTimer);
-                            this.modalPollTimer = null;
-                        }
-                    },
-
-                    closeQrModal() {
-                        this.showQrModal = false;
-                        this.stopSessionPolling();
-                        this.fetchSessions();
-                        this.checkStatus();
-                        this.refreshIcons();
-                    },
-
-                    confirmDisconnectTarget(session) {
-                        this.sessionToDisconnect = session;
-                        this.confirmDisconnect = true;
-                        this.refreshIcons();
-                    },
-
-                    async disconnectTargetSession() {
-                        const target = this.sessionToDisconnect || this.sessions[0];
-                        if (!target) return;
-
-                        try {
-                            await fetch(`/admin/whatsapp/sessions/${target.session_id}/disconnect`, {
-                                method: 'POST',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                                }
-                            });
-
-                            // Update lokal
-                            const idx = this.sessions.findIndex(s => s.session_id === target.session_id);
-                            if (idx !== -1) {
-                                this.sessions[idx].status = 'disconnected';
-                                this.sessions[idx].phone_number = null;
-                            }
-                            this.sessionToDisconnect = null;
-                            this.checkStatus();
-                        } catch (e) {
-                            alert('Gagal memutus sesi WhatsApp.');
-                        } finally {
-                            this.refreshIcons();
-                        }
-                    },
-
-                    async disconnectWa() {
-                        // Backward-compatible for existing tests & modals
-                        await this.disconnectTargetSession();
-                    },
-
-                    async deleteTarget(session) {
-                        if (!confirm(`Hapus nomor '${session.name || session.session_id}' dari daftar WhatsApp Admin?`)) {
-                            return;
-                        }
-
-                        try {
-                            const response = await fetch(`/admin/whatsapp/sessions/${session.session_id}`, {
-                                method: 'DELETE',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                                }
-                            });
-                            const data = await response.json();
-                            if (data.success) {
-                                this.sessions = this.sessions.filter(s => s.session_id !== session.session_id);
-                                this.checkStatus();
-                            } else {
-                                alert(data.error || 'Gagal menghapus nomor.');
-                            }
-                        } catch (e) {
-                            alert('Kesalahan jaringan saat menghapus nomor.');
-                        } finally {
-                            this.refreshIcons();
-                        }
-                    },
-
-                    async toggleSessionPool(sessionId) {
-                        try {
-                            const response = await fetch(`/admin/whatsapp/sessions/${sessionId}/toggle-active`, {
-                                method: 'POST',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                                }
-                            });
-                            const data = await response.json();
-                            if (data.success) {
-                                const idx = this.sessions.findIndex(s => s.session_id === sessionId);
-                                if (idx !== -1) {
-                                    this.sessions[idx].is_active = data.is_active;
-                                }
-                            }
-                        } catch (e) {} finally {
-                            this.refreshIcons();
-                        }
                     },
 
                     async sendTest() {
@@ -2077,7 +1550,7 @@
                             const data = await response.json();
                             this.testOk = response.ok && data.success === true;
                             this.testResult = this.testOk ? 'Pesan uji coba berhasil terkirim ke ponsel penerima!' : (
-                                'Gagal: ' + (data.error || 'Gateway WhatsApp tidak merespons.'));
+                                'Gagal: ' + (data.error || 'Gateway WhatsApp Meta tidak merespons.'));
                         } catch (error) {
                             this.testOk = false;
                             this.testResult = 'Terjadi kesalahan jaringan saat mengirimkan pesan.';
@@ -2111,4 +1584,5 @@
                 };
             }
         </script>
+    @endpush
 @endsection

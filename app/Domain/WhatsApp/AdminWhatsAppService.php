@@ -23,7 +23,7 @@ class AdminWhatsAppService
     public const ADMIN_SESSION_ID = 'admin_platform';
 
     public function __construct(
-        protected WhatsAppGatewayService $gateway,
+        protected ?WhatsAppGatewayService $gateway = null,
         protected ?MetaWhatsAppCloudDriver $metaDriver = null
     ) {
         $this->metaDriver = $metaDriver ?? app(MetaWhatsAppCloudDriver::class);
@@ -34,306 +34,152 @@ class AdminWhatsAppService
      */
     public function getSessionId(): string
     {
-        return config('services.wa_server.admin_session', self::ADMIN_SESSION_ID);
+        return self::ADMIN_SESSION_ID;
     }
 
     /**
-     * Create authenticated client with resilient timeout.
+     * Dapatkan ringkasan status bot WhatsApp resmi Platform Meta (Parent Gateway).
      */
-    protected function client(int $timeout = 25)
+    public function getStatus(?string $sessionId = null): array
     {
-        $token = config('services.wa_server.token', 'secret-worker-token');
+        $creds = $this->getMetaCredentials();
+        $token = $creds['token'];
+        $phoneId = $creds['phone_number_id'];
 
-        return Http::timeout($timeout)
-            ->retry(2, 600, throw: false)
-            ->withHeaders([
-                'Authorization'  => 'Bearer ' . $token,
-                'x-worker-token' => $token,
-                'Accept'         => 'application/json',
-            ]);
+        if (empty($token) || empty($phoneId)) {
+            return [
+                'status'               => 'disconnected',
+                'phone'                => null,
+                'verified_name'        => null,
+                'quality_rating'       => null,
+                'messaging_limit_tier' => null,
+            ];
+        }
+
+        try {
+            $verified = $this->metaDriver->verifyCredentials($token, $phoneId);
+            if ($verified['success'] ?? false) {
+                return [
+                    'status'               => 'connected',
+                    'phone'                => $verified['display_phone_number'] ?? null,
+                    'verified_name'        => $verified['verified_name'] ?? 'COOCA Official Platform',
+                    'quality_rating'       => $verified['quality_rating'] ?? 'GREEN',
+                    'messaging_limit_tier' => $verified['messaging_limit_tier'] ?? 'TIER_1K',
+                    'waba_id'              => $creds['waba_id'],
+                    'phone_number_id'      => $phoneId,
+                ];
+            }
+
+            return [
+                'status' => 'disconnected',
+                'phone'  => null,
+                'error'  => $verified['error'] ?? 'Gagal memvalidasi kredensial Meta.',
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('[AdminWA] getStatus error: ' . $e->getMessage());
+            return [
+                'status' => 'disconnected',
+                'phone'  => null,
+                'error'  => $e->getMessage(),
+            ];
+        }
     }
 
     /**
-     * Retrieve all configured WhatsApp Admin sessions.
-     * Auto-initializes default session if table is empty.
+     * Dapatkan ringkasan akun WhatsApp seluruh Merchant/Toko terhubung (Oversight).
+     */
+    public function getMerchantAccountsSummary(): array
+    {
+        $accounts = \App\Models\WhatsAppAccount::with(['business.owner'])->latest()->get();
+
+        return [
+            'total'           => $accounts->count(),
+            'connected'       => $accounts->where('status', 'connected')->count(),
+            'live_count'      => $accounts->where('status', 'connected')->count(),
+            'sandbox_count'   => $accounts->where('status', '!=', 'connected')->count(),
+            'accounts'        => $accounts,
+            'green_quality'   => $accounts->where('quality_rating', 'GREEN')->count(),
+            'recent_accounts' => $accounts->take(8),
+        ];
+    }
+
+    /**
+     * Retrieve all configured WhatsApp Admin sessions (stub for backward compatibility).
      *
      * @return \Illuminate\Support\Collection<int, WhatsAppAdminSession>
      */
     public function getSessions(): \Illuminate\Support\Collection
     {
-        $sessions = WhatsAppAdminSession::orderBy('id')->get();
-
-        if ($sessions->isEmpty()) {
-            $default = WhatsAppAdminSession::create([
-                'session_id' => $this->getSessionId(),
-                'name'       => 'Nomor Admin Utama',
-                'status'     => 'disconnected',
-                'is_active'  => true,
-            ]);
-
-            return collect([$default]);
-        }
-
-        return $sessions;
+        return collect([]);
     }
 
     /**
-     * Create a new Admin WhatsApp session in pool and trigger start.
-     */
-    public function createSession(?string $name = null, ?string $customSessionId = null): WhatsAppAdminSession
-    {
-        $count = WhatsAppAdminSession::count() + 1;
-        $sessionName = $name ?: "Nomor WhatsApp Admin {$count}";
-        $sessionId = $customSessionId ?: ('admin_wa_' . time() . '_' . strtolower(Str::random(4)));
-
-        $session = WhatsAppAdminSession::create([
-            'session_id' => $sessionId,
-            'name'       => $sessionName,
-            'status'     => 'scan_qr',
-            'is_active'  => true,
-        ]);
-
-        $this->startSession($sessionId);
-
-        return $session;
-    }
-
-    /**
-     * Start / trigger WhatsApp session for admin.
-     */
-    public function startSession(?string $sessionId = null): array
-    {
-        $sessionId = $sessionId ?: $this->getSessionId();
-        $baseUrl   = rtrim(config('services.wa_server.url', 'http://127.0.0.1:3000'), '/');
-
-        // Ensure record exists in DB
-        WhatsAppAdminSession::firstOrCreate(
-            ['session_id' => $sessionId],
-            ['name' => 'Nomor WhatsApp Admin', 'status' => 'scan_qr', 'is_active' => true]
-        );
-
-        try {
-            $response = $this->client(30)->post("{$baseUrl}/api/sessions/start", [
-                'sessionId'  => $sessionId,
-                'webhookUrl' => url('/api/wa/admin-webhook'),
-            ]);
-
-            WhatsAppAdminSession::where('session_id', $sessionId)->update([
-                'status'     => 'scan_qr',
-                'updated_at' => now(),
-            ]);
-
-            return $response->json() ?? [];
-        } catch (\Throwable $e) {
-            Log::error("[AdminWA] startSession error ({$sessionId}): " . $e->getMessage());
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Get QR code data URL and connection status for admin session.
+     * Compatibility stub for QR code.
      */
     public function getQrCode(?string $sessionId = null): array
     {
-        $sessionId = $sessionId ?: $this->getSessionId();
-        $baseUrl   = rtrim(config('services.wa_server.url', 'http://127.0.0.1:3000'), '/');
-
-        try {
-            $response = $this->client(15)->get("{$baseUrl}/api/sessions/{$sessionId}/qr");
-
-            if ($response->status() === 404) {
-                // Auto-start session on wa-server if not in active memory
-                $this->startSession($sessionId);
-                return ['success' => false, 'status' => 'scan_qr', 'qrDataUrl' => null];
-            }
-
-            $data = $response->json() ?? [];
-            if (!empty($data['qrDataUrl'])) {
-                WhatsAppAdminSession::where('session_id', $sessionId)->update([
-                    'qr_data_url' => $data['qrDataUrl'],
-                    'status'      => 'scan_qr',
-                    'updated_at'  => now(),
-                ]);
-            }
-
-            if (($data['status'] ?? null) === 'CONNECTED') {
-                WhatsAppAdminSession::where('session_id', $sessionId)->update([
-                    'status'            => 'connected',
-                    'last_connected_at' => now(),
-                    'updated_at'        => now(),
-                ]);
-            }
-
-            return $data;
-        } catch (\Throwable $e) {
-            return ['success' => false, 'status' => 'disconnected', 'qrDataUrl' => null, 'error' => $e->getMessage()];
-        }
+        return [
+            'success'   => false,
+            'status'    => 'disconnected',
+            'qrDataUrl' => null,
+            'message'   => 'Layanan Scan QR Baileys telah dinonaktifkan. Gunakan Meta WhatsApp Cloud API resmi.',
+        ];
     }
 
     /**
-     * Get live status of admin WhatsApp session (single or aggregated).
+     * Compatibility stub for startSession.
      */
-    public function getStatus(?string $sessionId = null): array
+    public function startSession(?string $sessionId = null): array
     {
-        $baseUrl = rtrim(config('services.wa_server.url', 'http://127.0.0.1:3000'), '/');
-
-        if ($sessionId !== null) {
-            try {
-                $response = $this->client(15)->get("{$baseUrl}/api/sessions/{$sessionId}/status");
-                $data = $response->json() ?? ['status' => 'disconnected'];
-
-                $status = strtolower($data['status'] ?? 'disconnected');
-                $phone  = $data['phone'] ?? ($data['user']['id'] ? explode(':', (string) $data['user']['id'])[0] : null);
-
-                $updateData = ['status' => $status, 'updated_at' => now()];
-                if ($phone) {
-                    $updateData['phone_number'] = $phone;
-                }
-                if ($status === 'connected') {
-                    $updateData['last_connected_at'] = now();
-                }
-
-                WhatsAppAdminSession::where('session_id', $sessionId)->update($updateData);
-
-                return [
-                    ...$data,
-                    'status' => $status,
-                    'phone'  => $phone,
-                ];
-            } catch (\Throwable) {
-                return ['status' => 'disconnected'];
-            }
-        }
-
-        // Single / Aggregate status for backward compatibility:
-        $targetSessionId = $this->getSessionId();
-        try {
-            $response = $this->client(15)->get("{$baseUrl}/api/sessions/{$targetSessionId}/status");
-            $data = $response->json() ?? ['status' => 'disconnected'];
-            $status = strtolower($data['status'] ?? 'disconnected');
-            $phone  = $data['phone'] ?? ($data['user']['id'] ? explode(':', (string) $data['user']['id'])[0] : null);
-
-            // Sync default record
-            $update = ['status' => $status, 'updated_at' => now()];
-            if ($phone) {
-                $update['phone_number'] = $phone;
-            }
-            if ($status === 'connected') {
-                $update['last_connected_at'] = now();
-            }
-            WhatsAppAdminSession::where('session_id', $targetSessionId)->update($update);
-
-            // If default is not connected, but another session is connected, show aggregate status connected
-            if ($status !== 'connected') {
-                $anyConnected = WhatsAppAdminSession::where('status', 'connected')->where('is_active', true)->first();
-                if ($anyConnected) {
-                    $status = 'connected';
-                    $phone  = $anyConnected->phone_number ?: $phone;
-                    $data['status'] = 'connected';
-                }
-            }
-
-            return [
-                ...$data,
-                'status' => $status,
-                'phone'  => $phone,
-            ];
-        } catch (\Throwable) {
-            $anyConnected = WhatsAppAdminSession::where('status', 'connected')->where('is_active', true)->first();
-            if ($anyConnected) {
-                return [
-                    'status' => 'connected',
-                    'phone'  => $anyConnected->phone_number,
-                ];
-            }
-            return ['status' => 'disconnected'];
-        }
+        return ['success' => false, 'error' => 'Sistem menggunakan Meta Cloud API resmi, tidak memerlukan scan QR.'];
     }
 
     /**
-     * Disconnect specific admin WhatsApp session.
+     * Disconnect specific admin WhatsApp session (stub).
      */
     public function disconnectSession(string $sessionId): void
     {
-        $baseUrl = rtrim(config('services.wa_server.url', 'http://127.0.0.1:3000'), '/');
-
-        try {
-            $this->client(15)->delete("{$baseUrl}/api/sessions/{$sessionId}");
-        } catch (\Throwable $e) {
-            Log::warning("[AdminWA] disconnectSession ({$sessionId}) error: " . $e->getMessage());
-        }
-
-        WhatsAppAdminSession::where('session_id', $sessionId)->update([
-            'status'            => 'disconnected',
-            'phone_number'      => null,
-            'qr_data_url'       => null,
-            'last_connected_at' => null,
-            'updated_at'        => now(),
-        ]);
+        // No-op in Meta Cloud API mode
     }
 
     /**
-     * Delete an admin WhatsApp session entirely.
+     * Delete an admin WhatsApp session entirely (stub).
      */
     public function deleteSession(string $sessionId): void
     {
-        $this->disconnectSession($sessionId);
-        WhatsAppAdminSession::where('session_id', $sessionId)->delete();
+        // No-op
     }
 
     /**
-     * Toggle session active status in random pool.
+     * Toggle session active status in random pool (stub).
      */
     public function toggleSessionActive(string $sessionId): bool
     {
-        $session = WhatsAppAdminSession::where('session_id', $sessionId)->first();
-        if ($session) {
-            $session->update(['is_active' => !$session->is_active]);
-            return (bool) $session->is_active;
-        }
-
         return false;
     }
 
     /**
-     * Get a random connected session ID for load balancing and anti-ban rotation.
-     */
-    public function getRandomConnectedSessionId(): string
-    {
-        $connectedSessions = WhatsAppAdminSession::where('status', 'connected')
-            ->where('is_active', true)
-            ->get();
-
-        if ($connectedSessions->isNotEmpty()) {
-            return $connectedSessions->random()->session_id;
-        }
-
-        return $this->getSessionId();
-    }
-
-    /**
-     * Disconnect admin WhatsApp session (default session or specific).
+     * Disconnect admin WhatsApp session (stub).
      */
     public function disconnect(?string $sessionId = null): void
     {
-        $sessionId = $sessionId ?: $this->getSessionId();
-        $this->disconnectSession($sessionId);
+        // No-op
     }
 
     /**
-     * Get active OTP gateway driver ('meta_cloud', 'baileys', 'disabled').
+     * Get active OTP gateway driver (Always Meta Cloud API).
      */
     public function getOtpDriver(): string
     {
-        return (string) SystemSetting::get('wa_otp_driver', env('WA_OTP_DRIVER', 'baileys'));
+        return 'meta_cloud';
     }
 
     /**
-     * Get active Blast gateway driver ('baileys', 'meta_cloud', 'disabled').
+     * Get active Blast gateway driver (Always Meta Cloud API).
      */
     public function getBlastDriver(): string
     {
-        return (string) SystemSetting::get('wa_blast_driver', env('WA_BLAST_DRIVER', 'baileys'));
+        return 'meta_cloud';
     }
 
     /**
@@ -341,7 +187,7 @@ class AdminWhatsAppService
      */
     public function isOtpActive(): bool
     {
-        return SystemSetting::get('wa_otp_active', '1') === '1' && $this->getOtpDriver() !== 'disabled';
+        return SystemSetting::get('wa_otp_active', '1') === '1';
     }
 
     /**
@@ -349,11 +195,11 @@ class AdminWhatsAppService
      */
     public function isBlastActive(): bool
     {
-        return SystemSetting::get('wa_blast_active', '1') === '1' && $this->getBlastDriver() !== 'disabled';
+        return SystemSetting::get('wa_blast_active', '1') === '1';
     }
 
     /**
-     * Get Meta WhatsApp Cloud API credentials.
+     * Get Meta WhatsApp Cloud API credentials for Platform Parent.
      */
     public function getMetaCredentials(): array
     {
@@ -366,23 +212,58 @@ class AdminWhatsAppService
     }
 
     /**
-     * Save dual gateway settings to system settings table.
+     * Get Meta WhatsApp Cloud API Platform App Settings (Official Tech Provider Integration).
+     */
+    public function getPlatformAppSettings(): array
+    {
+        return [
+            'app_id'               => (string) SystemSetting::get('meta_wa_app_id', config('services.meta_whatsapp.app_id', '')),
+            'app_secret'           => (string) SystemSetting::get('meta_wa_app_secret', config('services.meta_whatsapp.app_secret', '')),
+            'webhook_verify_token' => (string) SystemSetting::get('meta_wa_webhook_verify_token', config('services.meta_whatsapp.webhook_verify_token', 'cooca_meta_wa_webhook_secret')),
+            'config_id'            => (string) SystemSetting::get('meta_wa_config_id', config('services.meta_whatsapp.config_id', '')),
+            'graph_version'        => (string) SystemSetting::get('meta_wa_graph_version', config('services.meta_whatsapp.version', 'v21.0')),
+            'graph_url'            => (string) SystemSetting::get('meta_wa_graph_url', config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com')),
+            'webhook_url'          => url('/api/v1/wa/meta/webhook'),
+        ];
+    }
+
+    /**
+     * Save platform Meta WhatsApp gateway settings to system settings table.
      */
     public function saveGatewaySettings(array $settings): void
     {
-        if (isset($settings['otp_driver'])) {
-            SystemSetting::set('wa_otp_driver', (string) $settings['otp_driver'], 'whatsapp');
-        }
-        if (isset($settings['blast_driver'])) {
-            SystemSetting::set('wa_blast_driver', (string) $settings['blast_driver'], 'whatsapp');
-        }
+        SystemSetting::set('wa_otp_driver', 'meta_cloud', 'whatsapp');
+        SystemSetting::set('wa_blast_driver', 'meta_cloud', 'whatsapp');
+
         if (isset($settings['otp_active'])) {
             SystemSetting::set('wa_otp_active', $settings['otp_active'] ? '1' : '0', 'whatsapp');
         }
         if (isset($settings['blast_active'])) {
             SystemSetting::set('wa_blast_active', $settings['blast_active'] ? '1' : '0', 'whatsapp');
         }
-        if (isset($settings['meta_token'])) {
+
+        // Platform App Settings (Tech Provider)
+        if (isset($settings['meta_app_id'])) {
+            SystemSetting::set('meta_wa_app_id', (string) $settings['meta_app_id'], 'whatsapp');
+        }
+        if (isset($settings['meta_app_secret']) && $settings['meta_app_secret'] !== '') {
+            SystemSetting::set('meta_wa_app_secret', (string) $settings['meta_app_secret'], 'whatsapp', true);
+        }
+        if (isset($settings['meta_webhook_verify_token'])) {
+            SystemSetting::set('meta_wa_webhook_verify_token', (string) $settings['meta_webhook_verify_token'], 'whatsapp');
+        }
+        if (isset($settings['meta_config_id'])) {
+            SystemSetting::set('meta_wa_config_id', (string) $settings['meta_config_id'], 'whatsapp');
+        }
+        if (isset($settings['meta_graph_version'])) {
+            SystemSetting::set('meta_wa_graph_version', (string) $settings['meta_graph_version'], 'whatsapp');
+        }
+        if (isset($settings['meta_graph_url'])) {
+            SystemSetting::set('meta_wa_graph_url', (string) $settings['meta_graph_url'], 'whatsapp');
+        }
+
+        // Parent Bot Gateway Credentials
+        if (isset($settings['meta_token']) && $settings['meta_token'] !== '') {
             SystemSetting::set('meta_wa_token', (string) $settings['meta_token'], 'whatsapp', true);
         }
         if (isset($settings['meta_phone_number_id'])) {
@@ -397,7 +278,7 @@ class AdminWhatsAppService
     }
 
     /**
-     * Send Authentication OTP via configured driver (Meta Cloud API or Baileys).
+     * Send Authentication OTP via official Meta Cloud API Platform.
      */
     public function sendOtp(string $phone, string $otpCode): array
     {
@@ -409,41 +290,56 @@ class AdminWhatsAppService
             ];
         }
 
-        $driver = $this->getOtpDriver();
+        $client = \App\Domain\WhatsApp\CloudApi\WhatsAppClient::forPlatform();
+        $creds  = $this->getMetaCredentials();
+        $template = $creds['otp_template'] ?: 'cooca_otp';
 
-        if ($driver === 'meta_cloud') {
-            $creds = $this->getMetaCredentials();
+        if ($client) {
+            return $client->sendOtpTemplate($phone, $otpCode, $template);
+        }
+
+        if (!empty($creds['token']) && !empty($creds['phone_number_id'])) {
             return $this->metaDriver->sendOtp(
                 $phone,
                 $otpCode,
-                $creds['otp_template'] ?: 'cooca_otp',
-                $creds['token'] ?: null,
-                $creds['phone_number_id'] ?: null
+                $template,
+                $creds['token'],
+                $creds['phone_number_id']
             );
         }
 
-        // Default Baileys Gateway (Pilih nomor acak dari pool WA admin terhubung)
-        $message = "Kode OTP keamanan Cooca Anda adalah *{$otpCode}*. Kode ini berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.";
-        return $this->sendMessage($phone, $message, ['driver' => 'baileys']);
+        return [
+            'success' => false,
+            'error'   => 'Kredensial Meta WhatsApp Cloud API Platform belum dikonfigurasi.',
+        ];
     }
 
     /**
-     * Send message using the official Admin WhatsApp session (Baileys or Meta Cloud).
+     * Send message using the official Admin Platform WhatsApp session (Meta Cloud API).
      */
     public function sendMessage(string $phone, string $message, array $options = []): array
     {
-        $driver = $options['driver'] ?? $this->getBlastDriver();
-        if ($driver === 'meta_cloud') {
-            $creds = $this->getMetaCredentials();
-            if (!empty($creds['token']) && !empty($creds['phone_number_id'])) {
-                return $this->metaDriver->sendTextMessage($phone, $message, $creds['token'], $creds['phone_number_id']);
+        $client = \App\Domain\WhatsApp\CloudApi\WhatsAppClient::forPlatform();
+
+        if ($client) {
+            if (!empty($options['media_url']) || !empty($options['url'])) {
+                $url  = $options['media_url'] ?? $options['url'];
+                $type = $options['type'] ?? 'image';
+                return $client->sendMediaMessage($phone, $type, $url, $message);
             }
+
+            return $client->sendTextMessage($phone, $message);
         }
 
-        // Driver Baileys: pilih session ID acak dari nomor-nomor yang sedang aktif terhubung
-        $sessionId = $options['session_id'] ?? $this->getRandomConnectedSessionId();
+        $creds = $this->getMetaCredentials();
+        if (!empty($creds['token']) && !empty($creds['phone_number_id'])) {
+            return $this->metaDriver->sendTextMessage($phone, $message, $creds['token'], $creds['phone_number_id']);
+        }
 
-        return $this->gateway->sendRawMessage($sessionId, $phone, $message, $options);
+        return [
+            'success' => false,
+            'error'   => 'Kredensial Meta WhatsApp Cloud API Platform belum lengkap.',
+        ];
     }
 
     /**
@@ -717,21 +613,12 @@ class AdminWhatsAppService
                 ],
                 $blast->message
             );
-
-            if ($driver === 'meta_cloud') {
-                $result = $this->metaDriver->sendTextMessage(
-                    $phone,
-                    $message,
-                    $creds['token'] ?: null,
-                    $creds['phone_number_id'] ?: null
-                );
-            } else {
-                $options = [];
-                if ($blast->media_url) {
-                    $options['url'] = $blast->media_url;
-                }
-                $result = $this->sendMessage($phone, $message, $options);
+            $options = [];
+            if ($blast->media_url) {
+                $options['media_url'] = $blast->media_url;
+                $options['type']      = 'image';
             }
+            $result = $this->sendMessage($phone, $message, $options);
 
             $ok = $result['success'] ?? false;
 

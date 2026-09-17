@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 pb-28 lg:pb-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+    <div class="space-y-6 pb-28 sm:pb-32 lg:pb-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
 
         {{-- FLASH MESSAGES --}}
         @if (session('success'))
@@ -163,9 +163,17 @@
             @forelse($orders as $order)
                 <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="font-mono font-bold text-[14px] text-black dark:text-white">
-                            #{{ $order->order_number }}
-                        </span>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="font-mono font-bold text-[14px] text-black dark:text-white">
+                                #{{ $order->order_number }}
+                            </span>
+                            @if ($order->groupOrder)
+                                <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#AF52DE]/10 text-[#AF52DE] border border-[#AF52DE]/20 inline-flex items-center gap-1">
+                                    <i data-lucide="users" class="w-3 h-3"></i>
+                                    <span>Pesan Bareng</span>
+                                </span>
+                            @endif
+                        </div>
                         @if ($order->status === 'proof_submitted')
                             <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
                                 Perlu Verifikasi
@@ -257,10 +265,18 @@
                         @forelse($orders as $order)
                             <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition">
                                 <td class="py-3.5 px-4 font-mono font-semibold text-black dark:text-white">
-                                    <a href="{{ route('storefront.orders.show', $order) }}"
-                                        class="text-[#007AFF] hover:underline">
-                                        #{{ $order->order_number }}
-                                    </a>
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('storefront.orders.show', $order) }}"
+                                            class="text-[#007AFF] hover:underline">
+                                            #{{ $order->order_number }}
+                                        </a>
+                                        @if ($order->groupOrder)
+                                            <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#AF52DE]/10 text-[#AF52DE] border border-[#AF52DE]/20 inline-flex items-center gap-1" title="Pesanan Bersama / Group Order: {{ $order->groupOrder->title }}">
+                                                <i data-lucide="users" class="w-3 h-3"></i>
+                                                <span>Pesan Bareng</span>
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <div class="font-semibold text-black dark:text-white leading-tight">

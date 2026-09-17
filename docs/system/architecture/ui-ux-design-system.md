@@ -46,9 +46,10 @@ Pada perangkat mobile dan tablet ringkas (`md:hidden`), navigasi bawah disajikan
 ### Rationale & Manfaat:
 1. **Zero Navigation Jumps**: Pengguna Boomer tidak tersesat atau panik kehilangan konteks tabel.
 2. **Preservasi State 100%**: Kata kunci pencarian, filter status, filter kategori, dan nomor pagination tetap aktif di latar belakang tanpa reload.
-3. **Adaptasi Bentuk Modal**:
-   - **Desktop**: Mengambang di tengah layar (*Centered Modal Dialog* `max-w-lg` atau `max-w-2xl rounded-[24px]`) dengan backdrop blur lembut `bg-black/35 backdrop-blur-sm`.
-   - **Mobile**: Muncul sebagai **Bottom Sheet** yang meluncur dari bawah (`rounded-t-[26px]`) dilengkapi *grabber handle bar* di bagian atas (`w-10 h-1 rounded-full bg-black/20 dark:bg-white/20 mx-auto -mt-1 mb-2`).
+3. **Adaptasi Bentuk Modal (Wajib Full Layout XXL & Responsif Multi-Device)**:
+   - **Desktop (>= 1024px)**: Mengambang di tengah layar (**Full Layout XXL Centered Bento Dialog** `max-w-5xl` s/d `max-w-7xl` / `max-w-[95vw] rounded-[24px] max-h-[90vh]`) dengan backdrop blur lembut `bg-black/40 backdrop-blur-sm`. Memberikan ruang lapang bagi arsitektur Bento multi-kolom (8 kolom input/detail + 4 kolom metrik ringkasan).
+   - **Tablet (640px – 1023px)**: Mengambang di tengah layar (**Centered Responsive Bento Modal** `max-w-3xl` s/d `max-w-4xl rounded-[22px] max-h-[90vh]`) dengan layout 2-kolom modular seimbang, pas untuk navigasi sentuh kasir/owner.
+   - **Mobile (< 640px)**: Berubah dinamis menjadi **Apple Full-Responsive Bottom Sheet** (`w-full inset-x-0 bottom-0 rounded-t-[28px] max-h-[94vh] flex flex-col overflow-hidden`) lengkap dengan indikator handle bar geser (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5`), input minimal 16px (anti-auto-zoom), dan sticky bottom action bar dengan safe-area padding.
 
 ---
 
@@ -185,7 +186,7 @@ Penerapan ritme spasi 8pt grid konsisten menjamin tampilan tetap santai dan beba
 | **Sidebar Menu** | Sheet Drawer samping (off-canvas) + `overflow-x-hidden` | Split-view collapsible atau icon-rail | Fixed Left Sidebar `w-72` frosted glass, `overflow-x-hidden` mutlak |
 | **Topbar Header** | Sticky bar ringkas, burger toggle, profil mini | Sticky bar, breadcrumb, quick search, segmented theme | Sticky bar lengkap, eyebrow context, primary CTA |
 | **Footer** | Floating Bottom Navbar (iOS 18) `fixed bottom-3` | Floating Bottom Navbar (mode potret/POS ringkas) | Minimalist Hairline Footer di dasar kanvas |
-| **Bentuk Dialog / Form** | Bottom Action Sheet (`rounded-t-[26px]`) | Centered Modal Dialog (`rounded-[24px]`) | Centered Modal Dialog (`rounded-[24px]`) |
+| **Bentuk Dialog / Form** | Apple Full-Responsive Bottom Sheet (`rounded-t-[28px] max-h-[94vh]`) | Centered Responsive Bento Modal (`max-w-3xl` s/d `max-w-4xl rounded-[22px]`) | Full Layout XXL Centered Bento Dialog (`max-w-5xl` s/d `max-w-7xl rounded-[24px]`) |
 | **Input Form Font Size** | Wajib `16px` (mencegah auto-zoom) | `14px` – `15px` | `14px` – `15px` |
 | **Touch Target Utama** | 48px – 52px (ramah jempol) | 44px – 48px (ramah stylus/jemari) | 38px – 42px (mouse click precision) |
 
@@ -266,6 +267,87 @@ Standarisasi antarmuka pengelola platform Cooca (Backoffice Superadmin) mengadop
 - **Ergonomi Input & Sentuh Ramah Mobile**:
   - Seluruh field input teks dan select memiliki font minimal 16px pada viewport mobile (`text-[16px] sm:text-[13px]`) untuk menonaktifkan auto-zoom iOS Safari.
   - Tombol aksi simpan memiliki tinggi minimal 48px (`h-12 sm:h-10 px-6 rounded-[12px]`) dengan feedback visual fokus dan state disabled/loading saat proses submit.
+
+### 12.9 Standar Manajemen Katalog Produk, Resep (BOM), & Modifiers (Apple HIG)
+- **Segmented Control Navigasi Terpadu (Section 16)**:
+  - Menggantikan banner raksasa bergradasi dengan tab bar tersegmentasi bergaya Apple macOS Sonoma / iOS 18 (`[ Barang Fisik (Katalog) ] [ Jasa & Layanan ] [ Varian & Modifiers ]`).
+  - Efek transisi halus dan kontras tajam antar tab aktif (`bg-white dark:bg-[#2C2C2E] shadow-sm font-semibold text-[#1C1C1E] dark:text-[#F2F2F7]`) dan inaktif.
+- **Modal Pop-Up Full Layout XXL & Multi-Device Responsiveness**:
+  - Modal Form Tambah/Ubah Produk (`max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[90vh]`) mengadopsi tata letak Bento Grid 12 kolom (7 kolom informasi identitas produk & inventori + 5 kolom penetapan harga, kanal penjualan, foto, & pre-order).
+  - Menggantikan form sempit 1 kolom yang memaksa pengguna scrolling berlebih, menjadi 2 kolom komprehensif pada desktop & tablet landscape.
+  - Pada mobile (< 640px), modal bertransformasi dinamis menjadi Apple Bottom Sheet (`rounded-t-[28px] max-h-[94vh]`) dengan grab bar dan sticky action bar di dasar layar.
+- **Inline Quick-Add Trigger `[ + ]` via AJAX (Zero Page Reload)**:
+  - Kategori Produk dan Satuan Pengukuran dilengkapi tombol quick-add `[ + ]` di samping dropdown.
+  - Sub-modal pop-up menyimpan data secara asynchronous (`fetch()`) dengan header `Accept: application/json` dan CSRF token.
+  - Opsi baru diinjeksi ke dropdown dan dipilih secara otomatis (`x-model`) tanpa memicu reload halaman atau menghapus draf form produk yang sedang diketik.
+- **Apple Grouped Inset Cards untuk Mobile (< sm)**:
+  - Pada layar smartphone, tabel data produk, BOM, dan varian bertransformasi menjadi kartu inset Apple (`rounded-[20px] p-4 bg-white/90 dark:bg-[#1C1C1E]/90 border border-black/[0.06]`) dengan baris key-value yang mudah dipindai jempol.
+- **Pesan Penenang Jiwa (*No-Panic Microcopy*)**:
+  - Seluruh aksi penghapusan produk, komponen BOM, kelompok modifier, atau opsi varian dilengkapi Apple Alert Dialog dengan jaminan microcopy Lucide icon `info`:  
+    *“Tenang: Riwayat transaksi kasir, nota pesanan, dan pembukuan masa lalu yang menggunakan produk ini tetap aman tersimpan.”*
+- **Safe Area Bottom Padding Ergonomics**:
+  - Seluruh layout halaman katalog menyertakan kontainer padding dasar `pb-28 sm:pb-32 lg:pb-10` untuk mencegah elemen aksi tertutup bilah navigasi mengambang iOS 18.
+- **Font Input Minimal 16px Anti-Auto-Zoom**:
+  - Seluruh input form menggunakan kelas `text-[16px] sm:text-[14px]` untuk mencegah browser Safari iOS melakukan zoom otomatis saat pengguna fokus ke kolom isian.
+
+### 12.10 Standar Manajemen Bahan Baku (Materials) & Jasa Layanan (Services) Apple HIG
+- **Bahan Baku (Materials Management)**:
+  - **Full Layout XXL Centered Bento Dialog**: Modal Tambah Bahan Baku (`max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[90vh]`) mengadopsi 12 kolom Bento Grid (7 kolom identitas bahan + 5 kolom rendemen yield/waste, harga awal, dan kartu live cost estimation).
+  - **Triple Inline Quick-Add AJAX `[ + ]`**: Kategori Bahan (`material-categories.store`), Satuan Beli (`units.store`), dan Supplier Pemasok (`suppliers.store`) dapat ditambahkan seketika melalui sub-modal asynchronous tanpa memuat ulang halaman utama.
+  - **Apple Grouped Inset Cards**: Tabel bahan baku otomatis bertransformasi menjadi kartu inset Apple di smartphone (`< sm`).
+  - **Penenang Jiwa Dialog**: Konfirmasi hapus bahan baku menyertakan jaminan bahwa resep BOM dan riwayat penerimaan barang (GR) masa lalu tetap aman tersimpan.
+- **Jasa & Layanan (Services Management)**:
+  - **Penyatuan Navigasi Segmented Control (Section 16)**: Menghilangkan banner gradasi dan menyelaraskan bilah navigasi dengan katalog produk (`[ Barang Fisik ] [ Jasa & Layanan ] [ Varian & Modifiers ]`).
+  - **Zero-Navigation Jump pada Edit Jasa**: Menggantikan alur edit berbasis redirect parameter URL (`?edit=<id>`) menjadi instant client-side Alpine.js modal (`openEdit(service)`), mempertahankan state filter dan nomor pagination.
+  - **Full Layout XXL Dialog**: Form tambah/ubah layanan mengadopsi Bento 12 kolom (7 kolom identitas, kategori, dan deskripsi + 5 kolom tarif, biaya teknisi, switches kanal POS/Web/SO dengan fallback value `0`).
+  - **Strict No-Emoji Mandate**: Seluruh emoji dekoratif (seperti 🛠️, ✏️, 🗑️) dibersihkan dan digantikan dengan ikon Lucide SVG murni.
+
+### 12.11 Standar Storefront Hub, Pengaturan Toko, Aturan Ongkir, Reservasi & Landing Page Studio
+- **Storefront Settings (Pengaturan Etalase Toko)**:
+  - **Bento KPI Overview Cards**: Menampilkan 4 kartu ringkasan status operasional etalase: Status Etalase Publik, Metode Bayar Aktif (QRIS & Transfer), Opsi Pengiriman (Pickup & Kurir), dan Mode Transaksi Toko Aktif.
+  - **Integritas Hidden Fallback Switch Boolean**: Seluruh kontrol saklar boolean (`is_storefront_enabled`, `is_discoverable`, `allow_pickup`, `allow_delivery`, `allow_request_order`, `allow_scheduled_order`, `allow_customer_po`, `allow_reservation`) wajib didahului oleh `<input type="hidden" name="[field]" value="0">`. Hal ini mencegah kegagalan pengiriman nilai `false` saat pemilik toko menonaktifkan fitur.
+  - **Apple Alert Penenang Jiwa**: Dialog konfirmasi hapus rekening pembayaran menggunakan Apple Alert Dialog squircle lengkap dengan microcopy penenang jiwa (*"Tenang: Riwayat pesanan dan bukti transfer pelanggan masa lalu yang pernah menggunakan rekening ini tetap aman tercatat di pembukuan."*).
+  - **Responsive Modal Bottom Sheet**: Form tambah metode pembayaran mengadopsi format Apple Bottom Sheet pada mobile (`rounded-t-[28px]`) dengan grab bar dan font input minimal 16px.
+- **Aturan Ongkir & Kurir Toko (Shipping Rules)**:
+  - **Penenang Jiwa Dialog**: Aksi hapus aturan ongkir pada tabel desktop maupun kartu mobile dilengkapi dialog konfirmasi Apple dengan jaminan bahwa transaksi dan ongkir pesanan masa lalu tidak akan berubah.
+  - **Apple Bento Dialog Tambah/Edit**: Modal aturan ongkir mendukung tarif flat, radius jarak (KM), dan ambang bebas ongkir belanja gratis dengan tata letak modal responsif.
+- **Reservasi & Booking Jadwal (Reservations)**:
+  - **Apple Alert Konfirmasi Pembatalan**: Menggantikan aksi pembatalan langsung dengan dialog konfirmasi Apple Alert terpadu dan pesan penenang jiwa.
+  - **Modal Alokasi Meja Restoran**: Dilengkapi grab bar mobile dan integrasi pemilihan meja yang ramah layar sentuh.
+- **Verifikasi & Rincian Pesanan (Orders Show)**:
+  - **Apple Alert Konfirmasi Verifikasi**: Menggantikan `confirm()` native dengan dialog konfirmasi visual bernuansa hijau yang merincikan pemotongan stok otomatis dan status LUNAS.
+- **Studio Landing Page (CMS Editor)**:
+  - **Strict No-Emoji Mandate**: Mengeliminasi seluruh karakter unicode mentah (seperti bintang `★` pada form ulasan testimoni) dan menggantikannya dengan ikon vektor Lucide SVG.
+  - **Ergonomi Layar Sentuh**: Menjamin seluruh input memiliki ukuran minimal 16px pada viewport mobile dan padding dasar aman `pb-28 sm:pb-32 lg:pb-10`.
+
+### 12.12 Standar Halaman Publik Bisnis (Public Storefront & Landing Page Experience)
+Halaman publik bisnis (`resources/views/public/business_landing.blade.php`) merupakan representasi digital terdepan bagi pelanggan umum:
+- **Dismissible Announcement Marquee**:
+  - Banner pengumuman bergerak di posisi teratas menggunakan pemisah bersih bullet dot `•` (`&bull;`) tanpa simbol unicode bunga/bintang `✦`.
+  - Dilengkapi kontrol Alpine.js (`x-data="{ bannerDismissed: false }"`) dan tombol tutup bundar frosted glass (`w-5 h-5 rounded-full bg-white/20 hover:bg-white/30`) agar pelanggan dapat menyembunyikan pengumuman secara mandiri.
+- **Strict No-Emoji Mandate pada Status Verifikasi**:
+  - Seluruh status akun terverifikasi pada Checkout Modal, Customer PO Modal, dan Reservasi wajib menggunakan ikon SVG murni `<i data-lucide="check" class="w-3.5 h-3.5"></i> Terverifikasi` dan dilarang keras menggunakan karakter unicode checklist `✓`.
+- **Responsive Modal Architecture (Mobile Bottom-Sheet & Desktop XXL 2-Column Bento Dialog)**:
+  - Seluruh modal interaksi publik (Checkout Modal, Request Order, Reservasi, dan Customer PO) wajib mengadopsi format hybrid:
+    - **Mobile (< 640px)**: Tampil sebagai **Apple Full-Responsive Bottom Sheet** (`items-end justify-center`, `rounded-t-[28px]`, `max-h-[92vh]`) dengan drag/swipe indicator handle bar (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5`), font input minimal 16px (mencegah auto-zoom iOS), dan sticky action footer dengan safe-area padding.
+    - **Desktop (>= 1024px)**: Mengambang di tengah sebagai **Full Layout XXL 2-Column Bento Dialog** (`lg:max-w-5xl` untuk Checkout; `lg:max-w-4xl` untuk Reservasi & Request Order; `lg:max-w-4xl` untuk Customer PO). Kolom kiri memuat identitas pelanggan, jadwal, dan opsi pengiriman; kolom kanan memuat rincian transaksi, pemilihan metode pembayaran, catatan, dan ringkasan subtotal/ongkir/grand total.
+- **Pure Typographic Overline pada Hero Section (Anti-AI-Template)**:
+  - Dilarang membungkus tag pengenal atau promo hero dengan kapsul pil dekoratif berikon sparkle (`rounded-full` AI template).
+  - Gunakan **Pure Typographic Overline** (`text-[11px] font-bold uppercase tracking-widest text-black/50 dark:text-white/50`) dengan pemisah dot murni `&bull;` yang menyatu tenang dengan tipografi SF Pro Display.
+- **Floating WhatsApp Widget Tanpa Fake Unread Pulse Dots**:
+  - Tombol aksi WhatsApp mengambang (`fixed bottom-20 right-4 ...`) wajib diproteksi dengan kondisi `@if ($hasWhatsapp)`.
+  - Dilarang memasang titik merah berkedip palsu (*fake unread badge* `animate-ping`) yang memanipulasi perhatian pengguna. Gunakan label aksi yang jujur, santun, dan profesional: `Hubungi via WhatsApp`.
+- **Standarisasi Microcopy & Pure Action Verbs**:
+  - Hindari singkatan kasar seperti `"WA"` pada header, navigasi mobile, maupun modal. Gunakan nama layanan utuh `"WhatsApp"`.
+  - Gunakan kata kerja aksi tegas dan ramah: *Pesan*, *Reservasi*, *Kirim Request Order*, *Hubungi via WhatsApp*.
+- **Preservasi Kontrak Anti-FOUC Script**:
+  - Script inisialisasi dark mode pada `<head>` wajib mempertahankan deklarasi eksplisit `var isLandingDark = {{ $initialDarkMode ? 'true' : 'false' }};` sebelum manipulasi `document.documentElement.classList`, guna mencegah *Flash of Unstyled Content* (FOUC) saat SSR dan menjamin integritas kontrak pengujian otomatis (`PublicBusinessDiscoveryTest`).
+- **Penanganan Adaptif Opsi Pemenuhan (Fulfillment)**:
+  - Formulir checkout wajib menangani 4 permutasi pengaturan pemenuhan toko: (1) Keduanya aktif (Ambil Sendiri & Kurir Toko); (2) Hanya Kurir Toko; (3) Hanya Ambil Sendiri di Outlet; dan (4) Keduanya nonaktif dengan banner informatif ramah (*Metode pengiriman disesuaikan saat konfirmasi pesanan*).
+- **Visualisasi Batas Minimum Belanja**:
+  - Drawer keranjang belanja menyajikan peringatan visual batas minimum belanja (`minOrderAmount`) berformat mata uang Rupiah lengkap dengan ikon Lucide `alert-circle` saat subtotal belum mencukupi batas checkout.
+- **Mobile Safe Area Bottom Padding Ergonomics**:
+  - Bagian dasar footer wajib menggunakan kelas padding `pb-28 sm:pb-32 lg:pb-12` agar bilah navigasi pulau mengambang mobile iOS 18 (`fixed bottom-3 ... z-50`) tidak menghalangi keterbacaan hak cipta, merek dagang, dan tautan sosial media footer.
 
 ---
 

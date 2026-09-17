@@ -911,15 +911,15 @@ final class EntitlementService
      */
     public function approvePayment(
         SubscriptionPayment $payment,
-        Admin $admin,
+        ?Admin $admin = null,
         ?string $adminNotes = null
     ): SubscriptionPayment {
         $approvedPayment = DB::transaction(function () use ($payment, $admin, $adminNotes) {
-            if (!$payment->isAwaitingApproval()) return $payment->fresh();
+            if (! $payment->isAwaitingApproval() && ! $payment->isPending()) return $payment->fresh();
 
             $payment->update([
                 'status' => SubscriptionPayment::STATUS_APPROVED,
-                'approved_by' => $admin->id,
+                'approved_by' => $admin?->id,
                 'approved_at' => Carbon::now(),
                 'admin_notes' => $adminNotes,
             ]);

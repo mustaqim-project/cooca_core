@@ -115,13 +115,77 @@ final class CustomerPortalFeatureTest extends TestCase
         ]);
     }
 
-    public function test_login_page_renders_only_google_auth_button(): void
+    public function test_login_page_renders_credentials_form_and_google_auth_button(): void
     {
         $response = $this->get(route('customer.login'));
 
         $response->assertStatus(200);
         $response->assertSee('Lanjutkan dengan Google');
-        $response->assertDontSee('Kata sandi');
+        $response->assertSee('Masuk Akun');
+        $response->assertSee('Kata Sandi');
+        $response->assertSee('Akun Seeder Demo');
+    }
+
+    public function test_customer_can_login_with_email_and_password_without_google(): void
+    {
+        $globalCustomer = GlobalCustomer::create([
+            'name' => 'Ahmad Mandiri',
+            'email' => 'mandiri_test@cooca.id',
+            'phone' => '081234567891',
+            'password' => Hash::make('password123'),
+            'phone_verified_at' => now(),
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->post(route('customer.login.submit'), [
+            'login' => 'mandiri_test@cooca.id',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect(route('customer.dashboard'));
+        $this->assertAuthenticatedAs($globalCustomer, 'customer');
+    }
+
+    public function test_customer_can_login_with_phone_and_password_without_google(): void
+    {
+        $globalCustomer = GlobalCustomer::create([
+            'name' => 'Budi BCA',
+            'email' => 'bca_test@cooca.id',
+            'phone' => '081987654329',
+            'password' => Hash::make('password123'),
+            'phone_verified_at' => now(),
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->post(route('customer.login.submit'), [
+            'login' => '081987654329',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect(route('customer.dashboard'));
+        $this->assertAuthenticatedAs($globalCustomer, 'customer');
+    }
+
+    public function test_customer_login_redirects_to_custom_url_with_batch_and_group(): void
+    {
+        $globalCustomer = GlobalCustomer::create([
+            'name' => 'Kantor Mandiri User',
+            'email' => 'kantor_user@cooca.id',
+            'phone' => '081299998888',
+            'password' => Hash::make('password123'),
+            'phone_verified_at' => now(),
+        ]);
+
+        $redirectTarget = '/dapur-sedap-rasa?batch=batch-1-jumat&group=KANTOR-MANDIRI-123';
+
+        $response = $this->post(route('customer.login.submit'), [
+            'login' => 'kantor_user@cooca.id',
+            'password' => 'password123',
+            'redirect_to' => $redirectTarget,
+        ]);
+
+        $response->assertRedirect($redirectTarget);
+        $this->assertAuthenticatedAs($globalCustomer, 'customer');
     }
 
     public function test_authenticated_global_customer_can_access_dashboard(): void

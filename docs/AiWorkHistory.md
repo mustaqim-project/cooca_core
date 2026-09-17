@@ -45,7 +45,1770 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
-```
+
+### [WORK-2026-09-17-067] Comprehensive 10-Phase Payment Gateway, Reporting Suite, Settlement Reconciliation, & System Transparency Remediation
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** POS, Commerce, Financial Reporting, Finance & Settlements, Admin Platform, Superadmin Dashboard
+* **Feature:** 
+  1. POS Meja & Double-Billing Prevention (`PosOrderService::completePaidQrOrder`, `PosTerminalWebController`, Apple HIG Bento Table State)
+  2. Shift Kasir & Sesi Meja (`PosOrderService::createQrOrder` shift binding, `PosShiftService::getShiftSummary` cash vs gateway segregation)
+  3. Storefront to Income Statement (`FinancialReportService::getIncomeStatement` Storefront consolidation, COGS snapshot, Excel Exporter)
+  4. Cash Flow Zero Double-Counting & Gateway MDR (`FinancialReportService::getCashFlowStatement` filter, AutoJournalService account `6-6003`)
+  5. Tenant Dashboard Omnichannel Cockpit (`DashboardWebController` POS + Storefront + Table QR channel & payment split)
+  6. Web UI Gateway Settlement Reconciliation (`PaymentSettlementWebController`, index & detail Apple HIG Bento views, batch reconciliation)
+  7. Webhook Audit Trail & Failover Re-Sync (`PaymentGatewayCallbackLog` table, model, controller logging, manual sync buttons in Storefront & POS)
+  8. Admin SaaS Subscriptions TriPay Visibility (`AdminSubscriptionController` source filter, auto-verified badge, MDR fee transparency)
+  9. Superadmin Dashboard Central Gateway Hub (`AdminDashboardController` GMV, MDR volume, callback health rate, channel distribution)
+  10. Automated Feature Test Suite (`PaymentGatewayRemediationSuiteTest` 100% pass)
+* **Work Type:** Architecture | Security | Financial Integrity | UI/UX (Apple HIG Bento) | Automated Testing | Documentation
+
+#### 1. Business Context & Objective
+* **Konteks:** Menindaklanjuti dan menuntaskan rencana perbaikan 10 fase (*Laporan Audit Komprehensif: Payment Gateway, Reporting Suite, Dashboard, & Rekonsiliasi Sistem COOCA*) pasca-integrasi TriPay Model B terpusat.
+* **Masalah/Target:**
+  - Mengeliminasi risiko penagihan ganda (double-billing) pada pesanan meja yang telah lunas via QRIS saat kasir menutup meja.
+  - Memisahkan penghitungan uang fisik laci kasir (*expected cash*) dari omzet digital non-tunai pada ringkasan shift kasir.
+  - Mengintegrasikan omzet, HPP, diskon, dan ongkir Toko Online (`CommerceOrder`) ke dalam Laporan Laba Rugi komprehensif tenant.
+  - Mencegah *double counting* penerimaan kas pada Laporan Arus Kas serta mencatat beban administrasi MDR gateway (`6-6003`).
+  - Memberikan visualisasi cockpit omnichannel di dashboard tenant dan Superadmin TriPay Central Hub.
+  - Menyediakan UI web rekonsiliasi pencairan dana gateway (*payout reconciliation*) berbasis akuntansi double-entry.
+  - Menyediakan jejak audit webhook (*callback logging*) dan tombol failover sinkronisasi manual jika notifikasi gateway terlambat/terlewat.
+  - Menyediakan transparansi verifikasi pembayaran langganan SaaS di sisi admin platform.
+  - Membuktikan integritas sistem dengan pengujian otomatis 100% lolos tanpa regresi.
+
+#### 2. What Was Done
+* **Phase 1 (POS Meja & Double-Billing Prevention):**
+  - Mengimplementasikan `PosOrderService::completePaidQrOrder()` yang memvalidasi `is_paid = true`, mengubah status order ke `completed`, melepaskan meja (`status = 'available'`), mencatat mutasi stok bahan baku F&B atomik tanpa duplikasi, dan tidak membuat catatan pembayaran atau jurnal kas baru.
+  - Memperbarui `PosTerminalWebController` (`getIncomingOrders`, `payTableOrder`) dan `PosTableWebController` agar mengekspos status `is_paid`, `paid_amount`, dan referensi TriPay.
+  - Memperbarui `resources/views/app/pos/terminal.blade.php`: tombol checkout pada modal meja yang sudah lunas berubah menjadi hijau semantik Apple HIG *"Selesaikan Pesanan Meja (Lunas via QRIS)"* dengan konfirmasi modal aman.
+* **Phase 2 (Shift Kasir & Sesi Meja):**
+  - Mengaitkan `pos_shift_id` kasir yang sedang aktif pada saat `PosOrderService::createQrOrder()` dieksekusi.
+  - Memperbarui `PosShiftService::getShiftSummary()` untuk memisahkan total penjualan tunai (`cash_sales`) dengan penjualan non-tunai/gateway (`non_cash_sales` & `gateway_sales`). Uang fisik yang diharapkan di laci (`expected_cash`) murni dihitung dari `opening_cash + cash_sales + cash_in - cash_out`.
+* **Phase 3 (Storefront to Income Statement):**
+  - Memperbarui `FinancialReportService::getIncomeStatement()` untuk mengonsolidasikan `CommerceOrder` berstatus lunas: pendapatan kotor online (`online_gross_sales`), ongkir (`online_shipping_fee`), diskon online (`online_discounts`), serta HPP aktual (`online_cogs`) berbasis `product.base_cost`.
+  - Memperbarui `ReportExcelExporter.php`, `ReportWebController.php`, dan `resources/views/app/reports/index.blade.php` dengan baris terdedikasi Toko Online dan Beban MDR Gateway.
+* **Phase 4 (Cash Flow Zero Double-Counting & Gateway MDR):**
+  - Memperbarui `FinancialReportService::getCashFlowStatement()`: memfilter `reference_type in ('pos_order', 'online_order', 'commerce_order', 'invoice')` dari agregasi penerimaan kas langsung generic (`direct_cash_in`), sehingga mengeliminasi 100% risiko double-counting.
+  - Memperbarui `AutoJournalService::ensureStandardAccounts()` untuk mendaftarkan akun beban standar `6-6003` ("Beban Administrasi Gateway (MDR)").
+* **Phase 5 (Tenant Dashboard Omnichannel Cockpit):**
+  - Memperbarui `DashboardWebController` untuk mengonsolidasikan `CommerceOrder` dan POS QR meja ke dalam metrik penjualan hari ini/bulan ini, menghitung `channelSplit` (POS Fisik vs Toko Online), dan `paymentSplit` (Tunai vs Gateway Non-Tunai).
+* **Phase 6 (Web UI Gateway Settlement Reconciliation):**
+  - Menambahkan method `getUnsettledPayments(Business $business)` dan mendukung alokasi `commerce_order` pada `PaymentSettlementService`.
+  - Membuat controller `PaymentSettlementWebController` (`index`, `getUnsettled`, `reconcile`, `show`).
+  - Mendesain antarmuka Apple HIG Bento: `resources/views/app/finance/settlements/index.blade.php` (rekap settlement, batch modal sheet rekonsiliasi, daftar item unsettled) dan `show.blade.php` (detail audit settlement, akun bank tujuan, rincian MDR, dan alokasi transaksi).
+  - Menambahkan tautan navigasi *"Rekonsiliasi Gateway"* pada menu Akuntansi & Keuangan di `sidebar.blade.php`.
+* **Phase 7 (Webhook Audit Trail & Failover Re-Sync):**
+  - Migrasi `database/migrations/2026_09_17_200000_create_payment_gateway_callback_logs_table.php` dan model `PaymentGatewayCallbackLog`.
+  - Memperbarui `TripayCallbackController` untuk mencatat setiap payload webhook masuk beserta signature, status code, respon, dan status audit trail.
+  - Menambahkan action `syncGatewayStatus()` pada `MerchantOrderController` dan `PosOrderWebController` beserta route `storefront.orders.sync_gateway` dan `pos.orders.sync_gateway`.
+  - Menambahkan tombol Bento *"Cek & Sinkronkan Status TriPay"* pada detail pesanan Toko Online (`show.blade.php`) dan riwayat order POS (`orders.blade.php`).
+* **Phase 8 (Admin SaaS Subscriptions TriPay Visibility):**
+  - Memperbarui `AdminSubscriptionController`: menambahkan filter `source` (`all`, `tripay`, `manual`), menghitung `totalApprovedGross`, `totalGatewayMdr`, dan `totalNetRevenue`.
+  - Memperbarui `resources/views/admin/subscriptions/index.blade.php`: menyajikan badge semantik hijau *"Auto-Verified (TriPay)"* dengan nomor referensi transaksi, rincian potongan fee MDR, dan pemisahan dari transfer manual.
+* **Phase 9 (Superadmin Dashboard Central Gateway Hub):**
+  - Memperbarui `AdminDashboardController` untuk menghitung agregat TriPay lintas tenant: GMV total, jumlah transaksi gateway, estimasi MDR terpotong, volume bersih, persentase kesehatan webhook callback log (`webhookHealthRate`), dan distribusi saluran (POS, Storefront, SaaS Platform).
+  - Memperbarui `resources/views/admin/dashboard.blade.php` dengan Bento Card *"TriPay Gateway Central Hub"*.
+* **Phase 10 (Automated Verification & Zero-Emoji Compliance):**
+  - Membuat test suite komprehensif `tests/Feature/PaymentGatewayRemediationSuiteTest.php` mencakup 5 skenario inti: double-billing prevention, shift cash segregation, financial report consolidation, settlement reconciliation workflow, dan callback log & failover sync.
+  - Memverifikasi kepatuhan Apple HIG: Zero-Emoji pada seluruh template Blade yang disentuh, menggunakan Lucide icons semantik.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_17_200000_create_payment_gateway_callback_logs_table.php`
+  - `app/Models/PaymentGatewayCallbackLog.php`
+  - `app/Http/Controllers/Web/Finance/PaymentSettlementWebController.php`
+  - `resources/views/app/finance/settlements/index.blade.php`
+  - `resources/views/app/finance/settlements/show.blade.php`
+  - `tests/Feature/PaymentGatewayRemediationSuiteTest.php`
+* **Files Modified:**
+  - `app/Domain/Pos/PosOrderService.php`
+  - `app/Domain/Pos/PosShiftService.php`
+  - `app/Domain/Report/FinancialReportService.php`
+  - `app/Domain/Finance/PaymentSettlementService.php`
+  - `app/Domain/Accounting/AutoJournalService.php`
+  - `app/Http/Controllers/Web/Pos/PosTerminalWebController.php`
+  - `app/Http/Controllers/Web/Pos/PosTableWebController.php`
+  - `app/Http/Controllers/Web/Pos/PosOrderWebController.php`
+  - `app/Http/Controllers/Web/Commerce/MerchantOrderController.php`
+  - `app/Http/Controllers/Web/DashboardWebController.php`
+  - `app/Http/Controllers/Web/ReportWebController.php`
+  - `app/Http/Controllers/Admin/AdminDashboardController.php`
+  - `app/Http/Controllers/Admin/AdminSubscriptionController.php`
+  - `app/Http/Controllers/Api/V1/Payment/TripayCallbackController.php`
+  - `app/Models/PosOrderPayment.php`
+  - `app/Support/Excel/ReportExcelExporter.php`
+  - `resources/views/app/pos/terminal.blade.php`
+  - `resources/views/app/pos/orders.blade.php`
+  - `resources/views/app/storefront/orders/show.blade.php`
+  - `resources/views/app/reports/index.blade.php`
+  - `resources/views/admin/subscriptions/index.blade.php`
+  - `resources/views/admin/dashboard.blade.php`
+  - `resources/views/layouts/partials/sidebar.blade.php`
+  - `routes/owner.php`
+
+#### 4. Verification & Testing
+* `php artisan test --filter=PaymentGatewayRemediationSuiteTest`: 5 tests, 19 assertions, **100% PASSED** (0 failures, 0 errors).
+* `php artisan test --filter=TripayPaymentTest`: 8 tests, 35 assertions, **100% PASSED**.
+* `php artisan test --filter=ComprehensiveFinancialReportingTest`: 5 tests, 30 assertions, **100% PASSED**.
+* `php artisan test --filter=PosAndBusinessReportingAuditTest`: 3 tests, 54 assertions, **100% PASSED**.
+* `php artisan view:cache`: **Cached successfully** (0 Blade errors).
+
+---
+
+### [WORK-2026-09-17-066] End-to-End Pay-at-Table Dynamic QRIS Ordering, Multi-Entity TriPay Webhook Automation, & Seamless Gateway Expansion (POS Table, Customer Portal, Group Orders, & SaaS Platform Billing)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** POS, Commerce, Billing & Subscriptions, Payment Gateway, Inventory, WhatsApp
+* **Feature:** Pay-at-Table Dynamic QRIS for QR Order (`resources/views/public/qr-order`), Multi-Entity Webhook Controller (`TripayCallbackController` supporting PosOrder, CommerceOrder, & SubscriptionPayment), Cash Transaction Auto-Posting, Recipe/BOM Material Deduction via `StockService::deductForProductSale`, Customer Portal Order TriPay Card (`resources/views/customer/orders/show.blade.php`), Group Order TriPay Checkout (`CommerceGroupOrderWebController.php`), and SaaS Subscription Instant Activation (`resources/views/app/billing/payment.blade.php` & `SubscriptionCheckoutWebController.php`).
+* **Work Type:** Architecture | Feature | Security | Database | UI/UX (Apple HIG Bento) | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Menindaklanjuti permintaan pengguna: *"buatlah rencana perbaikan secara end to end termasuk pada oder table@[c:\laragon\www\cooca_core\resources\views\public\qr-order] jadi bisa bayar langsung"*. Pelanggan di meja restoran/kafe sebelumnya hanya bisa mengirim pesanan dan harus mengantre ke meja kasir untuk membayar tunai.
+* **Masalah/Target:**
+  - Tamu meja kafe/restoran ingin pengalaman *Self-Service Pay-at-Table*: scan QR meja, pilih menu, langsung bayar lewat QRIS Dinamis TriPay di layar smartphone tanpa bangun dari kursi, dengan verifikasi otomatis seketika.
+  - Webhook TriPay perlu diperluas secara arsitektural dari hanya menangani pesanan toko online (`CommerceOrder`) menjadi multi-entitas yang juga menangani transaksi meja POS (`PosOrder`) dan pembayaran lisensi/kuota platform SaaS (`SubscriptionPayment`).
+  - Sisi akuntansi dan gudang harus otomatis: saat tamu bayar di meja, sistem otomatis membuat rekaman `PosOrderPayment` (metode `qris`, status `paid`), memotong bahan baku resep F&B (`StockService::deductForProductSale`), mencatat kas masuk bersih ke `CashTransaction`, dan mengirim notifikasi WhatsApp struk digital ke tamu.
+
+#### 2. What Was Done
+* **Skema Database & Model PosOrder:**
+  - Migrasi `database/migrations/2026_09_17_180000_add_payment_gateway_columns_to_pos_orders_table.php`: menambahkan kolom `payment_gateway`, `payment_channel`, `gateway_reference`, `gateway_pay_code`, `gateway_pay_url`, `gateway_qr_url`, `gateway_qr_string`, `gateway_fee`, `gateway_expired_at`.
+  - `PosOrder.php`: konstanta `GATEWAY_MANUAL`, `GATEWAY_TRIPAY`, casts, fillable, `$appends = ['is_paid', 'net_revenue']`, helper `isTripay()`, `isPaid()`, dan accessor `getIsPaidAttribute()`.
+* **Skema Database & Model SubscriptionPayment:**
+  - Migrasi `database/migrations/2026_09_17_190000_add_payment_gateway_columns_to_subscription_payments_table.php`: menambahkan kolom `payment_gateway`, `gateway_reference`, `gateway_pay_code`, `gateway_pay_url`, `gateway_qr_url`, `gateway_qr_string`, `gateway_fee`, `gateway_expired_at`.
+  - `SubscriptionPayment.php`: konstanta `GATEWAY_MANUAL`, `GATEWAY_TRIPAY`, casts, fillable, `isTripay()`, `isManual()`, `isPaid()`.
+* **TripayService Expansion (`app/Domain/Payment/TripayService.php`):**
+  - Menambahkan method `createPosOrderTransaction(PosOrder $order, string $channelCode = 'QRIS')`.
+  - Menambahkan method `createSubscriptionTransaction(SubscriptionPayment $payment, string $channelCode = 'QRIS')`.
+* **Multi-Entity Webhook Controller (`app/Http/Controllers/Api/V1/Payment/TripayCallbackController.php`):**
+  - Resolusi entitas cerdas: membaca prefix merchant_ref untuk mengarahkan ke `CommerceOrder` (default / ORD-), `PosOrder` (POS-), atau `SubscriptionPayment` (SUB-).
+  - Untuk `PosOrder`: transisi status ke `confirmed`, catat `paid_amount`, create `PosOrderPayment` (metode `qris`, fee dicatat terpisah), kurangi stok bahan baku produk via `StockService::deductForProductSale()`, catat mutasi masuk ke `CashTransaction`, dan kirim notifikasi WhatsApp ke nomor tamu meja.
+  - Untuk `SubscriptionPayment`: panggil `EntitlementService::approvePayment()` untuk aktivasi otomatis lisensi SaaS, kuota AI Token, atau storage tanpa approval manual admin.
+* **Pay-at-Table QR Order Frontend (`resources/views/public/qr-order/menu.blade.php`):**
+  - Selector metode pembayaran di Cart Sheet: "QRIS di Meja (Bebas Biaya Admin)" vs "Bayar di Kasir (Tunai / Kartu EDC)".
+  - Bento Modal QRIS Meja (`showQrisModal`): menampilkan kode QR dinamis bersolusi tinggi, countdown timer 15 menit, panduan scan e-wallet & m-banking, serta live auto-polling status setiap 3 detik.
+  - Live Order Tracking Sheet: menampilkan badge "Lunas" (hijau) vs "Belum Bayar" (amber) dan tombol "Bayar QRIS" untuk membuka kembali kode QR jika pesanan belum dibayar.
+* **Customer Portal & Group Orders Enhancement:**
+  - `resources/views/customer/orders/show.blade.php`: Merender Bento Card TriPay (QRIS/VA) otomatis, live status poller, dan menyembunyikan form upload bukti manual jika pesanan dibayar via gateway otomatis. Menambahkan route `customer.orders.status`.
+  - `CommerceGroupOrderWebController.php`: Checkout keranjang bersama (Group Order) kini mendukung pembayaran gateway TriPay (`payment_gateway = 'tripay'`).
+* **SaaS Subscription Billing Automated Flow:**
+  - `SubscriptionCheckoutWebController.php` & `resources/views/app/billing/payment.blade.php`: Auto-inisialisasi TriPay dinamis untuk pembayaran paket langganan dan top-up kuota AI/storage, dilengkapi live poller yang otomatis me-refresh halaman begitu webhook TriPay `PAID` masuk.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_17_180000_add_payment_gateway_columns_to_pos_orders_table.php`
+  - `database/migrations/2026_09_17_190000_add_payment_gateway_columns_to_subscription_payments_table.php`
+  - `tests/Feature/PosQrOrderPaymentTest.php`
+* **Files Modified:**
+  - `app/Models/PosOrder.php`
+  - `app/Models/SubscriptionPayment.php`
+  - `app/Domain/Payment/TripayService.php`
+  - `app/Domain/Billing/EntitlementService.php`
+  - `app/Http/Controllers/Api/V1/Payment/TripayCallbackController.php`
+  - `app/Http/Controllers/Web/Pos/PublicQrOrderWebController.php`
+  - `resources/views/public/qr-order/menu.blade.php`
+  - `routes/public.php`
+  - `routes/customer.php`
+  - `routes/owner.php`
+  - `app/Http/Controllers/Web/Commerce/CustomerPortalController.php`
+  - `resources/views/customer/orders/show.blade.php`
+  - `app/Http/Controllers/Web/Commerce/CommerceGroupOrderWebController.php`
+  - `app/Http/Controllers/Web/Billing/SubscriptionCheckoutWebController.php`
+  - `resources/views/app/billing/payment.blade.php`
+
+#### 4. Verification & Testing
+* `php artisan test --filter="TripayPaymentTest|PosQrOrderPaymentTest"`: 11 tests, 68 assertions, **100% PASSED** (0 failures, 0 errors).
+* `php artisan view:cache`: **Cached successfully** (0 Blade errors).
+* `php artisan route:list`: Seluruh route publik, customer, owner, dan api terdaftar bersih.
+
+### [WORK-2026-09-17-065] TriPay Payment Gateway Integration (Model B Centralized Platform): Dynamic QRIS, Multi-Bank Virtual Accounts, HMAC-SHA256 Webhook, Atomic Stock Auto-Commit, & Real-Time Bento Tracking
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Payment Gateway, Inventory, WhatsApp Notification, Public Storefront & Merchant Backoffice
+* **Feature:** TriPay Model B Platform Gateway, Dynamic QRIS (Fee Rp 750 + 0.7% Charged to Owner/Admin, Free for Customer), Multi-Bank Virtual Accounts, Real-Time Webhook with HMAC-SHA256 Verification, Atomic Physical Stock Commit via StockService, WhatsApp Instant Receipt Notification, Live Status Polling, & Apple HIG Bento Tracking UI
+* **Work Type:** Architecture | Feature | Security | Database | UI/UX (Bento Apple HIG) | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Sistem pembayaran toko etalase publik COOCA sebelumnya mengandalkan transfer rekening manual toko dengan upload bukti struk/resi (`commerce_payment_proofs`) yang harus diverifikasi kasir secara manual.
+* **Masalah/Target:**
+  - Risiko penipuan struk palsu (hasil editan Canva/Photoshop), verifikasi lambat di jam sibuk toko UMKM, dan stok fisik tertahan (`reserved_quantity`) menunggu approval.
+  - Pengguna meminta: *"kamu tau tripay ? ya model B, audit sistem existing untuk pembayaran sekarang masih sistem manual dan approve. Kode Merchant : T38171, Nama Merchant : Merchant Sandbox, API Key : DEV-jeLy0ZJGZZHW5bYFw9IUbUCzfbZazFBcY3RVOZVz, Private Key : 8ScV0-22135-RCMuz-DZzhe-h0Dul, dalam biaya qris itu ada biaya 750+0,7% dari nilai transaksi itu dibebankan ke owner dan administrator"*.
+  - Target: Menerapkan integrasi pembayaran otomatis TriPay Model B (gateway platform terpusat tanpa membebani pendaftaran per-tenant), mendukung QRIS dinamis & Virtual Account multi-bank, callback webhook real-time aman berbasis HMAC-SHA256 yang otomatis mengubah status ke `paid`, meng-commit stok fisik, mengirim notifikasi WhatsApp, serta menyediakan live status polling di halaman pelacakan pesanan pembeli.
+
+#### 2. What Was Done
+* **Audit Hulu-ke-Hilir Sistem Existing:** Memetakan seluruh siklus tabel `commerce_payment_methods`, `commerce_orders`, `commerce_payment_proofs`, `CommercePaymentProofService`, dan kontroler kasir/merchant.
+* **Integrasi TriPay Service Layer (`App\Domain\Payment\TripayService`):**
+  - Mengimplementasikan generator signature transaksi: `hash_hmac('sha256', merchantCode . merchantRef . amount, privateKey)`.
+  - Mengimplementasikan validator signature webhook: `hash_hmac('sha256', rawBody, privateKey)` mencocokkan header `X-Callback-Signature`.
+  - Mengimplementasikan aturan biaya QRIS: `Rp 750 + 0.7%` dari total nilai transaksi dibebankan ke pemilik/administrator (`gateway_fee`), sementara customer membayar Rp 0 biaya admin tambahan (bebas biaya admin). Menghitung pendapatan bersih (`net_revenue = total_amount - gateway_fee`).
+  - Mendukung saluran QRIS Dinamis dan Virtual Account (BCA, BRI, Mandiri, BNI, Permata, BSI) dengan fallback saluran default aktif.
+* **Skema Database & Model (`commerce_orders`):**
+  - Migrasi penambahan kolom: `payment_gateway` (`manual`, `tripay`), `payment_channel` (`QRIS`, `BCAVA`, dll.), `gateway_reference`, `gateway_pay_code`, `gateway_pay_url`, `gateway_qr_url`, `gateway_qr_string`, `gateway_fee`, `gateway_expired_at`, `gateway_payload`.
+  - Update `CommerceOrder` model: konstanta `GATEWAY_MANUAL`, `GATEWAY_TRIPAY`, casts, fillable, dan helper methods (`isTripay()`, `isManualPayment()`, `getNetRevenueAttribute()`).
+* **Webhook Callback Controller (`App\Http\Controllers\Api\V1\Payment\TripayCallbackController`):**
+  - Memvalidasi signature HMAC-SHA256 (HTTP 403 jika tidak valid).
+  - Idempotency check: jika pesanan sudah berstatus `paid`, langsung return status 200 tanpa redundansi.
+  - Event `PAID`: Mengubah status pesanan menjadi `paid`, mencatat `paid_at`, memicu komit stok fisik atomik via `StockService::commitProductReservedStock()`, dan mengirim notifikasi WhatsApp ke pelanggan.
+  - Event `EXPIRED` / `FAILED`: Mengubah status pesanan menjadi `expired` / `cancelled`, melepaskan stok cadangan via `StockService::releaseProductReservedStock()`.
+* **Routing:**
+  - `POST /api/v1/payments/tripay/callback` -> `TripayCallbackController@handle` (bebas CSRF session di `api.php`, terlindungi murni dengan HMAC-SHA256).
+  - `GET /b/{slug}/order/{token}/status` -> `PublicOrderTrackingController@checkStatus` (live polling endpoint).
+* **UI/UX Bento Apple HIG & Storefront:**
+  - `resources/views/public/business_landing.blade.php`: Segmented selector antara "QRIS & Virtual Account" (instan otomatis, bebas biaya admin) dan "Transfer Toko" (manual). Terintegrasi mulus dengan Alpine.js checkout stepper.
+  - `resources/views/public/storefront/order_tracking.blade.php`: Bento card interaktif dengan QR Code QRIS dinamis (dilengkapi tombol unduh QR dan panduan e-wallet) atau Virtual Account (lengkap dengan tombol 1-klik Salin Nomor Rekening VA). Dilengkapi live status polling script (4.5 detik) yang otomatis me-reload halaman seketika webhook TriPay berhasil memverifikasi pembayaran.
+  - `resources/views/app/storefront/orders/show.blade.php`: Dashboard detail pesanan kasir/merchant menampilkan kartu TriPay Gateway: Saluran, Ref TriPay, Nomor VA, Total Bruto, Potongan Fee Gateway (Owner/Admin), dan Penerimaan Bersih, serta status verifikasi otomatis instan.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_17_170000_add_payment_gateway_columns_to_commerce_orders_table.php`
+  - `app/Domain/Payment/TripayService.php`
+  - `app/Http/Controllers/Api/V1/Payment/TripayCallbackController.php`
+  - `tests/Feature/TripayPaymentTest.php`
+* **Files Modified:**
+  - `.env` & `.env.example`
+  - `config/services.php`
+  - `app/Models/CommerceOrder.php`
+  - `routes/api.php`
+  - `routes/public.php`
+  - `app/Http/Controllers/Web/Commerce/PublicOrderTrackingController.php`
+  - `resources/views/public/business_landing.blade.php`
+  - `resources/views/public/storefront/order_tracking.blade.php`
+  - `resources/views/app/storefront/orders/show.blade.php`
+
+#### 4. System Impacts
+* **Workflow Impact:** Pembeli kini dapat melakukan pembayaran instan tanpa harus mengunggah bukti struk dan menunggu kasir toko memeriksa mutasi bank secara manual. Pesanan terverifikasi seketika dalam hitungan detik.
+* **Business Rule Impact:**
+  - Biaya QRIS TriPay (`Rp 750 + 0.7%`) dibebankan ke Owner dan Administrator, bukan kepada pembeli (`fee_customer = 0`), menjaga daya tarik konversi belanja UMKM.
+  - Stok fisik barang otomatis ter-commit saat callback `PAID` tiba, dan terlepas kembali ke pool ketersediaan jika transaksi kedaluwarsa.
+* **Permission & Guardrails:** Kredensial gateway tersimpan aman di level konfigurasi platform backend (`config/services.php` & `.env`), tidak pernah bocor ke sisi klien / JavaScript etalase.
+
+#### 5. Verification & Testing
+* **Automated Test Suite:**
+  - `tests/Feature/TripayPaymentTest.php` (8 tests, 35 assertions, **100% PASSED**):
+    - `test_tripay_service_generates_correct_signature` -> PASSED
+    - `test_tripay_service_calculates_qris_fee_correctly` -> PASSED (100k -> 1450, 50k -> 1100)
+    - `test_tripay_callback_rejects_invalid_signature` -> PASSED (HTTP 403)
+    - `test_tripay_callback_handles_successful_qris_payment_and_commits_stock` -> PASSED (Status paid, physical stock committed)
+    - `test_tripay_callback_is_idempotent` -> PASSED
+    - `test_tripay_callback_handles_expired_status_and_releases_stock` -> PASSED (Stock released)
+    - `test_public_order_tracking_status_polling_endpoint` -> PASSED (JSON status polling)
+    - `test_storefront_checkout_with_tripay_qris` -> PASSED (Mocked API checkout creation)
+* **Regression Test Suite:**
+  - `tests/Feature/CommerceStorefrontCheckoutTest.php` (13 tests, 81 assertions, **100% PASSED**).
+  - `tests/Feature/PublicViewsProductionReadinessTest.php` (5 tests, 24 assertions, **100% PASSED**).
+  - `php artisan view:cache` -> **Blade templates cached successfully** (0 syntax errors).
+
+---
+
+### [WORK-2026-09-17-064] Storefront UI Optimization: Dynamic Bento Apple HIG Segmented Tab Navigation & Stepped Tabbed Checkout Sheet
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Storefront, Public Business Landing & Checkout UX
+* **Feature:** Dynamic Parameterized Storefront Tab Bar, Clutter-Free Catalog Spacing, Deep Linking (?tab=...), and 3-Step Tabbed Bento Checkout Modal Sheet
+* **Work Type:** UI/UX (Bento Apple HIG) | Architecture | Optimization | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Etalase publik toko (`resources/views/public/business_landing.blade.php`) sebelumnya menampilkan 9 seksi sekaligus secara monolitik (hero, services, batch hub, pos products, galeri, tentang, testimoni, faq, lokasi) dan formulir checkout 12-kolom grid yang menumpuk 15+ kolom input.
+* **Masalah/Target:**
+  - Halaman terasa sangat padat (*cramped / dense*), memicu *endless vertical scroll fatigue* bagi pembeli ponsel maupun desktop.
+  - Pengguna meminta: *"optimasi ui, saya mau ui tidak padat dan lebih rapi, dan memiliki tab tab sendiri agar space terjaga dan lebih user friendly, semua dinamis dan parameterize"*.
+  - Menjaga whitespace (*space terjaga*), membuat tampilan lebih rapi dan terorganisir per tab konten, dengan arsitektur fully dynamic & parameterized berdasarkan ketersediaan data toko, batch, dan URL parameters.
+
+#### 2. What Was Done
+1. **Dynamic Content Tabs Layer ($storefrontTabs):**
+   - Menambahkan array dinamis `$storefrontTabs` di PHP header:
+     - `catalog`: Dinamis sesuai label industri (`$industryLabels['catalog_title']`), icon `$catIcon`, badge total produk & layanan.
+     - `batch`: Hanya muncul dinamis jika toko mengaktifkan jadwal batch PO & tanggal tersedia (`$hasBatchFeature`).
+     - `about`: Hanya muncul dinamis jika konten profil/cerita bisnis terisi.
+     - `gallery`: Hanya muncul dinamis jika koleksi gambar galeri ada.
+     - `info`: Hanya muncul dinamis jika kontak/jam operasional aktif.
+     - `all`: Tab pandangan continuous untuk melihat seluruh seksi sekaligus.
+2. **Sticky Bento Apple HIG Segmented Navigation Bar:**
+   - Menyisipkan tab bar sticky di bawah header (`sticky top-14 sm:top-16 z-30 backdrop-blur-xl bg-white/85 dark:bg-black/85`) dengan segmented pill container scrollable horizontal.
+   - Mengintegrasikan Alpine.js `activeMainTab`, `setMainTab(tabKey)` dengan deep-linking URL `?tab=...` (dan `?batch=...` -> otomatis buka tab `batch`) menggunakan `window.history.replaceState` tanpa reload halaman serta smooth scroll ke tab bar.
+3. **Seksi Konten Berkondisi (Zero Visual Clutter):**
+   - Menerapkan `x-show="activeMainTab === '...' || activeMainTab === 'all'"` dengan transisi halus `x-transition` pada `#layanan` (Services, Batch Hub, Products), `#galeri`, `#tentang`, Testimoni, `#faq`, dan `#lokasi`.
+4. **Stepped Tabbed Checkout Modal Sheet (3-Step Workflow):**
+   - Mengubah modal checkout padat menjadi **3-Step Tabbed Stepper**:
+     - **Step 1: Pengiriman & Kontak:** Data pemesan (nama, WA, email, nama kantor/drop point) + Opsi pengiriman (ambil sendiri vs kurir toko, alamat, tarif kurir).
+     - **Step 2: Jadwal Pre-Order:** Pilihan chip batch pengiriman interaktif, sisa kuota, cut-off time, custom date picker fallback, dan slot waktu. (Dilewati otomatis jika toko tidak memiliki jadwal PO).
+     - **Step 3: Pembayaran & Konfirmasi:** Metode pembayaran transfer bank/QRIS, catatan pesanan, rincian menu / split bill, ongkir & grand total, tombol submit.
+   - Menerapkan validasi bertahap pada Alpine.js `goToCheckoutStep(step)` dan `submitCheckout()`, serta membersihkan atribut HTML5 `required` pada input step tersembunyi untuk mencegah bug browser "non-focusable element".
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/public/business_landing.blade.php` [MODIFY]
+  - `walkthrough.md` [MODIFY]
+
+#### 4. Verification & Testing
+* `php -l resources/views/public/business_landing.blade.php` -> **No syntax errors detected**
+* `php artisan test --filter=DapurSedapRasaLandingTest` -> **5 PASSED (34 assertions)**
+* `php artisan test --filter=CommerceStorefrontCheckoutTest` -> **13 PASSED (81 assertions)**
+* `php artisan test --filter=CommerceGroupOrderTest` -> **7 PASSED (49 assertions)**
+* `php artisan test --filter=CustomerPoBatchSchedulingTest` -> **12 PASSED (59 assertions)**
+
+### [WORK-2026-09-17-063] Audit Sistem & Integrasi Hulu-ke-Hilir 5 Modul COOCA (Public Storefront, Business Landing, App Landing Page, App Storefront, Customer Portal)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Storefront, Customer Portal & Merchant Cockpit
+* **Feature:** Cross-Module Integration, Group Order Packaging Breakdown for Merchant, Split Bill Sheets, SQL Search Fix, UTF-8 Normalization & Bento Apple HIG Zero-Emoji
+* **Work Type:** Architecture | Integration | Bug Fix | UI/UX (Bento Apple HIG) | Refactoring
+
+#### 1. Business Context & Objective
+* **Konteks:** Menyelesaikan fragmentasi dan diskoneksi data antara 5 modul storefront dan customer portal:
+  1. `resources/views/public/storefront` (Order tracking & Split Bill)
+  2. `resources/views/public/business_landing.blade.php` (Storefront, katalog, checkout)
+  3. `resources/views/app/landing_page` (CMS profil & Hub Navigasi)
+  4. `resources/views/app/storefront` (Merchant orders, settings, shipping, reservations)
+  5. `resources/views/customer` (Portal pelanggan: orders, stores, cart, dashboard)
+* **Masalah/Target:**
+  - Menghilangkan *gap* data: merchant di kasir/dapur sebelumnya tidak mengetahui apakah pesanan merupakan Group Order dan tidak memiliki rincian pesanan per rekan kerja untuk packing kotak makan siang.
+  - Memperbaiki bug SQL crash (`SQLSTATE[42S22]: Column not found: 1054`) pada pencarian toko di Customer Portal akibat query kolom `city` & `industry` yang tidak ada di tabel `businesses`.
+  - Mengatasi karakter korup UTF-8 (`??`, `???`, `?`) dan broken image di halaman customer stores dan cart.
+  - Memastikan seluruh antarmuka 100% mematuhi Bento Apple HIG dengan zero-emoji dan navigasi terintegrasi dua arah (Etalase Publik <-> Customer Portal <-> Merchant Dashboard).
+
+#### 2. What Was Done
+1. **Model & Eloquent Enhancements:**
+   - Menambahkan accessor cerdas `getCityAttribute()`, `getIndustryAttribute()`, dan `getStoreLogoUrlAttribute()` pada `app/Models/Business.php`.
+   - Menambahkan relasi `groupOrder(): HasOne` dan helper `isGroupOrder(): bool` pada `app/Models/CommerceOrder.php`.
+2. **Controller Layer Refinements:**
+   - Memperbaiki `CustomerPortalController`: menyelaraskan `scopeCustomerOrders()` dengan `global_customer_id`, eager-load `groupOrder` pada dashboard, orders, dan orderDetail, serta mengalihkan query pencarian toko ke `address` dan `industry_category`.
+   - Menambahkan eager-loading `groupOrder.items.member` dan `groupOrder.host` pada `MerchantOrderController` dan `PublicOrderTrackingController`.
+3. **Merchant Storefront & Kitchen Packing Integration:**
+   - Menambahkan badge ungu `Pesan Bareng` pada daftar pesanan merchant (`app/storefront/orders/index.blade.php`).
+   - Menambahkan kartu informasi Group Order dan kartu Bento khusus **Colleague Meal Packaging Breakdown** pada detail pesanan merchant (`app/storefront/orders/show.blade.php`) agar kru dapur dapat menuliskan nama masing-masing rekan kerja di boks katering.
+4. **Public Storefront Tracking & Customer Integration:**
+   - Menambahkan tautan "Pesanan Saya" (`route('customer.orders')`) di header tracking publik saat pelanggan sudah login.
+   - Menambahkan banner Pesan Bareng dan modal sheet interaktif Split Bill dengan generator teks WhatsApp 1-klik.
+5. **Customer Portal Full Synchronization & Bento Apple HIG Polish:**
+   - Menambahkan badge `Pesan Bareng` dan tombol "Lacak Publik" pada order customer.
+   - Menulis ulang `customer/stores/index.blade.php`, `customer/stores/show.blade.php`, dan `customer/cart.blade.php` dengan UTF-8 bersih, zero-emoji, ikon Lucide modern, fallback logo bisnis yang tangguh, serta tombol aksi "Kunjungi Etalase Toko" (`/b/{slug}`).
+   - Menghapus emoji melambai di greeting dashboard customer dan menampilkan badge Group Order di pesanan terbaru.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Models/Business.php` [MODIFY]
+  - `app/Models/CommerceOrder.php` [MODIFY]
+  - `app/Http/Controllers/Web/Commerce/CustomerPortalController.php` [MODIFY]
+  - `app/Http/Controllers/Web/Commerce/MerchantOrderController.php` [MODIFY]
+  - `app/Http/Controllers/Web/Commerce/PublicOrderTrackingController.php` [MODIFY]
+  - `resources/views/app/storefront/orders/index.blade.php` [MODIFY]
+  - `resources/views/app/storefront/orders/show.blade.php` [MODIFY]
+  - `resources/views/public/storefront/order_tracking.blade.php` [MODIFY]
+  - `resources/views/customer/orders/index.blade.php` [MODIFY]
+  - `resources/views/customer/orders/show.blade.php` [MODIFY]
+  - `resources/views/customer/stores/index.blade.php` [MODIFY]
+  - `resources/views/customer/stores/show.blade.php` [MODIFY]
+  - `resources/views/customer/cart.blade.php` [MODIFY]
+  - `resources/views/customer/dashboard.blade.php` [MODIFY]
+
+#### 4. Verification & Testing
+* `php artisan test --filter=CustomerPortalFeatureTest` -> **15 PASSED (65 assertions)**
+* `php artisan test --filter=CommerceStorefrontCheckoutTest` -> **13 PASSED (81 assertions)**
+* `php artisan test --filter=CommerceGroupOrderTest` -> **7 PASSED (49 assertions)**
+* `php artisan test --filter=CustomerPoBatchSchedulingTest` -> **12 PASSED (59 assertions)**
+* `php artisan test --filter=DapurSedapRasaLandingTest` -> **5 PASSED (34 assertions)**
+* `php -l` pada seluruh berkas view blade yang disentuh -> **0 Syntax Errors**
+
+---
+
+### [WORK-2026-09-17-062] Implementasi Fitur Group Order / Pesan Bareng (ShopeeFood & GrabFood Concept)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Storefront, Group Order & Pre-Order Batch Hub
+* **Feature:** Pesan Bareng (Group Order) with Shared Cart, Member Grouping, Host Concurrency Lock, Pessimistic Batch Quota & 1-Click WhatsApp Split Bill
+* **Work Type:** Feature | Architecture | UI/UX (Bento Apple HIG) | Database | Security
+
+#### 1. Business Context & Objective
+* **Konteks:** Meniru dan mengadaptasi konsep "Sharing Order / Pesan Bareng (Group Order)" ala GrabFood dan ShopeeFood untuk etalase storefront SaaS UMKM (COOCA).
+* **Masalah/Target:** Mengatasi kendala pemesanan makan siang kantor / group buying di mana rekan kerja harus mengoper satu HP atau merekap pesanan manual di chat grup. Menyediakan tautan unik `?group_order={token}` sehingga Host dapat membagikan tautan/QR ke WhatsApp, rekan kerja dapat memesan sendiri secara simultan dari HP masing-masing, keranjang tersinkronisasi secara real-time dan terkelompok berdasarkan nama rekan, Host memiliki kontrol penuh untuk mengunci pesanan dan melakukan checkout dengan proteksi kuota batch (150 PCS), serta rincian patungan (Split Bill) siap kirim ke WhatsApp dengan rekening Host untuk penggantian dana (*reimbursement*).
+
+#### 2. What Was Done
+1. **Skema Basis Data (`commerce_group_orders` & `commerce_group_order_items`):**
+   - Migrasi skema relasional lengkap dengan foreign key ke `businesses`, `customer_users` (host & member), dan `commerce_orders`.
+   - Menampung token unik, judul sesi (`title`), tanggal batch pengiriman (`target_batch_date`), alamat pengiriman, status sesi (`open`, `locked`, `checked_out`, `cancelled`), serta catatan khusus per item.
+2. **Model Domain & Entity (`CommerceGroupOrder`, `CommerceGroupOrderItem`):**
+   - Relasi Eloquent, scope status, helper method (`isOpen`, `isLocked`, `isCheckedOut`, `isHost`), accessors (`subtotal`, `total_quantity`, `members_count`), serta kalkulasi otomatis breakdown `getSplitBillSummary()`.
+3. **Domain Service (`CommerceGroupOrderService`):**
+   - Mengelola siklus hidup sesi grup: pembuatan sesi, validasi status grup terbuka, penambahan/perubahan/penghapusan item oleh anggota dengan validasi kepemilikan (`isOwnedBy`), locking/unlocking oleh Host, dan transaksi checkout atomik dengan *pessimistic locking* (`lockForUpdate()`) terhadap kuota batch pre-order global toko.
+4. **Web Controller & Routes (`CommerceGroupOrderWebController` & `routes/customer.php`):**
+   - Menyediakan 8 endpoint JSON terisolasi tenant (`/storefront/{slug}/group-order/*`): `store`, `show`, `addItem`, `updateItem`, `removeItem`, `lock`, `unlock`, dan `checkout`.
+5. **Storefront Landing Page Integration (`PublicBusinessLandingController` & `business_landing.blade.php`):**
+   - Deteksi otomatis parameter `?group_order={token}` saat tautan dibuka oleh anggota.
+   - Alpine.js reactive state & polling updater (interval 3 detik saat laci keranjang bersama dibuka).
+   - **Bento Apple HIG UI Components:**
+     - *Top Sticky Banner:* Status sesi aktif/terkunci, nama grup, host, jumlah anggota & total pesanan, tombol salin tautan, share WhatsApp, dan tombol buka keranjang bersama.
+     - *Pre-Order Batch Hub Action:* Tombol "👥 Pesan Bareng (Group Order)" untuk inisiasi cepat sesi kantor.
+     - *Product Detail Sheet Integration:* Input catatan pemesan pribadi dan tombol "+ Pesan Bareng".
+     - *Floating Island Pill:* Indikator keranjang bersama melayang dengan animasi pulse dan total belanja real-time.
+     - *Shared Cart Slide-Over Drawer:* Pengelompokan item per rekan kerja, stepper kuantitas untuk pesanan milik sendiri, dan panel kontrol Host (Kunci/Buka & Checkout).
+     - *Split Bill & Reimbursement Sheet:* Breakdown rincian nominal per rekan kerja dan generator pesan WhatsApp siap kirim 1-klik dengan nomor rekening Host.
+6. **Feature Test Suite (`tests/Feature/CommerceGroupOrderTest.php`):**
+   - 7 test case komprehensif dengan 49 assertions: create group, join via link token, add item with notes, member grouping & line totals, non-host lock restriction, host lock & checkout with quota deduction, and split bill calculation.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `database/migrations/2026_09_17_160000_create_commerce_group_orders_table.php` [NEW]
+  - `app/Models/CommerceGroupOrder.php` [NEW]
+  - `app/Models/CommerceGroupOrderItem.php` [NEW]
+  - `app/Domain/Commerce/GroupOrder/CommerceGroupOrderService.php` [NEW]
+  - `app/Http/Controllers/Web/Commerce/CommerceGroupOrderWebController.php` [NEW]
+  - `routes/customer.php` [MODIFY]
+  - `app/Http/Controllers/Web/PublicBusinessLandingController.php` [MODIFY]
+  - `resources/views/public/business_landing.blade.php` [MODIFY]
+  - `tests/Feature/CommerceGroupOrderTest.php` [NEW]
+
+#### 4. Verification & Testing
+* `php artisan test --filter=CommerceGroupOrderTest` -> **7 PASSED (49 assertions)**
+* `php artisan test --filter=CustomerPoBatchSchedulingTest` -> **12 PASSED (59 assertions)**
+* `php artisan test --filter=CommerceStorefrontCheckoutTest` -> **13 PASSED (81 assertions)**
+* `php artisan test --filter=DapurSedapRasaLandingTest` -> **5 PASSED (34 assertions)**
+* `php artisan view:clear` & render `/b/dapur-sedap-rasa` -> **HTTP 200 OK (Blade compile error in multi-line `@json` resolved via clean `@php` block and `json_encode`)**
+* `php -l resources/views/public/business_landing.blade.php` -> **Syntax OK**
+
+---
+
+### [WORK-2026-09-17-061] Fix BadMethodCallException: CommercePaymentProof::isPending() in Merchant Order Show View
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Storefront, Order Verification & Models
+* **Feature:** Implement Status Helper Methods & Accessor on `CommercePaymentProof` (`isPending`, `isVerified`, `isRejected`, `status_label`)
+* **Work Type:** Bug Fix | Model Enhancement | Regression Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pada panel merchant saat pemilik toko/kasir membuka detail pesanan (`GET /storefront/orders/{id}`) yang memiliki bukti pembayaran dari pelanggan untuk diverifikasi.
+* **Masalah:** Terjadi `BadMethodCallException: Call to undefined method App\Models\CommercePaymentProof::isPending()` pada baris 615 berkas `resources/views/app/storefront/orders/show.blade.php`. Hal ini disebabkan model `CommercePaymentProof` belum memiliki method helper status (`isPending()`, `isVerified()`, `isRejected()`) dan accessor label status (`status_label`).
+
+#### 2. What Was Done
+1. **Model Enhancement (`app/Models/CommercePaymentProof.php`):**
+   - Menambahkan method boolean `isPending()`, `isVerified()`, dan `isRejected()` yang mencocokkan status dengan konstanta `STATUS_PENDING`, `STATUS_VERIFIED`, dan `STATUS_REJECTED`.
+   - Menambahkan accessor `getStatusLabelAttribute()` untuk menyajikan label status yang ramah pengguna ('Menunggu Verifikasi', 'Terverifikasi', 'Ditolak').
+2. **Feature Testing (`tests/Feature/CommerceStorefrontCheckoutTest.php`):**
+   - Menambahkan test case `test_payment_proof_status_helpers_and_merchant_order_show_view` untuk memverifikasi seluruh helper status, accessor label, serta rendering halaman detail pesanan merchant tanpa error.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Models/CommercePaymentProof.php` [MODIFY]
+  - `tests/Feature/CommerceStorefrontCheckoutTest.php` [MODIFY]
+
+#### 4. Verification & Testing
+* `php artisan test --filter=test_payment_proof_status_helpers_and_merchant_order_show_view` -> **1 PASSED (12 assertions)**
+* `php artisan test --filter=CommerceStorefrontCheckoutTest` -> **13 PASSED (81 assertions)**
+
+---
+
+### [WORK-2026-09-17-060] Fix Unknown Column 'is_default' in Public Storefront Discovery Locations Query
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Storefront, Discovery Directory & Database
+* **Feature:** Fix Public Discovery Location Eager Loading Query (`is_primary` vs `is_default` & Tenant Logical Grouping)
+* **Work Type:** Bug Fix | Database / SQL Safety | Regression Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pada halaman penjelajahan direktori publik (`GET /jelajah` atau `public.discovery.index`), sistem memuat daftar UMKM terverifikasi dan etalase toko beserta informasi lokasi utama masing-masing bisnis.
+* **Masalah:** Terjadi `QueryException: Column not found: 1054 Unknown column 'is_default' in 'where clause'` pada MySQL database (`calculator-hpp`). Hal ini terjadi karena tabel `locations` menggunakan kolom `is_primary` (bukan `is_default`), serta kueri sebelumnya tidak membungkus klausa `orWhere` dalam parameter grouping sehingga berisiko merusak isolasi tenant jika dievaluasi di level SQL root relation.
+
+#### 2. What Was Done
+1. **Controller Query Repair (`app/Http/Controllers/Web/PublicDiscoveryController.php`):**
+   - Mengganti referensi kolom `is_default` yang tidak ada menjadi `is_primary`.
+   - Membungkus kondisi `is_primary = 1` atau `is_active = 1` dalam *logical closure parameter grouping* `where(function ($sub) { ... })` agar tidak memecah scoping `business_id in (...)`.
+   - Menambahkan pengurutan `orderByDesc('is_primary')` sehingga `$store->locations->first()` di blade view selalu memprioritaskan lokasi gerai/outlet utama.
+2. **Test Suite Modernization:**
+   - Memperbarui fixture `Location::create` di `tests/Feature/PublicBusinessDiscoveryTest.php` dan test commerce lainnya yang sebelumnya menyisipkan `'is_default' => true` yang tidak dikenali menjadi `'is_primary' => true`.
+3. **Verification & Regression Testing:**
+   - Menjalankan seluruh pengujian discovery dan storefront untuk memastikan integritas kueri.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Http/Controllers/Web/PublicDiscoveryController.php` [MODIFY]
+  - `tests/Feature/PublicBusinessDiscoveryTest.php` [MODIFY]
+  - `tests/Feature/PublicStorefrontFieldScenariosTest.php` [MODIFY]
+  - `tests/Feature/CustomerPoBatchTest.php` [MODIFY]
+  - `tests/Feature/CommerceStorefrontCheckoutTest.php` [MODIFY]
+  - `tests/Feature/CommerceShippingRuleFeatureTest.php` [MODIFY]
+  - `tests/Feature/CommerceScheduledOrderTest.php` [MODIFY]
+  - `tests/Feature/CommerceReservationTest.php` [MODIFY]
+
+#### 4. Verification & Testing
+* `php artisan test --filter=PublicBusinessDiscoveryTest` -> **8 PASSED (52 assertions)**
+* `php artisan test --filter="CommerceReservationTest|CommerceScheduledOrderTest|CommerceShippingRuleFeatureTest|CommerceStorefrontCheckoutTest|CustomerPoBatchTest|PublicStorefrontFieldScenariosTest"` -> **39 PASSED (234 assertions)**
+
+---
+
+### [WORK-2026-09-17-059] Customer Account Seeder & Direct Non-Google Login (Email / Phone + Password & Quick Demo Fill)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Customer Auth & Storefront
+* **Feature:** Customer Account Seeder, Email/Phone + Password Login Without Google, Safe Full-URL Redirect Handling, and 1-Click Demo Fill Bento UI
+* **Work Type:** Feature | Auth Hardening | UI/UX (Bento Apple HIG) | Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pada skenario pengujian lokal (Laragon / offline) atau pelanggan yang tidak menggunakan akun Google, sistem otentikasi pelanggan (`guard: customer`) sebelumnya hanya menampilkan tombol Google OAuth. Diperlukan akun seeder pelanggan siap pakai (khususnya untuk pemesan dari instansi seperti Kantor Mandiri dan Kantor BCA) serta formulir login mandiri menggunakan Email atau Nomor WhatsApp + Kata Sandi tanpa ketergantungan pada Google OAuth.
+* **Masalah:**
+  1. Halaman login pelanggan (`/customer/login`) sebelumnya hanya memiliki tombol Google OAuth dan tidak menyediakan opsi login dengan kata sandi bagi pelanggan di lingkungan lokal.
+  2. Alur redirect paska login hanya mendukung path relatif, berpotensi memotong parameter batch dan grup saat pelanggan dialihkan dari storefront toko berdomain/port penuh (`http://127.0.0.1:9082/dapur-sedap-rasa?batch=...&group=...`).
+
+#### 2. What Was Done
+1. **Dedicated Customer Seeder (`database/seeders/CustomerSeeder.php`):**
+   - Membuat seeder akun pelanggan global terverifikasi dengan kredensial:
+     - **Ahmad Pratama (Mandiri):** Email `mandiri@cooca.id`, No. WA `081234567890`, Password `password`
+     - **Budi Wicaksono (BCA):** Email `bca@cooca.id`, No. WA `081987654321`, Password `password`
+     - **Pelanggan Setia Cooca:** Email `customer@cooca.id`, No. WA `081122334455`, Password `password`
+   - Semua akun memiliki `phone_verified_at` dan `email_verified_at` terisi sehingga langsung siap checkout/join PO tanpa tertahan OTP WhatsApp.
+   - Mengintegrasikan seeder ke `DatabaseSeeder.php` dan `DapurSedapRasaSeeder.php`.
+2. **Safe Full-URL Redirect Handling (`app/Http/Controllers/Web/Commerce/CustomerAuthController.php`):**
+   - Memperbarui method `login()` agar mengenali parameter `redirect_to` baik berupa *relative URI* (`/dapur-sedap-rasa...`) maupun *absolute URL* toko (`http://127.0.0.1:9082/dapur-sedap-rasa...`), serta melakukan validasi domain internal yang aman (*open redirect protection*).
+3. **Bento Apple HIG Login UI with 1-Click Demo Fill (`resources/views/customer/auth/login.blade.php`):**
+   - Menambahkan kartu bento "Akun Seeder Demo" dengan tombol cepat untuk langsung mengisi kredensial Ahmad (Mandiri) atau Budi (BCA).
+   - Menyediakan form input Email / No. WhatsApp + Kata Sandi yang bersih, modern, dan ergonomis.
+   - Mempertahankan tombol Google OAuth sebagai opsi alternatif sekunder.
+4. **Storefront Link Integration (`resources/views/public/business_landing.blade.php`):**
+   - Memastikan tombol login di modal Pre-Order mengarahkan pelanggan ke `/customer/login?redirect=...` dengan aman.
+5. **Comprehensive Feature Testing:**
+   - Memperbarui dan menambahkan test case di `tests/Feature/CustomerPortalFeatureTest.php` untuk memvalidasi login email/phone + password, rendering form credential, dan redirect ke target URL batch PO.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `database/seeders/CustomerSeeder.php` [NEW]
+  - `database/seeders/DatabaseSeeder.php` [MODIFY]
+  - `database/seeders/DapurSedapRasaSeeder.php` [MODIFY]
+  - `app/Http/Controllers/Web/Commerce/CustomerAuthController.php` [MODIFY]
+  - `resources/views/customer/auth/login.blade.php` [MODIFY]
+  - `resources/views/public/business_landing.blade.php` [MODIFY]
+  - `tests/Feature/CustomerPortalFeatureTest.php` [MODIFY]
+* **Database Changes:** Data seeder pelanggan tersimpan di tabel `global_customers`.
+* **API / Route Changes:** Route `POST /customer/login` (`customer.login.submit`) menerima input `login`, `password`, dan `redirect_to`.
+
+#### 4. System Impacts
+* **Workflow Impact:** Pelanggan dan developer/QA dapat langsung login menggunakan akun demo dalam 1 klik tanpa memerlukan konfigurasi Google OAuth API credentials.
+* **Security Guard:** Tetap menggunakan proteksi rate limiting bawaan Laravel pada endpoint login serta proteksi terhadap URL redirect eksternal berbahaya.
+
+#### 5. Verification & Testing
+* `php artisan db:seed --class=CustomerSeeder` -> **PASSED (Seeding OK)**
+* `php artisan test --filter=CustomerPortalFeatureTest` -> **15 PASSED (65 assertions)**
+* `php artisan test --filter=CustomerPoBatchSchedulingTest` -> **12 PASSED (59 assertions)**
+
+---
+
+### [WORK-2026-09-17-058] Pre-Order Batch Concurrency Safety (150 PCS Shared Quota Anti-Bentrok), UI Syntax Repair, Mandatory Google Auth, & Immediate Payment Flow
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Storefront, Pos & Security
+* **Feature:** Real-time Concurrency Pessimistic Locking on 150 PCS Batch Quota, UI Tag Escaping Repair, Mandatory Customer Login Guard, and Seamless Payment Upload Flow
+* **Work Type:** Bug Fix | Security (Race Condition / Concurrency Lock) | UI/UX (Apple HIG Bento Hub) | Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pemilik bisnis FNB & Katering (Dapur Sedap Rasa) membuka Pre-Order Batch 1 dengan kapasitas terbatas 150 PCS. Beberapa kelompok pelanggan dari instansi/kantor berbeda (misal Customer A dari Kantor Mandiri dan Customer B dari Kantor BCA) melakukan pesanan makan siang bersama dengan lokasi pengiriman kantor yang berbeda. Karena kuota adalah 150 PCS terpusat, sistem tidak boleh membiarkan adanya overbooking atau pesanan bentrok (race condition) saat kedua kantor checkout bersamaan. Selain itu, setiap pemesan wajib login akun Google terlebih dahulu sebelum memesan dan langsung diarahkan untuk mengunggah bukti pembayaran setelah pesanan dibuat.
+* **Masalah:**
+  1. Terjadi kebocoran teks javascript mentah di atas kartu Bento Pre-Order (`{ showToast('Tautan Pre-Order berhasil disalin! Siap dikirim ke WhatsApp kantor.'); }).catch(() => ...`) akibat karakter `>` di dalam atribut inline HTML `x-data` yang memotong tag `<div>` secara prematur, menyebabkan seluruh Alpine.js crash dan tombol pesanan tidak bisa diklik.
+  2. Pengguna sempat melihat halaman "QR Meja Tidak Valid" akibat terbukanya URL meja kasir (`/t/{qrToken}`) yang tokennya di-random ulang oleh seeder.
+  3. Pengecekan sisa kuota batch sebelumnya dilakukan sebelum transaksi DB dimulai, sehingga rentan terhadap bentrok/overbooking jika 2 kantor checkout pada detik yang sama.
+  4. Pelanggan belum dipandu secara tegas untuk login Google sebelum checkout, dan banner unggah bukti bayar di halaman tracking pesanan belum cukup menonjol.
+* **Target:**
+  1. Perbaiki tag HTML dan pindahkan seluruh logika JS batch ke Alpine component root `businessLandingApp()` tanpa collision parser.
+  2. Amankan kuota batch 150 PCS dengan Pessimistic Concurrency Locking (`lockForUpdate()` di dalam transaksi DB) sehingga pesanan concurrent dieksekusi sekuensial dan atomik.
+  3. Terapkan guard wajib login Google sebelum pemesan bisa checkout, dengan tombol Apple HIG Google Login yang jelas dan redirect otomatis kembali ke batch toko.
+  4. Pandu pelanggan secara langsung untuk mengunggah bukti transfer begitu pesanan terbentuk di halaman tracking.
+  5. Pastikan token QR meja kasir pada seeder dipertahankan (stabil).
+
+#### 2. What Was Done
+1. **Pembersihan UI & Alpine.js Fix (`business_landing.blade.php`):**
+   - Menghapus atribut inline `x-data` pada `<div>` Bento Pre-Order Hub yang memuat arrow function `() =>`.
+   - Menambahkan property `isCustomerLoggedIn`, `customerLoginUrl`, `currentBatchDate`, serta method `selectBatch(date)`, `copyBatchLink(date, day, formatted)`, dan `shareBatchWa(date, day, formatted)` langsung pada `businessLandingApp()`.
+   - Mengintegrasikan tombol Salin Link Batch dan Share WhatsApp ke method tersebut, memastikan link selalu mengarah ke etalase toko yang valid (`/{slug}?batch=...&group=...`).
+2. **Mandatory Login Enforcement:**
+   - Di `submitCheckout()`, jika `!isCustomerLoggedIn`, pelanggan langsung diarahkan ke route `customer.auth.google` dengan URL callback yang menyimpan tanggal batch dan grup kantor.
+   - Pada modal checkout, tombol aksi utama bagi pengunjung guest diganti menjadi tombol Apple HIG Google Login (`Masuk dengan Google untuk Melanjutkan`).
+3. **Pessimistic Concurrency Locking Kuota Batch (`CommerceOrderService.php`):**
+   - Memasukkan validasi kuota batch (`existingQty + incomingQty <= quota`) ke dalam blok transaksi atomik `DB::transaction()`.
+   - Mengunci baris `CommerceStoreSetting` menggunakan `lockForUpdate()` serta mengunci aggregate baris `CommerceOrderItem` dengan `lockForUpdate()`.
+   - Menolak tegas pesanan yang melebihi kuota dengan pesan ramah bahasa Indonesia yang menyatakan sisa PCS real-time.
+4. **Alur Langsung Upload Bukti Bayar (`order_tracking.blade.php`):**
+   - Menambahkan banner panduan Apple HIG yang mencolok di bagian atas instruksi pembayaran: *"Selesaikan Pembayaran & Unggah Bukti Transfer - Pesanan Anda telah tercatat dan kuota batch pengiriman berhasil diamankan."*
+5. **Seeder Hardening (`DapurSedapRasaSeeder.php`):**
+   - Memastikan `PosTable::updateOrCreate` mempertahankan `qr_token` yang sudah ada agar link QR meja tidak menjadi invalid setelah seeding ulang.
+   - Mengonfigurasi `allow_custom_date => false`, `batch_dates_mode => 'operating_days'`, `operating_days => ['friday']`, `daily_order_quota => 150`, `quota_metric => 'quantity'`, `preorder_quota_unit => 'PCS'`.
+6. **Automated Verification:**
+   - Menambahkan tes multi-office concurrency & shared 150 PCS quota limit pada `tests/Feature/CustomerPoBatchSchedulingTest.php`.
+   - Menambahkan tes assertion bahwa DOM landing page bebas dari bocoran teks javascript.
+   - 12/12 tests PASS (59 assertions).
+
+#### 3. Technical Changes
+* **Files Modified:**
+  - `resources/views/public/business_landing.blade.php`: Hapus syntax collision inline `x-data`, pindahkan methods ke Alpine root, perkuat login guard.
+  - `app/Domain/Commerce/Storefront/CommerceOrderService.php`: Terapkan pessimistic locking pada kuota batch di dalam transaksi.
+  - `database/seeders/DapurSedapRasaSeeder.php`: Stabilkan `qr_token` dan sesuaikan batch settings 150 PCS.
+  - `resources/views/public/storefront/order_tracking.blade.php`: Tambahkan banner panduan unggah bukti bayar langsung.
+  - `tests/Feature/CustomerPoBatchSchedulingTest.php`: Tambahkan 2 test method baru untuk skenario multi-office 150 PCS quota limit & anti-leak DOM check.
+
+#### 4. Verification & Testing
+* `php -l resources/views/public/business_landing.blade.php` -> PASS (No syntax errors)
+* `php -l app/Domain/Commerce/Storefront/CommerceOrderService.php` -> PASS (No syntax errors)
+* `php artisan test --filter=CustomerPoBatchSchedulingTest` -> PASS (12 tests, 59 assertions)
+* `php artisan test --filter=DapurSedapRasaLandingTest` -> PASS (3 tests, 29 assertions)
+* `php artisan test tests/Feature/CommerceStorefrontCheckoutTest.php` -> PASS (12 tests, 69 assertions)
+* `php artisan test tests/Feature/CustomerPoBatchTest.php` -> PASS (5 tests, 33 assertions)
+* `php artisan db:seed --class=DapurSedapRasaSeeder` -> PASS
+
+---
+
+### [WORK-2026-09-17-057] Fitur Join Pre-Order (Group Buying / Orang Kantoran via Shareable Link Dinamis), Dukungan Catatan Pemesan per Item, & Lokalisasi Penuh Bahasa Indonesia untuk Hari & Tanggal
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Storefront & Localization
+* **Feature:** Join Pre-Order & Office Group Buying System via Shareable Link (`?batch=...`, `?group=...`), Per-Item Colleague Notes, and Pure Indonesian Localization for Days & Dates (`JUMAT`, `SABTU`, etc.).
+* **Work Type:** Feature | UI/UX (Bento Apple HIG) | Localization | Architecture | Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Kasus umum bagi merchant UMKM FnB dan katering nusantara (seperti Dapur Sedap Rasa) adalah melayani pelanggan perkantoran (pesanan makan siang bersama / *group order* kantor). Bisnis owner cukup mengirimkan link batch tertentu ke grup WhatsApp kantor, dan rekan-rekan kerja dapat membuka tautan tersebut, memesan aneka menu berbeda sesuai katalog produk yang aktif, menyematkan label nama pemesan per kotak makanan (misal: "Budi - Lt 4", "Siti - Rawon"), dan seluruh pesanan terkoordinasi rapi dalam satu jadwal pengantaran.
+* **Masalah:**
+  1. Sebelumnya nama hari dan tanggal pada kartu batch sempat menampilkan format bahasa Inggris ("FRIDAY", dsb.) akibat ketergantungan pada locale default server (`en`).
+  2. Belum ada antarmuka khusus Bento Hub untuk menyalin atau membagikan link batch secara instan ke grup WhatsApp kantor.
+  3. Belum ada kolom input nama pemesan per menu di keranjang belanja, sehingga pemesanan makanan kolektif rentan tertukar saat sampai di gedung kantor.
+* **Target:**
+  1. Lokalisasi 100% Bahasa Indonesia untuk seluruh hari (`SENIN`, `SELASA`, `RABU`, `KAMIS`, `JUMAT`, `SABTU`, `MINGGU`) dan bulan (`Jan` s/d `Des`) secara deterministik.
+  2. Mendukung tautan shareable batch dinamis `/b/{slug}?batch=YYYY-MM-DD` dan parameter grup kantor `&group=NamaKantor` yang secara otomatis mengunci tanggal batch dan memvalidasi pesanan.
+  3. Menyediakan Bento Hub Pre-Order Apple HIG di landing page dengan aksi satu klik "Salin Link Batch" (format WhatsApp siap kirim) dan "Ajak Teman Kantor (WA)".
+  4. Menyediakan input catatan nama pemesan per item di keranjang belanja (`item.notes`) dan field kantor di modal checkout yang tersimpan rapi ke `CommerceOrderItem` dan `CommerceOrder`.
+
+#### 2. What Was Done
+1. **Locale & Localization Hardening:**
+   - Mengubah default locale aplikasi di `config/app.php` menjadi `id` dan fallback `id`.
+   - Menginisialisasi `Carbon::setLocale('id')` di `AppServiceProvider::boot()`.
+   - Menyediakan kamus penerjemah hari dan bulan deterministik di `PublicBusinessLandingController.php` yang menghasilkan `day_name`, `day_name_upper` (`JUMAT`), `short_date` (`18 Sep`), dan `full_date` (`Jumat, 18 September 2026`).
+2. **Join Pre-Order & Shareable Batch Resolution:**
+   - Di `PublicBusinessLandingController.php`, menangkap query parameter `batch`, `group` / `kantor`, dan `join_po`.
+   - Memvalidasi dan menetapkan `$selectedBatchDate` dan `$selectedBatch` yang aktif.
+3. **Bento Pre-Order Hub & Office Group UI:**
+   - Di `business_landing.blade.php`, menambahkan kartu Bento Hub Pre-Order Apple HIG tepat di atas katalog produk lengkap dengan tombol "Salin Link Batch" dan "Ajak Teman Kantor (WA)".
+   - Memperbarui batch chips di modal checkout agar menampilkan `day_name_upper` (`JUMAT 18 Sep`).
+   - Menambahkan input nama pemesan per menu (`item.notes`) pada Cart Drawer.
+   - Menambahkan input nama kantor / drop point pada modal checkout, serta ringkasan menu yang memperlihatkan label nama rekan kerja yang memesan.
+4. **Domain Service & Order Processing:**
+   - Menambahkan helper `formatIndonesianDate()` di `CommerceOrderService.php` untuk memastikan seluruh pesan validasi kuota dan Pre-Order menggunakan bahasa Indonesia yang ramah.
+   - Memastikan `CommerceOrderService` menerima dan menyimpan `notes` baik dari `options['notes']` maupun `options['order_notes']`.
+5. **Automated Testing:**
+   - Memperluas `tests/Feature/CustomerPoBatchSchedulingTest.php` dengan 4 test baru (total 10 tests, 43 assertions, 100% PASS):
+     - `test_batch_dates_use_pure_indonesian_day_names_and_months`
+     - `test_shareable_batch_link_preselects_date_and_renders_join_po_hub`
+     - `test_office_group_buying_link_renders_group_name_and_prefills_office_field`
+     - `test_order_creation_preserves_item_level_recipient_notes_for_office_colleagues`
+
+#### 3. Technical Changes
+* **Files Modified:**
+  - `config/app.php` [MODIFY]
+  - `app/Providers/AppServiceProvider.php` [MODIFY]
+  - `app/Http/Controllers/Web/PublicBusinessLandingController.php` [MODIFY]
+  - `resources/views/public/business_landing.blade.php` [MODIFY]
+  - `app/Domain/Commerce/Storefront/CommerceOrderService.php` [MODIFY]
+  - `tests/Feature/CustomerPoBatchSchedulingTest.php` [MODIFY]
+
+#### 4. Verification & Testing
+* `php artisan test --filter=CustomerPoBatchSchedulingTest` (10 tests passed, 43 assertions, 0 errors).
+* `php artisan test --filter=DapurSedapRasaLandingTest` (3 tests passed, 29 assertions, 0 errors).
+* `php artisan test --filter=Public` (26 tests passed, 160 assertions, 0 errors).
+* `php -l` bebas error pada seluruh berkas.
+
+---
+
+### [WORK-2026-09-17-056] Parameterisasi Dinamis Pre-Order & Batch Pengiriman (Kunci Tanggal Batch, Kuota Kuantitas PCS/Porsi, Mode Batch Spesifik & Validasi Backend Ketat)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront
+* **Feature:** Parameterized Pre-Order & Batch Scheduling System (`allow_custom_date`, `quota_metric`, `preorder_quota_unit`, `batch_dates_mode`, `custom_batch_dates`).
+* **Work Type:** Feature | Architecture | Security & Validation | UI/UX | Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Merchant UMKM FnB dan katering yang menjalankan sistem Pre-Order (PO) dan pengiriman berkala berbasis batch (seperti Dapur Sedap Rasa) membuka batch pada hari-hari tertentu (misal: setiap Jumat) atau tanggal spesifik dengan batas kuota produksi tertentu (misal: 150 PCS).
+* **Masalah:** Sistem sebelumnya selalu menampilkan input kalender bebas *"Atau Pilih Tanggal Sendiri"* di modal checkout, sehingga pembeli dapat melewati (*bypass*) batch resmi dan memilih tanggal bebas di luar jadwal yang dibuka merchant. Selain itu, kuota sebelumnya hanya dihitung per transaksi (order count), bukan per kuantitas produk (PCS/porsi/box).
+* **Target:**
+  1. Menghadirkan parameterisasi dinamis dan menyeluruh agar merchant dapat mengunci jadwal ke tanggal batch saja (`allow_custom_date = false`), atau tetap mengizinkan tanggal bebas (`allow_custom_date = true`).
+  2. Menghadirkan basis perhitungan kuota fleksibel (`quota_metric`: `quantity` vs `orders`) dengan label satuan dinamis (`preorder_quota_unit`: `PCS`, `Porsi`, `Box`, `Paket`, dll.) sehingga label kartu batch menampilkan informasi akurat ("Sisa 150 PCS").
+  3. Menghadirkan mode penentuan batch (`batch_dates_mode`: `operating_days` otomatis mingguan vs `custom_dates` tanggal kalender spesifik).
+  4. Menerapkan proteksi validasi server-side pada `CommerceOrderService` agar order yang masuk divalidasi ketat terhadap tanggal batch yang sah dan menolak pesanan jika kuota PCS terlampaui.
+
+#### 2. What Was Done
+1. **Database Migration:**
+   - Membuat migrasi `2026_09_17_150000_add_batch_scheduling_options_to_commerce_store_settings_table.php` untuk menambahkan kolom `allow_custom_date`, `quota_metric`, `preorder_quota_unit`, `batch_dates_mode`, dan `custom_batch_dates` pada tabel `commerce_store_settings`.
+2. **Model Layer (`CommerceStoreSetting.php`):**
+   - Menambahkan seluruh kolom baru ke `$fillable` dan `$casts`.
+3. **Admin UI & Controller (`MerchantStoreSettingController.php` & `settings.blade.php`):**
+   - Menambahkan kontrol Apple HIG pada bagian *Pengaturan Pesanan Terjadwal*:
+     - Saklar: *"Izinkan Pembeli Memilih Tanggal Bebas"* (`allow_custom_date`).
+     - Pemilih Basis Kuota: *Total Kuantitas Item (PCS / Porsi)* vs *Jumlah Transaksi*.
+     - Input Satuan Kuota: `PCS`, `Porsi`, `Box`, dll.
+     - Pemilih Mode Batch: *Rutin Mingguan Sesuai Hari Operasional* vs *Daftar Tanggal Batch Spesifik*.
+     - Textarea daftar tanggal spesifik dengan parsing fleksibel `YYYY-MM-DD : Kuota : Catatan`.
+4. **Public Storefront Presentation (`PublicBusinessLandingController.php` & `business_landing.blade.php`):**
+   - Controller menghitung kuota terpakai berbasis kuantitas item (`SUM(commerce_order_items.quantity)`) saat `quota_metric === 'quantity'`, dan menyertakan `quota_unit`.
+   - Pada modal checkout:
+     - Jika `allow_custom_date === false`: input kalender *"Atau Pilih Tanggal Sendiri"* disembunyikan total, digantikan panduan informatif, dan pembeli wajib memilih batch chip yang tersedia.
+     - Label batch chip menampilkan: `Sisa {quota} {unit}` (misal: "Sisa 150 PCS").
+     - Alpine.js memvalidasi pilihan batch sebelum submit.
+5. **Domain Service Validation (`CommerceOrderService.php`):**
+   - Pada `createScheduledOrder()`:
+     - Mengizinkan pesanan jika `allow_scheduled_order` atau `allow_customer_po` aktif.
+     - Memvalidasi kepatuhan tanggal batch saat `allow_custom_date === false` (menolak tanggal di luar batch yang sah atau di luar hari operasional).
+     - Menghitung akumulasi kuantitas produk pesanan baru terhadap sisa kuota PCS yang tersedia pada tanggal tersebut.
+6. **Seeder & Automated Testing:**
+   - Memperbarui `DapurSedapRasaSeeder.php` dengan setting `allow_custom_date = false`, `quota_metric = 'quantity'`, `preorder_quota_unit = 'PCS'`.
+   - Membuat `tests/Feature/CustomerPoBatchSchedulingTest.php` dengan 6 pengujian komprehensif (100% PASS).
+
+#### 3. Technical Changes
+* **Files Modified / Created:**
+  - `database/migrations/2026_09_17_150000_add_batch_scheduling_options_to_commerce_store_settings_table.php` [NEW]
+  - `app/Models/CommerceStoreSetting.php` [MODIFY]
+  - `app/Http/Controllers/Web/Commerce/MerchantStoreSettingController.php` [MODIFY]
+  - `resources/views/app/storefront/settings.blade.php` [MODIFY]
+  - `app/Http/Controllers/Web/PublicBusinessLandingController.php` [MODIFY]
+  - `resources/views/public/business_landing.blade.php` [MODIFY]
+  - `app/Domain/Commerce/Storefront/CommerceOrderService.php` [MODIFY]
+  - `database/seeders/DapurSedapRasaSeeder.php` [MODIFY]
+  - `tests/Feature/CustomerPoBatchSchedulingTest.php` [NEW]
+
+#### 4. Verification & Testing
+* `php artisan test --filter=CustomerPoBatchSchedulingTest` (6 tests passed, 23 assertions, 0 errors).
+* `php artisan test --filter=DapurSedapRasaLandingTest` (3 tests passed, 29 assertions, 0 errors).
+* `php artisan test --filter=ProductChannelVisibilityAndPreorderTest` (10 tests passed, 38 assertions, 0 errors).
+* `php artisan test --filter=PublicStorefrontFieldScenariosTest` (7 tests passed, 39 assertions, 0 errors).
+* `php artisan test --filter=PublicBusinessDiscoveryTest` (8 tests passed, 52 assertions, 0 errors).
+* `php artisan test --filter=Public` (26 tests passed, 160 assertions, 0 errors).
+* PHP Lint `php -l` bebas error pada seluruh controller, view, dan service yang disentuh.
+
+---
+### [WORK-2026-09-17-055] Implementasi Dedicated Data Seeder & Konfigurasi Lengkap Bisnis FNB & Katering Dapur Sedap Rasa (dapur-sedap-rasa) dengan Dukungan Order Offline (POS/Dine-In) dan Pre-Order (PO) Online
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, POS & Storefront Seeding
+* **Feature:** Data Seeder Komprehensif `DapurSedapRasaSeeder` untuk bisnis FnB & Katering (`dapur-sedap-rasa`), Storefront Setting (`allow_pickup`, `allow_delivery`, `allow_customer_po`, `allow_scheduled_order`, `allow_request_order`, `allow_reservation`), Tata Letak Meja POS Kasir (8 Meja Indoor, 2 Teras Outdoor, 2 Ruang VIP), Metode Pembayaran (BCA, Mandiri, QRIS), Aturan Ongkos Kirim (Pickup Rp 0, Kurir Toko Flat Rp 15.000, Armada Katering Flat Rp 45.000), Katalog 18 Menu Nyata Terpisah (Santap Langsung, Katering Nasi Box, Tumpeng Mini, Prasmanan, Snack Box, Kasir POS), Stok Awal Inventory, Landing Page CMS Apple HIG, serta Sample Transaksi Offline POS & Online PO Katering.
+* **Work Type:** Seeder | Database | Storefront Architecture | Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Bisnis "Dapur Sedap Rasa" (`slug: dapur-sedap-rasa`, URL: `http://127.0.0.1:9082/dapur-sedap-rasa`) adalah bisnis FNB & Katering Nusantara terpadu yang melayani dua model bisnis utama:
+  1. **Order Langsung Offline (Dine-in & Takeaway):** Tamu datang langsung makan di tempat (indoor AC, teras santai, atau reservasi ruang VIP meeting/keluarga) atau pesan bungkus di kasir POS restoran.
+  2. **Pre-Order (PO) Online:** Pelanggan korporat, kantor, maupun keluarga melakukan Pre-Order katering Nasi Box, Bento meeting, Tumpeng mini, atau paket prasmanan melalui website etalase publik dengan jadwal pengiriman dan lead-time yang terukur.
+* **Target:**
+  - Menyediakan seeder mandiri dan terintegrasi `database/seeders/DapurSedapRasaSeeder.php` yang siap dieksekusi secara berulang (*idempotent*) tanpa konflik.
+  - Memastikan seluruh pengaturan bisnis (`CommerceStoreSetting`), kanal produk (`show_in_pos`, `show_in_website`), mode PO (`is_preorder`, `preorder_mode`, `preorder_lead_days`), metode pembayaran, aturan ongkir, meja kasir POS, dan landing page CMS terkonfigurasi dengan benar.
+
+#### 2. What Was Done
+1. **Business Profile & Multi-User Membership:**
+   - Menyinkronkan profil bisnis `Dapur Sedap Rasa` (`fnb_resto`, Kelapa Gading Jakarta Utara, rounding 100, mata uang IDR).
+   - Menghubungkan pengguna owner (`owner.resto@cooca.id`, `demo@cooca.id`, `testing@cooca.id`) dengan fallback otomatis pembuat user jika database dalam kondisi bersih.
+2. **Lokasi & Infrastruktur Meja Kasir POS:**
+   - 2 Lokasi: Resto Utama & Central Kitchen / Gudang Bahan.
+   - 1 Kasir Register (`REG-01`) dan 12 unit meja/ruang VIP dengan `qr_token` unik untuk mendukung pemesanan offline / dine-in.
+3. **Storefront & Commerce Settings Lengkap:**
+   - Mengaktifkan `is_storefront_enabled`, `allow_pickup` (takeaway/ambil sendiri), `allow_delivery` (kurir toko), `allow_scheduled_order` (jadwal makan siang), `allow_request_order` (custom katering), `allow_customer_po` (PO online katering), dan `allow_reservation` (booking meja & VIP room).
+   - Konfigurasi kuota 150 pesanan/hari, 6 slot jam pengantaran, dan lead time 1 jam.
+4. **Metode Pembayaran & Aturan Pengiriman:**
+   - Rekening BCA, Rekening Mandiri, dan QRIS Dapur Sedap Rasa.
+   - 3 Aturan Ongkir: Ambil Sendiri (Rp 0), Kurir Toko Lokal (Rp 15.000 / Gratis min Rp 150.000), dan Armada Khusus Katering Jabodetabek (Rp 45.000 / Gratis min Rp 1.000.000).
+5. **Katalog Menu & Granularitas Pre-Order:**
+   - 9 Menu Harian Santap Langsung (Ayam Bakar Madu, Rendang Payakumbuh, Rawon Surabaya, Nasi Goreng Kampung, Sate Madura, Tempe Mendoan, Es Cendol, Es Kopi Susu, Es Jeruk) &rarr; `is_preorder = false`, `show_in_pos = true`, `show_in_website = true`.
+   - 6 Menu Katering Pre-Order Online (Bento Meeting, Nasi Box Komplit, Tumpeng Mini, Tumpeng Besar 20 Pax, Snack Box Rapat, Prasmanan Nusantara) &rarr; `is_preorder = true`, `preorder_mode = 'customer_schedule'`, `preorder_lead_days = 1-2 hari`.
+   - 3 Item Tambahan Kasir Offline Saja (Nasi Putih Tambahan, Ekstra Sambal, Kerupuk) &rarr; `show_in_pos = true`, `show_in_website = false`.
+   - Menghapus item dummy generik lama (`RET-SLS-01`, dll.) agar katalog murni spesifik FnB & Katering.
+6. **Inisialisasi Stok & Transaksi Demo:**
+   - Menambahkan stok awal `InventoryStock` di lokasi resto utama (50–200 unit per item).
+   - 1 Sampel transaksi offline POS Meja 03 berstatus `completed` dengan pembayaran tunai.
+   - 1 Sampel transaksi PO Online Telkom Indonesia (25 box bento) berstatus `processing` dan `paid`.
+   - 1 Sampel reservasi meja VIP Semeru berstatus `confirmed`.
+7. **Pendaftaran Seeder:**
+   - Mendaftarkan `DapurSedapRasaSeeder::class` di `database/seeders/DatabaseSeeder.php`.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `database/seeders/DapurSedapRasaSeeder.php` [NEW]
+  - `database/seeders/DatabaseSeeder.php` [MODIFY]
+  - `tests/Feature/DapurSedapRasaLandingTest.php` [NEW]
+  - `docs/AiWorkHistory.md` [MODIFY]
+  - `docs/SYSTEM_GUIDE.md` [MODIFY]
+
+#### 4. Verification & Testing
+* `php -l database/seeders/DapurSedapRasaSeeder.php`: Syntax valid, 0 errors.
+* `php artisan db:seed --class=DapurSedapRasaSeeder`: Sukses 100% tanpa error.
+* `php artisan test --filter=DapurSedapRasaLandingTest`: 3 passed, 29 assertions (100%).
+* `php artisan test --filter=Public`: 26 passed, 160 assertions (100% zero regression).
+
+#### 5. Documentation Promotion
+* Dicatat pada `docs/SYSTEM_GUIDE.md` Bagian 3.8.
+
+---
+
+### [WORK-2026-09-17-054] Refactoring & Apple HIG Bento System Hardening pada Halaman Publik Storefront & Single Page Landing (business_landing.blade.php)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce & Public Storefront
+* **Feature:** Apple HIG Bento Grid Design System v2.0, Mobile Bottom Sheet & Desktop XXL 2-Column Bento Dialog Architecture (Checkout, Request Order, Reservasi, Customer PO), Anti-AI-Template Mandate (Pure Typographic Overline, Anti-Pill Abuse), Anti-FOUC Script Contract Preservation, Strict No-Emoji Mandate, Pure Action Verbs & Accessible Touch Targets.
+* **Work Type:** UI/UX | Refactoring | Frontend Architecture | Mobile Ergonomics
+
+#### 1. Business Context & Objective
+* **Konteks:** Halaman publik bisnis (`resources/views/public/business_landing.blade.php`) adalah etalase digital utama bagi pelanggan umum untuk melihat katalog produk UMKM, melakukan pesanan checkout, request order, reservasi meja/jadwal, atau mengajukan purchase order (PO).
+* **Masalah/Target:**
+  1. Merapikan tampilan antarmuka single page landing sesuai direktif `docs/agent.md` dan `docs/prompt.md`.
+  2. Mengeliminasi pola AI template generik (kapsul pill sparkles dekoratif berlebihan pada Hero, fake unread pulse dots pada floating WhatsApp, singkatan kasar "WA").
+  3. Mengadopsi arsitektur modal kelas dunia Apple HIG: Full-Responsive Bottom Sheet pada perangkat mobile (< 640px) dengan grab bar dan font input min 16px, serta Centered XXL 2-Column Bento Dialog pada desktop (>= 1024px) untuk memisahkan form identitas/pengiriman (kiri) dan rincian transaksi/metode bayar/total (kanan).
+  4. Menjaga 100% kontrak fungsional dan pengujian otomatis (Zero Regression pada form submission, Alpine.js reactive states, dan SSR anti-FOUC script contract).
+
+#### 2. What Was Done
+1. **Hero Section Refinement (Anti-AI-Template & Pure Typography):**
+   - Menghilangkan badge pil kapsul sparkles generik AI template, menggantikannya dengan Pure Typographic Overline yang bersih, tenang, dan berwibawa (`text-[11px] font-bold uppercase tracking-widest text-black/50 dark:text-white/50`).
+   - Membersihkan trust tag badges dengan ikon Lucide murni (`award`) dan merapikan action verb tombol CTA menjadi *"WhatsApp"* dan *"Pesan / Reservasi"*.
+2. **Header & Floating WhatsApp Widget Hardening:**
+   - Mengganti singkatan kasual `"WA"` pada tombol header dan navigasi mobile menjadi `"WhatsApp"` dan microcopy santun `"Hubungi via WhatsApp"`.
+   - Mengeliminasi *fake unread pulse dot* (`animate-ping`) pada Floating WhatsApp widget agar antarmuka jujur, tidak manipulatif, dan tenang.
+3. **Modal-First Architecture (Responsive Mobile Bottom-Sheet & Desktop XXL 2-Column Bento Dialog):**
+   - **Checkout Modal (`x-show="checkoutModalOpen"`):** Mengadopsi format hybrid: Bottom-sheet geser pada mobile (`rounded-t-[28px]`, grab bar, input min 16px) dan XXL 2-Column Bento Dialog pada desktop (`lg:max-w-5xl`). Kolom kiri: Data pelanggan, alamat/outlet pengiriman, batch schedule/delivery date. Kolom kanan: Opsi pembayaran, catatan, ringkasan subtotal, ongkir, dan tombol bayar.
+   - **Request Order Modal (`x-show="requestOrderModalOpen"`):** Responsive Bottom-sheet pada mobile dan 2-column Bento Dialog pada desktop (`md:max-w-2xl lg:max-w-4xl`).
+   - **Customer PO Modal (`x-show="customerPoModalOpen"`):** Responsive Bottom-sheet pada mobile dan lapang Bento sheet pada desktop (`sm:max-w-3xl lg:max-w-4xl`).
+   - **Reservation Modal (`x-show="reservationModalOpen"`):** Responsive Bottom-sheet pada mobile dan 2-column Bento Dialog pada desktop (`md:max-w-2xl lg:max-w-4xl`). Kolom kiri: Identitas tamu. Kolom kanan: Jadwal, durasi, preferensi meja, catatan, submit.
+4. **Anti-FOUC & SSR Script Contract Preservation:**
+   - Memastikan blok `<head>` tetap memuat script inisialisasi tema dark mode `var isLandingDark = {{ $initialDarkMode ? 'true' : 'false' }};` sebelum manipulasi class `document.documentElement`, mencegah kedipan FOUC dan memenuhi test contract.
+5. **Strict No-Emoji Mandate:**
+   - Seluruh elemen ikon menggunakan Lucide SVG murni (`check`, `calendar`, `clock`, `award`, `shopping-bag`, `phone`, `truck`, `map-pin`).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/public/business_landing.blade.php` (Refactoring layout modal, hero overline, header, floating WhatsApp, typography & touch targets)
+  - `docs/SYSTEM_GUIDE.md` (Update Section 3.8 arsitektur modal & landing publik)
+  - `docs/system/architecture/ui-ux-design-system.md` (Update Section 12.12 standar storefront & landing)
+  - `docs/AiWorkHistory.md` (Pencatatan rekam jejak historis [WORK-2026-09-17-054])
+* **Database Changes:** Tidak ada (Zero DB Schema Regression).
+* **API / Route Changes:** Tidak ada (Semua endpoint POST checkout, reservation, request order, customer PO tetap utuh).
+
+#### 4. System Impacts
+* **Workflow Impact:** Pelanggan mobile mendapatkan pengalaman bottom-sheet natural khas iOS dengan jangkauan jempol ergonomis dan tanpa auto-zoom form field. Pelanggan desktop menikmati tata letak 2 kolom bento yang lapang tanpa perlu scrolling panjang.
+* **Business Rule Impact:** Seluruh aturan bisnis terkait fulfillment, jam operasional, batch schedule pre-order, dan minimum belanja tetap dipatuhi 100%.
+* **Permission Impact:** Publik (Guest/Customer) tanpa batasan autentikasi.
+
+#### 5. Verification & Testing
+* `php -l resources/views/public/business_landing.blade.php`: Syntax valid, 0 errors.
+* `php artisan test --filter=PublicBusinessDiscoveryTest`: 8 passed, 52 assertions (100%).
+* `php artisan test --filter=PublicStorefrontFieldScenariosTest`: 7 passed, 39 assertions (100%).
+* `php artisan test --filter=Public`: 26 passed, 160 assertions (100%).
+
+#### 6. Important Decisions & Guardrails
+* **Modal Dialog Architecture:** Memastikan desktop dialog tidak pernah terhimpit dalam 1 kolom sempit, melainkan terbagi menjadi 2 kolom informasi terstruktur (Data Customer vs Transaksi/Pembayaran) dengan batas lebar `lg:max-w-5xl`.
+* **Zero Script Regression:** Mempertahankan seluruh nama variabel form Alpine (`checkoutForm`, `reservationForm`, `requestOrderForm`, `customerPoForm`), fungsi submit, serta watcher `isDark` dan `cartCount`.
+* **No-Emoji & Anti-Fake Dots:** Kepatuhan penuh terhadap panduan Brand Soul & Apple Restraint di `docs/prompt.md` dan `docs/agent.md`.
+
+#### 7. Documentation Promotion
+* Dipromosikan ke `docs/SYSTEM_GUIDE.md` (Bagian 3.8) dan `docs/system/architecture/ui-ux-design-system.md` (Bagian 12.12).
+
+---
+
+### [WORK-2026-09-17-053] Implementasi COOCA Unified Social Media Management (Meta & TikTok Developer Official) dengan Zero .env Dependency, Database-Driven Admin Settings, Multi-Target Publishing, Queue Exponential Backoff, Instagram Carousel & Aturan 5 Tagar
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Social Media & Content Marketing (Unified Multi-Platform)
+* **Feature:** TikTok Developer Platform Integration (OAuth 2.0 & Content Posting API), Omnichannel Multi-Target Composer, Asynchronous Distributed Publishing (`PublishSocialMediaTargetJob`), Partial Success & Target-Level Retries, Instagram Carousel (2-10 items) dengan Reorder Tray, COOCA Strict 5-Hashtag Validation, Visual Content Calendar, 100% Database-Driven Admin Settings (`resources/views/admin/settings`) tanpa ketergantungan `.env`, dan Endpoint Uji Validitas Kredensial Platform.
+* **Work Type:** Feature | Architecture | Security | Distributed Queues | Database | UI/UX | Bento Apple HIG
+
+#### 1. Business Context & Objective
+* **Konteks:** Merchant UMKM membutuhkan satu pintu terpadu (*Unified Hub*) untuk mengelola seluruh kanal media sosial toko (Facebook Page, Instagram Bisnis, Threads, dan TikTok) tanpa harus berpindah aplikasi. Seluruh konfigurasi platform (Meta App ID/Secret, Webhook Token, TikTok Client Key/Secret) wajib dikelola langsung melalui Admin Settings UI (`resources/views/admin/settings`) dan tersimpan aman di database sistem (`system_settings`) dengan enkripsi simetris AES-256 tanpa menyentuh file `.env`.
+* **Target:**
+  1. Integrasi resmi TikTok Developer Platform (Open API v2): OAuth 2.0 authorization, exchange access token & refresh token terenkripsi, Direct Post Video & Photo Mode, auto-refresh token (masa berlaku 24 jam diperbarui otomatis sebelum kedaluwarsa).
+  2. Zero .env Dependency: Kredensial Meta dan TikTok 100% dikonfigurasi melalui tab "Media Sosial (Meta & TikTok)" di `resources/views/admin/settings`, disimpan di tabel `system_settings` dengan atribut `is_secret = true`, dan disediakan endpoint verifikasi diagnostik (`admin.settings.test-social`).
+  3. Multi-Target Composer: Satu antarmuka composer postingan untuk memilih banyak akun sekaligus (Facebook, Instagram, Threads, TikTok), kustomisasi caption spesifik per kanal, serta pratinjau live.
+  4. Instagram Carousel: Unggah 2 hingga 10 berkas media dengan tray reordering interaktif sebelum dipublikasikan.
+  5. Aturan Bisnis COOCA (Max 5 Tagar): Validasi ketat maksimal 5 tagar unik per postingan/target dengan deduplikasi case-insensitive dan live counter badge (`Tagar: X / 5`).
+  6. Queue-First Distributed Publishing: Job asynchronous `PublishSocialMediaTargetJob` dengan retry exponential backoff (`[10, 30, 60]` detik), idempotency check, partial success handling (target gagal dapat di-retry tanpa menduplikasi target sukses), dan auto-purge temporary files segera setelah proses selesai.
+  7. Kalender Konten Visual: Tampilan bulanan bergaya Apple Bento dengan indikator kanal, status postingan, dan filter tanggal.
+
+#### 2. What Was Done
+1. **Database Schema & Migrasi:**
+   - Membuat migrasi `database/migrations/2026_09_17_140000_enhance_social_media_for_unified_providers.php` yang menambahkan kolom `provider`, `refresh_token` (encrypted), `refresh_token_expires_at` pada `social_media_accounts`, serta tabel relasi multi-target `social_post_targets` dan `social_post_media`.
+2. **Domain Architecture & Provider Contracts:**
+   - Membuat interface `SocialMediaProviderInterface` (`getProviderName`, `isConfigured`, `getAuthUrl`, `handleAuthCallback`, `refreshToken`, `publish`, `getCreatorInfo`, `syncMetrics`).
+   - Membuat `TikTokProvider` dan `TikTokClient` untuk Open API v2 TikTok Creator & Content Posting API.
+   - Mengadaptasi `MetaProvider` dan `MetaSocialMediaClient` untuk mendukung Facebook, Instagram single/reel/carousel, dan Threads.
+   - `SocialMediaManager` sebagai resolver provider dinamis dan pintu validator sentral.
+   - `SocialMediaContentValidator`: Validasi multibyte character, Instagram carousel (2-10 items), TikTok photo mode (2-35 images), dan penegakan aturan COOCA maksimal 5 unique hashtags.
+3. **Queue & Background Jobs:**
+   - Membuat `PublishSocialMediaTargetJob` dengan `$tries = 3`, `$backoff = [10, 30, 60]`, sinkronisasi status induk postingan, dan auto-purge storage berkas sementara.
+   - Memperbarui `PublishScheduledSocialMediaPostsCommand` untuk mendukung dispatch target-level asynchronous.
+4. **Admin Settings & Zero .env Architecture:**
+   - Memperbarui `AdminSettingController` (`getUnifiedSettingData`, `update`, `testSocialMediaConfig`) untuk menyimpan `social_media_app_id`, `social_media_app_secret`, `tiktok_client_key`, `tiktok_client_secret` langsung ke `system_settings` dengan enkripsi simetris.
+   - Menambahkan tab "Media Sosial (Meta & TikTok)" di `resources/views/admin/settings/index.blade.php` dengan tombol salin URL Webhook/Callback, show/hide secret, tombol uji validitas kredensial AJAX, kartu hasil diagnosis, panduan cakupan izin Meta, dan panduan izin TikTok.
+   - Membersihkan `config/services.php`, `AdminSocialMediaService.php`, `MetaSocialMediaClient.php`, dan `TikTokClient.php` dari pembacaan `.env` fallback.
+5. **Merchant Experience & Bento Apple HIG Views:**
+   - `resources/views/app/social_media/index.blade.php`: Kartu koneksi Meta & TikTok dengan status auto-refresh token.
+   - `resources/views/app/social_media/posts.blade.php`: Multi-account selector, Instagram carousel upload tray dengan drag & drop reorderer, live 5-hashtag counter badge, per-channel custom caption accordion.
+   - `resources/views/app/social_media/calendar.blade.php`: Kalender bulanan visual dengan ikon kanal dan status publish.
+6. **Testing Otomatis:**
+   - Menulis 45 skenario feature test di `tests/Feature/SocialMedia/` dan `tests/Feature/Admin/AdminSocialMediaSettingsTest.php`, mencakup OAuth TikTok, multi-target composer, Instagram carousel, validasi 5-hashtag, retry target gagal, dan verifikasi simpan kredensial admin tanpa `.env`.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_17_140000_enhance_social_media_for_unified_providers.php`
+  - `app/Domain/SocialMedia/Contracts/SocialMediaProviderInterface.php`
+  - `app/Domain/SocialMedia/Providers/MetaProvider.php`
+  - `app/Domain/SocialMedia/Providers/TikTokProvider.php`
+  - `app/Domain/SocialMedia/Clients/TikTokClient.php`
+  - `app/Domain/SocialMedia/SocialMediaManager.php`
+  - `app/Domain/SocialMedia/Validation/SocialMediaContentValidator.php`
+  - `app/Jobs/SocialMedia/PublishSocialMediaTargetJob.php`
+  - `app/Models/SocialPostTarget.php`
+  - `app/Models/SocialPostMedia.php`
+  - `resources/views/app/social_media/calendar.blade.php`
+  - `docs/social-media/*.md` (9 architecture & operational guides)
+  - `tests/Feature/SocialMedia/TikTokOAuthTest.php`
+  - `tests/Feature/SocialMedia/UnifiedPostingAndCarouselTest.php`
+  - `tests/Feature/SocialMedia/PublishTargetJobTest.php`
+  - `tests/Feature/Admin/AdminSocialMediaSettingsTest.php`
+* **Files Modified:**
+  - `app/Http/Controllers/Admin/AdminSettingController.php`
+  - `app/Http/Controllers/Admin/AdminSocialMediaController.php`
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`
+  - `app/Domain/SocialMedia/AdminSocialMediaService.php`
+  - `app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`
+  - `app/Console/Commands/PublishScheduledSocialMediaPostsCommand.php`
+  - `resources/views/admin/settings/index.blade.php`
+  - `resources/views/admin/social_media/index.blade.php`
+  - `resources/views/app/social_media/index.blade.php`
+  - `resources/views/app/social_media/posts.blade.php`
+  - `routes/admin.php`
+  - `routes/owner.php`
+  - `config/services.php`
+
+#### 4. Verification & Testing
+* `php artisan test tests/Feature/SocialMedia/ tests/Feature/Admin/AdminSocialMediaSettingsTest.php`: **45 passed, 268 assertions (100% Green, 0 Failures, 0 Regressions)**.
+* `php artisan route:list --name=social`: Seluruh 15 route media sosial terdaftar dengan rapi dan aman dengan middleware permission.
+
+---
+
+### [WORK-2026-09-17-052] Implementasi Upload Media Langsung (Feed Foto, Video & Instagram Reels) dengan Pembersihan Server Otomatis (Storage Auto-Purge) dan Penjadwalan Cron
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Social Media & Content Marketing (Publishing & Storage Lifecycle)
+* **Feature:** Direct Media Upload (Photo, Video, Instagram Reels), Client-side Live Preview, Meta Graph API Video/Reels Container Processing & Polling, Server Storage Auto-Purge Upon Successful Publishing, Background Cron Publishing Command (`social-media:publish-scheduled`)
+* **Work Type:** Feature | Architecture | Storage Optimization | UI/UX | Bento Apple HIG
+
+#### 1. Business Context & Objective
+* **Konteks:** Merchant ingin mengunggah foto promosi, feed video, atau Instagram Reels langsung dari perangkat (komputer/smartphone) ke sistem COOCA tanpa harus menyiapkan hosting/URL publik pihak ketiga terlebih dahulu. Namun, server hosting aplikasi COOCA tidak boleh terbebani penumpukan berkas video/foto ukuran besar yang memakan kuota disk dan membahayakan privasi konten.
+* **Target:**
+  1. Mendukung unggah berkas langsung untuk tipe: Feed Foto (JPG, PNG, WebP), Feed Video (MP4, MOV), dan Instagram Reels (MP4 9:16 vertikal) dengan batas berkas hingga 100MB per unggahan.
+  2. Jaminan Server Bersih (Auto-Purge): Berkas media yang diunggah ke storage lokal hanya berfungsi sebagai buffer sementara agar Meta Graph API dapat mengunduh media. Segera setelah Meta berhasil menerbitkan postingan (`status === 'published'`), berkas lokal wajib langsung dihapus permanen dari server COOCA (`Storage::disk('public')->delete(...)`) dan kolom `local_media_paths` direset menjadi `null`.
+  3. Penanganan Asynchronous Container Meta (Reels/Video): Mengimplementasikan polling status kontainer Meta (`waitForMediaContainerReady`) hingga bernilai `FINISHED` sebelum mengeksekusi `media_publish`.
+  4. Penjadwalan Berkas: Jika postingan dijadwalkan untuk masa depan, berkas media disimpan aman di server hingga jam penayangan tiba, kemudian dieksekusi otomatis oleh scheduler cron Laravel `social-media:publish-scheduled`, lalu langsung dibersihkan.
+  5. Antarmuka Bento Apple HIG: Desain segmented buttons format konten (`Foto`, `Video`, `Reels`, `Teks`), zona unggah drag-and-drop dengan live preview instan (gambar `<img>` atau pemutar `<video controls>`), callout jaminan privasi/penyimpanan bersih, dan kartu feed berlabel format (`Reels`, `Video`, `Foto`, `Teks`).
+
+#### 2. What Was Done
+1. **Database Schema & Migrasi:**
+   - Membuat dan mengeksekusi migrasi `database/migrations/2026_09_17_130000_add_local_media_paths_to_social_media_posts.php` untuk menambahkan kolom `local_media_paths` bertipe `json` (nullable) pada tabel `social_media_posts`.
+2. **Model Eloquent:**
+   - Menambahkan `local_media_paths` ke `$fillable` dan `$casts` (array) pada `app/Models/SocialMediaPost.php`.
+3. **Domain Client Enhancements (`MetaSocialMediaClient.php`):**
+   - Menambahkan method `publishFacebookVideo(string $pageId, string $pageToken, string $description, string $videoUrl, ?string $title = null)` untuk endpoint `/{page-id}/videos`.
+   - Menambahkan method `waitForMediaContainerReady(string $containerId, string $pageToken, int $maxAttempts = 8, int $sleepSeconds = 2)` untuk polling kesiapan kontainer Instagram video/reels sebelum `media_publish`.
+   - Memperluas `publishInstagramPost` agar mendukung `$mediaType = 'REELS' | 'VIDEO' | 'IMAGE'`, menyertakan parameter `share_to_feed: true` untuk Instagram Reels.
+   - Memperluas `publishThreadsPost` agar mendukung `$mediaType = 'VIDEO' | 'IMAGE' | 'TEXT'` dengan endpoint kontainer Threads.
+4. **Domain Service Enhancements (`SocialMediaService.php`):**
+   - Menambahkan dispatching cerdas pada `publishPost()` berdasarkan `media_type` (`video`, `reels`, `image`, `text`).
+   - Mengimplementasikan **Storage Auto-Purge Engine**: Loop berkas pada `$post->local_media_paths`, menghapus berkas dari disk publik menggunakan `Storage::disk('public')->delete($path)`, dan mengosongkan relasi lokal `$post->update(['local_media_paths' => null])`.
+5. **Controller Layer (`SocialMediaWebController.php`):**
+   - Menambahkan validasi `media_file` (`file|mimes:jpeg,png,jpg,webp,gif,mp4,mov|max:102400` / 100MB) dan `media_format` (`photo`, `video`, `reels`, `text`).
+   - Menyimpan berkas sementara terisolasi per tenant: `social-media/temp/{business_id}/{uuid}.{ext}`.
+   - Mengarahkan ke instant publishing atau penjadwalan.
+6. **Background Scheduler Command:**
+   - Membuat Artisan Command `app/Console/Commands/PublishScheduledSocialMediaPostsCommand.php` (`social-media:publish-scheduled`).
+   - Mendaftarkannya di `routes/console.php` dengan interval `->everyMinute()->withoutOverlapping()`.
+7. **Bento Apple HIG UI/UX:**
+   - Memperbarui `resources/views/app/social_media/posts.blade.php` dengan `enctype="multipart/form-data"`, segmented format pills, drag & drop zone, live image/video preview, dan badge format media pada feed cards.
+8. **Automated Feature Testing:**
+   - Membuat `tests/Feature/SocialMedia/SocialMediaMediaUploadTest.php` dengan 5 skenario pengujian komprehensif (Foto upload & auto-delete, Video upload & auto-delete, Reels upload & auto-delete, Scheduled post file retention & cron auto-purge, serta Preservasi berkas jika terjadi kegagalan Meta API untuk retry).
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_17_130000_add_local_media_paths_to_social_media_posts.php`
+  - `app/Console/Commands/PublishScheduledSocialMediaPostsCommand.php`
+  - `tests/Feature/SocialMedia/SocialMediaMediaUploadTest.php`
+* **Files Modified:**
+  - `app/Models/SocialMediaPost.php`
+  - `app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`
+  - `app/Domain/SocialMedia/SocialMediaService.php`
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`
+  - `resources/views/app/social_media/posts.blade.php`
+  - `routes/console.php`
+
+#### 4. Verification & Testing
+* `php artisan test tests/Feature/SocialMedia/SocialMediaMediaUploadTest.php`: **5 passed, 48 assertions (100% Green)**.
+* `php artisan test tests/Feature/SocialMedia/`: **16 passed, 91 assertions (100% Green, 0 Failures, 0 Regressions)**.
+* `php artisan schedule:list`: Command `social-media:publish-scheduled` terdaftar dan aktif setiap menit.
+
+---
+
+### [WORK-2026-09-17-051] Implementasi Modul Pengelolaan Media Sosial Multi-Tenant (Facebook Page, Instagram Graph API & Threads) dengan 1-Klik Onboarding, Webhook Terpusat, Composer Konten, Balas Komentar & Analitik Live
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Social Media & Content Marketing (Admin Platform & Merchant App)
+* **Feature:** Meta Login for Business (Pages, Instagram, Threads), 1-Klik Onboarding, Webhook Terpusat & HMAC Security, Composer & Scheduling, Inbox Komentar & Balasan API, Analitik Post Insights
+* **Work Type:** Feature | Architecture | Security | UI/UX | Bento Apple HIG
+
+#### 1. Business Context & Objective
+* **Konteks:** Pedagang UMKM Indonesia membutuhkan integrasi resmi media sosial (Facebook, Instagram Bisnis, Threads) untuk mempublikasikan konten promo, memantau & membalas komentar calon pembeli secara real-time, serta memantau performa keterlibatan (impressions, reach, likes, comments, shares) tanpa harus berpindah-pindah aplikasi pihak ketiga.
+* **Target:**
+  1. Konfigurasi Meta App terpusat di Superadmin Console (Facebook Login for Business & Instagram Graph API) dengan panduan Meta App Review dan checklist izin resmi (`pages_manage_posts`, `pages_read_engagement`, `instagram_basic`, `instagram_content_publish`, `pages_messaging`, `instagram_manage_messages`, `threads_content_publish`, `threads_manage_replies`).
+  2. Alur Onboarding Merchant 1-Klik resmi via popup Meta OAuth dialog, auto exchange token pengguna ke Permanent Page Access Token yang tidak pernah kedaluwarsa dan disimpan terenkripsi (AES-256).
+  3. Isolasi data ketat per `business_id` (setiap bisnis hanya dapat mengakses akun, postingan, dan komentar miliknya).
+  4. Webhook terpusat (`/api/v1/social-media/meta/webhook`) dengan verifikasi HMAC-SHA256 signature dan pemetaan aset otomatis (`Page ID` / `IG ID`) ke tenant merchant yang sesuai.
+  5. Antarmuka Bento Apple HIG: Composer postingan (teks, media HTTPS, penjadwalan), Kotak Masuk komentar dengan modal balas cepat, dan Analitik performa 6 KPI utama dengan sinkronisasi live.
+
+#### 2. What Was Done
+1. **Database Schema & Migrasi:**
+   - Membuat migrasi `database/migrations/2026_09_17_120000_create_social_media_tables.php` yang mendefinisikan tabel `social_media_accounts`, `social_media_posts`, dan `social_media_comments` berindeks `business_id` dan `uuid`.
+2. **Model & Keamanan Data:**
+   - `SocialMediaAccount`: Model Eloquent dengan cast `access_token` terenkripsi otomatis (`encrypted`), relasi ke `Business`, `posts`, dan `comments`.
+   - `SocialMediaPost`: Menyimpan caption, media URLs, penjadwalan, status (`draft`, `scheduled`, `publishing`, `published`, `failed`), dan metrik performa JSON.
+   - `SocialMediaComment`: Menyimpan riwayat komentar masuk, status balasan, dan komentar balasan keluar atas nama Page.
+   - Menambahkan relasi `socialMediaAccounts()` pada model `Business`.
+3. **Domain Client & Layanan Bisnis:**
+   - `MetaSocialMediaClient`: Client HTTP Graph API terpadu (OAuth dialog URL, token exchange, Long-Lived Token exchange, `/me/accounts` permanent tokens, Facebook feed/photo publishing, Instagram 2-step container publishing, Threads publishing, API balasan komentar `/{comment-id}/comments`, dan analitik performa `/{post-id}/insights`).
+   - `SocialMediaService`: Menangani logika tenant (koneksi akun, publikasi postingan, balasan komentar, dan sinkronisasi metrik).
+   - `AdminSocialMediaService`: Menangani pengaturan platform Meta App di admin center dan agregasi metrik platform.
+4. **Controller & Route Layer:**
+   - `MetaSocialMediaWebhookController`: Endpoint GET untuk verifikasi challenge `hub.challenge` dan endpoint POST untuk menangkap event feed/komentar dengan verifikasi tanda tangan HMAC-SHA256.
+   - `AdminSocialMediaController`: Panel Superadmin dengan 3 tab (Konfigurasi Meta App, Pengawasan Merchant, Panduan Meta App Review).
+   - `SocialMediaWebController`: Web controller merchant untuk onboarding 1-klik, posting konten, kotak masuk komentar, dan analitik performa.
+   - Pendaftaran 12 route di `routes/admin.php`, `routes/owner.php`, dan `routes/api.php`.
+5. **Bento Apple HIG UI/UX:**
+   - Admin view: `resources/views/admin/social_media/index.blade.php`.
+   - Merchant cockpit: `resources/views/app/social_media/index.blade.php`.
+   - Merchant posting composer: `resources/views/app/social_media/posts.blade.php`.
+   - Merchant inbox & replies: `resources/views/app/social_media/inbox.blade.php`.
+   - Merchant insights & live sync: `resources/views/app/social_media/insights.blade.php`.
+   - Navigasi sidebar admin (`layouts/admin.blade.php`) dan sidebar merchant (`layouts/partials/sidebar.blade.php`).
+6. **Testing Otomatis:**
+   - Membuat `tests/Feature/SocialMedia/SocialMediaFeatureTest.php` mencakup 11 skenario pengujian komprehensif (Admin auth & config, Merchant onboarding, Post creation & scheduling, Webhook GET challenge, Webhook POST event routing, Comment reply API, dan Strict Tenant Isolation). Seluruh 11 pengujian lolos 100% green.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_17_120000_create_social_media_tables.php`
+  - `app/Models/SocialMediaAccount.php`
+  - `app/Models/SocialMediaPost.php`
+  - `app/Models/SocialMediaComment.php`
+  - `app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`
+  - `app/Domain/SocialMedia/SocialMediaService.php`
+  - `app/Domain/SocialMedia/AdminSocialMediaService.php`
+  - `app/Http/Controllers/Api/V1/SocialMedia/MetaSocialMediaWebhookController.php`
+  - `app/Http/Controllers/Admin/AdminSocialMediaController.php`
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`
+  - `resources/views/admin/social_media/index.blade.php`
+  - `resources/views/app/social_media/index.blade.php`
+  - `resources/views/app/social_media/posts.blade.php`
+  - `resources/views/app/social_media/inbox.blade.php`
+  - `resources/views/app/social_media/insights.blade.php`
+  - `tests/Feature/SocialMedia/SocialMediaFeatureTest.php`
+* **Files Modified:**
+  - `app/Models/Business.php` (tambah relasi `socialMediaAccounts`)
+  - `routes/admin.php` (route admin social media)
+  - `routes/owner.php` (route merchant social media)
+  - `routes/api.php` (route central webhook Meta)
+  - `resources/views/layouts/admin.blade.php` (menu Spotlight, Sidebar, dan Quick Action)
+  - `resources/views/layouts/partials/sidebar.blade.php` (menu Media Sosial under Saluran & CMS)
+
+#### 4. Verification & Testing
+* `php artisan test tests/Feature/SocialMedia/SocialMediaFeatureTest.php`: **11 passed, 43 assertions (100% Green)**.
+* `php artisan test tests/Feature/WhatsApp/ tests/Feature/Admin/AdminWhatsAppFeatureTest.php`: **26 passed, 132 assertions (0 Regressions)**.
+* `php artisan route:list --name=social-media`: 12 routes terdaftar dan tervalidasi.
+
+---
+
+### [WORK-2026-09-17-050] Penyederhanaan Total WhatsApp Merchant: 100% Metode 1-Klik Meta Resmi (Eliminasi Setup Manual & Panduan Kompleks)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Merchant WhatsApp Gateway (App / WhatsApp)
+* **Feature:** Metode 1-Klik Meta Embedded Signup Eksklusif (Penghapusan Form Token Manual, Phone Number ID, WABA ID, dan Accordion Panduan Panjang)
+* **Work Type:** UI/UX | Refactoring | Architecture | Simplicity
+
+#### 1. Business Context & Objective
+* **Konteks:** Karena integrasi Meta Tech Provider (App ID, App Secret, Config ID) sudah sepenuhnya dikonfigurasi oleh Superadmin di Admin WhatsApp Center, pemilik usaha (merchant/owner) tidak perlu dibebani dengan istilah teknis developer (permanent token, phone number ID, cURL command, atau panduan pembuatan aplikasi Facebook).
+* **Target:**
+  1. Menyederhanakan halaman koneksi WhatsApp merchant (`resources/views/app/whatsapp/index.blade.php`) menjadi strictly **1 Metode**: **Metode 1-Klik** (Meta WhatsApp Embedded Signup).
+  2. Menghapus formulir setup manual kredensial (Access Token, Phone Number ID, WABA Account ID, tombol uji kredensial manual).
+  3. Menghapus include panduan accordion panjang dari halaman WhatsApp merchant.
+  4. Merestrukturisasi partial `resources/views/partials/whatsapp-meta-setup-guide.blade.php` menjadi kartu ringkasan 3-langkah 1-klik yang ultra-sederhana dan bersih tanpa tab developer.
+  5. Menjaga kepatuhan Apple HIG Bento UI, zero emoji, dan memastikan seluruh test otomatis (43 tests) lulus 100%.
+
+#### 2. What Was Done
+* **Refactoring `resources/views/app/whatsapp/index.blade.php`:**
+  - Mengeliminasi form manual credentials (`<form action="{{ route('whatsapp.settings') }}" ... Atur Kredensial Manual ...>`).
+  - Mengeliminasi `@include('partials.whatsapp-meta-setup-guide', ['mode' => 'owner'])`.
+  - Menampilkan kartu tunggal Bento Apple HIG "Meta WhatsApp Cloud API Resmi" yang berfokus pada Metode 1-Klik.
+  - Menambahkan ringkasan 3 langkah visual yang ramah UMKM:
+    1. Klik Hubungkan (buka popup resmi Meta).
+    2. Masuk Facebook (pilih akun & nomor toko).
+    3. Langsung Terhubung (siap kirim struk digital POS).
+  - Mempertahankan toggle fungsional "Status Layanan WhatsApp Toko" dengan auto-submit untuk kontrol operasional merchant.
+  - Membersihkan state & method manual yang tidak lagi digunakan di objek Alpine.js `waGateway()` (`metaToken`, `metaPhoneId`, `metaWabaId`, `showMetaToken`, `metaVerifyLoading`, `metaVerifyResult`, `metaVerifyError`, `verifyMetaCredentials()`).
+* **Penyederhanaan `resources/views/partials/whatsapp-meta-setup-guide.blade.php`:**
+  - Menghapus 257 baris instruksi developer multi-tab (quick_start, manual_mode, quotas_safety, admin_mode).
+  - Mengganti dengan kartu informatif ringkas 1-klik yang ringan, elegan, dan bebas jargon developer.
+* **Testing & Verifikasi:**
+  - `php artisan test tests/Feature/WhatsApp/MerchantWhatsAppWebFeatureTest.php` -> 7 passed (29 assertions).
+  - `php artisan test --filter=WhatsApp` -> 43 passed (195 assertions).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/app/whatsapp/index.blade.php` [MODIFY]
+  - `resources/views/partials/whatsapp-meta-setup-guide.blade.php` [MODIFY]
+  - `docs/AiWorkHistory.md` [MODIFY]
+
+#### 4. Verification & Testing
+* `php artisan test tests/Feature/WhatsApp/MerchantWhatsAppWebFeatureTest.php` (PASS, 7 tests, 29 assertions).
+* `php artisan test --filter=WhatsApp` (PASS, 43 tests, 195 assertions).
+
+---
+
+### [WORK-2026-09-17-049] Konfigurasi Terpadu Meta WhatsApp Cloud API (Tech Provider & Webhook) Melalui Superadmin UI
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Admin WhatsApp, System Settings, Meta WhatsApp Cloud API
+* **Feature:** Konfigurasi Dinamis Meta Tech Provider (META_WA_APP_ID, META_WA_APP_SECRET, META_WA_CONFIG_ID, META_WA_WEBHOOK_VERIFY_TOKEN, META_WA_GRAPH_VERSION, META_WA_GRAPH_URL) via Admin WhatsApp Center dengan Database Persistence & Auto-Fallback ke .env
+* **Work Type:** Feature | Architecture | Security | UI/UX
+
+#### 1. Business Context & Objective
+* **Konteks:** Administrator platform SaaS Cooca sebelumnya harus mengakses file `.env` di server untuk mengubah konfigurasi integrasi Meta Tech Provider (App ID, App Secret, Config ID, Webhook Verify Token, Graph Version, Graph URL).
+* **Target:**
+  1. Mengintegrasikan formulir konfigurasi 6 variabel Meta Tech Provider langsung ke UI Superadmin di `resources/views/admin/whatsapp`.
+  2. Menyimpan konfigurasi secara persisten dan aman ke database (`system_settings`) dengan enkripsi otomatis untuk variabel rahasia (`meta_wa_app_secret`).
+  3. Mendukung fallback otomatis ke konfigurasi `.env` / `config('services.meta_whatsapp')` jika belum ada nilai kustom di database.
+  4. Menghubungkan pembacaan dinamis ini ke seluruh layanan konsumen (`WhatsAppWebhookService`, `MetaWhatsAppOnboardingController`, `WhatsAppClient`, dan `MetaWhatsAppCloudDriver`).
+  5. Membersihkan sisa kode legacy QR scanner di Blade admin dan menyajikan desain Bento Apple HIG bebas Unicode emoji.
+
+#### 2. What Was Done
+* **Service Layer (`AdminWhatsAppService`):**
+  - Menambahkan method `getPlatformAppSettings()` yang membaca `app_id`, `app_secret`, `webhook_verify_token`, `config_id`, `graph_version`, `graph_url` dari `SystemSetting` dengan fallback ke `config('services.meta_whatsapp')`.
+  - Memperbarui method `saveGatewaySettings()` untuk menyimpan seluruh 6 kunci platform Meta secara dinamis dan aman.
+* **Controller Layer (`AdminWhatsAppController`):**
+  - Menginjeksi `$platformApp` dari `getPlatformAppSettings()` ke view `admin.whatsapp.index`.
+  - Menambahkan validasi lengkap pada method `updateGatewayConfig()` untuk menyimpan variabel platform dan kredensial bot parent.
+* **Consumer Layer (`WhatsAppWebhookService`, `MetaWhatsAppOnboardingController`, `MetaWhatsAppCloudDriver`, `WhatsAppClient`):**
+  - Memperbarui verifikasi webhook HMAC-SHA256 signature dan token handshake untuk membaca `meta_wa_app_secret` dan `meta_wa_webhook_verify_token` dinamis dari `SystemSetting`.
+  - Memperbarui Meta Embedded Signup (`getSignupConfig`, `exchangeCode`, `debugToken`) untuk membaca `app_id`, `app_secret`, `config_id`, `graph_version`, dan `graph_url` langsung dari `SystemSetting`.
+  - Memperbarui inisialisasi default `baseUrl` dan `version` pada `MetaWhatsAppCloudDriver` dan `WhatsAppClient`.
+* **Blade View (`resources/views/admin/whatsapp/index.blade.php`):**
+  - Menghapus tuntas kode usang Baileys/QR scanner di Tab 1 (Parent Setup).
+  - Merancang Bento Card 1: Meta Tech Provider & Webhook Terpadu (App ID, App Secret dengan eye-toggle, Config ID, Verify Token, Graph Version, Graph URL, dan Copy Webhook Callback URL).
+  - Merancang Bento Card 2: Kredensial Bot Induk Platform Meta (System User Token terenkripsi, Phone Number ID, WABA ID, Template OTP, dan Uji Validitas Token langsung ke Meta).
+  - Merancang Bento Card 3: Uji Kirim Pesan Langsung (Live Diagnostic).
+  - Memperbarui state Alpine.js `adminWaCenter()` dengan variabel reaktif terhubung.
+* **Testing:**
+  - Menambahkan test feature `test_admin_whatsapp_page_displays_tech_provider_fields` dan `test_admin_can_save_and_retrieve_meta_platform_and_gateway_settings` pada `AdminWhatsAppFeatureTest`.
+  - 100% lulus pada seluruh 43 tests (195 assertions) suite WhatsApp.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Domain/WhatsApp/AdminWhatsAppService.php`
+  - `app/Http/Controllers/Admin/AdminWhatsAppController.php`
+  - `app/Domain/WhatsApp/CloudApi/WhatsAppWebhookService.php`
+  - `app/Http/Controllers/Web/WhatsApp/MetaWhatsAppOnboardingController.php`
+  - `app/Domain/WhatsApp/Drivers/MetaWhatsAppCloudDriver.php`
+  - `app/Domain/WhatsApp/CloudApi/WhatsAppClient.php`
+  - `resources/views/admin/whatsapp/index.blade.php`
+  - `tests/Feature/Admin/AdminWhatsAppFeatureTest.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. Verification & Testing
+* `php artisan test tests/Feature/Admin/AdminWhatsAppFeatureTest.php`: 10 passed (64 assertions).
+* `php artisan test --filter=WhatsApp`: 43 passed (195 assertions).
+
+---
+
+### [WORK-2026-09-17-048] Arsitektur & Integrasi WhatsApp Cloud API Resmi Multi-Tenant (Meta Graph API v21.0, Enkripsi Otomatis, Webhook Asinkron Redis, Onboarding Embedded Signup & Template Struk/Invoice)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** WhatsApp Cloud API, Multi-Tenancy, Security, Queues & POS/Sales Templates
+* **Feature:** WhatsAppAccount Encrypted Model & Migration, WhatsAppClient with Retry Logic, WhatsAppWebhookService with HMAC-SHA256, Asynchronous Redis Queue Jobs, Meta Embedded Signup Onboarding Flow, Structured PosReceipt & Invoice Templates
+* **Work Type:** Feature | Architecture | Security | Database
+
+#### 1. Business Context & Objective
+* **Konteks:** Platform SaaS ERP multi-tenant COOCA melayani ribuan merchant UMKM di Indonesia. Setiap merchant membutuhkan integrasi resmi WhatsApp Business resmi (Meta WhatsApp Cloud API) untuk mengirimkan struk digital kasir POS, faktur tagihan (invoice), kode verifikasi OTP, dan notifikasi pesanan pelanggan menggunakan identitas brand mereka sendiri (nama bisnis terverifikasi Meta & green badge) tanpa risiko pemblokiran nomor.
+* **Masalah/Target:**
+  1. Setiap merchant memiliki WABA ID, Phone Number ID, dan Access Token tersendiri yang harus terisolasi penuh berdasarkan `business_id`.
+  2. Access Token merchant bersifat sangat sensitif dan wajib dienkripsi otomatis di level database.
+  3. Webhook masuk dari Meta berpotensi mencapai ribuan request per menit dan harus memvalidasi tanda tangan kriptografis HMAC-SHA256 (`X-Hub-Signature-256`) serta mengembalikan response HTTP 200 dalam waktu <200ms (SLA Meta) melalui antrean Redis asynchronous Job.
+  4. Alur onboarding merchant harus mendukung Meta Embedded Signup (penukaran authorization code menjadi token resmi).
+  5. Pengiriman pesan terstruktur (Struk POS, Faktur Invoice) harus mengikuti format komponen resmi template Meta (Header, Body dengan parameter teks/currency/datetime, dan Button URL).
+  6. HTTP client harus memiliki ketahanan terhadap gangguan jaringan (retry logic transien untuk HTTP 429 dan 5xx) serta audit logging terperinci per-merchant.
+
+#### 2. What Was Done
+* **Database & Model Layer (`whatsapp_accounts` & `WhatsAppAccount`):**
+  - Membuat migrasi `whatsapp_accounts` lengkap dengan kolom `business_id` (foreignUuid unique), `waba_id`, `phone_number_id` (unique index untuk lookup webhook), `phone_number`, `verified_name`, `quality_rating`, `messaging_limit_tier`, `access_token` (text), dan `settings`/`metadata` (json).
+  - Mengimplementasikan model `WhatsAppAccount` dengan native Laravel cast `'access_token' => 'encrypted'` (AES-256-CBC dengan `APP_KEY`), scopes `forBusiness()` dan `active()`, relasi `belongsTo(Business::class)` dan `hasMany(WhatsAppMessageLog::class)`.
+  - Menghubungkan relasi `hasOne(WhatsAppAccount::class)` pada model `Business`.
+* **Service Layer (`WhatsAppClient` & `WhatsAppWebhookService`):**
+  - Mengembangkan `WhatsAppClient` untuk Meta Graph API v21.0 dengan `Http::retry(3, 500)` pada ConnectionException, HTTP 429 (Rate Limit), dan HTTP 5xx Server Error.
+  - Logging kontekstual per tenant (`business_id`, `phone_number_id`) dengan sanitasi payload untuk mencegah kebocoran data sensitif.
+  - Mengembangkan `WhatsAppWebhookService` dengan verifikasi HMAC-SHA256 signature (`hash_hmac` & `hash_equals`), verifikasi GET challenge handshake, pemetaan `phone_number_id` ke tenant merchant, dan distribusi event.
+* **Queue Jobs (`ProcessWhatsAppWebhookJob`, `ProcessWhatsAppIncomingMessageJob`, `ProcessWhatsAppMessageStatusJob`):**
+  - Menerima payload webhook Meta secara instan di controller dan mendelegasikannya ke antrean Redis `whatsapp` queue.
+  - Menyimpan pesan masuk ke `whatsapp_message_logs` dan mendukung auto mark-as-read.
+  - Memperbarui status pengiriman (`sent`, `delivered`, `read`, `failed`) lengkap dengan kode error Meta.
+* **Controllers & Endpoints:**
+  - `MetaWhatsAppWebhookController`: Endpoint tunggal `/api/v1/wa/meta/webhook` (GET untuk challenge verification, POST untuk signature validation & async dispatch).
+  - `MetaWhatsAppOnboardingController`: Endpoint `/whatsapp/meta/config`, `/whatsapp/meta/exchange-code`, `/whatsapp/meta/status`, dan `/whatsapp/meta/disconnect`. Menukar authorization code ke token resmi, mendeteksi WABA ID dan Phone Number ID, mendaftarkan webhook (`subscribed_apps`), dan menyimpan kredensial.
+* **Message Templates System:**
+  - `WhatsAppTemplateBuilder`: Fluent builder untuk komponen Meta template (Header Media/Doc/Text, Body Text/Currency/DateTime, Button URL/Payload).
+  - `PosReceiptTemplate` & `InvoiceTemplate`: Generator payload resmi untuk Struk Kasir POS dan Faktur Penjualan.
+  - `WhatsAppTemplateService`: Orkestrator pengiriman dengan atomic cache lock, pencegahan pengiriman duplikat (60s), dan pencatatan riwayat di `whatsapp_message_logs`.
+* **Dokumentasi & Testing:**
+  - Menulis test suite `tests/Feature/WhatsApp/MetaWhatsAppCloudApiTest.php` mencakup 9 test case (39 assertions, 100% pass).
+  - Memperbarui dokumentasi simultan di `docs/SYSTEM_GUIDE.md` (Subbab 3.9 & 4.6) dan `docs/AiWorkHistory.md`.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Models/WhatsAppAccount.php` [NEW]
+  - `app/Models/Business.php` [MODIFY]
+  - `database/migrations/2026_09_17_110000_create_whatsapp_accounts_table.php` [NEW]
+  - `config/services.php` [MODIFY]
+  - `.env.example` [MODIFY]
+  - `app/Domain/WhatsApp/CloudApi/WhatsAppClient.php` [NEW]
+  - `app/Domain/WhatsApp/CloudApi/WhatsAppWebhookService.php` [NEW]
+  - `app/Domain/WhatsApp/AdminWhatsAppService.php` [MODIFY]
+  - `app/Domain/WhatsApp/WhatsAppGatewayService.php` [MODIFY]
+  - `app/Jobs/WhatsApp/ProcessWhatsAppWebhookJob.php` [NEW]
+  - `app/Jobs/WhatsApp/ProcessWhatsAppIncomingMessageJob.php` [NEW]
+  - `app/Jobs/WhatsApp/ProcessWhatsAppMessageStatusJob.php` [NEW]
+  - `app/Http/Controllers/Api/V1/WhatsApp/MetaWhatsAppWebhookController.php` [NEW]
+  - `app/Http/Controllers/Web/WhatsApp/MetaWhatsAppOnboardingController.php` [NEW]
+  - `app/Http/Controllers/Admin/AdminWhatsAppController.php` [MODIFY]
+  - `app/Http/Controllers/Web/WhatsApp/WhatsAppWebController.php` [MODIFY]
+  - `app/Http/Controllers/Web/WhatsApp/WhatsAppBroadcastWebController.php` [MODIFY]
+  - `app/Domain/WhatsApp/CloudApi/Templates/WhatsAppTemplateBuilder.php` [NEW]
+  - `app/Domain/WhatsApp/CloudApi/Templates/PosReceiptTemplate.php` [NEW]
+  - `app/Domain/WhatsApp/CloudApi/Templates/InvoiceTemplate.php` [NEW]
+  - `app/Domain/WhatsApp/CloudApi/WhatsAppTemplateService.php` [NEW]
+  - `resources/views/admin/whatsapp/index.blade.php` [MODIFY]
+  - `resources/views/app/whatsapp/index.blade.php` [MODIFY]
+  - `resources/views/app/whatsapp/create.blade.php` [MODIFY]
+  - `resources/views/app/whatsapp/logs.blade.php` [MODIFY]
+  - `resources/views/partials/whatsapp-meta-setup-guide.blade.php` [MODIFY]
+  - `routes/api.php` [MODIFY]
+  - `routes/owner.php` [MODIFY]
+  - `tests/Feature/WhatsApp/MetaWhatsAppCloudApiTest.php` [NEW]
+  - `tests/Feature/WhatsApp/MerchantWhatsAppWebFeatureTest.php` [NEW]
+  - `tests/Feature/Admin/AdminWhatsAppFeatureTest.php` [MODIFY]
+  - `docs/SYSTEM_GUIDE.md` [MODIFY]
+  - `docs/AiWorkHistory.md` [MODIFY]
+
+#### 4. System Impacts
+* **Workflow Impact:** Merchant dapat menghubungkan akun resmi WhatsApp Meta dalam 1 klik via Embedded Signup; struk POS dan invoice otomatis terkirim resmi; webhook Meta diproses tanpa latensi pada antrean Redis. Sistem Baileys/QR scan lokal port 3000 dihapus sepenuhnya.
+* **Business Rule Impact:** Pemisahan mutlak antara Platform Admin Bot (Parent System) untuk pengiriman OTP 2FA auth dan pengingat langganan, dengan Merchant Store WABA untuk pengiriman nota transaksi kasir POS, faktur penjualan, dan promosi broadcast pelanggan.
+* **Security & Isolation Impact:** Access Token merchant dan platform terlindungi oleh enkripsi AES-256-CBC, webhook Meta terlindungi oleh verifikasi tanda tangan kriptografis HMAC-SHA256 anti-timing attack (`hash_equals`), dan setiap request API atau webhook terisolasi mutlak per `business_id`.
+
+#### 5. Verification & Testing
+* `php artisan test tests/Feature/WhatsApp/MetaWhatsAppCloudApiTest.php` -> PASSED (9 tests, 39 assertions).
+* `php artisan test tests/Feature/WhatsApp/MerchantWhatsAppWebFeatureTest.php` -> PASSED (7 tests, 29 assertions).
+* `php artisan test tests/Feature/Admin/WhatsAppDualGatewayTest.php` -> PASSED (10 tests, 41 assertions).
+* `php artisan test tests/Feature/Admin/AdminWhatsAppFeatureTest.php` -> PASSED (8 tests, 37 assertions).
+* `php artisan test tests/Feature/Admin/WhatsAppAdminMultiSessionTest.php` -> PASSED (5 tests, 17 assertions).
+* `php artisan test tests/Feature/PosReceiptImageTest.php` -> PASSED (3 tests, 12 assertions).
+* **Total Keseluruhan Test Suite WhatsApp:** 42 passed, 175 assertions, 0 failures, 100% green.
+* **Production Build Verification:** `php artisan route:cache` & `php artisan view:cache` -> PASSED (0 errors).
+* **Test Data Purge Verification:** Database operasional bersih tuntas dari jejak data testing (0 WhatsApp Accounts dummy, 0 Logs dummy).
+* **Production Configuration:** Default driver WhatsApp di tabel `system_settings` telah ditetapkan ke `meta_cloud` untuk OTP dan Blast. File `.env.example` telah diselaraskan dengan variabel resmi Meta Cloud API.
+
+#### 6. Important Decisions & Guardrails
+* **Zero Baileys Mandate:** Seluruh socket QR polling dan dependensi microservice `wa-server` dieliminasi total demi stabilitas enterprise resmi Meta Tech Provider.
+* **Dual-Layer Architecture:** Platform Admin mengelola akun induk bot sistem (System User Permanent Token), sedangkan Merchant mengelola WABA toko masing-masing via Meta Embedded Signup atau manual configuration fallback.
+* **Enkripsi Mutlak Token Merchant:** Seluruh `access_token` merchant dienkripsi dengan cast bawaan Laravel `'access_token' => 'encrypted'`.
+* **Async Webhook SLA:** Controller hanya memvalidasi HMAC dan langsung melempar ke Redis Job, memastikan respons < 200ms.
+* **Lookup Berbasis Phone Number ID:** `phone_number_id` Meta dijadikan kunci pencarian akun tenant secara deterministik.
+* **Zero-Emoji UI Mandate:** Antarmuka Admin dan seluruh halaman Merchant (`index`, `create`, `broadcast`, `broadcast_detail`, `logs`) mematuhi direktif desain Apple HIG Bento Grid dengan ikon murni Lucide SVG, 100% bebas Unicode emojis.
+
+#### 7. Documentation Promotion
+* Dicatatkan di `docs/AiWorkHistory.md` [WORK-2026-09-17-048] dan disinkronkan ke `docs/SYSTEM_GUIDE.md` (Subbab 3.9, Subbab 4.6, dan Matriks Penelusuran Pengetahuan).
+
+---
+
+### [WORK-2026-09-17-047] Standardisasi UI/UX Halaman Publik Bisnis: Penyelarasan Storefront Hub & Landing Page Studio, Strict No-Emoji Mandate, Dismissible Marquee & Mobile Safe Area Padding
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Public Storefront, Public Business Landing Page & Commerce Checkout
+* **Feature:** Apple Bento Grid Public UI, Dismissible Announcement Marquee, Strict No-Emoji SVG Mandate, Fallback Opsi Pengiriman Adaptif, WhatsApp Floating Widget Guard, & Mobile Safe Area Bottom Padding
+* **Work Type:** UI/UX | Refactoring | Compliance
+
+#### 1. Business Context & Objective
+* **Konteks:** Halaman publik bisnis (`resources/views/public/business_landing.blade.php`) adalah etalase digital utama bagi pelanggan umum, memadukan profil bisnis, CMS landing page studio, katalog belanja mandiri, alur checkout langsung, formulir pesanan kustom (PO), pemesanan terjadwal (batch dates), dan sistem reservasi meja/jasa.
+* **Masalah/Target:**
+  1. Terdapat pelanggaran *Strict No-Emoji Mandate* pada simbol bintang unicode `✦` pada banner marquee pengumuman serta karakter checklist mentah `✓` pada badge akun terverifikasi di formulir checkout, customer PO, dan reservasi.
+  2. Banner pengumuman atas (*announcement marquee*) belum memiliki tombol penutup mandiri (*dismissible*) bergaya Apple frosted glass.
+  3. Widget tombol WhatsApp mengambang (*floating button*) ter-render tanpa proteksi pengecekan nomor aktif (`$hasWhatsapp`), sehingga tetap muncul dan mengarah ke `#` ketika nomor tidak diisi pemilik usaha.
+  4. Opsi pengiriman pada modal checkout belum menangani kondisi ketika kedua opsi (`allow_pickup` dan `allow_delivery`) dinonaktifkan oleh pemilik toko.
+  5. Footer publik memerlukan padding bawah aman `pb-28 sm:pb-32 lg:pb-12` agar informasi copyright dan tautan kontak tidak tertutup bilah navigasi pulau mengambang iOS 18 (`fixed bottom-3 ... z-50`).
+  6. Memastikan keselarasan 100% dengan pengaturan pada Landing Page Studio dan Storefront Hub berpedoman pada `docs/agent.md`, `docs/prompt.md`, dan `cooca-agent-directive`.
+
+#### 2. What Was Done
+* **Strict No-Emoji & Tipografi Bersih Apple HIG:**
+  - Menggantikan karakter unicode `✦` pada marquee banner pengumuman dengan pemisah elegan bullet dot `•` (`&bull;`).
+  - Menggantikan seluruh checklist unicode mentah `✓` pada status verifikasi pelanggan (`checkoutModal`, `customerPoModal`, `reservationModal`) dengan SVG Lucide icon murni `<i data-lucide="check" class="w-3.5 h-3.5"></i>`.
+* **Dismissible Announcement Marquee:**
+  - Menambahkan kontrol Alpine.js `x-data="{ bannerDismissed: false }"` dan `x-show="!bannerDismissed"` lengkap dengan tombol tutup bulat Apple frosted glass (`w-5 h-5 rounded-full bg-white/20 hover:bg-white/30`).
+* **Proteksi Widget WhatsApp Mengambang:**
+  - Membungkus kontainer floating WhatsApp dengan `@if ($hasWhatsapp) ... @endif` agar tombol mengambang hanya tampil jika bisnis telah mengonfigurasi nomor WhatsApp.
+* **Penanganan 4 Skenario Opsi Pengiriman Checkout:**
+  - Menyesuaikan logika render opsi pengiriman formulir checkout untuk menangani:
+    1. Keduanya aktif: Switcher 2-kolom (Ambil Sendiri vs Kurir Toko).
+    2. Hanya pengiriman aktif: Banner Kurir Toko.
+    3. Hanya pickup aktif: Banner Pengambilan Mandiri di Toko.
+    4. Keduanya nonaktif: Banner informatif ramah (*Metode pengiriman disesuaikan saat konfirmasi pesanan*).
+* **Penyempurnaan Peringatan Minimum Belanja:**
+  - Memperjelas peringatan batas minimum belanja (`minOrderAmount`) pada drawer keranjang belanja dengan ikon `alert-circle` dan penegasan font tebal.
+* **Ergonomi Safe Area Padding Mobile:**
+  - Memperbarui padding bawah footer dari `pb-20 md:pb-0` menjadi `pb-28 sm:pb-32 lg:pb-12` agar bilah pulau navigasi bawah mobile (`fixed bottom-3 ... z-50`) tidak menutupi footer brand dan hak cipta.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/public/business_landing.blade.php`: Pembersihan emoji unicode, penambahan dismiss marquee, proteksi widget WA, fallback opsi pengiriman, penyempurnaan peringatan minimum belanja, dan safe area padding footer.
+  - `docs/system/architecture/ui-ux-design-system.md`: Penambahan Subbab 12.12 mengenai standar UI/UX etalase dan landing page publik.
+  - `docs/SYSTEM_GUIDE.md`: Pembaruan Subbab 3.8 dan daftar isi mengenai sinkronisasi etalase publik pelanggan.
+
+#### 4. System Impacts
+* **Workflow Impact:** Pelanggan mendapatkan pengalaman menjelajah dan checkout yang bersih, responsif, elegan, dan bebas gangguan elemen yang saling menutupi pada ponsel cerdas.
+* **Business Rule Impact:** Pengaturan etalase (`CommerceStoreSetting`) dan landing page (`BusinessLandingPage`) tercermin secara akurat di sisi publik.
+* **Security & Isolation Impact:** Tetap mengedepankan isolasi data multi-tenant dan proteksi validasi CSRF pada checkout AJAX.
+
+#### 5. Verification & Testing
+* `php -l resources/views/public/business_landing.blade.php` -> Bebas dari syntax error.
+* `php artisan view:clear` -> Cache view bersih.
+* `php artisan test tests/Feature/CommerceStorefrontCheckoutTest.php tests/Feature/LandingPageAuthTest.php tests/Feature/CommerceReservationTest.php tests/Feature/CommerceShippingRuleFeatureTest.php tests/Feature/PublicStorefrontFieldScenariosTest.php` -> 32 passed (184 assertions, 100%).
+* Audit Emoji Script -> `Emoji count: 0` (Zero unicode emojis).
+
+#### 6. Important Decisions & Guardrails
+* **Strict No-Emoji Mandate:** Seluruh status, aksi, dan dekorasi visual wajib 100% menggunakan SVG Lucide.
+* **Mobile First Touch Ergonomics:** Menjamin seluruh input memiliki ukuran font minimal 16px pada viewport mobile (`text-[16px] sm:text-[13.5px]`) untuk mencegah auto-zoom Safari iOS.
+
+#### 7. Documentation Promotion
+* Dipromosikan ke `docs/system/architecture/ui-ux-design-system.md` Subbab 12.12 dan `docs/SYSTEM_GUIDE.md` Subbab 3.8.
+
+---
+
+### [WORK-2026-09-17-046] Standardisasi UI/UX Storefront Hub & Landing Page Studio: Bento KPI, Hidden Fallback Switches, Apple Alert Penenang Jiwa & Mobile Ergonomics
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce, Storefront, Shipping, Reservations & CMS Landing Page
+* **Feature:** Apple Bento Grid UI, Checkbox Fallback Integrity, Apple Alert Dialog Penenang Jiwa, Multi-Device Responsive Modals, Mobile Ergonomics & Strict No-Emoji Mandate
+* **Work Type:** UI/UX | Refactoring | Architecture
+
+#### 1. Business Context & Objective
+* **Konteks:** Modul Storefront Hub (`resources/views/app/storefront`) dan Landing Page Studio (`resources/views/app/landing_page`) mengelola kanal penjualan mandiri online, pengaturan etalase, rekening transfer/QRIS, aturan ongkir pengantaran, alokasi reservasi meja/jasa, serta pemenuhan pesanan masuk pelanggan UMKM.
+* **Masalah/Target:**
+  1. Halaman pengaturan etalase toko (`settings.blade.php`) belum memiliki kartu ringkasan metrik Bento KPI dan seluruh checkbox saklar operasional belum dilengkapi input hidden fallback `value="0"`.
+  2. Dialog konfirmasi hapus rekening pembayaran dan aturan ongkir masih menggunakan browser `confirm()` bawaan tanpa dialog squircle Apple Alert dan tanpa pesan penenang jiwa.
+  3. Verifikasi pembayaran pesanan masuk pada `orders/show.blade.php` masih menggunakan `confirm()` native.
+  4. Aksi pembatalan reservasi pada `reservations/index.blade.php` memicu eksekusi langsung tanpa dialog konfirmasi terpadu.
+  5. Form studio ulasan pada `landing_page/edit.blade.php` masih menggunakan simbol unicode bintang mentah (`★`).
+  6. Diperlukan standardisasi menyeluruh berpedoman pada `docs/agent.md`, `docs/prompt.md`, dan `cooca-agent-directive`.
+
+#### 2. What Was Done
+* **Standardisasi Pengaturan Toko Online (`resources/views/app/storefront/settings.blade.php`):**
+  - Menambahkan 4 kartu metrik Bento KPI (`rounded-[20px]`): *Status Etalase*, *Metode Bayar (QRIS & Transfer)*, *Opsi Pengiriman (Pickup & Kurir)*, dan *Mode Transaksi Aktif*.
+  - Menyisipkan `<input type="hidden" name="[field]" value="0">` sebelum setiap checkbox switch boolean (`is_storefront_enabled`, `is_discoverable`, `allow_pickup`, `allow_delivery`, `allow_request_order`, `allow_scheduled_order`, `allow_customer_po`, `allow_reservation`) untuk menjamin integritas state boolean saat uncheck.
+  - Mengganti native `confirm()` hapus rekening dengan Apple Alert Confirmation Dialog squircle lengkap dengan microcopy penenang jiwa (*"Tenang: Riwayat pesanan dan bukti transfer pelanggan masa lalu yang pernah menggunakan rekening ini tetap aman tercatat di pembukuan."*).
+  - Merapikan modal tambah rekening menjadi Apple Bottom Sheet pada mobile (`rounded-t-[28px]`) dengan grab bar dan font input minimal 16px (`text-[16px] sm:text-[13.5px]`).
+* **Standardisasi Aturan Ongkir & Kurir Toko (`resources/views/app/storefront/shipping/index.blade.php`):**
+  - Mengganti native `confirm()` hapus aturan ongkir desktop dan mobile dengan Apple Alert Confirmation Dialog dan microcopy penenang jiwa (*"Tenang: Riwayat pesanan dan ongkos kirim pada transaksi masa lalu tetap aman tercatat dan tidak akan berubah."*).
+  - Standardisasi Modal Tambah/Edit Aturan Ongkir menjadi responsive Apple Bento Dialog dengan grab bar dan input font size 16px di mobile.
+* **Standardisasi Reservasi & Booking Jadwal (`resources/views/app/storefront/reservations/index.blade.php`):**
+  - Menambahkan Apple Alert Confirmation Dialog untuk pembatalan reservasi tamu dengan microcopy penenang jiwa (*"Tenang: Riwayat data kontak dan catatan reservasi tamu ini tetap tersimpan aman di riwayat arsip reservasi."*).
+  - Menambahkan mobile grab bar pada Modal Alokasi Meja dan menyelaraskan padding bawah layar sentuh.
+* **Standardisasi Rincian & Verifikasi Pesanan (`resources/views/app/storefront/orders/show.blade.php`):**
+  - Mengganti native `confirm()` verifikasi pembayaran dengan Apple Alert Confirmation Dialog visual lengkap dengan notifikasi pemotongan stok resmi dan status LUNAS.
+  - Menambahkan mobile grab bar pada Modal Tolak Bukti Transfer.
+* **Penyelarasan Indeks Pesanan Toko (`resources/views/app/storefront/orders/index.blade.php`):**
+  - Menerapkan safe area bottom padding `pb-28 sm:pb-32 lg:pb-10`.
+* **Standardisasi Studio Landing Page (`resources/views/app/landing_page/edit.blade.php`):**
+  - Mengganti karakter bintang unicode `★` pada form ulasan pelanggan dengan ikon vektor Lucide `star` SVG (Strict No-Emoji Mandate).
+  - Memastikan safe area bottom padding `pb-28 sm:pb-32 lg:pb-10`.
+* **Pembaruan Simultan Tiga Lapisan Dokumentasi (Mandat WORK-2026-09-17-043):**
+  - Layer 1: Mencatatkan riwayat `[WORK-2026-09-17-046]` di `docs/AiWorkHistory.md`.
+  - Layer 2: Menambahkan Subbab 12.11 di `docs/system/architecture/ui-ux-design-system.md`.
+  - Layer 3: Menambahkan Subbab 3.8 di `docs/SYSTEM_GUIDE.md` lengkap dengan TOC dan Traceability Matrix.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/app/storefront/settings.blade.php`
+  - `resources/views/app/storefront/shipping/index.blade.php`
+  - `resources/views/app/storefront/reservations/index.blade.php`
+  - `resources/views/app/storefront/orders/show.blade.php`
+  - `resources/views/app/storefront/orders/index.blade.php`
+  - `resources/views/app/landing_page/edit.blade.php`
+  - `docs/system/architecture/ui-ux-design-system.md`
+  - `docs/SYSTEM_GUIDE.md`
+  - `docs/AiWorkHistory.md`
+* **Database Changes:** None.
+* **API / Route Changes:** None (mempertahankan 100% kontrak rute `landing-page.*`, `storefront.*`).
+
+#### 4. System Impacts
+* **Workflow Impact:** Pemilik bisnis dapat mengelola konfigurasi etalase toko secara aman tanpa risiko uncheck switches tidak terkirim; konfirmasi penghapusan data penting dan verifikasi pembayaran kini memberikan kepastian dan ketenangan pikiran; pengalaman pengguna pada perangkat mobile terlindungi dari benturan floating bar iOS 18 dan auto-zoom Safari.
+* **Business Rule Impact:** Integritas pemotongan stok otomatis saat verifikasi pembayaran dan pencatatan riwayat transaksi masa lalu tetap terjaga tanpa efek destruktif.
+* **Permission Impact:** Hak akses tetap terlindungi oleh otorisasi permission granular tenant `$business->id`.
+
+#### 5. Verification & Testing
+* **Lint Syntax Verification:**
+  - `php -l resources/views/app/storefront/settings.blade.php` -> PASSED
+  - `php -l resources/views/app/storefront/shipping/index.blade.php` -> PASSED
+  - `php -l resources/views/app/storefront/reservations/index.blade.php` -> PASSED
+  - `php -l resources/views/app/storefront/orders/show.blade.php` -> PASSED
+  - `php -l resources/views/app/storefront/orders/index.blade.php` -> PASSED
+  - `php -l resources/views/app/landing_page/edit.blade.php` -> PASSED
+* **Automated Feature Tests:**
+  - `CommerceStorefrontCheckoutTest`: 12 passed (69 assertions).
+  - `LandingPageAuthTest`: 2 passed (18 assertions).
+  - `CommerceReservationTest`: 5 passed (33 assertions).
+  - `CommerceShippingRuleFeatureTest`: 6 passed (25 assertions).
+  - `PublicStorefrontFieldScenariosTest`: 7 passed (39 assertions).
+  - `ProductChannelVisibilityAndPreorderTest`: 10 passed (38 assertions).
+  - Total 42 automated tests passing, 222 assertions, 0 errors, 0 failures.
+
+#### 6. Important Decisions & Guardrails
+* **Hidden Fallback Switches:** Seluruh checkbox multi-mode etalase dipasangkan input hidden bernilai 0 untuk menjamin transmisi state boolean secara deterministik.
+* **Penenang Jiwa Mandate:** Seluruh dialog hapus/batal/verifikasi menggunakan Apple Alert Dialog squircle lengkap dengan penjelasan non-destruktif.
+* **Strict No-Emoji Mandate:** Karakter bintang unicode mentah dieliminasi sepenuhnya dan digantikan SVG Lucide.
+
+#### 7. Documentation Promotion
+* Dipromosikan ke `docs/system/architecture/ui-ux-design-system.md` (Subbab 12.11) dan disinkronkan ke Master System Guide `docs/SYSTEM_GUIDE.md` (Subbab 3.8, Daftar Isi, & Traceability Matrix).
+
+### [WORK-2026-09-17-045] Standardisasi UI/UX Bahan Baku (Materials) & Jasa (Services): Apple Bento HIG, Full Layout XXL Modal, Triple Quick-Add AJAX, & Penenang Jiwa
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Inventory, Materials, Services & POS
+* **Feature:** Apple Bento Grid UI Redesign, Full Layout XXL Multi-Device Modal, Triple Inline Quick-Add AJAX, Zero-Reload Service Edit, Mobile Ergonomics & Penenang Jiwa Microcopy
+* **Work Type:** UI/UX | Refactoring | Architecture
+
+#### 1. Business Context & Objective
+* **Konteks:** Modul Bahan Baku (`resources/views/app/materials`) dan Jasa Layanan (`resources/views/app/services`) mengelola rantai pasok manufaktur F&B serta katalog jasa bebas stok untuk kasir POS dan faktur penjualan.
+* **Masalah/Target:**
+  1. Halaman bahan baku sebelumnya menggunakan modal input sempit 1 kolom (`max-w-lg`) dan sub-modal (kategori, satuan, supplier) yang me-reload halaman sehingga menghilangkan draf yang sedang diketik.
+  2. Dialog hapus bahan baku masih menggunakan teks bernada cemas (*"Tindakan ini tidak dapat dibatalkan"*).
+  3. Halaman jasa layanan sebelumnya menggunakan banner gradasi visual lama, ikon emoji Unicode (seperti 🛠️, ✏️, 🗑️), dan alur edit berbasis redirect parameter URL `?edit=<id>` yang memicu reload halaman dan mereset filter.
+  4. Belum adanya penyelarasan navigasi terpadu (Apple Segmented Control) di halaman jasa dengan halaman katalog produk dan varian (mandat Section 16).
+
+#### 2. What Was Done
+* **Standardisasi Modul Bahan Baku (`resources/views/app/materials/index.blade.php`):**
+  - Toolbar Apple HIG terintegrasi dengan dynamic breadcrumb dan 4 kartu metrik Bento KPI (`rounded-[20px]`) bersquircle: *Total Bahan Baku*, *Kategori Bahan*, *Pemasok Vendor*, dan *Manajemen Susut Yield & Waste*.
+  - Meng-upgrade modal tambah bahan baku menjadi **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[90vh]`) pada desktop, 2-kolom pada tablet, dan **Apple Bottom Sheet** (`rounded-t-[28px] max-h-[94vh]`) pada mobile.
+  - Arsitektur Bento 12 kolom: 7 kolom identitas & relasi master + 5 kolom rendemen (yield), susut (waste), harga beli, ongkir, diskon, dan kartu estimasi biaya efektif per unit live via Alpine.js.
+  - Mengimplementasikan **Triple Inline Quick-Add AJAX `[ + ]`**: Kategori Bahan (`material-categories.store`), Satuan Beli (`units.store`), dan Supplier (`suppliers.store`) dapat dibuat instan via sub-modal AJAX tanpa reload atau kehilangan data input utama.
+  - Dualitas tabel data desktop dan **Apple Grouped Inset Cards** pada smartphone (`< sm`).
+  - Dialog konfirmasi hapus squircle dengan microcopy penenang jiwa berikon Lucide info (*"Tenang: Resep produk (BOM) masa lalu dan riwayat pembelian/penerimaan barang (Goods Receipt) yang menggunakan bahan ini tetap aman tersimpan."*).
+* **Standardisasi Modul Jasa & Layanan (`resources/views/app/services/index.blade.php`):**
+  - Menyelaraskan navigasi atas menggunakan **Apple Segmented Control** terpadu (`[ Barang Fisik (Katalog) ] [ Jasa & Layanan (Aktif) ] [ Varian & Modifiers ]`) sesuai mandat Section 16.
+  - Menggantikan banner gradasi lama dengan 3 kartu metrik Bento KPI (`rounded-[20px]`): *Total Layanan*, *Status di Kasir (Bebas Stok & Selalu Siap)*, dan *Kategori Jasa*.
+  - Mengeliminasi alur edit berbasis redirect `?edit=<id>` menjadi **instant client-side Alpine.js modal** (`openEdit(service)`), menjaga context filter dan pagination.
+  - Merombak Form Tambah dan Ubah Layanan menjadi **Full Layout XXL Centered Bento Dialog** 12 kolom (7 kolom identitas & deskripsi + 5 kolom tarif, modal teknisi, switches kanal POS/Web/SO dengan hidden input fallback `value="0"`).
+  - Mengimplementasikan **Inline Quick-Add AJAX `[ + ]`** untuk Kategori Layanan.
+  - Eliminasi total emoji Unicode (Strict No-Emoji Mandate) dan menggantinya dengan ikon Lucide SVG murni.
+  - Dialog konfirmasi hapus squircle dengan microcopy penenang jiwa.
+* **Ergonomi Mobile Lintas Modul:**
+  - Safe area bottom padding (`pb-28 sm:pb-32 lg:pb-10`) untuk mencegah overlap dengan floating navigation bar iOS 18.
+  - Font input minimum 16px pada mobile (`text-[16px] sm:text-[14px]`) untuk menonaktifkan auto-zoom iOS Safari.
+* **Pembaruan Simultan Tiga Lapisan Dokumentasi (Mandat WORK-2026-09-17-043):**
+  - Layer 1: Mencatatkan entri riwayat `[WORK-2026-09-17-045]` di `docs/AiWorkHistory.md`.
+  - Layer 2: Menambahkan subbab 12.10 di `docs/system/architecture/ui-ux-design-system.md`.
+  - Layer 3: Menambahkan subbab 3.7 di `docs/SYSTEM_GUIDE.md` lengkap dengan TOC dan Traceability Matrix.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/app/materials/index.blade.php`
+  - `resources/views/app/services/index.blade.php`
+  - `docs/system/architecture/ui-ux-design-system.md`
+  - `docs/SYSTEM_GUIDE.md`
+  - `docs/AiWorkHistory.md`
+* **Database Changes:** None.
+* **API / Route Changes:** None (mempertahankan 100% kontrak rute `materials.*`, `suppliers.*`, `material-categories.*`, `services.*`, `units.*`).
+
+#### 4. System Impacts
+* **Workflow Impact:** Pemilik usaha dapat menambah bahan baku dengan menghitung biaya riil langsung di modal XXL, menambah supplier/satuan/kategori baru secara instan tanpa kehilangan teks yang sedang diketik, dan mengelola layanan jasa secara terpadu tanpa reload halaman.
+* **Business Rule Impact:** Integritas perhitungan HPP dan ketiadaan kebutuhan stok fisik pada tipe produk jasa tetap terlindungi sepenuhnya.
+* **Permission Impact:** Hak akses tetap terkontrol oleh permission granular `materials.*` dan `products.*`.
+
+#### 5. Verification & Testing
+* **Lint Syntax Verification:**
+  - `php -l resources/views/app/materials/index.blade.php` -> PASSED (No syntax errors).
+  - `php -l resources/views/app/services/index.blade.php` -> PASSED (No syntax errors).
+* **Automated Feature Tests:**
+  - `php artisan test tests/Feature/ServiceAndProductSeparationTest.php` -> PASSED (15 tests, 82 assertions).
+  - `php artisan test tests/Feature/ProductChannelVisibilityAndPreorderTest.php` -> PASSED (10 tests, 38 assertions).
+  - `php artisan test tests/Feature/CommerceStorefrontCheckoutTest.php` -> PASSED (12 tests, 69 assertions).
+  - `php artisan test --filter=Bom` -> PASSED (11 tests, 22 assertions).
+  - Total 48 automated feature tests passing with 0 errors / 0 failures.
+
+#### 6. Important Decisions & Guardrails
+* **Client-Side Edit Modal:** Menggantikan query param URL `?edit=<id>` dengan reaktivitas Alpine.js client-side untuk mewujudkan prinsip Zero-Navigation Jumps.
+* **Preservasi Fallback Input:** Mengawal seluruh switch boolean dengan `<input type="hidden" name="[field]" value="0">`.
+* **Strict No-Emoji Mandate:** Seluruh ikon menggunakan Lucide font icons / SVG.
+
+#### 7. Documentation Promotion
+* Dipromosikan ke `docs/system/architecture/ui-ux-design-system.md` (Subbab 12.10) dan dirangkum dalam Master System Guide `docs/SYSTEM_GUIDE.md` (Subbab 3.7, Daftar Isi, & Traceability Matrix).
+
+### [WORK-2026-09-17-044] Standardisasi UI/UX Produk (Katalog, BOM, Modifiers): Bento Apple HIG, Full Layout XXL Modal, Inline Quick-Add AJAX, Safe Area & Penenang Jiwa
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Products, Inventory & POS
+* **Feature:** Apple Bento Grid UI Redesign, Full Layout XXL Multi-Device Modal, Inline Quick-Add AJAX, Mobile Ergonomics & Penenang Jiwa Microcopy
+* **Work Type:** UI/UX | Refactoring | Architecture
+
+#### 1. Business Context & Objective
+* **Konteks:** Modul Produk (`resources/views/app/products`) merupakan jantung dari ekosistem COOCA yang menghubungkan operasional Kasir POS, Manajemen Gudang & Resep (BOM), Kanal Penjualan Online (Storefront), hingga Varian Pesanan (Modifiers).
+* **Masalah/Target:**
+  1. Halaman indeks produk sebelumnya menggunakan banner gradasi visual yang menyita layar kerja dan modal sempit 1 kolom yang memaksa pengguna scrolling panjang.
+  2. Saat menambah/mengubah produk, pembuatan kategori atau satuan baru belum mendukung pembuatan instan (quick-add) tanpa reload halaman.
+  3. Konfirmasi hapus produk dan kelompok varian masih menggunakan fungsi bawaan browser (`confirm()`) tanpa pesan penenang jiwa.
+  4. Halaman BOM dan Modifiers belum memiliki layout mobile teroptimasi (Apple Grouped Inset Cards) dan safe area bottom padding untuk iOS 18 floating navigation bar.
+  5. Perlu pembaruan komprehensif mengikuti pedoman `docs/agent.md`, `docs/prompt.md`, dan `cooca-agent-directive`.
+
+#### 2. What Was Done
+* **Standardisasi Halaman Indeks Produk (`resources/views/app/products/index.blade.php`):**
+  - Mengganti banner gradasi dengan **Apple Segmented Control** terpadu (`[ Barang Fisik (Katalog) ] [ Jasa & Layanan ] [ Varian & Modifiers ]`) sesuai UI Unification Directive Section 16.
+  - Mengimplementasikan kartu metrik Bento KPI (`rounded-[20px]`) dengan ikon squircle Lucide murni, tipografi angka tabular (`tabular-nums`), dan eliminasi seluruh badge pill dekoratif (Anti-Pill Mandate).
+  - Merombak total Modal Tambah & Edit Produk menjadi **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[90vh]`) dengan tata letak Bento Grid 12 kolom (7 kolom identitas produk & inventori + 5 kolom penetapan harga, foto produk, switches multi-kanal, dan preorder).
+  - Mengimplementasikan **Inline Quick-Add AJAX `[ + ]`** untuk Kategori dan Satuan Produk: menyimpan via background AJAX (`fetch()`), menginjeksi opsi baru ke `<select>`, dan memilihnya otomatis tanpa reload halaman maupun mereset draf produk yang sedang diketik.
+  - Mempertahankan backward compatibility 100% pada quick toggle switches kanal (`products.toggle-setting`) dan fallback input `<input type="hidden" name="[field]" value="0">`.
+  - Mengganti dialog hapus native dengan Apple Confirmation Dialog ber-squircle lengkap dengan pesan penenang jiwa berikon Lucide info murni (*"Tenang: Riwayat transaksi kasir, nota pesanan, dan pembukuan masa lalu yang menggunakan produk ini tetap aman tersimpan."*).
+  - Menerapkan safe area bottom padding (`pb-28 sm:pb-32 lg:pb-10`) dan font input mobile minimal 16px (`text-[16px] sm:text-[14px]`).
+* **Standardisasi Halaman Resep Produk / BOM (`resources/views/app/products/bom.blade.php`):**
+  - Menerapkan kartu ringkasan biaya produksi Bento KPI (`Akumulasi Modal Bahan Baku`, `Jumlah Komponen Resep`, `Batch Output`).
+  - Menerapkan dualitas antarmuka: tabel desktop modern ber-squircle dan **Apple Grouped Inset Cards** pada layar smartphone (`< sm`).
+  - Meng-upgrade modal Tambah/Ubah Bahan Baku menjadi responsive Apple Bento Modal (`max-w-xl sm:max-w-2xl`).
+  - Menambahkan dialog konfirmasi hapus komponen BOM bergaya Apple dengan pesan penenang jiwa.
+* **Standardisasi Halaman Modifiers & Varian (`resources/views/app/products/modifiers.blade.php`):**
+  - Menerapkan navigasi tab segmented terpadu yang konsisten dengan halaman produk.
+  - Kartu Bento terstruktur untuk setiap grup modifier, menampilkan tipe seleksi (Tunggal vs Majemuk), batas minimal/maksimal, dan status wajib/opsional.
+  - Dualitas antarmuka pada opsi varian: tabel desktop responsif dan Apple Inset Cards pada smartphone.
+  - Meng-upgrade modal Tambah/Ubah Grup dan Opsi Modifier menjadi responsive Apple Bento Modal (`max-w-2xl sm:max-w-3xl`) dengan integrasi mapping bahan baku inventori.
+  - Mengganti seluruh `confirm()` native dengan dialog konfirmasi Apple ber-squircle dan pesan penenang jiwa.
+* **Sinkronisasi Dokumentasi Simultan Tiga Lapisan (Mandat WORK-2026-09-17-043):**
+  - Layer 1: Mencatatkan entri riwayat `[WORK-2026-09-17-044]` pada `docs/AiWorkHistory.md`.
+  - Layer 2: Menambahkan subbab 12.9 (*Standar Manajemen Katalog Produk, Resep BOM & Modifiers*) pada `docs/system/architecture/ui-ux-design-system.md`.
+  - Layer 3: Menambahkan subbab 3.6 pada `docs/SYSTEM_GUIDE.md` lengkap dengan pembaruan Daftar Isi dan Matriks Penelusuran Pengetahuan.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/app/products/index.blade.php`
+  - `resources/views/app/products/bom.blade.php`
+  - `resources/views/app/products/modifiers.blade.php`
+  - `docs/system/architecture/ui-ux-design-system.md`
+  - `docs/SYSTEM_GUIDE.md`
+  - `docs/AiWorkHistory.md`
+* **Database Changes:** None (menggunakan skema tabel yang ada secara optimal).
+* **API / Route Changes:** None (mempertahankan 100% kontrak rute `products.*`, `product-categories.store`, `units.store`, `bom.*`, `modifiers.*`).
+
+#### 4. System Impacts
+* **Workflow Impact:** Pemilik usaha dan staf admin kini dapat menambahkan atau mengedit produk dengan cepat, nyaman, dan lapang melalui XXL modal tanpa kehilangan konteks halaman katalog; membuat kategori/satuan baru langsung dari form produk dalam 1 klik tanpa reload.
+* **Business Rule Impact:** Integritas relasi data katalog produk dengan stok gudang, kalkulasi HPP bahan baku, dan riwayat pesanan masa lalu tetap terjamin aman secara non-destruktif.
+* **Permission Impact:** Hak akses tetap dikawal otorisasi tenant bisnis (`$business->id`).
+
+#### 5. Verification & Testing
+* **Lint Syntax Verification:**
+  - `php -l resources/views/app/products/index.blade.php` -> PASSED (No syntax errors).
+  - `php -l resources/views/app/products/bom.blade.php` -> PASSED (No syntax errors).
+  - `php -l resources/views/app/products/modifiers.blade.php` -> PASSED (No syntax errors).
+* **Automated Feature Tests:**
+  - `php artisan test tests/Feature/ProductChannelVisibilityAndPreorderTest.php` -> PASSED (10 tests, 38 assertions).
+  - `php artisan test --filter=Modifier` -> PASSED (2 tests, 9 assertions).
+  - `php artisan test --filter=Bom` -> PASSED (11 tests, 22 assertions).
+  - `php artisan test tests/Feature/CommerceStorefrontCheckoutTest.php` -> PASSED (12 tests, 69 assertions).
+  - Total 35 automated tests passing with 0 errors / 0 failures.
+
+#### 6. Important Decisions & Guardrails
+* **Preservasi Logika Form & State:** Seluruh input hidden fallback (`value="0"`) pada checkbox switch kanal produk dan pre-order dipertahankan untuk mencegah kegagalan uncheck pada Laravel request.
+* **Strict Zero-Emoji Mandate:** Seluruh ikon visual menggunakan Lucide font icon/SVG, tidak ada emoji Unicode di interface maupun microcopy.
+* **Zero Horizontal Overflow & Safe Area:** Seluruh kontainer menggunakan `w-full max-w-full` dengan padding bawah `pb-28 sm:pb-32 lg:pb-10` demi kenyamanan gestur jempol mobile.
+
+#### 7. Documentation Promotion
+* Dipromosikan ke `docs/system/architecture/ui-ux-design-system.md` (Subbab 12.9) dan dirangkum dalam Master System Guide `docs/SYSTEM_GUIDE.md` (Subbab 3.6, Daftar Isi, & Traceability Matrix).
+
+### [WORK-2026-09-17-043] Penetapan Mandat Mutlak Pembaruan Simultan: `AiWorkHistory.md` dan `SYSTEM_GUIDE.md`
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Architecture, Core AI Directives & Documentation System
+* **Feature:** Mandatory Simultaneous System Guide Update alongside Work History
+* **Work Type:** Architecture | Guidelines | Documentation
+
+#### 1. Business Context & Objective
+* **Konteks:** Sistem dokumentasi COOCA dibangun di atas arsitektur 3-Layer (`Layer 1: AiWorkHistory.md`, `Layer 2: docs/system/`, `Layer 3: docs/SYSTEM_GUIDE.md`).
+* **Masalah/Target:** Terdapat risiko kecenderungan AI Agent hanya mencatatkan entri riwayat pada `docs/AiWorkHistory.md` (Layer 1) tanpa menyelaraskan panduan hidup sistem pada `docs/SYSTEM_GUIDE.md` (Layer 3). Hal ini menyebabkan `SYSTEM_GUIDE.md` tertinggal dan usang. Pengguna menginstruksikan agar seluruh panduan operasional (`agent.md` dan `prompt.md`) mewajibkan pembaruan simultan: setiap kali riwayat dicatat di `AiWorkHistory.md`, `SYSTEM_GUIDE.md` WAJIB diperbarui secara bersamaan.
+
+#### 2. What Was Done
+* **Penyelarasan Master Directive (`docs/agent.md`):**
+  - Memperbarui Mandat Utama Poin 13 untuk menegaskan bahwa selain mencatatkan riwayat di `AiWorkHistory.md`, AI Agent WAJIB secara bersamaan memperbarui `SYSTEM_GUIDE.md`.
+  - Memperbarui bagan alur kerja wajib: `UPDATE DOCUMENTATION (AiWorkHistory.md + SYSTEM_GUIDE.md + docs/system/ — WAJIB SIMULTAN)`.
+  - Menambahkan Subsection 22.1 (*Mandat Mutlak Pembaruan Simultan: AiWorkHistory.md + SYSTEM_GUIDE.md*) yang menyatakan pekerjaan yang hanya mencatat history tanpa menyelaraskan System Guide diklasifikasikan sebagai `PARTIAL / INCOMPLETE`.
+  - Memperbarui butir checklist Definition of Done (DoD) dan Final Agent Command langkah 19.
+* **Penyelarasan Prompt Guide (`docs/prompt.md`):**
+  - Menambahkan Subsection 29.1 (*Mandat Mutlak Pembaruan Simultan Wajib*) pada aturan Three-Layer Documentation.
+  - Memperbarui checklist dokumentasi Section 32 agar secara eksplisit menandai `SYSTEM_GUIDE updated (Layer 3 — WAJIB diperbarui secara simultan bersama AiWorkHistory)`.
+* **Penyelarasan Skill Directives (`references/documentation-and-dod.md`):**
+  - Menegaskan kewajiban pembaruan simultan pada deskripsi Layer 3 dan checklist DoD gabungan.
+* **Pembaruan Langsung Master System Guide (`docs/SYSTEM_GUIDE.md`):**
+  - Memperbarui Section 1 untuk menyertakan standar resmi Modal Pop-Up Full Layout XXL dan responsif multi-device.
+  - Menambahkan Subsection 4.5 (*Protokol Dokumentasi Berkelanjutan Simultan*) ke dalam Engineering Blueprint dan Daftar Isi.
+  - Membersihkan sisa emoji Unicode pada microcopy penenang jiwa sesuai aturan strict no-emoji.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `docs/agent.md`
+  - `docs/prompt.md`
+  - `docs/SYSTEM_GUIDE.md`
+  - `.agents/skills/cooca-agent-directive/references/documentation-and-dod.md`
+  - `docs/AiWorkHistory.md`
+* **Database Changes:** None.
+* **API / Route Changes:** None.
+
+#### 4. System Impacts
+* **Workflow Impact:** Seluruh sesi pengembangan AI Agent ke depan terikat mandat mutlak untuk selalu memperbarui `docs/SYSTEM_GUIDE.md` setiap kali mencatatkan riwayat di `docs/AiWorkHistory.md`.
+* **Business Rule Impact:** Menjamin `SYSTEM_GUIDE.md` selalu menjadi representasi akurat terkini dari sistem COOCA untuk Business Owner dan Developer.
+* **Permission Impact:** None.
+
+#### 5. Verification & Testing
+* Verifikasi konsistensi dokumen lintas seluruh direktori `docs/` dan `.agents/skills/`.
+* Seluruh berkas panduan tersinkronisasi 100% tanpa kontradiksi.
+
+#### 6. Important Decisions & Guardrails
+* Dilarang keras menyatakan tugas selesai jika hanya mencatatkan riwayat di `AiWorkHistory.md` tanpa menyelaraskan `SYSTEM_GUIDE.md`.
+* Kedua berkas dokumentasi harus selalu diperbarui dalam commit/siklus kerja yang sama.
+
+#### 7. Documentation Promotion
+* Tersinkronisasi penuh pada `docs/agent.md`, `docs/prompt.md`, `docs/SYSTEM_GUIDE.md`, dan `references/documentation-and-dod.md`.
+
+### [WORK-2026-09-17-042] Standarisasi Ketentuan UI Modal Pop-Up Full Layout XXL & Responsif Multi-Device (Desktop, Tablet, Mobile)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** UI/UX & Design System Architecture
+* **Feature:** Full Layout XXL Responsive Modal Pop-Up Standards (Bento Apple HIG v2.0)
+* **Work Type:** UI/UX | Architecture | Documentation
+
+#### 1. Business Context & Objective
+* **Konteks:** Sistem COOCA sebagai platform ERP multi-tenant mengelola data bisnis yang luas dan kompleks (Master-Detail, formulir produk multi-varian/BOM, faktur transaksi POS, pembelian, CRM pelanggan, rekonsiliasi kas/bank, hingga persetujuan langganan).
+* **Masalah/Target:** Ketentuan modal sebelumnya merekomendasikan ukuran modal sempit (`max-w-lg` 512px atau `max-w-xl` 576px) pada desktop. Ukuran ini membuat formulir terhimpit (*cramped*), memaksa tata letak 1-kolom memanjang vertikal dengan scroll berlebihan, memotong tabel rincian transaksi, dan menyia-nyiakan bentang layar monitor pengguna. Pengguna membutuhkan standardisasi modal pop-up yang memanfaatkan **Full Layout XXL** pada desktop dan responsif secara adaptif di tablet kasir serta smartphone mobile.
+
+#### 2. What Was Done
+* **Upgrade Standar Modal ke Full Layout XXL:** Menghapus batas sempit `max-w-lg`/`max-w-xl` dan menetapkan standar **Full Layout XXL (`max-w-5xl` s/d `max-w-7xl` / `max-w-[95vw]`)** untuk seluruh operasi Show (Detail), Create (Tambah Baru), dan Edit (Ubah) pada halaman index.
+* **Spesifikasi Matriks Responsivitas Multi-Device:**
+  1. **Desktop (>= 1024px):** Full Layout XXL Centered Bento Dialog (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl rounded-[24px] max-h-[90vh] flex flex-col`), mengakomodasi grid Bento multi-kolom (8 kolom area form/tabel utama + 4 kolom metrik ringkasan/kalkulasi), sticky header frosted glass, dan sticky footer.
+  2. **Tablet Kasir & iPad (640px – 1023px):** Centered Responsive Bento Modal (`w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl rounded-[22px] max-h-[90vh] flex flex-col`), tata letak 2 kolom modular seimbang, touch-target tombol 44px–48px.
+  3. **Smartphone Mobile (< 640px):** Apple Full-Responsive Bottom Sheet (`w-full inset-x-0 bottom-0 rounded-t-[28px] max-h-[94vh] flex flex-col overflow-hidden`), pegangan grab bar Apple (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5`), input form wajib minimal 16px (`text-[16px] sm:text-[14px]`) anti auto-zoom iOS, alur 1-kolom vertikal, dan sticky bottom action bar dengan safe area padding.
+* **Penyelarasan Dokumentasi Lintas Layer:** Memperbarui `docs/agent.md` (Mandat Utama, Section 17, dan DoD Checklist), `docs/prompt.md` (Section 13.6 dan Section 17), `docs/system/architecture/ui-ux-design-system.md` (Section 4 dan Section 11), dan `.agents/skills/cooca-agent-directive/references/design-system.md` (Section 14).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `docs/agent.md`
+  - `docs/prompt.md`
+  - `docs/system/architecture/ui-ux-design-system.md`
+  - `.agents/skills/cooca-agent-directive/references/design-system.md`
+  - `docs/AiWorkHistory.md`
+* **Database Changes:** None.
+* **API / Route Changes:** None.
+
+#### 4. System Impacts
+* **Workflow Impact:** Seluruh perancangan dan refactoring modal pop-up di masa depan wajib mengikuti standar Full Layout XXL dan responsif multi-device, memastikan form tidak berjejal dan tabel detail transaksi tampil utuh.
+* **Business Rule Impact:** Menjamin kelancaran operasional UMKM lintas perangkat tanpa kehilangan konteks halaman index (*Zero Navigation Jumps*).
+* **Permission Impact:** Tetap tunduk pada otorisasi backend dan permission-aware UI.
+
+#### 5. Verification & Testing
+* Verifikasi konsistensi dokumen pedoman lintas layer (Layer 1, Layer 2, Layer 3, dan Master Directive).
+* Seluruh berkas panduan tersinkronisasi 100% tanpa kontradiksi.
+
+#### 6. Important Decisions & Guardrails
+* Modal XXL adalah standar wajib untuk form operasional, master-detail, transaksi, dan laporan.
+* Modal medium (`max-w-xl` s/d `max-w-2xl`) dipertahankan secara terbatas hanya untuk komponen ringkas seperti Inline Quick-Add `[ + ]` pada dropdown relasi master data.
+* Dialog alert/konfirmasi tetap ringkas (`max-w-md` s/d `max-w-lg`) dengan microcopy penenang jiwa.
+
+#### 7. Documentation Promotion
+* Tersinkronisasi pada `docs/agent.md`, `docs/prompt.md`, `docs/system/architecture/ui-ux-design-system.md`, dan `.agents/skills/cooca-agent-directive/references/design-system.md`.
+
+### [WORK-2026-09-17-041] Perbaikan Persistensi Checkbox Edit Produk & Implementasi Quick Toggle Saluran pada Data Table Index Produk
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Products, Master Data & POS/Storefront Channels
+* **Feature:** Form Checkbox Persistence Fix and Interactive Data Table Channel Quick Toggle (Bento Apple HIG)
+* **Work Type:** Bug Fix | Feature | UI/UX
+
+#### 1. Business Context & Objective
+* **Konteks:** Pemilik UMKM dan operator toko membutuhkan kecepatan dan fleksibilitas tinggi dalam mengatur ketersediaan produk di berbagai saluran (Etalase Web, Kasir POS, Faktur Sales Order), proteksi harga publik, serta status Pre-Order (PO).
+* **Masalah/Target:**
+  1. Pada formulir edit produk, checkbox saluran yang di-uncheck (misal: Etalase Web) kembali aktif saat disimpan karena standar browser HTML menghilangkan checkbox yang tidak dicentang dari payload HTTP, dan controller sebelumnya mengambil nilai lama `$product->field`.
+  2. Pengguna menginginkan pengaturan saluran dan status dapat diubah langsung dari Data Table index tanpa harus membuka modal popup edit/create setiap kali ingin mengubah toggle satu produk.
+
+#### 2. What Was Done
+* **Root Cause Fix:** Mengubah pembacaan boolean pada `ProductWebController::update()` menjadi `$request->boolean(...)` serta menambahkan elemen fallback `<input type="hidden" name="[field]" value="0">` sebelum checkbox pada form create dan edit.
+* **Quick Toggle AJAX API:** Membuat endpoint `POST /products/{product}/toggle-setting` dengan validasi field, toggle boolean cerdas (inversi nilai saat `value` diabaikan atau set eksplisit saat disediakan), dilindungi middleware `require.permission:products.edit`, dan isolasi tenant ketat.
+* **Bento Apple HIG Data Table UI:**
+  - Menambahkan kolom `Saluran & Status` pada desktop table (`hidden sm:block`) dengan 6 tombol mikro squircle continuo (`Web`, `POS`, `SO`, `Harga`, `PO`, `Aktif`).
+  - Menambahkan baris quick toggle yang sama pada setiap kartu produk di mobile list view (`sm:hidden`).
+  - Menerapkan micro-interaction **Optimistic UI** dengan Alpine.js untuk perubahan status instan, SweetAlert2 toast notification, dan auto-revert bila terjadi network failure.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Http/Controllers/Web/ProductWebController.php` (update boolean casting & endpoint `toggleSetting`)
+  - `routes/owner.php` (route `products.toggle-setting`)
+  - `resources/views/app/products/index.blade.php` (Alpine reactive store `productToggles`, table column, mobile card strip, hidden fallback inputs)
+  - `tests/Feature/ProductChannelVisibilityAndPreorderTest.php` (test suite penjaminan uncheck form persistence & quick toggle endpoint)
+* **API / Route Changes:**
+  - `POST /products/{product}/toggle-setting` (`products.toggle-setting`)
+
+#### 4. System Impacts
+* **Workflow Impact:** Mengeliminasi kebutuhan membuka modal edit untuk sekadar menyalakan/mematikan saluran jual, menyembunyikan harga web, atau mengaktifkan Pre-Order. Pengaturan dapat dilakukan langsung dalam 1 klik dari tabel.
+* **Business Rule Impact:** Menjamin 100% konsistensi status produk saat diedit melalui modal maupun toggle tabel.
+* **Permission Impact:** Hanya pengguna dengan izin `products.edit` atau `products.manage` yang dapat mengeksekusi toggle.
+
+#### 5. Verification & Testing
+* `tests/Feature/ProductChannelVisibilityAndPreorderTest.php` lulus 10/10 tests (38 assertions).
+* `tests/Feature/CommerceStorefrontCheckoutTest.php` lulus 12/12 tests (69 assertions).
+* Sintaks PHP bebas error (`php -l`), routing valid (`php artisan route:list`), cache view bersih.
+
+---
+
+### [WORK-2026-09-17-040] Refactoring UI/UX Bento Apple HIG Etalase Publik, Penanganan Produk Katalog Kontak Langsung (Zero-Price), dan Implementasi Pre-Order B2C Batch Pengiriman
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront Public Landing Page
+* **Feature:** Public Storefront Bento Apple HIG Optimization, Unpriced Product Direct WhatsApp Fallback, and System-based B2C Pre-Order Delivery Batch Selection
+* **Work Type:** UI/UX | Feature | Refactoring
+
+#### 1. Business Context & Objective
+* **Konteks:** Bisnis UMKM khususnya sektor FnB rumahan, katering, bakery, dan meal-prep kerap menerapkan sistem Pre-Order (PO) berbasis batch tanggal pengiriman/pengambilan dengan batas waktu pemesanan (cut-off) dan kuota harian. Di sisi lain, UMKM juga memiliki produk custom/grosir yang harganya tidak ditampilkan di etalase publik (membutuhkan tombol "Hubungi Kami" langsung ke WhatsApp).
+* **Masalah/Target:** Mengatasi kendala UI pada layar mobile (bottom navigation bertabrakan dengan dock kaku, header sesak di <375px, efek blur frosted glass hilang), menyempurnakan penanganan produk tanpa harga agar tidak bisa di-checkout dengan nominal Rp 0, serta menyediakan selektor batch pre-order interaktif pada formulir checkout publik tanpa mewajibkan chat manual WhatsApp.
+
+#### 2. What Was Done
+* **Pengkalkulasian Batch Pre-Order Aktif (`PublicBusinessLandingController.php`)**: Menghitung 7 hari operasional terdekat yang memenuhi `lead_time_hours`, jam cut-off harian (`cut_off_time`), serta kuota harian (`daily_order_quota`), dan memetakan status `is_sold_out` jika kuota terpenuhi.
+* **Apple HIG Bento UI Refinements (`business_landing.blade.php`)**:
+  - Mengembalikan efek frosted glass blur (`backdrop-filter: blur(20px)`) pada kartu Bento.
+  - Memperbaiki styling CSS bottom navigation mobile agar tetap mempertahankan floating island pill (`rounded-[24px]`) dan elevasi tombol CTA utama (`-mt-3.5`).
+  - Mengurangi kepadatan header pada layar kecil (<375px) dengan menyembunyikan toggle tema di header mobile dan memindahkannya ke dalam sheet menu navigasi.
+  - Menghapus badge stiker "Resmi" pada foto hero sesuai mandat Anti-Pill.
+  - Memperbesar ukuran target sentuh panah navigasi slider produk/layanan ke minimal 44px (`w-11 h-11 sm:w-10 sm:h-10`).
+* **Penanganan Produk Tanpa Harga ("Hubungi Kami" & WhatsApp CTA)**:
+  - Pada slider, grid katalog, modal "Lihat Semua", dan modal detail: produk dengan `selling_price <= 0` menampilkan label "Hubungi Kami" dan tombol hijau WhatsApp langsung (`waLink()`), sementara produk dengan harga valid tetap memiliki tombol "Pesan".
+* **Selektor Batch Pre-Order Interaktif di Checkout Modal**:
+  - Menampilkan kartu bento chip tanggal batch interaktif dengan penanda hari, tanggal, sisa kuota, dan badge "Penuh".
+  - Opsi pemilihan tanggal manual alternatif dan pilihan slot waktu pengiriman/pengambilan.
+* **Tampilan Jadwal Pre-Order di Tracking Pesanan (`order_tracking.blade.php`)**:
+  - Menampilkan kartu highlight tanggal pengiriman terjadwal dan slot waktu pada informasi pengambilan/pengiriman pelanggan.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Http/Controllers/Web/PublicBusinessLandingController.php`
+  - `resources/views/public/business_landing.blade.php`
+  - `resources/views/public/storefront/order_tracking.blade.php`
+* **Database Changes:** Tidak ada perubahan skema database (memanfaatkan kolom `scheduled_date` dan `scheduled_time_slot` yang sudah ada pada `commerce_orders`).
+* **API / Route Changes:** Tidak ada perubahan endpoint baru.
+
+#### 4. System Impacts
+* **Workflow Impact:** Pelanggan B2C FnB rumahan kini dapat memilih batch tanggal pengiriman pre-order secara visual dan mandiri saat checkout. Produk tanpa harga otomatis dialihkan ke WhatsApp inquiry tanpa risiko pemesanan checkout Rp 0.
+* **Business Rule Impact:** Kuota harian dan jam cut-off dihormati secara otomatis saat pelanggan menentukan jadwal PO.
+* **Permission Impact:** Publik (Guest & Customer).
+
+#### 5. Verification & Testing
+* `php -l` lolos 100% pada seluruh berkas yang disentuh.
+* `CommerceStorefrontCheckoutTest`: 12 passed, 69 assertions (100%).
+* `PublicStorefrontFieldScenariosTest`: 7 passed, 39 assertions (100%).
+* Seluruh test suite Storefront: 21 passed, 114 assertions (100% lolos, 0 regression).
+
+#### 6. Important Decisions & Guardrails
+* Mematuhi *cooca-agent-directive* dan Apple HIG: Zero Emoji, Lucide icon murni, angka & mata uang berformat `tabular-nums`, target sentuh >= 44px, ukuran font input form mobile >= 16px untuk mencegah auto-zoom iOS Safari.
 
 ### [WORK-2026-09-16-039] Standardisasi Logo Bisnis dari Pengaturan (/settings), Sinkronisasi Mutlak Tema Warna & Mode Gelap dari CMS Landing Page, dan Normalisasi Aset Multi-Domain
 * **Date:** 2026-09-16
@@ -2510,3 +4273,127 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 * **Single Source of Truth:** Seluruh data tema, status publikasi, jam operasional, dan visibilitas section diambil murni dari `BusinessLandingPage` dan `CommerceStoreSetting`.
 * **Strict Tenant Isolation:** Data produk, layanan, kategori, dan tabel POS di-query secara ketat berdasarkan `business_id`.
 * **Zero Mobile Auto-Zoom:** Input form modal dan pencarian menggunakan ukuran responsif `text-[16px] sm:text-[13px]`.
+
+---
+
+### [WORK-2026-09-17-040] Product Multi-Channel Visibility Scoping, WhatsApp Inquiry Fallback for Hidden Web Prices, and Pre-Order B2C Architecture
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Products & Services / Multi-Channel Catalog / Storefront Commerce / POS Cashier / Sales Orders
+* **Feature:** Implementasi granular visibilitas saluran per-produk (`show_in_website`, `show_in_pos`, `show_in_sales_order`), opsi proteksi harga publik di etalase web (`show_price_on_web`) dengan fallback otomatis ke WhatsApp inquiry tanpa mengubah/mengenolkan `selling_price` di database, serta sistem Pre-Order B2C per-produk (`is_preorder`, `preorder_mode`: `merchant_batch` vs `customer_schedule`, `preorder_lead_days`) hulu-ke-hilir dari database migration, model scopes, admin Bento UI, hingga validasi server-side checkout dan penyesuaian checkout modal.
+* **Work Type:** Database Migration, Architecture Scoping, Controller Scoping, Bento Apple HIG UI/UX, Domain Validation, Automated Testing
+
+#### 1. Business Context & Objective
+* **Latar Belakang:** UMKM Indonesia, terutama sektor F&B (Katering harian, kue rumahan/hantaran, bakery artisan) dan manufaktur pesanan khusus, membutuhkan:
+  1. Pengaturan saluran penjualan granular: barang yang hanya dijual di meja kasir fisik (POS) tidak boleh mengotori katalog web (misal es batu, kantong belanja, air mineral), dan sebaliknya paket pesanan khusus B2B/SO tidak boleh sembarangan dibeli retail via web.
+  2. Proteksi harga publik: produk bernilai tinggi atau custom (misal Wedding Cake, Prasmanan Katering Resepsi) membutuhkan negosiasi langsung. Pemilik bisnis ingin menyembunyikan harga nominal di etalase web dan langsung mengarahkan pengunjung ke konsultasi WhatsApp, namun nilai `selling_price` tetap harus ada di database untuk akurasi HPP, margin laba, dan penjualan POS/SO.
+  3. Sistem Pre-Order (PO) B2C: produk PO memerlukan waktu persiapan (*lead time*, misal H-2 atau H-3). Ketika pelanggan memesan produk PO, sistem wajib mengunci jadwal pemesanan (`scheduled_date`) dan melarang pemesanan instan/hari yang sama yang mustahil disiapkan merchant.
+* **Tujuan:** Mengimplementasikan fitur end-to-end tanpa regresi (*zero breaking change* dengan default `true` untuk channel visibility & price on web, dan default `false` untuk pre-order), isolasi tenant multi-bisnis via `business_id`, kepatuhan Bento Apple HIG (tanpa emoji, tipografi `tabular-nums`), serta validasi server-side yang teruji 100% lulus.
+
+#### 2. What Was Done
+1. **Database Migration:**
+   - Menambahkan migrasi `database/migrations/2026_09_17_083000_add_channel_visibility_and_preorder_to_products_table.php`.
+   - Menambahkan kolom: `show_in_website` (bool, def true, indexed), `show_in_pos` (bool, def true, indexed), `show_in_sales_order` (bool, def true, indexed), `show_price_on_web` (bool, def true), `is_preorder` (bool, def false, indexed), `preorder_mode` (varchar 30, def 'customer_schedule'), dan `preorder_lead_days` (unsignedSmallInteger, def 1).
+2. **Model Layer (`app/Models/Product.php`):**
+   - Mendefinisikan konstanta mode: `PREORDER_MODE_BATCH = 'merchant_batch'`, `PREORDER_MODE_SCHEDULE = 'customer_schedule'`.
+   - Menambahkan kolom ke `$fillable` dan `$casts`.
+   - Menambahkan Eloquent scopes reusable: `scopeForPos()`, `scopeForStorefront()`, `scopeForSalesOrder()`, `scopePreorders()`.
+   - Menambahkan helper methods: `isPreorder(): bool`, `isPriceVisibleOnWeb(): bool`.
+3. **Controller Channel Scoping & Validation:**
+   - `ProductWebController.php` & `ServiceWebController.php`: validasi input 7 kolom baru dan persistensi boolean deterministik.
+   - `PosTerminalWebController.php`: memfilter produk kasir aktif menggunakan `Product::where('business_id', $business->id)->forPos()`.
+   - `SalesOrderWebController.php`: memfilter dropdown produk sales order menggunakan `->forSalesOrder()`.
+   - `PublicBusinessLandingController.php`: memfilter produk katalog etalase menggunakan `->forStorefront()`, memetakan metadata pre-order ke payload JSON, dan menyembunyikan harga web nominal (`price = 0.0`) jika `show_price_on_web == false` untuk mengaktifkan fallback "Hubungi Kami" & WhatsApp CTA secara aman.
+4. **Domain Order Validation (`CommerceOrderService.php`):**
+   - Validasi ketat saat checkout etalase: menolak produk jika `show_in_website == false`.
+   - Mendeteksi produk Pre-Order dalam keranjang belanja (`isPreorder() == true`).
+   - Menghitung `maxPreorderLeadDays` tertinggi dari keranjang belanja.
+   - Mewajibkan tanggal jadwal pengiriman (`scheduled_date` tidak boleh kosong).
+   - Memastikan tanggal jadwal pengiriman memenuhi syarat minimum lead time: `scheduled_date >= Carbon::today()->addDays($maxPreorderLeadDays)`.
+5. **Front-End Admin Bento UI (`resources/views/app/products/index.blade.php`):**
+   - Menambahkan sub-card Bento Apple HIG pada Modal Tambah dan Modal Edit Produk:
+     - Blok Saluran Penjualan: sakelar Kasir POS, Faktur & SO, dan Etalase Web.
+     - Blok Tampilkan Harga di Web dengan teks edukasi ergonomis.
+     - Blok Konfigurasi Pre-Order (PO) reaktif Alpine.js dengan input skema PO dan waktu persiapan (*Lead Time* H-X).
+6. **Front-End Storefront Publik & Checkout (`resources/views/public/business_landing.blade.php`):**
+   - Menampilkan badge squircle subtle `PO H-X` atau `Pre-Order` pada kartu produk di grid, slider, modal katalog, dan detail modal.
+   - Proteksi `show_price_on_web == false`: menyembunyikan nominal harga, menyembunyikan stepper jumlah, dan menampilkan tombol WhatsApp penuh ("Hubungi via WhatsApp").
+   - Deteksi keranjang pre-order: mengaktifkan computed getters `hasPreorderItems`, `maxPreorderLeadDays`, `minPreorderDate`.
+   - Membuka dan mengunci bagian "Jadwal Pesanan" jika keranjang berisi barang PO, serta membatasi input tanggal minimal ke `minPreorderDate`.
+   - Tampilan pelacakan pesanan publik (`resources/views/public/storefront/order_tracking.blade.php`): menambahkan banner jadwal PO dan slot waktu pengantaran beraksen Apple Blue.
+7. **Automated Testing:**
+   - Membuat `tests/Feature/ProductChannelVisibilityAndPreorderTest.php` dengan 7 skenario pengujian komprehensif (POS scope, Web scope, Sales Order scope, Hide price behavior, Rejection of preorder without date, Rejection of insufficient lead days, Success of valid preorder).
+
+#### 3. Verification & Testing Results
+* **PHP Syntax Linting:** 0 error di seluruh berkas controller, model, migration, view, dan test.
+* **Feature Tests:**
+  - `tests/Feature/ProductChannelVisibilityAndPreorderTest.php` ➔ **7 passed (20 assertions)**.
+  - `tests/Feature/CommerceStorefrontCheckoutTest.php` ➔ **12 passed (69 assertions)**.
+  - `tests/Feature/PublicStorefrontFieldScenariosTest.php` ➔ **7 passed (39 assertions)**.
+  - `tests/Feature/ServiceAndProductSeparationTest.php` & `ProductCalculatorIntegrationTest.php` ➔ **21 passed (106 assertions)**.
+  - **Total: 47 passed, 0 failures, 0 errors**.
+
+#### 4. Guardrails & Compatibility
+* **Zero Breaking Change:** Seluruh kolom baru memiliki default value yang kompatibel dengan data lama (`show_in_* = true`, `is_preorder = false`).
+* **Strict Tenant Scoping:** Semua query produk dan pemesanan terkunci pada `business_id`.
+* **Zero Emoji:** Seluruh label UI, notifikasi, dan badge menggunakan teks murni dan SVG ikon Apple HIG.
+
+---
+
+### [2026-09-17] COOCA Unified Social Media Management (Meta & TikTok Integration)
+
+#### 1. Context & Business Needs
+Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (*Single Cockpit*) untuk seluruh saluran media sosial bisnis mereka. Sebelum implementasi ini, COOCA telah memiliki integrasi Meta (Facebook Page, Instagram Bisnis, Threads). Kebutuhan baru adalah menambahkan integrasi **TikTok Developer Platform resmi (Content Posting API)** dengan arsitektur terpadu (*Unified Social Media Layer*), sehingga merchant dapat menghubungkan akun, menyusun konten, memilih saluran tujuan, mengatur format (foto, video, carousel Instagram, photo mode TikTok), memvalidasi aturan tagar maksimal 5, mempublikasikan langsung atau menjadwalkan postingan, memantau riwayat & kalender konten, serta melakukan retry terhadap saluran yang gagal secara independen (*partial success handling*).
+
+#### 2. Architecture & Technical Decisions
+1. **Unified Provider Abstraction Layer:**
+   - Dibuat `SocialMediaProviderInterface` (`app/Domain/SocialMedia/Contracts/SocialMediaProviderInterface.php`).
+   - Implementasi `MetaProvider` (`app/Domain/SocialMedia/Providers/MetaProvider.php`) untuk Facebook, Instagram, Threads.
+   - Implementasi `TikTokProvider` (`app/Domain/SocialMedia/Providers/TikTokProvider.php`) dan `TikTokClient` (`app/Domain/SocialMedia/Clients/TikTokClient.php`) untuk TikTok OAuth 2.0 dan Content Posting API (Direct Post Video & Photo Mode).
+   - Registrasi dan resolusi terpusat melalui `SocialMediaManager` (`app/Domain/SocialMedia/SocialMediaManager.php`).
+2. **Database Enhancement (Reversible & 100% Backward Compatible):**
+   - Migration `2026_09_17_140000_enhance_social_media_for_unified_providers.php`:
+     - Menambahkan kolom `provider`, `refresh_token` (encrypted), `refresh_token_expires_at` pada `social_media_accounts`.
+     - Membuat tabel `social_post_targets` untuk status dan metadata penerbitan per saluran (`provider`, `channel`, `content_type`, `custom_caption`, `status`, `platform_post_id`, `error_message`, `retry_count`).
+     - Membuat tabel `social_post_media` untuk mendukung Carousel multi-item dengan `sort_order` (1..10), `media_type`, dan tautan media.
+3. **Strict COOCA Business Rule & Validation:**
+   - `SocialMediaContentValidator` (`app/Domain/SocialMedia/Validation/SocialMediaContentValidator.php`):
+     - Aturan Bisnis COOCA: **Maksimal 5 tagar unik** per postingan/saluran dengan normalisasi case-insensitive.
+     - Validasi batas karakter resmi API dengan `mb_strlen` (Threads: 500, IG/TikTok: 2.200, FB: 63.206).
+     - Validasi Carousel Instagram (minimal 2, maksimal 10 berkas).
+     - Validasi TikTok Photo Mode (minimal 2 gambar).
+4. **Queue-First Asynchronous Architecture & Idempotency:**
+   - Dibuat job antrean `PublishSocialMediaTargetJob` (`app/Jobs/SocialMedia/PublishSocialMediaTargetJob.php`):
+     - Idempotency guard: keluar seketika jika target berstatus `published`.
+     - Exponential backoff: `[10, 30, 60]` detik dengan `$tries = 3`.
+     - Partial success: target yang berhasil tidak diulang saat melakukan retry target yang gagal.
+     - Storage Auto-Purge: berkas media sementara dihapus dari server setelah seluruh target selesai.
+   - Scheduler command `PublishScheduledSocialMediaPostsCommand` diperbarui dengan penguncian atomik dan dispatching multi-target.
+5. **Front-End & UX Bento Apple HIG:**
+   - **Unified Composer Modal (`resources/views/app/social_media/posts.blade.php`):**
+     - Pemilih platform multi-centang (Facebook, Instagram, Threads, TikTok).
+     - Pilihan tipe konten dinamis (`feed`, `photo`, `carousel`, `video`, `reels`, `text`).
+     - Baki berkas Carousel dengan indikator nomor urut (1..10), tombol geser urutan, dan pratinjau.
+     - Indikator reaktif tagar: `Tagar: X / 5` dengan peringatan merah jika > 5.
+     - Akordion custom caption per saluran.
+   - **Kalender Konten Visual (`resources/views/app/social_media/calendar.blade.php`):**
+     - Tampilan kalender bulanan Bento Apple HIG dengan navigasi bulan dan ikon platform.
+   - **Koneksi Akun Terpadu (`resources/views/app/social_media/index.blade.php`):**
+     - Kartu koneksi TikTok resmi dengan status token auto-refresh dan tombol otorisasi aman.
+   - **Superadmin Configuration (`resources/views/admin/settings/index.blade.php` & `admin/social_media`):**
+     - Tab terdedikasi **"Media Sosial (Meta & TikTok)"** di Admin Settings (`resources/views/admin/settings/index.blade.php`).
+     - Pengaturan `social_media_app_id`, `social_media_app_secret`, `social_media_webhook_verify_token`, `tiktok_client_key`, `tiktok_client_secret` disimpan 100% di basis data (`system_settings`) dengan enkripsi simetris.
+     - **Zero .env dependency**: Sistem tidak lagi mengandalkan file `.env` untuk kredensial media sosial.
+6. **Dokumentasi Sistem Komprehensif (`docs/social-media/`):**
+   - Dibuat 9 panduan teknis: `architecture.md`, `meta.md`, `tiktok.md`, `content-types.md`, `capabilities.md`, `scheduling.md`, `queue.md`, `security.md`, `troubleshooting.md`.
+
+#### 3. Verification & Automated Test Results
+* **Test Suite:** `php artisan test tests/Feature/SocialMedia/` & `tests/Feature/Admin/AdminSocialMediaSettingsTest.php`
+  - `SocialMediaFeatureTest`: **12 passed**
+  - `SocialMediaMediaUploadTest`: **4 passed**
+  - `TikTokOAuthTest`: **6 passed**
+  - `SocialMediaContentValidatorTest`: **9 passed**
+  - `UnifiedPostingAndCarouselTest`: **6 passed**
+  - `SocialMediaQueueJobTest`: **3 passed**
+  - `AdminSocialMediaSettingsTest`: **3 passed**
+  - **TOTAL: 43 tests passed, 251 assertions, 0 failures, 0 errors.**

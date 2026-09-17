@@ -26,4 +26,11 @@ Schedule::command('subscriptions:send-wa-reminders')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/cron-wa.log'));
 
+// 4. Publish scheduled social media posts and purge temporary files (Setiap menit)
+Schedule::command('social-media:publish-scheduled')
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/social-media.log'));
+
+
 

@@ -62,7 +62,7 @@ final class PosTerminalWebController extends Controller
 
         // 4. Products with Selling Price and Effective Stock (Material Master)
         $products = Product::where('business_id', $business->id)
-            ->where('is_active', true)
+            ->forPos()
             ->with(['category', 'outputUnit', 'costModels.costingRuns.result'])
             ->get()
             ->map(function ($p) use ($selectedLocationId) {
@@ -102,7 +102,7 @@ final class PosTerminalWebController extends Controller
 
         $pendingQrOrdersCount = PosOrder::where('business_id', $business->id)
             ->where('order_source', PosOrder::SOURCE_QR_TABLE)
-            ->where('status', PosOrder::STATUS_PENDING)
+            ->whereIn('status', [PosOrder::STATUS_PENDING, PosOrder::STATUS_CONFIRMED])
             ->count();
 
         // 9. Adaptive Operating Mode (Solo Owner vs. Team)
@@ -425,7 +425,7 @@ final class PosTerminalWebController extends Controller
 
         $orders = PosOrder::where('business_id', $business->id)
             ->where('order_source', PosOrder::SOURCE_QR_TABLE)
-            ->where('status', PosOrder::STATUS_PENDING)
+            ->whereIn('status', [PosOrder::STATUS_PENDING, PosOrder::STATUS_CONFIRMED])
             ->with(['items.modifiers', 'items.product.outputUnit', 'posTable'])
             ->latest()
             ->get()
@@ -436,6 +436,12 @@ final class PosTerminalWebController extends Controller
                     'table_number' => $o->posTable?->table_number ?? $o->table_or_reference ?? '-',
                     'customer_name' => $o->customer_name_guest,
                     'customer_phone' => $o->customer_phone_guest,
+                    'status' => $o->status,
+                    'is_paid' => $o->isPaid(),
+                    'payment_gateway' => $o->payment_gateway,
+                    'payment_channel' => $o->payment_channel ?? ($o->isPaid() ? 'QRIS' : null),
+                    'paid_amount' => (float) $o->paid_amount,
+                    'gateway_reference' => $o->gateway_reference,
                     'total_amount' => (float) $o->total_amount,
                     'created_at_time' => $o->created_at->format('H:i:s'),
                     'notes' => $o->notes,
@@ -573,6 +579,32 @@ final class PosTerminalWebController extends Controller
         $user = auth()->user();
         if ($order->business_id !== $business->id) {
             abort(403);
+        }
+
+        // If order was already paid via QRIS/Gateway, finish order directly
+        if ($order->isPaid()) {
+            $activeShift = $this->shiftService->getActiveShift($business, $user, $request->input('location_id') ?? $order->location_id);
+            try {
+                $completed = $this->orderService->completePaidQrOrder($order, $user, $activeShift);
+                $whatsappUrl = $this->loyaltyService->generateWhatsAppReceiptUrl($completed);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "Pesanan meja #{$completed->order_number} yang sudah lunas via QRIS telah berhasil diselesaikan.",
+                    'order' => [
+                        'id' => $completed->id,
+                        'order_number' => $completed->order_number,
+                        'total_amount' => $completed->total_amount,
+                        'paid_amount' => $completed->paid_amount,
+                        'change_amount' => $completed->change_amount,
+                    ],
+                    'receipt_url' => route('pos.receipt', $completed->id),
+                    'receipt_image_url' => route('public.receipt.image', $completed->id),
+                    'whatsapp_url' => $whatsappUrl,
+                ]);
+            } catch (Throwable $e) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            }
         }
 
         $validated = $request->validate([

@@ -42,6 +42,7 @@ final class AutoJournalService
             ['code' => '5-5001', 'name' => 'Beban Pokok Penjualan (HPP)', 'type' => ChartOfAccount::TYPE_COGS, 'normal_balance' => 'debit'],
             ['code' => '6-6001', 'name' => 'Beban Diskon Penjualan', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
             ['code' => '6-6002', 'name' => 'Beban Operasional Toko', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
+            ['code' => '6-6003', 'name' => 'Beban Administrasi Gateway (MDR)', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
         ];
 
         foreach ($standards as $std) {

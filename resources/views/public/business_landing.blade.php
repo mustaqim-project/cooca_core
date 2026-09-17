@@ -109,6 +109,7 @@
 
     {{-- Anti-FOUC Theme Script (Strictly synchronized with Website & Toko CMS Settings) --}}
     <script>
+        var isLandingDark = {{ $initialDarkMode ? 'true' : 'false' }};
         (function() {
             try {
                 // Clear any legacy client overrides to ensure Website & Toko CMS is the authoritative Single Source of Truth
@@ -118,7 +119,7 @@
                 } catch (e) {}
 
                 window.storefrontTheme = {
-                    initialDark: @json($initialDarkMode),
+                    initialDark: isLandingDark,
                     apply(isDark) {
                         const dark = isDark === true;
                         const root = document.documentElement;
@@ -505,8 +506,8 @@
             border-color: var(--sf-border) !important;
             border-radius: var(--sf-radius);
             box-shadow: var(--sf-shadow) !important;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             transition-property: border-color, box-shadow, background-color, transform;
             transition-duration: 200ms;
             transition-timing-function: ease;
@@ -955,7 +956,12 @@
         }
 
         body .storefront-sheet :is(h2, h3, h4, p, label) {
-            overflow-wrap: anywhere;
+            overflow-wrap: break-word;
+            word-break: normal;
+        }
+
+        body .storefront-sheet :is(button, .badge, [class*="rounded-full"]) {
+            white-space: nowrap;
         }
 
         body .storefront-sheet :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
@@ -1169,36 +1175,29 @@
                                     }
 
                                     body > nav[aria-label="Navigasi halaman"] {
-                                        bottom: 0;
-                                        inset-inline: 0;
-                                        border-radius: 0;
-                                        border-width: 1px 0 0;
-                                        padding: 7px max(8px, env(safe-area-inset-right, 0px)) calc(7px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
-                                        box-shadow: 0 -8px 28px -24px rgba(0, 0, 0, .2);
+                                        bottom: max(12px, env(safe-area-inset-bottom, 12px));
+                                        inset-inline: 12px;
+                                        border-radius: 24px;
+                                        border-width: 1px;
+                                        padding: 6px 10px;
+                                        box-shadow: 0 12px 36px -8px rgba(0, 0, 0, .25);
                                         -webkit-backdrop-filter: blur(24px) saturate(160%);
                                         backdrop-filter: blur(24px) saturate(160%);
                                     }
 
                                     body > nav[aria-label="Navigasi halaman"] > div {
-                                        align-items: center; gap: 4px; max-width: 540px;
+                                        align-items: flex-end; gap: 4px; max-width: 540px;
                                     }
 
-                                    body > nav[aria-label="Navigasi halaman"] > div > :is(a, button) {
-                                        min-height: 52px;
-                                        margin-top: 0;
+                                    body > nav[aria-label="Navigasi halaman"] > div > :is(a, button):not([class*="-mt-"]) {
+                                        min-height: 46px;
                                         border-radius: 14px;
-                                        gap: 4px;
-                                        padding-block: 5px;
-                                        border-width: 0;
-                                        box-shadow: none;
-                                    }
-
-                                    body > nav[aria-label="Navigasi halaman"] > div > :is(a, button).text-brand-primary {
-                                        background-color: rgba(var(--primary-rgb), .08);
+                                        gap: 3px;
+                                        padding-block: 4px;
                                     }
 
                                     body > nav[aria-label="Navigasi halaman"] > div > :is(a, button) > span {
-                                        font-size: 10px; line-height: 1.3;
+                                        font-size: 10px; line-height: 1.25;
                                     }
 
                                     body > footer {
@@ -1667,6 +1666,80 @@
         default => 'grid-cols-5',
     };
     $hasBottomWa = collect($bottomNavButtons)->contains('type', 'whatsapp');
+
+    // Dynamic Storefront Content Tabs (Bento Apple HIG Segmented Navigation)
+    $storefrontTabs = [];
+
+    // 1. Catalog / Menu / Layanan
+    $storefrontTabs[] = [
+        'id' => 'catalog',
+        'key' => 'catalog',
+        'label' => $industryLabels['catalog_title'] ?? 'Katalog & Menu',
+        'short_label' => $industryGroup === 'fnb' ? 'Menu' : ($industryGroup === 'service' ? 'Layanan' : 'Katalog'),
+        'icon' => $catIcon,
+        'badge' => ($posProducts->count() + $services->count()) > 0 ? ($posProducts->count() + $services->count()) : null,
+    ];
+
+    // 2. Pre-Order Batch Hub (Dynamic: only if scheduling / batch PO active and dates available)
+    $hasBatchFeature = !empty($availableBatchDates) && ($storeSetting?->allow_scheduled_order || $storeSetting?->allow_customer_po);
+    if ($hasBatchFeature) {
+        $storefrontTabs[] = [
+            'id' => 'batch',
+            'key' => 'batch',
+            'label' => 'Pre-Order Batch',
+            'short_label' => 'PO Batch',
+            'icon' => 'calendar',
+            'badge' => count($availableBatchDates) . ' Batch',
+        ];
+    }
+
+    // 3. Tentang Kami (Dynamic: only if section enabled and story/description exists)
+    $hasAboutContent = ($sectionVisibility['about'] ?? true) && filled($landingPage->about_story ?: $business->description);
+    if ($hasAboutContent) {
+        $storefrontTabs[] = [
+            'id' => 'about',
+            'key' => 'about',
+            'label' => 'Tentang Kami',
+            'short_label' => 'Tentang',
+            'icon' => 'book-open',
+            'badge' => null,
+        ];
+    }
+
+    // 4. Galeri Suasana (Dynamic: only if section enabled and images exist)
+    $hasGalleryContent = ($sectionVisibility['gallery'] ?? true) && $allGalleryImages->isNotEmpty();
+    if ($hasGalleryContent) {
+        $storefrontTabs[] = [
+            'id' => 'gallery',
+            'key' => 'gallery',
+            'label' => 'Galeri Foto',
+            'short_label' => 'Galeri',
+            'icon' => 'image',
+            'badge' => $allGalleryImages->count() > 0 ? $allGalleryImages->count() : null,
+        ];
+    }
+
+    // 5. Info, Jam Buka & Lokasi (Dynamic: only if contact section enabled)
+    if ($sectionVisibility['contact'] ?? true) {
+        $storefrontTabs[] = [
+            'id' => 'info',
+            'key' => 'info',
+            'label' => 'Info & Lokasi',
+            'short_label' => 'Lokasi',
+            'icon' => 'map-pin',
+            'badge' => null,
+        ];
+    }
+
+    // 6. View All Tab (Option to view continuous page)
+    $storefrontTabs[] = [
+        'id' => 'all',
+        'key' => 'all',
+        'label' => 'Semua Bagian',
+        'short_label' => 'Semua',
+        'icon' => 'layout-grid',
+        'badge' => null,
+    ];
     ?>
     {{-- Alpine.js & Lucide Icons --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -1742,6 +1815,33 @@
                 activeModal: null,
                 activeItem: null,
                 activeSection: 'hero',
+                activeMainTab: (function() {
+                    try {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const tabParam = urlParams.get('tab');
+                        if (tabParam) return tabParam;
+                        if (urlParams.has('batch')) return 'batch';
+                    } catch(e) {}
+                    return 'catalog';
+                })(),
+                setMainTab(tabKey) {
+                    this.activeMainTab = tabKey;
+                    try {
+                        const url = new URL(window.location);
+                        url.searchParams.set('tab', tabKey);
+                        window.history.replaceState({}, '', url);
+                    } catch(e) {}
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        const tabContainer = document.getElementById('storefront-tabs-bar');
+                        if (tabContainer) {
+                            const rect = tabContainer.getBoundingClientRect();
+                            if (rect.top < 0) {
+                                tabContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }
+                    });
+                },
                 isDark: @json($initialDarkMode),
                 applyTheme(dark) {
                     this.isDark = dark === true;
@@ -1753,6 +1853,10 @@
                 init() {
                     this.applyTheme(@json($initialDarkMode));
                     this.$watch('isDark', (dark) => window.storefrontTheme.apply(dark));
+                    this.$watch('checkoutModalOpen', (val) => {
+                        if (val) this.checkoutStep = 1;
+                    });
+                    this.initGroupOrder();
                     const sections = document.querySelectorAll('section[data-section]');
                     if ('IntersectionObserver' in window && sections.length) {
                         const observer = new IntersectionObserver((entries) => {
@@ -1912,11 +2016,129 @@
                 reservationError: null,
                 isCheckingOut: false,
                 checkoutError: null,
+                checkoutStep: 1,
+                goToCheckoutStep(step) {
+                    if (step === 2) {
+                        if (!this.checkoutForm.customer_name || !this.checkoutForm.customer_name.trim()) {
+                            this.showToast('Silakan isi nama lengkap pemesan');
+                            return;
+                        }
+                        if (!this.checkoutForm.customer_phone || !this.checkoutForm.customer_phone.trim()) {
+                            this.showToast('Silakan isi nomor WhatsApp pemesan');
+                            return;
+                        }
+                        if (this.checkoutForm.fulfillment_type === 'merchant_delivery' && (!this.checkoutForm.shipping_address || !this.checkoutForm.shipping_address.trim())) {
+                            this.showToast('Silakan lengkapi alamat pengiriman');
+                            return;
+                        }
+                        const hasScheduling = this.checkoutForm.is_scheduled || this.hasPreorderItems;
+                        if (!hasScheduling) {
+                            this.checkoutStep = 3;
+                            this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+                            return;
+                        }
+                    }
+                    if (step === 3) {
+                        if (this.checkoutForm.is_scheduled && !this.checkoutForm.scheduled_date) {
+                            this.showToast('Silakan tentukan jadwal batch atau tanggal pengiriman');
+                            return;
+                        }
+                    }
+                    this.checkoutStep = step;
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                },
                 cart: @json($dbCartItems ?? null) || JSON.parse(localStorage.getItem(
                     'cooca_cart_{{ $business->id }}') || '[]'),
                 @php
                     $authCust = auth('customer')->user();
+                    $initialGroupOrderData = $activeGroupOrder ? [
+                        'id' => $activeGroupOrder->id,
+                        'title' => $activeGroupOrder->title,
+                        'share_token' => $activeGroupOrder->share_token,
+                        'status' => $activeGroupOrder->status,
+                        'is_open' => $activeGroupOrder->isOpen(),
+                        'is_locked' => $activeGroupOrder->isLocked(),
+                        'is_checked_out' => $activeGroupOrder->isCheckedOut(),
+                        'is_host' => $activeGroupOrder->isHost($authCust),
+                        'host_name' => $activeGroupOrder->host?->name ?? 'Host',
+                        'scheduled_date' => $activeGroupOrder->scheduled_date?->toDateString(),
+                        'subtotal' => (float) $activeGroupOrder->subtotal,
+                        'total_quantity' => (float) $activeGroupOrder->total_quantity,
+                        'members_count' => (int) $activeGroupOrder->members_count,
+                    ] : null;
+                    $initialGroupOrderSplitBill = $activeGroupOrder ? $activeGroupOrder->getSplitBillSummary() : [];
+                    $initialGroupOrderToken = $groupOrderToken ?? ($activeGroupOrder?->share_token ?? '');
                 @endphp
+                isCustomerLoggedIn: {{ auth('customer')->check() ? 'true' : 'false' }},
+                customerLoginUrl: '{{ route('customer.login') }}?redirect=' + encodeURIComponent(window.location.href),
+                isGroupOrderCheckout: false,
+                groupOrder: {
+                    active: {{ !empty($activeGroupOrder) ? 'true' : 'false' }},
+                    token: {!! json_encode($initialGroupOrderToken) !!},
+                    data: {!! json_encode($initialGroupOrderData) !!},
+                    splitBill: {!! json_encode($initialGroupOrderSplitBill) !!},
+                    isDrawerOpen: false,
+                    isCreateModalOpen: false,
+                    isSplitBillOpen: false,
+                    orderTrackingUrl: '{{ $activeGroupOrder?->order ? route('public.storefront.order.track', ['slug' => $business->slug, 'token' => $activeGroupOrder->order->tracking_token]) : '' }}',
+                    pollTimer: null,
+                    itemNotes: '',
+                    createForm: {
+                        title: '',
+                        scheduled_date: '{{ $selectedBatchDate ?: (!empty($availableBatchDates) ? $availableBatchDates[0]['date'] : '') }}',
+                        scheduled_time_slot: '09:00 - 12:00',
+                        delivery_address: @json($authCust?->shipping_address ?? ''),
+                        delivery_notes: '',
+                        is_submitting: false,
+                        error: null
+                    },
+                    actionLoading: false,
+                    actionError: null
+                },
+                currentBatchDate: '{{ !empty($selectedBatchDate) ? $selectedBatchDate : (!empty($availableBatchDates) ? $availableBatchDates[0]['date'] : '') }}',
+                selectBatch(date) {
+                    this.checkoutForm.scheduled_date = date;
+                    this.currentBatchDate = date;
+                },
+                copyBatchLink(date, day, formatted) {
+                    const targetDate = date || this.checkoutForm.scheduled_date || this.currentBatchDate;
+                    const baseUrl = window.location.origin + window.location.pathname;
+                    const groupParam = (this.checkoutForm.group_name || @json($groupRef ?? '')).trim();
+                    let shareUrl = baseUrl + '?batch=' + encodeURIComponent(targetDate);
+                    if (groupParam) {
+                        shareUrl += '&group=' + encodeURIComponent(groupParam);
+                    }
+                    const msg = '🍱 Pre-Order {{ addslashes($business->name) }}\n' +
+                              (day ? '📅 Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
+                              (groupParam ? '🏢 Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
+                              '✨ Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n👉 ' + shareUrl;
+
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(msg).then(() => {
+                            this.showToast('Tautan Pre-Order berhasil disalin! Siap dikirim ke WhatsApp kantor.');
+                        }).catch(() => {
+                            prompt('Salin tautan Pre-Order:', shareUrl);
+                        });
+                    } else {
+                        prompt('Salin tautan Pre-Order:', shareUrl);
+                    }
+                },
+                shareBatchWa(date, day, formatted) {
+                    const targetDate = date || this.checkoutForm.scheduled_date || this.currentBatchDate;
+                    const baseUrl = window.location.origin + window.location.pathname;
+                    const groupParam = (this.checkoutForm.group_name || @json($groupRef ?? '')).trim();
+                    let shareUrl = baseUrl + '?batch=' + encodeURIComponent(targetDate);
+                    if (groupParam) {
+                        shareUrl += '&group=' + encodeURIComponent(groupParam);
+                    }
+                    const msg = '🍱 Pre-Order {{ addslashes($business->name) }}\n' +
+                              (day ? '📅 Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
+                              (groupParam ? '🏢 Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
+                              '✨ Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n👉 ' + shareUrl;
+                    window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
+                },
                 checkoutForm: {
                     customer_name: @json($authCust?->name ?? ''),
                     customer_phone: @json($authCust?->phone ?? ''),
@@ -1928,10 +2150,14 @@
                     is_free_shipping: false,
                     shipping_options: [],
                     is_loading_shipping: false,
+                    payment_gateway: 'tripay',
+                    payment_channel: 'QRIS',
                     payment_method_id: '{{ $paymentMethods->first()?->id ?? '' }}',
                     notes: '',
-                    is_scheduled: false,
-                    scheduled_date: '',
+
+                    group_name: @json($groupRef ?? ''),
+                    is_scheduled: {{ (($isUmkmRumahan || $industryGroup === 'fnb') && ($storeSetting?->allow_scheduled_order || $storeSetting?->allow_customer_po || !empty($availableBatchDates))) ? 'true' : 'false' }},
+                    scheduled_date: '{{ !empty($selectedBatchDate) ? $selectedBatchDate : (!empty($availableBatchDates) ? $availableBatchDates[0]['date'] : '') }}',
                     scheduled_time_slot: '',
                 },
                 requestOrderForm: {
@@ -1940,7 +2166,7 @@
                     customer_email: @json($authCust?->email ?? ''),
                     fulfillment_type: '{{ $storeSetting?->allow_pickup ?? true ? 'pickup' : 'merchant_delivery' }}',
                     shipping_address: @json($authCust?->shipping_address ?? ''),
-                    scheduled_date: '',
+                    scheduled_date: '{{ !empty($selectedBatchDate) ? $selectedBatchDate : (!empty($availableBatchDates) ? $availableBatchDates[0]['date'] : '') }}',
                     scheduled_time_slot: '',
                     notes: '',
                     item_name: '',
@@ -1997,6 +2223,12 @@
                         this.showToast('Jumlah pesanan harus lebih dari 0');
                         return;
                     }
+                    if (product.is_preorder) {
+                        this.checkoutForm.is_scheduled = true;
+                        if (!this.checkoutForm.scheduled_date || this.checkoutForm.scheduled_date < this.minPreorderDate) {
+                            this.checkoutForm.scheduled_date = this.minPreorderDate;
+                        }
+                    }
                     this.addToCart(product, parsedQty, false);
                     this.checkoutModalOpen = true;
                 },
@@ -2006,6 +2238,12 @@
                     if (isNaN(parsedQty) || parsedQty <= 0) {
                         this.showToast('Jumlah pesanan harus lebih dari 0');
                         return;
+                    }
+                    if (product.is_preorder) {
+                        this.checkoutForm.is_scheduled = true;
+                        if (!this.checkoutForm.scheduled_date || this.checkoutForm.scheduled_date < this.minPreorderDate) {
+                            this.checkoutForm.scheduled_date = this.minPreorderDate;
+                        }
                     }
                     const existing = this.cart.find(item => item.id === product.id);
                     if (existing) {
@@ -2067,6 +2305,36 @@
                         .checkoutForm.shipping_fee || 0) : 0;
                     return this.cartTotal + fee;
                 },
+                get hasPreorderItems() {
+                    return this.cart.some(item => {
+                        const p = this.products.find(prod => String(prod.id) === String(item.id));
+                        return p && Boolean(p.is_preorder);
+                    });
+                },
+                get maxPreorderLeadDays() {
+                    let maxDays = 0;
+                    this.cart.forEach(item => {
+                        const p = this.products.find(prod => String(prod.id) === String(item.id));
+                        if (p && p.is_preorder) {
+                            const days = Number(p.preorder_lead_days || 1);
+                            if (days > maxDays) maxDays = days;
+                        }
+                    });
+                    return maxDays;
+                },
+                get minPreorderDate() {
+                    if (!this.hasPreorderItems) {
+                        return '{{ $minLeadTimeDate }}';
+                    }
+                    const d = new Date();
+                    d.setDate(d.getDate() + this.maxPreorderLeadDays);
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    const computedDate = `${yyyy}-${mm}-${dd}`;
+                    const baseMin = '{{ $minLeadTimeDate }}';
+                    return computedDate > baseMin ? computedDate : baseMin;
+                },
                 async setFulfillment(type) {
                     this.checkoutForm.fulfillment_type = type;
                     if (type === 'merchant_delivery') {
@@ -2112,6 +2380,24 @@
                     }
                 },
                 async submitCheckout() {
+                    if (!this.isCustomerLoggedIn) {
+                        window.location.href = this.customerLoginUrl;
+                        return;
+                    }
+                    if (this.isGroupOrderCheckout) {
+                        await this.submitGroupOrderCheckout();
+                        return;
+                    }
+                    if (!this.checkoutForm.customer_name || !this.checkoutForm.customer_phone) {
+                        this.checkoutError = 'Nama dan Nomor WhatsApp wajib diisi.';
+                        this.checkoutStep = 1;
+                        return;
+                    }
+                    if (this.checkoutForm.fulfillment_type === 'merchant_delivery' && !this.checkoutForm.shipping_address) {
+                        this.checkoutError = 'Alamat pengiriman wajib diisi untuk kurir toko.';
+                        this.checkoutStep = 1;
+                        return;
+                    }
                     if (this.cart.length === 0) {
                         this.checkoutError = 'Keranjang pesanan masih kosong.';
                         return;
@@ -2128,6 +2414,21 @@
                         this.checkoutError = 'Total belanja minimal ' + this.formatPrice(this.minOrderAmount);
                         return;
                     }
+                    if (this.hasPreorderItems) {
+                        this.checkoutForm.is_scheduled = true;
+                        if (!this.checkoutForm.scheduled_date) {
+                            this.checkoutError = 'Pesanan memuat produk Pre-Order. Silakan tentukan tanggal jadwal pengiriman/pengambilan.';
+                            return;
+                        }
+                        if (this.checkoutForm.scheduled_date < this.minPreorderDate) {
+                            this.checkoutError = 'Produk Pre-Order dalam keranjang membutuhkan waktu persiapan minimal ' + this.maxPreorderLeadDays + ' hari (paling cepat tanggal ' + this.minPreorderDate + ').';
+                            return;
+                        }
+                    }
+                    if (this.checkoutForm.is_scheduled && !this.checkoutForm.scheduled_date) {
+                        this.checkoutError = 'Silakan pilih jadwal batch pengiriman yang tersedia.';
+                        return;
+                    }
                     this.isCheckingOut = true;
                     this.checkoutError = null;
 
@@ -2140,8 +2441,11 @@
                             .checkoutForm.shipping_address : null,
                         shipping_rule_id: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
                             .checkoutForm.shipping_rule_id || null) : null,
-                        payment_method_id: this.checkoutForm.payment_method_id || null,
-                        notes: this.checkoutForm.notes || null,
+                        payment_gateway: this.checkoutForm.payment_gateway || 'tripay',
+                        payment_channel: this.checkoutForm.payment_channel || 'QRIS',
+                        payment_method_id: this.checkoutForm.payment_gateway === 'manual' ? (this.checkoutForm.payment_method_id || null) : null,
+                        notes: ((this.checkoutForm.group_name ? ('[Kantor/Tim: ' + this.checkoutForm.group_name + '] ') : '') + (this.checkoutForm.notes || '')).trim() || null,
+
                         scheduled_date: this.checkoutForm.is_scheduled ? (this.checkoutForm.scheduled_date ||
                             null) : null,
                         scheduled_time_slot: this.checkoutForm.is_scheduled ? (this.checkoutForm
@@ -2187,6 +2491,366 @@
                         this.checkoutError = 'Koneksi bermasalah. Silakan periksa jaringan Anda.';
                     } finally {
                         this.isCheckingOut = false;
+                    }
+                },
+
+                // =========================================================================
+                // GROUP ORDER METHODS (Pesan Bareng ShopeeFood / GrabFood)
+                // =========================================================================
+                initGroupOrder() {
+                    if (this.groupOrder.active && this.groupOrder.token) {
+                        this.startGroupOrderPolling();
+                    }
+                },
+                startGroupOrderPolling() {
+                    if (this.groupOrder.pollTimer) clearInterval(this.groupOrder.pollTimer);
+                    this.groupOrder.pollTimer = setInterval(() => {
+                        if (!this.groupOrder.actionLoading && !this.isCheckingOut) {
+                            this.refreshGroupOrderData(false);
+                        }
+                    }, 4000);
+                },
+                stopGroupOrderPolling() {
+                    if (this.groupOrder.pollTimer) {
+                        clearInterval(this.groupOrder.pollTimer);
+                        this.groupOrder.pollTimer = null;
+                    }
+                },
+                async refreshGroupOrderData(showLoading = false) {
+                    if (!this.groupOrder.token) return;
+                    if (showLoading) this.groupOrder.actionLoading = true;
+                    try {
+                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/data');
+                        const data = await res.json();
+                        if (res.ok && data.success && data.group) {
+                            this.groupOrder.data = data.group;
+                            this.groupOrder.splitBill = data.split_bill || [];
+                            if (data.group.order_tracking_url) {
+                                this.groupOrder.orderTrackingUrl = data.group.order_tracking_url;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Group order polling error:', e);
+                    } finally {
+                        if (showLoading) this.groupOrder.actionLoading = false;
+                    }
+                },
+                openCreateGroupOrderModal() {
+                    if (!this.isCustomerLoggedIn) {
+                        window.location.href = this.customerLoginUrl;
+                        return;
+                    }
+                    this.groupOrder.isCreateModalOpen = true;
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                },
+                async submitCreateGroupOrder() {
+                    if (!this.isCustomerLoggedIn) {
+                        window.location.href = this.customerLoginUrl;
+                        return;
+                    }
+                    this.groupOrder.createForm.is_submitting = true;
+                    this.groupOrder.createForm.error = null;
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const res = await fetch('/b/{{ $business->slug }}/group-order', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({
+                                title: this.groupOrder.createForm.title || null,
+                                scheduled_date: this.groupOrder.createForm.scheduled_date || null,
+                                scheduled_time_slot: this.groupOrder.createForm.scheduled_time_slot || null,
+                                delivery_address: this.groupOrder.createForm.delivery_address || null,
+                                delivery_notes: this.groupOrder.createForm.delivery_notes || null,
+                            })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.groupOrder.isCreateModalOpen = false;
+                            this.showToast('Sesi Pesan Bareng berhasil dibuat! Bagikan tautan ke teman Anda.');
+                            if (data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                            }
+                        } else {
+                            if (res.status === 401 && data.login_url) {
+                                window.location.href = data.login_url;
+                                return;
+                            }
+                            this.groupOrder.createForm.error = data.message || 'Gagal membuat sesi Pesan Bareng.';
+                        }
+                    } catch (e) {
+                        this.groupOrder.createForm.error = 'Koneksi bermasalah. Silakan periksa jaringan Anda.';
+                    } finally {
+                        this.groupOrder.createForm.is_submitting = false;
+                    }
+                },
+                async addGroupOrderItem(product, qty = 1, notes = '') {
+                    if (!this.isCustomerLoggedIn) {
+                        window.location.href = this.customerLoginUrl;
+                        return;
+                    }
+                    if (!this.groupOrder.token) return;
+                    this.groupOrder.actionLoading = true;
+                    this.groupOrder.actionError = null;
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({
+                                product_id: product.id,
+                                quantity: Number(qty || 1),
+                                notes: notes || ''
+                            })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.groupOrder.data = data.group;
+                            this.groupOrder.splitBill = data.split_bill || [];
+                            this.showToast((product.name || product.title) + ' ditambahkan ke Pesan Bareng!');
+                            this.groupOrder.isDrawerOpen = true;
+                            if (this.activeModal === 'product') {
+                                this.activeModal = null;
+                            }
+                        } else {
+                            this.groupOrder.actionError = data.message || 'Gagal menambahkan menu ke Pesan Bareng.';
+                            this.showToast(this.groupOrder.actionError);
+                        }
+                    } catch (e) {
+                        this.showToast('Koneksi bermasalah.');
+                    } finally {
+                        this.groupOrder.actionLoading = false;
+                        this.$nextTick(() => {
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        });
+                    }
+                },
+                async updateGroupOrderItem(itemId, deltaQty, notes = null) {
+                    if (!this.groupOrder.token) return;
+                    this.groupOrder.actionLoading = true;
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        let targetQty = 1;
+                        for (const member of this.groupOrder.splitBill) {
+                            const found = (member.items || []).find(it => String(it.id) === String(itemId));
+                            if (found) {
+                                targetQty = Number(found.quantity) + deltaQty;
+                                if (notes === null) notes = found.notes;
+                                break;
+                            }
+                        }
+
+                        if (targetQty <= 0) {
+                            await this.removeGroupOrderItem(itemId);
+                            return;
+                        }
+
+                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({
+                                quantity: targetQty,
+                                notes: notes
+                            })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.groupOrder.data = data.group;
+                            this.groupOrder.splitBill = data.split_bill || [];
+                        } else {
+                            this.showToast(data.message || 'Gagal mengubah jumlah.');
+                        }
+                    } catch (e) {
+                        this.showToast('Koneksi bermasalah.');
+                    } finally {
+                        this.groupOrder.actionLoading = false;
+                        this.$nextTick(() => {
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        });
+                    }
+                },
+                async removeGroupOrderItem(itemId) {
+                    if (!this.groupOrder.token) return;
+                    this.groupOrder.actionLoading = true;
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            }
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.groupOrder.data = data.group;
+                            this.groupOrder.splitBill = data.split_bill || [];
+                            this.showToast('Item berhasil dihapus dari keranjang bersama.');
+                        } else {
+                            this.showToast(data.message || 'Gagal menghapus item.');
+                        }
+                    } catch (e) {
+                        this.showToast('Koneksi bermasalah.');
+                    } finally {
+                        this.groupOrder.actionLoading = false;
+                        this.$nextTick(() => {
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        });
+                    }
+                },
+                async toggleLockGroupOrder() {
+                    if (!this.groupOrder.token || !this.groupOrder.data?.is_host) return;
+                    this.groupOrder.actionLoading = true;
+                    const action = this.groupOrder.data.is_locked ? 'unlock' : 'lock';
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/' + action, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            }
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.groupOrder.data = data.group;
+                            this.groupOrder.splitBill = data.split_bill || [];
+                            this.showToast(action === 'lock' ? '🔒 Pesanan bersama berhasil dikunci!' : '🔓 Pesanan bersama dibuka kembali!');
+                        } else {
+                            this.showToast(data.message || 'Gagal mengubah status pesanan.');
+                        }
+                    } catch (e) {
+                        this.showToast('Koneksi bermasalah.');
+                    } finally {
+                        this.groupOrder.actionLoading = false;
+                    }
+                },
+                openGroupOrderCheckout() {
+                    if (!this.groupOrder.data?.is_host) {
+                        this.showToast('Hanya Host (' + (this.groupOrder.data?.host_name || 'Pembuat Grup') + ') yang dapat melakukan checkout.');
+                        return;
+                    }
+                    if ((this.groupOrder.data?.total_quantity || 0) <= 0) {
+                        this.showToast('Keranjang bersama masih kosong.');
+                        return;
+                    }
+                    this.isGroupOrderCheckout = true;
+                    this.checkoutForm.is_scheduled = true;
+                    if (this.groupOrder.data?.scheduled_date) {
+                        this.checkoutForm.scheduled_date = this.groupOrder.data.scheduled_date;
+                    }
+                    this.groupOrder.isDrawerOpen = false;
+                    this.checkoutModalOpen = true;
+                },
+                async submitGroupOrderCheckout() {
+                    if (!this.groupOrder.token) return;
+                    this.isCheckingOut = true;
+                    this.checkoutError = null;
+                    const payload = {
+                        payment_method_id: this.checkoutForm.payment_method_id,
+                        delivery_address: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? this.checkoutForm.shipping_address : null,
+                        delivery_notes: this.checkoutForm.notes || null,
+                        fulfillment_type: this.checkoutForm.fulfillment_type || 'pickup',
+                        shipping_fee: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? Number(this.checkoutForm.shipping_fee || 0) : 0,
+                    };
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/checkout', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.checkoutModalOpen = false;
+                            this.isGroupOrderCheckout = false;
+                            await this.refreshGroupOrderData(false);
+                            if (data.tracking_url) {
+                                this.groupOrder.orderTrackingUrl = data.tracking_url;
+                            }
+                            this.groupOrder.isSplitBillOpen = true;
+                            this.showToast('Pesanan bersama berhasil dicheckout!');
+                        } else {
+                            this.checkoutError = data.message || 'Gagal melakukan checkout pesanan bersama.';
+                        }
+                    } catch (e) {
+                        this.checkoutError = 'Koneksi bermasalah saat checkout pesanan bersama.';
+                    } finally {
+                        this.isCheckingOut = false;
+                    }
+                },
+                copyGroupOrderLink() {
+                    const url = window.location.origin + window.location.pathname + '?group_order=' + encodeURIComponent(this.groupOrder.token);
+                    const msg = '🍱 *Pesan Bareng (Group Order) di {{ addslashes($business->name) }}*\n' +
+                                '🏢 *Grup:* ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
+                                '👤 *Host:* ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
+                                (this.groupOrder.data?.scheduled_date ? ('📅 *Jadwal Pengiriman:* ' + this.groupOrder.data.scheduled_date + '\n') : '') +
+                                '\n✨ Yuk pilih makanan favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n👉 ' + url;
+
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(msg).then(() => {
+                            this.showToast('Tautan Pesan Bareng berhasil disalin!');
+                        }).catch(() => {
+                            prompt('Salin link Pesan Bareng:', url);
+                        });
+                    } else {
+                        prompt('Salin link Pesan Bareng:', url);
+                    }
+                },
+                shareGroupOrderWa() {
+                    const url = window.location.origin + window.location.pathname + '?group_order=' + encodeURIComponent(this.groupOrder.token);
+                    const msg = '🍱 *Pesan Bareng (Group Order) di {{ addslashes($business->name) }}*\n' +
+                                '🏢 *Grup:* ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
+                                '👤 *Host:* ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
+                                (this.groupOrder.data?.scheduled_date ? ('📅 *Jadwal Pengiriman:* ' + this.groupOrder.data.scheduled_date + '\n') : '') +
+                                '\n✨ Yuk pilih makanan favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n👉 ' + url;
+                    window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
+                },
+                copySplitBillText() {
+                    if (!this.groupOrder.splitBill || !this.groupOrder.splitBill.length) return;
+                    let text = '🧾 *RINCIAN PATUNGAN (SPLIT BILL)*\n' +
+                               '🍱 {{ addslashes($business->name) }}\n' +
+                               '🏢 Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
+                               (this.groupOrder.data?.scheduled_date ? ('📅 Tanggal: ' + this.groupOrder.data.scheduled_date + '\n') : '') +
+                               '--------------------------------\n';
+
+                    this.groupOrder.splitBill.forEach(member => {
+                        text += '\n👤 *' + member.member_name + '* (Total: ' + this.formatPrice(member.member_subtotal) + ')\n';
+                        (member.items || []).forEach(it => {
+                            text += '  • ' + it.quantity + 'x ' + it.product_name + ' (' + this.formatPrice(it.line_total) + ')' + (it.notes ? (' [' + it.notes + ']') : '') + '\n';
+                        });
+                    });
+
+                    text += '\n--------------------------------\n' +
+                            '💰 *TOTAL AKHIR:* ' + this.formatPrice(this.groupOrder.data?.subtotal || 0) + '\n\n' +
+                            '💳 *Pembayaran/Transfer ke Host (' + (this.groupOrder.data?.host_name || 'Host') + '):*\n' +
+                            'Mohon transfer sesuai nominal di atas ya. Terima kasih! 🙏';
+
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(text).then(() => {
+                            this.showToast('Rincian Patungan berhasil disalin! Siap dikirim ke WhatsApp.');
+                        }).catch(() => {
+                            prompt('Salin teks patungan:', text);
+                        });
+                    } else {
+                        prompt('Salin teks patungan:', text);
                     }
                 },
                 async submitRequestOrder() {
@@ -2555,6 +3219,65 @@
         </div>
     @endif
 
+    {{-- ========================================================================= --}}
+    {{-- TOP STICKY BANNER: GROUP ORDER (Pesan Bareng ShopeeFood / GrabFood)      --}}
+    {{-- ========================================================================= --}}
+    <template x-if="groupOrder.active && groupOrder.data">
+        <aside aria-label="Status Pesan Bareng"
+            class="sticky top-0 z-[60] w-full bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border-b border-black/10 dark:border-white/10 shadow-md py-2.5 px-3.5 sm:px-6 transition-all duration-200">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wide"
+                        :class="groupOrder.data.is_locked ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : (groupOrder.data.is_checked_out ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-brand-primary text-white shadow-2xs')">
+                        <i :data-lucide="groupOrder.data.is_locked ? 'lock' : (groupOrder.data.is_checked_out ? 'check-circle' : 'users')" class="w-3 h-3"></i>
+                        <span x-text="groupOrder.data.is_locked ? 'Pesanan Dikunci' : (groupOrder.data.is_checked_out ? 'Selesai Dicheckout' : 'Pesan Bareng Aktif')"></span>
+                    </span>
+                    <h2 class="text-[13px] sm:text-[14px] font-bold text-black dark:text-white tracking-tight"
+                        x-text="groupOrder.data.title || 'Pesanan Bersama'"></h2>
+                    <span class="text-[11.5px] text-black/55 dark:text-white/55">
+                        &bull; Host: <strong class="text-black dark:text-white" x-text="groupOrder.data.host_name"></strong>
+                        <span x-show="groupOrder.data.is_host" class="text-brand-primary font-bold">(Anda)</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 text-[11.5px] text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-md tabular-nums">
+                        <i data-lucide="shopping-bag" class="w-3 h-3 text-brand-primary"></i>
+                        <strong class="text-black dark:text-white" x-text="groupOrder.data.total_quantity || 0"></strong> item (<span x-text="formatPrice(groupOrder.data.subtotal || 0)"></span>)
+                    </span>
+                    <span class="inline-flex items-center gap-1 text-[11.5px] text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-md tabular-nums">
+                        <i data-lucide="user-check" class="w-3 h-3 text-[#34C759]"></i>
+                        <strong class="text-black dark:text-white" x-text="groupOrder.data.members_count || 1"></strong> orang
+                    </span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    <button type="button" @click="copyGroupOrderLink()"
+                        class="px-3 py-1.5 rounded-[12px] bg-black/5 dark:bg-white/10 hover:bg-black/10 text-black dark:text-white text-[11.5px] font-bold transition flex items-center gap-1 cursor-pointer active:scale-95"
+                        title="Salin Link Pesan Bareng">
+                        <i data-lucide="copy" class="w-3.5 h-3.5 text-brand-primary"></i>
+                        <span class="hidden sm:inline">Salin Link</span>
+                    </button>
+                    <button type="button" @click="shareGroupOrderWa()"
+                        class="px-3 py-1.5 rounded-[12px] bg-[#25D366] hover:bg-[#20bd5a] text-white text-[11.5px] font-bold transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+                        title="Ajak Teman via WhatsApp">
+                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                        <span>Ajak Teman</span>
+                    </button>
+                    <button type="button" @click="groupOrder.isDrawerOpen = true"
+                        class="px-3.5 py-1.5 rounded-[12px] bg-brand-primary hover:opacity-90 text-white text-[11.5px] font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-2xs">
+                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                        <span>Keranjang Bersama</span>
+                    </button>
+                    <template x-if="groupOrder.splitBill && groupOrder.splitBill.length > 0">
+                        <button type="button" @click="groupOrder.isSplitBillOpen = true"
+                            class="px-3 py-1.5 rounded-[12px] bg-[#5856D6]/10 hover:bg-[#5856D6]/20 text-[#5856D6] dark:text-[#AF52DE] text-[11.5px] font-bold transition flex items-center gap-1 cursor-pointer active:scale-95 border border-[#5856D6]/20 shadow-2xs"
+                            title="Lihat Rincian Patungan (Split Bill)">
+                            <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                            <span>Rincian Patungan</span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </aside>
+    </template>
+
     {{-- Dynamic Island Notification Toast --}}
     <div x-show="toastMessage" x-cloak x-transition:enter="transition ease-out duration-300 transform"
         x-transition:enter-start="-translate-y-8 opacity-0 scale-95"
@@ -2584,26 +3307,33 @@
                 ? 'Kuota harian terbatas: maks. ' . $storeSetting->daily_order_quota . ' order/hari'
                 : null,
         ]);
-        $announcementBanner = implode('  ✦  ', $announcementParts);
+        $announcementBanner = implode('  •  ', $announcementParts);
     @endphp
     @if ($announcementBanner)
-        <aside
+        <aside x-data="{ bannerDismissed: false }" x-show="!bannerDismissed"
             class="relative overflow-hidden bg-brand-primary text-white text-[12px] font-medium leading-tight select-none">
-            <div class="marquee-track py-2">
-                <span class="px-8 shrink-0 flex items-center gap-3">
-                    <span>{{ $announcementBanner }}</span>
-                    <span class="opacity-60 text-[10px]">✦</span>
-                    <span>{{ $announcementBanner }}</span>
-                    <span class="opacity-60 text-[10px]">✦</span>
-                    <span>{{ $announcementBanner }}</span>
-                </span>
-                <span class="px-8 shrink-0 flex items-center gap-3" aria-hidden="true">
-                    <span>{{ $announcementBanner }}</span>
-                    <span class="opacity-60 text-[10px]">✦</span>
-                    <span>{{ $announcementBanner }}</span>
-                    <span class="opacity-60 text-[10px]">✦</span>
-                    <span>{{ $announcementBanner }}</span>
-                </span>
+            <div class="flex items-center justify-between pr-3">
+                <div class="marquee-track py-2 flex-1">
+                    <span class="px-8 shrink-0 flex items-center gap-3">
+                        <span>{{ $announcementBanner }}</span>
+                        <span class="opacity-60 text-[10px]">&bull;</span>
+                        <span>{{ $announcementBanner }}</span>
+                        <span class="opacity-60 text-[10px]">&bull;</span>
+                        <span>{{ $announcementBanner }}</span>
+                    </span>
+                    <span class="px-8 shrink-0 flex items-center gap-3" aria-hidden="true">
+                        <span>{{ $announcementBanner }}</span>
+                        <span class="opacity-60 text-[10px]">&bull;</span>
+                        <span>{{ $announcementBanner }}</span>
+                        <span class="opacity-60 text-[10px]">&bull;</span>
+                        <span>{{ $announcementBanner }}</span>
+                    </span>
+                </div>
+                <button type="button" @click="bannerDismissed = true"
+                    class="relative z-10 w-5 h-5 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition active:scale-95 shrink-0 cursor-pointer ml-2"
+                    title="Tutup pengumuman">
+                    <i data-lucide="x" class="w-3 h-3"></i>
+                </button>
             </div>
         </aside>
     @endif
@@ -2794,18 +3524,18 @@
                     <a href="{{ $landingPage->cta_primary_url ?: $landingPage->getWhatsAppUrl() }}" target="_blank"
                         rel="noopener"
                         class="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-[#25D366] text-white text-[12.5px] font-semibold hover:opacity-90 active:scale-95 transition shadow-xs"
-                        title="Hubungi WA">
+                        title="Hubungi via WhatsApp">
                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                             <path
                                 d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                         </svg>
-                        <span>{{ $landingPage->cta_primary_text ?: 'WA' }}</span>
+                        <span>{{ $landingPage->cta_primary_text ?: 'WhatsApp' }}</span>
                     </a>
                 @endif
 
 
                 {{-- Theme control on every device; no persistent override of CMS settings. --}}
-                <button id="storefront-theme-toggle" type="button" class="storefront-theme-toggle"
+                <button id="storefront-theme-toggle" type="button" class="storefront-theme-toggle hidden md:inline-flex"
                     @click="toggleTheme()" role="switch" aria-label="Mode gelap"
                     :aria-checked="isDark ? 'true' : 'false'"
                     :title="isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'" x-cloak>
@@ -2912,6 +3642,18 @@
                 <a href="#lokasi" @click="mobileMenuOpen = false"
                     class="block py-2 text-black/80 dark:text-white/80">Lokasi &amp; Kontak</a>
             @endif
+            {{-- Mobile Theme Switcher --}}
+            <div class="pt-3 pb-1 border-t border-black/5 dark:border-white/10 flex items-center justify-between">
+                <span class="text-[13px] text-black/60 dark:text-white/60">Tampilan Layar</span>
+                <button type="button" @click="toggleTheme()"
+                    class="h-8 px-3 rounded-full bg-black/5 dark:bg-white/10 text-[12px] font-semibold text-black/80 dark:text-white/80 flex items-center gap-1.5 active:scale-95 transition cursor-pointer"
+                    role="switch" :aria-checked="isDark ? 'true' : 'false'">
+                    <span x-text="isDark ? 'Mode Gelap' : 'Mode Terang'"></span>
+                    <svg x-show="!isDark" class="w-3.5 h-3.5 text-black/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 13.1A9 9 0 0 1 10.9 3.2a9 9 0 1 0 9.9 9.9Z" /></svg>
+                    <svg x-show="isDark" class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+                </button>
+            </div>
+
             @if ($hasWhatsapp)
                 <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank"
                     class="w-full mt-3 h-11 rounded-full bg-brand-primary text-white text-center font-semibold text-[14px] flex items-center justify-center gap-2 shadow-sm">
@@ -2919,7 +3661,7 @@
                         <path
                             d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                     </svg>
-                    <span>WA</span>
+                    <span>Hubungi via WhatsApp</span>
                 </a>
             @endif
         </div>
@@ -2941,11 +3683,9 @@
                     <div
                         class="{{ $heroDisplayImage ? 'lg:col-span-7 text-center lg:text-left space-y-5' : 'space-y-6' }}">
                         @if ($landingPage->announcement_badge)
-                            <div
-                                class="inline-flex items-center gap-1.5 text-[11.5px] sm:text-[12px] font-bold uppercase tracking-wider text-brand-primary">
-                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                <span>{{ $landingPage->announcement_badge }}</span>
-                            </div>
+                            <p class="text-[11px] sm:text-[12px] font-bold uppercase tracking-wider text-brand-primary">
+                                {{ $landingPage->announcement_badge }}
+                            </p>
                         @endif
 
                         <h1
@@ -2960,7 +3700,7 @@
                             </p>
                         @endif
 
-                        {{-- Action Buttons (Apple HIG Rule: Maximum 2 CTAs, Concise Labels: Pesan, Reservasi, WA) --}}
+                        {{-- Action Buttons (Apple HIG Rule: Maximum 2 CTAs, Concise Labels: Pesan, Reservasi, WhatsApp) --}}
                         <div
                             class="flex flex-col sm:flex-row items-center {{ $landingPage->hero_image_url ? 'justify-center lg:justify-start' : 'justify-center' }} gap-3 pt-2">
                             {{-- Primary CTA --}}
@@ -2996,16 +3736,16 @@
                                 <a href="{{ $landingPage->cta_primary_url ?: $landingPage->getWhatsAppUrl() }}"
                                     target="_blank" rel="noopener"
                                     class="w-full sm:w-auto h-12 px-7 rounded-full bg-[#25D366] text-white font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] shadow-[0_4px_16px_rgba(37,211,102,0.25)] hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                                    title="Hubungi WA">
+                                    title="Hubungi via WhatsApp">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                         <path
                                             d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                                     </svg>
-                                    <span>{{ $landingPage->cta_primary_text ?: 'WA' }}</span>
+                                    <span>{{ $landingPage->cta_primary_text ?: 'WhatsApp' }}</span>
                                 </a>
                             @endif
 
-                            {{-- Secondary Contextual Action (Pesan, Reservasi, atau WA) --}}
+                            {{-- Secondary Contextual Action (Pesan, Reservasi, atau WhatsApp) --}}
                             @if ($allowReservation)
                                 @if ($allowCart || $hasPosGoods || $allowCustomerPo || $allowRequestOrder)
                                     <a href="{{ $landingPage->cta_secondary_url ?: '#layanan' }}"
@@ -3019,12 +3759,12 @@
                                     <a href="{{ $landingPage->cta_secondary_url ?: $landingPage->getWhatsAppUrl() }}"
                                         target="_blank" rel="noopener"
                                         class="w-full sm:w-auto h-12 px-6 rounded-full bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] border border-[#34C759]/20 active:scale-[0.98] transition flex items-center justify-center gap-2"
-                                        title="Hubungi WA">
+                                        title="Hubungi via WhatsApp">
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                             <path
                                                 d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                                         </svg>
-                                        <span>{{ $landingPage->cta_secondary_text ?: 'WA' }}</span>
+                                        <span>{{ $landingPage->cta_secondary_text ?: 'WhatsApp' }}</span>
                                     </a>
                                 @endif
                             @else
@@ -3032,12 +3772,12 @@
                                     <a href="{{ $landingPage->cta_secondary_url ?: $landingPage->getWhatsAppUrl() }}"
                                         target="_blank" rel="noopener"
                                         class="w-full sm:w-auto h-12 px-6 rounded-full bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] font-semibold text-[13.5px] sm:text-[14px] tracking-[-0.01em] border border-[#34C759]/20 active:scale-[0.98] transition flex items-center justify-center gap-2"
-                                        title="Hubungi WA">
+                                        title="Hubungi via WhatsApp">
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                             <path
                                                 d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                                         </svg>
-                                        <span>{{ $landingPage->cta_secondary_text ?: 'WA' }}</span>
+                                        <span>{{ $landingPage->cta_secondary_text ?: 'WhatsApp' }}</span>
                                     </a>
                                 @endif
                             @endif
@@ -3048,7 +3788,7 @@
                             class="flex flex-wrap items-center {{ $heroDisplayImage ? 'justify-center lg:justify-start' : 'justify-center' }} gap-4 text-[12px] sm:text-[12.5px] font-medium text-black/55 dark:text-white/55 pt-1">
                             <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check"
                                     class="w-4 h-4 text-brand-primary"></i>100% Autentik</span>
-                            <span class="inline-flex items-center gap-1.5"><i data-lucide="sparkles"
+                            <span class="inline-flex items-center gap-1.5"><i data-lucide="award"
                                     class="w-4 h-4 text-amber-500"></i>Kualitas Terjamin</span>
                             <span class="inline-flex items-center gap-1.5"><i data-lucide="smile"
                                     class="w-4 h-4 text-[#34C759]"></i>Pelayanan Ramah</span>
@@ -3077,10 +3817,6 @@
                                         <i data-lucide="check-circle" class="w-4 h-4 text-brand-primary"></i>
                                         <span>{{ $business->name }}</span>
                                     </div>
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-sm">
-                                        Resmi
-                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -3119,12 +3855,62 @@
     @endif
 
     {{-- ========================================================================= --}}
+    {{-- STOREFRONT TAB NAVIGATION BAR (Bento Apple HIG Segmented Control)         --}}
+    {{-- ========================================================================= --}}
+    @if (!empty($storefrontTabs) && count($storefrontTabs) > 1)
+        <div id="storefront-tabs-bar"
+            class="sticky top-14 sm:top-16 z-30 backdrop-blur-xl bg-white/85 dark:bg-[#000000]/85 border-b border-black/5 dark:border-white/10 shadow-xs py-2.5 transition-all duration-200">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="flex items-center justify-between gap-3">
+                    {{-- Scrollable Segmented Control Pill Container --}}
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[16px] border border-black/5 dark:border-white/10 max-w-full"
+                        role="tablist" aria-label="Kategori Etalase">
+                        @foreach ($storefrontTabs as $tab)
+                            <button type="button" role="tab"
+                                :aria-selected="activeMainTab === '{{ $tab['id'] }}' ? 'true' : 'false'"
+                                @click="setMainTab('{{ $tab['id'] }}')"
+                                class="relative flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-[13px] text-[12.5px] sm:text-[13px] font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer select-none"
+                                :class="activeMainTab === '{{ $tab['id'] }}'
+                                    ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-xs font-bold'
+                                    : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
+                                <i data-lucide="{{ $tab['icon'] }}" class="w-3.5 h-3.5 transition-colors"
+                                    :class="activeMainTab === '{{ $tab['id'] }}' ? 'text-brand-primary' : 'opacity-60'"></i>
+                                <span>{{ $tab['label'] }}</span>
+                                @if (!empty($tab['badge']))
+                                    <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold tabular-nums"
+                                        :class="activeMainTab === '{{ $tab['id'] }}'
+                                            ? 'bg-brand-primary/10 text-brand-primary'
+                                            : 'bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50'">
+                                        {{ $tab['badge'] }}
+                                    </span>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+
+                    {{-- Quick Tab Indicator info --}}
+                    <div class="hidden lg:flex items-center text-[12px] text-black/40 dark:text-white/40 font-medium shrink-0">
+                        <span x-show="activeMainTab !== 'all'" class="inline-flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-brand-primary"></span>
+                            <span x-text="activeMainTab === 'catalog' ? 'Katalog & Layanan' : (activeMainTab === 'batch' ? 'Jadwal Pre-Order' : (activeMainTab === 'about' ? 'Profil & Dedikasi' : (activeMainTab === 'gallery' ? 'Galeri Foto' : 'Informasi & Lokasi')))"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ========================================================================= --}}
     {{-- LAYANAN & PRODUK SHOWCASE (Apple Store Product Row Style)                 --}}
     {{-- ========================================================================= --}}
     @if (
         ($sectionVisibility['services'] || ($sectionVisibility['products'] && $landingPage->show_pos_products)) &&
             $hasServices)
-        <section id="layanan" data-section="services" class="py-12 sm:py-16">
+        <section id="layanan" data-section="services" class="py-12 sm:py-16"
+            x-show="activeMainTab === 'catalog' || activeMainTab === 'batch' || activeMainTab === 'all'"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
 
                 {{-- Section Title --}}
@@ -3146,7 +3932,8 @@
 
                 {{-- Custom Services Slider & Live Search --}}
                 @if ($sectionVisibility['services'] && $services->isNotEmpty())
-                    <div class="space-y-5" x-data="makeSlider({{ $services->count() }}, { base: 1, sm: 2, lg: 3 }, 3600)">
+                    <div class="space-y-5" x-data="makeSlider({{ $services->count() }}, { base: 1, sm: 2, lg: 3 }, 3600)"
+                        x-show="activeMainTab === 'catalog' || activeMainTab === 'all'">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
                                 <span
@@ -3183,11 +3970,11 @@
                                     <div x-show="!serviceSearch && serviceCategory === 'all'"
                                         class="hidden sm:flex items-center gap-1.5">
                                         <button type="button" @click="prev()" aria-label="Layanan Sebelumnya"
-                                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
+                                            class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition cursor-pointer">
                                             <i data-lucide="chevron-left" class="w-4 h-4"></i>
                                         </button>
                                         <button type="button" @click="next()" aria-label="Layanan Berikutnya"
-                                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
+                                            class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition cursor-pointer">
                                             <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                         </button>
                                     </div>
@@ -3389,9 +4176,130 @@
                     </div>
                 @endif
 
+                {{-- Bento Hub: Pre-Order Batch & Join PO Kantoran (Bento Apple HIG) --}}
+                @if (!empty($availableBatchDates) && ($storeSetting?->allow_scheduled_order || $storeSetting?->allow_customer_po))
+                    @php
+                        $activeBatchDate = $selectedBatchDate ?: $availableBatchDates[0]['date'];
+                        $activeBatch = $selectedBatch ?: $availableBatchDates[0];
+                        $shareUrl = url()->current() . '?batch=' . $activeBatchDate . (!empty($groupRef) ? '&group=' . urlencode($groupRef) : '');
+                        $activeDayNameUpper = $activeBatch['day_name_upper'] ?? strtoupper($activeBatch['day_name'] ?? '');
+                        $activeDayShort = $activeBatch['day_short'] ?? $activeBatch['short_date'] ?? $activeBatchDate;
+                        $activeFullDate = $activeBatch['full_date'] ?? ($activeDayNameUpper . ', ' . $activeDayShort);
+                        $activeQuota = $activeBatch['remaining_quota'] ?? null;
+                        $activeUnit = $activeBatch['quota_unit'] ?? ($storeSetting?->preorder_quota_unit ?? 'PCS');
+                        $shareWaText = "🍱 *Pre-Order {$business->name}*\n📅 *Pengiriman:* {$activeFullDate}\n"
+                            . (!empty($groupRef) ? "🏢 *Pesanan Kantor / Tim:* {$groupRef}\n" : "")
+                            . "✨ Yuk pesan bareng! Pilih menu favoritmu di link berikut:\n👉 " . $shareUrl;
+                    @endphp
+                    <div class="pt-4" x-show="activeMainTab === 'batch' || activeMainTab === 'catalog' || activeMainTab === 'all'">
+                        <div class="p-4 sm:p-6 rounded-[24px] bg-gradient-to-br from-brand-primary/[0.06] via-brand-primary/[0.02] to-black/[0.02] dark:to-white/[0.03] border border-brand-primary/20 shadow-xs space-y-4">
+                            {{-- Header Banner --}}
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/5 dark:border-white/10">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-brand-primary text-white shadow-2xs">
+                                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                                            <span>Pre-Order Terbuka</span>
+                                        </span>
+                                        <template x-if="checkoutForm.group_name">
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/15 text-[#5856D6] dark:text-[#AF52DE]">
+                                                <i data-lucide="users" class="w-3 h-3"></i>
+                                                <span>Pesanan Kantor: <strong x-text="checkoutForm.group_name"></strong></span>
+                                            </span>
+                                        </template>
+                                        @if (!empty($groupRef))
+                                            <span x-show="!checkoutForm.group_name" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/15 text-[#5856D6] dark:text-[#AF52DE]">
+                                                <i data-lucide="users" class="w-3 h-3"></i>
+                                                <span>Pesanan Kantor: {{ $groupRef }}</span>
+                                            </span>
+                                        @endif
+                                        @if ($storeSetting?->cut_off_time)
+                                            <span class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-1">
+                                                <i data-lucide="clock" class="w-3 h-3 text-amber-500"></i>
+                                                <span>Batas pesan: {{ substr((string)$storeSetting->cut_off_time, 0, 5) }} WIB</span>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <h3 class="text-[17px] sm:text-[19px] font-extrabold text-black dark:text-white tracking-tight">
+                                        Pesan Bareng / Join Pre-Order
+                                    </h3>
+                                    <p class="text-[12.5px] text-black/60 dark:text-white/60 leading-relaxed max-w-2xl">
+                                        Pilih jadwal batch pengiriman di bawah, tentukan menu pilihan Anda, atau bagikan link ini ke WhatsApp rekan kantor agar pesanan diantar bersamaan.
+                                    </p>
+                                </div>
+
+                                {{-- Action Buttons: Copy Link & WA Share & Group Order --}}
+                                <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                                    <button type="button"
+                                        @click="openCreateGroupOrderModal()"
+                                        class="px-3.5 py-2 rounded-[12px] bg-gradient-to-r from-[#5856D6] to-brand-primary hover:opacity-95 text-white text-[12px] font-bold transition active:scale-95 flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                                        <span>Pesan Bareng (Group Order)</span>
+                                    </button>
+                                    <button type="button"
+                                        @click="copyBatchLink(checkoutForm.scheduled_date || '{{ $activeBatchDate }}', '{{ $activeDayNameUpper }}', '{{ $activeDayShort }}')"
+                                        class="px-3.5 py-2 rounded-[12px] bg-white dark:bg-black/40 border border-black/10 dark:border-white/10 hover:border-brand-primary text-black dark:text-white text-[12px] font-bold transition active:scale-95 flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5 text-brand-primary"></i>
+                                        <span>Salin Link Batch</span>
+                                    </button>
+                                    <button type="button"
+                                        @click="shareBatchWa(checkoutForm.scheduled_date || '{{ $activeBatchDate }}', '{{ $activeDayNameUpper }}', '{{ $activeDayShort }}')"
+                                        class="px-3.5 py-2 rounded-[12px] bg-[#25D366] hover:bg-[#20bd5a] text-white text-[12px] font-bold transition active:scale-95 flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                        <span class="hidden sm:inline">Ajak Teman Kantor (WA)</span>
+                                        <span class="sm:hidden">WA</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Batch Date Chips Grid --}}
+                            <div>
+                                <div class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 mb-2 flex items-center justify-between">
+                                    <span>Pilihan Jadwal Batch Pengiriman</span>
+                                    <span class="text-[11px] font-normal text-brand-primary">Pilihan Anda otomatis tersimpan saat memesan</span>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                                    @foreach ($availableBatchDates as $batch)
+                                        @php
+                                            $bSoldOut = (bool) ($batch['is_sold_out'] ?? $batch['is_full'] ?? false);
+                                            $bQuota = $batch['remaining_quota'] ?? null;
+                                            $bDayName = $batch['day_name_upper'] ?? strtoupper($batch['day_name'] ?? '');
+                                            $bDayShort = $batch['day_short'] ?? $batch['short_date'] ?? ($batch['date'] ?? '');
+                                            $bDate = $batch['date'] ?? '';
+                                            $bUnit = $batch['quota_unit'] ?? ($storeSetting?->preorder_quota_unit ?? 'PCS');
+                                        @endphp
+                                        <button type="button"
+                                            @if (!$bSoldOut)
+                                                @click="selectBatch('{{ $bDate }}')"
+                                            @endif
+                                            class="p-3 rounded-[16px] border text-left transition relative flex flex-col justify-between cursor-pointer active:scale-[0.98] {{ $bSoldOut ? 'opacity-50 cursor-not-allowed bg-black/5 dark:bg-white/5 border-dashed border-black/10 dark:border-white/10' : '' }}"
+                                            :class="checkoutForm.scheduled_date === '{{ $bDate }}' ? 'border-brand-primary bg-white dark:bg-black/40 text-brand-primary ring-2 ring-brand-primary/30 shadow-xs' : 'border-black/10 dark:border-white/10 bg-white/70 dark:bg-black/20 text-black/80 dark:text-white/80 hover:border-black/20 dark:hover:border-white/20'">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-[11px] font-extrabold uppercase tracking-wider opacity-80">{{ $bDayName }}</span>
+                                                @if ($bSoldOut)
+                                                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">Penuh</span>
+                                                @elseif ($bQuota !== null)
+                                                    <span class="text-[10px] font-bold opacity-75 tabular-nums">Sisa {{ $bQuota }} {{ $bUnit }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="mt-1 font-extrabold text-[14px] tabular-nums tracking-tight">
+                                                {{ $bDayShort }}
+                                            </div>
+                                            @if (!empty($batch['note']))
+                                                <div class="text-[10.5px] text-black/50 dark:text-white/50 truncate mt-0.5">{{ $batch['note'] }}</div>
+                                            @endif
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Live POS Products Slider & Interactive Catalog --}}
                 @if ($sectionVisibility['products'] && $landingPage->show_pos_products && $posProducts->isNotEmpty())
-                    <div class="pt-6 space-y-5" x-data="makeSlider({{ $posProducts->count() }}, { base: 1, sm: 2, lg: 4 }, 3200)">
+                    <div class="pt-6 space-y-5" x-data="makeSlider({{ $posProducts->count() }}, { base: 1, sm: 2, lg: 4 }, 3200)"
+                        x-show="activeMainTab === 'catalog' || activeMainTab === 'batch' || activeMainTab === 'all'">
                         {{-- Catalog Header & Search Controls --}}
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
@@ -3446,11 +4354,11 @@
                                     <div x-show="!productSearch && productCategory === 'all'"
                                         class="hidden sm:flex items-center gap-1.5">
                                         <button type="button" @click="prev()" aria-label="Produk Sebelumnya"
-                                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
+                                            class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition cursor-pointer">
                                             <i data-lucide="chevron-left" class="w-4 h-4"></i>
                                         </button>
                                         <button type="button" @click="next()" aria-label="Produk Berikutnya"
-                                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition">
+                                            class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] active:scale-95 text-black/70 dark:text-white/70 flex items-center justify-center transition cursor-pointer">
                                             <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                         </button>
                                     </div>
@@ -3496,7 +4404,7 @@
                                         class="text-left bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] rounded-[24px] shadow-sm hover:shadow-md bento-card-interactive p-4 flex flex-col justify-between space-y-3 active:scale-[0.98] cursor-pointer">
                                         <div>
                                             <div
-                                                class="w-full aspect-square rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] flex items-center justify-center mb-2.5 overflow-hidden border border-black/5 dark:border-white/10">
+                                                class="w-full aspect-square rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] flex items-center justify-center mb-2.5 overflow-hidden border border-black/5 dark:border-white/10 relative">
                                                 <template x-if="prod.image_url">
                                                     <img :src="prod.image_url" :alt="prod.name" loading="lazy"
                                                         class="w-full h-full object-cover"
@@ -3504,6 +4412,10 @@
                                                 </template>
                                                 <i data-lucide="package" :class="prod.image_url ? 'hidden' : ''"
                                                     class="w-8 h-8 text-black/30 dark:text-white/30"></i>
+                                                <template x-if="prod.is_preorder">
+                                                    <span class="absolute top-2 right-2 px-2 py-0.5 rounded-[6px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[10px] font-semibold tracking-wide shadow-xs tabular-nums"
+                                                        x-text="prod.preorder_lead_days > 1 ? 'PO H-' + prod.preorder_lead_days : 'Pre-Order'"></span>
+                                                </template>
                                             </div>
                                             <h4 class="font-semibold text-[13.5px] sm:text-[14px] text-black dark:text-white line-clamp-2 tracking-tight leading-snug"
                                                 x-text="prod.name"></h4>
@@ -3513,16 +4425,32 @@
                                         </div>
                                         <div
                                             class="pt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-1.5">
-                                            <span
-                                                class="font-bold text-[13.5px] sm:text-[14px] text-brand-primary tabular-nums tracking-tight"
-                                                x-text="'Rp ' + Number(prod.price || 0).toLocaleString('id-ID')"></span>
+                                            <template x-if="Number(prod.price || 0) > 0">
+                                                <span
+                                                    class="font-bold text-[13.5px] sm:text-[14px] text-brand-primary tabular-nums tracking-tight"
+                                                    x-text="'Rp ' + Number(prod.price || 0).toLocaleString('id-ID')"></span>
+                                            </template>
+                                            <template x-if="Number(prod.price || 0) <= 0">
+                                                <span
+                                                    class="font-medium text-[12px] sm:text-[12.5px] text-black/60 dark:text-white/60 italic">Hubungi Kami</span>
+                                            </template>
                                             <div class="flex items-center gap-1.5">
-                                                <button type="button" @click.stop="directCheckout(prod, 1)"
-                                                    class="h-7 px-3 rounded-full bg-brand-primary text-white text-[11.5px] font-semibold hover:opacity-90 flex items-center gap-1.5 transition active:scale-95 shadow-xs cursor-pointer"
-                                                    title="Pesan">
-                                                    <i data-lucide="shopping-bag" class="w-3 h-3"></i>
-                                                    <span>Pesan</span>
-                                                </button>
+                                                <template x-if="Number(prod.price || 0) > 0">
+                                                    <button type="button" @click.stop="directCheckout(prod, 1)"
+                                                        class="h-7 px-3 rounded-full bg-brand-primary text-white text-[11.5px] font-semibold hover:opacity-90 flex items-center gap-1.5 transition active:scale-95 shadow-xs cursor-pointer"
+                                                        title="Pesan">
+                                                        <i data-lucide="shopping-bag" class="w-3 h-3"></i>
+                                                        <span>Pesan</span>
+                                                    </button>
+                                                </template>
+                                                <template x-if="Number(prod.price || 0) <= 0">
+                                                    <a :href="waLink(prod.name, false)" target="_blank" rel="noopener" @click.stop
+                                                        class="h-7 px-2.5 rounded-full bg-[#25D366] text-white text-[11px] font-semibold hover:opacity-90 flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
+                                                        title="Hubungi via WhatsApp">
+                                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
+                                                        <span>Tanya WA</span>
+                                                    </a>
+                                                </template>
                                             </div>
                                         </div>
                                     </div>
@@ -3554,7 +4482,7 @@
                                                 class="w-full h-full text-left bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] rounded-[24px] shadow-sm hover:shadow-md bento-card-interactive p-4 flex flex-col justify-between space-y-3 active:scale-[0.98] cursor-pointer">
                                                 <div>
                                                     <div
-                                                        class="w-full aspect-square rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] flex items-center justify-center mb-2.5 overflow-hidden border border-black/5 dark:border-white/10">
+                                                        class="w-full aspect-square rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] flex items-center justify-center mb-2.5 overflow-hidden border border-black/5 dark:border-white/10 relative">
                                                         @if ($prod->image_url)
                                                             <img src="{{ $prod->image_url }}"
                                                                 alt="{{ $prod->name }}" loading="lazy"
@@ -3565,6 +4493,11 @@
                                                         @else
                                                             <i data-lucide="package"
                                                                 class="w-8 h-8 text-black/30 dark:text-white/30"></i>
+                                                        @endif
+                                                        @if ($prod->is_preorder)
+                                                            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-[6px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[10px] font-semibold tracking-wide shadow-xs tabular-nums">
+                                                                {{ $prod->preorder_lead_days > 1 ? 'PO H-' . $prod->preorder_lead_days : 'Pre-Order' }}
+                                                            </span>
                                                         @endif
                                                     </div>
                                                     <h4
@@ -3577,18 +4510,31 @@
                                                 </div>
                                                 <div
                                                     class="pt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-1.5">
-                                                    <span
-                                                        class="font-bold text-[13.5px] sm:text-[14px] text-brand-primary tabular-nums tracking-tight">Rp
-                                                        {{ number_format($prod->selling_price, 0, ',', '.') }}</span>
-                                                    <div class="flex items-center gap-1.5">
-                                                        <button type="button"
-                                                            @click.stop="directCheckout(products.find(p => p.id === '{{ $prod->id }}'), 1)"
-                                                            class="h-7 px-3 rounded-full bg-brand-primary text-white text-[11.5px] font-semibold hover:opacity-90 flex items-center gap-1.5 transition active:scale-95 shadow-xs cursor-pointer"
-                                                            title="Pesan">
-                                                            <i data-lucide="shopping-bag" class="w-3 h-3"></i>
-                                                            <span>Pesan</span>
-                                                        </button>
-                                                    </div>
+                                                    @if (($prod->show_price_on_web ?? true) && $prod->selling_price > 0)
+                                                        <span
+                                                            class="font-bold text-[13.5px] sm:text-[14px] text-brand-primary tabular-nums tracking-tight">Rp
+                                                            {{ number_format($prod->selling_price, 0, ',', '.') }}</span>
+                                                        <div class="flex items-center gap-1.5">
+                                                            <button type="button"
+                                                                @click.stop="directCheckout(products.find(p => p.id === '{{ $prod->id }}'), 1)"
+                                                                class="h-7 px-3 rounded-full bg-brand-primary text-white text-[11.5px] font-semibold hover:opacity-90 flex items-center gap-1.5 transition active:scale-95 shadow-xs cursor-pointer"
+                                                                title="Pesan">
+                                                                <i data-lucide="shopping-bag" class="w-3 h-3"></i>
+                                                                <span>Pesan</span>
+                                                            </button>
+                                                        </div>
+                                                    @else
+                                                        <span
+                                                            class="font-medium text-[12px] sm:text-[12.5px] text-black/60 dark:text-white/60 italic">Hubungi Kami</span>
+                                                        <div class="flex items-center gap-1.5">
+                                                            <a :href="waLink('{{ addslashes($prod->name) }}', false)" target="_blank" rel="noopener" @click.stop
+                                                                class="h-7 px-2.5 rounded-full bg-[#25D366] text-white text-[11px] font-semibold hover:opacity-90 flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
+                                                                title="Hubungi via WhatsApp">
+                                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
+                                                                <span>Tanya WA</span>
+                                                            </a>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -3618,7 +4564,11 @@
     {{-- GALERI FOTO (Apple Bento Photo Grid - Max 5 Bento Showcase)               --}}
     {{-- ========================================================================= --}}
     @if ($sectionVisibility['gallery'] && $allGalleryImages->isNotEmpty())
-        <section id="galeri" data-section="gallery" class="py-12 sm:py-16">
+        <section id="galeri" data-section="gallery" class="py-12 sm:py-16"
+            x-show="activeMainTab === 'gallery' || activeMainTab === 'all'"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center space-y-2">
                     <span
@@ -3918,7 +4868,11 @@
     {{-- TENTANG KAMI & JAM OPERASIONAL (Apple Bento Split Architecture)            --}}
     {{-- ========================================================================= --}}
     @if ($sectionVisibility['about'] && $hasAbout)
-        <section id="tentang" data-section="about" class="py-12 sm:py-16">
+        <section id="tentang" data-section="about" class="py-12 sm:py-16"
+            x-show="activeMainTab === 'about' || activeMainTab === 'all'"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center space-y-2">
                     <span
@@ -4085,7 +5039,11 @@
     {{-- TESTIMONI PELANGGAN (Apple Bento Review Cards)                            --}}
     {{-- ========================================================================= --}}
     @if ($sectionVisibility['testimonials'] && $testimonials->isNotEmpty())
-        <section class="py-12 sm:py-16">
+        <section class="py-12 sm:py-16"
+            x-show="activeMainTab === 'about' || activeMainTab === 'all'"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center max-w-xl mx-auto space-y-2">
                     <span
@@ -4146,7 +5104,11 @@
     {{-- FAQ ACCORDION (Apple Bento Inset Card)                                    --}}
     {{-- ========================================================================= --}}
     @if ($sectionVisibility['faq'] && $faqs->isNotEmpty())
-        <section id="faq" class="py-12 sm:py-16">
+        <section id="faq" class="py-12 sm:py-16"
+            x-show="activeMainTab === 'info' || activeMainTab === 'all'"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 space-y-7" x-data="{ openFaq: null }">
                 <div class="text-center space-y-2">
                     <span
@@ -4187,7 +5149,11 @@
     {{-- LOKASI & KONTAK (Apple Bento Hardware Map & Details Grid)                 --}}
     {{-- ========================================================================= --}}
     @if ($sectionVisibility['contact'] && $hasContact)
-        <section id="lokasi" data-section="contact" class="py-12 sm:py-16">
+        <section id="lokasi" data-section="contact" class="py-12 sm:py-16"
+            x-show="activeMainTab === 'info' || activeMainTab === 'all'"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center max-w-xl mx-auto space-y-2">
                     <span
@@ -4326,7 +5292,7 @@
         class="storefront-sheet-overlay fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm p-4 flex items-center justify-center"
         role="dialog" aria-modal="true">
         <div class="storefront-sheet w-full max-h-[90vh] overflow-y-auto rounded-[24px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.3)] p-5 sm:p-7 transition-all duration-300"
-            :class="activeModal === 'all-gallery' ? 'max-w-4xl' : 'max-w-2xl'">
+            :class="activeModal === 'all-gallery' ? 'w-full max-w-full sm:max-w-4xl lg:max-w-5xl' : 'w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl'">
 
             <div
                 class="flex items-center justify-between gap-3 mb-5 border-b border-black/5 dark:border-white/5 pb-3">
@@ -4334,7 +5300,7 @@
                     x-text="activeModal === 'service' ? 'Detail Layanan' : activeModal === 'product' ? 'Detail Produk' : 'Koleksi Galeri Foto'">
                 </h2>
                 <button type="button" @click="activeModal = null"
-                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/15 active:scale-95 transition cursor-pointer"
+                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/15 active:scale-95 transition cursor-pointer shrink-0"
                     aria-label="Tutup dialog">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
@@ -4342,7 +5308,7 @@
 
             {{-- Single Product / Service Detail View --}}
             <div x-show="activeModal === 'service' || activeModal === 'product'"
-                class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start">
                 <div
                     class="relative aspect-[4/3] rounded-[18px] bg-black/[0.03] dark:bg-white/[0.05] overflow-hidden flex items-center justify-center border border-black/5 dark:border-white/10">
                     <template x-if="activeItem && activeItem.image_url">
@@ -4352,8 +5318,12 @@
                     <i x-show="!activeItem || !activeItem.image_url" data-lucide="package"
                         class="w-12 h-12 text-black/25 dark:text-white/25"></i>
                     <span x-show="activeItem && (activeItem.category || activeModal === 'service')"
-                        class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur text-[10.5px] font-semibold uppercase tracking-wider text-brand-primary shadow-sm"
+                        class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur text-[10.5px] font-semibold uppercase tracking-wider text-brand-primary shadow-sm shrink-0 whitespace-nowrap"
                         x-text="activeItem?.category || 'Layanan'"></span>
+                    <template x-if="activeItem?.is_preorder">
+                        <span class="absolute top-3 right-3 px-2.5 py-0.5 rounded-[6px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[10.5px] font-semibold tracking-wide shadow-xs tabular-nums shrink-0 whitespace-nowrap"
+                            x-text="activeItem.preorder_lead_days > 1 ? 'PO H-' + activeItem.preorder_lead_days : 'Pre-Order'"></span>
+                    </template>
                 </div>
                 <div class="space-y-4 flex flex-col justify-between">
                     <div>
@@ -4369,12 +5339,12 @@
                         <div class="flex items-baseline justify-between gap-3">
                             <span class="text-[20px] font-bold text-brand-primary tabular-nums tracking-tight"
                                 x-text="activeItem?.price ? ((typeof activeItem.price === 'number') ? formatPrice(activeItem.price) : activeItem.price) : 'Hubungi kami'"></span>
-                            <span class="text-[11px] text-black/45 dark:text-white/45 font-normal"
+                            <span class="text-[11px] text-black/45 dark:text-white/45 font-normal shrink-0"
                                 x-text="activeModal === 'service' ? 'Estimasi biaya' : 'Harga resmi'"></span>
                         </div>
                         {{-- Stepper for physical products --}}
                         <div class="flex items-center justify-between py-1 bg-black/[0.02] dark:bg-white/[0.03] px-3.5 py-2 rounded-[14px] border border-black/5 dark:border-white/5"
-                            x-show="activeModal === 'product' && isStorefrontEnabled">
+                            x-show="activeModal === 'product' && isStorefrontEnabled && activeItem?.show_price_on_web !== false && Number(activeItem?.price || 0) > 0">
                             <span class="text-[12.5px] font-semibold text-black/70 dark:text-white/70">Jumlah
                                 Pesanan:</span>
                             <div
@@ -4389,25 +5359,49 @@
                             </div>
                         </div>
 
+                        {{-- Group Order Item Notes (if active) --}}
+                        <div x-show="activeModal === 'product' && groupOrder.active && !groupOrder.data?.is_locked && !groupOrder.data?.is_checked_out && Number(activeItem?.price || 0) > 0" class="pt-1">
+                            <input type="text" x-model="groupOrder.itemNotes"
+                                placeholder="Catatan untuk Anda (cth: Budi - Pedas sedang, sambal pisah)"
+                                class="w-full h-9 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[12px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-brand-primary">
+                        </div>
+
+                        {{-- Group Order Locked Notice --}}
+                        <div x-show="activeModal === 'product' && groupOrder.active && groupOrder.data?.is_locked"
+                            class="p-2.5 rounded-[12px] bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[11.5px] font-semibold flex items-center gap-1.5">
+                            <i data-lucide="lock" class="w-3.5 h-3.5 shrink-0"></i>
+                            <span>Pesanan bersama sedang dikunci oleh Host. Anda tidak dapat menambah item baru.</span>
+                        </div>
+
                         {{-- Product Modal Actions --}}
-                        <div class="flex items-center gap-2" x-show="activeModal === 'product'">
-                            <template x-if="isStorefrontEnabled">
+                        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap" x-show="activeModal === 'product'">
+                            <template x-if="groupOrder.active && !groupOrder.data?.is_locked && !groupOrder.data?.is_checked_out && isStorefrontEnabled && activeItem?.show_price_on_web !== false && Number(activeItem?.price || 0) > 0">
+                                <button type="button"
+                                    @click="addGroupOrderItem(activeItem, modalQty, groupOrder.itemNotes); groupOrder.itemNotes = '';"
+                                    :disabled="groupOrder.actionLoading"
+                                    class="flex-1 h-10 px-3 rounded-full bg-gradient-to-r from-[#5856D6] to-brand-primary text-white text-[12.5px] font-semibold tracking-tight shadow-sm hover:opacity-90 active:scale-[0.97] transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0">
+                                    <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
+                                    <span>+ Pesan Bareng</span>
+                                </button>
+                            </template>
+                            <template x-if="isStorefrontEnabled && activeItem?.show_price_on_web !== false && Number(activeItem?.price || 0) > 0">
                                 <button type="button"
                                     @click="directCheckout(activeItem, modalQty); activeModal = null;"
-                                    class="flex-1 h-10 px-4 rounded-full bg-brand-primary text-white text-[13px] font-semibold tracking-tight shadow-sm hover:opacity-90 active:scale-[0.97] transition flex items-center justify-center gap-2 cursor-pointer">
-                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                                    <span>Pesan</span>
+                                    class="flex-1 h-10 px-4 rounded-full bg-brand-primary text-white text-[13px] font-semibold tracking-tight shadow-sm hover:opacity-90 active:scale-[0.97] transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4 shrink-0"></i>
+                                    <span>Pesan Sendiri</span>
                                 </button>
                             </template>
                             <a :href="activeItem ? waLink(activeItem.title || activeItem.name, false) : '#'"
                                 target="_blank" rel="noopener"
-                                class="h-10 px-4 rounded-full bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 text-[13px] font-semibold tracking-tight transition flex items-center justify-center gap-1.5 cursor-pointer"
-                                :class="!isStorefrontEnabled ? 'flex-1' : ''" title="WhatsApp">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                class="h-10 px-4 rounded-full text-[13px] font-semibold tracking-tight transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+                                :class="!isStorefrontEnabled || activeItem?.show_price_on_web === false || Number(activeItem?.price || 0) <= 0 ? 'flex-1 bg-[#25D366] text-white hover:opacity-90 shadow-xs' : 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20'"
+                                title="WhatsApp">
+                                <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                                 </svg>
-                                <span>WA</span>
+                                <span x-text="(!isStorefrontEnabled || activeItem?.show_price_on_web === false || Number(activeItem?.price || 0) <= 0) ? 'Hubungi via WhatsApp' : 'WA'"></span>
                             </a>
                         </div>
 
@@ -4657,6 +5651,10 @@
                                         </template>
                                         <i data-lucide="package" class="w-7 h-7 text-black/30 dark:text-white/30"
                                             :class="prod.image_url ? 'hidden' : ''"></i>
+                                        <template x-if="prod.is_preorder">
+                                            <span class="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-[5px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[9.5px] font-semibold tracking-wide shadow-xs tabular-nums"
+                                                x-text="prod.preorder_lead_days > 1 ? 'PO H-' + prod.preorder_lead_days : 'Pre-Order'"></span>
+                                        </template>
                                     </div>
                                     <h3 class="font-semibold text-[13px] sm:text-[13.5px] text-black dark:text-white line-clamp-2 tracking-tight leading-snug group-hover:text-brand-primary transition"
                                         x-text="prod.name"></h3>
@@ -4665,11 +5663,17 @@
                                 </div>
                                 <div
                                     class="pt-2.5 mt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-1">
-                                    <span
-                                        class="text-[12.5px] sm:text-[13px] font-bold text-brand-primary tabular-nums tracking-tight"
-                                        x-text="'Rp ' + Number(prod.price || 0).toLocaleString('id-ID')"></span>
+                                    <template x-if="Number(prod.price || 0) > 0">
+                                        <span
+                                            class="text-[12.5px] sm:text-[13px] font-bold text-brand-primary tabular-nums tracking-tight"
+                                            x-text="'Rp ' + Number(prod.price || 0).toLocaleString('id-ID')"></span>
+                                    </template>
+                                    <template x-if="Number(prod.price || 0) <= 0">
+                                        <span
+                                            class="text-[11.5px] sm:text-[12px] font-medium text-black/60 dark:text-white/60 italic">Hubungi Kami</span>
+                                    </template>
                                     <div class="flex items-center gap-1">
-                                        <template x-if="isStorefrontEnabled">
+                                        <template x-if="isStorefrontEnabled && Number(prod.price || 0) > 0">
                                             <button type="button"
                                                 @click.stop="directCheckout(prod, 1); activeModal = null;"
                                                 class="h-6 sm:h-7 px-2.5 sm:px-3 rounded-full bg-brand-primary text-white text-[10.5px] sm:text-[11.5px] font-semibold hover:opacity-90 flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
@@ -4677,6 +5681,14 @@
                                                 <i data-lucide="shopping-bag" class="w-3 h-3"></i>
                                                 <span>Pesan</span>
                                             </button>
+                                        </template>
+                                        <template x-if="Number(prod.price || 0) <= 0">
+                                            <a :href="waLink(prod.name, false)" target="_blank" rel="noopener" @click.stop
+                                                class="h-6 sm:h-7 px-2 sm:px-2.5 rounded-full bg-[#25D366] text-white text-[10.5px] sm:text-[11px] font-semibold hover:opacity-90 flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
+                                                title="Hubungi via WhatsApp">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
+                                                <span>Tanya WA</span>
+                                            </a>
                                         </template>
                                     </div>
                                 </div>
@@ -4931,7 +5943,7 @@
     {{-- ========================================================================= --}}
     @if ($sectionVisibility['footer'])
         <footer
-            class="border-t pb-20 md:pb-0 bg-[#F5F5F7] dark:bg-[#161617] border-black/5 dark:border-white/10 text-black/60 dark:text-white/60 transition-colors duration-300">
+            class="border-t pb-28 sm:pb-32 lg:pb-12 bg-[#F5F5F7] dark:bg-[#161617] border-black/5 dark:border-white/10 text-black/60 dark:text-white/60 transition-colors duration-300">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
                 <div class="grid grid-cols-1 sm:{{ $footerGridClass }} gap-10 lg:gap-12">
                     {{-- Brand and social --}}
@@ -5136,6 +6148,39 @@
     </div>
 
     {{-- ========================================================================= --}}
+    {{-- FLOATING PILL: GROUP ORDER SHARED BASKET (Apple Island Architecture)      --}}
+    {{-- ========================================================================= --}}
+    <div x-show="groupOrder.active && groupOrder.data && !groupOrder.isDrawerOpen" x-cloak
+        x-transition:enter="transition ease-out duration-300 transform"
+        x-transition:enter-start="translate-y-10 opacity-0 scale-95"
+        x-transition:enter-end="translate-y-0 opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-200 transform"
+        x-transition:leave-start="translate-y-0 opacity-100 scale-100"
+        x-transition:leave-end="translate-y-10 opacity-0 scale-95"
+        class="fixed bottom-20 md:bottom-6 left-4 sm:left-6 z-40 select-none">
+        <button type="button" @click="groupOrder.isDrawerOpen = true"
+            class="h-12 sm:h-13 px-4 sm:px-5 rounded-full bg-gradient-to-r from-[#5856D6] to-brand-primary text-white backdrop-blur-2xl shadow-[0_12px_36px_rgba(88,86,214,0.4)] border border-white/20 flex items-center gap-3 hover:scale-105 active:scale-95 transition-all cursor-pointer">
+            <div class="relative flex items-center justify-center">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span
+                    class="absolute -top-2 -right-2.5 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-white text-[#5856D6] tabular-nums shadow-xs leading-none"
+                    x-text="groupOrder.data.total_quantity || 0"></span>
+            </div>
+            <div class="h-4 w-px bg-white/25"></div>
+            <div class="text-left leading-tight">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[10.5px] opacity-85 font-medium">Keranjang Bersama</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse"></span>
+                </div>
+                <span class="text-[13px] font-extrabold tabular-nums" x-text="formatPrice(groupOrder.data.subtotal || 0)"></span>
+            </div>
+            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center ml-0.5">
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </div>
+        </button>
+    </div>
+
+    {{-- ========================================================================= --}}
     {{-- SLIDE-OVER SHOPPING BAG DRAWER (Apple HIG Architecture)                   --}}
     {{-- ========================================================================= --}}
     <div x-show="cartDrawerOpen" x-cloak class="fixed inset-0 z-[70] overflow-hidden" role="dialog"
@@ -5147,7 +6192,7 @@
             x-transition:leave-end="opacity-0"></div>
 
         <div class="storefront-drawer-frame fixed inset-y-0 right-0 max-w-full flex pl-10">
-            <div class="storefront-sheet storefront-drawer w-screen max-w-md bg-white dark:bg-[#1C1C1E] shadow-2xl border-l border-black/5 dark:border-white/10 flex flex-col justify-between"
+            <div class="storefront-sheet storefront-drawer w-screen max-w-md sm:max-w-lg bg-white dark:bg-[#1C1C1E] shadow-2xl border-l border-black/5 dark:border-white/10 flex flex-col justify-between"
                 x-show="cartDrawerOpen" x-transition:enter="transform transition ease-in-out duration-300"
                 x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
                 x-transition:leave="transform transition ease-in-out duration-200"
@@ -5211,6 +6256,12 @@
                                 <span class="text-[12.5px] font-semibold text-brand-primary tabular-nums block"
                                     x-text="formatPrice(item.price)"></span>
 
+                                <div class="pt-1">
+                                    <input type="text" x-model="item.notes" @input="saveCart()"
+                                        placeholder="Nama pemesan / catatan (cth: Budi - Lt. 4)"
+                                        class="w-full h-7 px-2 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[11px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-1 focus:ring-brand-primary transition">
+                                </div>
+
                                 <div class="flex items-center justify-between pt-1.5">
                                     <div
                                         class="flex items-center gap-2 bg-black/5 dark:bg-white/5 px-2.5 py-1 rounded-full border border-black/5 dark:border-white/5">
@@ -5245,8 +6296,9 @@
 
                     <template x-if="minOrderAmount > 0 && cartTotal < minOrderAmount && cart.length > 0">
                         <div
-                            class="p-2.5 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/20 text-[#FF9500] text-[11.5px] font-semibold text-center">
-                            Minimum belanja adalah <span x-text="formatPrice(minOrderAmount)"></span>
+                            class="p-2.5 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/20 text-[#FF9500] text-[11.5px] font-semibold text-center flex items-center justify-center gap-1.5">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0"></i>
+                            <span>Minimum belanja adalah <strong x-text="formatPrice(minOrderAmount)"></strong></span>
                         </div>
                     </template>
 
@@ -5263,19 +6315,17 @@
     </div>
 
     {{-- ========================================================================= --}}
-    {{-- CHECKOUT MODAL (Apple HIG Checkout Architecture)                          --}}
-    {{-- ========================================================================= --}}
     <div x-show="checkoutModalOpen" x-cloak
-        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 bg-black/60 backdrop-blur-md"
         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-        <div class="storefront-sheet w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[28px] p-6 shadow-2xl border border-black/10 dark:border-white/10 max-h-[90vh] overflow-y-auto space-y-5"
+        <div class="storefront-sheet w-full max-w-full sm:max-w-[94vw] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[28px] p-5 sm:p-7 shadow-2xl border-t sm:border border-black/10 dark:border-white/10 max-h-[94vh] sm:max-h-[90vh] overflow-y-auto space-y-5"
             @click.outside="if(!isCheckingOut) checkoutModalOpen = false">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-2.5">
@@ -5308,24 +6358,26 @@
                     class="p-3.5 rounded-[16px] bg-gradient-to-br from-brand-primary/10 to-[#5856D6]/10 border border-brand-primary/20 space-y-2.5 text-center sm:text-left">
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div class="space-y-0.5">
-                            <p class="text-[13px] font-bold text-black dark:text-white">Masuk dengan Google</p>
-                            <p class="text-[11.5px] text-black/60 dark:text-white/60">Wajib login &amp; verifikasi
-                                WhatsApp sebelum memesan.</p>
+                            <p class="text-[13px] font-bold text-black dark:text-white">Masuk Akun Pelanggan</p>
+                            <p class="text-[11.5px] text-black/60 dark:text-white/60">Wajib login untuk join Pre-Order &amp; unggah bukti pembayaran.</p>
                         </div>
-                        <a href="{{ route('customer.auth.google') }}?redirect={{ urlencode(url()->current()) }}"
-                            class="px-4 py-2 bg-brand-primary text-white rounded-xl text-[12.5px] font-bold hover:opacity-90 transition active:scale-95 shrink-0 flex items-center gap-1.5 shadow-sm">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24">
-                                <path fill="currentColor"
-                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                <path fill="currentColor"
-                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                <path fill="currentColor"
-                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                <path fill="currentColor"
-                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                            </svg>
-                            Login Google
-                        </a>
+                        <div class="flex items-center gap-2 flex-wrap shrink-0">
+                            <a :href="customerLoginUrl"
+                                class="px-3.5 py-2 bg-brand-primary text-white rounded-xl text-[12px] font-bold hover:opacity-90 transition active:scale-95 flex items-center gap-1.5 shadow-sm">
+                                <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                                <span>Masuk Akun / Demo</span>
+                            </a>
+                            <a href="{{ route('customer.auth.google') }}?redirect={{ urlencode(url()->current()) }}"
+                                class="px-3 py-2 bg-white dark:bg-black/40 border border-black/10 dark:border-white/10 text-black dark:text-white rounded-xl text-[12px] font-bold hover:border-brand-primary transition active:scale-95 flex items-center gap-1.5 shadow-2xs">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                </svg>
+                                <span>Google</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             @else
@@ -5340,325 +6392,654 @@
                         <a href="{{ route('customer.otp') }}"
                             class="text-[#FF9500] font-semibold hover:underline">Verifikasi OTP &rarr;</a>
                     @else
-                        <span class="text-[#34C759] font-semibold text-[11.5px]">✓ Terverifikasi</span>
+                        <span class="text-[#34C759] font-semibold text-[11.5px] inline-flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> Terverifikasi</span>
                     @endif
                 </div>
             @endguest
 
-            <form @submit.prevent="submitCheckout()" class="space-y-4">
-                {{-- Data Pelanggan --}}
-                <div class="space-y-3">
-                    <span
-                        class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">1.
-                        Data Pemesan</span>
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nama
-                            Lengkap <span class="text-red-500">*</span></label>
-                        <input type="text" x-model="checkoutForm.customer_name" required
-                            placeholder="Contoh: Budi Santoso"
-                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                    </div>
+            {{-- Stepped Checkout Navigation Indicator (Bento Apple HIG Segmented Bar) --}}
+            <div class="flex items-center justify-between gap-1 p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[16px] border border-black/5 dark:border-white/10"
+                role="tablist" aria-label="Tahapan Checkout">
+                <button type="button" role="tab" @click="goToCheckoutStep(1)"
+                    class="flex-1 flex items-center justify-center gap-2 py-2 px-2.5 sm:px-3 rounded-[12px] text-[12px] sm:text-[13px] font-semibold transition-all cursor-pointer"
+                    :class="checkoutStep === 1
+                        ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold'
+                        : (checkoutStep > 1 ? 'text-brand-primary hover:bg-brand-primary/5' : 'text-black/50 dark:text-white/50')">
+                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-bold"
+                        :class="checkoutStep === 1
+                            ? 'bg-brand-primary text-white'
+                            : (checkoutStep > 1 ? 'bg-brand-100 text-brand-primary' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60')">
+                        <template x-if="checkoutStep > 1">
+                            <i data-lucide="check" class="w-3 h-3"></i>
+                        </template>
+                        <template x-if="checkoutStep <= 1">
+                            <span>1</span>
+                        </template>
+                    </span>
+                    <span class="truncate">1. Pengiriman</span>
+                </button>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                @if ($hasBatchFeature)
+                    <button type="button" role="tab" @click="goToCheckoutStep(2)"
+                        class="flex-1 flex items-center justify-center gap-2 py-2 px-2.5 sm:px-3 rounded-[12px] text-[12px] sm:text-[13px] font-semibold transition-all cursor-pointer"
+                        :class="checkoutStep === 2
+                            ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold'
+                            : (checkoutStep > 2 ? 'text-brand-primary hover:bg-brand-primary/5' : 'text-black/50 dark:text-white/50')">
+                        <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-bold"
+                            :class="checkoutStep === 2
+                                ? 'bg-brand-primary text-white'
+                                : (checkoutStep > 2 ? 'bg-brand-100 text-brand-primary' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60')">
+                            <template x-if="checkoutStep > 2">
+                                <i data-lucide="check" class="w-3 h-3"></i>
+                            </template>
+                            <template x-if="checkoutStep <= 2">
+                                <span>2</span>
+                            </template>
+                        </span>
+                        <span class="truncate">2. Jadwal PO</span>
+                    </button>
+                @endif
+
+                <button type="button" role="tab" @click="goToCheckoutStep(3)"
+                    class="flex-1 flex items-center justify-center gap-2 py-2 px-2.5 sm:px-3 rounded-[12px] text-[12px] sm:text-[13px] font-semibold transition-all cursor-pointer"
+                    :class="checkoutStep === 3
+                        ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold'
+                        : 'text-black/50 dark:text-white/50'">
+                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-bold"
+                        :class="checkoutStep === 3
+                            ? 'bg-brand-primary text-white'
+                            : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60'">
+                        <span>{{ $hasBatchFeature ? '3' : '2' }}</span>
+                    </span>
+                    <span class="truncate">{{ $hasBatchFeature ? '3. Pembayaran' : '2. Pembayaran' }}</span>
+                </button>
+            </div>
+
+            <form @submit.prevent="submitCheckout()" class="space-y-6">
+                {{-- STEP 1: Data Pemesan & Pengiriman --}}
+                <div x-show="checkoutStep === 1" class="space-y-6 max-w-4xl mx-auto"
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0">
+                    {{-- Data Pemesan --}}
+                    <div class="space-y-3">
+                        <span
+                            class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">1.
+                            Data Pemesan</span>
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nomor
-                                WhatsApp <span class="text-red-500">*</span></label>
-                            <input type="tel" x-model="checkoutForm.customer_phone" required
-                                placeholder="08123456789"
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nama
+                                Lengkap <span class="text-red-500">*</span></label>
+                            <input type="text" x-model="checkoutForm.customer_name"
+                                placeholder="Contoh: Budi Santoso"
                                 class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                         </div>
-                        <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
-                                (Opsional)</label>
-                            <input type="email" x-model="checkoutForm.customer_email"
-                                placeholder="budi@example.com"
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                        </div>
-                    </div>
-                </div>
 
-                {{-- Opsi Pengiriman --}}
-                <div class="space-y-3 pt-2">
-                    <span
-                        class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">2.
-                        Pengiriman</span>
-                    @if (($storeSetting?->allow_pickup ?? true) && ($storeSetting?->allow_delivery ?? true))
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" @click="setFulfillment('pickup')"
-                                :class="checkoutForm.fulfillment_type === 'pickup' ?
-                                    'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
-                                    'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
-                                class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
-                                <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
-                                <span>Ambil Sendiri</span>
-                            </button>
-                            <button type="button" @click="setFulfillment('merchant_delivery')"
-                                :class="checkoutForm.fulfillment_type === 'merchant_delivery' ?
-                                    'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
-                                    'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
-                                class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
-                                <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
-                                <span>Kurir Toko</span>
-                            </button>
-                        </div>
-                    @elseif ($storeSetting?->allow_delivery ?? true)
-                        <div
-                            class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
-                            <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
-                            <span>Pengiriman Langsung via Kurir Toko</span>
-                        </div>
-                    @else
-                        <div
-                            class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
-                            <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
-                            <span>Pengambilan Mandiri di Outlet / Toko</span>
-                        </div>
-                    @endif
-
-                    <div x-show="checkoutForm.fulfillment_type === 'merchant_delivery'" class="space-y-3 pt-1">
-                        <div>
-                            <label
-                                class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Alamat
-                                Pengiriman Lengkap <span class="text-red-500">*</span></label>
-                            <textarea x-model="checkoutForm.shipping_address" rows="2"
-                                placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, patokan..."
-                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
-                        </div>
-
-                        {{-- Aturan Ongkir / Pilihan Kurir Toko --}}
-                        <div x-show="checkoutForm.shipping_options && checkoutForm.shipping_options.length > 0"
-                            class="space-y-1.5">
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Pilihan
-                                Kurir &amp; Tarif Ongkir</label>
-                            <div class="space-y-1.5">
-                                <template x-for="opt in checkoutForm.shipping_options" :key="opt.id">
-                                    <label
-                                        class="p-2.5 rounded-[12px] border border-black/10 dark:border-white/10 flex items-center justify-between cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition"
-                                        :class="checkoutForm.shipping_rule_id === opt.id ? 'border-brand-primary bg-brand-50' :
-                                            ''">
-                                        <div class="flex items-center gap-2.5">
-                                            <input type="radio" name="shipping_rule_choice"
-                                                :value="opt.id" x-model="checkoutForm.shipping_rule_id"
-                                                @change="fetchShippingQuote(opt.id)"
-                                                class="text-brand-primary focus:ring-brand-primary">
-                                            <div>
-                                                <span class="text-[13px] font-bold text-black dark:text-white block"
-                                                    x-text="opt.name"></span>
-                                                <span class="text-[11px] text-black/50 dark:text-white/50"
-                                                    x-text="opt.description"></span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span x-show="opt.is_free"
-                                                class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/10 text-[#34C759]">Gratis</span>
-                                            <span x-show="!opt.is_free"
-                                                class="text-[12.5px] font-bold text-black dark:text-white tabular-nums"
-                                                x-text="formatPrice(opt.fee)"></span>
-                                        </div>
-                                    </label>
-                                </template>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nomor
+                                    WhatsApp <span class="text-red-500">*</span></label>
+                                <input type="tel" x-model="checkoutForm.customer_phone"
+                                    placeholder="08123456789"
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            </div>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
+                                    (Opsional)</label>
+                                <input type="email" x-model="checkoutForm.customer_email"
+                                    placeholder="budi@example.com"
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                             </div>
                         </div>
 
-                        <div x-show="checkoutForm.is_loading_shipping"
-                            class="text-[11.5px] text-brand-primary flex items-center gap-1.5 py-1">
-                            <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                            <span>Menghitung ongkos kirim...</span>
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                Nama Kantor / Perusahaan / Drop Point <span class="text-[11px] font-normal text-black/40 dark:text-white/40">(Opsional pesanan bersama)</span>
+                            </label>
+                            <input type="text" x-model="checkoutForm.group_name"
+                                placeholder="Contoh: PT Telkom Lantai 8 / Gedung Menara Mandiri"
+                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                         </div>
+                    </div>
+
+                    {{-- Opsi Pengiriman --}}
+                    <div class="space-y-3 pt-2">
+                        <span
+                            class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">2.
+                            Pengiriman</span>
+                        @if (($storeSetting?->allow_pickup ?? true) && ($storeSetting?->allow_delivery ?? true))
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" @click="setFulfillment('pickup')"
+                                    :class="checkoutForm.fulfillment_type === 'pickup' ?
+                                        'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
+                                        'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                    class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
+                                    <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
+                                    <span>Ambil Sendiri</span>
+                                </button>
+                                <button type="button" @click="setFulfillment('merchant_delivery')"
+                                    :class="checkoutForm.fulfillment_type === 'merchant_delivery' ?
+                                        'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
+                                        'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                    class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
+                                    <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
+                                    <span>Kurir Toko</span>
+                                </button>
+                            </div>
+                        @elseif ($storeSetting?->allow_delivery ?? true)
+                            <div
+                                class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
+                                <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
+                                <span>Pengiriman Langsung via Kurir Toko</span>
+                            </div>
+                        @elseif ($storeSetting?->allow_pickup ?? true)
+                            <div
+                                class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
+                                <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
+                                <span>Pengambilan Mandiri di Outlet / Toko</span>
+                            </div>
+                        @else
+                            <div
+                                class="p-3 rounded-[14px] border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold text-[12.5px] flex items-center gap-2">
+                                <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                                <span>Metode pengiriman disesuaikan saat konfirmasi pesanan</span>
+                            </div>
+                        @endif
+
+                        <div x-show="checkoutForm.fulfillment_type === 'merchant_delivery'" class="space-y-3 pt-1">
+                            <div>
+                                <label
+                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Alamat
+                                    Pengiriman Lengkap <span class="text-red-500">*</span></label>
+                                <textarea x-model="checkoutForm.shipping_address" rows="2"
+                                    placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, patokan..."
+                                    class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
+                            </div>
+
+                            {{-- Aturan Ongkir / Pilihan Kurir Toko --}}
+                            <div x-show="checkoutForm.shipping_options && checkoutForm.shipping_options.length > 0"
+                                class="space-y-1.5">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Pilihan
+                                    Kurir &amp; Tarif Ongkir</label>
+                                <div class="space-y-1.5">
+                                    <template x-for="opt in checkoutForm.shipping_options" :key="opt.id">
+                                        <label
+                                            class="p-2.5 rounded-[12px] border border-black/10 dark:border-white/10 flex items-center justify-between cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition"
+                                            :class="checkoutForm.shipping_rule_id === opt.id ? 'border-brand-primary bg-brand-50' :
+                                                ''">
+                                            <div class="flex items-center gap-2.5">
+                                                <input type="radio" name="shipping_rule_choice"
+                                                    :value="opt.id" x-model="checkoutForm.shipping_rule_id"
+                                                    @change="fetchShippingQuote(opt.id)"
+                                                    class="text-brand-primary focus:ring-brand-primary">
+                                                <div>
+                                                    <span class="text-[13px] font-bold text-black dark:text-white block"
+                                                        x-text="opt.name"></span>
+                                                    <span class="text-[11px] text-black/50 dark:text-white/50"
+                                                        x-text="opt.description"></span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span x-show="opt.is_free"
+                                                    class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/10 text-[#34C759]">Gratis</span>
+                                                <span x-show="!opt.is_free"
+                                                    class="text-[12.5px] font-bold text-black dark:text-white tabular-nums"
+                                                    x-text="formatPrice(opt.fee)"></span>
+                                            </div>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div x-show="checkoutForm.is_loading_shipping"
+                                class="text-[11.5px] text-brand-primary flex items-center gap-1.5 py-1">
+                                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                                <span>Menghitung ongkos kirim...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Step 1 Navigation Buttons --}}
+                    <div class="pt-4 border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
+                        <button type="button" @click="checkoutModalOpen = false"
+                            class="h-11 px-5 rounded-[14px] bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 font-semibold text-[13px] transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="button" @click="goToCheckoutStep({{ $hasBatchFeature ? 2 : 3 }})"
+                            class="h-11 px-6 rounded-[14px] bg-brand-primary hover:opacity-90 text-white font-bold text-[13px] transition flex items-center gap-2 shadow-xs cursor-pointer">
+                            <span>{{ $hasBatchFeature ? 'Lanjut ke Jadwal PO' : 'Lanjut ke Pembayaran' }}</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
                     </div>
                 </div>
 
-                {{-- Opsi Jadwal Pemesanan (Scheduled Order) --}}
-                @if ($storeSetting?->allow_scheduled_order)
-                    <div class="space-y-3 pt-2">
-                        <div class="flex items-center justify-between">
-                            <span
-                                class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Jadwal
-                                Pesanan</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" x-model="checkoutForm.is_scheduled" class="sr-only peer">
-                                <div
-                                    class="w-9 h-5 bg-black/10 peer-focus:outline-none rounded-full peer dark:bg-white/10 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary">
+                @if ($hasBatchFeature)
+                    {{-- STEP 2: Jadwal Pre-Order & Batch --}}
+                    <div x-show="checkoutStep === 2" class="space-y-6 max-w-4xl mx-auto"
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0">
+                        {{-- Opsi Jadwal Pemesanan / Batch Pre-Order --}}
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span
+                                        class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">
+                                        {{ ($isUmkmRumahan || $industryGroup === 'fnb') ? 'Jadwal Pre-Order / Batch Pengiriman' : 'Jadwal Pesanan' }}
+                                    </span>
+                                    <template x-if="hasPreorderItems">
+                                        <span class="text-[11px] text-amber-600 dark:text-amber-400 font-medium block">Wajib dijadwalkan (memuat produk Pre-Order)</span>
+                                    </template>
                                 </div>
-                                <span class="ml-2 text-[12px] font-medium text-black/70 dark:text-white/70">Pesan
-                                    Terjadwal</span>
-                            </label>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" x-model="checkoutForm.is_scheduled" :disabled="hasPreorderItems" class="sr-only peer">
+                                    <div
+                                        class="w-9 h-5 bg-black/10 peer-focus:outline-none rounded-full peer dark:bg-white/10 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary"
+                                        :class="hasPreorderItems ? 'opacity-70 cursor-not-allowed' : ''">
+                                    </div>
+                                    <span class="ml-2 text-[12px] font-medium text-black/70 dark:text-white/70">
+                                        {{ ($isUmkmRumahan || $industryGroup === 'fnb') ? 'Pilih Batch' : 'Pesan Terjadwal' }}
+                                    </span>
+                                </label>
+                            </div>
+                            <div x-show="checkoutForm.is_scheduled" x-transition
+                                class="space-y-3.5 p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10">
+                                
+                                {{-- Interactive Batch Date Chips (for Pre-Order B2C) --}}
+                                @if (!empty($availableBatchDates))
+                                    <div>
+                                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-2">
+                                            Pilih Batch Pengiriman <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                                            @foreach ($availableBatchDates as $batch)
+                                                @php
+                                                    $bSoldOut = (bool) ($batch['is_sold_out'] ?? $batch['is_full'] ?? false);
+                                                    $bQuota = $batch['remaining_quota'] ?? null;
+                                                    $bDayName = $batch['day_name_upper'] ?? strtoupper($batch['day_name'] ?? '');
+                                                    $bDayShort = $batch['day_short'] ?? $batch['short_date'] ?? ($batch['date'] ?? '');
+                                                    $bDate = $batch['date'] ?? '';
+                                                    $bUnit = $batch['quota_unit'] ?? ($storeSetting?->preorder_quota_unit ?? 'PCS');
+                                                @endphp
+                                                <button type="button"
+                                                    @if (!$bSoldOut)
+                                                        @click="checkoutForm.scheduled_date = '{{ $bDate }}'"
+                                                    @endif
+                                                    class="p-2.5 rounded-[12px] border text-left transition relative flex flex-col justify-between cursor-pointer active:scale-[0.98] {{ $bSoldOut ? 'opacity-50 cursor-not-allowed bg-black/5 dark:bg-white/5 border-dashed border-black/10 dark:border-white/10' : '' }}"
+                                                    :class="checkoutForm.scheduled_date === '{{ $bDate }}' ? 'border-brand-primary bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/30' : 'border-black/10 dark:border-white/10 bg-white dark:bg-black/20 text-black/80 dark:text-white/80 hover:border-black/20 dark:hover:border-white/20'">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-[11px] font-bold uppercase tracking-wider opacity-80">{{ $bDayName }}</span>
+                                                        @if ($bSoldOut)
+                                                            <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">Penuh</span>
+                                                        @elseif ($bQuota !== null)
+                                                            <span class="text-[10px] font-semibold opacity-70 tabular-nums">Sisa {{ $bQuota }} {{ $bUnit }}</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="mt-1 font-bold text-[13px] tabular-nums tracking-tight">
+                                                        {{ $bDayShort }}
+                                                    </div>
+                                                    @if (!empty($batch['note']))
+                                                        <div class="text-[10px] text-black/50 dark:text-white/50 truncate mt-0.5">{{ $batch['note'] }}</div>
+                                                    @endif
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @php
+                                    $allowCustomDate = (bool) ($storeSetting?->allow_custom_date ?? true);
+                                @endphp
+
+                                @if ($allowCustomDate || empty($availableBatchDates))
+                                    {{-- Custom Date Picker Fallback / Alternative --}}
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
+                                                {{ !empty($availableBatchDates) ? 'Atau Pilih Tanggal Sendiri' : 'Pilih Tanggal' }} <span class="text-red-500">*</span>
+                                            </label>
+                                        </div>
+                                        <input type="date" :min="minPreorderDate"
+                                            x-model="checkoutForm.scheduled_date"
+                                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                                        @if ($storeSetting?->cut_off_time)
+                                            <p class="text-[11px] text-black/50 dark:text-white/50 mt-1 flex items-center gap-1">
+                                                <i data-lucide="clock" class="w-3 h-3 text-amber-500"></i>
+                                                <span>Batas pesanan masuk hari ini: {{ substr((string) $storeSetting->cut_off_time, 0, 5) }} WIB.</span>
+                                            </p>
+                                        @endif
+                                    </div>
+                                @else
+                                    {{-- Batch Only Guide Notice --}}
+                                    <div class="flex items-center gap-2 p-2.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] text-[11.5px] text-black/60 dark:text-white/60">
+                                        <i data-lucide="info" class="w-4 h-4 text-brand-primary shrink-0"></i>
+                                        <span>Pengiriman hanya dibuka pada tanggal batch di atas. Silakan pilih salah satu batch pengiriman yang tersedia.</span>
+                                    </div>
+                                @endif
+
+                                {{-- Time Slot Selector --}}
+                                <div>
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                        Slot Waktu Pengantaran / Pengambilan (Opsional)
+                                    </label>
+                                    @php
+                                        $storeAvailableSlots = (array) ($storeSetting?->available_slots ?? []);
+                                        $fallbackSlots = [
+                                            'Pagi (08:00 - 11:30)',
+                                            'Siang (12:00 - 15:30)',
+                                            'Sore / Malam (16:00 - 20:00)',
+                                        ];
+                                        $checkoutSlots = !empty($storeAvailableSlots)
+                                            ? $storeAvailableSlots
+                                            : $fallbackSlots;
+                                    @endphp
+                                    <select x-model="checkoutForm.scheduled_time_slot"
+                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary cursor-pointer">
+                                        <option value="">-- Bebas Waktu / Jam Buka Outlet --</option>
+                                        @foreach ($checkoutSlots as $slot)
+                                            <option value="{{ $slot }}">{{ $slot }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <div x-show="checkoutForm.is_scheduled" x-transition
-                            class="space-y-3 p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10">
-                            <div>
-                                <label
-                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Pilih
-                                    Tanggal <span class="text-red-500">*</span></label>
-                                <input type="date" min="{{ $minLeadTimeDate }}"
-                                    x-model="checkoutForm.scheduled_date" :required="checkoutForm.is_scheduled"
-                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                                @if ($storeSetting?->cut_off_time)
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 mt-1">Batas pesanan masuk
-                                        hari ini: {{ substr((string) $storeSetting->cut_off_time, 0, 5) }} WIB.</p>
+
+                        {{-- Step 2 Navigation Buttons --}}
+                        <div class="pt-4 border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
+                            <button type="button" @click="goToCheckoutStep(1)"
+                                class="h-11 px-5 rounded-[14px] bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 font-semibold text-[13px] transition flex items-center gap-2 cursor-pointer">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                <span>Kembali</span>
+                            </button>
+                            <button type="button" @click="goToCheckoutStep(3)"
+                                class="h-11 px-6 rounded-[14px] bg-brand-primary hover:opacity-90 text-white font-bold text-[13px] transition flex items-center gap-2 shadow-xs cursor-pointer">
+                                <span>Lanjut ke Pembayaran</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- STEP 3: Pembayaran & Rincian Pesanan --}}
+                <div x-show="checkoutStep === 3" class="space-y-5"
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        {{-- Left Column: Rekening & Catatan --}}
+                        <div class="lg:col-span-7 space-y-5">
+                            {{-- Metode Pembayaran (TriPay Otomatis + Rekening Manual) --}}
+                            <div class="space-y-3.5">
+                                <div class="flex items-center justify-between gap-2 flex-wrap pb-0.5">
+                                    <div>
+                                        <span class="text-[12px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">
+                                            Metode Pembayaran
+                                        </span>
+                                        <p class="text-[11.5px] text-black/45 dark:text-white/45">Pilih pembayaran instan QRIS / VA atau transfer manual.</p>
+                                    </div>
+                                    @if ($storeSetting?->order_auto_cancel_minutes)
+                                        <span
+                                            class="text-[11px] text-amber-600 dark:text-amber-400 font-medium inline-flex items-center gap-1 shrink-0 whitespace-nowrap bg-amber-500/10 px-2.5 py-0.5 rounded-full">
+                                            <i data-lucide="clock" class="w-3 h-3 shrink-0"></i>
+                                            <span>Batas: {{ $storeSetting->order_auto_cancel_minutes }} mnt</span>
+                                        </span>
+                                    @endif
+                                </div>
+
+                                {{-- Segmented Switcher (Otomatis vs Rekening Toko) --}}
+                                @if ($paymentMethods->isNotEmpty())
+                                    <div class="flex p-1 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 gap-1">
+                                        <button type="button" @click="checkoutForm.payment_gateway = 'tripay'; if(!checkoutForm.payment_channel) checkoutForm.payment_channel = 'QRIS';"
+                                            class="flex-1 h-9 rounded-[10px] text-[12.5px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                            :class="checkoutForm.payment_gateway === 'tripay' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
+                                            <i data-lucide="qr-code" class="w-3.5 h-3.5 text-brand-primary"></i>
+                                            <span>QRIS &amp; Virtual Account</span>
+                                            <span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">Instan</span>
+                                        </button>
+                                        <button type="button" @click="checkoutForm.payment_gateway = 'manual'; if(!checkoutForm.payment_method_id) checkoutForm.payment_method_id = '{{ $paymentMethods->first()?->id ?? '' }}';"
+                                            class="flex-1 h-9 rounded-[10px] text-[12.5px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                            :class="checkoutForm.payment_gateway === 'manual' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
+                                            <i data-lucide="landmark" class="w-3.5 h-3.5"></i>
+                                            <span>Transfer Toko</span>
+                                        </button>
+                                    </div>
+                                @endif
+
+                                {{-- Pilihan TriPay (Otomatis) --}}
+                                <div x-show="checkoutForm.payment_gateway === 'tripay'" class="space-y-2.5">
+                                    {{-- QRIS Dinamis Card --}}
+                                    <div class="rounded-[18px] border p-4 transition cursor-pointer relative"
+                                        @click="checkoutForm.payment_channel = 'QRIS'"
+                                        :class="checkoutForm.payment_channel === 'QRIS' ? 'border-brand-primary bg-brand-primary/[0.04] ring-1 ring-brand-primary/30 shadow-xs' : 'border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 bg-black/[0.01] dark:bg-white/[0.02]'">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5"
+                                                :class="checkoutForm.payment_channel === 'QRIS' ? 'border-brand-primary bg-brand-primary text-white' : 'border-black/30 dark:border-white/30'">
+                                                <div class="w-2 h-2 rounded-full bg-white" x-show="checkoutForm.payment_channel === 'QRIS'"></div>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-[14.5px] font-bold text-black dark:text-white">QRIS Dinamis</span>
+                                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary/10 text-brand-primary">Paling Populer</span>
+                                                    </div>
+                                                    <span class="text-[11.5px] font-bold text-emerald-600 dark:text-emerald-400">Bebas Biaya Admin</span>
+                                                </div>
+                                                <p class="text-[12px] text-black/60 dark:text-white/60 mt-1 leading-relaxed">
+                                                    Dapat dipindai dengan semua e-Wallet &amp; m-Banking (GoPay, OVO, Dana, ShopeePay, BCA, Livin Mandiri, BRImo, dll). Verifikasi otomatis detik itu juga tanpa perlu upload struk.
+                                                </p>
+                                                <div class="mt-2.5 pt-2 border-t border-black/5 dark:border-white/5 flex items-center gap-1.5 text-[11px] text-black/45 dark:text-white/45">
+                                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                                                    <span>Biaya transaksi QRIS (Rp 750 + 0,7%) disubsidi oleh toko.</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Virtual Account Selector Card --}}
+                                    <div class="rounded-[18px] border border-black/10 dark:border-white/10 p-4 space-y-3 bg-black/[0.01] dark:bg-white/[0.02]">
+                                        <span class="text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 block">
+                                            Pilihan Virtual Account (Multi-Bank)
+                                        </span>
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                            @php
+                                                $vaChannels = [
+                                                    ['code' => 'BCAVA', 'name' => 'BCA VA'],
+                                                    ['code' => 'BRIVA', 'name' => 'BRI VA'],
+                                                    ['code' => 'MANDIRIVA', 'name' => 'Mandiri VA'],
+                                                    ['code' => 'BNIVA', 'name' => 'BNI VA'],
+                                                    ['code' => 'BSIVA', 'name' => 'BSI VA'],
+                                                    ['code' => 'PERMATAVA', 'name' => 'Permata VA'],
+                                                ];
+                                            @endphp
+                                            @foreach ($vaChannels as $va)
+                                                <button type="button" @click="checkoutForm.payment_channel = '{{ $va['code'] }}'"
+                                                    class="p-2.5 rounded-[12px] border text-left transition relative flex flex-col justify-between cursor-pointer active:scale-[0.98]"
+                                                    :class="checkoutForm.payment_channel === '{{ $va['code'] }}' ? 'border-brand-primary bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/30 font-bold' : 'border-black/10 dark:border-white/10 bg-white dark:bg-[#1C1C1E] text-black/80 dark:text-white/80 hover:border-black/20 dark:hover:border-white/20 font-semibold'">
+                                                    <span class="text-[12.5px] leading-tight">{{ $va['name'] }}</span>
+                                                    <span class="text-[10px] text-black/45 dark:text-white/45 mt-1">Otomatis Lunas</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Pilihan Rekening Manual Toko --}}
+                                @if ($paymentMethods->isNotEmpty())
+                                    <div x-show="checkoutForm.payment_gateway === 'manual'" class="space-y-2.5">
+                                        @foreach ($paymentMethods as $pm)
+                                            <div class="rounded-[16px] border border-black/10 dark:border-white/10 p-3.5 transition cursor-pointer"
+                                                @click="checkoutForm.payment_method_id = '{{ $pm->id }}'"
+                                                :class="checkoutForm.payment_method_id === '{{ $pm->id }}' ?
+                                                    'border-brand-primary bg-brand-50/70 dark:bg-brand-primary/10 shadow-xs' : 'hover:bg-black/5 dark:hover:bg-white/5'">
+                                                <label class="flex items-start gap-3 cursor-pointer w-full">
+                                                    <input type="radio" name="payment_method_id"
+                                                        value="{{ $pm->id }}"
+                                                        x-model="checkoutForm.payment_method_id"
+                                                        class="mt-1 text-brand-primary focus:ring-brand-primary shrink-0">
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                                                            <span
+                                                                class="text-[14px] font-bold text-black dark:text-white leading-tight">{{ $pm->bank_name }}</span>
+                                                            <span
+                                                                class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full shrink-0 whitespace-nowrap {{ $pm->type === 'qris' ? 'bg-[#5856D6]/10 text-[#5856D6]' : 'bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70' }}">
+                                                                {{ $pm->type === 'qris' ? 'QRIS Toko' : 'Transfer Manual' }}
+                                                            </span>
+                                                        </div>
+                                                        @if ($pm->account_number)
+                                                            <div class="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-black/5 dark:border-white/5 flex-wrap sm:flex-nowrap">
+                                                                <div class="min-w-0 flex-1">
+                                                                    <span
+                                                                        class="text-[12.5px] font-mono font-semibold text-black/80 dark:text-white/80 tabular-nums block break-all">{{ $pm->account_number }}</span>
+                                                                    @if ($pm->account_holder)
+                                                                        <span
+                                                                            class="text-[11px] text-black/55 dark:text-white/55 block truncate mt-0.5">a/n {{ $pm->account_holder }}</span>
+                                                                    @endif
+                                                                </div>
+                                                                <button type="button"
+                                                                    @click.stop="navigator.clipboard.writeText('{{ $pm->account_number }}'); showToast('Nomor rekening disalin!')"
+                                                                    class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary text-[11px] font-semibold transition active:scale-95 whitespace-nowrap cursor-pointer">
+                                                                    <i data-lucide="copy" class="w-3 h-3 shrink-0"></i>
+                                                                    <span>Salin</span>
+                                                                </button>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 @endif
                             </div>
+
+
+                            {{-- Catatan --}}
                             <div>
-                                <label
-                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Slot
-                                    Waktu (Opsional)</label>
-                                @php
-                                    $storeAvailableSlots = (array) ($storeSetting?->available_slots ?? []);
-                                    $fallbackSlots = [
-                                        'Pagi (08:00 - 11:30)',
-                                        'Siang (12:00 - 15:30)',
-                                        'Sore / Malam (16:00 - 20:00)',
-                                    ];
-                                    $checkoutSlots = !empty($storeAvailableSlots)
-                                        ? $storeAvailableSlots
-                                        : $fallbackSlots;
-                                @endphp
-                                <select x-model="checkoutForm.scheduled_time_slot"
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Catatan
+                                    Pesanan (Opsional)</label>
+                                <input type="text" x-model="checkoutForm.notes"
+                                    placeholder="{{ $storeSetting?->order_notes_placeholder ?: 'Contoh: Jangan terlalu pedas, titip di satpam, dll.' }}"
                                     class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                                    <option value="">-- Bebas Waktu / Jam Buka Outlet --</option>
-                                    @foreach ($checkoutSlots as $slot)
-                                        <option value="{{ $slot }}">{{ $slot }}</option>
-                                    @endforeach
-                                </select>
+                            </div>
+                        </div>
+
+                        {{-- Right Column: Rincian Item Belanja & Total --}}
+                        <div class="lg:col-span-5 space-y-5">
+                            {{-- Rincian Item Belanja & Nama Pemesan --}}
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45">
+                                    <span x-show="!isGroupOrderCheckout">Rincian Menu (<span x-text="cartCount"></span>)</span>
+                                    <span x-show="isGroupOrderCheckout" class="text-brand-primary">Pesanan Bersama (<span x-text="groupOrder.data?.total_quantity || 0"></span> item)</span>
+                                    <button x-show="!isGroupOrderCheckout" type="button" @click="checkoutModalOpen = false; cartDrawerOpen = true"
+                                        class="text-brand-primary lowercase font-normal hover:underline cursor-pointer text-[11.5px]">Ubah di keranjang</button>
+                                    <button x-show="isGroupOrderCheckout" type="button" @click="checkoutModalOpen = false; groupOrder.isDrawerOpen = true"
+                                        class="text-brand-primary lowercase font-normal hover:underline cursor-pointer text-[11.5px]">Ubah di keranjang bersama</button>
+                                </div>
+                                <div class="max-h-48 overflow-y-auto space-y-1.5 p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 divide-y divide-black/5 dark:divide-white/5">
+                                    <template x-if="!isGroupOrderCheckout">
+                                        <div>
+                                            <template x-for="item in cart" :key="item.id">
+                                                <div class="pt-1.5 first:pt-0 flex items-start justify-between text-[12px] gap-2">
+                                                    <div class="flex-1 min-w-0">
+                                                        <div class="font-semibold text-black dark:text-white truncate">
+                                                            <span x-text="item.quantity"></span>x <span x-text="item.name"></span>
+                                                        </div>
+                                                        <template x-if="item.notes">
+                                                            <div class="text-[11px] text-brand-primary font-medium truncate flex items-center gap-1 mt-0.5">
+                                                                <i data-lucide="user" class="w-3 h-3 shrink-0"></i>
+                                                                <span x-text="item.notes"></span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                    <span class="font-semibold tabular-nums text-black/70 dark:text-white/70 shrink-0"
+                                                        x-text="formatPrice(item.price * item.quantity)"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                    <template x-if="isGroupOrderCheckout">
+                                        <div class="space-y-3">
+                                            <template x-for="member in groupOrder.splitBill" :key="member.member_id">
+                                                <div class="space-y-1">
+                                                    <div class="text-[11.5px] font-bold text-brand-primary flex items-center justify-between pb-0.5 border-b border-black/5 dark:border-white/5">
+                                                        <span x-text="'👤 ' + member.member_name"></span>
+                                                        <span x-text="formatPrice(member.member_subtotal)" class="tabular-nums"></span>
+                                                    </div>
+                                                    <template x-for="it in member.items" :key="it.id">
+                                                        <div class="pl-2 flex items-start justify-between text-[11.5px] text-black/70 dark:text-white/70 gap-2">
+                                                            <div class="truncate">
+                                                                <span x-text="it.quantity + 'x ' + it.product_name"></span>
+                                                                <span x-show="it.notes" class="text-[10.5px] text-black/50 dark:text-white/50 block truncate" x-text="'Catatan: ' + it.notes"></span>
+                                                            </div>
+                                                            <span class="tabular-nums shrink-0 font-medium" x-text="formatPrice(it.line_total)"></span>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            {{-- Total & Submit Card --}}
+                            <div class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 space-y-3">
+                                <div class="flex items-center justify-between text-[13px] text-black/60 dark:text-white/60">
+                                    <span x-text="isGroupOrderCheckout ? 'Total Pesanan Bersama' : 'Subtotal Belanja'"></span>
+                                    <span class="tabular-nums font-semibold" x-text="formatPrice(isGroupOrderCheckout ? (groupOrder.data?.subtotal || 0) : cartTotal)"></span>
+                                </div>
+
+                                <div x-show="checkoutForm.fulfillment_type === 'merchant_delivery'"
+                                    class="flex items-center justify-between text-[13px]">
+                                    <span class="text-black/60 dark:text-white/60">Ongkos Kirim</span>
+                                    <template x-if="checkoutForm.is_free_shipping">
+                                        <span
+                                            class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/10 text-[#34C759]">Bebas
+                                            Ongkir</span>
+                                    </template>
+                                    <template x-if="!checkoutForm.is_free_shipping">
+                                        <span class="tabular-nums font-semibold text-black dark:text-white"
+                                            x-text="formatPrice(checkoutForm.shipping_fee)"></span>
+                                    </template>
+                                </div>
+
+                                <div class="flex items-center justify-between text-[15px] pt-1 border-t border-black/5 dark:border-white/10">
+                                    <span class="text-black/70 dark:text-white/70 font-semibold">Total Pembayaran</span>
+                                    <span class="text-[20px] font-extrabold text-brand-primary tabular-nums"
+                                        x-text="formatPrice(grandTotal)"></span>
+                                </div>
+
+                                @guest('customer')
+                                    <a :href="customerLoginUrl"
+                                        class="w-full h-12 rounded-[16px] bg-[#007AFF] hover:bg-[#007AFF]/90 active:scale-[0.98] text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                        </svg>
+                                        <span>Masuk dengan Google untuk Melanjutkan</span>
+                                    </a>
+                                    <p class="text-[11.5px] text-center text-black/50 dark:text-white/50">
+                                        Wajib login dengan akun Google agar pesanan batch kantor Anda tercatat dan siap unggah bukti transfer.
+                                    </p>
+                                @else
+                                    <button type="submit" :disabled="isCheckingOut"
+                                        class="w-full h-12 rounded-[16px] bg-brand-primary hover:opacity-90 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                                        <span x-show="!isCheckingOut" x-text="isGroupOrderCheckout ? 'Konfirmasi Checkout Pesanan Bersama' : 'Konfirmasi Pesanan Pre-Order'"></span>
+                                        <span x-show="isCheckingOut">Memproses...</span>
+                                        <i x-show="!isCheckingOut" data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    </button>
+                                @endguest
                             </div>
                         </div>
                     </div>
-                @endif
 
-                {{-- Rekening Pembayaran --}}
-                @if ($paymentMethods->isNotEmpty())
-                    <div class="space-y-3 pt-2">
-                        <div class="flex items-center justify-between">
-                            <span
-                                class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">3.
-                                Pembayaran Transfer Bank / QRIS</span>
-                            @if ($storeSetting?->order_auto_cancel_minutes)
-                                <span
-                                    class="text-[11px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
-                                    <i data-lucide="clock" class="w-3 h-3"></i>
-                                    <span>Batas bayar: {{ $storeSetting->order_auto_cancel_minutes }} mnt</span>
-                                </span>
-                            @endif
-                        </div>
-                        <div class="space-y-2">
-                            @foreach ($paymentMethods as $pm)
-                                <div class="rounded-[14px] border border-black/10 dark:border-white/10 p-3 transition"
-                                    :class="checkoutForm.payment_method_id === '{{ $pm->id }}' ?
-                                        'border-brand-primary bg-brand-50' : 'hover:bg-black/5 dark:hover:bg-white/5'">
-                                    <label class="flex items-center justify-between cursor-pointer">
-                                        <div class="flex items-center gap-3">
-                                            <input type="radio" name="payment_method_id"
-                                                value="{{ $pm->id }}"
-                                                x-model="checkoutForm.payment_method_id"
-                                                class="text-brand-primary focus:ring-brand-primary">
-                                            <div>
-                                                <span
-                                                    class="text-[13.5px] font-bold text-black dark:text-white block">{{ $pm->bank_name }}</span>
-                                                @if ($pm->account_number)
-                                                    <div class="flex items-center gap-2 mt-0.5">
-                                                        <span
-                                                            class="text-[11.5px] font-mono text-black/60 dark:text-white/60 tabular-nums">{{ $pm->account_number }}
-                                                            a/n {{ $pm->account_holder }}</span>
-                                                        <button type="button"
-                                                            @click.stop="navigator.clipboard.writeText('{{ $pm->account_number }}'); showToast('Nomor rekening disalin!')"
-                                                            class="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-primary hover:underline cursor-pointer">
-                                                            <i data-lucide="copy" class="w-3 h-3"></i>
-                                                            <span>Salin</span>
-                                                        </button>
-                                                    </div>
-                                                @else
-                                                    <span class="text-[11px] text-brand-primary font-medium">QRIS
-                                                        Langsung
-                                                        Toko</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <span
-                                            class="text-[11px] font-bold uppercase px-2 py-0.5 rounded-full {{ $pm->type === 'qris' ? 'bg-[#5856D6]/10 text-[#5856D6]' : 'bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70' }}">
-                                            {{ $pm->type === 'qris' ? 'QRIS' : 'Transfer' }}
-                                        </span>
-                                    </label>
-
-                                    @if ($pm->instructions)
-                                        <div x-show="checkoutForm.payment_method_id === '{{ $pm->id }}'"
-                                            x-cloak
-                                            class="mt-2.5 p-2.5 rounded-[12px] bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[11.5px] leading-relaxed">
-                                            {{ $pm->instructions }}
-                                        </div>
-                                    @endif
-
-                                    @if ($pm->type === 'qris' && $pm->qris_image_path)
-                                        <div x-show="checkoutForm.payment_method_id === '{{ $pm->id }}'"
-                                            x-cloak
-                                            class="mt-2.5 flex flex-col items-center p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-center">
-                                            <img src="{{ Storage::url($pm->qris_image_path) }}"
-                                                alt="QRIS {{ $pm->bank_name }}"
-                                                class="w-40 h-40 object-contain rounded-[12px] border border-black/10 bg-white p-2 shadow-xs">
-                                            <span
-                                                class="text-[11px] text-black/60 dark:text-white/60 mt-2 font-medium">Scan
-                                                QRIS ini dengan GoPay, OVO, Dana, BCA, atau m-Banking Anda</span>
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
+                    {{-- Step 3 Back Button --}}
+                    <div class="pt-3 border-t border-black/5 dark:border-white/10 flex items-center">
+                        <button type="button" @click="goToCheckoutStep({{ $hasBatchFeature ? 2 : 1 }})"
+                            class="h-10 px-4 rounded-[12px] bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 font-semibold text-[12.5px] transition flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                            <span>Kembali ke {{ $hasBatchFeature ? 'Jadwal PO' : 'Data Pengiriman' }}</span>
+                        </button>
                     </div>
-                @else
-                    <div class="space-y-2 pt-2">
-                        <span
-                            class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">3.
-                            Pembayaran</span>
-                        <div
-                            class="p-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[12px] text-black/70 dark:text-white/70 flex items-start gap-2.5">
-                            <i data-lucide="info" class="w-4 h-4 text-brand-primary shrink-0 mt-0.5"></i>
-                            <span>Instruksi pembayaran dan rincian transfer akan dikonfirmasi langsung oleh kasir /
-                                admin toko via WhatsApp setelah pesanan dibuat.</span>
-                        </div>
-                    </div>
-                @endif
-
-                {{-- Catatan --}}
-                <div class="pt-1">
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Catatan
-                        Pesanan (Opsional)</label>
-                    <input type="text" x-model="checkoutForm.notes"
-                        placeholder="{{ $storeSetting?->order_notes_placeholder ?: 'Contoh: Jangan terlalu pedas, titip di satpam, dll.' }}"
-                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                </div>
-
-                {{-- Total & Submit --}}
-                <div class="pt-4 border-t border-black/5 dark:border-white/10 space-y-2">
-                    <div class="flex items-center justify-between text-[13px] text-black/60 dark:text-white/60">
-                        <span>Subtotal Belanja</span>
-                        <span class="tabular-nums font-semibold" x-text="formatPrice(cartTotal)"></span>
-                    </div>
-
-                    <div x-show="checkoutForm.fulfillment_type === 'merchant_delivery'"
-                        class="flex items-center justify-between text-[13px]">
-                        <span class="text-black/60 dark:text-white/60">Ongkos Kirim</span>
-                        <template x-if="checkoutForm.is_free_shipping">
-                            <span
-                                class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/10 text-[#34C759]">Bebas
-                                Ongkir</span>
-                        </template>
-                        <template x-if="!checkoutForm.is_free_shipping">
-                            <span class="tabular-nums font-semibold text-black dark:text-white"
-                                x-text="formatPrice(checkoutForm.shipping_fee)"></span>
-                        </template>
-                    </div>
-
-                    <div class="flex items-center justify-between text-[15px] pt-1">
-                        <span class="text-black/70 dark:text-white/70 font-semibold">Total Pembayaran</span>
-                        <span class="text-[20px] font-extrabold text-brand-primary tabular-nums"
-                            x-text="formatPrice(grandTotal)"></span>
-                    </div>
-
-                    <button type="submit" :disabled="isCheckingOut"
-                        class="w-full h-12 rounded-[16px] bg-brand-primary hover:opacity-90 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm">
-                        <span x-show="!isCheckingOut">Pesan</span>
-                        <span x-show="isCheckingOut">Memproses...</span>
-                        <i x-show="!isCheckingOut" data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </button>
                 </div>
             </form>
         </div>
@@ -5669,15 +7050,15 @@
     {{-- ========================================================================= --}}
     <div x-show="requestOrderModalOpen" x-cloak x-transition.opacity
         @keydown.escape.window="requestOrderModalOpen = false"
-        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 bg-black/60 backdrop-blur-md"
         style="display: none;">
         <div @click.away="requestOrderModalOpen = false" x-show="requestOrderModalOpen"
             x-transition:enter="transition ease-out duration-300 transform"
             x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-            class="storefront-sheet w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1C1C1E] rounded-[28px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-5">
+            class="storefront-sheet w-full max-w-full sm:max-w-[94vw] md:max-w-3xl lg:max-w-4xl xl:max-w-5xl max-h-[94vh] sm:max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[28px] p-5 sm:p-7 shadow-2xl border-t sm:border border-black/10 dark:border-white/10 space-y-5">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="space-y-0.5">
@@ -5688,7 +7069,7 @@
                     </h3>
                 </div>
                 <button type="button" @click="requestOrderModalOpen = false"
-                    class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white">
+                    class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white cursor-pointer">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -5709,132 +7090,138 @@
                 </div>
             </template>
 
-            <form @submit.prevent="submitRequestOrder()" class="space-y-4">
-                {{-- Data Pemesan --}}
-                <div class="space-y-3">
-                    <span
-                        class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">1.
-                        Data Pemesan</span>
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nama
-                            Lengkap <span class="text-red-500">*</span></label>
-                        <input type="text" x-model="requestOrderForm.customer_name" required
-                            placeholder="Contoh: Budi Santoso"
-                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <form @submit.prevent="submitRequestOrder()" class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
+                {{-- Left Column: Data Pemesan & Opsi Pengiriman --}}
+                <div class="space-y-4">
+                    {{-- Data Pemesan --}}
+                    <div class="space-y-3">
+                        <span
+                            class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">1.
+                            Data Pemesan</span>
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nomor
-                                WhatsApp <span class="text-red-500">*</span></label>
-                            <input type="tel" x-model="requestOrderForm.customer_phone" required
-                                placeholder="08123456789"
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nama
+                                Lengkap <span class="text-red-500">*</span></label>
+                            <input type="text" x-model="requestOrderForm.customer_name" required
+                                placeholder="Contoh: Budi Santoso"
                                 class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                         </div>
-                        <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
-                                (Opsional)</label>
-                            <input type="email" x-model="requestOrderForm.customer_email"
-                                placeholder="budi@example.com"
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nomor
+                                    WhatsApp <span class="text-red-500">*</span></label>
+                                <input type="tel" x-model="requestOrderForm.customer_phone" required
+                                    placeholder="08123456789"
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            </div>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
+                                    (Opsional)</label>
+                                <input type="email" x-model="requestOrderForm.customer_email"
+                                    placeholder="budi@example.com"
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Pengiriman --}}
+                    <div class="space-y-3 pt-2">
+                        <span
+                            class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">3.
+                            Opsi Pengambilan / Kirim</span>
+                        @if (($storeSetting?->allow_pickup ?? true) && ($storeSetting?->allow_delivery ?? true))
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" @click="requestOrderForm.fulfillment_type = 'pickup'"
+                                    :class="requestOrderForm.fulfillment_type === 'pickup' ?
+                                        'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
+                                        'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                    class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
+                                    <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
+                                    <span>Ambil Sendiri</span>
+                                </button>
+                                <button type="button" @click="requestOrderForm.fulfillment_type = 'merchant_delivery'"
+                                    :class="requestOrderForm.fulfillment_type === 'merchant_delivery' ?
+                                        'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
+                                        'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                    class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
+                                    <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
+                                    <span>Kirim ke Alamat</span>
+                                </button>
+                            </div>
+                        @elseif ($storeSetting?->allow_delivery ?? true)
+                            <div
+                                class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
+                                <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
+                                <span>Pengiriman Langsung ke Alamat Tujuan</span>
+                            </div>
+                        @else
+                            <div
+                                class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
+                                <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
+                                <span>Pengambilan Mandiri di Toko / Outlet</span>
+                            </div>
+                        @endif
+                        <div x-show="requestOrderForm.fulfillment_type === 'merchant_delivery'" class="pt-1">
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Alamat
+                                Tujuan Pengiriman</label>
+                            <textarea x-model="requestOrderForm.shipping_address" rows="2"
+                                placeholder="Nama jalan, nomor gedung/rumah, kelurahan..."
+                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
                         </div>
                     </div>
                 </div>
 
-                {{-- Detail Kebutuhan Kustom --}}
-                <div class="space-y-3 pt-2">
-                    <span
-                        class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">2.
-                        Kebutuhan Pesanan</span>
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                            {{ $industryLabels['request_order_item_label'] ?? 'Item / Menu yang Diminta' }} <span
-                                class="text-red-500">*</span>
-                        </label>
-                        <input type="text" x-model="requestOrderForm.item_name" required
-                            placeholder="{{ $isUmkmRumahan ? 'Contoh: Kue Ulang Tahun Kustom 20cm, Tumpeng Mini 30 Box, Seragam 2 Lusin' : 'Contoh: Paket Katering 50 Porsi, Souvenir Khusus, Fabrikasi Komponen' }}"
-                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {{-- Right Column: Kebutuhan Pesanan & Action Button --}}
+                <div class="space-y-4">
+                    {{-- Detail Kebutuhan Kustom --}}
+                    <div class="space-y-3">
+                        <span
+                            class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">2.
+                            Kebutuhan Pesanan</span>
                         <div>
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                {{ $industryLabels['request_order_qty_label'] ?? 'Perkiraan Jumlah' }} <span
+                                {{ $industryLabels['request_order_item_label'] ?? 'Item / Menu yang Diminta' }} <span
                                     class="text-red-500">*</span>
                             </label>
-                            <input type="number" min="1" x-model="requestOrderForm.item_qty" required
+                            <input type="text" x-model="requestOrderForm.item_name" required
+                                placeholder="{{ $isUmkmRumahan ? 'Contoh: Kue Ulang Tahun Kustom 20cm, Tumpeng Mini 30 Box, Seragam 2 Lusin' : 'Contoh: Paket Katering 50 Porsi, Souvenir Khusus, Fabrikasi Komponen' }}"
                                 class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                    {{ $industryLabels['request_order_qty_label'] ?? 'Perkiraan Jumlah' }} <span
+                                        class="text-red-500">*</span>
+                                </label>
+                                <input type="number" min="1" x-model="requestOrderForm.item_qty" required
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            </div>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                    {{ $industryLabels['request_order_date_label'] ?? 'Target Tanggal Dibutuhkan' }}
+                                </label>
+                                <input type="date" min="{{ $minLeadTimeDate }}"
+                                    x-model="requestOrderForm.scheduled_date"
+                                    class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            </div>
                         </div>
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                {{ $industryLabels['request_order_date_label'] ?? 'Target Tanggal Dibutuhkan' }}
-                            </label>
-                            <input type="date" min="{{ $minLeadTimeDate }}"
-                                x-model="requestOrderForm.scheduled_date"
-                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Detail
+                                &amp; Spesifikasi Kebutuhan</label>
+                            <textarea x-model="requestOrderForm.notes" rows="3"
+                                placeholder="{{ $storeSetting?->order_notes_placeholder ?: ($isUmkmRumahan ? 'Tuliskan selengkap mungkin: varian rasa, tulisan ucapan pada kue, pilihan warna kemasan box, pantangan alergi, dll.' : 'Tuliskan selengkap mungkin: jenis pesanan, kemasan, target budget, spesifikasi bahan/ukuran, dll.') }}"
+                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Detail
-                            &amp; Spesifikasi Kebutuhan</label>
-                        <textarea x-model="requestOrderForm.notes" rows="3"
-                            placeholder="{{ $storeSetting?->order_notes_placeholder ?: ($isUmkmRumahan ? 'Tuliskan selengkap mungkin: varian rasa, tulisan ucapan pada kue, pilihan warna kemasan box, pantangan alergi, dll.' : 'Tuliskan selengkap mungkin: jenis pesanan, kemasan, target budget, spesifikasi bahan/ukuran, dll.') }}"
-                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
-                    </div>
-                </div>
 
-                {{-- Pengiriman --}}
-                <div class="space-y-3 pt-2">
-                    <span
-                        class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">3.
-                        Opsi Pengambilan / Kirim</span>
-                    @if (($storeSetting?->allow_pickup ?? true) && ($storeSetting?->allow_delivery ?? true))
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" @click="requestOrderForm.fulfillment_type = 'pickup'"
-                                :class="requestOrderForm.fulfillment_type === 'pickup' ?
-                                    'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
-                                    'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
-                                class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
-                                <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
-                                <span>Ambil Sendiri</span>
-                            </button>
-                            <button type="button" @click="requestOrderForm.fulfillment_type = 'merchant_delivery'"
-                                :class="requestOrderForm.fulfillment_type === 'merchant_delivery' ?
-                                    'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
-                                    'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
-                                class="p-3 rounded-[14px] border text-left text-[12.5px] transition flex items-center gap-2 cursor-pointer">
-                                <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
-                                <span>Kirim ke Alamat</span>
-                            </button>
-                        </div>
-                    @elseif ($storeSetting?->allow_delivery ?? true)
-                        <div
-                            class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
-                            <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
-                            <span>Pengiriman Langsung ke Alamat Tujuan</span>
-                        </div>
-                    @else
-                        <div
-                            class="p-3 rounded-[14px] border border-brand-primary/30 bg-brand-50 text-brand-primary font-semibold text-[12.5px] flex items-center gap-2">
-                            <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
-                            <span>Pengambilan Mandiri di Toko / Outlet</span>
-                        </div>
-                    @endif
-                    <div x-show="requestOrderForm.fulfillment_type === 'merchant_delivery'" class="pt-1">
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Alamat
-                            Tujuan Pengiriman</label>
-                        <textarea x-model="requestOrderForm.shipping_address" rows="2"
-                            placeholder="Nama jalan, nomor gedung/rumah, kelurahan..."
-                            class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
+                    {{-- Action Button --}}
+                    <div class="pt-3 border-t border-black/5 dark:border-white/10">
+                        <button type="submit" :disabled="requestOrderForm.is_submitting"
+                            class="w-full h-12 rounded-[16px] bg-brand-primary hover:opacity-90 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                            <span x-show="!requestOrderForm.is_submitting">Pesan</span>
+                            <span x-show="requestOrderForm.is_submitting">Memproses...</span>
+                            <i x-show="!requestOrderForm.is_submitting" data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
                     </div>
-                </div>
-
-                {{-- Action Button --}}
-                <div class="pt-4 border-t border-black/5 dark:border-white/10">
-                    <button type="submit" :disabled="requestOrderForm.is_submitting"
-                        class="w-full h-12 rounded-[16px] bg-brand-primary hover:opacity-90 disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm">
-                        <span x-show="!requestOrderForm.is_submitting">Pesan</span>
-                        <span x-show="requestOrderForm.is_submitting">Memproses...</span>
-                        <i x-show="!requestOrderForm.is_submitting" data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </button>
                 </div>
             </form>
         </div>
@@ -5844,16 +7231,16 @@
     {{-- CUSTOMER PO & MULTI-DROP BATCH MODAL (Apple Bento Architecture for B2B)  --}}
     {{-- ========================================================================= --}}
     <div x-show="customerPoModalOpen" x-cloak @keydown.escape.window="customerPoModalOpen = false"
-        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 bg-black/60 backdrop-blur-md"
         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-        <div class="storefront-sheet w-full max-w-2xl bg-white dark:bg-[#1C1C1E] rounded-[28px] p-5 sm:p-7 shadow-2xl border border-black/10 dark:border-white/10 max-h-[92vh] overflow-y-auto space-y-6"
+        <div class="storefront-sheet w-full max-w-full sm:max-w-[94vw] md:max-w-3xl lg:max-w-5xl xl:max-w-6xl bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[28px] p-5 sm:p-7 shadow-2xl border-t sm:border border-black/10 dark:border-white/10 max-h-[94vh] sm:max-h-[92vh] overflow-y-auto space-y-6"
             @click.outside="if(!customerPoForm.is_submitting) customerPoModalOpen = false">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
 
             {{-- Modal Header --}}
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
@@ -5903,7 +7290,7 @@
                         <a href="{{ route('customer.otp') }}"
                             class="text-[#FF9500] font-semibold hover:underline">Verifikasi OTP &rarr;</a>
                     @else
-                        <span class="text-[#34C759] font-semibold text-[11.5px]">✓ Akun Terverifikasi</span>
+                        <span class="text-[#34C759] font-semibold text-[11.5px] inline-flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> Akun Terverifikasi</span>
                     @endif
                 </div>
             @endguest
@@ -6225,19 +7612,17 @@
     </div>
 
     {{-- ========================================================================= --}}
-    {{-- RESERVATION MODAL (Apple HIG Sheet for Table & Service Bookings)           --}}
-    {{-- ========================================================================= --}}
     <div x-show="reservationModalOpen" x-cloak @keydown.escape.window="reservationModalOpen = false"
-        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 bg-black/60 backdrop-blur-md"
         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-        <div class="storefront-sheet w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[28px] p-6 shadow-2xl border border-black/10 dark:border-white/10 max-h-[90vh] overflow-y-auto space-y-5"
+        <div class="storefront-sheet w-full max-w-full sm:max-w-[94vw] md:max-w-3xl lg:max-w-4xl xl:max-w-5xl bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[28px] p-5 sm:p-7 shadow-2xl border-t sm:border border-black/10 dark:border-white/10 max-h-[94vh] sm:max-h-[90vh] overflow-y-auto space-y-5"
             @click.outside="if(!isSubmittingReservation) reservationModalOpen = false">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-2.5">
@@ -6251,7 +7636,7 @@
                     </div>
                 </div>
                 <button type="button" @click="reservationModalOpen = false"
-                    class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white">
+                    class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white cursor-pointer">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -6308,13 +7693,13 @@
                                 <a href="{{ route('customer.otp') }}"
                                     class="text-[#FF9500] font-semibold hover:underline">Verifikasi OTP &rarr;</a>
                             @else
-                                <span class="text-[#34C759] font-semibold text-[11.5px]">✓ Terverifikasi</span>
+                                <span class="text-[#34C759] font-semibold text-[11.5px] inline-flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> Terverifikasi</span>
                             @endif
                         </div>
                     @endguest
 
-                    <form @submit.prevent="submitReservation()" class="space-y-4">
-                        {{-- Data Tamu --}}
+                    <form @submit.prevent="submitReservation()" class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
+                        {{-- Left Column: Data Tamu --}}
                         <div class="space-y-3">
                             <span
                                 class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">1.
@@ -6347,107 +7732,109 @@
                             </div>
                         </div>
 
-                        {{-- Waktu & Jumlah Tamu --}}
-                        <div class="space-y-3 pt-2">
-                            <span
-                                class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">2.
-                                Jadwal &amp; Tamu</span>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label
-                                        class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Tanggal
-                                        Reservasi <span class="text-red-500">*</span></label>
-                                    <input type="date" min="{{ $minLeadTimeDate }}"
-                                        x-model="reservationForm.reservation_date" required
-                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Waktu
-                                        / Jam Kunjungan <span class="text-red-500">*</span></label>
-                                    @php
-                                        $resAvailableSlots = (array) ($storeSetting?->available_slots ?? []);
-                                        $fallbackResSlots = [
-                                            '10:00 - 12:00 (Pagi)',
-                                            '12:00 - 14:00 (Makan Siang)',
-                                            '14:00 - 16:00 (Siang)',
-                                            '16:00 - 18:00 (Sore)',
-                                            '18:30 - 20:30 (Makan Malam)',
-                                            '20:30 - 22:00 (Malam)',
-                                        ];
-                                        $reservationSlots = !empty($resAvailableSlots)
-                                            ? $resAvailableSlots
-                                            : $fallbackResSlots;
-                                    @endphp
-                                    <select x-model="reservationForm.time_slot" required
-                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
-                                        @foreach ($reservationSlots as $slot)
-                                            <option value="{{ $slot }}">{{ $slot }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div
-                                class="grid grid-cols-1 {{ isset($posTables) && $posTables->isNotEmpty() ? 'sm:grid-cols-2' : '' }} gap-3">
-                                <div>
-                                    <label
-                                        class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Jumlah
-                                        Orang / Tamu <span class="text-red-500">*</span></label>
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="flex items-center gap-3 bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-[14px] border border-black/10 dark:border-white/10">
-                                            <button type="button"
-                                                @click="if (reservationForm.guest_count > 1) reservationForm.guest_count--"
-                                                class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold">&minus;</button>
-                                            <span
-                                                class="text-[14px] font-extrabold text-black dark:text-white min-w-8 text-center tabular-nums"
-                                                x-text="reservationForm.guest_count + ' Orang'"></span>
-                                            <button type="button" @click="reservationForm.guest_count++"
-                                                class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold">&plus;</button>
-                                        </div>
-                                        <span class="text-[11.5px] text-black/50 dark:text-white/50">Dapat disesuaikan
-                                            jika rombongan</span>
-                                    </div>
-                                </div>
-                                @if (isset($posTables) && $posTables->isNotEmpty())
+                        {{-- Right Column: Jadwal, Tamu & Catatan --}}
+                        <div class="space-y-4">
+                            {{-- Waktu & Jumlah Tamu --}}
+                            <div class="space-y-3">
+                                <span
+                                    class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">2.
+                                    Jadwal &amp; Tamu</span>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
                                         <label
-                                            class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                            Pilihan Meja / Ruangan (Opsional)
-                                        </label>
-                                        <select x-model="reservationForm.pos_table_id"
+                                            class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Tanggal
+                                            Reservasi <span class="text-red-500">*</span></label>
+                                        <input type="date" min="{{ $minLeadTimeDate }}"
+                                            x-model="reservationForm.reservation_date" required
                                             class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
-                                            <option value="">-- Bebas / Ditentukan Otomatis --</option>
-                                            @foreach ($posTables as $pt)
-                                                <option value="{{ $pt->id }}">
-                                                    {{ $pt->name ?: 'Meja ' . $pt->table_number }} (Kapasitas
-                                                    {{ $pt->capacity }} Orang)
-                                                </option>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Waktu
+                                            / Jam Kunjungan <span class="text-red-500">*</span></label>
+                                        @php
+                                            $resAvailableSlots = (array) ($storeSetting?->available_slots ?? []);
+                                            $fallbackResSlots = [
+                                                '10:00 - 12:00 (Pagi)',
+                                                '12:00 - 14:00 (Makan Siang)',
+                                                '14:00 - 16:00 (Siang)',
+                                                '16:00 - 18:00 (Sore)',
+                                                '18:30 - 20:30 (Makan Malam)',
+                                                '20:30 - 22:00 (Malam)',
+                                            ];
+                                            $reservationSlots = !empty($resAvailableSlots)
+                                                ? $resAvailableSlots
+                                                : $fallbackResSlots;
+                                        @endphp
+                                        <select x-model="reservationForm.time_slot" required
+                                            class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                            @foreach ($reservationSlots as $slot)
+                                                <option value="{{ $slot }}">{{ $slot }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                @endif
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 {{ isset($posTables) && $posTables->isNotEmpty() ? 'sm:grid-cols-2' : '' }} gap-3">
+                                    <div>
+                                        <label
+                                            class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Jumlah
+                                            Orang / Tamu <span class="text-red-500">*</span></label>
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="flex items-center gap-3 bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-[14px] border border-black/10 dark:border-white/10">
+                                                <button type="button"
+                                                    @click="if (reservationForm.guest_count > 1) reservationForm.guest_count--"
+                                                    class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold cursor-pointer">&minus;</button>
+                                                <span
+                                                    class="text-[14px] font-extrabold text-black dark:text-white min-w-8 text-center tabular-nums"
+                                                    x-text="reservationForm.guest_count + ' Orang'"></span>
+                                                <button type="button" @click="reservationForm.guest_count++"
+                                                    class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold cursor-pointer">&plus;</button>
+                                            </div>
+                                            <span class="text-[11.5px] text-black/50 dark:text-white/50">Dapat disesuaikan
+                                                jika rombongan</span>
+                                        </div>
+                                    </div>
+                                    @if (isset($posTables) && $posTables->isNotEmpty())
+                                        <div>
+                                            <label
+                                                class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                Pilihan Meja / Ruangan (Opsional)
+                                            </label>
+                                            <select x-model="reservationForm.pos_table_id"
+                                                class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                                <option value="">-- Bebas / Ditentukan Otomatis --</option>
+                                                @foreach ($posTables as $pt)
+                                                    <option value="{{ $pt->id }}">
+                                                        {{ $pt->name ?: 'Meja ' . $pt->table_number }} (Kapasitas {{ $pt->capacity }} Orang)
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
 
-                        {{-- Catatan / Permintaan Khusus --}}
-                        <div class="space-y-2 pt-1">
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan
-                                Tambahan (Layanan / Meja Khusus)</label>
-                            <textarea x-model="reservationForm.notes" rows="2"
-                                placeholder="{{ $storeSetting?->order_notes_placeholder ?: 'Contoh: Meja non-smoking, baby chair, dekorasi ulang tahun, dll.' }}"
-                                class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759] resize-none"></textarea>
-                        </div>
+                            {{-- Catatan / Permintaan Khusus --}}
+                            <div class="space-y-2 pt-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan
+                                    Tambahan (Layanan / Meja Khusus)</label>
+                                <textarea x-model="reservationForm.notes" rows="2"
+                                    placeholder="{{ $storeSetting?->order_notes_placeholder ?: 'Contoh: Meja non-smoking, baby chair, dekorasi ulang tahun, dll.' }}"
+                                    class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759] resize-none"></textarea>
+                            </div>
 
-                        {{-- Submit Button --}}
-                        <div class="pt-3 border-t border-black/5 dark:border-white/10">
-                            <button type="submit" :disabled="isSubmittingReservation"
-                                class="w-full h-12 rounded-[16px] bg-[#34C759] hover:bg-[#2FB350] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm">
-                                <span x-show="!isSubmittingReservation">Reservasi</span>
-                                <span x-show="isSubmittingReservation">Memproses...</span>
-                                <i x-show="!isSubmittingReservation" data-lucide="arrow-right"
-                                    class="w-4 h-4"></i>
-                            </button>
+                            {{-- Submit Button --}}
+                            <div class="pt-3 border-t border-black/5 dark:border-white/10">
+                                <button type="submit" :disabled="isSubmittingReservation"
+                                    class="w-full h-12 rounded-[16px] bg-[#34C759] hover:bg-[#2FB350] active:scale-[0.98] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                                    <span x-show="!isSubmittingReservation">Reservasi</span>
+                                    <span x-show="isSubmittingReservation">Memproses...</span>
+                                    <i x-show="!isSubmittingReservation" data-lucide="arrow-right"
+                                        class="w-4 h-4"></i>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -6456,44 +7843,511 @@
     </div>
 
     {{-- ========================================================================= --}}
-    {{-- FLOATING WHATSAPP BUTTON (Apple Frosted Glass Widget)                     --}}
+    {{-- MODAL: MULAI PESAN BARENG / GROUP ORDER (Bento Apple HIG Architecture)   --}}
     {{-- ========================================================================= --}}
-    <div class="fixed flex bottom-20 right-4 md:bottom-6 md:right-6 z-50 flex-col items-end select-none">
+    <div x-show="groupOrder.isCreateModalOpen" x-cloak @keydown.escape.window="groupOrder.isCreateModalOpen = false"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 bg-black/60 backdrop-blur-md"
+        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-        {{-- Floating Greeting Bubble --}}
-        <div x-show="waChatOpen" x-transition.opacity
-            class="mb-3 p-4 rounded-[20px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl shadow-xl border border-black/10 dark:border-white/10 max-w-xs text-[12px] space-y-2.5"
-            style="display: none;">
-            <div class="flex items-center justify-between">
-                <span
-                    class="font-semibold text-[13px] text-black dark:text-white tracking-tight">{{ $business->name }}</span>
-                <button type="button" @click="waChatOpen = false"
-                    class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white cursor-pointer">
-                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        <div class="storefront-sheet w-full max-w-full sm:max-w-[92vw] md:max-w-2xl lg:max-w-3xl bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[28px] p-5 sm:p-7 shadow-2xl border-t sm:border border-black/10 dark:border-white/10 max-h-[94vh] sm:max-h-[90vh] overflow-y-auto space-y-5"
+            @click.outside="if(!groupOrder.createForm.is_submitting) groupOrder.isCreateModalOpen = false">
+
+            {{-- Mobile Touch Grab Bar --}}
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
+
+            <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-[12px] bg-gradient-to-br from-[#5856D6] to-brand-primary text-white flex items-center justify-center shadow-xs">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Mulai Pesan Bareng (Group Order)</h3>
+                        <span class="text-[11.5px] text-black/50 dark:text-white/50">{{ $business->name }}</span>
+                    </div>
+                </div>
+                <button type="button" @click="groupOrder.isCreateModalOpen = false"
+                    class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <p class="text-[12px] text-black/65 dark:text-white/65 leading-relaxed font-normal">
-                {{ $landingPage->whatsapp_welcome_message ?: 'Halo! Ada yang bisa kami bantu seputar produk atau layanan kami?' }}
-            </p>
-            <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank" rel="noopener"
-                class="w-full h-9 rounded-full bg-[#25D366] text-white font-semibold text-[12.5px] tracking-tight text-center flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-95 transition shadow-sm">
-                <span>WA</span>
-                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-            </a>
-        </div>
 
-        {{-- Button Trigger (Apple Touch Circle) --}}
-        <button type="button" @click="waChatOpen = !waChatOpen"
-            class="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.35)] hover:scale-105 active:scale-95 transition-all duration-200 group relative cursor-pointer"
-            aria-label="Hubungi WhatsApp">
-            <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                    d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z" />
-            </svg>
-            <span
-                class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#FF3B30] border-2 border-white dark:border-black"></span>
-        </button>
+            {{-- Value Prop Bento Mini Banner --}}
+            <div class="p-3.5 rounded-[16px] bg-gradient-to-br from-[#5856D6]/10 via-brand-primary/10 to-transparent border border-[#5856D6]/20 space-y-2">
+                <div class="text-[12.5px] font-bold text-black dark:text-white flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#5856D6]"></i>
+                    <span>Solusi Pesan Makanan Rame-Rame Tanpa Oper HP</span>
+                </div>
+                <ul class="text-[11.5px] text-black/70 dark:text-white/70 space-y-1 pl-1">
+                    <li class="flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-3 h-3 text-[#34C759] shrink-0"></i>
+                        <span>Bagikan 1 link undangan ke WhatsApp tim/teman kantor.</span>
+                    </li>
+                    <li class="flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-3 h-3 text-[#34C759] shrink-0"></i>
+                        <span>Masing-masing teman login & pilih menu favoritnya sendiri.</span>
+                    </li>
+                    <li class="flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-3 h-3 text-[#34C759] shrink-0"></i>
+                        <span>Rincian patungan (split bill) dihitung otomatis setelah checkout.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <template x-if="groupOrder.createForm.error">
+                <div class="p-3.5 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] text-[12.5px] font-medium flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+                    <span x-text="groupOrder.createForm.error"></span>
+                </div>
+            </template>
+
+            <form @submit.prevent="submitCreateGroupOrder()" class="space-y-4">
+                <div>
+                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                        Nama Grup / Acara Kantor <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" x-model="groupOrder.createForm.title" required
+                        placeholder="Contoh: Makan Siang Divisi IT Lt. 5 / Tim BCA Thamrin"
+                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                </div>
+
+                @if (!empty($availableBatchDates))
+                    <div>
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                            Pilih Batch Tanggal Pengiriman
+                        </label>
+                        <select x-model="groupOrder.createForm.scheduled_date"
+                            class="w-full h-11 px-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            @foreach ($availableBatchDates as $b)
+                                <option value="{{ $b['date'] }}" {{ ($selectedBatchDate == $b['date']) ? 'selected' : '' }}>
+                                    {{ $b['day_name'] ?? '' }}, {{ $b['date'] }} {{ !empty($b['remaining_quota']) ? ('(Sisa ' . $b['remaining_quota'] . ' pcs)') : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
+                <div>
+                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                        Alamat Pengiriman Kantor / Drop Point
+                    </label>
+                    <textarea x-model="groupOrder.createForm.delivery_address" rows="2"
+                        placeholder="Nama gedung, lantai, ruangan, atau patokan serah terima pesanan..."
+                        class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                        Catatan Khusus Pengiriman (Opsional)
+                    </label>
+                    <input type="text" x-model="groupOrder.createForm.delivery_notes"
+                        placeholder="Contoh: Titip di lobby satpam / telepon saat tiba"
+                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" :disabled="groupOrder.createForm.is_submitting"
+                        class="w-full h-12 rounded-[16px] bg-gradient-to-r from-[#5856D6] to-brand-primary hover:opacity-95 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                        <span x-show="!groupOrder.createForm.is_submitting">Buat Sesi &amp; Dapatkan Link</span>
+                        <span x-show="groupOrder.createForm.is_submitting">Membuat Sesi...</span>
+                        <i x-show="!groupOrder.createForm.is_submitting" data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+
+    {{-- ========================================================================= --}}
+    {{-- DRAWER: KERANJANG BERSAMA / SHARED CART (Apple Slide-Over Architecture)   --}}
+    {{-- ========================================================================= --}}
+    <div x-show="groupOrder.isDrawerOpen" x-cloak class="fixed inset-0 z-[75] overflow-hidden" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+            @click="groupOrder.isDrawerOpen = false" x-show="groupOrder.isDrawerOpen"
+            x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+
+        <div class="storefront-drawer-frame fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
+            <div class="storefront-sheet storefront-drawer w-screen max-w-lg sm:max-w-xl bg-white dark:bg-[#1C1C1E] shadow-2xl border-l border-black/5 dark:border-white/10 flex flex-col justify-between"
+                x-show="groupOrder.isDrawerOpen" x-transition:enter="transform transition ease-in-out duration-300"
+                x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+                x-transition:leave="transform transition ease-in-out duration-200"
+                x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
+
+                {{-- Drawer Header --}}
+                <div class="p-5 border-b border-black/5 dark:border-white/10 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-[12px] bg-gradient-to-br from-[#5856D6] to-brand-primary text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="users" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight"
+                                    x-text="groupOrder.data?.title || 'Keranjang Bersama'"></h3>
+                                <div class="flex items-center gap-2 text-[11.5px] text-black/55 dark:text-white/55">
+                                    <span>Host: <strong class="text-black dark:text-white" x-text="groupOrder.data?.host_name"></strong></span>
+                                    <span class="inline-flex items-center gap-1 text-[#34C759] font-semibold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse"></span>
+                                        Realtime
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" @click="groupOrder.isDrawerOpen = false"
+                            class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 flex items-center justify-center text-black/60 dark:text-white/60 cursor-pointer">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    {{-- Link Sharing Quick Bar --}}
+                    <div class="p-2.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between gap-2">
+                        <div class="text-[11.5px] text-black/65 dark:text-white/65 truncate">
+                            <span>Ajak rekan kerja dengan link ini</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button type="button" @click="copyGroupOrderLink()"
+                                class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-black/40 border border-black/10 dark:border-white/10 text-black dark:text-white text-[11px] font-bold hover:border-brand-primary transition flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="copy" class="w-3 h-3 text-brand-primary"></i>
+                                <span>Salin</span>
+                            </button>
+                            <button type="button" @click="shareGroupOrderWa()"
+                                class="px-2.5 py-1 rounded-[8px] bg-[#25D366] text-white text-[11px] font-bold hover:bg-[#20bd5a] transition flex items-center gap-1 cursor-pointer shadow-2xs">
+                                <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                <span>WA</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Lock Status Notification --}}
+                    <div x-show="groupOrder.data?.is_locked"
+                        class="p-2.5 rounded-[12px] bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-[11.5px] font-medium flex items-center gap-2">
+                        <i data-lucide="lock" class="w-3.5 h-3.5 shrink-0 text-amber-500"></i>
+                        <span>Pesanan dikunci oleh Host. Anggota tidak dapat menambah atau mengubah item.</span>
+                    </div>
+
+                    {{-- Checked Out Notification --}}
+                    <div x-show="groupOrder.data?.is_checked_out"
+                        class="p-2.5 rounded-[12px] bg-[#34C759]/10 border border-[#34C759]/20 text-[#34C759] text-[11.5px] font-medium flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check-circle" class="w-3.5 h-3.5 shrink-0"></i>
+                            <span>Pesanan sudah dicheckout oleh Host.</span>
+                        </div>
+                        <button type="button" @click="groupOrder.isSplitBillOpen = true"
+                            class="font-bold underline cursor-pointer">Rincian Patungan</button>
+                    </div>
+                </div>
+
+                {{-- Drawer Items Grouped by Member --}}
+                <div class="flex-1 overflow-y-auto p-5 space-y-5">
+                    <template x-if="groupOrder.splitBill && groupOrder.splitBill.length > 0">
+                        <div class="space-y-4">
+                            <template x-for="member in groupOrder.splitBill" :key="member.member_id">
+                                <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-3">
+                                    {{-- Member Header --}}
+                                    <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 rounded-full bg-brand-primary/15 text-brand-primary text-[11px] font-bold flex items-center justify-center">
+                                                <span x-text="member.member_name ? member.member_name.substring(0, 2).toUpperCase() : 'ME'"></span>
+                                            </div>
+                                            <div class="leading-tight">
+                                                <div class="flex items-center gap-1.5">
+                                                    <span class="text-[13px] font-bold text-black dark:text-white" x-text="member.member_name"></span>
+                                                    <span x-show="member.is_host" class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold bg-[#5856D6]/15 text-[#5856D6]">Host</span>
+                                                </div>
+                                                <span class="text-[10.5px] text-black/45 dark:text-white/45" x-text="(member.items ? member.items.length : 0) + ' jenis menu'"></span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-[13px] font-extrabold text-black dark:text-white tabular-nums" x-text="formatPrice(member.member_subtotal)"></span>
+                                        </div>
+                                    </div>
+
+                                    {{-- Member Items --}}
+                                    <div class="space-y-2.5 divide-y divide-black/5 dark:divide-white/5">
+                                        <template x-for="it in member.items" :key="it.id">
+                                            <div class="pt-2 first:pt-0 flex items-start justify-between gap-3">
+                                                <div class="flex-1 min-w-0 space-y-0.5">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="text-[12.5px] font-bold text-black dark:text-white" x-text="it.product_name"></span>
+                                                    </div>
+                                                    <div class="text-[11.5px] text-brand-primary font-semibold tabular-nums" x-text="formatPrice(it.unit_price) + ' x ' + it.quantity + ' = ' + formatPrice(it.line_total)"></div>
+                                                    <template x-if="it.notes">
+                                                        <div class="text-[11px] text-black/50 dark:text-white/50 italic" x-text="'Catatan: ' + it.notes"></div>
+                                                    </template>
+                                                </div>
+
+                                                {{-- Edit / Stepper (only if owned or host, and open) --}}
+                                                <template x-if="(it.is_mine || groupOrder.data.is_host) && !groupOrder.data.is_locked && !groupOrder.data.is_checked_out">
+                                                    <div class="flex items-center gap-1 shrink-0">
+                                                        <div class="flex items-center gap-1 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-full border border-black/5 dark:border-white/5">
+                                                            <button type="button" @click="updateGroupOrderItem(it.id, -1)"
+                                                                class="w-5 h-5 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70 hover:text-black font-bold text-[12px] active:scale-90 transition cursor-pointer">&minus;</button>
+                                                            <span class="text-[11.5px] font-bold text-black dark:text-white min-w-4 text-center tabular-nums" x-text="it.quantity"></span>
+                                                            <button type="button" @click="updateGroupOrderItem(it.id, 1)"
+                                                                class="w-5 h-5 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70 hover:text-black font-bold text-[12px] active:scale-90 transition cursor-pointer">&plus;</button>
+                                                        </div>
+                                                        <button type="button" @click="removeGroupOrderItem(it.id)"
+                                                            class="w-7 h-7 flex items-center justify-center text-red-500 hover:text-red-600 active:scale-90 transition cursor-pointer"
+                                                            title="Hapus menu ini">
+                                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template x-if="!groupOrder.splitBill || groupOrder.splitBill.length === 0">
+                        <div class="py-16 text-center text-black/40 dark:text-white/40 space-y-3">
+                            <div class="w-14 h-14 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mx-auto text-black/30 dark:text-white/30">
+                                <i data-lucide="users" class="w-7 h-7"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-[15px] text-black dark:text-white">Keranjang Bersama Masih Kosong</h4>
+                                <p class="text-[12.5px] max-w-xs mx-auto text-black/60 dark:text-white/60">
+                                    Pilih menu favorit Anda dari katalog dan klik <strong>+ Pesan Bareng</strong>, lalu bagikan tautan ini ke WhatsApp rekan kerja.
+                                </p>
+                            </div>
+                            <button type="button" @click="shareGroupOrderWa()"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#25D366] text-white text-[12px] font-bold shadow-xs cursor-pointer active:scale-95 transition">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                <span>Bagikan Link ke WhatsApp</span>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- Drawer Footer & Checkout Controls --}}
+                <div class="p-5 border-t border-black/5 dark:border-white/10 space-y-3.5 bg-black/[0.02] dark:bg-white/[0.02]">
+                    {{-- Summary Total Row --}}
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-[12px] text-black/60 dark:text-white/60">
+                            <span>Total Item Terkumpul</span>
+                            <span class="font-bold tabular-nums text-black dark:text-white">
+                                <span x-text="groupOrder.data?.total_quantity || 0"></span> unit
+                                (Maks. 150 PCS Batch)
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between text-[14px]">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-black/60 dark:text-white/60">Subtotal Bersama</span>
+                                <button type="button" @click="groupOrder.isSplitBillOpen = true"
+                                    x-show="groupOrder.splitBill && groupOrder.splitBill.length > 0"
+                                    class="px-2 py-0.5 rounded-full bg-[#5856D6]/10 hover:bg-[#5856D6]/20 text-[#5856D6] dark:text-[#AF52DE] text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer"
+                                    title="Lihat Rincian Patungan Masing-Masing">
+                                    <i data-lucide="receipt" class="w-3 h-3"></i>
+                                    <span>Rincian Patungan</span>
+                                </button>
+                            </div>
+                            <span class="font-extrabold text-[18px] text-brand-primary tabular-nums"
+                                x-text="formatPrice(groupOrder.data?.subtotal || 0)"></span>
+                        </div>
+                    </div>
+
+                    {{-- Actions for Host --}}
+                    <template x-if="groupOrder.data && groupOrder.data.is_host">
+                        <div class="space-y-2">
+                            <template x-if="!groupOrder.data.is_checked_out">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" @click="toggleLockGroupOrder()"
+                                        :disabled="groupOrder.actionLoading"
+                                        class="h-11 rounded-[14px] border border-black/10 dark:border-white/10 bg-white dark:bg-black/40 text-black dark:text-white text-[12px] font-bold hover:bg-black/5 transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50">
+                                        <i :data-lucide="groupOrder.data.is_locked ? 'unlock' : 'lock'" class="w-3.5 h-3.5"></i>
+                                        <span x-text="groupOrder.data.is_locked ? 'Buka Kunci' : 'Kunci Pesanan'"></span>
+                                    </button>
+                                    <button type="button" @click="openGroupOrderCheckout()"
+                                        :disabled="(groupOrder.data.total_quantity || 0) <= 0 || groupOrder.actionLoading"
+                                        class="h-11 rounded-[14px] bg-brand-primary hover:opacity-90 disabled:opacity-50 text-white font-bold text-[12.5px] transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:cursor-not-allowed">
+                                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                        <span>Checkout Bersama</span>
+                                    </button>
+                                </div>
+                            </template>
+                            <template x-if="groupOrder.data.is_checked_out">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" @click="groupOrder.isSplitBillOpen = true"
+                                        class="h-11 rounded-[14px] bg-[#5856D6] hover:bg-[#4745B8] text-white text-[12.5px] font-bold transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                                        <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                                        <span>Rincian Patungan</span>
+                                    </button>
+                                    <a :href="groupOrder.orderTrackingUrl || '#'"
+                                        class="h-11 rounded-[14px] bg-brand-primary hover:opacity-90 text-white text-[12.5px] font-bold transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                                        <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                                        <span>Lacak Pesanan</span>
+                                    </a>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    {{-- Notice for Members (Non-Host) --}}
+                    <template x-if="groupOrder.data && !groupOrder.data.is_host">
+                        <div class="space-y-2">
+                            <template x-if="!groupOrder.data.is_checked_out">
+                                <div class="p-2.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-[11.5px] text-black/60 dark:text-white/60 text-center">
+                                    <span>Pesanan ini akan dicheckout dan divalidasi oleh Host: <strong class="text-black dark:text-white" x-text="groupOrder.data.host_name"></strong></span>
+                                </div>
+                            </template>
+                            <template x-if="groupOrder.data.is_checked_out">
+                                <button type="button" @click="groupOrder.isSplitBillOpen = true"
+                                    class="w-full h-11 rounded-[14px] bg-[#5856D6] hover:bg-[#4745B8] text-white text-[12.5px] font-bold transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                                    <span>Lihat Rincian Patungan (Split Bill)</span>
+                                </button>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ========================================================================= --}}
+    {{-- MODAL: RINCIAN PATUNGAN (SPLIT BILL) (Apple Bento Architecture)           --}}
+    {{-- ========================================================================= --}}
+    <div x-show="groupOrder.isSplitBillOpen" x-cloak @keydown.escape.window="groupOrder.isSplitBillOpen = false"
+        class="storefront-sheet-overlay fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 bg-black/60 backdrop-blur-md"
+        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+        <div class="storefront-sheet w-full max-w-full sm:max-w-[92vw] md:max-w-2xl lg:max-w-3xl bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[28px] p-5 sm:p-7 shadow-2xl border-t sm:border border-black/10 dark:border-white/10 max-h-[94vh] sm:max-h-[90vh] overflow-y-auto space-y-5"
+            @click.outside="groupOrder.isSplitBillOpen = false">
+
+            {{-- Mobile Touch Grab Bar --}}
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
+
+            <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-[12px] bg-[#5856D6]/10 text-[#5856D6] dark:text-[#AF52DE] flex items-center justify-center">
+                        <i data-lucide="receipt" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Rincian Patungan (Split Bill)</h3>
+                        <span class="text-[11.5px] text-black/50 dark:text-white/50" x-text="groupOrder.data?.title || 'Pesanan Bersama'"></span>
+                    </div>
+                </div>
+                <button type="button" @click="groupOrder.isSplitBillOpen = false"
+                    class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            {{-- Summary Card --}}
+            <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider block">Total Tagihan Pesanan</span>
+                    <span class="text-[20px] font-extrabold text-brand-primary tabular-nums" x-text="formatPrice(groupOrder.data?.subtotal || 0)"></span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider block">Jumlah Pemesan</span>
+                    <span class="text-[15px] font-bold text-black dark:text-white tabular-nums" x-text="(groupOrder.data?.members_count || 1) + ' orang'"></span>
+                </div>
+            </div>
+
+            {{-- Breakdown per Member --}}
+            <div class="space-y-3">
+                <span class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Rincian Pembayaran Masing-Masing:</span>
+                <div class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                    <template x-for="member in groupOrder.splitBill" :key="member.member_id">
+                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#252528] border border-black/10 dark:border-white/10 shadow-xs space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-brand-primary/10 text-brand-primary text-[11px] font-bold flex items-center justify-center">
+                                        <span x-text="member.member_name ? member.member_name.substring(0, 2).toUpperCase() : 'M'"></span>
+                                    </span>
+                                    <span class="text-[13px] font-bold text-black dark:text-white" x-text="member.member_name"></span>
+                                    <span x-show="member.is_host" class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#5856D6]/10 text-[#5856D6]">Host</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[13.5px] font-extrabold text-brand-primary tabular-nums" x-text="formatPrice(member.member_subtotal)"></span>
+                                </div>
+                            </div>
+                            <div class="space-y-1 pl-8 text-[11.5px] text-black/60 dark:text-white/60">
+                                <template x-for="it in member.items" :key="it.id">
+                                    <div class="flex items-center justify-between">
+                                        <span x-text="it.quantity + 'x ' + it.product_name + (it.notes ? ' (' + it.notes + ')' : '')"></span>
+                                        <span class="tabular-nums" x-text="formatPrice(it.line_total)"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            {{-- Reimbursement Notice --}}
+            <div class="p-3.5 rounded-[16px] bg-[#5856D6]/10 border border-[#5856D6]/20 text-[12px] text-black/70 dark:text-white/70 space-y-1.5">
+                <div class="font-bold text-[#5856D6] dark:text-[#AF52DE] flex items-center gap-1.5">
+                    <i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i>
+                    <span>Informasi Pembayaran Patungan:</span>
+                </div>
+                <p class="leading-relaxed">
+                    Pesanan telah dibayar terpusat oleh Host (<strong class="text-black dark:text-white" x-text="groupOrder.data?.host_name"></strong>). Setiap rekan dapat mentransfer nominal di atas ke Host dan mengonfirmasi bukti transfer melalui chat.
+                </p>
+            </div>
+
+            {{-- Action Buttons --}}
+            <div class="pt-2 space-y-2">
+                <button type="button" @click="copySplitBillText()"
+                    class="w-full h-12 rounded-[16px] bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-[13.5px] transition flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-98">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                    <span>Salin Rincian Patungan ke WhatsApp</span>
+                </button>
+                <template x-if="groupOrder.orderTrackingUrl">
+                    <a :href="groupOrder.orderTrackingUrl"
+                        class="w-full h-11 rounded-[16px] bg-black/5 dark:bg-white/10 hover:bg-black/10 text-black dark:text-white font-bold text-[13px] transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="truck" class="w-4 h-4 text-brand-primary"></i>
+                        <span>Buka Halaman Lacak Pesanan (Tracking)</span>
+                    </a>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    {{-- ========================================================================= --}}
+    {{-- FLOATING WHATSAPP BUTTON (Apple Frosted Glass Widget)                     --}}
+    {{-- ========================================================================= --}}
+    @if ($hasWhatsapp)
+        <div class="fixed flex bottom-20 right-4 md:bottom-6 md:right-6 z-50 flex-col items-end select-none">
+
+            {{-- Floating Greeting Bubble --}}
+            <div x-show="waChatOpen" x-transition.opacity
+                class="mb-3 p-4 rounded-[20px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl shadow-xl border border-black/10 dark:border-white/10 max-w-xs text-[12px] space-y-2.5"
+                style="display: none;">
+                <div class="flex items-center justify-between">
+                    <span
+                        class="font-semibold text-[13px] text-black dark:text-white tracking-tight">{{ $business->name }}</span>
+                    <button type="button" @click="waChatOpen = false"
+                        class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white cursor-pointer">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+                <p class="text-[12px] text-black/65 dark:text-white/65 leading-relaxed font-normal">
+                    {{ $landingPage->whatsapp_welcome_message ?: 'Halo! Ada yang bisa kami bantu seputar produk atau layanan kami?' }}
+                </p>
+                <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank" rel="noopener"
+                    class="w-full h-9 rounded-full bg-[#25D366] text-white font-semibold text-[12.5px] tracking-tight text-center flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-95 transition shadow-sm">
+                    <span>Hubungi via WhatsApp</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+
+            {{-- Button Trigger (Apple Touch Circle) --}}
+            <button type="button" @click="waChatOpen = !waChatOpen"
+                class="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.35)] hover:scale-105 active:scale-95 transition-all duration-200 group relative cursor-pointer"
+                aria-label="Hubungi WhatsApp">
+                <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0zm0 21.785a9.874 9.874 0 0 1-5.032-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884z" />
+                </svg>
+            </button>
+        </div>
+    @endif
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

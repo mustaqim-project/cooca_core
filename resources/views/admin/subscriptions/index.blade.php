@@ -320,8 +320,13 @@
                             stroke-width="1.5"></i>
                     </div>
                     <div class="text-[22px] font-bold tabular-nums text-black dark:text-white">Rp
-                        {{ number_format($totalRevenue, 0, ',', '.') }}</div>
-                    <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Akumulasi pembayaran yang disetujui</p>
+                        {{ number_format($totalNetRevenue ?? $totalRevenue, 0, ',', '.') }}</div>
+                    <div class="flex items-center justify-between text-[11px] text-black/45 dark:text-white/45 mt-1">
+                        <span>Bruto: Rp {{ number_format($totalApprovedGross ?? $totalRevenue, 0, ',', '.') }}</span>
+                        @if (($totalGatewayMdr ?? 0) > 0)
+                            <span class="text-amber-600 dark:text-amber-400 font-medium">MDR: -Rp {{ number_format($totalGatewayMdr, 0, ',', '.') }}</span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -405,7 +410,20 @@
                                     {{ $method === 'qris' ? 'selected' : '' }}>QRIS Instant</option>
                             </select>
                         </div>
-                        @if ($search || $type !== 'all' || $method !== 'all' || $status !== 'all')
+                        <div
+                            class="flex items-center gap-1.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-[8px] px-2.5 py-1.5">
+                            <span class="text-black/45 dark:text-white/45 text-[11px] font-semibold">Sumber:</span>
+                            <select name="source" onchange="this.form.submit()"
+                                class="bg-transparent text-black/90 dark:text-white/90 font-semibold focus:outline-none cursor-pointer text-[13px]">
+                                <option value="all" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white"
+                                    {{ ($source ?? 'all') === 'all' ? 'selected' : '' }}>Semua Sumber</option>
+                                <option value="tripay" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white"
+                                    {{ ($source ?? '') === 'tripay' ? 'selected' : '' }}>TriPay Gateway</option>
+                                <option value="manual" class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white"
+                                    {{ ($source ?? '') === 'manual' ? 'selected' : '' }}>Transfer Manual</option>
+                            </select>
+                        </div>
+                        @if ($search || $type !== 'all' || $method !== 'all' || ($source ?? 'all') !== 'all' || $status !== 'all')
                             <a href="{{ route('admin.subscriptions.index', ['status' => 'all', 'view' => 'payments']) }}"
                                 class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[#FF3B30] dark:text-[#FF453A] text-[11px] font-medium transition"><i
                                     data-lucide="x" class="w-3.5 h-3.5" stroke-width="1.5"></i><span>Reset
@@ -546,30 +564,43 @@
                                     <td class="px-4 py-3 text-right">
                                         <div class="font-bold text-[#34C759] dark:text-[#30D158] tabular-nums">Rp
                                             {{ number_format($p->total_payable, 0, ',', '.') }}</div>
-                                        @if ($p->unique_code > 0)
+                                        @if ($p->isTripay() && $p->gateway_fee > 0)
+                                            <div class="text-[10px] text-amber-600 dark:text-amber-400 tabular-nums font-medium">MDR: -Rp {{ number_format($p->gateway_fee, 0, ',', '.') }}</div>
+                                            <div class="text-[10px] font-semibold text-black/60 dark:text-white/60 tabular-nums">Net: Rp {{ number_format(max(0, $p->total_payable - $p->gateway_fee), 0, ',', '.') }}</div>
+                                        @elseif ($p->unique_code > 0)
                                             <div
                                                 class="text-[10px] text-[#FF9500] dark:text-[#FF9F0A] font-semibold tabular-nums">
                                                 Kode unik: +{{ $p->unique_code }}</div>
                                         @endif
-                                        @if ($p->amount > 0 && $p->amount != $p->total_payable)
+                                        @if ($p->amount > 0 && $p->amount != $p->total_payable && ! $p->isTripay())
                                             <div class="text-[10px] text-black/45 dark:text-white/45 tabular-nums">Pokok:
                                                 Rp {{ number_format($p->amount, 0, ',', '.') }}</div>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3">
-                                        <div
-                                            class="font-medium text-black/80 dark:text-white/80 flex items-center gap-1.5">
-                                            <i data-lucide="{{ $method['icon'] ?? 'credit-card' }}"
-                                                class="w-3.5 h-3.5 text-[#30B0C7] dark:text-[#40C8E0] shrink-0"
-                                                stroke-width="1.5"></i><span>{{ $method['name'] }}</span>
-                                        </div>
-                                        @if ($p->sender_account_name)
-                                            <div class="text-[10px] text-[#34C759] dark:text-[#30D158] mt-0.5 font-medium">
-                                                a/n {{ $p->sender_account_name }} ({{ $p->sender_bank ?: 'Bank' }})
+                                        @if ($p->isTripay())
+                                            <div class="font-medium text-black/80 dark:text-white/80 flex items-center gap-1.5">
+                                                <i data-lucide="zap" class="w-3.5 h-3.5 text-[#5856D6] dark:text-[#5E5CE6] shrink-0" stroke-width="1.5"></i>
+                                                <span class="font-semibold text-[#5856D6] dark:text-[#5E5CE6]">TriPay Gateway</span>
+                                            </div>
+                                            <div class="text-[10px] text-black/60 dark:text-white/60 mt-0.5">
+                                                {{ $p->payment_channel ?: 'QRIS' }}
                                             </div>
                                         @else
-                                            <div class="text-[10px] text-black/45 dark:text-white/45">
-                                                {{ $method['bank_name'] }}</div>
+                                            <div
+                                                class="font-medium text-black/80 dark:text-white/80 flex items-center gap-1.5">
+                                                <i data-lucide="{{ $method['icon'] ?? 'credit-card' }}"
+                                                    class="w-3.5 h-3.5 text-[#30B0C7] dark:text-[#40C8E0] shrink-0"
+                                                    stroke-width="1.5"></i><span>{{ $method['name'] }}</span>
+                                            </div>
+                                            @if ($p->sender_account_name)
+                                                <div class="text-[10px] text-[#34C759] dark:text-[#30D158] mt-0.5 font-medium">
+                                                    a/n {{ $p->sender_account_name }} ({{ $p->sender_bank ?: 'Bank' }})
+                                                </div>
+                                            @else
+                                                <div class="text-[10px] text-black/45 dark:text-white/45">
+                                                    {{ $method['bank_name'] }}</div>
+                                            @endif
                                         @endif
                                     </td>
                                     <td class="px-4 py-3">
@@ -582,11 +613,21 @@
                                             <div class="text-[10px] text-black/40 dark:text-white/40 tabular-nums mt-0.5">
                                                 {{ $p->proof_uploaded_at ? $p->proof_uploaded_at->format('d/m H:i') : 'Diunggah' }}
                                             </div>
+                                        @elseif ($p->isTripay())
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                                                <i data-lucide="check-circle" class="w-3 h-3" stroke-width="1.5"></i>
+                                                <span>Auto-Verified</span>
+                                            </span>
+                                            @if ($p->gateway_reference)
+                                                <div class="text-[10px] font-mono text-black/45 dark:text-white/45 mt-0.5">
+                                                    {{ $p->gateway_reference }}
+                                                </div>
+                                            @endif
                                         @else
                                             <span
                                                 class="text-black/45 dark:text-white/45 text-[11px] italic flex items-center gap-1"><i
                                                     data-lucide="minus" class="w-3 h-3"
-                                                    stroke-width="1.5"></i><span>Belum ada</span></span>
+                                                    stroke-width="1.5"></i><span>Belum diunggah</span></span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3">

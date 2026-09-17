@@ -40,12 +40,86 @@
                 </div>
             @endif
 
+            {{-- Form Login Email / WhatsApp & Password --}}
+            <form method="POST" action="{{ route('customer.login.submit') }}" class="space-y-4" x-data="{
+                loginValue: '{{ old('login', '') }}',
+                passwordValue: '',
+                fillDemo(login, pass) {
+                    this.loginValue = login;
+                    this.passwordValue = pass;
+                }
+            }">
+                @csrf
+                <input type="hidden" name="redirect_to" value="{{ $redirectTo }}">
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1.5">
+                        Nomor WhatsApp atau Email
+                    </label>
+                    <input type="text" name="login" x-model="loginValue" required autofocus
+                        placeholder="Contoh: mandiri@cooca.id atau 081234567890"
+                        class="w-full px-4 py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl text-[15px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:border-[#007AFF] transition">
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-black/60 dark:text-white/60">
+                            Kata Sandi
+                        </label>
+                    </div>
+                    <input type="password" name="password" x-model="passwordValue" required
+                        placeholder="Masukkan kata sandi akun"
+                        class="w-full px-4 py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl text-[15px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:border-[#007AFF] transition">
+                </div>
+
+                <div class="flex items-center justify-between text-xs pt-1">
+                    <label class="flex items-center gap-2 cursor-pointer text-black/60 dark:text-white/60">
+                        <input type="checkbox" name="remember" class="rounded text-[#007AFF] focus:ring-[#007AFF]">
+                        <span>Ingat saya di perangkat ini</span>
+                    </label>
+                </div>
+
+                <button type="submit"
+                    class="w-full py-3.5 bg-[#007AFF] hover:bg-[#007AFF]/90 active:scale-[0.98] text-white font-bold text-[14.5px] rounded-2xl transition shadow-md shadow-[#007AFF]/20 flex items-center justify-center gap-2 cursor-pointer">
+                    <span>Masuk Akun Pelanggan</span>
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </button>
+
+                {{-- Demo Accounts Quick-Fill Box (Bento HIG) --}}
+                <div class="pt-2 p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">
+                        Akun Seeder Demo (Klik untuk Isi Cepat):
+                    </span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <button type="button" @click="fillDemo('mandiri@cooca.id', 'password')"
+                            class="p-2.5 rounded-xl bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-left transition active:scale-95 group cursor-pointer shadow-2xs">
+                            <span class="text-[12px] font-bold text-black dark:text-white block group-hover:text-[#007AFF]">Ahmad (Mandiri)</span>
+                            <span class="text-[10.5px] text-black/50 dark:text-white/50 font-mono">mandiri@cooca.id</span>
+                        </button>
+                        <button type="button" @click="fillDemo('bca@cooca.id', 'password')"
+                            class="p-2.5 rounded-xl bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-left transition active:scale-95 group cursor-pointer shadow-2xs">
+                            <span class="text-[12px] font-bold text-black dark:text-white block group-hover:text-[#007AFF]">Budi (BCA)</span>
+                            <span class="text-[10.5px] text-black/50 dark:text-white/50 font-mono">bca@cooca.id</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {{-- Divider --}}
+            <div class="relative flex items-center justify-center">
+                <div class="border-t border-black/10 dark:border-white/10 w-full"></div>
+                <span class="bg-white dark:bg-[#1C1C1E] px-3 text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 absolute">
+                    Atau Masuk dengan Google
+                </span>
+            </div>
+
             {{-- Google Sign-In Button --}}
             <div class="space-y-3">
                 <a href="{{ route('customer.auth.google') }}{{ $redirectTo ? '?redirect=' . urlencode($redirectTo) : '' }}"
-                    class="flex items-center justify-center gap-3 w-full px-6 py-4 bg-white dark:bg-[#2C2C2E] border-2 border-black/10 dark:border-white/10 rounded-2xl text-[15px] font-bold text-black dark:text-white hover:border-[#007AFF]/40 hover:shadow-lg hover:shadow-[#007AFF]/10 active:scale-[0.98] transition-all duration-200 group">
-                    {{-- Google logo SVG --}}
-                    <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                    class="flex items-center justify-center gap-3 w-full px-6 py-3.5 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-2xl text-[14px] font-bold text-black dark:text-white hover:border-[#007AFF]/40 hover:shadow-md active:scale-[0.98] transition-all duration-200 group">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                         <path fill="#4285F4"
                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                         <path fill="#34A853"
@@ -56,10 +130,6 @@
                             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
                     Lanjutkan dengan Google
-                    <svg class="w-4 h-4 ml-auto opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
                 </a>
             </div>
 

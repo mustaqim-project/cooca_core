@@ -38,17 +38,44 @@ return [
         'customer_redirect' => env('GOOGLE_CUSTOMER_REDIRECT_URI', rtrim(env('APP_URL', 'http://localhost'), '/') . '/customer/auth/google/callback'),
     ],
 
-    'wa_server' => [
-        'url' => env('WA_SERVER_URL', 'http://127.0.0.1:3000'),
-        'token' => env('WA_WORKER_TOKEN', 'secret-worker-token'),
-    ],
 
     'meta_whatsapp' => [
-        'version'         => env('META_WA_API_VERSION', 'v20.0'),
-        'token'           => env('META_WA_TOKEN', ''),
-        'phone_number_id' => env('META_WA_PHONE_NUMBER_ID', ''),
-        'waba_id'         => env('META_WA_WABA_ID', ''),
-        'otp_template'    => env('META_WA_OTP_TEMPLATE', 'cooca_otp'),
+        'app_id'               => env('META_WA_APP_ID', env('META_APP_ID', '')),
+        'app_secret'           => env('META_WA_APP_SECRET', env('META_APP_SECRET', '')),
+        'webhook_verify_token' => env('META_WA_WEBHOOK_VERIFY_TOKEN', 'cooca_meta_wa_webhook_secret'),
+        'config_id'            => env('META_WA_CONFIG_ID', env('META_WA_EMBEDDED_CONFIG_ID', '')),
+        'version'              => env('META_WA_GRAPH_VERSION', env('META_WA_API_VERSION', 'v21.0')),
+        'graph_url'            => env('META_WA_GRAPH_URL', 'https://graph.facebook.com'),
+        'token'                => env('META_WA_TOKEN', ''),
+        'phone_number_id'      => env('META_WA_PHONE_NUMBER_ID', ''),
+        'waba_id'              => env('META_WA_WABA_ID', ''),
+        'otp_template'         => env('META_WA_OTP_TEMPLATE', 'cooca_otp'),
+    ],
+
+    'meta_social' => [
+        'app_id'               => env('META_SOCIAL_APP_ID', ''),
+        'app_secret'           => env('META_SOCIAL_APP_SECRET', ''),
+        'webhook_verify_token' => env('META_SOCIAL_WEBHOOK_VERIFY_TOKEN', 'cooca_meta_social_webhook_token'),
+        'graph_version'        => env('META_SOCIAL_GRAPH_VERSION', 'v21.0'),
+        'graph_url'            => env('META_SOCIAL_GRAPH_URL', 'https://graph.facebook.com'),
+    ],
+
+    'tiktok' => [
+        'client_key'    => env('TIKTOK_CLIENT_KEY', ''),
+        'client_secret' => env('TIKTOK_CLIENT_SECRET', ''),
+        'redirect_uri'  => env('TIKTOK_REDIRECT_URI', ''),
+        'api_url'       => env('TIKTOK_API_URL', 'https://open.tiktokapis.com/v2/'),
+        'auth_url'      => env('TIKTOK_AUTH_URL', 'https://www.tiktok.com/v2/auth/authorize/'),
+    ],
+
+    'tripay' => [
+        'merchant_code' => env('TRIPAY_MERCHANT_CODE', ''),
+        'api_key'       => env('TRIPAY_API_KEY', ''),
+        'private_key'   => env('TRIPAY_PRIVATE_KEY', ''),
+        'is_production' => (bool) env('TRIPAY_IS_PRODUCTION', false),
+        'sandbox_url'   => env('TRIPAY_SANDBOX_URL', 'https://tripay.co.id/api-sandbox/'),
+        'prod_url'      => env('TRIPAY_PROD_URL', 'https://tripay.co.id/api/'),
     ],
 
 ];
+

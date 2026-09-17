@@ -51,9 +51,9 @@ final class SalesOrderWebController extends Controller
         $business = Context::requireBusiness();
 
         $customers       = Customer::where('business_id', $business->id)->orderBy('name')->get();
-        $products        = Product::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
-        $goodsProducts   = Product::where('business_id', $business->id)->where('is_active', true)->goods()->orderBy('name')->get();
-        $serviceProducts = Product::where('business_id', $business->id)->where('is_active', true)->services()->orderBy('name')->get();
+        $products        = Product::where('business_id', $business->id)->forSalesOrder()->orderBy('name')->get();
+        $goodsProducts   = Product::where('business_id', $business->id)->forSalesOrder()->goods()->orderBy('name')->get();
+        $serviceProducts = Product::where('business_id', $business->id)->forSalesOrder()->services()->orderBy('name')->get();
         $nextNumber      = $this->salesPipelineService->generateSalesOrderNumber($business);
 
         // Quotations yang belum dikonversi ke SO

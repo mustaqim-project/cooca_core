@@ -1,9 +1,11 @@
 @extends('layouts.app', ['title' => 'Reservasi & Booking Jadwal - Cooca'])
 
 @section('content')
-    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 lg:pb-10" x-data="{
+    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 sm:pb-32 lg:pb-10" x-data="{
         showAssignModal: false,
         selectedReservation: null,
+        cancelModalOpen: false,
+        reservationToCancel: null,
         openAssign(rsv) {
             this.selectedReservation = rsv;
             this.showAssignModal = true;
@@ -279,16 +281,12 @@
                                                         <span>Ubah Meja</span>
                                                     </button>
                                                     @if (!in_array($rsv->status, ['cancelled', 'completed', 'no_show'], true))
-                                                        <form action="{{ route('storefront.reservations.status', $rsv) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="cancelled">
-                                                            <button type="submit"
-                                                                class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-red-50 text-red-600 flex items-center gap-2">
-                                                                <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
-                                                                <span>Batalkan</span>
-                                                            </button>
-                                                        </form>
+                                                        <button type="button"
+                                                            @click="openMenu = false; reservationToCancel = {{ json_encode(['id' => $rsv->id, 'code' => $rsv->reservation_code, 'customer_name' => $rsv->customer_name]) }}; cancelModalOpen = true;"
+                                                            class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 flex items-center gap-2 cursor-pointer transition">
+                                                            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                                                            <span>Batalkan</span>
+                                                        </button>
                                                     @endif
                                                 </div>
                                             </div>
@@ -448,15 +446,12 @@
                                             <span>Ubah Meja</span>
                                         </button>
                                         @if (!in_array($rsv->status, ['cancelled', 'completed', 'no_show'], true))
-                                            <form action="{{ route('storefront.reservations.status', $rsv) }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="status" value="cancelled">
-                                                <button type="submit"
-                                                    class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-red-50 text-red-600 flex items-center gap-2">
-                                                    <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
-                                                    <span>Batalkan</span>
-                                                </button>
-                                            </form>
+                                            <button type="button"
+                                                @click="openMenu = false; reservationToCancel = {{ json_encode(['id' => $rsv->id, 'code' => $rsv->reservation_code, 'customer_name' => $rsv->customer_name]) }}; cancelModalOpen = true;"
+                                                class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 flex items-center gap-2 cursor-pointer transition">
+                                                <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                                                <span>Batalkan</span>
+                                            </button>
                                         @endif
                                     </div>
                                 </div>
@@ -471,15 +466,18 @@
             @endif
         </div>
 
-        <!-- Modal Assign Table -->
+        <!-- Modal Assign Table (Apple HIG Multi-Device Dialog) -->
         <div x-show="showAssignModal" x-transition.opacity
             class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm"
             style="display: none;">
             <div @click.away="showAssignModal = false"
-                class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4">
+                class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4 max-h-[92vh] overflow-y-auto">
+                {{-- Mobile Grab Bar --}}
+                <div class="w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto mb-1 sm:hidden"></div>
+
                 <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                     <h3 class="text-base font-bold text-black dark:text-white">Alokasikan Meja Restoran</h3>
-                    <button type="button" @click="showAssignModal = false" class="text-black/40 hover:text-black">
+                    <button type="button" @click="showAssignModal = false" class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white cursor-pointer">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -499,7 +497,7 @@
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Pilih
                                 Meja yang Tersedia</label>
                             <select name="pos_table_id" required
-                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-xs text-black dark:text-white">
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                                 <option value="">-- Pilih Nomor Meja --</option>
                                 @foreach ($tables as $tbl)
                                     <option value="{{ $tbl->id }}">
@@ -512,12 +510,57 @@
 
                         <div class="flex items-center justify-end gap-2 pt-2">
                             <button type="button" @click="showAssignModal = false"
-                                class="px-4 py-2 rounded-full text-xs font-semibold text-black/60 hover:bg-black/5">Batal</button>
+                                class="px-4 py-2 rounded-full text-xs font-semibold text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition cursor-pointer">Batal</button>
                             <button type="submit"
-                                class="px-5 py-2 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold transition">Simpan</button>
+                                class="px-5 py-2 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold transition shadow-sm cursor-pointer">Simpan</button>
                         </div>
                     </form>
                 </template>
+            </div>
+        </div>
+
+        {{-- APPLE ALERT CONFIRMATION DIALOG (CANCEL RESERVATION) --}}
+        <div x-show="cancelModalOpen" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
+                @click.outside="cancelModalOpen = false">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-[14px] bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
+                        <i data-lucide="calendar-x" class="w-5 h-5"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Batalkan Reservasi?</h3>
+                        <p class="text-[13px] text-black/60 dark:text-white/60 mt-1">
+                            Anda akan membatalkan reservasi <strong class="text-black dark:text-white font-semibold" x-text="reservationToCancel?.code"></strong> atas nama <span class="font-medium text-black dark:text-white" x-text="reservationToCancel?.customer_name"></span>.
+                        </p>
+                    </div>
+                </div>
+
+                {{-- PENENANG JIWA MICROCOPY --}}
+                <div class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0 mt-0.5"></i>
+                    <span>Tenang: Riwayat data kontak dan catatan reservasi tamu ini tetap tersimpan aman di riwayat arsip reservasi.</span>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" @click="cancelModalOpen = false"
+                        class="px-4 py-2 rounded-full text-[13px] font-semibold text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition cursor-pointer">
+                        Tutup
+                    </button>
+                    <template x-if="reservationToCancel">
+                        <form :action="'/storefront/reservations/' + reservationToCancel.id + '/status'" method="POST">
+                            @csrf
+                            <input type="hidden" name="status" value="cancelled">
+                            <button type="submit"
+                                class="px-5 py-2.5 rounded-full bg-[#FF3B30] hover:bg-[#E0352B] text-white text-[13px] font-bold transition shadow-sm cursor-pointer">
+                                Ya, Batalkan Reservasi
+                            </button>
+                        </form>
+                    </template>
+                </div>
             </div>
         </div>
     </div>

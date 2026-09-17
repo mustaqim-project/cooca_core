@@ -31,6 +31,7 @@
         request()->routeIs('profitability.*') ||
         request()->routeIs('simulator.*');
     $isWhatsAppRoute = request()->routeIs('whatsapp.*');
+    $isSocialMediaRoute = request()->routeIs('social-media.*');
     $isFinanceRoute = request()->routeIs('finance.*');
     $isReportsRoute = request()->routeIs('reports.*') || request()->routeIs('pos.reports.*');
     $isStorefrontRoute = request()->routeIs('storefront.*') || request()->routeIs('landing-page.*');
@@ -94,7 +95,9 @@
         \App\Support\Context::hasPermission('reports.view') || \App\Support\Context::hasPermission('pos.reports');
 
     $canAccessChannels =
-        \App\Support\Context::hasPermission('whatsapp.view') || \App\Support\Context::hasPermission('whatsapp.manage');
+        \App\Support\Context::hasPermission('whatsapp.view') ||
+        \App\Support\Context::hasPermission('whatsapp.manage') ||
+        \App\Support\Context::isOwner();
 
     $canAccessStorefront =
         \App\Support\Context::hasPermission('storefront.orders.view') ||
@@ -765,6 +768,7 @@
             storefrontOpen: {{ $isStorefrontRoute ? 'true' : 'false' }},
             salesOpen: {{ $isSalesRoute ? 'true' : 'false' }},
             whatsappOpen: {{ $isWhatsAppRoute ? 'true' : 'false' }},
+            socialMediaOpen: {{ $isSocialMediaRoute ? 'true' : 'false' }},
             purchasingOpen: {{ $isPurchasingRoute ? 'true' : 'false' }},
             masterDataOpen: {{ $isMasterDataRoute ? 'true' : 'false' }},
             inventoryOpen: {{ $isInventoryRoute ? 'true' : 'false' }},
@@ -1648,6 +1652,14 @@
                                         class="w-3.5 h-3.5 {{ request()->routeIs('finance.cash-bank.ledger') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                                     <span class="truncate">Buku Kas &amp; Ledger</span>
                                 </a>
+
+                                <a href="{{ route('finance.settlements.index') }}" id="tour-nav-settlements"
+                                    {{ request()->routeIs('finance.settlements.*') ? 'aria-current="page"' : '' }}
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('finance.settlements.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="scale"
+                                        class="w-3.5 h-3.5 {{ request()->routeIs('finance.settlements.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                    <span class="truncate">Rekonsiliasi Gateway</span>
+                                </a>
                             @endif
 
                             @if (\App\Support\Context::hasPermission('expenses.view'))
@@ -1718,6 +1730,11 @@
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="book" class="w-3.5 h-3.5 text-[#5856D6]"></i>
                                     <span>Buku Kas &amp; Ledger</span>
+                                </a>
+                                <a href="{{ route('finance.settlements.index') }}"
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="scale" class="w-3.5 h-3.5 text-[#30B0C7]"></i>
+                                    <span>Rekonsiliasi Gateway</span>
                                 </a>
                             @endif
                             @if (\App\Support\Context::hasPermission('expenses.view'))
@@ -1919,6 +1936,93 @@
                                 class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="list" class="w-3.5 h-3.5 text-[#8E8E93]"></i>
                                 <span>Log Pesan Struk</span>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Media Sosial (Meta FB, IG & Threads) --}}
+                @if ($canAccessChannels)
+                    <div class="relative group" x-data="{ flyoutOpen: false }"
+                        @mouseenter="if(sidebarCollapsed) flyoutOpen = true" @mouseleave="flyoutOpen = false">
+                        <button type="button" @click="socialMediaOpen = !socialMediaOpen" role="button"
+                            :aria-expanded="socialMediaOpen ? 'true' : 'false'"
+                            :title="sidebarCollapsed ? 'Media Sosial' : ''"
+                            class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.97] active:opacity-80 {{ $isSocialMediaRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                            <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
+                                <div class="w-4 h-4 rounded-[4px] flex items-center justify-center text-[#1877F2] shrink-0">
+                                    <i data-lucide="share-2" class="w-4 h-4"></i>
+                                </div>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Media Sosial</span>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0" x-show="!sidebarCollapsed">
+                                <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-[#1877F2]/15 text-[#1877F2] font-semibold border border-[#1877F2]/30">Meta</span>
+                                <i data-lucide="chevron-down"
+                                    class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
+                                    :class="socialMediaOpen ? 'rotate-180 text-[#1877F2]' : ''"></i>
+                            </div>
+                        </button>
+
+                        <div x-show="socialMediaOpen && !sidebarCollapsed"
+                            x-transition:enter="transition-all ease-out duration-150"
+                            class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
+                            <a href="{{ route('social-media.index') }}"
+                                {{ request()->routeIs('social-media.index') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('social-media.index') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="link"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('social-media.index') ? 'text-white' : 'text-[#1877F2]' }} shrink-0"></i>
+                                <span class="truncate">Koneksi Akun</span>
+                            </a>
+                            <a href="{{ route('social-media.posts.index') }}"
+                                {{ request()->routeIs('social-media.posts.*') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('social-media.posts.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="image"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('social-media.posts.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                <span class="truncate">Posting Konten</span>
+                            </a>
+                            <a href="{{ route('social-media.inbox.index') }}"
+                                {{ request()->routeIs('social-media.inbox.*') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('social-media.inbox.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="message-square"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('social-media.inbox.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                <span class="truncate">Kotak Masuk</span>
+                            </a>
+                            <a href="{{ route('social-media.insights.index') }}"
+                                {{ request()->routeIs('social-media.insights.*') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('social-media.insights.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="bar-chart-2"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('social-media.insights.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                <span class="truncate">Analitik &amp; Wawasan</span>
+                            </a>
+                        </div>
+
+                        {{-- Flyout on Collapsed Hover --}}
+                        <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
+                            class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                            style="display: none;">
+                            <div
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                                Media Sosial
+                            </div>
+                            <a href="{{ route('social-media.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="link" class="w-3.5 h-3.5 text-[#1877F2]"></i>
+                                <span>Koneksi Akun</span>
+                            </a>
+                            <a href="{{ route('social-media.posts.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="image" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Posting Konten</span>
+                            </a>
+                            <a href="{{ route('social-media.inbox.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="message-square" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                <span>Kotak Masuk</span>
+                            </a>
+                            <a href="{{ route('social-media.insights.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                <span>Analitik &amp; Wawasan</span>
                             </a>
                         </div>
                     </div>

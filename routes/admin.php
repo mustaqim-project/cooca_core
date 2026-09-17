@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AdminPostController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminSmtpController;
+use App\Http\Controllers\Admin\AdminSocialMediaController;
 use App\Http\Controllers\Admin\AdminSubscriptionController;
 use App\Http\Controllers\Admin\AdminTemplateController;
 use App\Http\Controllers\Admin\AdminUserController;
@@ -79,6 +80,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/billing', [AdminSettingController::class, 'updateBilling'])->name('settings.billing');
+        Route::post('/settings/test-social-media', [AdminSettingController::class, 'testSocialMediaConfig'])->name('settings.test-social');
         Route::get('/smtp', [AdminSmtpController::class, 'index'])->name('smtp.index');
         Route::post('/smtp', [AdminSmtpController::class, 'update'])->name('smtp.update');
         Route::post('/smtp/test', [AdminSmtpController::class, 'test'])->name('smtp.test');
@@ -137,13 +139,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::get('/{template}/download', [AdminTemplateController::class, 'download'])->name('download');
         });
 
-        // WhatsApp Admin Center (Blast & Reminders)
+        // WhatsApp Admin Center (Meta Official Platform Gateway, Reminders & Blast)
         Route::prefix('whatsapp')->name('whatsapp.')->group(function (): void {
             Route::get('/', [AdminWhatsAppController::class, 'index'])->name('index');
-            Route::get('/qr', [AdminWhatsAppController::class, 'getQr'])->name('qr');
             Route::get('/status', [AdminWhatsAppController::class, 'checkStatus'])->name('status');
-            Route::post('/start', [AdminWhatsAppController::class, 'startSession'])->name('start');
-            Route::post('/disconnect', [AdminWhatsAppController::class, 'disconnect'])->name('disconnect');
             Route::post('/test', [AdminWhatsAppController::class, 'testSend'])->name('test');
             Route::post('/verify-meta', [AdminWhatsAppController::class, 'verifyMetaCredentials'])->name('verify-meta');
             Route::post('/reminders/{subscription}/send', [AdminWhatsAppController::class, 'sendSingleReminder'])->name('reminders.send');
@@ -153,16 +152,15 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::get('/blasts/{blast}', [AdminWhatsAppController::class, 'showBlast'])->name('blasts.show');
             Route::post('/config', [AdminWhatsAppController::class, 'updateGatewayConfig'])->name('config');
 
-            // Multi-Session WhatsApp Admin Pool
-            Route::prefix('sessions')->name('sessions.')->group(function (): void {
-                Route::get('/', [AdminWhatsAppController::class, 'getSessions'])->name('index');
-                Route::post('/', [AdminWhatsAppController::class, 'createSession'])->name('store');
-                Route::get('/{sessionId}/qr', [AdminWhatsAppController::class, 'getQr'])->name('qr');
-                Route::get('/{sessionId}/status', [AdminWhatsAppController::class, 'checkStatus'])->name('status');
-                Route::post('/{sessionId}/disconnect', [AdminWhatsAppController::class, 'disconnectSession'])->name('disconnect');
-                Route::delete('/{sessionId}', [AdminWhatsAppController::class, 'deleteSession'])->name('destroy');
-                Route::post('/{sessionId}/toggle-active', [AdminWhatsAppController::class, 'toggleSessionActive'])->name('toggle-active');
-            });
+            // Legacy stubs for graceful fallback
+            Route::get('/qr', [AdminWhatsAppController::class, 'getQr'])->name('qr');
+            Route::get('/sessions', [AdminWhatsAppController::class, 'getSessions'])->name('sessions.index');
+        });
+
+        // Social Media Platform Admin Center (Meta App, Webhook & Tenant Oversight)
+        Route::prefix('social-media')->name('social-media.')->group(function (): void {
+            Route::get('/', [AdminSocialMediaController::class, 'index'])->name('index');
+            Route::post('/config', [AdminSocialMediaController::class, 'updateConfig'])->name('config');
         });
 
         // Error Logs & System Diagnostics

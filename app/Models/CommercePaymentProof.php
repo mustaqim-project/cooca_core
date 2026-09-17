@@ -69,4 +69,28 @@ class CommercePaymentProof extends Model
     {
         return $this->mime_type === 'application/pdf';
     }
+
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->status === self::STATUS_VERIFIED;
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === self::STATUS_REJECTED;
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_VERIFIED => 'Terverifikasi',
+            self::STATUS_REJECTED => 'Ditolak',
+            default => 'Menunggu Verifikasi',
+        };
+    }
 }

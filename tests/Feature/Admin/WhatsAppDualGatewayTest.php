@@ -59,18 +59,16 @@ class WhatsAppDualGatewayTest extends TestCase
         return [$user, $business];
     }
 
-    public function test_admin_view_shows_high_risk_ban_warning_and_dual_gateway_configuration(): void
+    public function test_admin_view_shows_platform_parent_setup_configuration(): void
     {
         $admin = $this->makeAdmin();
 
-        $response = $this->actingAs($admin, 'admin')->get(route('admin.whatsapp.index', ['tab' => 'connection']));
+        $response = $this->actingAs($admin, 'admin')->get(route('admin.whatsapp.index', ['tab' => 'parent_setup']));
 
         $response->assertOk();
-        $response->assertSee('Peringatan Risiko Blokir Sangat Besar', false);
-        $response->assertSee('Manajemen Dual Gateway WhatsApp', false);
-        $response->assertSee('Kanal OTP Keamanan', false);
-        $response->assertSee('Kanal Broadcast &amp; Pengingat', false);
-        $response->assertSee('Meta WhatsApp Cloud API (Resmi Facebook - Anti Blokir)', false);
+        $response->assertSee('Bot WhatsApp Platform Cooca');
+        $response->assertSee('Kredensial Bot Induk Platform Meta');
+        $response->assertSee('Meta System User Permanent Access Token');
     }
 
     public function test_admin_can_update_dual_gateway_configuration(): void
@@ -78,8 +76,6 @@ class WhatsAppDualGatewayTest extends TestCase
         $admin = $this->makeAdmin();
 
         $response = $this->actingAs($admin, 'admin')->post(route('admin.whatsapp.config'), [
-            'otp_driver'           => 'meta_cloud',
-            'blast_driver'         => 'baileys',
             'otp_active'           => '1',
             'blast_active'         => '1',
             'meta_token'           => 'EAAG_TEST_TOKEN_12345',
@@ -92,7 +88,7 @@ class WhatsAppDualGatewayTest extends TestCase
         $response->assertSessionHas('success');
 
         $this->assertSame('meta_cloud', SystemSetting::get('wa_otp_driver'));
-        $this->assertSame('baileys', SystemSetting::get('wa_blast_driver'));
+        $this->assertSame('meta_cloud', SystemSetting::get('wa_blast_driver'));
         $this->assertSame('1', SystemSetting::get('wa_otp_active'));
         $this->assertSame('1', SystemSetting::get('wa_blast_active'));
         $this->assertSame('104928374619283', SystemSetting::get('meta_wa_phone_number_id'));
@@ -106,15 +102,13 @@ class WhatsAppDualGatewayTest extends TestCase
         SystemSetting::set('meta_wa_phone_number_id', '10987654321');
         SystemSetting::set('meta_wa_otp_template', 'my_otp_template');
 
-        $metaDriverMock = $this->mock(MetaWhatsAppCloudDriver::class, function ($mock) {
-            $mock->shouldReceive('sendOtp')
-                ->once()
-                ->with('081234567890', '654321', 'my_otp_template', 'EAAG_TEST_TOKEN', '10987654321')
-                ->andReturn([
-                    'success'    => true,
-                    'message_id' => 'wamid.HBgLM...==',
-                ]);
-        });
+        \Illuminate\Support\Facades\Http::fake([
+            'https://graph.facebook.com/v21.0/10987654321/messages' => \Illuminate\Support\Facades\Http::response([
+                'messaging_product' => 'whatsapp',
+                'contacts'          => [['input' => '081234567890', 'wa_id' => '6281234567890']],
+                'messages'          => [['id' => 'wamid.HBgLM...==']],
+            ], 200),
+        ]);
 
         $adminWa = app(AdminWhatsAppService::class);
         $result = $adminWa->sendOtp('081234567890', '654321');
@@ -168,7 +162,7 @@ class WhatsAppDualGatewayTest extends TestCase
         WhatsAppSession::create([
             'business_id' => $business->id,
             'session_id'  => 'biz_test_toggle',
-            'provider'    => 'baileys',
+            'provider'    => 'meta_cloud',
             'is_active'   => true,
             'status'      => 'connected',
         ]);
@@ -176,7 +170,7 @@ class WhatsAppDualGatewayTest extends TestCase
         $response = $this->actingAs($user, 'web')
             ->withSession(['active_business_id' => $business->id])
             ->post(route('whatsapp.settings'), [
-                'provider'  => 'baileys',
+                'provider'  => 'meta_cloud',
                 'is_active' => '0',
             ]);
 

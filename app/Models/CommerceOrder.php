@@ -53,6 +53,10 @@ class CommerceOrder extends Model
     public const PAYMENT_FAILED    = 'failed';
     public const PAYMENT_REFUNDED  = 'refunded';
 
+    // Payment Gateways
+    public const GATEWAY_MANUAL = 'manual';
+    public const GATEWAY_TRIPAY = 'tripay';
+
     protected $table = 'commerce_orders';
 
     protected $fillable = [
@@ -68,6 +72,16 @@ class CommerceOrder extends Model
         'fulfillment_type',
         'status',
         'payment_status',
+        'payment_gateway',
+        'payment_channel',
+        'gateway_reference',
+        'gateway_pay_code',
+        'gateway_pay_url',
+        'gateway_qr_url',
+        'gateway_qr_string',
+        'gateway_fee',
+        'gateway_expired_at',
+        'gateway_payload',
         'customer_po_number',
         'company_name',
         'customer_name',
@@ -99,6 +113,9 @@ class CommerceOrder extends Model
             'shipping_cost' => 'float',
             'discount_amount' => 'float',
             'total_amount' => 'float',
+            'gateway_fee' => 'float',
+            'gateway_expired_at' => 'datetime',
+            'gateway_payload' => 'array',
             'reserved_until' => 'datetime',
             'paid_at' => 'datetime',
             'cancelled_at' => 'datetime',
@@ -108,6 +125,7 @@ class CommerceOrder extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
+
     }
 
     public function location(): BelongsTo
@@ -163,6 +181,16 @@ class CommerceOrder extends Model
         return $this->hasOne(CommercePaymentProof::class, 'commerce_order_id')->latestOfMany();
     }
 
+    public function groupOrder(): HasOne
+    {
+        return $this->hasOne(CommerceGroupOrder::class, 'commerce_order_id');
+    }
+
+    public function isGroupOrder(): bool
+    {
+        return $this->groupOrder !== null;
+    }
+
     public function isCustomerPo(): bool
     {
         return in_array($this->order_type, [self::TYPE_CUSTOMER_PO, self::TYPE_PO_BATCH], true);
@@ -212,4 +240,20 @@ class CommerceOrder extends Model
             self::STATUS_PAYMENT_REJECTED,
         ], true);
     }
+
+    public function isTripay(): bool
+    {
+        return $this->payment_gateway === self::GATEWAY_TRIPAY;
+    }
+
+    public function isManualPayment(): bool
+    {
+        return $this->payment_gateway === self::GATEWAY_MANUAL || empty($this->payment_gateway);
+    }
+
+    public function getNetRevenueAttribute(): float
+    {
+        return max(0.0, (float) $this->total_amount - (float) ($this->gateway_fee ?? 0.0));
+    }
 }
+

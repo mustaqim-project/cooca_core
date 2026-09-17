@@ -44,6 +44,9 @@ final class PosAndBusinessReportingAuditTest extends TestCase
             'name' => 'Owner Audit',
             'email' => 'audit.owner@cooca.id',
             'password' => bcrypt('password123'),
+            'email_verified_at' => now(),
+            'phone' => '081234567890',
+            'phone_verified_at' => now(),
         ]);
 
         $this->business = Business::create([

@@ -179,4 +179,122 @@ final class PosOrderWebController extends Controller
 
         return \Illuminate\Support\Facades\Hash::check($pin, $validPin) || hash_equals($validPin, $pin);
     }
+
+    /**
+     * Manually re-sync payment status from TriPay gateway failover.
+     */
+    public function syncGatewayStatus(Request $request, PosOrder $order): RedirectResponse|JsonResponse
+    {
+        $business = Context::requireBusiness();
+        if ($order->business_id !== $business->id) {
+            abort(403);
+        }
+
+        if ($order->isPaid()) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Pesanan ini sudah berstatus lunas.']);
+            }
+            return back()->with('info', 'Pesanan ini sudah berstatus lunas.');
+        }
+
+        $reference = $order->gateway_reference;
+        if (empty($reference)) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Pesanan tidak memiliki referensi pembayaran TriPay.'], 422);
+            }
+            return back()->with('error', 'Pesanan tidak memiliki referensi pembayaran TriPay.');
+        }
+
+        try {
+            $tripayService = new \App\Domain\Payment\TripayService();
+            $detail = $tripayService->getTransactionDetail($reference);
+            $status = strtoupper(trim((string) ($detail['status'] ?? '')));
+
+            if ($status === 'PAID') {
+                $totalFee = (float) ($detail['total_fee'] ?? 0.0);
+                $paymentChannel = (string) ($detail['payment_method'] ?? ($order->payment_channel ?? 'QRIS'));
+                $calculatedFee = strtoupper($paymentChannel) === 'QRIS'
+                    ? $tripayService->calculateQrisFee((float) $order->total_amount)
+                    : ($totalFee > 0 ? $totalFee : (float) ($order->gateway_fee ?? 0.0));
+
+                \Illuminate\Support\Facades\DB::transaction(function () use ($order, $reference, $paymentChannel, $calculatedFee) {
+                    $order->update([
+                        'status' => PosOrder::STATUS_CONFIRMED,
+                        'paid_amount' => $order->total_amount,
+                        'change_amount' => 0.0,
+                        'payment_gateway' => PosOrder::GATEWAY_TRIPAY,
+                        'payment_channel' => $paymentChannel,
+                        'gateway_reference' => $reference,
+                        'gateway_fee' => $calculatedFee,
+                    ]);
+
+                    \App\Models\PosOrderPayment::firstOrCreate(
+                        [
+                            'pos_order_id' => $order->id,
+                            'reference_number' => $reference,
+                        ],
+                        [
+                            'payment_method' => 'qris',
+                            'amount' => $order->total_amount,
+                            'fee_amount' => $calculatedFee,
+                            'net_amount' => max(0.0, $order->total_amount - $calculatedFee),
+                            'status' => 'paid',
+                            'notes' => "Lunas manual re-sync TriPay {$paymentChannel} (Meja " . ($order->table_or_reference ?? '-') . ')',
+                        ]
+                    );
+
+                    // Commit recipe / BOM material stock for each item
+                    $stockService = new \App\Domain\Inventory\StockService();
+                    foreach ($order->items as $item) {
+                        if ($item->product_id) {
+                            $product = \App\Models\Product::find($item->product_id);
+                            if ($product && ! $product->isService()) {
+                                $stockService->deductForProductSale(
+                                    businessId: $order->business_id,
+                                    locationId: $order->location_id,
+                                    product: $product,
+                                    productQuantity: (float) $item->quantity,
+                                    unitCost: (float) ($product->base_cost ?? 0.0),
+                                    orderId: $order->id,
+                                    orderNumber: $order->order_number,
+                                    userId: auth()->id(),
+                                    movementType: \App\Models\StockMovement::TYPE_POS_SALE,
+                                    notes: "Penjualan QR Meja #{$order->order_number} (Re-sync)"
+                                );
+                            }
+                        }
+                    }
+                });
+
+                $msg = "Status pembayaran TriPay berhasil disinkronkan: LUNAS ({$paymentChannel}).";
+                if ($request->wantsJson()) {
+                    return response()->json(['success' => true, 'message' => $msg, 'order' => $order->fresh()]);
+                }
+                return back()->with('success', $msg);
+            } elseif (in_array($status, ['EXPIRED', 'FAILED'], true)) {
+                $order->update([
+                    'status' => PosOrder::STATUS_VOIDED,
+                    'void_reason' => 'Pembayaran QRIS Meja kadaluarsa/gagal via gateway (Re-sync).',
+                ]);
+
+                $msg = "Status pembayaran TriPay: {$status}. Pesanan telah dibatalkan.";
+                if ($request->wantsJson()) {
+                    return response()->json(['success' => true, 'message' => $msg, 'order' => $order->fresh()]);
+                }
+                return back()->with('warning', $msg);
+            } else {
+                $msg = "Status pembayaran di TriPay saat ini: {$status} (Menunggu Pembayaran).";
+                if ($request->wantsJson()) {
+                    return response()->json(['success' => true, 'message' => $msg, 'tripay_status' => $status]);
+                }
+                return back()->with('info', $msg);
+            }
+        } catch (\Throwable $e) {
+            $err = 'Gagal menyinkronkan status TriPay: ' . $e->getMessage();
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $err], 500);
+            }
+            return back()->with('error', $err);
+        }
+    }
 }

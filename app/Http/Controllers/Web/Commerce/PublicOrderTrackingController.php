@@ -12,6 +12,8 @@ use App\Models\CommerceOrder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Domain\Payment\TripayService;
+use Carbon\Carbon;
 use Illuminate\View\View;
 use Throwable;
 
@@ -19,7 +21,8 @@ final class PublicOrderTrackingController extends Controller
 {
     public function __construct(
         private readonly CommerceOrderService $orderService = new CommerceOrderService(),
-        private readonly CommercePaymentProofService $proofService = new CommercePaymentProofService()
+        private readonly CommercePaymentProofService $proofService = new CommercePaymentProofService(),
+        private readonly TripayService $tripayService = new TripayService()
     ) {}
 
     /**
@@ -39,6 +42,8 @@ final class PublicOrderTrackingController extends Controller
             'distance_km' => ['nullable', 'numeric', 'min:0'],
             'scheduled_date' => ['nullable', 'date'],
             'scheduled_time_slot' => ['nullable', 'string', 'max:50'],
+            'payment_gateway' => ['nullable', 'string', 'in:manual,tripay'],
+            'payment_channel' => ['nullable', 'string', 'max:64'],
             'payment_method_id' => ['nullable', 'uuid', 'exists:commerce_payment_methods,id'],
             'notes' => ['nullable', 'string', 'max:500'],
             'items' => ['required', 'array', 'min:1'],
@@ -67,6 +72,10 @@ final class PublicOrderTrackingController extends Controller
                 'distance_km' => $validated['distance_km'] ?? null,
             ];
 
+            $paymentGateway = $validated['payment_gateway'] ?? 'tripay';
+            $paymentChannel = $validated['payment_channel'] ?? 'QRIS';
+            $paymentMethodId = $paymentGateway === 'manual' ? ($validated['payment_method_id'] ?? null) : null;
+
             if (! empty($validated['scheduled_date'])) {
                 $order = $this->orderService->createScheduledOrder(
                     business: $business,
@@ -75,7 +84,7 @@ final class PublicOrderTrackingController extends Controller
                     fulfillmentType: $validated['fulfillment_type'],
                     scheduledDate: (string) $validated['scheduled_date'],
                     scheduledTimeSlot: $validated['scheduled_time_slot'] ?? null,
-                    paymentMethodId: $validated['payment_method_id'] ?? null,
+                    paymentMethodId: $paymentMethodId,
                     options: $options
                 );
             } else {
@@ -84,9 +93,40 @@ final class PublicOrderTrackingController extends Controller
                     customerData: $customerData,
                     itemsData: $validated['items'],
                     fulfillmentType: $validated['fulfillment_type'],
-                    paymentMethodId: $validated['payment_method_id'] ?? null,
+                    paymentMethodId: $paymentMethodId,
                     options: $options
                 );
+            }
+
+            // If TriPay gateway requested, initiate transaction with TriPay
+            if ($paymentGateway === 'tripay') {
+                $tripayRes = $this->tripayService->createTransaction($order, $paymentChannel);
+
+                if ($tripayRes['success'] ?? false) {
+                    $order->update([
+                        'payment_gateway' => CommerceOrder::GATEWAY_TRIPAY,
+                        'payment_channel' => $tripayRes['payment_method'] ?? $paymentChannel,
+                        'gateway_reference' => $tripayRes['reference'] ?? null,
+                        'gateway_pay_code' => $tripayRes['pay_code'] ?? null,
+                        'gateway_pay_url' => $tripayRes['checkout_url'] ?? null,
+                        'gateway_qr_url' => $tripayRes['qr_url'] ?? null,
+                        'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
+                        'gateway_fee' => (float) ($tripayRes['fee'] ?? 0.0),
+                        'gateway_expired_at' => isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                        'gateway_payload' => $tripayRes['raw_response'] ?? null,
+                    ]);
+                } else {
+                    \Illuminate\Support\Facades\Log::warning("[PublicOrderTrackingController] TriPay create error for #{$order->order_number}: " . ($tripayRes['message'] ?? 'Unknown'));
+                    // Set as tripay channel pending retry or fallback
+                    $order->update([
+                        'payment_gateway' => CommerceOrder::GATEWAY_TRIPAY,
+                        'payment_channel' => $paymentChannel,
+                    ]);
+                }
+            } else {
+                $order->update([
+                    'payment_gateway' => CommerceOrder::GATEWAY_MANUAL,
+                ]);
             }
 
             // Clear customer DB cart for this business if authenticated
@@ -109,6 +149,8 @@ final class PublicOrderTrackingController extends Controller
                     'tracking_token' => $order->tracking_token,
                     'total_amount' => (float) $order->total_amount,
                     'status' => $order->status,
+                    'payment_gateway' => $order->payment_gateway,
+                    'payment_channel' => $order->payment_channel,
                     'tracking_url' => url("/b/{$business->slug}/order/{$order->tracking_token}"),
                 ],
             ]);
@@ -119,6 +161,7 @@ final class PublicOrderTrackingController extends Controller
             ], 422);
         }
     }
+
 
     /**
      * Submit a customer custom Request Order (RFQ / special catering / customized goods).
@@ -197,11 +240,36 @@ final class PublicOrderTrackingController extends Controller
 
         $order = CommerceOrder::where('business_id', $business->id)
             ->where('tracking_token', $token)
-            ->with(['items.product', 'paymentMethod', 'paymentProofs.verifier'])
+            ->with(['items.product', 'paymentMethod', 'paymentProofs.verifier', 'groupOrder.items.member', 'groupOrder.host'])
             ->firstOrFail();
 
         return view('public.storefront.order_tracking', compact('business', 'order'));
     }
+
+    /**
+     * Poll order status and payment updates via AJAX.
+     */
+    public function checkStatus(string $slug, string $token): JsonResponse
+    {
+        $business = Business::where('slug', $slug)->where('is_active', true)->firstOrFail();
+
+        $order = CommerceOrder::where('business_id', $business->id)
+            ->where('tracking_token', $token)
+            ->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'status' => $order->status,
+            'payment_status' => $order->payment_status,
+            'is_paid' => $order->isPaid(),
+            'paid_at' => $order->paid_at ? $order->paid_at->translatedFormat('d M Y, H:i') . ' WIB' : null,
+            'payment_gateway' => $order->payment_gateway,
+            'payment_channel' => $order->payment_channel,
+            'gateway_pay_code' => $order->gateway_pay_code,
+            'gateway_qr_url' => $order->gateway_qr_url,
+        ]);
+    }
+
 
     /**
      * Upload payment transfer receipt proof.

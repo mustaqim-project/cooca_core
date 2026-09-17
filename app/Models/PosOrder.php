@@ -45,6 +45,15 @@ class PosOrder extends Model
 
     public const SOURCE_QR_TABLE = 'qr_table';
 
+    // Payment Gateways
+    public const GATEWAY_MANUAL = 'manual';
+    public const GATEWAY_TRIPAY = 'tripay';
+
+    protected $appends = [
+        'is_paid',
+        'net_revenue',
+    ];
+
     protected $fillable = [
         'business_id',
         'location_id',
@@ -54,6 +63,15 @@ class PosOrder extends Model
         'order_number',
         'order_date',
         'status',
+        'payment_gateway',
+        'payment_channel',
+        'gateway_reference',
+        'gateway_pay_code',
+        'gateway_pay_url',
+        'gateway_qr_url',
+        'gateway_qr_string',
+        'gateway_fee',
+        'gateway_expired_at',
         'order_type',
         'order_source',
         'pos_table_id',
@@ -109,6 +127,8 @@ class PosOrder extends Model
             'refunded_at' => 'datetime',
             'rejected_at' => 'datetime',
             'supervisor_approved_at' => 'datetime',
+            'gateway_expired_at' => 'datetime',
+            'gateway_fee' => 'float',
             'subtotal' => 'float',
             'discount_value' => 'float',
             'discount_amount' => 'float',
@@ -127,6 +147,27 @@ class PosOrder extends Model
             'points_redeemed' => 'integer',
             'points_discount_amount' => 'float',
         ];
+    }
+
+    public function isTripay(): bool
+    {
+        return $this->payment_gateway === self::GATEWAY_TRIPAY;
+    }
+
+    public function isPaid(): bool
+    {
+        return in_array($this->status, [self::STATUS_CONFIRMED, self::STATUS_PREPARING, self::STATUS_READY, self::STATUS_SERVED, self::STATUS_COMPLETED], true)
+            && ((float) $this->paid_amount >= (float) $this->total_amount || $this->payments()->where('status', 'paid')->exists());
+    }
+
+    public function getIsPaidAttribute(): bool
+    {
+        return $this->isPaid();
+    }
+
+    public function getNetRevenueAttribute(): float
+    {
+        return max(0.0, (float) $this->total_amount - (float) ($this->gateway_fee ?? 0.0));
     }
 
     /**

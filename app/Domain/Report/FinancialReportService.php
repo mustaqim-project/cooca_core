@@ -7,6 +7,7 @@ namespace App\Domain\Report;
 use App\Models\Business;
 use App\Models\CashAccount;
 use App\Models\CashTransaction;
+use App\Models\CommerceOrder;
 use App\Models\Expense;
 use App\Models\InventoryStock;
 use App\Models\Invoice;
@@ -25,7 +26,7 @@ final class FinancialReportService
 {
     /**
      * 1. Laporan Laba Rugi Komprehensif (Income Statement / Profit & Loss).
-     * Menggabungkan transaksi POS + Invoice - Retur - HPP Aktual (Snapshot) - Beban Operasional.
+     * Menggabungkan transaksi POS + Invoice + Toko Online (CommerceOrder) - Retur - HPP Aktual (Snapshot) - Beban Operasional.
      *
      * @return array<string, mixed>
      */
@@ -73,7 +74,32 @@ final class FinancialReportService
             }
         }
 
-        // 1.3 Sales Returns (Pengurang Penjualan & Pemulih HPP)
+        // 1.3 Toko Online / Storefront (CommerceOrder) Revenue & COGS
+        $onlineOrders = CommerceOrder::where('business_id', $business->id)
+            ->whereIn('status', [
+                CommerceOrder::STATUS_PAID,
+                CommerceOrder::STATUS_PROCESSING,
+                CommerceOrder::STATUS_READY,
+                CommerceOrder::STATUS_FULFILLED,
+                CommerceOrder::STATUS_COMPLETED,
+            ])
+            ->whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->with(['items.product'])
+            ->get();
+
+        $onlineGrossRevenue = (float) $onlineOrders->sum('subtotal');
+        $onlineShippingFee  = (float) $onlineOrders->sum('shipping_cost');
+        $onlineDiscounts    = (float) $onlineOrders->sum('discount_amount');
+        $onlineNetRevenue   = max(0, ($onlineGrossRevenue + $onlineShippingFee) - $onlineDiscounts);
+
+        $onlineCogs = 0.0;
+        foreach ($onlineOrders as $order) {
+            foreach ($order->items as $item) {
+                $onlineCogs += (float) ($item->quantity * ($item->product?->base_cost ?? 0.0));
+            }
+        }
+
+        // 1.4 Sales Returns (Pengurang Penjualan & Pemulih HPP)
         $salesReturns = SalesReturn::where('business_id', $business->id)
             ->whereIn('status', [SalesReturn::STATUS_APPROVED, SalesReturn::STATUS_COMPLETED])
             ->whereBetween('return_date', [$startDate->startOfDay(), $endDate->endOfDay()])
@@ -88,16 +114,26 @@ final class FinancialReportService
             }
         }
 
-        // 1.4 Net Revenue & Net COGS
-        $totalGrossSales = $posGrossRevenue + $invoiceGrossRevenue;
-        $totalDiscounts  = $posDiscounts + $invoiceDiscounts;
+        // 1.5 Net Revenue & Net COGS (Konsolidasi POS + Invoice + Online)
+        $totalGrossSales = $posGrossRevenue + $invoiceGrossRevenue + $onlineGrossRevenue;
+        $totalDiscounts  = $posDiscounts + $invoiceDiscounts + $onlineDiscounts;
         $totalNetSales   = max(0, ($totalGrossSales - $totalDiscounts) - $totalReturnsAmount);
 
-        $totalCogs = max(0, ($posCogs + $invoiceCogs) - $returnsCogsRecovery);
+        $totalCogs = max(0, ($posCogs + $invoiceCogs + $onlineCogs) - $returnsCogsRecovery);
         $grossProfit = $totalNetSales - $totalCogs;
         $grossProfitMargin = $totalNetSales > 0 ? round(($grossProfit / $totalNetSales) * 100, 2) : 0.0;
 
-        // 1.5 Operating Expenses
+        // 1.6 Gateway Fee MDR (Akun 6-6003: Biaya Administrasi Payment Gateway)
+        $posGatewayFee = (float) PosOrder::where('business_id', $business->id)
+            ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_CONFIRMED, PosOrder::STATUS_PREPARING, PosOrder::STATUS_READY, PosOrder::STATUS_SERVED])
+            ->whereBetween('order_date', [$startDate, $endDate])
+            ->where('payment_gateway', PosOrder::GATEWAY_TRIPAY)
+            ->sum('gateway_fee');
+
+        $onlineGatewayFee = (float) $onlineOrders->where('payment_gateway', CommerceOrder::GATEWAY_TRIPAY)->sum('gateway_fee');
+        $totalGatewayFee  = $posGatewayFee + $onlineGatewayFee;
+
+        // 1.7 Operating Expenses
         $expenses = Expense::where('business_id', $business->id)
             ->whereBetween('expense_date', [$startDate->startOfDay(), $endDate->endOfDay()])
             ->get();
@@ -107,9 +143,14 @@ final class FinancialReportService
             $cat = $exp->category ?: 'Lain-lain';
             $expenseCategories[$cat] = ($expenseCategories[$cat] ?? 0.0) + (float) $exp->amount;
         }
+
+        if ($totalGatewayFee > 0) {
+            $expenseCategories['Beban Administrasi Gateway (MDR)'] = ($expenseCategories['Beban Administrasi Gateway (MDR)'] ?? 0.0) + $totalGatewayFee;
+        }
+
         $totalOperatingExpenses = (float) array_sum($expenseCategories);
 
-        // 1.6 Net Profit
+        // 1.8 Net Profit
         $netOperatingProfit = $grossProfit - $totalOperatingExpenses;
         $netProfitMargin = $totalNetSales > 0 ? round(($netOperatingProfit / $totalNetSales) * 100, 2) : 0.0;
 
@@ -129,6 +170,10 @@ final class FinancialReportService
                 'invoice_discounts'   => $invoiceDiscounts,
                 'invoice_net_sales'   => $invoiceNetRevenue,
                 'invoice_tax'         => $invoiceTax,
+                'online_gross_sales'  => $onlineGrossRevenue,
+                'online_shipping_fee' => $onlineShippingFee,
+                'online_discounts'    => $onlineDiscounts,
+                'online_net_sales'    => $onlineNetRevenue,
                 'total_tax'           => $posTax + $invoiceTax,
                 'total_gross_sales'   => $totalGrossSales,
                 'total_discounts'     => $totalDiscounts,
@@ -138,8 +183,14 @@ final class FinancialReportService
             'cogs' => [
                 'pos_cogs'              => $posCogs,
                 'invoice_cogs'          => $invoiceCogs,
+                'online_cogs'           => $onlineCogs,
                 'returns_cogs_recovery' => $returnsCogsRecovery,
                 'total_cogs'            => $totalCogs,
+            ],
+            'gateway_fees' => [
+                'pos_fee'    => $posGatewayFee,
+                'online_fee' => $onlineGatewayFee,
+                'total'      => $totalGatewayFee,
             ],
             'gross_profit' => [
                 'amount' => $grossProfit,
@@ -159,6 +210,7 @@ final class FinancialReportService
     /**
      * 2. Laporan Arus Kas (Cash Flow Statement).
      * Merekap aliran kas masuk (Inflows) dan keluar (Outflows) riil periode ini.
+     * Eliminasi double-counting: CashTransaction yang berasal dari pembayaran order/invoice tidak dihitung ganda.
      *
      * @return array<string, mixed>
      */
@@ -169,25 +221,45 @@ final class FinancialReportService
 
         // 2.1 Cash Inflows
         // POS Payments
-        $posPayments = PosOrderPayment::whereHas('order', function ($q) use ($business, $startDate, $endDate) {
+        $posPayments = (float) PosOrderPayment::whereHas('order', function ($q) use ($business, $startDate, $endDate) {
             $q->where('business_id', $business->id)
                 ->whereNotIn('status', [PosOrder::STATUS_VOIDED, PosOrder::STATUS_DRAFT_HELD])
                 ->whereBetween('order_date', [$startDate, $endDate]);
-        })->sum('amount');
+        })->where('status', 'paid')->sum('amount');
 
         // Invoice Customer Payments
-        $invoicePayments = InvoicePayment::whereHas('invoice', function ($q) use ($business) {
+        $invoicePayments = (float) InvoicePayment::whereHas('invoice', function ($q) use ($business) {
             $q->where('business_id', $business->id);
         })->whereBetween('payment_date', [$startDate->startOfDay(), $endDate->endOfDay()])
             ->sum('amount');
 
-        // General Cash In
+        // Online Storefront Payments (CommerceOrder Paid/Fulfilled)
+        $onlinePayments = (float) CommerceOrder::where('business_id', $business->id)
+            ->whereIn('status', [
+                CommerceOrder::STATUS_PAID,
+                CommerceOrder::STATUS_PROCESSING,
+                CommerceOrder::STATUS_READY,
+                CommerceOrder::STATUS_FULFILLED,
+                CommerceOrder::STATUS_COMPLETED,
+            ])
+            ->whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->sum('total_amount');
+
+        // General Cash In (Hanya mutasi kas mandiri, kecualikan yang sudah diwakili oleh POS, Invoice, atau Online Order)
         $cashInTransactions = (float) CashTransaction::where('business_id', $business->id)
             ->where('type', CashTransaction::TYPE_IN)
+            ->whereNotIn('reference_type', [
+                'pos_order',
+                'pos_order_payment',
+                'online_order',
+                'commerce_order',
+                'invoice',
+                'invoice_payment',
+            ])
             ->whereBetween('transaction_date', [$startDate->startOfDay(), $endDate->endOfDay()])
             ->sum('amount');
 
-        $totalInflow = (float) $posPayments + (float) $invoicePayments + $cashInTransactions;
+        $totalInflow = $posPayments + $invoicePayments + $onlinePayments + $cashInTransactions;
 
         // 2.2 Cash Outflows
         // Supplier Payments (AP)
@@ -207,9 +279,16 @@ final class FinancialReportService
             ->whereBetween('return_date', [$startDate->startOfDay(), $endDate->endOfDay()])
             ->sum('total_amount');
 
-        // General Cash Out
+        // General Cash Out (Kecualikan yang sudah dicatat via beban atau supplier payment)
         $cashOutTransactions = (float) CashTransaction::where('business_id', $business->id)
             ->where('type', CashTransaction::TYPE_OUT)
+            ->whereNotIn('reference_type', [
+                'expense',
+                'supplier_payment',
+                'supplier_invoice',
+                'sales_return',
+                'refund',
+            ])
             ->whereBetween('transaction_date', [$startDate->startOfDay(), $endDate->endOfDay()])
             ->sum('amount');
 
@@ -217,7 +296,7 @@ final class FinancialReportService
         $netCashFlow  = $totalInflow - $totalOutflow;
 
         // 2.3 Current Balances from Tenant Cash & Bank Accounts
-        // Catatan: `payment_accounts` adalah rekening platform/SaaS (lihat docs/implementation_plan.md),/
+        // Catatan: `payment_accounts` adalah rekening platform/SaaS (lihat docs/implementation_plan.md),
         // bukan ledger kas tenant - saldo kas tenant hanya berasal dari `cash_accounts`.
         $cashAccounts = CashAccount::where('business_id', $business->id)
             ->where('is_active', true)
@@ -231,8 +310,9 @@ final class FinancialReportService
                 'label'      => $startDate->format('d M Y') . ' - ' . $endDate->format('d M Y'),
             ],
             'inflows' => [
-                'pos_payments'     => (float) $posPayments,
-                'invoice_payments' => (float) $invoicePayments,
+                'pos_payments'     => $posPayments,
+                'invoice_payments' => $invoicePayments,
+                'online_payments'  => $onlinePayments,
                 'direct_cash_in'   => $cashInTransactions,
                 'total'            => $totalInflow,
             ],
