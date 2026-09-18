@@ -1,21 +1,19 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Software Kasir & ERP Gratis untuk UMKM Indonesia | Cooca')
-@section('description', 'Cooca: Software kasir POS, HPP, inventori, pembukuan & AI Assistant 100% GRATIS selamanya.
-    Digunakan 10.000+ UMKM Indonesia. Tanpa biaya langganan, tanpa kartu kredit.')
-@section('keywords', 'software kasir gratis, erp umkm gratis, aplikasi toko gratis, pos gratis indonesia, software
-    akuntansi gratis umkm, manajemen inventori gratis, ai assistant bisnis umkm, Cooca')
+@section('title', 'Cooca UMKM - Software Kasir & ERP Gratis untuk UMKM Indonesia | cooca.id')
+@section('description', 'Cooca UMKM: Software kasir POS, HPP, inventori, pembukuan otomatis & AI Assistant 100% GRATIS selamanya. Digunakan 10.000+ UMKM Indonesia. Tanpa biaya langganan, tanpa kartu kredit.')
+@section('keywords', 'Cooca UMKM, software kasir gratis, erp umkm gratis, aplikasi toko gratis, pos gratis indonesia, software akuntansi gratis umkm, manajemen inventori gratis, ai assistant bisnis umkm, cooca.id')
 
     @push('seo')
         <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "SoftwareApplication",
-        "name": "Cooca",
+        "name": "Cooca UMKM",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web, Cloud-based",
-        "description": "Business Operating System gratis selamanya untuk UMKM Indonesia: HPP presisi, AI Assistant, POS kasir, dan pembukuan otomatis.",
-        "url": "https://umkm.cooca.id",
+        "description": "Business Operating System & Omnichannel ERP gratis selamanya untuk UMKM Indonesia: HPP presisi, AI Assistant, POS kasir, dan pembukuan otomatis.",
+        "url": "https://cooca.id",
         "offers": {
             "@@type": "Offer",
             "price": "0",

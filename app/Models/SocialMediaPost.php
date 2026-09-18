@@ -40,6 +40,8 @@ class SocialMediaPost extends Model
 
     protected $fillable = [
         'business_id',
+        'admin_id',
+        'is_platform',
         'social_media_account_id',
         'platform',
         'platform_post_id',
@@ -60,6 +62,7 @@ class SocialMediaPost extends Model
     protected function casts(): array
     {
         return [
+            'is_platform'       => 'boolean',
             'media_urls'        => 'array',
             'local_media_paths' => 'array',
             'metrics'           => 'array',
@@ -71,6 +74,11 @@ class SocialMediaPost extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class, 'business_id');
+    }
+
+    public function admin(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'admin_id');
     }
 
     public function account(): BelongsTo
@@ -96,6 +104,11 @@ class SocialMediaPost extends Model
     public function scopeForBusiness(Builder $query, string $businessId): Builder
     {
         return $query->where('business_id', $businessId);
+    }
+
+    public function scopePlatform(Builder $query): Builder
+    {
+        return $query->where('is_platform', true);
     }
 
     public function scopePublished(Builder $query): Builder
@@ -133,5 +146,49 @@ class SocialMediaPost extends Model
     public function getMetric(string $key, int $default = 0): int
     {
         return (int) data_get($this->metrics, $key, $default);
+    }
+
+    /**
+     * Recalculate and synchronize parent post status based on target statuses.
+     */
+    public function syncStatusFromTargets(): void
+    {
+        $targets = $this->targets()->get();
+        if ($targets->isEmpty()) {
+            return;
+        }
+
+        $total = $targets->count();
+        $publishedCount = $targets->where('status', 'published')->count();
+        $failedCount = $targets->where('status', 'failed')->count();
+        $scheduledCount = $targets->where('status', 'scheduled')->count();
+        $processingCount = $targets->whereIn('status', ['pending', 'processing'])->count();
+
+        if ($publishedCount === $total) {
+            $this->update([
+                'status'       => 'published',
+                'published_at' => $this->published_at ?? now(),
+            ]);
+        } elseif ($failedCount === $total) {
+            $this->update([
+                'status' => 'failed',
+            ]);
+        } elseif ($publishedCount > 0 && $failedCount > 0 && ($publishedCount + $failedCount) === $total) {
+            $this->update([
+                'status' => 'partially_failed',
+            ]);
+        } elseif ($publishedCount > 0 && $scheduledCount > 0) {
+            $this->update([
+                'status' => 'partially_published',
+            ]);
+        } elseif ($scheduledCount > 0 && $processingCount === 0 && $publishedCount === 0) {
+            $this->update([
+                'status' => 'scheduled',
+            ]);
+        } elseif ($processingCount > 0) {
+            $this->update([
+                'status' => 'publishing',
+            ]);
+        }
     }
 }

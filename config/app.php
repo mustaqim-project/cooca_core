@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Cooca'),
+    'name' => env('APP_NAME', 'Cooca UMKM'),
 
     /*
     |--------------------------------------------------------------------------
@@ -52,8 +52,8 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://umkm.cooca.id'),
-    'canonical_url' => env('APP_CANONICAL_URL', 'https://umkm.cooca.id'),
+    'url' => env('APP_URL', 'https://cooca.id'),
+    'canonical_url' => env('APP_CANONICAL_URL', 'https://cooca.id'),
 
     /*
     |--------------------------------------------------------------------------

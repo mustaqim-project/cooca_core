@@ -166,6 +166,34 @@ final class AdminWhatsAppController extends Controller
     }
 
     /**
+     * AJAX: Send official WhatsApp OTP (template cooca_otp) to any phone number.
+     */
+    public function sendOtp(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'phone'    => 'required|string|min:8|max:20',
+            'otp_code' => 'nullable|string|min:4|max:10',
+        ]);
+
+        $phone = trim((string) $validated['phone']);
+        $otpCode = ! empty($validated['otp_code']) ? trim((string) $validated['otp_code']) : (string) random_int(100000, 999999);
+
+        $result = $this->adminWa->sendOtp($phone, $otpCode);
+
+        $isOk = ($result['success'] ?? false) === true;
+
+        return response()->json([
+            'success'  => $isOk,
+            'message'  => $isOk
+                ? "Pesan OTP resmi [{$otpCode}] berhasil dikirim ke nomor {$phone}!"
+                : ($result['error'] ?? 'Gagal mengirimkan pesan OTP Meta WhatsApp.'),
+            'phone'    => $phone,
+            'otp_code' => $otpCode,
+            'error'    => $isOk ? null : ($result['error'] ?? 'Pengiriman OTP ditolak.'),
+        ], $isOk ? 200 : 422);
+    }
+
+    /**
      * AJAX: Verify Meta WhatsApp Cloud API credentials.
      */
     public function verifyMetaCredentials(Request $request): JsonResponse

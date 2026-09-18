@@ -2341,7 +2341,7 @@
                             </a>
                             <a href="{{ route('billing.limits') }}"
                                 class="block text-center text-[11px] text-black/55 dark:text-white/55 hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition">
-                                Tingkatkan ke Cooca ›
+                                Tingkatkan ke Cooca UMKM ›
                             </a>
                         </div>
                     </div>

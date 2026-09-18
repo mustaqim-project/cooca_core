@@ -27,11 +27,14 @@ class LayoutSidebarNavbarPlanTest extends TestCase
     {
         parent::setUp();
         Context::flush();
+        $this->seed(\Database\Seeders\RbacSeeder::class);
+        $ownerRole = \App\Models\Role::where('slug', 'owner')->first();
 
         $this->user = User::create([
             'name' => 'Budi Santoso',
             'email' => 'budi@cooca.id',
             'password' => 'password123',
+            'email_verified_at' => now(),
         ]);
 
         $this->business = Business::create([
@@ -44,11 +47,13 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $this->business->users()->attach($this->user->id, [
             'id' => (string) Str::uuid(),
             'role' => 'owner',
+            'role_id' => $ownerRole?->id,
             'is_active' => true,
         ]);
 
         $this->user->update(['active_business_id' => $this->business->id]);
-        Context::setBusiness($this->business);
+        $membership = BusinessMembership::where('business_id', $this->business->id)->where('user_id', $this->user->id)->first();
+        Context::setBusiness($this->business, $membership);
     }
 
     public function test_sidebar_renders_clean_logical_groups(): void
@@ -56,6 +61,7 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $this->seed(\Database\Seeders\RbacSeeder::class);
 
         $response = $this->actingAs($this->user)
+            ->withSession(['active_business_id' => $this->business->id])
             ->get(route('dashboard'));
 
         $response->assertStatus(200);
@@ -267,6 +273,7 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
+            ->withSession(['active_business_id' => $this->business->id])
             ->get(route('dashboard'));
 
         $response->assertStatus(200);
@@ -287,6 +294,7 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $entitlement->upgradeToCore($this->business, 'monthly');
 
         $response = $this->actingAs($this->user)
+            ->withSession(['active_business_id' => $this->business->id])
             ->get(route('dashboard'));
 
         $response->assertStatus(200);

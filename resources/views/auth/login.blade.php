@@ -1,4 +1,4 @@
-@extends('layouts.public_marketing', ['title' => 'Masuk - Cooca', 'noindex' => true])
+@extends('layouts.public_marketing', ['title' => 'Masuk - Cooca UMKM', 'noindex' => true])
 
 @section('content')
     <div class="min-h-[calc(100vh-16rem)] flex flex-col justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8">
@@ -10,7 +10,7 @@
                     class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#007AFF]/10 text-[#007AFF] dark:bg-[#0A84FF]/15 dark:text-[#0A84FF] mb-3 shadow-sm transition-transform hover:scale-105">
                     <i data-lucide="lock" class="w-7 h-7"></i>
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight">Masuk ke Cooca</h1>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight">Masuk ke Cooca UMKM</h1>
                 <p class="mt-1.5 text-xs sm:text-sm text-black/60 dark:text-white/60">Akses platform operasional &amp;
                     pembukuan otomatis UMKM Anda</p>
             </div>

@@ -7,6 +7,7 @@ namespace App\Domain\Payment;
 use App\Models\CommerceOrder;
 use App\Models\PosOrder;
 use App\Models\SubscriptionPayment;
+use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -25,13 +26,15 @@ final class TripayService
         ?string $privateKey = null,
         ?bool $isProduction = null
     ) {
-        $this->merchantCode = $merchantCode ?? (string) config('services.tripay.merchant_code', env('TRIPAY_MERCHANT_CODE', ''));
-        $this->apiKey = $apiKey ?? (string) config('services.tripay.api_key', env('TRIPAY_API_KEY', ''));
-        $this->privateKey = $privateKey ?? (string) config('services.tripay.private_key', env('TRIPAY_PRIVATE_KEY', ''));
-        $this->isProduction = $isProduction ?? (bool) config('services.tripay.is_production', env('TRIPAY_IS_PRODUCTION', false));
+        $this->merchantCode = $merchantCode ?? (string) (SystemSetting::get('tripay_merchant_code') ?: config('services.tripay.merchant_code', env('TRIPAY_MERCHANT_CODE', '')));
+        $this->apiKey = $apiKey ?? (string) (SystemSetting::get('tripay_api_key') ?: config('services.tripay.api_key', env('TRIPAY_API_KEY', '')));
+        $this->privateKey = $privateKey ?? (string) (SystemSetting::get('tripay_private_key') ?: config('services.tripay.private_key', env('TRIPAY_PRIVATE_KEY', '')));
 
-        $sandboxUrl = rtrim((string) config('services.tripay.sandbox_url', 'https://tripay.co.id/api-sandbox/'), '/') . '/';
-        $prodUrl = rtrim((string) config('services.tripay.prod_url', 'https://tripay.co.id/api/'), '/') . '/';
+        $settingProd = SystemSetting::get('tripay_is_production');
+        $this->isProduction = $isProduction ?? ($settingProd !== null ? filter_var($settingProd, FILTER_VALIDATE_BOOLEAN) : (bool) config('services.tripay.is_production', env('TRIPAY_IS_PRODUCTION', false)));
+
+        $sandboxUrl = rtrim((string) (SystemSetting::get('tripay_sandbox_url') ?: config('services.tripay.sandbox_url', 'https://tripay.co.id/api-sandbox/')), '/') . '/';
+        $prodUrl = rtrim((string) (SystemSetting::get('tripay_prod_url') ?: config('services.tripay.prod_url', 'https://tripay.co.id/api/')), '/') . '/';
 
         $this->baseUrl = $this->isProduction ? $prodUrl : $sandboxUrl;
     }

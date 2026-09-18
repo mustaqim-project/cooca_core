@@ -64,6 +64,50 @@ final class AdminSettingController extends Controller
             'tiktokRedirectUri'      => route('social-media.tiktok.callback'),
             'tiktokApiUrl'           => SystemSetting::get('tiktok_api_url', 'https://open.tiktokapis.com/v2/'),
             'tiktokAuthUrl'          => SystemSetting::get('tiktok_auth_url', 'https://www.tiktok.com/v2/auth/authorize/'),
+
+            // Instagram Platform Dedicated Configuration (Cooca-IG)
+            'instagramAppId'              => (string) (SystemSetting::get('instagram_app_id') ?: SystemSetting::get('social_media_app_id', '')),
+            'instagramAppName'            => (string) SystemSetting::get('instagram_app_name', 'Cooca-IG'),
+            'instagramAppSecret'          => (string) (SystemSetting::get('instagram_app_secret') ?: SystemSetting::get('social_media_app_secret', '')),
+            'instagramHasAppSecret'       => ! empty(SystemSetting::get('instagram_app_secret') ?: SystemSetting::get('social_media_app_secret', '')),
+            'instagramAccountId'          => (string) SystemSetting::get('instagram_account_id', '17841439846162016'),
+            'instagramGraphUserId'        => (string) SystemSetting::get('instagram_graph_user_id', '28475871372070145'),
+            'instagramUsername'           => (string) SystemSetting::get('instagram_username', 'cooca.indonesia'),
+            'instagramAccessToken'        => (string) SystemSetting::get('instagram_access_token', ''),
+            'instagramHasAccessToken'     => ! empty(SystemSetting::get('instagram_access_token', '')),
+            'instagramAccountType'        => (string) SystemSetting::get('instagram_account_type', 'MEDIA_CREATOR'),
+            'instagramMediaCount'         => (string) SystemSetting::get('instagram_media_count', '11'),
+            'instagramProfilePicture'     => (string) SystemSetting::get('instagram_profile_picture_url', ''),
+            'instagramStatus'             => (string) SystemSetting::get('instagram_status', 'active'),
+            'instagramVerifiedAt'         => (string) SystemSetting::get('instagram_verified_at', ''),
+
+            // TriPay Payment Gateway Configuration (Model B - Platform Centralized)
+            'tripayMerchantCode'     => SystemSetting::get('tripay_merchant_code') ?? config('services.tripay.merchant_code', ''),
+            'tripayApiKey'           => SystemSetting::get('tripay_api_key') ?? config('services.tripay.api_key', ''),
+            'tripayPrivateKey'       => SystemSetting::get('tripay_private_key') ?? config('services.tripay.private_key', ''),
+            'tripayHasPrivateKey'    => ! empty(SystemSetting::get('tripay_private_key') ?? config('services.tripay.private_key', '')),
+            'tripayIsProduction'     => SystemSetting::get('tripay_is_production') !== null ? filter_var(SystemSetting::get('tripay_is_production'), FILTER_VALIDATE_BOOLEAN) : (bool) config('services.tripay.is_production', false),
+            'tripaySandboxUrl'       => SystemSetting::get('tripay_sandbox_url') ?? config('services.tripay.sandbox_url', 'https://tripay.co.id/api-sandbox/'),
+            'tripayProdUrl'          => SystemSetting::get('tripay_prod_url') ?? config('services.tripay.prod_url', 'https://tripay.co.id/api/'),
+            'tripayCallbackUrl'      => url('/api/v1/payment/tripay/callback'),
+
+            // Meta WhatsApp Cloud API Configuration (Official Tech Provider)
+            'metaWaAppId'            => SystemSetting::get('meta_wa_app_id') ?? config('services.meta_whatsapp.app_id', ''),
+            'metaWaAppSecret'        => SystemSetting::get('meta_wa_app_secret') ?? config('services.meta_whatsapp.app_secret', ''),
+            'metaWaHasAppSecret'     => ! empty(SystemSetting::get('meta_wa_app_secret') ?? config('services.meta_whatsapp.app_secret', '')),
+            'metaWaPhoneNumberId'    => SystemSetting::get('meta_wa_phone_number_id') ?? config('services.meta_whatsapp.phone_number_id', ''),
+            'metaWaWabaId'           => SystemSetting::get('meta_wa_waba_id') ?? config('services.meta_whatsapp.waba_id', ''),
+            'metaWaToken'            => SystemSetting::get('meta_wa_token') ?? config('services.meta_whatsapp.token', ''),
+            'metaWaHasToken'         => ! empty(SystemSetting::get('meta_wa_token') ?? config('services.meta_whatsapp.token', '')),
+            'metaWaWebhookVerifyToken' => SystemSetting::get('meta_wa_webhook_verify_token') ?? config('services.meta_whatsapp.webhook_verify_token', 'cooca_meta_wa_webhook_secret'),
+            'metaWaConfigId'         => SystemSetting::get('meta_wa_config_id') ?? config('services.meta_whatsapp.config_id', ''),
+            'metaWaOtpTemplate'      => SystemSetting::get('meta_wa_otp_template', 'cooca_otp'),
+            'waOtpActive'            => filter_var(SystemSetting::get('wa_otp_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'waBlastActive'          => filter_var(SystemSetting::get('wa_blast_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'waBotStatus'            => app(\App\Domain\WhatsApp\AdminWhatsAppService::class)->getStatus(),
+            'metaWaGraphVersion'     => SystemSetting::get('meta_wa_graph_version') ?? config('services.meta_whatsapp.version', 'v25.0'),
+            'metaWaGraphUrl'         => SystemSetting::get('meta_wa_graph_url') ?? config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com'),
+            'metaWaWebhookUrl'       => url('/api/v1/whatsapp/webhook'),
         ];
     }
 
@@ -112,6 +156,36 @@ final class AdminSettingController extends Controller
             'tiktok_client_secret'              => ['nullable', 'string', 'max:150'],
             'tiktok_api_url'                    => ['nullable', 'url', 'max:200'],
             'tiktok_auth_url'                   => ['nullable', 'url', 'max:200'],
+
+            // TriPay Payment Gateway Settings
+            'tripay_merchant_code'              => ['nullable', 'string', 'max:100'],
+            'tripay_api_key'                    => ['nullable', 'string', 'max:255'],
+            'tripay_private_key'                => ['nullable', 'string', 'max:255'],
+            'tripay_is_production'              => ['nullable', 'boolean'],
+            'tripay_sandbox_url'                => ['nullable', 'url', 'max:255'],
+            'tripay_prod_url'                   => ['nullable', 'url', 'max:255'],
+
+            // Meta WhatsApp Cloud API Settings
+            'meta_wa_app_id'                    => ['nullable', 'string', 'max:100'],
+            'meta_wa_app_secret'                => ['nullable', 'string', 'max:255'],
+            'meta_wa_phone_number_id'           => ['nullable', 'string', 'max:100'],
+            'meta_wa_waba_id'                   => ['nullable', 'string', 'max:100'],
+            'meta_wa_token'                     => ['nullable', 'string', 'max:1000'],
+            'meta_wa_webhook_verify_token'      => ['nullable', 'string', 'max:150'],
+            'meta_wa_config_id'                 => ['nullable', 'string', 'max:100'],
+            'meta_wa_otp_template'              => ['nullable', 'string', 'max:100'],
+            'wa_otp_active'                     => ['nullable', 'boolean'],
+            'wa_blast_active'                   => ['nullable', 'boolean'],
+            'meta_wa_graph_version'             => ['nullable', 'string', 'max:20'],
+            'meta_wa_graph_url'                 => ['nullable', 'url', 'max:255'],
+
+            // Instagram Dedicated Platform Settings
+            'instagram_app_id'                  => ['nullable', 'string', 'max:100'],
+            'instagram_app_name'                => ['nullable', 'string', 'max:100'],
+            'instagram_app_secret'              => ['nullable', 'string', 'max:255'],
+            'instagram_account_id'              => ['nullable', 'string', 'max:100'],
+            'instagram_username'                => ['nullable', 'string', 'max:100'],
+            'instagram_access_token'            => ['nullable', 'string', 'max:1000'],
         ]);
 
         if (! empty($validated['app_name'])) {
@@ -170,6 +244,84 @@ final class AdminSettingController extends Controller
         }
         if (array_key_exists('tiktok_auth_url', $validated)) {
             SystemSetting::set('tiktok_auth_url', trim((string) $validated['tiktok_auth_url']), 'social_media');
+        }
+
+        // Save TriPay Gateway Settings
+        if (array_key_exists('tripay_merchant_code', $validated)) {
+            SystemSetting::set('tripay_merchant_code', trim((string) $validated['tripay_merchant_code']), 'payment');
+        }
+        if (array_key_exists('tripay_api_key', $validated)) {
+            SystemSetting::set('tripay_api_key', trim((string) $validated['tripay_api_key']), 'payment');
+        }
+        if (! empty($validated['tripay_private_key'])) {
+            SystemSetting::set('tripay_private_key', trim((string) $validated['tripay_private_key']), 'payment', true);
+        }
+        if ($request->has('tripay_is_production')) {
+            SystemSetting::set('tripay_is_production', $request->boolean('tripay_is_production') ? '1' : '0', 'payment');
+        }
+        if (array_key_exists('tripay_sandbox_url', $validated)) {
+            SystemSetting::set('tripay_sandbox_url', trim((string) $validated['tripay_sandbox_url']), 'payment');
+        }
+        if (array_key_exists('tripay_prod_url', $validated)) {
+            SystemSetting::set('tripay_prod_url', trim((string) $validated['tripay_prod_url']), 'payment');
+        }
+
+        // Save Meta WhatsApp Cloud API Settings
+        if (array_key_exists('meta_wa_app_id', $validated)) {
+            SystemSetting::set('meta_wa_app_id', trim((string) $validated['meta_wa_app_id']), 'whatsapp');
+        }
+        if (! empty($validated['meta_wa_app_secret'])) {
+            SystemSetting::set('meta_wa_app_secret', trim((string) $validated['meta_wa_app_secret']), 'whatsapp', true);
+        }
+        if (array_key_exists('meta_wa_phone_number_id', $validated)) {
+            SystemSetting::set('meta_wa_phone_number_id', trim((string) $validated['meta_wa_phone_number_id']), 'whatsapp');
+        }
+        if (array_key_exists('meta_wa_waba_id', $validated)) {
+            SystemSetting::set('meta_wa_waba_id', trim((string) $validated['meta_wa_waba_id']), 'whatsapp');
+        }
+        if (! empty($validated['meta_wa_token'])) {
+            SystemSetting::set('meta_wa_token', trim((string) $validated['meta_wa_token']), 'whatsapp', true);
+        }
+        if (array_key_exists('meta_wa_webhook_verify_token', $validated)) {
+            SystemSetting::set('meta_wa_webhook_verify_token', trim((string) $validated['meta_wa_webhook_verify_token']), 'whatsapp');
+        }
+        if (array_key_exists('meta_wa_config_id', $validated)) {
+            SystemSetting::set('meta_wa_config_id', trim((string) $validated['meta_wa_config_id']), 'whatsapp');
+        }
+        if (array_key_exists('meta_wa_otp_template', $validated)) {
+            SystemSetting::set('meta_wa_otp_template', trim((string) $validated['meta_wa_otp_template']), 'whatsapp');
+        }
+        if ($request->has('wa_otp_active')) {
+            SystemSetting::set('wa_otp_active', $request->boolean('wa_otp_active') ? '1' : '0', 'whatsapp');
+        }
+        if ($request->has('wa_blast_active')) {
+            SystemSetting::set('wa_blast_active', $request->boolean('wa_blast_active') ? '1' : '0', 'whatsapp');
+        }
+        if (array_key_exists('meta_wa_graph_version', $validated)) {
+            SystemSetting::set('meta_wa_graph_version', trim((string) $validated['meta_wa_graph_version']), 'whatsapp');
+        }
+        if (array_key_exists('meta_wa_graph_url', $validated)) {
+            SystemSetting::set('meta_wa_graph_url', trim((string) $validated['meta_wa_graph_url']), 'whatsapp');
+        }
+
+        // Save Instagram Platform Settings
+        if (array_key_exists('instagram_app_id', $validated)) {
+            SystemSetting::set('instagram_app_id', trim((string) $validated['instagram_app_id']), 'social_media');
+        }
+        if (array_key_exists('instagram_app_name', $validated)) {
+            SystemSetting::set('instagram_app_name', trim((string) $validated['instagram_app_name']), 'social_media');
+        }
+        if (! empty($validated['instagram_app_secret'])) {
+            SystemSetting::set('instagram_app_secret', trim((string) $validated['instagram_app_secret']), 'social_media', true);
+        }
+        if (array_key_exists('instagram_account_id', $validated)) {
+            SystemSetting::set('instagram_account_id', trim((string) $validated['instagram_account_id']), 'social_media');
+        }
+        if (array_key_exists('instagram_username', $validated)) {
+            SystemSetting::set('instagram_username', trim((string) $validated['instagram_username']), 'social_media');
+        }
+        if (! empty($validated['instagram_access_token'])) {
+            SystemSetting::set('instagram_access_token', trim((string) $validated['instagram_access_token']), 'social_media', true);
         }
 
         // Save Subscription Pricing if provided
@@ -295,9 +447,158 @@ final class AdminSettingController extends Controller
             }
         }
 
+        // Validate Instagram API Credentials if configured
+        $igToken = (string) (SystemSetting::get('instagram_access_token') ?: SystemSetting::get('social_media_app_token', ''));
+        $results['instagram'] = [
+            'configured' => ! empty($igToken),
+            'status'     => 'unconfigured',
+            'message'    => 'Token Akses Instagram belum dikonfigurasi.',
+        ];
+
+        if ($results['instagram']['configured']) {
+            /** @var \App\Domain\SocialMedia\AdminSocialMediaService $socialService */
+            $socialService = app(\App\Domain\SocialMedia\AdminSocialMediaService::class);
+            $igRes = $socialService->verifyInstagramCredentials($igToken);
+
+            if ($igRes['success'] ?? false) {
+                $igData = (array) ($igRes['data'] ?? []);
+                $igUser = $igData['username'] ?? 'cooca.indonesia';
+                $igCount = $igData['media_count'] ?? 0;
+                $results['instagram']['status'] = 'valid';
+                $results['instagram']['message'] = "Kredensial Instagram valid! Terhubung ke: @{$igUser} ({$igCount} postingan).";
+                $results['instagram']['data'] = $igData;
+            } else {
+                $results['instagram']['status'] = 'invalid';
+                $results['instagram']['message'] = 'Validasi Instagram gagal: ' . ($igRes['error'] ?? 'Token tidak valid.');
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data'    => $results,
+        ]);
+    }
+
+    /**
+     * Test connection to Instagram API for Business / Creator account.
+     */
+    public function testInstagramConfig(): JsonResponse
+    {
+        /** @var \App\Domain\SocialMedia\AdminSocialMediaService $socialService */
+        $socialService = app(\App\Domain\SocialMedia\AdminSocialMediaService::class);
+        $result = $socialService->verifyInstagramCredentials();
+
+        if ($result['success'] ?? false) {
+            $data = (array) ($result['data'] ?? []);
+            $username = $data['username'] ?? 'cooca.indonesia';
+            $type = $data['account_type'] ?? 'MEDIA_CREATOR';
+            $count = $data['media_count'] ?? 0;
+
+            return response()->json([
+                'success' => true,
+                'message' => "Koneksi Instagram API BERHASIL! Terhubung ke: @{$username} ({$type}) dengan {$count} postingan aktif.",
+                'data'    => $data,
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Validasi Instagram API gagal: ' . ($result['error'] ?? 'Autentikasi ditolak'),
+        ], 422);
+    }
+
+    /**
+     * Test connection to TriPay Payment Gateway API.
+     */
+    public function testTripayConfig(): JsonResponse
+    {
+        $apiKey = (string) (SystemSetting::get('tripay_api_key') ?: config('services.tripay.api_key', ''));
+        $settingProd = SystemSetting::get('tripay_is_production');
+        $isProd = $settingProd !== null
+            ? filter_var($settingProd, FILTER_VALIDATE_BOOLEAN)
+            : (bool) config('services.tripay.is_production', false);
+
+        $sandboxUrl = rtrim((string) (SystemSetting::get('tripay_sandbox_url') ?: config('services.tripay.sandbox_url', 'https://tripay.co.id/api-sandbox/')), '/') . '/';
+        $prodUrl = rtrim((string) (SystemSetting::get('tripay_prod_url') ?: config('services.tripay.prod_url', 'https://tripay.co.id/api/')), '/') . '/';
+        $baseUrl = $isProd ? $prodUrl : $sandboxUrl;
+        $modeText = $isProd ? 'Production' : 'Sandbox';
+
+        if (empty($apiKey)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'API Key TriPay belum dikonfigurasi.',
+            ], 422);
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+            ])->timeout(8)->get($baseUrl . 'payment/channel');
+
+            if ($response->successful() && ($response->json('success') ?? false)) {
+                $data = (array) $response->json('data', []);
+                $channelCount = count($data);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "Koneksi ke TriPay Gateway ({$modeText}) BERHASIL! Ditemukan {$channelCount} grup kanal pembayaran aktif.",
+                    'data' => [
+                        'mode' => $modeText,
+                        'channels_count' => $channelCount,
+                        'base_url' => $baseUrl,
+                    ],
+                ]);
+            }
+
+            $errMsg = $response->json('message') ?? ('HTTP ' . $response->status() . ' - Autentikasi ditolak');
+
+            return response()->json([
+                'success' => false,
+                'message' => "Validasi TriPay ({$modeText}) gagal: {$errMsg}",
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Koneksi ke server TriPay gagal: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Test connection to Meta WhatsApp Cloud API.
+     */
+    public function testWhatsAppConfig(): JsonResponse
+    {
+        $token = (string) (SystemSetting::get('meta_wa_token') ?: config('services.meta_whatsapp.token', ''));
+        $phoneId = (string) (SystemSetting::get('meta_wa_phone_number_id') ?: config('services.meta_whatsapp.phone_number_id', ''));
+
+        if (empty($token) || empty($phoneId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token Akses Meta dan Phone Number ID belum dikonfigurasi.',
+            ], 422);
+        }
+
+        /** @var \App\Domain\WhatsApp\Drivers\MetaWhatsAppCloudDriver $metaDriver */
+        $metaDriver = app(\App\Domain\WhatsApp\Drivers\MetaWhatsAppCloudDriver::class);
+        $result = $metaDriver->verifyCredentials($token, $phoneId);
+
+        if ($result['success'] ?? false) {
+            $details = (array) ($result['data'] ?? []);
+            $name = $details['verified_name'] ?? 'WhatsApp Business';
+            $phone = $details['display_phone_number'] ?? $phoneId;
+            $quality = $details['quality_rating'] ?? 'GREEN';
+
+            return response()->json([
+                'success' => true,
+                'message' => "Koneksi Meta WhatsApp Cloud API VALID! Terhubung ke: {$name} ({$phone}) - Rating Kualitas: {$quality}.",
+                'data' => $details,
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Validasi Meta WhatsApp gagal: ' . ($result['error'] ?? 'Autentikasi ditolak'),
         ]);
     }
 }

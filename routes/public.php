@@ -107,7 +107,22 @@ Route::get('/sitemap', [SitemapController::class, 'html'])->name('sitemap.html')
 Route::get('/receipt/{order}', [PosTerminalWebController::class, 'printReceipt'])->name('public.receipt');
 Route::get('/receipt/{order}/image', [PosTerminalWebController::class, 'receiptImage'])->name('public.receipt.image');
 
-// 12. Public business landing pages using business name as direct URL slug (Must be last)
+// 12. Legal Policies (Privacy Policy & Terms of Service for TikTok/Meta App Submission)
+Route::get('/privacy', function () {
+    return view('public.privacy');
+})->name('public.privacy');
+Route::get('/kebijakan-privasi', function () {
+    return view('public.privacy');
+});
+
+Route::get('/terms', function () {
+    return view('public.terms');
+})->name('public.terms');
+Route::get('/syarat-ketentuan', function () {
+    return view('public.terms');
+});
+
+// 13. Public business landing pages using business name as direct URL slug (Must be last)
 Route::get('/{slug}', [PublicBusinessLandingController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('public.business.landing');

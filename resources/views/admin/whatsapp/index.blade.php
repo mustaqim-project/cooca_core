@@ -56,11 +56,18 @@
                     </div>
                 </template>
 
-                <button type="button" @click="setTab('parent_setup')"
+                <button type="button" @click="setTab('blast')"
+                    class="min-h-[40px] sm:min-h-[44px] px-3.5 rounded-[12px] text-[12.5px] sm:text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#2DB34F] active:scale-[0.98] shadow-sm transition-all inline-flex items-center justify-center gap-2 min-w-0">
+                    <i data-lucide="megaphone" class="w-4 h-4 shrink-0"></i>
+                    <span class="truncate">Kirim Siaran (Blast)</span>
+                </button>
+
+                <a href="{{ route('admin.settings.index', ['tab' => 'whatsapp']) }}"
                     class="min-h-[40px] sm:min-h-[44px] px-4 rounded-[12px] text-[12.5px] sm:text-[13px] font-semibold bg-[#1877F2] text-white hover:bg-[#166FE5] active:scale-[0.98] shadow-sm transition-all inline-flex items-center justify-center gap-2 min-w-0">
                     <i data-lucide="sliders-horizontal" class="w-4 h-4 shrink-0"></i>
-                    <span class="truncate">Setup Platform Meta</span>
-                </button>
+                    <span class="truncate">Kelola Pengaturan Meta</span>
+                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 shrink-0 opacity-70"></i>
+                </a>
             </div>
         </div>
 
@@ -316,342 +323,276 @@
                 </div>
             </div>
 
-            {{-- FORM PENGATURAN PLATFORM & KREDENSIAL META WHATSAPP --}}
-            <form method="POST" action="{{ route('admin.whatsapp.config') }}" class="space-y-6">
-                @csrf
-
-                {{-- 2. META TECH PROVIDER & EMBEDDED SIGNUP (OFFICIAL INTEGRATION) --}}
-                <div
-                    class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5 w-full min-w-0">
-                    <div class="flex items-center gap-3.5 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
-                        <div
-                            class="w-10 h-10 sm:w-11 sm:h-11 rounded-[14px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center shrink-0">
-                            <i data-lucide="webhook" class="w-5 h-5"></i>
+            {{-- 2. BENTO INTEGRATION HUB: PUSAT PENGATURAN TERPADU --}}
+            <div class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0">
+                            <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
-                                Meta Tech Provider &amp; Webhook Terpadu
-                            </h3>
-                            <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
-                                Konfigurasi Meta App untuk Embedded Signup merchant dan endpoint penerimaan webhook status pesan
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
+                                    Kredensial Bot Induk Platform Meta
+                                </h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                    Terintegrasi
+                                </span>
+                            </div>
+                            <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5 max-w-2xl">
+                                Seluruh konfigurasi kredensial Meta App ID, Secret, WABA ID, Phone Number ID, Access Token, Webhook Verify Token, dan Embedded Signup Config ID kini dikelola secara terpusat di <strong>Pengaturan Platform &amp; Sistem</strong>.
                             </p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                        {{-- Meta App ID --}}
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                    Meta App ID (META_WA_APP_ID)
-                                </label>
-                                <span class="text-[11px] text-black/40 dark:text-white/40 font-medium">Meta Developers Portal</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <input type="text" name="meta_app_id" x-model="metaAppId"
-                                    placeholder="Contoh: 104829384729182"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                                <template x-if="metaAppId">
-                                    <button type="button" @click="copyToClipboard(metaAppId, 'App ID')"
-                                        class="px-3 min-h-[46px] rounded-[12px] bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-black/10 text-[11.5px] font-medium shrink-0 inline-flex items-center gap-1.5 transition-all">
-                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                        <span class="hidden sm:inline">Salin</span>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
+                    <a href="{{ route('admin.settings.index', ['tab' => 'whatsapp']) }}"
+                        class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-bold bg-[#007AFF] hover:bg-[#0071E3] text-white active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-sm shrink-0">
+                        <i data-lucide="sliders" class="w-4 h-4"></i>
+                        <span>Buka Pengaturan WhatsApp Cloud API</span>
+                        <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 opacity-70"></i>
+                    </a>
+                </div>
 
-                        {{-- Meta App Secret --}}
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                    Meta App Secret (META_WA_APP_SECRET)
-                                </label>
-                                <span class="text-[11px] text-[#248A3D] dark:text-[#30D158] font-bold">Auto-Encrypted</span>
-                            </div>
-                            <div class="relative">
-                                <input :type="showMetaAppSecret ? 'text' : 'password'" name="meta_app_secret"
-                                    x-model="metaAppSecret" placeholder="App Secret dari App Settings > Basic"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 pr-10 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                                <button type="button" @click="showMetaAppSecret = !showMetaAppSecret"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
-                                    <i data-lucide="eye" class="w-4 h-4" x-show="!showMetaAppSecret"></i>
-                                    <i data-lucide="eye-off" class="w-4 h-4" x-show="showMetaAppSecret"></i>
-                                </button>
-                            </div>
+                {{-- Current Settings Snapshot Grid --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                    {{-- 1. Meta App ID --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta App ID (META_WA_APP_ID)</span>
+                        <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
+                            {{ $platformApp['app_id'] ?: 'Belum Dikonfigurasi' }}
                         </div>
+                    </div>
 
-                        {{-- Embedded Signup Config ID --}}
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                    Embedded Signup Config ID (META_WA_CONFIG_ID)
-                                </label>
-                                <span class="text-[11px] text-black/40 dark:text-white/40 font-medium">WhatsApp Login Config</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <input type="text" name="meta_config_id" x-model="metaConfigId"
-                                    placeholder="Contoh: 893472910482938"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                                <template x-if="metaConfigId">
-                                    <button type="button" @click="copyToClipboard(metaConfigId, 'Config ID')"
-                                        class="px-3 min-h-[46px] rounded-[12px] bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-black/10 text-[11.5px] font-medium shrink-0 inline-flex items-center gap-1.5 transition-all">
-                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                        <span class="hidden sm:inline">Salin</span>
-                                    </button>
-                                </template>
-                            </div>
+                    {{-- 2. Meta App Secret --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta App Secret (META_WA_APP_SECRET)</span>
+                        <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
+                            {{ !empty($platformApp['app_secret']) ? '••••••••••••••••' : 'Belum Dikonfigurasi' }}
                         </div>
+                    </div>
 
-                        {{-- Webhook Verify Token --}}
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                    Webhook Verify Token (META_WA_WEBHOOK_VERIFY_TOKEN)
-                                </label>
-                                <span class="text-[11px] text-black/40 dark:text-white/40 font-medium">Custom Secret String</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <input type="text" name="meta_webhook_verify_token" x-model="metaWebhookVerifyToken"
-                                    placeholder="cooca_meta_wa_webhook_secret"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                                <template x-if="metaWebhookVerifyToken">
-                                    <button type="button" @click="copyToClipboard(metaWebhookVerifyToken, 'Verify Token')"
-                                        class="px-3 min-h-[46px] rounded-[12px] bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-black/10 text-[11.5px] font-medium shrink-0 inline-flex items-center gap-1.5 transition-all">
-                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                        <span class="hidden sm:inline">Salin</span>
-                                    </button>
-                                </template>
-                            </div>
+                    {{-- 3. Embedded Signup Config ID --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Embedded Signup Config ID (META_WA_CONFIG_ID)</span>
+                        <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
+                            {{ $platformApp['config_id'] ?: 'Opsional / Default' }}
                         </div>
+                    </div>
 
-                        {{-- Graph API Version --}}
-                        <div class="space-y-1.5">
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                Graph API Version (META_WA_GRAPH_VERSION)
-                            </label>
-                            <input type="text" name="meta_graph_version" x-model="metaGraphVersion"
-                                placeholder="v21.0"
-                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                    {{-- 4. Webhook Verify Token --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Webhook Verify Token (META_WA_WEBHOOK_VERIFY_TOKEN)</span>
+                        <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
+                            {{ $platformApp['webhook_verify_token'] ?: 'Belum Dikonfigurasi' }}
                         </div>
+                    </div>
 
-                        {{-- Graph API Base URL --}}
-                        <div class="space-y-1.5">
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                Graph API Base URL (META_WA_GRAPH_URL)
-                            </label>
-                            <input type="text" name="meta_graph_url" x-model="metaGraphUrl"
-                                placeholder="https://graph.facebook.com"
-                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                    {{-- 5. Graph API Version --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Graph API Version (META_WA_GRAPH_VERSION)</span>
+                        <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
+                            {{ $platformApp['graph_version'] ?: 'v21.0' }}
                         </div>
+                    </div>
 
-                        {{-- Webhook Callback URL (Readonly Endpoint) --}}
-                        <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] space-y-2 md:col-span-2">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">Webhook Callback URL (Meta Webhook Endpoint)</span>
-                                <span class="text-[11px] text-[#248A3D] dark:text-[#30D158] font-bold">HMAC-SHA256 Verified</span>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 bg-white dark:bg-[#2C2C2E] p-2.5 rounded-[12px] border border-black/10 dark:border-white/10">
-                                <code class="text-[12px] sm:text-[12.5px] font-mono text-black dark:text-white break-all">{{ $platformApp['webhook_url'] }}</code>
-                                <button type="button" @click="copyToClipboard('{{ $platformApp['webhook_url'] }}', 'Webhook URL')"
-                                    class="px-3 py-1.5 rounded-[10px] bg-[#007AFF] text-white hover:bg-[#0071E3] text-[12px] font-bold shrink-0 inline-flex items-center gap-1.5 active:scale-[0.98] transition-all">
-                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                    <span>Salin URL</span>
-                                </button>
-                            </div>
-                            <p class="text-[11px] text-black/45 dark:text-white/45">
-                                Tempelkan URL di atas pada dashboard Meta App di menu <strong>WhatsApp &gt; Configuration &gt; Callback URL</strong>, lalu isi <strong>Verify Token</strong> sesuai nilai di atas.
-                            </p>
+                    {{-- 6. Graph API Base URL --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Graph API Base URL (META_WA_GRAPH_URL)</span>
+                        <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
+                            {{ $platformApp['graph_url'] ?: 'https://graph.facebook.com' }}
+                        </div>
+                    </div>
+
+                    {{-- 7. Phone Number ID --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Phone Number ID</span>
+                        <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
+                            {{ $metaCreds['phone_number_id'] ?: 'Belum Dikonfigurasi' }}
+                        </div>
+                    </div>
+
+                    {{-- 8. WhatsApp Business ID (WABA) --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">WhatsApp Business ID (WABA)</span>
+                        <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
+                            {{ $metaCreds['waba_id'] ?: 'Belum Dikonfigurasi' }}
+                        </div>
+                    </div>
+
+                    {{-- 9. Meta System User Permanent Access Token --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta System User Permanent Access Token (META_WA_TOKEN)</span>
+                        <div class="text-[13px] font-bold text-[#248A3D] dark:text-[#30D158] flex items-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i>
+                            <span>{{ !empty($metaCreds['token']) ? 'Tersimpan Terenkripsi (AES-256)' : 'Belum Ada Token' }}</span>
                         </div>
                     </div>
                 </div>
 
-                {{-- 3. KREDENSIAL BOT INDUK PLATFORM META (PARENT CREDENTIALS) --}}
-                <div
-                    class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
-                    <div class="flex items-center gap-3.5 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
-                        <div
-                            class="w-10 h-10 sm:w-11 sm:h-11 rounded-[14px] bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center shrink-0">
-                            <i data-lucide="key" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
-                                Kredensial Bot Induk Platform Meta
-                            </h3>
-                            <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
-                                Kredensial System User Token resmi untuk eksekusi API otentikasi OTP dan pengingat tagihan langganan SaaS
-                            </p>
-                        </div>
+                {{-- Webhook Callback URL (Meta Webhook Endpoint) --}}
+                <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">
+                            Webhook Callback URL (Meta Webhook Endpoint)
+                        </span>
+                        <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#34C759]">api/v1/wa/meta/webhook</span>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                        {{-- Meta Permanent Access Token --}}
-                        <div class="space-y-1.5 md:col-span-2">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                    Meta System User Permanent Access Token (META_WA_TOKEN)
-                                </label>
-                                <span class="text-[11px] text-[#248A3D] dark:text-[#30D158] font-bold">Auto-Encrypted</span>
-                            </div>
-                            <div class="relative">
-                                <input :type="showMetaToken ? 'text' : 'password'" name="meta_token"
-                                    x-model="metaToken" placeholder="EAAG... (System User Token Meta Graph API)"
-                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 pr-10 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                                <button type="button" @click="showMetaToken = !showMetaToken"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
-                                    <i data-lucide="eye" class="w-4 h-4" x-show="!showMetaToken"></i>
-                                    <i data-lucide="eye-off" class="w-4 h-4" x-show="showMetaToken"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        {{-- Phone Number ID --}}
-                        <div class="space-y-1.5">
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                Phone Number ID (META_WA_PHONE_NUMBER_ID)
-                            </label>
-                            <input type="text" name="meta_phone_number_id" x-model="metaPhoneId"
-                                placeholder="Contoh: 104523984712398"
-                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                        </div>
-
-                        {{-- WABA ID --}}
-                        <div class="space-y-1.5">
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                WhatsApp Business Account ID / WABA ID (META_WA_WABA_ID)
-                            </label>
-                            <input type="text" name="meta_waba_id" x-model="metaWabaId"
-                                placeholder="Contoh: 109283746501928"
-                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                        </div>
-
-                        {{-- Template OTP --}}
-                        <div class="space-y-1.5">
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">
-                                Nama Template OTP Meta (META_WA_OTP_TEMPLATE)
-                            </label>
-                            <input type="text" name="meta_otp_template"
-                                value="{{ $metaCreds['otp_template'] ?: 'cooca_otp' }}" placeholder="cooca_otp"
-                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] font-mono text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                        </div>
-
-                        {{-- Free Tier Info Box --}}
-                        <div class="flex items-center">
-                            <div
-                                class="p-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.05] text-[11.5px] text-black/65 dark:text-white/65 leading-relaxed w-full flex items-start gap-2.5">
-                                <i data-lucide="sparkles" class="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5"></i>
-                                <span><strong>Kuota Gratis Meta:</strong> Setiap akun WABA menerima 1.000 Service Conversation gratis per bulan langsung dari Meta.</span>
-                            </div>
-                        </div>
-
-                        {{-- Verification Action Block --}}
-                        <div class="md:col-span-2 pt-1">
-                            <div
-                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 shadow-sm">
-                                <div>
-                                    <div class="text-[13px] font-bold text-black dark:text-white">Uji &amp; Verifikasi Token Meta Graph API</div>
-                                    <div class="text-[11.5px] text-black/55 dark:text-white/55">Hubungi server Meta secara langsung untuk memvalidasi token dan mengecek status nomor telepon</div>
-                                </div>
-                                <button type="button" @click="verifyMetaCredentials()" :disabled="metaVerifyLoading"
-                                    class="min-h-[40px] px-4 rounded-[10px] text-[12px] font-bold bg-[#007AFF]/12 hover:bg-[#007AFF]/20 text-[#007AFF] active:scale-[0.98] transition-all inline-flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50">
-                                    <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" x-show="metaVerifyLoading"></i>
-                                    <i data-lucide="shield-check" class="w-3.5 h-3.5" x-show="!metaVerifyLoading"></i>
-                                    <span x-text="metaVerifyLoading ? 'Memeriksa ke Meta...' : 'Uji Validitas Token Meta'"></span>
-                                </button>
-                            </div>
-
-                            {{-- Verification Success Card --}}
-                            <div x-show="metaVerifyResult" x-transition
-                                class="mt-3 p-4 rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/30 text-[12.5px] text-[#248A3D] dark:text-[#30D158] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                                <div class="flex items-center gap-2.5">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-[#34C759] text-white flex items-center justify-center shrink-0">
-                                        <i data-lucide="check" class="w-4 h-4"></i>
-                                    </div>
-                                    <div>
-                                        <div class="font-bold text-[13px]">Kredensial Meta Graph API Valid &amp; Siap Digunakan</div>
-                                        <div class="text-[11.5px] opacity-85">
-                                            Nama Bisnis: <strong x-text="metaVerifyResult?.verified_name || 'Terverifikasi'"></strong> |
-                                            No: <span class="font-mono" x-text="metaVerifyResult?.display_phone_number || metaPhoneId"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <span
-                                    class="text-[11px] font-semibold text-[#248A3D] dark:text-[#30D158] self-start sm:self-center uppercase tracking-wider"
-                                    x-text="'Kualitas: ' + (metaVerifyResult?.quality_rating || 'GREEN')"></span>
-                            </div>
-
-                            {{-- Verification Error Card --}}
-                            <div x-show="metaVerifyError" x-transition
-                                class="mt-3 p-4 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12.5px] text-[#C41E17] dark:text-[#FF453A] flex items-start gap-2.5">
-                                <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
-                                <div>
-                                    <div class="font-bold text-[13px]">Verifikasi Kredensial Meta Gagal:</div>
-                                    <div class="text-[12px] opacity-90 mt-0.5" x-text="metaVerifyError"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
-                        <button type="submit"
-                            class="min-h-[48px] px-8 rounded-[14px] text-[13.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] shadow-sm transition-all inline-flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4"></i>
-                            <span>Simpan Konfigurasi &amp; Kredensial Platform</span>
+                    <div class="flex items-center justify-between gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10">
+                        <code class="text-[12px] font-mono text-[#007AFF] break-all">{{ $platformApp['webhook_url'] }}</code>
+                        <button type="button" @click="copyToClipboard('{{ $platformApp['webhook_url'] }}', 'Webhook URL')"
+                            class="text-[11.5px] font-bold text-[#007AFF] hover:underline shrink-0">
+                            Salin URL
                         </button>
                     </div>
                 </div>
-            </form>
-
+            </div>
             {{-- 4. CARD UJI KIRIM PESAN (LIVE DIAGNOSTIC) --}}
+            {{-- 4. CARD UJI KIRIM PESAN & WA OTP SIMULATOR (LIVE DIAGNOSTIC) --}}
             <div
                 class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5 w-full min-w-0">
-                <div class="flex items-center gap-3.5 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
-                    <div
-                        class="w-10 h-10 sm:w-11 sm:h-11 rounded-[14px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0">
-                        <i data-lucide="send" class="w-5 h-5"></i>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div
+                            class="w-10 h-10 sm:w-11 sm:h-11 rounded-[14px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
+                                Uji Kirim Pesan &amp; Simulator WhatsApp OTP
+                            </h3>
+                            <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
+                                Validasi respon gateway Meta Cloud API secara langsung untuk pesan teks biasa atau template OTP resmi
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
-                            Uji Kirim Pesan Langsung (Live Diagnostic)
-                        </h3>
-                        <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
-                            Kirim pesan uji coba langsung melalui Bot Meta WhatsApp Cloud API resmi untuk memvalidasi respon gateway
-                        </p>
+
+                    {{-- Mode Switcher --}}
+                    <div class="flex items-center gap-1.5 p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[13px] self-start sm:self-auto shrink-0 shadow-inner">
+                        <button type="button" @click="diagnosticMode = 'message'"
+                            :class="diagnosticMode === 'message' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/55 dark:text-white/55 font-medium'"
+                            class="min-h-[34px] px-3 rounded-[10px] text-[12px] transition-all flex items-center gap-1.5">
+                            <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                            <span>Pesan Teks</span>
+                        </button>
+                        <button type="button" @click="diagnosticMode = 'otp'; if(!otpCode) generateRandomOtp();"
+                            :class="diagnosticMode === 'otp' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/55 dark:text-white/55 font-medium'"
+                            class="min-h-[34px] px-3 rounded-[10px] text-[12px] transition-all flex items-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                            <span>Kirim WA OTP</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                    <div>
-                        <label
-                            class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nomor Ponsel Tujuan</label>
-                        <input x-model="testPhone" type="tel"
-                            placeholder="Contoh: 081234567890 atau 6281234567890"
-                            class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition-all">
-                    </div>
-
-                    <div>
-                        <label
-                            class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Isi Pesan Uji Coba</label>
-                        <textarea x-model="testMessage" rows="2" placeholder="Pesan tes..."
-                            class="w-full bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] p-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition-all resize-none"></textarea>
-                    </div>
-
-                    <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                        <div class="flex-1 min-w-0">
-                            <div x-show="testResult" class="p-3.5 rounded-[12px] text-[12px] font-medium"
-                                :class="testOk ?
-                                    'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' :
-                                    'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/20'"
-                                x-text="testResult"></div>
+                {{-- MODE 1: PESAN TEKS BIASA --}}
+                <div x-show="diagnosticMode === 'message'" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nomor Ponsel Tujuan</label>
+                            <input x-model="testPhone" type="tel"
+                                placeholder="Contoh: 081234567890 atau 6281234567890"
+                                class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition-all">
                         </div>
-                        <button type="button" @click="sendTest()"
-                            :disabled="testLoading || !testPhone.trim() || !testMessage.trim()"
-                            class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#2DB34F] disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-sm shrink-0">
-                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="testLoading"></i>
-                            <i data-lucide="send" class="w-4 h-4" x-show="!testLoading"></i>
-                            <span x-text="testLoading ? 'Mengirim pesan tes...' : 'Kirim Pesan Tes'"></span>
-                        </button>
+
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Isi Pesan Uji Coba</label>
+                            <textarea x-model="testMessage" rows="2" placeholder="Pesan tes..."
+                                class="w-full bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] p-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition-all resize-none"></textarea>
+                        </div>
+
+                        <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                            <div class="flex-1 min-w-0">
+                                <div x-show="testResult" class="p-3.5 rounded-[12px] text-[12px] font-medium"
+                                    :class="testOk ?
+                                        'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' :
+                                        'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/20'"
+                                    x-text="testResult"></div>
+                            </div>
+                            <button type="button" @click="sendTest()"
+                                :disabled="testLoading || !testPhone.trim() || !testMessage.trim()"
+                                class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#2DB34F] disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-sm shrink-0">
+                                <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="testLoading"></i>
+                                <i data-lucide="send" class="w-4 h-4" x-show="!testLoading"></i>
+                                <span x-text="testLoading ? 'Mengirim pesan tes...' : 'Kirim Pesan Tes'"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- MODE 2: SIMULATOR KIRIM WA OTP RESMI --}}
+                <div x-show="diagnosticMode === 'otp'" class="space-y-4" style="display: none;">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                        <div class="space-y-3.5">
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nomor Ponsel Tujuan OTP</label>
+                                <input x-model="otpPhone" type="tel"
+                                    placeholder="Contoh: 081234567890 atau 6281234567890"
+                                    class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">Kode OTP 6-Digit</label>
+                                    <button type="button" @click="generateRandomOtp()"
+                                        class="text-[11px] font-bold text-[#007AFF] hover:underline flex items-center gap-1">
+                                        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                        <span>Acak Kode Baru</span>
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input x-model="otpCode" type="text" maxlength="8"
+                                        placeholder="Contoh: 849201"
+                                        class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] font-mono font-bold tracking-widest text-[#007AFF] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Bubble Preview Template OTP --}}
+                        <div class="p-4 rounded-[16px] bg-[#007AFF]/5 border border-[#007AFF]/15 flex flex-col justify-between space-y-3">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10.5px] font-bold uppercase tracking-wider text-[#007AFF] flex items-center gap-1">
+                                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                        <span>Preview Template Meta OTP ({{ $metaCreds['otp_template'] ?: 'cooca_otp' }})</span>
+                                    </span>
+                                    <span class="text-[10.5px] font-mono text-black/40 dark:text-white/40">Official Authentication</span>
+                                </div>
+                                <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] shadow-sm border border-black/5 dark:border-white/10 text-[12.5px] space-y-1.5">
+                                    <div class="font-bold text-black dark:text-white flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
+                                        <span>COOCA Authentication Service</span>
+                                    </div>
+                                    <p class="text-black/75 dark:text-white/75">
+                                        Kode verifikasi masuk COOCA Anda adalah: <strong class="font-mono text-[14px] text-[#007AFF]" x-text="otpCode || '------'"></strong>
+                                    </p>
+                                    <p class="text-[11px] text-black/45 dark:text-white/45">
+                                        Berlaku 10 menit. Demi keamanan akun, jangan berikan kode ini kepada siapa pun.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p class="text-[11px] text-black/50 dark:text-white/50 italic">
+                                *Pesan dikirimkan menggunakan template resmi yang telah disetujui oleh Meta WhatsApp Cloud API.
+                            </p>
+                        </div>
+
+                        <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-black/[0.04] dark:border-white/[0.06]">
+                            <div class="flex-1 min-w-0">
+                                <div x-show="otpResult" class="p-3.5 rounded-[12px] text-[12px] font-medium"
+                                    :class="otpOk ?
+                                        'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20' :
+                                        'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/20'"
+                                    x-text="otpResult"></div>
+                            </div>
+                            <button type="button" @click="sendOtpLive()"
+                                :disabled="otpLoading || !otpPhone.trim()"
+                                class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-sm shrink-0">
+                                <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="otpLoading"></i>
+                                <i data-lucide="shield-check" class="w-4 h-4" x-show="!otpLoading"></i>
+                                <span x-text="otpLoading ? 'Mengirimkan WA OTP...' : 'Kirim WhatsApp OTP Sekarang'"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1392,6 +1333,53 @@
                     testLoading: false,
                     testResult: '',
                     testOk: false,
+
+                    diagnosticMode: 'message',
+                    otpPhone: '',
+                    otpCode: '',
+                    otpLoading: false,
+                    otpResult: '',
+                    otpOk: false,
+
+                    generateRandomOtp() {
+                        this.otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+                    },
+
+                    async sendOtpLive() {
+                        if (!this.otpPhone.trim()) {
+                            this.otpResult = 'Nomor ponsel tujuan OTP wajib diisi.';
+                            this.otpOk = false;
+                            return;
+                        }
+                        if (!this.otpCode.trim()) {
+                            this.generateRandomOtp();
+                        }
+                        this.otpLoading = true;
+                        this.otpResult = '';
+                        try {
+                            const response = await fetch('{{ route('admin.whatsapp.send-otp') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                                },
+                                body: JSON.stringify({
+                                    phone: this.otpPhone.trim(),
+                                    otp_code: this.otpCode.trim()
+                                })
+                            });
+                            const data = await response.json();
+                            this.otpOk = response.ok && data.success === true;
+                            this.otpResult = data.message || (this.otpOk ? 'OTP berhasil dikirim!' : (data.error || 'Gagal mengirimkan OTP.'));
+                        } catch (error) {
+                            this.otpOk = false;
+                            this.otpResult = 'Terjadi kesalahan jaringan saat mengirimkan kode OTP.';
+                        } finally {
+                            this.otpLoading = false;
+                            this.refreshIcons();
+                        }
+                    },
 
                     metaToken: @json($metaCreds['token'] ?? ''),
                     metaPhoneId: @json($metaCreds['phone_number_id'] ?? ''),

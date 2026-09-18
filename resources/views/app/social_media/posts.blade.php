@@ -698,23 +698,100 @@
                         </div>
                     </div>
 
-                    {{-- 6. Scheduling Toggle --}}
+                    {{-- 6. Waktu & Penjadwalan Publikasi (Multi-Mode & Per-Channel Support) --}}
                     <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
-                        <label class="flex items-center justify-between cursor-pointer">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <span class="text-[13px] font-semibold text-black dark:text-white">Jadwalkan Waktu Publikasi</span>
-                                <p class="text-[11.5px] text-black/50 dark:text-white/50">Otomatis publikasikan pada jam tertentu</p>
+                                <span class="text-[13px] font-bold text-black dark:text-white">Waktu Publikasi Saluran</span>
+                                <p class="text-[11.5px] text-black/50 dark:text-white/50">Tentukan kapan konten ini ditayangkan ke masing-masing media sosial</p>
                             </div>
-                            <input type="checkbox" x-model="isScheduleEnabled" class="rounded text-[#007AFF] focus:ring-[#007AFF]">
-                        </label>
+                            <span class="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#007AFF]/10 text-[#007AFF]">
+                                Fleksibel
+                            </span>
+                        </div>
 
-                        <div x-show="isScheduleEnabled" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-1.5">
-                            <label class="block text-[11.5px] font-medium text-black/60 dark:text-white/60">Pilih Tanggal &amp; Jam Penayangan</label>
-                            <input type="datetime-local" name="scheduled_at"
-                                class="w-full h-9 px-3 rounded-[10px] text-[12.5px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        {{-- Mode Selector --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[12px]">
+                            <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
+                                :class="scheduleMode === 'all_now' ? 'bg-[#007AFF]/10 border-[#007AFF] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="schedule_mode" value="all_now" x-model="scheduleMode" class="sr-only">
+                                <i data-lucide="zap" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Semua Sekarang</span>
+                            </label>
+
+                            <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
+                                :class="scheduleMode === 'all_same' ? 'bg-[#5856D6]/10 border-[#5856D6] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="schedule_mode" value="all_same" x-model="scheduleMode" class="sr-only">
+                                <i data-lucide="clock" class="w-3.5 h-3.5 text-[#5856D6]"></i>
+                                <span>Jadwal Serentak</span>
+                            </label>
+
+                            <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
+                                :class="scheduleMode === 'per_channel' ? 'bg-[#FF9500]/10 border-[#FF9500] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="schedule_mode" value="per_channel" x-model="scheduleMode" class="sr-only">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                <span>Beda per Saluran</span>
+                            </label>
+                        </div>
+
+                        {{-- Mode B: Jadwal Serentak (Satu waktu untuk semua saluran) --}}
+                        <div x-show="scheduleMode === 'all_same'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-1.5">
+                            <label class="block text-[11.5px] font-semibold text-black/70 dark:text-white/70">Pilih Tanggal &amp; Jam Penayangan Serentak</label>
+                            <input type="datetime-local" name="scheduled_at" x-model="globalScheduleTime"
+                                class="w-full h-9 px-3 rounded-[10px] text-[12.5px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
                             <p class="text-[11px] text-black/50 dark:text-white/50">
-                                Berkas media akan disimpan aman di server hingga cron penjadwalan mengeksekusi publikasi, lalu otomatis dihapus.
+                                Seluruh saluran terpilih akan otomatis dipublikasikan bersamaan oleh cron scheduler saat waktu tiba.
                             </p>
+                        </div>
+
+                        {{-- Mode C: Beda Waktu per Saluran (Bento Card per Akun Terpilih) --}}
+                        <div x-show="scheduleMode === 'per_channel'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-2.5">
+                            <p class="text-[11.5px] text-black/60 dark:text-white/60">
+                                Tentukan waktu khusus untuk masing-masing saluran (misal: Instagram langsung, Facebook jam 2 siang, TikTok besok):
+                            </p>
+                            <div class="space-y-2">
+                                @foreach($accounts as $acc)
+                                    <div x-show="selectedAccounts.includes('{{ $acc->id }}')"
+                                        class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2 min-w-0">
+                                                <div class="w-6 h-6 rounded-[7px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : 'bg-black/10 text-black dark:text-white')) }}">
+                                                    @if($acc->platform === 'facebook')
+                                                        <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
+                                                    @elseif($acc->platform === 'instagram')
+                                                        <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
+                                                    @elseif($acc->platform === 'tiktok')
+                                                        <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                                                    @else
+                                                        <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
+                                                    @endif
+                                                </div>
+                                                <span class="text-[12px] font-bold text-black dark:text-white truncate">{{ $acc->account_name }}</span>
+                                                <span class="text-[10.5px] text-black/50 dark:text-white/50 uppercase font-mono">({{ $acc->platform }})</span>
+                                            </div>
+                                            <div class="inline-flex p-0.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[11px]">
+                                                <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'now'"
+                                                    :class="channelTiming['{{ $acc->id }}'] === 'now' ? 'bg-white dark:bg-[#1C1C1E] text-[#007AFF] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
+                                                    class="px-2 py-0.5 rounded-[6px] transition-colors">
+                                                    Langsung
+                                                </button>
+                                                <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'schedule'"
+                                                    :class="channelTiming['{{ $acc->id }}'] === 'schedule' ? 'bg-white dark:bg-[#1C1C1E] text-[#FF9500] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
+                                                    class="px-2 py-0.5 rounded-[6px] transition-colors">
+                                                    Jadwalkan
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" :name="'channel_schedule_modes[{{ $acc->id }}]'" :value="channelTiming['{{ $acc->id }}']">
+
+                                        <div x-show="channelTiming['{{ $acc->id }}'] === 'schedule'" class="pt-1.5 border-t border-black/5 dark:border-white/5">
+                                            <input type="datetime-local" :name="'channel_scheduled_at[{{ $acc->id }}]'" x-model="channelScheduledAts['{{ $acc->id }}']"
+                                                class="w-full h-8 px-2.5 rounded-[8px] text-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#FF9500]">
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
 
@@ -732,7 +809,7 @@
                             <template x-if="isSubmitting">
                                 <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
                             </template>
-                            <span x-text="isSubmitting ? 'Mengunggah & Memproses...' : (isScheduleEnabled ? 'Simpan Jadwal' : 'Publikasikan Sekarang')"></span>
+                            <span x-text="isSubmitting ? 'Mengunggah & Memproses...' : (scheduleMode !== 'all_now' ? 'Simpan Jadwal' : 'Publikasikan Sekarang')"></span>
                         </button>
                     </div>
                 </form>
@@ -759,7 +836,18 @@
                 mediaSourceTab: 'upload',
                 captionText: '',
                 mediaUrl: '',
-                isScheduleEnabled: false,
+                scheduleMode: 'all_now',
+                globalScheduleTime: '',
+                channelTiming: {
+                    @foreach($accounts as $acc)
+                        '{{ $acc->id }}': 'now',
+                    @endforeach
+                },
+                channelScheduledAts: {
+                    @foreach($accounts as $acc)
+                        '{{ $acc->id }}': '',
+                    @endforeach
+                },
                 showOverrides: false,
                 filePreviewUrl: null,
                 fileName: '',

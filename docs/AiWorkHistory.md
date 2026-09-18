@@ -46,6 +46,385 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-18-072] Multi-Platform Publishing & Independent Per-Channel Scheduling (Instagram, Facebook, Threads, TikTok)
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Social Media Omnichannel (Tenant Composer & Admin Platform), Queue & Scheduled Cronjobs
+* **Feature:** Multi-Platform Target Dispatcher, Per-Channel Independent Scheduling, and Automated Queue Publication
+* **Work Type:** Feature | Architecture | Database Migration | UI/UX (Apple HIG Bento) | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pengguna (baik merchant UMKM pada tenant dashboard maupun administrator platform) membutuhkan fleksibilitas penuh dalam mempublikasikan dan menjadwalkan konten media sosial omnichannel. Seringkali satu materi konten (foto/video kucing) ingin disebarkan ke beberapa saluran sekaligus (Instagram, Facebook, Threads, TikTok), namun dengan strategi waktu publikasi yang berbeda untuk memaksimalkan *engagement* audiens di masing-masing platform (misalnya: Instagram langsung sekarang, Facebook jam 2 siang, Threads nanti malam, dan TikTok besok). Sebaliknya, materi konten tertentu (misalnya kambing) mungkin hanya ditujukan spesifik untuk satu saluran saja (hanya Instagram).
+* **Masalah/Target:**
+  1. Mendukung pemilihan satu atau multi-saluran secara fleksibel (Instagram, Facebook, Threads, TikTok).
+  2. Menyediakan 3 opsi penayangan: "Semua Sekarang", "Jadwal Serentak", dan "Beda per Saluran (Jadwal Independen)".
+  3. Setiap saluran target (`SocialPostTarget`) memiliki waktu jadwal mandiri (`scheduled_at`).
+  4. Artisan scheduler `php artisan social-media:publish-scheduled` berjalan setiap menit untuk mengeksekusi target yang waktunya telah tiba secara otomatis, baik untuk postingan merchant maupun postingan platform admin.
+  5. Antarmuka Bento Apple HIG yang intuitif tanpa emoji (menggunakan Lucide icons saja).
+
+#### 2. What Was Done
+1. **Migrasi Database:**
+   - Membuat migrasi `2026_09_18_090000_add_scheduled_at_to_social_post_targets_table.php` menambahkan kolom `scheduled_at` (nullable datetime) dengan indeks pada `['status', 'scheduled_at']` di tabel `social_post_targets`.
+2. **Model Eloquent:**
+   - Memperbarui `app/Models/SocialPostTarget.php` dengan penambahan `$fillable` (`scheduled_at`), casting `datetime`, helper methods `isScheduled()`, `isDueForPublishing()`, dan query scope `scopeDueForPublishing()`.
+   - Memperbarui `app/Models/SocialMediaPost.php` dengan penambahan metode `syncStatusFromTargets()` untuk merekonsiliasi status pos induk secara dinamis (`published`, `partially_published`, `partially_failed`, `scheduled`, `publishing`, `failed`).
+3. **Domain Services:**
+   - Memperbarui `app/Domain/SocialMedia/AdminSocialMediaService.php`:
+     - `createAndPublishPlatformPost()`: mendukung array `platforms`, `timing_mode`, `platform_timing`, dan `platform_scheduled_at`.
+     - `executePlatformPublishTarget()`: eksekusi penerbitan target spesifik untuk Instagram, Facebook, Threads, dan TikTok.
+     - `executePlatformPublish()` & `retryPlatformPost()`: terhubung langsung dengan target-target yang belum terbit.
+4. **Controllers & Request Handlers:**
+   - `AdminSocialMediaController.php`: Memperbarui `storePost()` untuk menerima multi-platform dan jadwal independen per kanal.
+   - `SocialMediaWebController.php`: Memperbarui `storePost()` untuk mendukung `schedule_mode` ('all_now', 'all_same', 'per_channel'), `channel_schedule_modes`, dan `channel_scheduled_at`.
+5. **Scheduler & Cron Automation:**
+   - Memperbarui `app/Console/Commands/PublishScheduledSocialMediaPostsCommand.php`:
+     - Mengecek dan memproses `SocialPostTarget` yang jatuh tempo (`status = 'scheduled'` dan `scheduled_at <= now()`).
+     - Mengeksekusi penerbitan platform target langsung atau men-dispatch `PublishSocialMediaTargetJob` untuk merchant target.
+     - Merekonsiliasi status pos induk menggunakan `syncStatusFromTargets()`.
+   - Menjamin cron job berjalan setiap menit di `routes/console.php`.
+6. **Apple HIG Bento UI Views:**
+   - `resources/views/app/social_media/posts.blade.php`: Mengintegrasikan pemilih mode 3-kolom Bento ("Semua Sekarang", "Jadwal Serentak", "Beda per Saluran") dengan input waktu spesifik per akun terpilih.
+   - `resources/views/admin/social_media/index.blade.php`: Mengintegrasikan Bento tiles multi-select untuk saluran resmi (Instagram `@cooca.indonesia`, Facebook Page, Threads, TikTok) dan kontrol waktu jadwal independen per saluran.
+7. **Pengujian Otomatis:**
+   - Membuat pengujian komprehensif `tests/Feature/SocialMedia/MultiPlatformAndPerChannelSchedulingTest.php` yang menguji:
+     - Skenario 1: Upload kucing multi-publish langsung ke IG, FB, TikTok.
+     - Skenario 2: Upload kucing dengan jadwal independen (IG sekarang, FB jam 2 siang, TikTok besok) dan eksekusi cron saat waktu tiba.
+     - Skenario 3: Upload kambing hanya untuk Instagram saja.
+     - Platform Admin multi-publish dan eksekusi cronjob.
+   - Seluruh 4 pengujian lulus (46 asersi).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `database/migrations/2026_09_18_090000_add_scheduled_at_to_social_post_targets_table.php`
+  - `app/Models/SocialPostTarget.php`
+  - `app/Models/SocialMediaPost.php`
+  - `app/Domain/SocialMedia/AdminSocialMediaService.php`
+  - `app/Console/Commands/PublishScheduledSocialMediaPostsCommand.php`
+  - `app/Http/Controllers/Admin/AdminSocialMediaController.php`
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`
+  - `resources/views/admin/social_media/index.blade.php`
+  - `resources/views/app/social_media/posts.blade.php`
+  - `tests/Feature/SocialMedia/MultiPlatformAndPerChannelSchedulingTest.php`
+
+#### 4. Verification & Testing
+* `php artisan test --filter=MultiPlatformAndPerChannelSchedulingTest`: 4 tests passed, 46 assertions (0 failures).
+* `php artisan test --filter=UnifiedPostingAndCarouselTest`: 6 tests passed, 44 assertions.
+* `php artisan test --filter=SocialMediaFeatureTest`: 11 tests passed, 43 assertions.
+* `php artisan test --filter=AdminSocialMediaSettingsTest`: 5 tests passed, 40 assertions.
+* `php artisan test --filter=AdminSettingTest`: 9 tests passed, 50 assertions.
+* `php artisan view:clear; php artisan view:cache`: Berhasil dicache tanpa error sintaks.
+
+---
+
+### [WORK-2026-09-18-071] Official Social Media Content Management & Publishing Hub, WhatsApp OTP Direct Dispatcher & Broadcast Blast Center
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Admin Platform, Social Media Omnichannel, Meta WhatsApp Cloud API Gateway, Security & Notifications
+* **Feature:** Official Platform Social Media Publishing (`/admin/social-media`), Interactive Official Comment Replies, Direct WhatsApp OTP Dispatcher (`/admin/whatsapp`), and Admin Broadcast Blast Center
+* **Work Type:** Feature | Architecture | Database Migration | UI/UX (Apple HIG Bento) | Security | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Administrator membutuhkan kapabilitas operasional langsung untuk mengelola akun media sosial resmi milik platform COOCA (Instagram `@cooca.indonesia`, Facebook Page, dan TikTok Open API) — termasuk membuat postingan publikasi langsung atau terjadwal dengan lampiran berkas gambar/video, memantau riwayat konten platform, dan membalas komentar masuk secara interaktif sebagai akun resmi Cooca. Selain itu, Super Admin juga memerlukan simulator dan pemicu kirim WhatsApp OTP langsung (dengan generator kode acak 6-digit dan pratinjau template resmi) serta pemicu siaran broadcast (blast) platform ke pemilik usaha terdaftar melalui Meta WhatsApp Cloud API resmi.
+* **Masalah/Target:** Mengembangkan fitur end-to-end bagi Super Admin untuk:
+  1. Mempublikasikan dan menjadwalkan postingan media sosial resmi platform lengkap dengan upload berkas media perangkat atau URL publik.
+  2. Memantau riwayat postingan platform, status publikasi (`published`, `scheduled`, `failed`), dan melakukan *retry* atau penghapusan konten.
+  3. Mengelola kotak masuk komentar resmi Cooca dan membalas komentar langsung sebagai "Cooca Indonesia".
+  4. Mengirimkan pesan WhatsApp OTP resmi secara langsung melalui Meta Cloud API dengan kode 6-digit acak atau manual.
+  5. Mengirimkan siaran platform (Blast) ke target audiens (`all_owners`, `active_subscribers`, `expiring_soon`, `free_tier`) dengan pratinjau chat interaktif.
+
+#### 2. What Was Done
+1. **Migrasi Database untuk Akun & Konten Platform:**
+   - Membuat migrasi `2026_09_18_080000_add_platform_support_to_social_media_tables.php` untuk memperluas tabel `social_media_accounts`, `social_media_posts`, `social_media_comments`, dan `social_post_targets`:
+     - Menjadikan kolom `business_id` nullable (mendukung akun dan konten milik platform).
+     - Menambahkan foreign key `admin_id` (`foreignUuid` berelasi ke tabel `admins`).
+     - Menambahkan boolean index flag `is_platform` default `false`.
+2. **Ekstensi Model Eloquent:**
+   - Memperbarui `app/Models/SocialMediaPost.php` dan `app/Models/SocialMediaComment.php` dengan penambahan `$fillable` (`admin_id`, `is_platform`), relasi `admin(): BelongsTo`, serta scopes `scopePlatform()` dan `scopeForBusiness()`.
+3. **Domain Service & API Client Enhancement:**
+   - Menambahkan metode pada `AdminSocialMediaService`:
+     - `getPlatformPosts(int $perPage = 12)`
+     - `createAndPublishPlatformPost(Admin $admin, array $data)`
+     - `executePlatformPublish(SocialMediaPost $post)`: mempublikasikan langsung ke Instagram Graph API (`graph.instagram.com`) atau Facebook Page (`graph.facebook.com`).
+     - `retryPlatformPost(SocialMediaPost $post)` & `deletePlatformPost(SocialMediaPost $post)`
+     - `getPlatformComments(int $perPage = 20)` & `replyPlatformComment(SocialMediaComment $comment, string $message, Admin $admin)`
+   - Memperbaiki `MetaSocialMediaClient::replyComment()` untuk meneruskan `$pageToken` ke `endpoint($path, $pageToken)` agar otomatis mengarahkan ke host `graph.instagram.com` bila token adalah token Instagram (`IGAA...`).
+4. **Admin Controllers & Route Endpoints:**
+   - Memperbarui `AdminSocialMediaController.php`:
+     - Menambahkan tab `posts` (default) dan `inbox`.
+     - Menambahkan aksi `storePost()`, `retryPost()`, `destroyPost()`, dan `replyComment()`.
+     - Menangani upload berkas media ke storage publik `storage/app/public/social-media/platform`.
+   - Memperbarui `AdminWhatsAppController.php`:
+     - Menambahkan endpoint `sendOtp(Request $request)` yang memanggil `AdminWhatsAppService::sendOtp()` via Meta WhatsApp Cloud API dengan template resmi `cooca_otp`.
+   - Mendaftarkan seluruh rute baru di `routes/admin.php`:
+     - `POST /admin/whatsapp/send-otp` (`admin.whatsapp.send-otp`)
+     - `POST /admin/social-media/posts` (`admin.social-media.posts.store`)
+     - `POST /admin/social-media/posts/{post}/retry` (`admin.social-media.posts.retry`)
+     - `DELETE /admin/social-media/posts/{post}` (`admin.social-media.posts.destroy`)
+     - `POST /admin/social-media/comments/{comment}/reply` (`admin.social-media.comments.reply`)
+5. **Apple HIG Bento UI Views:**
+   - `resources/views/admin/social_media/index.blade.php`:
+     - Tab 1: **"Kelola Konten Platform"** dengan profil snapshot `@cooca.indonesia`, badge verified `MEDIA_CREATOR`, tombol aksi *"Buat Postingan Baru"*, dan tabel riwayat konten lengkap dengan status badge dan tombol retry/hapus.
+     - Tab 2: **"Kotak Masuk Interaksi"** dengan daftar komentar pengunjung dan tombol balas cepat.
+     - Modal Sheet Bento Apple HIG: Formulir pembuatan postingan lengkap dengan pemilihan kanal (Instagram, Facebook, TikTok), penghitung karakter (0/2200), chip tagar cepat, unggah foto/video perangkat atau URL publik, dan opsi jadwal atau publikasi langsung.
+     - Modal Sheet Bento Apple HIG: Formulir balasan komentar interaktif.
+   - `resources/views/admin/whatsapp/index.blade.php`:
+     - Tombol cepat header *"Kirim Siaran (Blast)"* yang langsung mengarahkan ke tab blast.
+     - Card Live Diagnostic Dual-Mode: Mode 1 untuk pesan teks biasa, dan Mode 2 untuk Simulator Kirim WhatsApp OTP resmi dengan generator kode 6-digit acak serta pratinjau chat WhatsApp interaktif.
+6. **Automated Test Coverage (100% Pass Rate):**
+   - Menulis `AdminSocialMediaPlatformContentTest.php` (6 tests, 27 assertions).
+   - Menulis `AdminWhatsAppOtpAndBlastTest.php` (5 tests, 18 assertions).
+   - Menjalankan regresi penuh: 58 tests, 296 assertions passed 100%.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_18_080000_add_platform_support_to_social_media_tables.php`
+  - `tests/Feature/Admin/AdminSocialMediaPlatformContentTest.php`
+  - `tests/Feature/Admin/AdminWhatsAppOtpAndBlastTest.php`
+* **Files Modified:**
+  - `app/Models/SocialMediaPost.php`
+  - `app/Models/SocialMediaComment.php`
+  - `app/Domain/SocialMedia/AdminSocialMediaService.php`
+  - `app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`
+  - `app/Http/Controllers/Admin/AdminSocialMediaController.php`
+  - `app/Http/Controllers/Admin/AdminWhatsAppController.php`
+  - `routes/admin.php`
+  - `resources/views/admin/social_media/index.blade.php`
+  - `resources/views/admin/whatsapp/index.blade.php`
+
+#### 4. Verification & Testing
+* **Blade Compilation:** `php artisan view:clear; php artisan view:cache` lolos tanpa error (exit code 0).
+* **Automated Test Suite (100% Pass Rate across 58 tests, 296 assertions):**
+  - `AdminSocialMediaPlatformContentTest`: 6/6 passed
+  - `AdminWhatsAppOtpAndBlastTest`: 5/5 passed
+  - `AdminSettingTest`: 9/9 passed
+  - `AdminWhatsAppFeatureTest`: 10/10 passed
+  - `WhatsAppDualGatewayTest`: 10/10 passed
+  - `AdminSocialMediaSettingsTest`: 5/5 passed
+  - `SocialMediaFeatureTest`: 11/11 passed
+  - `AdminSmtpManagementTest`: 2/2 passed
+
+---
+
+### [WORK-2026-09-18-070] Unified Platform Settings Hub Architecture & De-duplication (Settings, SMTP, Social Media, WhatsApp)
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Admin Platform, System Settings, Communication (WhatsApp & SMTP), Social Media Omnichannel, Payment Gateway
+* **Feature:** Single Source of Truth Centralized Platform Settings Hub (`resources/views/admin/settings`, `resources/views/admin/smtp`, `resources/views/admin/social_media`, `resources/views/admin/whatsapp`)
+* **Work Type:** Architecture | Refactoring | UI/UX (Apple HIG Bento) | Security | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Sebelumnya, konfigurasi platform terpecah di 4 lokasi berbeda: `/admin/settings` (pengaturan umum dan sistem), `/admin/smtp` (pengaturan email SMTP), `/admin/whatsapp` (kredensial Meta WhatsApp Cloud API), dan `/admin/social-media` (kredensial Meta App, Instagram Platform, dan TikTok Open API). Selain itu, berkas tampilan `admin/settings/index.blade.php` mencapai 1.777 baris monolitik yang rawan konflik merge dan sulit dipelihara.
+* **Masalah/Target:** Mengintegrasikan seluruh pengaturan platform kredensial ke SATU tempat terpadu sebagai *Single Source of Truth* di `/admin/settings` dengan arsitektur modular per tab (`resources/views/admin/settings/tabs/`), serta mengganti formulir duplikat di `/admin/whatsapp` dan `/admin/social-media` dengan Bento Integration Hub Card yang elegan dan terarah tanpa memecah rute atau alur operasional yang sudah ada.
+
+#### 2. What Was Done
+1. **Modular Arsitektur Blade Partials (`resources/views/admin/settings/tabs/`):**
+   - Memecah monolit 1.777 baris menjadi master shell bersih 306 baris yang mengikutsertakan 5 partials:
+     - `tab-system.blade.php`: Google OAuth, identitas platform, paket langganan, harga token AI, kuota storage.
+     - `tab-payment.blade.php`: Gateway TriPay Model B (Sandbox/Production, credentials, callback, live balance check).
+     - `tab-whatsapp.blade.php`: Kredensial Meta WhatsApp Cloud API (App ID, Secret, WABA ID, Phone Number ID, Permanent Access Token, Webhook Token, Config ID, bot status snapshot, toggle OTP & blast, live diagnostic test sender).
+     - `tab-smtp.blade.php`: Server SMTP, Mail presets (Gmail, Mailtrap, cPanel, Log), port, encryption, live test email sender.
+     - `tab-social.blade.php`: Meta App (Facebook Login & Graph API), Instagram Platform (`Cooca-IG`, profile `@cooca.indonesia`, MEDIA_CREATOR), TikTok Open API, live API connection test buttons.
+2. **Sinkronisasi Backend Master Controller (`AdminSettingController.php`):**
+   - Memperluas `getUnifiedSettingData()` dengan parameter WhatsApp lengkap: `metaWaConfigId`, `metaWaOtpTemplate`, `waOtpActive`, `waBlastActive`, serta `waBotStatus` dari `AdminWhatsAppService::getStatus()`.
+   - Menambahkan validasi dan persistensi database untuk `meta_wa_config_id`, `meta_wa_otp_template`, `wa_otp_active`, dan `wa_blast_active`.
+3. **De-duplikasi Tampilan WhatsApp Admin Center (`resources/views/admin/whatsapp/index.blade.php`):**
+   - Mengganti formulir duplikat 280 baris pada Tab 1 (`parent_setup`) dengan Apple HIG Bento Integration Hub Card yang menampilkan ringkasan status kredensial saat ini dan tombol cepat *"Buka Pengaturan WhatsApp Cloud API"* menuju `/admin/settings?tab=whatsapp`.
+   - Tetap mempertahankan seluruh tab operasional (`merchants`, `reminders`, `blast`, `templates`, dan live test modal).
+4. **De-duplikasi Tampilan Social Media Admin Center (`resources/views/admin/social_media/index.blade.php`):**
+   - Mengganti formulir duplikat 240 baris pada Tab 1 (`settings`) dengan Apple HIG Bento Integration Hub Card yang menampilkan snapshot kredensial Meta App, Instagram Platform (`@cooca.indonesia`), TikTok Open API, dan Webhook URL, disertai tautan langsung ke `/admin/settings?tab=social`.
+   - Menambahkan alias properti pada `AdminSocialMediaService::getPlatformSettings()` untuk kompatibilitas penuh.
+5. **Zero-Emoji Mandate & Apple HIG Bento Standards:**
+   - Seluruh icon menggunakan SVG Lucide resmi (`<i data-lucide="...">`), bebas emoji unicode mentah.
+   - Menggunakan palette warna Apple HIG (`#007AFF`, `#34C759`, `#FF9500`, `#FF3B30`, `#AF52DE`), `rounded-[18px]` s.d. `rounded-[24px]`, backdrop blur, dan typography Inter font hierarchy.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `resources/views/admin/settings/tabs/tab-system.blade.php`
+  - `resources/views/admin/settings/tabs/tab-payment.blade.php`
+  - `resources/views/admin/settings/tabs/tab-whatsapp.blade.php`
+  - `resources/views/admin/settings/tabs/tab-smtp.blade.php`
+  - `resources/views/admin/settings/tabs/tab-social.blade.php`
+* **Files Modified:**
+  - `app/Http/Controllers/Admin/AdminSettingController.php`: Tambah parsing, validasi, dan penyimpanan atribut WhatsApp & live status.
+  - `app/Domain/SocialMedia/AdminSocialMediaService.php`: Tambah alias `ig_*` pada `getPlatformSettings()`.
+  - `resources/views/admin/settings/index.blade.php`: Refactor total ke arsitektur master modular.
+  - `resources/views/admin/whatsapp/index.blade.php`: Ganti form Tab 1 dengan Bento Integration Hub Card.
+  - `resources/views/admin/social_media/index.blade.php`: Ganti form Tab 1 dengan Bento Integration Hub Card & tambahkan shortcut header.
+  - `resources/views/admin/smtp/index.blade.php`: Memastikan tetap me-render master shell dengan `defaultTab = 'smtp'`.
+
+#### 4. System Impacts
+* **Workflow Impact:** Administrator kini memiliki satu konsol tunggal `/admin/settings` untuk mengelola seluruh kredensial rahasia platform, menghilangkan redundansi input ganda dan potensi desinkronisasi.
+* **Business Rule Impact:** Seluruh token dan secret disimpan dengan enkripsi simetris AES-256-CBC (`is_secret: true`). Gateway WhatsApp dan Social Media tetap memvalidasi kredensial melalui service domain terkait.
+* **Permission Impact:** Tetap dilindungi oleh `auth:admin` guard dan permission `system.settings.manage`.
+
+#### 5. Verification & Testing
+* **Blade Cache:** `php artisan view:clear; php artisan view:cache` lolos 100% tanpa error kompilasi.
+* **Automated Test Suite (100% Pass):**
+  - `AdminSettingTest`: 9/9 passed (50 assertions)
+  - `AdminWhatsAppFeatureTest`: 10/10 passed (64 assertions)
+  - `WhatsAppDualGatewayTest`: 10/10 passed (41 assertions)
+  - `AdminSocialMediaSettingsTest`: 5/5 passed (40 assertions)
+  - `SocialMediaFeatureTest`: 11/11 passed (43 assertions)
+  - `AdminSmtpManagementTest`: 2/2 passed (13 assertions)
+  - **Total:** 47/47 passed (251 assertions) dalam 28 detik.
+
+#### 6. Important Decisions & Guardrails
+* **Preservasi Rute & POST Endpoint:** Rute `admin.whatsapp.config` dan `admin.social-media.config` tetap dipertahankan pada controller aslinya untuk menjamin zero breaking changes terhadap automated test, background jobs, atau skrip eksternal.
+* **Deep Linking Tab:** Setiap navigasi dan tombol CTA membawa query parameter `?tab=...` yang secara otomatis membuka tab yang relevan di Alpine.js controller.
+
+### [WORK-2026-09-17-069] Official Instagram Platform API (Cooca-IG) Integration, Intelligent Dual-Host Routing, & Superadmin Management Hub
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Admin Platform, Settings, Social Media Omnichannel, Meta / Instagram Graph API
+* **Feature:** Official Instagram Platform API Integration & Live Verification (`resources/views/admin/settings` & `resources/views/admin/social_media`)
+  1. Full integration of official Instagram Graph API (`Cooca-IG`, App ID: `1813131243044390`) into encrypted database settings (`system_settings`).
+  2. Live account verification against `https://graph.instagram.com/v21.0/me` yielding active profile `@cooca.indonesia`, Account Type `MEDIA_CREATOR`, `11` Posts, and validated container generation.
+  3. Intelligent dual-host routing in `MetaSocialMediaClient`: automatically switches API endpoint host to `graph.instagram.com` for Instagram user tokens (`IGAA...`) and `graph.facebook.com` for Facebook Page tokens.
+  4. Apple HIG Bento UI integration on Superadmin Settings (`/admin/settings?tab=social`) and Social Media Hub (`/admin/social-media`): live profile snapshot card, toggleable secret fields, and real-time interactive connectivity test modal.
+  5. Symmetrical AES-256 encryption (`is_secret: true`) for `instagram_app_secret` and `instagram_access_token`.
+  6. Zero-Emoji compliance and 100% test suite pass rate (25/25 tests across `AdminSettingTest`, `AdminSocialMediaSettingsTest`, `SocialMediaFeatureTest`).
+* **Work Type:** Feature | Architecture | Security | UI/UX (Apple HIG Bento) | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Menghubungkan akun resmi Instagram Bisnis/Kreator COOCA (`@cooca.indonesia`, App `Cooca-IG`) langsung ke core platform COOCA untuk pembuatan, penerbitan konten korsel/gambar/video, dan interaksi omnichannel.
+* **Masalah/Target:**
+  - Kredensial Instagram Developer (App ID `1813131243044390`, App Secret, User Access Token `IGAA...`, Instagram Account ID `17841439846162016`) harus dikonfigurasi dan diuji validitasnya secara nyata.
+  - Token bertipe Instagram Platform User Token (`IGAA...`) memiliki keunikan host: Meta Graph API menolak token `IGAA...` jika diarahkan ke `graph.facebook.com` (OAuth Exception 190 "Cannot parse access token"). Token jenis ini harus diarahkan ke host `graph.instagram.com`.
+  - Platform membutuhkan dual-host routing cerdas tanpa memutus alur Facebook Page yang sudah berjalan.
+  - Seluruh kredensial harus tersimpan dengan enkripsi AES-256 di basis data `system_settings` dan dapat dikelola secara intuitif melalui Superadmin Bento UI dengan tombol tes diagnostik real-time.
+
+#### 2. What Was Done
+* **Live Connectivity & Container Verification:**
+  - Menguji kredensial langsung ke endpoint resmi `https://graph.instagram.com/v21.0/me` dengan access token yang disediakan: berhasil mengembalikan profil `@cooca.indonesia` (ID: `28475871372070145`, tipe `MEDIA_CREATOR`, `11` postingan, live avatar CDN).
+  - Menguji container creation ke `https://graph.instagram.com/v21.0/28475871372070145/media` dengan parameter `image_url` dan `caption`: berhasil mendapatkan container ID `18112515695328206` (HTTP 200).
+* **Database Persistence & Security Hardening:**
+  - Menyimpan konfigurasi Instagram ke `system_settings` dengan enkripsi simetris untuk secret (`is_secret: true`):
+    - `instagram_app_id`: `1813131243044390`
+    - `instagram_app_name`: `Cooca-IG`
+    - `instagram_app_secret`: `e2147bd1f78dccafeea8b72a92ae3fa8` (terenkripsi)
+    - `instagram_account_id`: `17841439846162016`
+    - `instagram_graph_user_id`: `28475871372070145`
+    - `instagram_username`: `cooca.indonesia`
+    - `instagram_access_token`: `IGAAZAxCIOs...` (terenkripsi)
+    - `instagram_account_type`: `MEDIA_CREATOR`
+    - `instagram_media_count`: `11`
+    - `instagram_status`: `active`
+    - `instagram_verified_at`: timestamp ISO terverifikasi
+* **Intelligent Dual-Host Routing:**
+  - Memperbarui `App\Domain\SocialMedia\Clients\MetaSocialMediaClient`: metode `endpoint()` mendeteksi token dengan prefiks `IGAA` untuk secara otomatis mengarahkan panggilan HTTP ke `https://graph.instagram.com/{version}/...` alih-alih `https://graph.facebook.com/{version}/...`.
+  - Memperbarui metode penerbitan postingan Instagram (`publishInstagramPost()`, `waitForMediaContainerReady()`, `publishInstagramCarousel()`) agar menerima token eksplisit.
+* **Service & Controller Expansion:**
+  - `App\Domain\SocialMedia\AdminSocialMediaService`: menambahkan parameter Instagram pada `getPlatformSettings()` dan `savePlatformSettings()`, serta metode `verifyInstagramCredentials()` yang menguji live API dan memperbarui cache profil secara otomatis.
+  - `App\Http\Controllers\Admin\AdminSettingController`: mengekspos variabel Instagram ke view, menambahkan validasi dan penyimpanan pada `update()`, memperkaya `testSocialMediaConfig()` dengan diagnostik 3-kanal (Meta, Instagram, TikTok), dan menambahkan endpoint dedicated `testInstagramConfig()`.
+  - `App\Http\Controllers\Admin\AdminSocialMediaController`: mendukung penyimpanan konfigurasi Instagram dari dashboard Media Sosial.
+  - `routes/admin.php`: mendaftarkan route `POST admin/settings/test-instagram` (`admin.settings.test-instagram`).
+* **Bento Apple HIG UI Integration (Zero-Emoji Compliance):**
+  - `resources/views/admin/settings/index.blade.php`: menambahkan Bento Card Instagram resmi lengkap dengan live profile snapshot banner (avatar, `@cooca.indonesia`, badge `MEDIA_CREATOR`, 11 postingan), input field berproteksi mata toggle, dan tombol interaktif "Tes Koneksi Instagram". Menyelaraskan kartu hasil diagnostik menjadi 3 kolom terpadu.
+  - `resources/views/admin/social_media/index.blade.php`: menambahkan kartu konfigurasi Instagram berdampingan dengan Meta & TikTok dengan standarisasi Lucide icons (`<i data-lucide="...">`), squircle borders, dan zero emoji.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`
+  - `app/Domain/SocialMedia/AdminSocialMediaService.php`
+  - `app/Http/Controllers/Admin/AdminSettingController.php`
+  - `app/Http/Controllers/Admin/AdminSocialMediaController.php`
+  - `routes/admin.php`
+  - `resources/views/admin/settings/index.blade.php`
+  - `resources/views/admin/social_media/index.blade.php`
+  - `tests/Feature/Admin/AdminSettingTest.php`
+  - `docs/SYSTEM_GUIDE.md`
+  - `docs/AiWorkHistory.md`
+* **Database Changes:** Nilai baru pada tabel `system_settings` dengan enkripsi simetris.
+* **API / Route Changes:**
+  - `POST admin/settings/test-instagram` (`admin.settings.test-instagram`)
+
+#### 4. System Impacts
+* **Workflow Impact:** Superadmin dapat memantau dan memperbarui kredensial Instagram sewaktu-waktu langsung dari UI, serta melakukan uji kelayakan real-time kapan saja tanpa menyentuh terminal server.
+* **Business Rule Impact:** Resolusi token cerdas memastikan postingan ke Instagram Bisnis/Kreator menggunakan endpoint resmi Instagram Graph API secara mulus tanpa bentrok dengan Facebook Pages.
+* **Permission Impact:** Tetap terlindungi di bawah gate otorisasi `admin` / Superadmin.
+
+#### 5. Verification & Testing
+* `tests/Feature/Admin/AdminSettingTest.php`: 9/9 tes PASSED (50 assertions).
+* `tests/Feature/Admin/AdminSocialMediaSettingsTest.php`: 5/5 tes PASSED (40 assertions).
+* `tests/Feature/SocialMediaFeatureTest.php`: 11/11 tes PASSED (43 assertions).
+* Total: 25/25 automated test cases 100% PASSED (133 assertions).
+* `php artisan view:clear; php artisan view:cache`: 0 errors.
+
+#### 6. Important Decisions & Guardrails
+* **Dual-Host Routing Decision:** Token bertipe `IGAA...` adalah token Instagram Platform/Basic Display/Business yang didesain untuk `graph.instagram.com`. Memaksakan panggilan ke `graph.facebook.com` akan menghasilkan galat OAuth 190. Dengan mendeteksi prefiks `IGAA`, sistem secara transparan dan otomatis memilih host yang tepat tanpa memerlukan konfigurasi manual tambahan dari pengguna.
+* **Zero-Emoji Mandate:** Seluruh ikon pada kartu Instagram, status badge, dan tombol diagnostik menggunakan Lucide Icons (`instagram`, `check-circle-2`, `shield-check`, `eye`, `eye-off`, `activity`, `sparkles`).
+* **Symmetric Encryption Guardrail:** Kunci rahasia (`instagram_app_secret`, `instagram_access_token`) selalu disimpan terenkripsi dengan `is_secret = true`.
+
+#### 7. Documentation Promotion
+* Dicatat dalam `docs/SYSTEM_GUIDE.md` Bab 4.7 Arsitektur Media Sosial Omnichannel (Meta & TikTok Open API v2).
+
+### [WORK-2026-09-17-068] Full Migration of Platform Secrets (.env) to Dynamic Superadmin Settings Hub (TriPay Gateway Model B, Meta WhatsApp Cloud API, Meta Social Media, SMTP)
+* **Date:** 2026-09-17
+* **Status:** COMPLETED
+* **Module:** Admin Platform, Settings, Payment Gateway, WhatsApp Cloud API, Social Media, SMTP
+* **Feature:** Dynamic Superadmin Settings Management & Testing Hub (`resources/views/admin/settings` & `resources/views/admin/smtp`)
+  1. Complete migration of `.env` configuration (TriPay Gateway, Meta WhatsApp Cloud API, Meta Social Media) into encrypted database table `system_settings`.
+  2. Apple HIG Bento Settings Hub with 5 unified segmented tabs: OAuth & Sistem, Pembayaran (TriPay), WhatsApp Cloud API, Media Sosial, and SMTP Email.
+  3. Live AJAX connectivity verification endpoints (`settings.test-tripay` & `settings.test-whatsapp`) providing real-time diagnostics directly from Superadmin UI.
+  4. Priority hierarchy resolution: Database (`SystemSetting`) > Config (`services.*`) > Env (`.env`).
+  5. Symmetric encryption for sensitive private keys (`tripay_private_key`, `meta_wa_token`, `mail_password`).
+  6. Zero-Emoji compliance and 100% test suite pass rate.
+* **Work Type:** Architecture | Security | UI/UX (Apple HIG Bento) | Refactoring | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Menindaklanjuti permintaan pengguna untuk memindahkan seluruh variabel konfigurasi pihak ketiga dari file `.env` (TriPay Gateway Model B, Meta WhatsApp Cloud API, Meta Social Media) ke antarmuka Superadmin di `resources/views/admin/settings` dan `resources/views/admin/smtp`.
+* **Masalah/Target:**
+  - Sebelumnya, kredensial sensitif seperti API Key TriPay, Private Key, Meta WhatsApp Access Token, dan Phone Number ID bergantung pada file `.env` server lokal. Perubahan atau pembaruan token kedaluwarsa mengharuskan akses SSH/terminal server.
+  - Diperlukan antarmuka visual terpadu berstandar Apple HIG Bento di mana Superadmin platform dapat melihat, memperbarui, menguji konektivitas langsung ke server gateway (TriPay & Meta Graph API), dan menyalin webhook callback URL tanpa membuka file `.env`.
+  - Kredensial sensitif harus dienkripsi secara aman saat disimpan di basis data (`is_secret: true`).
+
+#### 2. What Was Done
+* **Database & Persistence Migration:**
+  - Seluruh kunci konfigurasi TriPay Gateway (`tripay_merchant_code`, `tripay_api_key`, `tripay_private_key` [encrypted], `tripay_is_production`, `tripay_sandbox_url`, `tripay_prod_url`) dipindahkan ke basis data `system_settings`.
+  - Seluruh kunci Meta WhatsApp Cloud API (`meta_wa_app_id`, `meta_wa_phone_number_id`, `meta_wa_waba_id`, `meta_wa_token` [encrypted], `meta_wa_webhook_verify_token`, `meta_wa_graph_version`, `meta_wa_graph_url`) dipindahkan ke basis data `system_settings`.
+  - Seluruh kunci Meta Social Media (`social_media_app_id`, `social_media_webhook_verify_token`, `social_media_graph_version`, `social_media_graph_url`) dipersistensikan ke `system_settings`.
+* **Dynamic Gateway & Driver Resolution:**
+  - Memperbarui `App\Domain\Payment\TripayService`: constructor memprioritaskan nilai dari `SystemSetting::get('tripay_*')` sebelum fallback ke `config('services.tripay.*')` dan `env()`.
+  - Driver Meta WhatsApp Cloud (`App\Domain\WhatsApp\Drivers\MetaWhatsAppCloudDriver`) secara natif membaca konfigurasi dari `SystemSetting` dengan fallback config.
+* **Unified Superadmin Controller (`App\Http\Controllers\Admin\AdminSettingController`):**
+  - Memperbarui `getUnifiedSettingData()` untuk mengekspos semua parameter TriPay, WhatsApp, Meta Social Media, SMTP, dan webhook callback URLs ke template Blade.
+  - Memperbarui method `update()` dengan aturan validasi ketat, sanitasi, dan penyimpanan otomatis dengan enkripsi untuk private key / secret token.
+  - Mengimplementasikan endpoint AJAX `testTripayConfig()`: melakukan query live ke endpoint `payment/channel` TriPay (Sandbox atau Production) untuk memverifikasi autentikasi API Key dan jumlah channel aktif.
+  - Mengimplementasikan endpoint AJAX `testWhatsAppConfig()`: memverifikasi token dan Phone Number ID langsung ke Meta Graph API v25.0 via `MetaWhatsAppCloudDriver::verifyCredentials`.
+* **Apple HIG Bento UI Optimization (`resources/views/admin/settings/index.blade.php` & `smtp/index.blade.php`):**
+  - Menambahkan segmented tab bar 5-tab yang responsif dengan persistensi tab aktif (`?tab=payment`, `?tab=whatsapp`, `?tab=smtp`).
+  - Merancang Bento Card untuk TriPay: status switch Sandbox/Production, input merchant code & API key, password-reveal toggle untuk Private Key, box copyable Webhook Callback URL, dan tombol interaktif *"Uji Koneksi TriPay"* dengan spinner dan alert status live.
+  - Merancang Bento Card untuk Meta WhatsApp: konfigurasi App ID, Phone Number ID, WABA ID, Access Token dengan toggle sembunyikan/tampilkan, URL Webhook Callback & Verify Token dengan tombol salin 1-klik, dan tombol *"Uji Koneksi Meta Cloud"* dengan feedback status instan.
+  - Menjaga keharmonisan `resources/views/admin/smtp/index.blade.php` agar tetap berfungsi mulus sebagai akses langsung tab SMTP.
+  - Zero-Emoji: Seluruh antarmuka hanya menggunakan ikon Lucide (`credit-card`, `message-circle`, `mail`, `shield-check`, dll.).
+* **Automated Feature Test Suite:**
+  - Membuat `tests/Feature/Admin/AdminSettingTest.php` mencakup 6 test cases: render seluruh tab, akses langsung SMTP route, penyimpanan setting TriPay, penyimpanan setting Meta WhatsApp, verifikasi endpoint test TriPay, dan verifikasi endpoint test WhatsApp.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `tests/Feature/Admin/AdminSettingTest.php`
+* **Files Modified:**
+  - `app/Domain/Payment/TripayService.php`
+  - `app/Http/Controllers/Admin/AdminSettingController.php`
+  - `resources/views/admin/settings/index.blade.php`
+  - `routes/admin.php`
+  - `phpunit.xml`
+
+#### 4. System Impacts
+* **Workflow Impact:** Superadmin platform kini dapat mengelola dan memverifikasi integrasi TriPay Gateway dan Meta WhatsApp secara instan dari Web UI tanpa menyentuh file konfigurasi `.env` atau me-restart server.
+* **Security & Guardrails:** Kredensial rahasia (private key TriPay & access token Meta) disimpan terenkripsi secara simetris (`SystemSetting::set(..., isSecret: true)`) menggunakan APP_KEY platform, mencegah kebocoran data saat terjadi dump database plain text.
+* **Backward Compatibility:** Lapisan fallback berjenjang (Database -> Config -> Env) memastikan seluruh pipeline pembayaran dan notifikasi tetap berjalan normal tanpa interupsi.
+
+#### 5. Verification & Testing
+* `tests/Feature/Admin/AdminSettingTest.php`: 6 tests, 26 assertions, **100% PASSED**.
+* `tests/Feature/Admin/AdminSmtpManagementTest.php`: 2 tests, 18 assertions, **100% PASSED**.
+* `tests/Feature/TripayPaymentTest.php`: 8 tests, 35 assertions, **100% PASSED**.
+* `tests/Feature/WhatsAppAdminMultiSessionTest.php` & `WhatsAppDualGatewayTest.php`: 15 tests, 58 assertions, **100% PASSED**.
+* `php artisan view:cache`: **Blade templates cached successfully** (0 errors).
+* Live Connectivity:
+  - TriPay Sandbox API: HTTP 200 OK (3 channel groups).
+  - Meta WhatsApp Graph API: HTTP 200 OK (Verified Number `+1 555-184-6167`, Quality Rating `GREEN`).
+
 ### [WORK-2026-09-17-067] Comprehensive 10-Phase Payment Gateway, Reporting Suite, Settlement Reconciliation, & System Transparency Remediation
 * **Date:** 2026-09-17
 * **Status:** COMPLETED

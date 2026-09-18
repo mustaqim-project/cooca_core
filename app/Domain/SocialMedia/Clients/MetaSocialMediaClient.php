@@ -52,9 +52,13 @@ class MetaSocialMediaClient
         return $this->graphUrl;
     }
 
-    protected function endpoint(string $path): string
+    protected function endpoint(string $path, ?string $token = null): string
     {
         $cleanPath = ltrim($path, '/');
+        if ($token && str_starts_with($token, 'IGAA')) {
+            return "https://graph.instagram.com/{$this->graphVersion}/{$cleanPath}";
+        }
+
         return "{$this->graphUrl}/{$this->graphVersion}/{$cleanPath}";
     }
 
@@ -207,7 +211,7 @@ class MetaSocialMediaClient
     public function waitForMediaContainerReady(string $containerId, string $pageToken, int $maxAttempts = 8, int $sleepSeconds = 2): void
     {
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
-            $res = Http::get($this->endpoint($containerId), [
+            $res = Http::get($this->endpoint($containerId, $pageToken), [
                 'fields'       => 'status_code,status',
                 'access_token' => $pageToken,
             ]);
@@ -248,7 +252,7 @@ class MetaSocialMediaClient
         }
 
         // Step 1: Create media container
-        $containerResponse = Http::asForm()->post($this->endpoint("{$igUserId}/media"), $payload);
+        $containerResponse = Http::asForm()->post($this->endpoint("{$igUserId}/media", $pageToken), $payload);
 
         if (! $containerResponse->successful()) {
             Log::error('Meta create IG container failed', ['body' => $containerResponse->body()]);
@@ -266,7 +270,7 @@ class MetaSocialMediaClient
         }
 
         // Step 2: Publish media container
-        $publishResponse = Http::asForm()->post($this->endpoint("{$igUserId}/media_publish"), [
+        $publishResponse = Http::asForm()->post($this->endpoint("{$igUserId}/media_publish", $pageToken), [
             'creation_id'  => $creationId,
             'access_token' => $pageToken,
         ]);
@@ -310,7 +314,7 @@ class MetaSocialMediaClient
                 $payload['image_url'] = $url;
             }
 
-            $res = Http::asForm()->post($this->endpoint("{$igUserId}/media"), $payload);
+            $res = Http::asForm()->post($this->endpoint("{$igUserId}/media", $pageToken), $payload);
             if (! $res->successful() || empty($res->json('id'))) {
                 Log::error('Meta create IG carousel child container failed', ['body' => $res->body()]);
                 throw new \RuntimeException($res->json('error.message') ?? 'Gagal membuat kontainer item carousel Instagram.');
@@ -324,7 +328,7 @@ class MetaSocialMediaClient
         }
 
         // 2. Create parent carousel container
-        $carouselRes = Http::asForm()->post($this->endpoint("{$igUserId}/media"), [
+        $carouselRes = Http::asForm()->post($this->endpoint("{$igUserId}/media", $pageToken), [
             'media_type'   => 'CAROUSEL',
             'children'     => implode(',', $childContainerIds),
             'caption'      => $caption,
@@ -339,7 +343,7 @@ class MetaSocialMediaClient
         $carouselCreationId = (string) $carouselRes->json('id');
 
         // 3. Publish parent carousel container
-        $publishRes = Http::asForm()->post($this->endpoint("{$igUserId}/media_publish"), [
+        $publishRes = Http::asForm()->post($this->endpoint("{$igUserId}/media_publish", $pageToken), [
             'creation_id'  => $carouselCreationId,
             'access_token' => $pageToken,
         ]);
@@ -404,7 +408,7 @@ class MetaSocialMediaClient
     {
         $path = strtolower($platform) === 'instagram' ? "{$commentId}/replies" : "{$commentId}/comments";
 
-        $response = Http::asForm()->post($this->endpoint($path), [
+        $response = Http::asForm()->post($this->endpoint($path, $pageToken), [
             'message'      => $message,
             'access_token' => $pageToken,
         ]);

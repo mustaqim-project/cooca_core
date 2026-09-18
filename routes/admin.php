@@ -76,11 +76,14 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/ai-tokens', [AdminAiTokenController::class, 'index'])->name('ai-tokens.index');
         Route::post('/ai-tokens/{business}/grant', [AdminAiTokenController::class, 'grant'])->name('ai-tokens.grant');
 
-        // Google API, System Settings & SMTP
+        // Google API, System Settings, Payment Gateway, WhatsApp & SMTP
         Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/billing', [AdminSettingController::class, 'updateBilling'])->name('settings.billing');
         Route::post('/settings/test-social-media', [AdminSettingController::class, 'testSocialMediaConfig'])->name('settings.test-social');
+        Route::post('/settings/test-tripay', [AdminSettingController::class, 'testTripayConfig'])->name('settings.test-tripay');
+        Route::post('/settings/test-whatsapp', [AdminSettingController::class, 'testWhatsAppConfig'])->name('settings.test-whatsapp');
+        Route::post('/settings/test-instagram', [AdminSettingController::class, 'testInstagramConfig'])->name('settings.test-instagram');
         Route::get('/smtp', [AdminSmtpController::class, 'index'])->name('smtp.index');
         Route::post('/smtp', [AdminSmtpController::class, 'update'])->name('smtp.update');
         Route::post('/smtp/test', [AdminSmtpController::class, 'test'])->name('smtp.test');
@@ -144,6 +147,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::get('/', [AdminWhatsAppController::class, 'index'])->name('index');
             Route::get('/status', [AdminWhatsAppController::class, 'checkStatus'])->name('status');
             Route::post('/test', [AdminWhatsAppController::class, 'testSend'])->name('test');
+            Route::post('/send-otp', [AdminWhatsAppController::class, 'sendOtp'])->name('send-otp');
             Route::post('/verify-meta', [AdminWhatsAppController::class, 'verifyMetaCredentials'])->name('verify-meta');
             Route::post('/reminders/{subscription}/send', [AdminWhatsAppController::class, 'sendSingleReminder'])->name('reminders.send');
             Route::post('/reminders/send-all', [AdminWhatsAppController::class, 'sendAllReminders'])->name('reminders.send-all');
@@ -161,6 +165,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::prefix('social-media')->name('social-media.')->group(function (): void {
             Route::get('/', [AdminSocialMediaController::class, 'index'])->name('index');
             Route::post('/config', [AdminSocialMediaController::class, 'updateConfig'])->name('config');
+            Route::post('/posts', [AdminSocialMediaController::class, 'storePost'])->name('posts.store');
+            Route::post('/posts/{post}/retry', [AdminSocialMediaController::class, 'retryPost'])->name('posts.retry');
+            Route::delete('/posts/{post}', [AdminSocialMediaController::class, 'destroyPost'])->name('posts.destroy');
+            Route::post('/comments/{comment}/reply', [AdminSocialMediaController::class, 'replyComment'])->name('comments.reply');
         });
 
         // Error Logs & System Diagnostics

@@ -41,6 +41,7 @@ class SocialMediaComment extends Model
 
     protected $fillable = [
         'business_id',
+        'is_platform',
         'social_media_account_id',
         'social_media_post_id',
         'platform',
@@ -61,6 +62,7 @@ class SocialMediaComment extends Model
     protected function casts(): array
     {
         return [
+            'is_platform'  => 'boolean',
             'is_from_page' => 'boolean',
             'created_time' => 'datetime',
         ];
@@ -84,6 +86,11 @@ class SocialMediaComment extends Model
     public function scopeForBusiness(Builder $query, string $businessId): Builder
     {
         return $query->where('business_id', $businessId);
+    }
+
+    public function scopePlatform(Builder $query): Builder
+    {
+        return $query->where('is_platform', true);
     }
 
     public function scopeUnread(Builder $query): Builder

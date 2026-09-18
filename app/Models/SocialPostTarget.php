@@ -48,6 +48,7 @@ class SocialPostTarget extends Model
         'platform_post_id',
         'error_message',
         'metrics',
+        'scheduled_at',
         'published_at',
         'retry_count',
     ];
@@ -59,6 +60,7 @@ class SocialPostTarget extends Model
     {
         return [
             'metrics'      => 'array',
+            'scheduled_at' => 'datetime',
             'published_at' => 'datetime',
             'retry_count'  => 'integer',
         ];
@@ -77,6 +79,16 @@ class SocialPostTarget extends Model
     public function isPublished(): bool
     {
         return $this->status === 'published';
+    }
+
+    public function isScheduled(): bool
+    {
+        return $this->status === 'scheduled';
+    }
+
+    public function isDueForPublishing(): bool
+    {
+        return $this->status === 'scheduled' && $this->scheduled_at !== null && $this->scheduled_at->isPast();
     }
 
     public function isFailed(): bool
@@ -104,5 +116,15 @@ class SocialPostTarget extends Model
         return ! empty($this->custom_caption)
             ? $this->custom_caption
             : ($this->post?->content ?? '');
+    }
+
+    /**
+     * Scope for targets ready to be published by the scheduler.
+     */
+    public function scopeDueForPublishing(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'scheduled')
+            ->whereNotNull('scheduled_at')
+            ->where('scheduled_at', '<=', now());
     }
 }

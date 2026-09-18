@@ -34,7 +34,7 @@ return [
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('GOOGLE_REDIRECT_URI', 'https://umkm.cooca.id/auth/google/callback'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', 'https://cooca.id/auth/google/callback'),
         'customer_redirect' => env('GOOGLE_CUSTOMER_REDIRECT_URI', rtrim(env('APP_URL', 'http://localhost'), '/') . '/customer/auth/google/callback'),
     ],
 
@@ -63,7 +63,7 @@ return [
     'tiktok' => [
         'client_key'    => env('TIKTOK_CLIENT_KEY', ''),
         'client_secret' => env('TIKTOK_CLIENT_SECRET', ''),
-        'redirect_uri'  => env('TIKTOK_REDIRECT_URI', ''),
+        'redirect_uri'  => env('TIKTOK_REDIRECT_URI', 'https://cooca.id/social-media/tiktok/callback'),
         'api_url'       => env('TIKTOK_API_URL', 'https://open.tiktokapis.com/v2/'),
         'auth_url'      => env('TIKTOK_AUTH_URL', 'https://www.tiktok.com/v2/auth/authorize/'),
     ],

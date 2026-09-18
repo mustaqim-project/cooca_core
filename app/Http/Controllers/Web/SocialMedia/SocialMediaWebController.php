@@ -255,21 +255,26 @@ class SocialMediaWebController extends Controller
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
-            'social_media_account_id' => ['nullable', 'uuid'],
-            'target_accounts'         => ['nullable', 'array'],
-            'target_accounts.*'       => ['uuid'],
-            'content'                 => ['required', 'string', 'max:5000'],
-            'custom_captions'         => ['nullable', 'array'],
-            'custom_captions.*'       => ['nullable', 'string', 'max:5000'],
-            'content_types'           => ['nullable', 'array'],
-            'content_types.*'         => ['nullable', 'string', 'in:feed,photo,carousel,reel,video,story,text'],
-            'media_type'              => ['nullable', 'string', 'in:text,image,video,reels,carousel'],
-            'media_format'            => ['nullable', 'string', 'in:photo,video,reels,text'],
-            'media_file'              => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp,gif,mp4,mov', 'max:102400'], // 100MB
-            'media_files'             => ['nullable', 'array', 'max:10'],
-            'media_files.*'           => ['file', 'mimes:jpeg,png,jpg,webp,gif,mp4,mov', 'max:102400'],
-            'media_url'               => ['nullable', 'url', 'max:1000'],
-            'scheduled_at'            => ['nullable', 'date', 'after:now'],
+            'social_media_account_id'  => ['nullable', 'uuid'],
+            'target_accounts'          => ['nullable', 'array'],
+            'target_accounts.*'        => ['uuid'],
+            'content'                  => ['required', 'string', 'max:5000'],
+            'custom_captions'          => ['nullable', 'array'],
+            'custom_captions.*'        => ['nullable', 'string', 'max:5000'],
+            'content_types'            => ['nullable', 'array'],
+            'content_types.*'          => ['nullable', 'string', 'in:feed,photo,carousel,reel,video,story,text'],
+            'media_type'               => ['nullable', 'string', 'in:text,image,video,reels,carousel'],
+            'media_format'             => ['nullable', 'string', 'in:photo,video,reels,text,carousel'],
+            'media_file'               => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp,gif,mp4,mov', 'max:102400'], // 100MB
+            'media_files'              => ['nullable', 'array', 'max:10'],
+            'media_files.*'            => ['file', 'mimes:jpeg,png,jpg,webp,gif,mp4,mov', 'max:102400'],
+            'media_url'                => ['nullable', 'url', 'max:1000'],
+            'schedule_mode'            => ['nullable', 'string', 'in:all_now,all_same,per_channel'],
+            'channel_schedule_modes'   => ['nullable', 'array'],
+            'channel_schedule_modes.*' => ['nullable', 'string', 'in:now,schedule'],
+            'channel_scheduled_at'     => ['nullable', 'array'],
+            'channel_scheduled_at.*'   => ['nullable', 'date'],
+            'scheduled_at'             => ['nullable', 'date'],
         ]);
 
         // Resolve Target Accounts (Unified multi-select or single fallback)
@@ -362,7 +367,11 @@ class SocialMediaWebController extends Controller
             $primaryMediaType = ($mediaFormat === 'reels') ? 'reels' : ($validated['media_type'] ?? $uploadedMedia[0]['media_type']);
         }
 
-        $isScheduled = ! empty($validated['scheduled_at']);
+        $timingMode = (string) ($validated['schedule_mode'] ?? (! empty($validated['scheduled_at']) ? 'all_same' : 'all_now'));
+        $channelScheduleModes = (array) ($validated['channel_schedule_modes'] ?? []);
+        $channelScheduledAts = (array) ($validated['channel_scheduled_at'] ?? []);
+        $globalScheduledAt = ! empty($validated['scheduled_at']) ? \Illuminate\Support\Carbon::parse($validated['scheduled_at']) : null;
+
         $firstAccount = $accounts->first();
 
         // 4. Create Parent Social Media Post
@@ -374,8 +383,8 @@ class SocialMediaWebController extends Controller
             'media_type'              => $primaryMediaType,
             'media_urls'              => ! empty($uploadedMedia) ? array_column($uploadedMedia, 'media_url') : null,
             'local_media_paths'       => ! empty($uploadedMedia) ? array_filter(array_column($uploadedMedia, 'local_path')) : null,
-            'status'                  => $isScheduled ? 'scheduled' : 'publishing',
-            'scheduled_at'            => $isScheduled ? $validated['scheduled_at'] : null,
+            'status'                  => 'publishing',
+            'scheduled_at'            => $globalScheduledAt,
         ]);
 
         // 5. Create Post Media Records
@@ -390,7 +399,10 @@ class SocialMediaWebController extends Controller
             ]);
         }
 
-        // 6. Create Targets & Dispatch Queue Jobs
+        // 6. Create Targets for each selected account with independent schedule support
+        $immediateTargets = [];
+        $hasScheduledTargets = false;
+
         foreach ($accounts as $account) {
             $provider = $account->provider ?: ($account->platform === 'tiktok' ? 'tiktok' : 'meta');
             $channel = $account->platform;
@@ -411,6 +423,25 @@ class SocialMediaWebController extends Controller
 
             $customCaption = $validated['custom_captions'][$account->id] ?? null;
 
+            // Resolve target timing
+            $targetTiming = 'now';
+            $targetSchedTime = null;
+
+            if ($timingMode === 'per_channel') {
+                $targetTiming = $channelScheduleModes[$account->id] ?? 'now';
+                if ($targetTiming === 'schedule' && ! empty($channelScheduledAts[$account->id])) {
+                    $targetSchedTime = \Illuminate\Support\Carbon::parse($channelScheduledAts[$account->id]);
+                }
+            } elseif ($timingMode === 'all_same') {
+                $targetTiming = 'schedule';
+                $targetSchedTime = $globalScheduledAt;
+            }
+
+            $isTargetScheduled = ($targetTiming === 'schedule') && $targetSchedTime && $targetSchedTime->isFuture();
+            if ($isTargetScheduled) {
+                $hasScheduledTargets = true;
+            }
+
             $target = \App\Models\SocialPostTarget::create([
                 'social_media_post_id'    => $post->id,
                 'social_media_account_id' => $account->id,
@@ -418,44 +449,47 @@ class SocialMediaWebController extends Controller
                 'channel'                 => $channel,
                 'content_type'            => $contentType,
                 'custom_caption'          => $customCaption ?: null,
-                'status'                  => 'pending',
+                'status'                  => $isTargetScheduled ? 'scheduled' : 'pending',
+                'scheduled_at'            => $isTargetScheduled ? $targetSchedTime : null,
                 'retry_count'             => 0,
             ]);
 
-            // Targets created with status 'pending'
+            if (! $isTargetScheduled) {
+                $immediateTargets[] = $target;
+            }
         }
 
-        if ($isScheduled) {
-            return redirect()->route('social-media.posts.index')
-                ->with('success', 'Postingan berhasil dijadwalkan ke ' . $accounts->count() . ' saluran! Berkas akan dipublikasikan dan dibersihkan saat waktu jadwal tiba.');
-        }
-
-        // Single Account immediate publish: execute synchronously with backward compatibility
-        if ($accounts->count() === 1) {
+        // 7. Dispatch or Execute Immediate Targets
+        if (count($immediateTargets) === 1 && $accounts->count() === 1) {
+            // Single target immediate execution
             $this->socialService->publishPost($business, $post);
-
-            $singleTarget = $post->targets()->first();
-            if ($singleTarget) {
-                $singleTarget->update([
-                    'status'           => $post->status,
-                    'platform_post_id' => $post->platform_post_id,
-                    'published_at'     => $post->published_at,
-                    'error_message'    => $post->error_message,
-                ]);
+            $immediateTargets[0]->update([
+                'status'           => $post->status,
+                'platform_post_id' => $post->platform_post_id,
+                'published_at'     => $post->published_at,
+                'error_message'    => $post->error_message,
+            ]);
+        } elseif (! empty($immediateTargets)) {
+            // Multi-target immediate dispatch
+            foreach ($immediateTargets as $immTarget) {
+                \App\Jobs\SocialMedia\PublishSocialMediaTargetJob::dispatch($immTarget->id);
             }
-
-            if ($post->status === 'published') {
-                return redirect()->route('social-media.posts.index')
-                    ->with('success', "Postingan ({$primaryMediaType}) berhasil dipublikasikan ke {$firstAccount->platform}! Berkas sementara telah dibersihkan.");
-            }
-
-            return redirect()->route('social-media.posts.index')
-                ->with('error', "Gagal mempublikasikan: {$post->error_message}");
         }
 
-        // Multi-Account immediate publish: dispatch queue jobs for each target
-        foreach ($post->targets as $target) {
-            \App\Jobs\SocialMedia\PublishSocialMediaTargetJob::dispatch($target->id);
+        $post->syncStatusFromTargets();
+
+        // 8. User feedback response
+        if ($hasScheduledTargets && ! empty($immediateTargets)) {
+            return redirect()->route('social-media.posts.index')
+                ->with('success', 'Sebagian saluran berhasil dikirim untuk dipublikasikan langsung, dan saluran lainnya dijadwalkan sesuai waktu yang ditentukan.');
+        } elseif ($hasScheduledTargets) {
+            return redirect()->route('social-media.posts.index')
+                ->with('success', 'Postingan berhasil dijadwalkan ke ' . $accounts->count() . ' saluran! Eksekusi otomatis akan dilakukan oleh cron scheduler.');
+        }
+
+        if ($accounts->count() === 1 && $post->status === 'published') {
+            return redirect()->route('social-media.posts.index')
+                ->with('success', "Postingan ({$primaryMediaType}) berhasil dipublikasikan ke {$firstAccount->platform}!");
         }
 
         return redirect()->route('social-media.posts.index')

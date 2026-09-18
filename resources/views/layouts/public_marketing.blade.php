@@ -21,10 +21,10 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? View::yieldContent('title', 'Cooca - Business Operating System 100% Gratis untuk UMKM') }}
+    <title>{{ $title ?? View::yieldContent('title', 'Cooca UMKM - Business Operating System & Omnichannel ERP') }}
     </title>
-    <meta name="description" content="@yield('description', 'Cooca: Software kasir POS, pembukuan otomatis, kalkulator bisnis & AI Assistant gratis selamanya untuk UMKM Indonesia.')">
-    <meta name="keywords" content="@yield('keywords', 'software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, Cooca')">
+    <meta name="description" content="@yield('description', 'Cooca UMKM: Software kasir POS, pembukuan otomatis, kalkulator bisnis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.')">
+    <meta name="keywords" content="@yield('keywords', 'Cooca UMKM, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, cooca.id')">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
@@ -32,8 +32,8 @@
     <meta property="og:locale" content="id_ID">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title"
-        content="{{ $title ?? View::yieldContent('title', 'Cooca - Business Operating System') }}">
-    <meta property="og:description" content="@yield('description', 'Software kasir, pembukuan, kalkulator bisnis & AI Assistant gratis selamanya.')">
+        content="{{ $title ?? View::yieldContent('title', 'Cooca UMKM - Business Operating System & Omnichannel ERP') }}">
+    <meta property="og:description" content="@yield('description', 'Cooca UMKM: Software kasir, pembukuan, kalkulator bisnis & AI Assistant gratis selamanya.')">
     <meta property="og:image" content="@yield('og_image', 'https://cooca.id/assets/image/cooca.png')">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -799,36 +799,31 @@
                             </nav>
                         </div>
 
-                        <!-- Col C: Ekosistem Enterprise (Full width of subgrid on mobile, single col on sm/desktop) -->
+                        <!-- Col C: Modul Cooca UMKM (Full width of subgrid on mobile, single col on sm/desktop) -->
                         <div
                             class="col-span-2 sm:col-span-1 space-y-3 pt-3 sm:pt-0 border-t sm:border-t-0 border-black/5 dark:border-white/10">
                             <div class="flex items-center gap-2">
                                 <div
-                                    class="w-5 h-5 rounded-[6px] bg-[#FF9500]/10 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center shrink-0">
+                                    class="w-5 h-5 rounded-[6px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
                                     <i data-lucide="layers" class="w-3 h-3"></i>
                                 </div>
                                 <p class="font-bold text-black dark:text-white uppercase text-[11px] tracking-wider">
-                                    Ekosistem Enterprise</p>
+                                    Modul Cooca UMKM</p>
                             </div>
                             <nav class="grid grid-cols-2 sm:grid-cols-1 gap-1.5 text-xs">
-                                <a href="https://cooca.id" target="_blank" rel="noopener"
+                                <a href="{{ route('kalkulator.index') }}"
                                     class="hover:text-black dark:hover:text-white transition-colors flex items-center gap-1 py-0.5 truncate">
-                                    <span class="truncate">COOCA.ID ERP</span>
-                                    <i data-lucide="external-link"
-                                        class="w-3 h-3 text-black/40 dark:text-white/40 shrink-0"></i>
+                                    <span class="truncate">Kalkulator HPP &amp; BEP</span>
                                 </a>
-                                <a href="https://cooca.id/products" target="_blank" rel="noopener"
-                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">ERP
-                                    Bengkel Motor</a>
-                                <a href="https://cooca.id/products" target="_blank" rel="noopener"
-                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">ERP
-                                    Klinik Apotek</a>
-                                <a href="https://cooca.id/products" target="_blank" rel="noopener"
-                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">ERP
-                                    Multi-Cabang</a>
-                                <a href="https://cooca.id/affiliate" target="_blank" rel="noopener"
-                                    class="col-span-2 sm:col-span-1 text-[#34C759] dark:text-[#30D158] hover:underline font-medium py-0.5 truncate">Afiliasi
-                                    Partner (25%)</a>
+                                <a href="{{ route('solusi.show', 'kasir-warung') }}"
+                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">POS Kasir &amp; Toko</a>
+                                <a href="{{ route('template.index') }}"
+                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">Template Excel UMKM</a>
+                                <a href="{{ route('blog.index') }}"
+                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">Blog Edukasi Bisnis</a>
+                                <a href="{{ route('contact') }}"
+                                    class="col-span-2 sm:col-span-1 text-[#007AFF] dark:text-[#0A84FF] hover:underline font-medium py-0.5 truncate">Konsultasi
+                                    Gratis →</a>
                             </nav>
                         </div>
 
