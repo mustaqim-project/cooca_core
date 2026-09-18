@@ -1042,8 +1042,7 @@
                                     <span
                                         class="text-[10px] font-bold uppercase text-[#34C759] dark:text-[#30D158] block">WhatsApp
                                         Resmi</span>
-                                    <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm">0823 3749
-                                        9577</span>
+                                    <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm">{{ \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176') }}</span>
                                 </div>
                                 <span
                                     class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#34C759] text-white text-[10px] font-bold">
@@ -1063,7 +1062,7 @@
                             </div>
                         </div>
 
-                        <a href="https://wa.me/6282337499577?text=Halo%20Tim%20Cooca%20UMKM,%20saya%20ingin%20konsultasi%20penggunaan%20aplikasi"
+                        <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20Tim%20Cooca%20UMKM,%20saya%20ingin%20konsultasi%20penggunaan%20aplikasi"
                             target="_blank" rel="noopener"
                             class="w-full py-3.5 rounded-[16px] bg-[#34C759] hover:bg-[#2DB84D] text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all">
                             <i data-lucide="message-circle" class="w-4 h-4"></i>
@@ -1102,7 +1101,7 @@
                                 <span>Kunjungi Portal Enterprise</span>
                                 <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                             </a>
-                            <a href="https://wa.me/6282337499577?text=Halo%20saya%20tertarik%20dengan%20COOCA%20Enterprise%20Multi-Cabang"
+                            <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20COOCA%20Enterprise%20Multi-Cabang"
                                 target="_blank" rel="noopener"
                                 class="w-full sm:w-auto px-6 py-3.5 rounded-[16px] bg-white/10 hover:bg-white/15 border border-white/10 text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
                                 <i data-lucide="message-circle" class="w-4 h-4 text-[#30D158]"></i>

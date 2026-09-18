@@ -1,6 +1,6 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Hubungi Tim Dukungan Cooca | WhatsApp Resmi 0823 3749 9577')
+@section('title', 'Hubungi Tim Dukungan Cooca | WhatsApp Resmi 0852 8786 4176')
 @section('description', 'Hubungi tim konsultan dan customer service Cooca. Dapatkan bantuan teknis seputar aplikasi
     kasir, kalkulator HPP, atau pertanyaan kemitraan.')
 @section('keywords', 'kontak Cooca, whatsapp cooca, customer service software kasir, support cooca id, bantuan teknis

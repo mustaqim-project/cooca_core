@@ -17,8 +17,8 @@ final class PublicContactController extends Controller
     public function show(): View
     {
         return view('public.contact.index', [
-            'officialWhatsapp' => '0823 3749 9577',
-            'officialWhatsappRaw' => '6282337499577',
+            'officialWhatsapp' => '0852 8786 4176',
+            'officialWhatsappRaw' => '6285287864176',
             'officialEmail' => 'support@cooca.id',
             'officeLocation' => 'Jakarta Selatan, DKI Jakarta, Indonesia',
         ]);
@@ -58,7 +58,7 @@ final class PublicContactController extends Controller
         ]);
 
         // Kirimkan notifikasi instan ke nomor WhatsApp admin jika aktif
-        $adminPhone = \App\Models\SystemSetting::get('admin_whatsapp_number') ?: '6282337499577';
+        $adminPhone = \App\Models\SystemSetting::get('admin_whatsapp_number') ?: '6285287864176';
         if ($adminPhone) {
             $text = "📩 *Pesan Baru dari Formulir Kontak Web COOCA*\n\n"
                   . "👤 *Nama:* {$validated['name']}\n"

@@ -748,8 +748,8 @@
 
                         <!-- Contact Widgets -->
                         @php
-                            $footerWaUrl = \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6282337499577');
-                            $footerWaNum = \App\Models\SystemSetting::get('social_whatsapp_number', '0823 3749 9577');
+                            $footerWaUrl = \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176');
+                            $footerWaNum = \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176');
                         @endphp
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm pt-1">
                             <a href="{{ $footerWaUrl }}" target="_blank"

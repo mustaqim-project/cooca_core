@@ -40,7 +40,7 @@
                         <span>Mulai Sekarang - 100% Gratis</span>
                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </a>
-                    <a href="https://wa.me/6282337499577?text=Halo%20saya%20tertarik%20dengan%20solusi%20{{ urlencode($solution['title']) }}"
+                    <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20{{ urlencode($solution['title']) }}"
                         target="_blank"
                         class="px-6 py-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-black/[0.02] dark:hover:bg-white/[0.04] text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98]">
                         <i data-lucide="phone" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>

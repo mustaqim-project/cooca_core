@@ -339,14 +339,14 @@
                             <div>
                                 <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nomor WhatsApp / Label</label>
                                 <input type="text" name="social_whatsapp_number" value="{{ old('social_whatsapp_number', $socialWhatsappNumber) }}"
-                                    placeholder="0823 3749 9577"
+                                    placeholder="0852 8786 4176"
                                     class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 transition">
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Tautan WhatsApp Direct URL</label>
                                 <div class="flex items-center gap-2">
                                     <input type="url" name="social_whatsapp_url" value="{{ old('social_whatsapp_url', $socialWhatsappUrl) }}"
-                                        placeholder="https://wa.me/6282337499577"
+                                        placeholder="https://wa.me/6285287864176"
                                         class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 transition">
                                     @if(!empty($socialWhatsappUrl))
                                     <a href="{{ $socialWhatsappUrl }}" target="_blank" class="h-10 px-3 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 shrink-0" title="Buka Chat">
