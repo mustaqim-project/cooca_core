@@ -263,17 +263,21 @@ class SubscriptionPayment extends Model
 
     public function getProofUrl(): ?string
     {
-        if (!$this->payment_proof_path) {
+        if (! $this->payment_proof_path) {
             return null;
         }
 
-        $path = ltrim($this->payment_proof_path, '/');
+        try {
+            return route('billing.payment.proof', $this->id);
+        } catch (\Throwable) {
+            $path = ltrim($this->payment_proof_path, '/');
 
-        if (is_file(public_path($path))) {
-            return asset($path);
+            if (is_file(public_path($path))) {
+                return asset($path);
+            }
+
+            return asset('storage/' . $path);
         }
-
-        return asset('storage/' . $path);
     }
 
     public function getStatusBadge(): array

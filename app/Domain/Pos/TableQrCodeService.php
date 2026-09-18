@@ -96,7 +96,14 @@ SVG;
             return 'data:' . $mime . ';base64,' . base64_encode($content);
         }
 
-        // 3. If file exists in public/storage
+        // 3. If file exists in public/ or public/storage
+        $directPublic = public_path($logoPathOrUrl);
+        if (file_exists($directPublic)) {
+            $mime = mime_content_type($directPublic) ?: 'image/png';
+            $content = file_get_contents($directPublic);
+            return 'data:' . $mime . ';base64,' . base64_encode($content ?: '');
+        }
+
         $publicPath = public_path('storage/' . $logoPathOrUrl);
         if (file_exists($publicPath)) {
             $mime = mime_content_type($publicPath) ?: 'image/png';

@@ -166,68 +166,77 @@ class StorageTrackingService
         $activePathsOnDisk = [];
 
         foreach ($businesses as $business) {
-            $businessDir = "businesses/{$business->id}";
-            if (Storage::disk('public')->exists($businessDir)) {
-                $files = Storage::disk('public')->allFiles($businessDir);
-                foreach ($files as $file) {
-                    $activePathsOnDisk[] = $file;
-                    $size = (int) Storage::disk('public')->size($file);
-                    $category = $this->detectCategoryFromPath($file);
-                    $module = $this->detectModuleFromCategory($category);
+            $slug = TenantStorage::slugForBusiness($business);
+            $dirsToScan = array_filter([
+                "businesses/{$business->id}",
+                $slug ? "bisnis/{$slug}" : null,
+                "qris/{$business->id}",
+                "social-media/temp/{$business->id}",
+            ]);
 
-                    $existing = StorageFile::withTrashed()
-                        ->where('disk', 'public')
-                        ->where('file_path', $file)
-                        ->first();
+            foreach ($dirsToScan as $dir) {
+                if (Storage::disk('public')->exists($dir)) {
+                    $files = Storage::disk('public')->allFiles($dir);
+                    foreach ($files as $file) {
+                        $activePathsOnDisk[] = $file;
+                        $size = (int) Storage::disk('public')->size($file);
+                        $category = $this->detectCategoryFromPath($file);
+                        $module = $this->detectModuleFromCategory($category);
 
-                    if (! $existing) {
-                        StorageFile::create([
-                            'owner_id' => $owner->id,
-                            'business_id' => $business->id,
-                            'user_id' => $owner->id,
-                            'file_name' => basename($file),
-                            'file_path' => $file,
-                            'disk' => 'public',
-                            'mime_type' => Storage::disk('public')->mimeType($file) ?: null,
-                            'file_size' => $size,
-                            'category' => $category,
-                            'module' => $module,
-                            'is_temporary' => false,
-                            'status' => StorageFile::STATUS_ACTIVE,
-                            'uploaded_at' => Carbon::createFromTimestamp(Storage::disk('public')->lastModified($file)),
-                        ]);
-                        $untrackedAdded++;
-                    } else {
-                        $needsUpdate = false;
-                        $updateData = [];
+                        $existing = StorageFile::withTrashed()
+                            ->where('disk', 'public')
+                            ->where('file_path', $file)
+                            ->first();
 
-                        if ($existing->file_size !== $size) {
-                            $updateData['file_size'] = $size;
-                            $needsUpdate = true;
-                        }
-                        if ($existing->status !== StorageFile::STATUS_ACTIVE || $existing->deleted_at !== null) {
-                            $updateData['status'] = StorageFile::STATUS_ACTIVE;
-                            $updateData['deleted_at'] = null;
-                            $needsUpdate = true;
-                        }
-                        if ($existing->owner_id !== $owner->id) {
-                            $updateData['owner_id'] = $owner->id;
-                            $needsUpdate = true;
-                        }
-                        if ($existing->business_id !== $business->id) {
-                            $updateData['business_id'] = $business->id;
-                            $needsUpdate = true;
-                        }
+                        if (! $existing) {
+                            StorageFile::create([
+                                'owner_id' => $owner->id,
+                                'business_id' => $business->id,
+                                'user_id' => $owner->id,
+                                'file_name' => basename($file),
+                                'file_path' => $file,
+                                'disk' => 'public',
+                                'mime_type' => Storage::disk('public')->mimeType($file) ?: null,
+                                'file_size' => $size,
+                                'category' => $category,
+                                'module' => $module,
+                                'is_temporary' => false,
+                                'status' => StorageFile::STATUS_ACTIVE,
+                                'uploaded_at' => Carbon::createFromTimestamp(Storage::disk('public')->lastModified($file)),
+                            ]);
+                            $untrackedAdded++;
+                        } else {
+                            $needsUpdate = false;
+                            $updateData = [];
 
-                        if ($needsUpdate) {
-                            $existing->update($updateData);
+                            if ($existing->file_size !== $size) {
+                                $updateData['file_size'] = $size;
+                                $needsUpdate = true;
+                            }
+                            if ($existing->status !== StorageFile::STATUS_ACTIVE || $existing->deleted_at !== null) {
+                                $updateData['status'] = StorageFile::STATUS_ACTIVE;
+                                $updateData['deleted_at'] = null;
+                                $needsUpdate = true;
+                            }
+                            if ($existing->owner_id !== $owner->id) {
+                                $updateData['owner_id'] = $owner->id;
+                                $needsUpdate = true;
+                            }
+                            if ($existing->business_id !== $business->id) {
+                                $updateData['business_id'] = $business->id;
+                                $needsUpdate = true;
+                            }
+
+                            if ($needsUpdate) {
+                                $existing->update($updateData);
+                            }
+                            $trackedCount++;
                         }
-                        $trackedCount++;
                     }
                 }
             }
 
-            // Check business logo specifically if outside businesses/{id}
+            // Check business logo specifically if outside scanned directories
             if ($business->logo_path && ! in_array($business->logo_path, $activePathsOnDisk, true)) {
                 if (Storage::disk('public')->exists($business->logo_path)) {
                     $activePathsOnDisk[] = $business->logo_path;
@@ -303,6 +312,19 @@ class StorageTrackingService
         $businessDir = "businesses/{$business->id}";
         if (Storage::disk('public')->exists($businessDir)) {
             Storage::disk('public')->deleteDirectory($businessDir);
+        }
+
+        $slug = TenantStorage::slugForBusiness($business);
+        if ($slug) {
+            $slugPublicDir = "bisnis/{$slug}";
+            if (Storage::disk('public')->exists($slugPublicDir)) {
+                Storage::disk('public')->deleteDirectory($slugPublicDir);
+            }
+
+            $slugPrivateDir = "private/bisnis/{$slug}";
+            if (Storage::disk('local')->exists($slugPrivateDir)) {
+                Storage::disk('local')->deleteDirectory($slugPrivateDir);
+            }
         }
 
         if ($business->logo_path && Storage::disk('public')->exists($business->logo_path)) {
@@ -449,6 +471,9 @@ class StorageTrackingService
         if (str_contains($path, '/products/')) return StorageFile::CATEGORY_PRODUCT_IMAGE;
         if (str_contains($path, '/landing/')) return StorageFile::CATEGORY_LANDING_PAGE_IMAGE;
         if (str_contains($path, '/community/')) return StorageFile::CATEGORY_COMMUNITY_IMAGE;
+        if (str_contains($path, '/qris/')) return StorageFile::CATEGORY_QRIS;
+        if (str_contains($path, '/social-media/')) return StorageFile::CATEGORY_SOCIAL_MEDIA;
+        if (str_contains($path, '/expenses/')) return StorageFile::CATEGORY_EXPENSE_RECEIPT;
         if (str_contains($path, 'feedback/')) return StorageFile::CATEGORY_FEEDBACK_ATTACHMENT;
         if (str_contains($path, 'avatars/')) return StorageFile::CATEGORY_OWNER_AVATAR;
         if (str_contains($path, 'invoices/')) return StorageFile::CATEGORY_INVOICE_ATTACHMENT;
@@ -465,6 +490,9 @@ class StorageTrackingService
             StorageFile::CATEGORY_PRODUCT_IMAGE => 'product',
             StorageFile::CATEGORY_LANDING_PAGE_IMAGE => 'landing_page',
             StorageFile::CATEGORY_COMMUNITY_IMAGE => 'community',
+            StorageFile::CATEGORY_QRIS => 'commerce',
+            StorageFile::CATEGORY_SOCIAL_MEDIA => 'social_media',
+            StorageFile::CATEGORY_EXPENSE_RECEIPT => 'finance',
             StorageFile::CATEGORY_FEEDBACK_ATTACHMENT => 'feedback',
             StorageFile::CATEGORY_OWNER_AVATAR => 'profile',
             StorageFile::CATEGORY_IMPORT_TEMPORARY => 'import',

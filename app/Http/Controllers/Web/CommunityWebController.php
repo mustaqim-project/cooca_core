@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web;
 
 use App\Domain\Storage\OwnerStorageQuotaService;
+use App\Domain\Storage\TenantStorage;
 use App\Http\Controllers\Controller;
 use App\Models\CommunityComment;
 use App\Models\CommunityLike;
@@ -79,8 +80,9 @@ final class CommunityWebController extends Controller
             $trackingService->assertCanUpload($owner, (int) $file->getSize(), 'image');
 
             $extension = $file->getClientOriginalExtension() ?: 'jpg';
+            $dir = TenantStorage::publicDir($business, TenantStorage::FOLDER_COMMUNITY);
             $imagePath = $file->storeAs(
-                "businesses/{$business->id}/community",
+                $dir,
                 Str::uuid() . '.' . $extension,
                 'public'
             );

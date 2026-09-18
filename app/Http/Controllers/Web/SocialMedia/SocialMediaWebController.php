@@ -9,6 +9,10 @@ use App\Http\Controllers\Controller;
 use App\Models\SocialMediaAccount;
 use App\Models\SocialMediaComment;
 use App\Models\SocialMediaPost;
+use App\Domain\Storage\OwnerStorageQuotaService;
+use App\Domain\Storage\StorageTrackingService;
+use App\Domain\Storage\TenantStorage;
+use App\Models\StorageFile;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -330,35 +334,70 @@ class SocialMediaWebController extends Controller
 
         // 3. Handle Media Uploads (Single or Multiple for Carousel)
         $uploadedMedia = [];
-        $dir = "social-media/temp/{$business->id}";
+        $dir = TenantStorage::publicDir($business, TenantStorage::FOLDER_SOCIAL_MEDIA);
+        $trackingService = app(StorageTrackingService::class);
+        $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
 
         if ($request->hasFile('media_files')) {
             $files = $request->file('media_files');
+            $totalBytes = array_reduce($files, fn(int $carry, $f) => $carry + (int) $f->getSize(), 0);
+            if ($owner) {
+                $trackingService->assertCanUpload($owner, $totalBytes, 'media_files');
+            }
+
             foreach ($files as $idx => $file) {
                 $mime = (string) $file->getMimeType();
                 $ext = $file->getClientOriginalExtension() ?: 'bin';
                 $filename = (string) Str::uuid() . '.' . $ext;
                 $storedPath = $file->storeAs($dir, $filename, 'public');
 
+                if ($owner) {
+                    $trackingService->recordUpload(
+                        file: $file,
+                        filePath: $storedPath,
+                        category: StorageFile::CATEGORY_OTHER,
+                        module: 'social_media',
+                        owner: $owner,
+                        business: $business,
+                        uploader: $request->user()
+                    );
+                }
+
                 $uploadedMedia[] = [
                     'sort_order' => $idx + 1,
                     'media_type' => str_starts_with($mime, 'video/') ? 'video' : 'image',
-                    'media_url'  => asset('storage/' . $storedPath),
+                    'media_url'  => TenantStorage::url($storedPath) ?? asset('storage/' . $storedPath),
                     'local_path' => $storedPath,
                     'file_size'  => $file->getSize(),
                 ];
             }
         } elseif ($request->hasFile('media_file')) {
             $file = $request->file('media_file');
+            if ($owner) {
+                $trackingService->assertCanUpload($owner, (int) $file->getSize(), 'media_file');
+            }
+
             $mime = (string) $file->getMimeType();
             $ext = $file->getClientOriginalExtension() ?: 'bin';
             $filename = (string) Str::uuid() . '.' . $ext;
             $storedPath = $file->storeAs($dir, $filename, 'public');
 
+            if ($owner) {
+                $trackingService->recordUpload(
+                    file: $file,
+                    filePath: $storedPath,
+                    category: StorageFile::CATEGORY_OTHER,
+                    module: 'social_media',
+                    owner: $owner,
+                    business: $business,
+                    uploader: $request->user()
+                );
+            }
+
             $uploadedMedia[] = [
                 'sort_order' => 1,
                 'media_type' => str_starts_with($mime, 'video/') ? 'video' : 'image',
-                'media_url'  => asset('storage/' . $storedPath),
+                'media_url'  => TenantStorage::url($storedPath) ?? asset('storage/' . $storedPath),
                 'local_path' => $storedPath,
                 'file_size'  => $file->getSize(),
             ];

@@ -28,6 +28,9 @@ class StorageFile extends Model
     public const CATEGORY_FEEDBACK_ATTACHMENT = 'feedback_attachment';
     public const CATEGORY_OWNER_AVATAR = 'owner_avatar';
     public const CATEGORY_IMPORT_TEMPORARY = 'import_temporary';
+    public const CATEGORY_QRIS = 'qris_image';
+    public const CATEGORY_SOCIAL_MEDIA = 'social_media_image';
+    public const CATEGORY_EXPENSE_RECEIPT = 'expense_receipt';
     public const CATEGORY_OTHER = 'other';
 
     public const STATUS_ACTIVE = 'active';
@@ -46,6 +49,9 @@ class StorageFile extends Model
         self::CATEGORY_FEEDBACK_ATTACHMENT => 'Lampiran Masukan/Bug',
         self::CATEGORY_OWNER_AVATAR => 'Foto Profil Owner',
         self::CATEGORY_IMPORT_TEMPORARY => 'Import Sementara',
+        self::CATEGORY_QRIS => 'QRIS Pembayaran',
+        self::CATEGORY_SOCIAL_MEDIA => 'Media Sosial',
+        self::CATEGORY_EXPENSE_RECEIPT => 'Bukti Pengeluaran/Nota',
         self::CATEGORY_OTHER => 'File Lainnya',
     ];
 

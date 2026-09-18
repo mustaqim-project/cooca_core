@@ -158,9 +158,10 @@
                             <p class="text-[11.5px] text-black/50 dark:text-white/50">a/n {{ $method->account_holder }}</p>
                         @endif
                         @if ($method->qris_image_path)
-                            <span class="text-[11px] text-[#34C759] font-medium flex items-center gap-1 mt-1">
-                                <i data-lucide="image" class="w-3 h-3"></i> Gambar QRIS Terpasang
-                            </span>
+                            <a href="{{ $method->qris_image_url }}" target="_blank"
+                                class="text-[11px] text-[#007AFF] hover:underline font-medium inline-flex items-center gap-1 mt-1">
+                                <i data-lucide="image" class="w-3 h-3"></i> Lihat Gambar QRIS
+                            </a>
                         @endif
                     </div>
 

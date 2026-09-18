@@ -255,4 +255,39 @@ final class SubscriptionCheckoutWebController extends Controller
 
         return view('app.billing.history', compact('business', 'payments'));
     }
+
+    /**
+     * View transfer receipt proof securely (Superadmin or tenant owner).
+     */
+    public function viewProof(SubscriptionPayment $payment): \Symfony\Component\HttpFoundation\Response
+    {
+        $isAdmin = auth('admin')->check();
+        $user = auth()->user();
+        $isPayer = $user && $payment->user_id === $user->id;
+
+        $business = Context::business();
+        $isTenantMember = false;
+        if ($business && $user && $payment->business_id === $business->id) {
+            $isTenantMember = $business->users()->where('users.id', $user->id)->exists();
+        }
+
+        abort_unless($isAdmin || $isPayer || $isTenantMember, 403);
+
+        $path = $payment->payment_proof_path;
+        abort_unless($path, 404);
+
+        if (\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+            return \Illuminate\Support\Facades\Storage::disk('local')->response($path);
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            return \Illuminate\Support\Facades\Storage::disk('public')->response($path);
+        }
+
+        if (file_exists(public_path($path))) {
+            return response()->file(public_path($path));
+        }
+
+        abort(404);
+    }
 }

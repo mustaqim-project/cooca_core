@@ -33,6 +33,7 @@ _ide_helper_models.php
 /public/build
 /public/hot
 /public/storage
+/public/bisnis
 /public/payment-proofs/*
 !/public/payment-proofs/.gitkeep
 npm-debug.log*

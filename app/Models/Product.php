@@ -154,20 +154,7 @@ class Product extends Model
             return null;
         }
 
-        if (str_starts_with($this->image_path, 'http://') || str_starts_with($this->image_path, 'https://')) {
-            return $this->image_path;
-        }
-
-        $cleaned = ltrim($this->image_path, '/');
-        if (str_starts_with($cleaned, 'public/')) {
-            $cleaned = substr($cleaned, 7);
-        }
-
-        if (str_starts_with($cleaned, 'storage/')) {
-            return asset($cleaned);
-        }
-
-        return asset('storage/' . $cleaned);
+        return \App\Domain\Storage\TenantStorage::url($this->image_path);
     }
 
     /**

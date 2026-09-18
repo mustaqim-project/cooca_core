@@ -15,6 +15,7 @@ use App\Models\ProductCategory;
 use App\Models\Unit;
 use App\Support\Context;
 use App\Domain\Storage\OwnerStorageQuotaService;
+use App\Domain\Storage\TenantStorage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -201,7 +202,8 @@ final class ProductWebController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('businesses/' . $business->id . '/products', 'public');
+            $dir = TenantStorage::publicDir($business, TenantStorage::FOLDER_PRODUCTS);
+            $imagePath = $request->file('image')->store($dir, 'public');
             $product->update(['image_path' => $imagePath]);
             if ($owner) {
                 $trackingService->recordUpload(
@@ -294,7 +296,8 @@ final class ProductWebController extends Controller
             $product->update(['image_path' => null]);
         } elseif ($request->hasFile('image')) {
             $oldImagePath = $product->image_path;
-            $newImagePath = $request->file('image')->store('businesses/' . $business->id . '/products', 'public');
+            $dir = TenantStorage::publicDir($business, TenantStorage::FOLDER_PRODUCTS);
+            $newImagePath = $request->file('image')->store($dir, 'public');
             $product->update(['image_path' => $newImagePath]);
             if ($owner) {
                 $trackingService->recordUpload(

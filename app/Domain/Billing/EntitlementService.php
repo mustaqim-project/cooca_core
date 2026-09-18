@@ -922,19 +922,8 @@ final class EntitlementService
         array $senderData = []
     ): SubscriptionPayment {
         $filename = Str::random(40) . '.' . $file->extension();
-        $path = 'payment-proofs/' . $filename;
-        Storage::disk('public')->putFileAs('payment-proofs', $file, $filename);
-
-        // Also ensure public_path has the file for direct web server serving if symlink is absent
-        try {
-            $directory = public_path('payment-proofs');
-            if (!is_dir($directory)) {
-                @mkdir($directory, 0755, true);
-            }
-            if (file_exists(Storage::disk('public')->path($path))) {
-                @copy(Storage::disk('public')->path($path), public_path($path));
-            }
-        } catch (\Throwable) {}
+        $path = 'billing-proofs/' . $filename;
+        Storage::disk('local')->putFileAs('billing-proofs', $file, $filename);
 
         $payment->update([
             'payment_proof_path' => $path,

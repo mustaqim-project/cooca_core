@@ -348,6 +348,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/billing/payments/{payment}/status', [SubscriptionCheckoutWebController::class, 'checkStatus'])->name('billing.payment.status');
         Route::get('/billing/payments/{payment}/invoice', [SubscriptionCheckoutWebController::class, 'invoice'])->name('billing.payment.invoice');
         Route::post('/billing/payments/{payment}/upload-proof', [SubscriptionCheckoutWebController::class, 'uploadProof'])->name('billing.payment.upload');
+        Route::get('/billing/payments/{payment}/proof', [SubscriptionCheckoutWebController::class, 'viewProof'])->name('billing.payment.proof');
         Route::get('/billing/history', [SubscriptionCheckoutWebController::class, 'history'])->name('billing.history');
         Route::post('/billing/storage/recalculate', [BillingAndLimitWebController::class, 'recalculateStorage'])->name('billing.storage.recalculate');
 
@@ -466,6 +467,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/finance/journals', [PosFinanceWebController::class, 'journals'])->middleware('require.permission:accounting.view')->name('finance.journals.index');
         Route::get('/finance/expenses', [PosFinanceWebController::class, 'expenses'])->middleware('require.permission:expenses.view')->name('finance.expenses.index');
         Route::post('/finance/expenses', [PosFinanceWebController::class, 'storeExpense'])->middleware('require.permission:expenses.manage')->name('finance.expenses.store');
+        Route::get('/finance/expenses/{expense}/receipt', [PosFinanceWebController::class, 'viewReceipt'])->middleware('require.permission:expenses.view')->name('finance.expenses.receipt');
         Route::middleware('require.permission:finance.cash_bank')->group(function (): void {
             Route::get('/finance/cash-bank', [CashLedgerWebController::class, 'index'])->name('finance.cash-bank.index');
             Route::get('/finance/cash-bank/ledger', [CashLedgerWebController::class, 'ledger'])->name('finance.cash-bank.ledger');

@@ -331,9 +331,12 @@ class WhatsAppGatewayService
                 /** @var \App\Domain\Pos\PosReceiptImageService $imageService */
                 $imageService = app(\App\Domain\Pos\PosReceiptImageService::class);
                 $relativePath = $imageService->generateAndStore($order);
-                $imageUrl     = asset('storage/' . $relativePath);
+                $imageUrl     = \App\Domain\Storage\TenantStorage::url($relativePath) ?? asset('storage/' . $relativePath);
 
                 $localFile    = storage_path('app/public/' . $relativePath);
+                if (! file_exists($localFile)) {
+                    $localFile = public_path($relativePath);
+                }
                 if (! file_exists($localFile)) {
                     $localFile = public_path('storage/' . $relativePath);
                 }

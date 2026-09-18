@@ -10,7 +10,10 @@ use App\Models\CashAccount;
 use App\Models\CommercePaymentMethod;
 use App\Models\CommerceStoreSetting;
 use App\Models\PaymentSettlement;
-use App\Models\SystemSetting;
+use App\Domain\Storage\OwnerStorageQuotaService;
+use App\Domain\Storage\StorageTrackingService;
+use App\Domain\Storage\TenantStorage;
+use App\Models\StorageFile;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -191,7 +194,27 @@ final class MerchantStoreSettingController extends Controller
 
         $qrisPath = null;
         if ($request->hasFile('qris_image')) {
-            $qrisPath = $request->file('qris_image')->store("qris/{$business->id}", 'public');
+            $file = $request->file('qris_image');
+            $trackingService = app(StorageTrackingService::class);
+            $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
+            if ($owner) {
+                $trackingService->assertCanUpload($owner, (int) $file->getSize(), 'qris_image');
+            }
+
+            $dir = TenantStorage::publicDir($business, TenantStorage::FOLDER_QRIS);
+            $qrisPath = $file->store($dir, 'public');
+
+            if ($owner) {
+                $trackingService->recordUpload(
+                    file: $file,
+                    filePath: $qrisPath,
+                    category: StorageFile::CATEGORY_OTHER,
+                    module: 'storefront',
+                    owner: $owner,
+                    business: $business,
+                    uploader: $request->user()
+                );
+            }
         }
 
         CommercePaymentMethod::create([
@@ -230,6 +253,10 @@ final class MerchantStoreSettingController extends Controller
         $business = Context::business();
         abort_unless($business && $paymentMethod->business_id === $business->id, 403);
         abort_unless(Context::hasPermission('storefront.manage'), 403);
+
+        if ($paymentMethod->qris_image_path) {
+            app(StorageTrackingService::class)->deleteFile($paymentMethod->qris_image_path, 'public');
+        }
 
         $paymentMethod->delete();
 

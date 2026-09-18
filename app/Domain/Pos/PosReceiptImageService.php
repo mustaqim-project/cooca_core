@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Pos;
 
+use App\Domain\Storage\TenantStorage;
 use App\Models\PosOrder;
 use Illuminate\Support\Facades\File;
 
@@ -27,12 +28,15 @@ class PosReceiptImageService
 
     /**
      * Generate and store receipt image into public storage directory.
-     * Returns the relative storage path (e.g. 'receipts/receipt_{id}.png').
+     * Returns the relative storage path (e.g. 'bisnis/{slug}/receipts/receipt_{id}.png').
      */
     public function generateAndStore(PosOrder $order): string
     {
         $png = $this->generate($order);
-        $directory = storage_path('app/public/receipts');
+        $order->loadMissing('business');
+        $slug = $order->business ? TenantStorage::slugForBusiness($order->business) : 'general';
+
+        $directory = storage_path("app/public/bisnis/{$slug}/receipts");
 
         if (!File::isDirectory($directory)) {
             File::makeDirectory($directory, 0755, true);
@@ -42,7 +46,7 @@ class PosReceiptImageService
         $filePath = "{$directory}/{$filename}";
         File::put($filePath, $png);
 
-        return "receipts/{$filename}";
+        return "bisnis/{$slug}/receipts/{$filename}";
     }
 
     /**

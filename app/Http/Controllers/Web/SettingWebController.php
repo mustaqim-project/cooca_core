@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BusinessTypeTemplate;
 use App\Models\Currency;
 use App\Models\Location;
+use App\Domain\Storage\TenantStorage;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -183,7 +184,8 @@ final class SettingWebController extends Controller
             if ($business->logo_path) {
                 $trackingService->deleteFile($business->logo_path, 'public');
             }
-            $path = $request->file('logo')->store('businesses/' . $business->id . '/logo', 'public');
+            $dir = TenantStorage::publicDir($business, TenantStorage::FOLDER_LOGO);
+            $path = $request->file('logo')->store($dir, 'public');
             if ($owner) {
                 $trackingService->recordUpload(
                     file: $request->file('logo'),

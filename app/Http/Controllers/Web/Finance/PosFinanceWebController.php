@@ -12,11 +12,14 @@ use App\Models\ChartOfAccount;
 use App\Models\Expense;
 use App\Models\JournalEntry;
 use App\Models\Location;
+use App\Domain\Storage\TenantStorage;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 final class PosFinanceWebController extends Controller
 {
@@ -128,10 +131,17 @@ final class PosFinanceWebController extends Controller
             'account_id' => ['nullable', 'string', 'exists:chart_of_accounts,id'],
             'location_id' => ['nullable', 'string'],
             'description' => ['required', 'string', 'max:255'],
+            'receipt_image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp,pdf', 'max:5120'],
         ]);
 
+        $receiptPath = null;
+        if ($request->hasFile('receipt_image')) {
+            $dir = TenantStorage::privateDir($business, TenantStorage::FOLDER_EXPENSES);
+            $receiptPath = $request->file('receipt_image')->store($dir, 'local');
+        }
+
         try {
-            $expense = DB::transaction(function () use ($business, $user, $validated) {
+            $expense = DB::transaction(function () use ($business, $user, $validated, $receiptPath) {
                 $expenseNumber = 'EXP-' . date('Ymd') . '-' . rand(100, 999);
 
                 $expense = Expense::create([
@@ -144,6 +154,7 @@ final class PosFinanceWebController extends Controller
                     'payment_method' => $validated['payment_method'],
                     'account_id' => $validated['account_id'] ?? null,
                     'description' => $validated['description'],
+                    'receipt_image_path' => $receiptPath,
                     'recorded_by' => $user->id,
                 ]);
 
@@ -172,5 +183,20 @@ final class PosFinanceWebController extends Controller
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->withErrors(['amount' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * View or download operational expense receipt proof securely.
+     */
+    public function viewReceipt(Expense $expense): Response
+    {
+        $business = Context::requireBusiness();
+        abort_unless($expense->business_id === $business->id, 403);
+        abort_unless(Context::hasPermission('expenses.manage') || Context::hasPermission('finance.view'), 403);
+
+        $path = $expense->receipt_image_path;
+        abort_unless($path && Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response($path);
     }
 }

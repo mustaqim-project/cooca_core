@@ -55,6 +55,6 @@ class CommercePaymentMethod extends Model
 
     public function getQrisImageUrlAttribute(): ?string
     {
-        return $this->qris_image_path ? asset('storage/' . $this->qris_image_path) : null;
+        return $this->qris_image_path ? \App\Domain\Storage\TenantStorage::url($this->qris_image_path) : null;
     }
 }

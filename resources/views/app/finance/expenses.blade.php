@@ -184,6 +184,15 @@
                                     </span>
                                     <div class="text-[13px] text-black/80 dark:text-white/80 mt-1">{{ $ex->description }}
                                     </div>
+                                    @if ($ex->proof_url)
+                                        <div class="mt-1">
+                                            <a href="{{ $ex->proof_url }}" target="_blank"
+                                                class="inline-flex items-center gap-1 text-[11px] text-[#007AFF] font-medium hover:underline">
+                                                <i data-lucide="paperclip" class="w-3 h-3"></i>
+                                                <span>Bukti Nota</span>
+                                            </a>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-3 text-black/60 dark:text-white/60">
                                     {{ $ex->location->name ?? 'Outlet Utama' }}
@@ -307,7 +316,7 @@
                         class="flex items-center justify-between pt-1 text-[11px] text-black/45 dark:text-white/45 border-t border-black/[0.03] dark:border-white/[0.04]">
                         <span class="capitalize">Via: {{ str_replace('_', ' ', $ex->payment_method) }}</span>
                         @if ($ex->proof_url)
-                            <a href="{{ asset('storage/' . $ex->proof_url) }}" target="_blank"
+                            <a href="{{ $ex->proof_url }}" target="_blank"
                                 class="text-[#007AFF] font-medium hover:underline inline-flex items-center gap-1">
                                 <i data-lucide="paperclip" class="w-3 h-3"></i>
                                 <span>Bukti Nota</span>
@@ -361,7 +370,7 @@
                 </div>
 
                 {{-- Form --}}
-                <form action="{{ route('finance.expenses.store') }}" method="POST" class="px-5 py-4 space-y-3">
+                <form action="{{ route('finance.expenses.store') }}" method="POST" enctype="multipart/form-data" class="px-5 py-4 space-y-3">
                     @csrf
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
@@ -445,6 +454,12 @@
                         <input type="text" name="description" required
                             placeholder="Misal: Beli es batu kristal & kantong kresek..."
                             class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[15px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[13px] font-medium text-black/70 dark:text-white/70">Foto / Scan Nota Bukti (Opsional)</label>
+                        <input type="file" name="receipt_image" accept="image/jpeg,image/png,image/webp,application/pdf"
+                            class="w-full text-[13px] text-black/70 dark:text-white/70 file:mr-3 file:py-2 file:px-3.5 file:rounded-[8px] file:border-0 file:text-[12px] file:font-semibold file:bg-black/[0.06] dark:file:bg-white/[0.08] file:text-black dark:file:text-white hover:file:bg-black/[0.10] cursor-pointer">
                     </div>
 
                     <div class="flex items-center gap-2 pt-2 border-t border-black/5 dark:border-white/10">

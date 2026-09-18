@@ -53,4 +53,13 @@ class Expense extends Model
     {
         return $this->belongsTo(User::class, 'recorded_by');
     }
+
+    public function getProofUrlAttribute(): ?string
+    {
+        if (empty($this->receipt_image_path)) {
+            return null;
+        }
+
+        return route('finance.expenses.receipt', $this->id);
+    }
 }

@@ -41,6 +41,9 @@ final class BusinessLogoAndPdfPrintTest extends TestCase
         $this->user = User::create([
             'name' => 'Direktur Bisnis',
             'email' => 'direktur@example.com',
+            'email_verified_at' => now(),
+            'phone' => '081234567890',
+            'phone_verified_at' => now(),
             'password' => bcrypt('password123'),
         ]);
 
@@ -101,6 +104,7 @@ final class BusinessLogoAndPdfPrintTest extends TestCase
             ]);
 
         $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
 
         $this->business->refresh();
         $this->assertEquals('PT Mega Kreasi Indonesia', $this->business->name);

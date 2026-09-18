@@ -451,7 +451,7 @@
                                 <div class="pt-2 text-center">
                                     <span class="text-[11.5px] text-black/50 dark:text-white/50 block mb-2">Pindai QRIS
                                         Toko</span>
-                                    <img src="{{ asset('storage/' . $order->paymentMethod->qris_image_path) }}"
+                                    <img src="{{ $order->paymentMethod->qris_image_url ?? asset('storage/' . $order->paymentMethod->qris_image_path) }}"
                                         alt="QRIS {{ $business->name }}"
                                         class="w-48 h-48 mx-auto rounded-xl object-contain border border-black/10 dark:border-white/10 bg-white p-2">
                                 </div>

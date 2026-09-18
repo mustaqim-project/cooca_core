@@ -10,6 +10,7 @@ use App\Models\Business;
 use App\Models\BusinessLandingPage;
 use App\Models\Product;
 use App\Domain\Storage\OwnerStorageQuotaService;
+use App\Domain\Storage\TenantStorage;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -360,9 +361,13 @@ class BusinessLandingPageWebController extends Controller
 
     private function storeBusinessImage($file, string $businessId, string $category): string
     {
-        $path = $file->store("businesses/{$businessId}/{$category}", 'public');
-
         $business = Business::find($businessId);
+        $dir = $business
+            ? TenantStorage::publicDir($business, "landing/{$category}")
+            : "businesses/{$businessId}/{$category}";
+
+        $path = $file->store($dir, 'public');
+
         if ($business) {
             $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
             if ($owner) {
@@ -378,19 +383,27 @@ class BusinessLandingPageWebController extends Controller
             }
         }
 
-        return Storage::disk('public')->url($path);
+        return TenantStorage::url($path) ?? Storage::disk('public')->url($path);
     }
 
     private function deleteStoredBusinessImage(?string $url): void
     {
-        if (! $url || ! str_contains($url, '/storage/')) {
+        if (! $url) {
             return;
         }
 
         $path = ltrim((string) parse_url($url, PHP_URL_PATH), '/');
-        $storageMarker = strpos($path, 'storage/');
-        if ($storageMarker !== false) {
-            $relPath = substr($path, $storageMarker + 8);
+        $relPath = null;
+
+        if (str_contains($path, 'bisnis/')) {
+            $marker = strpos($path, 'bisnis/');
+            $relPath = substr($path, $marker);
+        } elseif (str_contains($path, 'storage/')) {
+            $marker = strpos($path, 'storage/');
+            $relPath = substr($path, $marker + 8);
+        }
+
+        if ($relPath) {
             app(\App\Domain\Storage\StorageTrackingService::class)->deleteFile($relPath, 'public');
         }
     }
