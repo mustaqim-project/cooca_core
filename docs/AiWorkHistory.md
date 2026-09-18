@@ -46,6 +46,65 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-18-084] End-to-End System Analysis, Detailed Privacy Policy & Terms of Service (Owner vs Customer), and Database-Backed Legal CMS Hub
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Admin Console, Legal CMS, Public Marketing & Regulatory Compliance
+* **Feature:** Legal Pages CMS (`legal_pages`), Comprehensive Privacy Policy (UU PDP No. 27/2022), Detailed Terms & Conditions (KUHPerdata & UU ITE), Owner vs Customer Audience Segmentation, Interactive Alpine.js Filter, TinyMCE Visual Editor Integration in Admin, Seeder Naskah Hukum Standar Produksi
+* **Work Type:** Architecture | Legal Compliance | CMS | UI/UX | Database | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Platform Cooca mengintegrasikan berbagai kapabilitas bisnis multi-tenant (POS, Toko Online, Inventaris, Finance HPP, TriPay Payment Gateway, Biteship Logistics, WhatsApp Cloud API v25.0, Meta & TikTok OAuth). Hubungan hukum antara Cooca, Pemilik Usaha UMKM (Owner), dan Pembeli Akhir (Customer) memerlukan dokumen hukum yang jelas, terperinci, dan berkekuatan hukum tetap.
+* **Masalah/Target:**
+  1. Melakukan analisa sistem end-to-end sebelum merumuskan naskah hukum resmi.
+  2. Merumuskan perbedaan mendasar antara **Kebijakan Privasi** (*Privacy Policy* - kepatuhan pelindungan data pribadi UU PDP No. 27/2022) dan **Syarat & Ketentuan** (*Terms & Conditions* - perjanjian perdata kontraktual hak & kewajiban).
+  3. Membedakan secara tegas dan mendetail perlakuan hukum serta hak/kewajiban bagi **Pemilik Usaha (Owner UMKM)** vs **Pelanggan Toko (Customer)**.
+  4. Membangun modul CMS di panel Admin (`/admin/legal-pages`) agar seluruh naskah hukum dapat dikelola dan disunting secara visual (TinyMCE) serta ditayangkan langsung di portal publik (`/privacy`, `/terms`).
+
+#### 2. What Was Done
+1. **End-to-End System & Legal Analysis:**
+   - Mengaudit alur data: isolasi multi-tenant `business_id`, penampungan dana escrow TriPay Model B, perhitungan ongkir dan waybill kurir Biteship, notifikasi transaksional WhatsApp Cloud API v25.0, enkripsi simetris token OAuth AES-256-CBC, dan hak subjek data UU PDP.
+2. **Database Schema & Model (`legal_pages`):**
+   - Membuat migrasi `create_legal_pages_table.php` dengan kolom `slug`, `title`, `subtitle`, `meta_title`, `meta_description`, `content_general`, `content_owner`, `content_customer`, `version`, `effective_date`, `is_published`.
+   - Membuat model Eloquent `App\Models\LegalPage`.
+   - Menyusun `Database\Seeders\LegalPagesSeeder` yang memuat naskah hukum Bahasa Indonesia profesional dan siap pakai (*production-grade*) untuk `privacy-policy` dan `terms-conditions`.
+3. **Admin Panel CMS (`/admin/legal-pages`):**
+   - Membuat `AdminLegalPageController` dengan metode `index()`, `edit()`, `update()`, dan `toggle()`.
+   - Merancang tampilan `admin/legal-pages/index.blade.php` dan `admin/legal-pages/edit.blade.php` berbasis Bento Apple HIG v2.0 dengan editor visual TinyMCE dan tab tersegmentasi (Umum, Owner, Customer, SEO).
+   - Menambahkan menu navigasi "Kebijakan & Legalitas" pada Group 4 (Konten & Pemasaran) di `layouts/admin.blade.php`.
+4. **Interactive Public Marketing Portal:**
+   - Memperbarui `routes/public.php` untuk memuat model `LegalPage` secara dinamis dari database.
+   - Merancang ulang `resources/views/public/privacy.blade.php` dan `resources/views/public/terms.blade.php` dengan Segmented Audience Switcher Alpine.js (*Semua Ketentuan*, *Khusus Pemilik Usaha*, *Khusus Pelanggan Toko*), sticky Table of Contents (TOC), Zero Unicode Emoji, dan tombol cetak/PDF instan.
+5. **Automated Testing Suite:**
+   - Membuat `tests/Feature/Admin/AdminLegalPageTest.php` yang menguji akses index admin, form edit TinyMCE, pembaruan data, toggle status publikasi, akses publik `/privacy` & `/terms` beserta alias Bahasa Indonesia, dan proteksi otentikasi admin.
+   - 7 pengujian lulus dengan 35 assertions (`7 passed, 35 assertions`).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `database/migrations/2026_09_18_170000_create_legal_pages_table.php` (migrasi tabel `legal_pages`)
+  - `app/Models/LegalPage.php` (model Eloquent)
+  - `database/seeders/LegalPagesSeeder.php` (seeder naskah hukum lengkap)
+  - `app/Http/Controllers/Admin/AdminLegalPageController.php` (kontroler CMS admin)
+  - `resources/views/admin/legal-pages/index.blade.php` (antarmuka daftar dokumen legal admin)
+  - `resources/views/admin/legal-pages/edit.blade.php` (antarmuka editor dokumen legal admin dengan TinyMCE)
+  - `resources/views/layouts/admin.blade.php` (sidebar menu Kebijakan & Legalitas)
+  - `routes/admin.php` (rute admin legal-pages)
+  - `routes/public.php` (rute publik dengan injeksi model `LegalPage`)
+  - `resources/views/public/privacy.blade.php` (tampilan publik privacy policy interaktif)
+  - `resources/views/public/terms.blade.php` (tampilan publik terms of service interaktif)
+  - `tests/Feature/Admin/AdminLegalPageTest.php` (test suite feature)
+  - `docs/system/modules/cms.md` (dokumentasi Layer 2)
+  - `docs/AiWorkHistory.md` (pencatatan riwayat Layer 1)
+
+#### 4. Verification & Testing
+* `php artisan migrate` -> `2026_09_18_170000_create_legal_pages_table` DONE.
+* `php artisan db:seed --class=LegalPagesSeeder` -> Seeding completed.
+* `php vendor/phpunit/phpunit/phpunit --filter AdminLegalPageTest` -> 7 passed, 35 assertions.
+* `php vendor/phpunit/phpunit/phpunit --filter AdminSettingTest` -> 15 passed, 89 assertions.
+* `php artisan view:clear` -> Compiled views cleared successfully.
+
+---
+
 ### [WORK-2026-09-18-083] Production Setup Hardening & Canonical Base URL Enforcement (https://cooca.id) pada Unified Settings Hub (/admin/settings)
 * **Date:** 2026-09-18
 * **Status:** COMPLETED

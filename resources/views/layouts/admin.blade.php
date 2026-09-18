@@ -470,6 +470,12 @@
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Template Excel</span>
                 </a>
 
+                <a href="{{ route('admin.legal-pages.index') }}"
+                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.legal-pages.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <i data-lucide="scale" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
+                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Kebijakan &amp; Legalitas</span>
+                </a>
+
                 <!-- Group 5: Konfigurasi Sistem -->
                 <div
                     class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">

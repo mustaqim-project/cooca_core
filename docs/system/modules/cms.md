@@ -80,3 +80,19 @@ Untuk menjaga 100% *backward compatibility* pada rute dan kueri frontend blog pu
 3. **Anti-Pill-Abuse & Anti-AI-Template:** Maksimal satu badge status per entitas, bebas titik pulsa palsu (*fake pulse dots*), dan angka pembaca/artikel disajikan dalam tipografi murni `tabular-nums`.
 4. **Anti-Accidental Data Loss:** Penghapusan kategori atau cluster tidak menghapus artikel secara kaskade, melainkan melakukan *nullify/disassociate* relasi secara aman.
 5. **iOS Safari Anti-Auto-Zoom:** Seluruh kolom input dan textarea form mengadopsi ukuran font minimal 16px (`text-[16px] sm:text-[13px]`).
+
+---
+
+## 5. Modul CMS Kebijakan & Dokumen Legalitas (`legal_pages`)
+
+Selain artikel blog, CMS Cooca menaungi pengelolaan dokumen kepatuhan hukum dan regulasi resmi platform melalui model `App\Models\LegalPage`:
+
+### 5.1 Struktur Data & Arsitektur Segmentasi
+Tabel `legal_pages` dirancang dengan pemisahan klausul spesifik untuk audiens yang berbeda:
+* `content_general`: Ketentuan umum, landasan hukum (UU PDP No. 27/2022 & KUHPerdata), integrasi pihak ketiga (TriPay, Biteship, WhatsApp, Meta, TikTok), dan batasan tanggung jawab platform.
+* `content_owner`: Ketentuan khusus pemilik bisnis UMKM (langganan SaaS, sistem escrow settlement, HPP, kuota AI/storage, pengemasan paket kurir, AML/KYB).
+* `content_customer`: Ketentuan khusus pembeli toko & pengunjung (pembayaran pesanan, alamat kirim, retur dengan video unboxing, kuitansi digital WhatsApp, larangan order fiktif).
+
+### 5.2 Tata Kelola Admin & Tampilan Publik
+* **Admin CMS (`/admin/legal-pages`):** Superadmin dapat menyunting naskah hukum menggunakan visual editor TinyMCE, memperbarui nomor versi dokumen, tanggal efektif, dan meta tag SEO.
+* **Portal Publik (`/privacy` & `/terms`):** Mengadopsi filter segmentasi audiens interaktif berbasis Alpine.js (*Semua Ketentuan*, *Khusus Pemilik Usaha*, *Khusus Pelanggan Toko*), Table of Contents (TOC) sticky navigasi cepat, dan tombol cetak/PDF instan.

@@ -1,113 +1,159 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Kebijakan Privasi & Perlindungan Data Pengguna | Cooca')
-@section('description', 'Kebijakan privasi resmi Cooca mengenai pengumpulan data, enkripsi, integrasi media sosial (TikTok, Meta, Instagram), dan perlindungan hak pengguna.')
+@section('title', ($page->meta_title ?? 'Kebijakan Privasi & Perlindungan Data Pribadi') . ' | Cooca')
+@section('description', $page->meta_description ?? 'Kebijakan privasi resmi Cooca mengenai pengumpulan data pemilik UMKM dan pelanggan toko, enkripsi AES-256, integrasi payment gateway, logistik, dan hak data UU PDP.')
 
 @section('content')
-<main class="min-h-screen pt-28 pb-20 bg-[#F5F5F7] dark:bg-[#0A0A0C] text-black dark:text-white antialiased">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+<main x-data="{ audienceFilter: 'all' }" class="min-h-screen pt-28 pb-20 bg-[#F5F5F7] dark:bg-[#0A0A0C] text-black dark:text-white antialiased">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
         {{-- Hero Header Bento --}}
-        <div class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-xl shadow-sm space-y-4">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[12px] font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20">
-                <i data-lucide="shield-check" class="w-4 h-4"></i>
-                <span>Komitmen Keamanan &amp; Privasi Terbuka</span>
+        <div class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-xl shadow-xs space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[12px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 w-fit">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    <span>Kepatuhan Resmi UU PDP No. 27/2022</span>
+                </div>
+
+                <div class="flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50 font-mono">
+                    <span>Versi {{ $page->version ?? '2.1' }}</span>
+                    <span>&bull;</span>
+                    <span>Efektif: {{ $page->effective_date ? $page->effective_date->format('d F Y') : '18 September 2026' }}</span>
+                </div>
             </div>
+
             <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-black dark:text-white">
-                Kebijakan Privasi &amp; Data Pribadi
+                {{ $page->title ?? 'Kebijakan Privasi & Pelindungan Data Pribadi' }}
             </h1>
-            <p class="text-[14px] sm:text-[15px] text-black/60 dark:text-white/60 leading-relaxed max-w-2xl">
-                Terakhir diperbarui: 18 September 2026. Dokumen ini menjelaskan bagaimana Cooca mengumpulkan, mengamankan, dan memproses data Anda, termasuk saat menggunakan integrasi platform pihak ketiga seperti TikTok Developer API dan Meta Platform.
+
+            <p class="text-[14px] sm:text-[15px] text-black/65 dark:text-white/65 leading-relaxed max-w-3xl">
+                {{ $page->subtitle ?? 'Dokumen ini menguraikan komitmen Cooca dalam mengumpulkan, mengamankan, dan memproses data pemilik bisnis UMKM serta pelanggan toko secara terisolasi tanpa pernah menjual data pribadi kepada pihak ketiga.' }}
             </p>
+
+            {{-- Segmented Audience Filter (Apple HIG Style) --}}
+            <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-black/[0.04] dark:border-white/[0.06]">
+                <div class="p-1 rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] inline-flex items-center gap-1 max-w-full overflow-x-auto">
+                    <button type="button" @click="audienceFilter = 'all'"
+                        :class="audienceFilter === 'all' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                        class="h-9 px-3.5 sm:px-4 rounded-[12px] text-[12px] transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
+                        <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                        <span>Semua Ketentuan</span>
+                    </button>
+
+                    <button type="button" @click="audienceFilter = 'owner'"
+                        :class="audienceFilter === 'owner' ? 'bg-white dark:bg-[#2C2C2E] text-[#007AFF] dark:text-[#0A84FF] shadow-xs font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                        class="h-9 px-3.5 sm:px-4 rounded-[12px] text-[12px] transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
+                        <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+                        <span>Khusus Pemilik Usaha (Owner)</span>
+                    </button>
+
+                    <button type="button" @click="audienceFilter = 'customer'"
+                        :class="audienceFilter === 'customer' ? 'bg-white dark:bg-[#2C2C2E] text-[#34C759] dark:text-[#30D158] shadow-xs font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                        class="h-9 px-3.5 sm:px-4 rounded-[12px] text-[12px] transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
+                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                        <span>Khusus Pelanggan Toko (Customer)</span>
+                    </button>
+                </div>
+
+                <button type="button" onclick="window.print()"
+                    class="h-9 px-3.5 rounded-[12px] text-[12px] font-bold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] border border-black/[0.06] dark:border-white/[0.08] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 self-start sm:self-auto cursor-pointer">
+                    <i data-lucide="printer" class="w-3.5 h-3.5" stroke-width="2"></i>
+                    <span>Cetak / PDF</span>
+                </button>
+            </div>
         </div>
 
-        {{-- Content Bento Card --}}
-        <div class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-xl shadow-sm space-y-8 text-[14px] sm:text-[14.5px] leading-relaxed text-black/80 dark:text-white/80">
+        {{-- 2-Column Bento Layout: Sticky TOC & Content --}}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-            <section class="space-y-3">
-                <h2 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white flex items-center gap-2.5">
-                    <span class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-[12px] font-mono">01</span>
-                    Pendahuluan &amp; Ruang Lingkup
-                </h2>
-                <p>
-                    Cooca (<a href="https://cooca.id" class="text-[#007AFF] hover:underline font-medium">cooca.id</a>) adalah platform SaaS ERP dan Business Operating System untuk pelaku usaha UMKM di Indonesia. Privasi dan keamanan data bisnis Anda adalah prioritas mutlak kami. Kebijakan ini berlaku untuk seluruh layanan Cooca, termasuk aplikasi web, integrasi API, dan layanan terkait lainnya.
-                </p>
-            </section>
+            {{-- Left Column: Sticky Table of Contents (4 cols) --}}
+            <aside class="lg:col-span-4 lg:sticky lg:top-28 space-y-4">
+                <div class="p-6 rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-xl shadow-xs space-y-4">
+                    <div class="flex items-center gap-2 pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
+                        <i data-lucide="list" class="w-4 h-4 text-[#007AFF]"></i>
+                        <h3 class="text-[14px] font-bold text-black dark:text-white">Daftar Isi Kebijakan</h3>
+                    </div>
 
-            <section class="space-y-3">
-                <h2 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white flex items-center gap-2.5">
-                    <span class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-[12px] font-mono">02</span>
-                    Data yang Kami Kumpulkan
-                </h2>
-                <p>Kami hanya mengumpulkan data yang esensial untuk menjalankan operasional bisnis Anda:</p>
-                <ul class="list-disc pl-6 space-y-1.5 text-black/70 dark:text-white/70">
-                    <li><strong>Informasi Akun:</strong> Nama pengguna, alamat email, nomor telepon/WhatsApp, dan nama unit bisnis.</li>
-                    <li><strong>Data Operasional Bisnis:</strong> Katalog produk, persediaan inventaris, transaksi penjualan POS, dan pembukuan keuangan toko.</li>
-                    <li><strong>Integrasi TikTok for Developers:</strong> Jika Anda memilih untuk menghubungkan akun TikTok melalui <em>TikTok Login Kit</em>, kami hanya meminta izin akses dasar (<code class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 font-mono text-[12px]">user.info.basic</code>) untuk mengambil ID unik kreator (<code class="font-mono text-[12px]">open_id</code>), nama tampilan (display name), dan foto avatar agar Anda dapat mengidentifikasi akun yang terhubung di dashboard Cooca.</li>
-                    <li><strong>Izin Penerbitan Konten TikTok:</strong> Lingkup (<code class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 font-mono text-[12px]">video.upload</code>) digunakan secara eksklusif saat Anda secara sengaja mengunggah media video dari Cooca untuk dipublikasikan atau disimpan sebagai draf di profil TikTok bisnis Anda melalui <em>TikTok Content Posting API</em>.</li>
-                </ul>
-            </section>
-
-            <section class="space-y-3">
-                <h2 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white flex items-center gap-2.5">
-                    <span class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-[12px] font-mono">03</span>
-                    Penggunaan Data &amp; Kebijakan Larangan Penjualan Data
-                </h2>
-                <p>
-                    Data yang dikumpulkan semata-mata digunakan untuk:
-                </p>
-                <ul class="list-disc pl-6 space-y-1.5 text-black/70 dark:text-white/70">
-                    <li>Memfasilitasi pembuatan, penjadwalan, dan publikasi konten omnichannel (Instagram, Facebook, TikTok).</li>
-                    <li>Memproses pesanan, menghitung laporan keuangan otomatis, dan menyinkronkan stok produk.</li>
-                    <li>Menyediakan notifikasi status postingan atau peringatan operasional kepada pemilik usaha.</li>
-                </ul>
-                <div class="p-4 rounded-[16px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] font-medium text-[13px] flex items-center gap-2.5">
-                    <i data-lucide="check-shield" class="w-5 h-5 shrink-0"></i>
-                    <span><strong>Jaminan Tegas:</strong> Cooca TIDAK PERNAH dan TIDAK AKAN PERNAH menjual, menyewakan, atau memperdagangkan data pribadi maupun data akun TikTok/Meta pengguna kepada pihak ketiga atau jaringan periklanan manapun.</span>
+                    <nav class="space-y-1.5 text-[13px]">
+                        <a href="#general-policy" class="block p-2 rounded-[10px] text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#007AFF] transition-colors">
+                            1. Kerangka Pelindungan Data (UU PDP)
+                        </a>
+                        <a href="#third-party-integrations" class="block p-2 rounded-[10px] text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#007AFF] transition-colors">
+                            2. Integrasi TriPay, Biteship &amp; WhatsApp
+                        </a>
+                        <a href="#data-subject-rights" class="block p-2 rounded-[10px] text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#007AFF] transition-colors">
+                            3. Hak Subjek Data &amp; Hapus Data
+                        </a>
+                        <a href="#owner-section" x-show="audienceFilter === 'all' || audienceFilter === 'owner'" class="block p-2 rounded-[10px] text-[#007AFF] dark:text-[#0A84FF] font-semibold hover:bg-[#007AFF]/10 transition-colors">
+                            4. Bagian Khusus Pemilik Usaha (Owner)
+                        </a>
+                        <a href="#customer-section" x-show="audienceFilter === 'all' || audienceFilter === 'customer'" class="block p-2 rounded-[10px] text-[#34C759] dark:text-[#30D158] font-semibold hover:bg-[#34C759]/10 transition-colors">
+                            5. Bagian Khusus Pelanggan (Customer)
+                        </a>
+                    </nav>
                 </div>
-            </section>
 
-            <section class="space-y-3">
-                <h2 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white flex items-center gap-2.5">
-                    <span class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-[12px] font-mono">04</span>
-                    Keamanan Penyimpanan &amp; Enkripsi Simetris
-                </h2>
-                <p>
-                    Seluruh access token OAuth (termasuk TikTok User Access Token dan Meta Long-Lived Token) disimpan secara terenkripsi menggunakan algoritma <strong>AES-256-CBC</strong> di dalam database dengan kunci rahasia aplikasi server. Token tidak pernah diekspos ke publik atau disimpan dalam teks biasa (plaintext).
-                </p>
-            </section>
-
-            <section class="space-y-3">
-                <h2 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white flex items-center gap-2.5">
-                    <span class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-[12px] font-mono">05</span>
-                    Pencabutan Akses &amp; Penghapusan Data (Data Deletion)
-                </h2>
-                <p>
-                    Pengguna memiliki hak penuh untuk mencabut otorisasi dan menghapus token integrasi kapan saja:
-                </p>
-                <ul class="list-disc pl-6 space-y-1.5 text-black/70 dark:text-white/70">
-                    <li><strong>Melalui Cooca:</strong> Masuk ke menu <em>Media Sosial > Akun Terhubung</em>, lalu klik tombol <em>Putuskan Koneksi</em> pada akun TikTok yang diinginkan. Sistem kami akan segera memusnahkan access token dari basis data kami.</li>
-                    <li><strong>Melalui TikTok:</strong> Buka aplikasi TikTok Anda > <em>Pengaturan dan Privasi</em> > <em>Keamanan &amp; Izin</em> > <em>Kelola Izin Aplikasi</em> > pilih <em>Cooca</em> > klik <em>Cabut Akses</em>.</li>
-                    <li><strong>Permintaan Penghapusan Akun Total:</strong> Anda dapat mengajukan permohonan penghapusan seluruh data bisnis dan akun dengan menghubungi tim kami di <a href="mailto:support@cooca.id" class="text-[#007AFF] hover:underline font-medium">support@cooca.id</a>. Data akan dihapus permanen dalam jangka waktu maksimal 14 hari kerja.</li>
-                </ul>
-            </section>
-
-            <section class="space-y-3">
-                <h2 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white flex items-center gap-2.5">
-                    <span class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-[12px] font-mono">06</span>
-                    Kontak Resmi Tim Kepatuhan
-                </h2>
-                <p>
-                    Jika Anda memiliki pertanyaan seputar Kebijakan Privasi, penggunaan API TikTok, atau tata kelola data di Cooca, hubungi kami melalui:
-                </p>
-                <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] space-y-1 font-mono text-[13px]">
-                    <div><strong>Layanan Resmi:</strong> PT Cooca Digital Teknologi (Cooca.id)</div>
-                    <div><strong>Email:</strong> <a href="mailto:support@cooca.id" class="text-[#007AFF]">support@cooca.id</a> / <a href="mailto:privacy@cooca.id" class="text-[#007AFF]">privacy@cooca.id</a></div>
-                    <div><strong>Website:</strong> <a href="https://cooca.id" class="text-[#007AFF]">https://cooca.id</a></div>
-                    <div><strong>Lokasi:</strong> Indonesia</div>
+                {{-- Legal Compliance Box --}}
+                <div class="p-5 rounded-[22px] bg-gradient-to-br from-[#34C759]/10 via-transparent to-transparent border border-[#34C759]/20 backdrop-blur-sm space-y-2">
+                    <div class="flex items-center gap-2 text-[#248A3D] dark:text-[#30D158] text-[13px] font-bold">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                        <span>Enkripsi Simetris AES-256</span>
+                    </div>
+                    <p class="text-[12px] text-black/65 dark:text-white/65 leading-relaxed">
+                        Access token OAuth, kunci perbankan, dan data kredensial disimpan terenkripsi di tingkat database peladen.
+                    </p>
+                    <div class="pt-1 text-[11px] text-black/50 dark:text-white/50">
+                        Kontak DPO: <a href="mailto:dpo@cooca.id" class="text-[#007AFF] font-mono">dpo@cooca.id</a>
+                    </div>
                 </div>
-            </section>
+            </aside>
 
+            {{-- Right Column: Content Body (8 cols) --}}
+            <div class="lg:col-span-8 space-y-6">
+
+                {{-- Section General --}}
+                <div x-show="audienceFilter === 'all'" x-transition
+                    class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-xl shadow-xs space-y-8 text-[14px] sm:text-[14.5px] leading-relaxed text-black/80 dark:text-white/80">
+                    {!! $page->content_general !!}
+                </div>
+
+                {{-- Section Owner --}}
+                <div id="owner-section" x-show="audienceFilter === 'all' || audienceFilter === 'owner'" x-transition
+                    class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-[#007AFF]/20 backdrop-blur-xl shadow-xs space-y-6 text-[14px] sm:text-[14.5px] leading-relaxed text-black/80 dark:text-white/80">
+                    <div class="flex items-center justify-between pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
+                        <h2 class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2">
+                            <i data-lucide="briefcase" class="w-5 h-5 text-[#007AFF]"></i>
+                            <span>Ketentuan Khusus Pemilik Usaha (Owner UMKM)</span>
+                        </h2>
+                        <span class="px-2.5 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-mono text-[11px] font-bold">Mitra Merchant</span>
+                    </div>
+
+                    {!! $page->content_owner !!}
+                </div>
+
+                {{-- Section Customer --}}
+                <div id="customer-section" x-show="audienceFilter === 'all' || audienceFilter === 'customer'" x-transition
+                    class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-[#34C759]/20 backdrop-blur-xl shadow-xs space-y-6 text-[14px] sm:text-[14.5px] leading-relaxed text-black/80 dark:text-white/80">
+                    <div class="flex items-center justify-between pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
+                        <h2 class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-5 h-5 text-[#34C759]"></i>
+                            <span>Ketentuan Khusus Pelanggan Toko (Customer)</span>
+                        </h2>
+                        <span class="px-2.5 py-1 rounded-[8px] bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] font-mono text-[11px] font-bold">Pelanggan Toko</span>
+                    </div>
+
+                    {!! $page->content_customer !!}
+                </div>
+
+                {{-- Official Legal Footer --}}
+                <div class="p-6 rounded-[24px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-2 text-[12px] text-black/55 dark:text-white/55">
+                    <div class="font-bold text-black dark:text-white">PT Cooca Digital Teknologi</div>
+                    <p>
+                        Kebijakan Privasi ini tunduk pada hukum negara Republik Indonesia. Jika Anda memiliki pertanyaan mengenai pemrosesan data pribadi Anda atau ingin mengajukan permintaan penghapusan akun permanen, silakan hubungi tim kami di <a href="mailto:support@cooca.id" class="text-[#007AFF] font-medium hover:underline">support@cooca.id</a>.
+                    </p>
+                </div>
+
+            </div>
         </div>
 
     </div>

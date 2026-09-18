@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminErrorLogController;
 use App\Http\Controllers\Admin\AdminFeedbackController;
 use App\Http\Controllers\Admin\AdminLeadController;
+use App\Http\Controllers\Admin\AdminLegalPageController;
 use App\Http\Controllers\Admin\AdminPasswordResetController;
 use App\Http\Controllers\Admin\AdminPaymentAccountController;
 use App\Http\Controllers\Admin\AdminPostController;
@@ -160,6 +161,14 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::delete('/{template}', [AdminTemplateController::class, 'destroy'])->name('destroy');
             Route::post('/{template}/toggle', [AdminTemplateController::class, 'toggle'])->name('toggle');
             Route::get('/{template}/download', [AdminTemplateController::class, 'download'])->name('download');
+        });
+
+        // CMS Kebijakan Legalitas & Privasi (Privacy Policy & Terms of Service)
+        Route::prefix('legal-pages')->name('legal-pages.')->group(function (): void {
+            Route::get('/', [AdminLegalPageController::class, 'index'])->name('index');
+            Route::get('/{legalPage}/edit', [AdminLegalPageController::class, 'edit'])->name('edit');
+            Route::put('/{legalPage}', [AdminLegalPageController::class, 'update'])->name('update');
+            Route::post('/{legalPage}/toggle', [AdminLegalPageController::class, 'toggle'])->name('toggle');
         });
 
         // WhatsApp Admin Center (Meta Official Platform Gateway, Reminders & Blast)

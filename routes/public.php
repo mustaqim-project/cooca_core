@@ -107,19 +107,23 @@ Route::get('/sitemap', [SitemapController::class, 'html'])->name('sitemap.html')
 Route::get('/receipt/{order}', [PosTerminalWebController::class, 'printReceipt'])->name('public.receipt');
 Route::get('/receipt/{order}/image', [PosTerminalWebController::class, 'receiptImage'])->name('public.receipt.image');
 
-// 12. Legal Policies (Privacy Policy & Terms of Service for TikTok/Meta App Submission)
+// 12. Legal Policies (Privacy Policy & Terms of Service for Cooca, TikTok, Meta & Google)
 Route::get('/privacy', function () {
-    return view('public.privacy');
+    $page = \App\Models\LegalPage::findBySlug('privacy-policy');
+    return view('public.privacy', compact('page'));
 })->name('public.privacy');
 Route::get('/kebijakan-privasi', function () {
-    return view('public.privacy');
+    $page = \App\Models\LegalPage::findBySlug('privacy-policy');
+    return view('public.privacy', compact('page'));
 });
 
 Route::get('/terms', function () {
-    return view('public.terms');
+    $page = \App\Models\LegalPage::findBySlug('terms-conditions');
+    return view('public.terms', compact('page'));
 })->name('public.terms');
 Route::get('/syarat-ketentuan', function () {
-    return view('public.terms');
+    $page = \App\Models\LegalPage::findBySlug('terms-conditions');
+    return view('public.terms', compact('page'));
 });
 
 // 13. Public business landing pages using business name as direct URL slug (Must be last)

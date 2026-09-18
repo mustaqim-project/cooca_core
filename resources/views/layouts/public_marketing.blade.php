@@ -842,9 +842,9 @@
                             class="hover:text-black dark:hover:text-white transition-colors">Peta Situs</a>
                         <a href="{{ route('sitemap.xml') }}" target="_blank"
                             class="hover:text-black dark:hover:text-white transition-colors">Sitemap XML</a>
-                        <a href="https://cooca.id/privacy" target="_blank"
+                        <a href="{{ route('public.privacy') }}"
                             class="hover:text-black dark:hover:text-white transition-colors">Privasi</a>
-                        <a href="https://cooca.id/terms" target="_blank"
+                        <a href="{{ route('public.terms') }}"
                             class="hover:text-black dark:hover:text-white transition-colors">Ketentuan</a>
                     </div>
                 </div>
