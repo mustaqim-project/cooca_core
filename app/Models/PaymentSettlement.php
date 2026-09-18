@@ -17,7 +17,11 @@ class PaymentSettlement extends Model
 
     public const STATUS_PENDING = 'pending';
 
+    public const STATUS_PROCESSING = 'processing';
+
     public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_REJECTED = 'rejected';
 
     protected $fillable = [
         'business_id',
@@ -31,6 +35,18 @@ class PaymentSettlement extends Model
         'status',
         'notes',
         'reconciled_by',
+        'proof_image_path',
+        'admin_id',
+        'transferred_at',
+        'admin_notes',
+        'rejection_reason',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    protected $appends = [
+        'proof_image_url',
     ];
 
     /**
@@ -40,6 +56,7 @@ class PaymentSettlement extends Model
     {
         return [
             'settlement_date' => 'date',
+            'transferred_at' => 'datetime',
             'gross_amount' => 'float',
             'fee_amount' => 'float',
             'net_amount' => 'float',
@@ -51,8 +68,42 @@ class PaymentSettlement extends Model
         return $this->belongsTo(User::class, 'reconciled_by');
     }
 
+    public function reconciledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reconciled_by');
+    }
+
+    public function admin(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'admin_id');
+    }
+
     public function allocations(): HasMany
     {
         return $this->hasMany(PaymentSettlementAllocation::class, 'payment_settlement_id');
+    }
+
+    public function getProofImageUrlAttribute(): ?string
+    {
+        if (! $this->proof_image_path) {
+            return null;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->proof_image_path);
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === self::STATUS_COMPLETED;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === self::STATUS_REJECTED;
     }
 }

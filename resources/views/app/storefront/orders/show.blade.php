@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 pb-28 sm:pb-32 lg:pb-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8" x-data="{ rejectModalOpen: false, cancelModalOpen: false, imageModalOpen: false, verifyModalOpen: false, activeImageUrl: '' }">
+    <div class="space-y-6 pb-28 sm:pb-32 lg:pb-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8" x-data="{ rejectModalOpen: false, cancelModalOpen: false, imageModalOpen: false, verifyModalOpen: false, waybillModalOpen: false, activeImageUrl: '' }">
 
         {{-- FLASH NOTIFICATIONS --}}
         @if (session('success'))
@@ -62,6 +62,14 @@
 
             {{-- ACTION BUTTONS --}}
             <div class="flex items-center gap-2 flex-wrap">
+                @if ($order->fulfillment_type !== 'pickup')
+                    <a href="{{ route('storefront.orders.shipping_label', $order) }}" target="_blank"
+                        class="h-9 px-3.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/80 dark:text-white/80 text-[12.5px] font-semibold transition flex items-center gap-1.5 shadow-2xs">
+                        <i data-lucide="printer" class="w-4 h-4 text-brand-primary"></i>
+                        <span>Cetak Label Resi</span>
+                    </a>
+                @endif
+
                 <a href="{{ url("/b/{$business->slug}/order/{$order->tracking_token}") }}" target="_blank"
                     class="h-9 px-3.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/80 dark:text-white/80 text-[12.5px] font-semibold transition flex items-center gap-2">
                     <i data-lucide="external-link" class="w-4 h-4"></i>
@@ -378,11 +386,23 @@
                             <span>Subtotal Item</span>
                             <span class="tabular-nums">Rp {{ number_format((float) $order->subtotal_amount, 0, ',', '.') }}</span>
                         </div>
-                        @if ((float) $order->shipping_fee > 0)
+                        @php
+                            $actualShipping = (float) ($order->shipping_cost ?? $order->shipping_fee ?? 0);
+                        @endphp
+                        @if ($actualShipping > 0)
                             <div class="flex items-center justify-between text-black/60 dark:text-white/60">
                                 <span>Ongkos Kirim
-                                    ({{ $order->fulfillment_type === 'pickup' ? 'Ambil Sendiri' : 'Kurir Toko' }})</span>
-                                <span class="tabular-nums">Rp {{ number_format((float) $order->shipping_fee, 0, ',', '.') }}</span>
+                                    ({{ $order->shipping_courier_name ?: ($order->fulfillment_type === 'pickup' ? 'Ambil Sendiri' : 'Kurir Toko') }})</span>
+                                <span class="tabular-nums font-medium text-black dark:text-white">Rp {{ number_format($actualShipping, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+                        @if ((float) ($order->biteship_service_fee ?? 0) > 0)
+                            <div class="flex items-center justify-between text-black/60 dark:text-white/60">
+                                <span class="flex items-center gap-1.5">
+                                    <span>Biaya Layanan Pengiriman (Biteship)</span>
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#007AFF]/10 text-[#007AFF]">Platform Fee</span>
+                                </span>
+                                <span class="tabular-nums font-semibold text-black dark:text-white">Rp {{ number_format((float) $order->biteship_service_fee, 0, ',', '.') }}</span>
                             </div>
                         @endif
                         @if ((float) $order->discount_amount > 0)
@@ -575,7 +595,7 @@
                                 @if ($order->fulfillment_type === 'pickup')
                                     <i data-lucide="store" class="w-3.5 h-3.5"></i> Ambil Sendiri di Toko
                                 @else
-                                    <i data-lucide="truck" class="w-3.5 h-3.5"></i> Pengiriman Kurir Toko
+                                    <i data-lucide="truck" class="w-3.5 h-3.5"></i> Ekspedisi Biteship ({{ $order->shipping_courier_name ?: ($order->shipping_courier_code ? strtoupper($order->shipping_courier_code).' - '.strtoupper($order->shipping_courier_service) : 'Kurir') }})
                                 @endif
                             </span>
                         </div>
@@ -590,6 +610,9 @@
                             <p
                                 class="text-black/80 dark:text-white/80 bg-black/5 dark:bg-white/5 p-3 rounded-[12px] leading-relaxed">
                                 {{ $order->shipping_address ?? 'Tidak ada alamat khusus (Ambil di Toko).' }}
+                                @if ($order->destination_postal_code)
+                                    <span class="block mt-1 font-mono text-[12px] font-semibold text-brand-primary">Kode Pos: {{ $order->destination_postal_code }}</span>
+                                @endif
                             </p>
                         </div>
                         @if ($order->notes)
@@ -603,6 +626,152 @@
                             </div>
                         @endif
                     </div>
+
+                    @if ($order->fulfillment_type !== 'pickup')
+                        {{-- BENTOSHUB: LOGISTIK, RESI & DISPATCH --}}
+                        <div class="mt-5 pt-5 border-t border-black/5 dark:border-white/10 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-brand-primary/10 text-brand-primary flex items-center justify-center">
+                                        <i data-lucide="truck" class="w-4 h-4"></i>
+                                    </div>
+                                    <h3 class="text-[14px] font-bold text-black dark:text-white">Logistik & Resi Pengiriman</h3>
+                                </div>
+                                @if ($order->shipping_waybill_id || $order->biteship_order_id)
+                                    @php
+                                        $st = strtolower($order->shipping_status ?? 'allocated');
+                                        $badgeClass = match($st) {
+                                            'delivered' => 'bg-[#34C759]/10 text-[#34C759]',
+                                            'in_transit', 'picking_up', 'picked', 'dropping_off' => 'bg-[#007AFF]/10 text-[#007AFF]',
+                                            'cancelled', 'rejected' => 'bg-[#FF3B30]/10 text-[#FF3B30]',
+                                            default => 'bg-amber-500/10 text-amber-700 dark:text-amber-400',
+                                        };
+                                    @endphp
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase {{ $badgeClass }}">
+                                        {{ str_replace('_', ' ', $st) }}
+                                    </span>
+                                @else
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50">
+                                        Belum Dikirim
+                                    </span>
+                                @endif
+                            </div>
+
+                            @if ($order->shipping_waybill_id || $order->biteship_order_id)
+                                <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 space-y-3 text-[12.5px]">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-3 border-b border-black/5 dark:border-white/5">
+                                        <div>
+                                            <span class="text-black/50 dark:text-white/50 text-[11px] block">Nomor Resi / AWB:</span>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="font-mono font-black text-black dark:text-white text-[15px] tracking-wide">
+                                                    {{ $order->shipping_waybill_id ?: 'Menunggu Alokasi Kurir' }}
+                                                </span>
+                                                @if ($order->shipping_waybill_id)
+                                                    <button type="button" onclick="navigator.clipboard.writeText('{{ $order->shipping_waybill_id }}'); alert('Nomor Resi berhasil disalin!')"
+                                                        class="px-2 py-0.5 rounded bg-black/5 hover:bg-black/10 dark:bg-white/10 text-[11px] text-brand-primary font-bold transition cursor-pointer">
+                                                        Salin
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="text-black/50 dark:text-white/50 text-[11px] block">Ekspedisi & Layanan:</span>
+                                            <span class="font-bold text-black dark:text-white text-[13.5px] mt-1 block">
+                                                {{ $order->shipping_courier_name ?: strtoupper(($order->shipping_courier_code ?: 'KURIR') . ' ' . ($order->shipping_courier_service ?: 'REGULER')) }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    @if ($order->shipping_tracking_url)
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[11.5px] text-black/50 dark:text-white/50">Tautan Pelacakan Kurir:</span>
+                                            <a href="{{ $order->shipping_tracking_url }}" target="_blank"
+                                                class="text-[11.5px] font-bold text-[#007AFF] hover:underline flex items-center gap-1">
+                                                <span>Live Tracking Biteship</span>
+                                                <i data-lucide="external-link" class="w-3 h-3"></i>
+                                            </a>
+                                        </div>
+                                    @endif
+
+                                    {{-- ACTION BUTTONS: CETAK RESI, EDIT RESI, SINKRONISASI --}}
+                                    <div class="pt-2 flex flex-wrap items-center gap-2">
+                                        <a href="{{ route('storefront.orders.shipping_label', $order) }}" target="_blank"
+                                            class="h-8 px-3.5 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white text-[11.5px] font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                                            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                                            <span>Cetak Label Resi (100x150mm)</span>
+                                        </a>
+
+                                        <button type="button" @click="waybillModalOpen = true"
+                                            class="h-8 px-3 rounded-full bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 text-black dark:text-white text-[11.5px] font-semibold transition flex items-center gap-1.5 cursor-pointer">
+                                            <i data-lucide="edit-3" class="w-3 h-3"></i>
+                                            <span>Ubah Resi</span>
+                                        </button>
+
+                                        @if ($order->biteship_order_id)
+                                            <form action="{{ route('storefront.orders.biteship.track', $order) }}" method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="h-8 px-3 rounded-full bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 text-black dark:text-white text-[11.5px] font-semibold transition flex items-center gap-1.5 cursor-pointer">
+                                                    <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                                    <span>Sinkronkan Status</span>
+                                                </button>
+                                            </form>
+
+                                            @if (in_array(strtolower($order->shipping_status ?? ''), ['confirmed', 'scheduled', 'allocated', 'picking_up'], true))
+                                                <form action="{{ route('storefront.orders.biteship.cancel', $order) }}" method="POST"
+                                                    onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengiriman kurir ini di Biteship?')">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="h-8 px-3 rounded-full bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] text-[11.5px] font-semibold transition flex items-center gap-1.5 cursor-pointer">
+                                                        <i data-lucide="x" class="w-3 h-3"></i>
+                                                        <span>Batalkan</span>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                {{-- UNFULFILLED: PICKUP REQUEST & MANUAL WAYBILL BUTTONS --}}
+                                <div class="p-4 rounded-[18px] bg-brand-primary/[0.04] border border-brand-primary/15 space-y-3">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div>
+                                            <span class="text-[13px] font-bold text-black dark:text-white block">
+                                                Siap Dikirim
+                                            </span>
+                                            <span class="text-[11.5px] text-black/55 dark:text-white/55">
+                                                Pilihan Kurir: <strong>{{ $order->shipping_courier_name ?: strtoupper($order->shipping_courier_code ?: 'JNE') }}</strong> &bull; Ongkir: Rp {{ number_format((float)$order->shipping_fee, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <a href="{{ route('storefront.orders.shipping_label', $order) }}" target="_blank"
+                                                class="h-9 px-3 rounded-[12px] bg-black/5 hover:bg-black/10 dark:bg-white/10 text-black dark:text-white font-semibold text-[12px] transition flex items-center gap-1.5 cursor-pointer">
+                                                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                                                <span>Cetak Label</span>
+                                            </a>
+
+                                            <button type="button" @click="waybillModalOpen = true"
+                                                class="h-9 px-3 rounded-[12px] bg-black/5 hover:bg-black/10 dark:bg-white/10 text-black dark:text-white font-semibold text-[12px] transition flex items-center gap-1.5 cursor-pointer">
+                                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                                <span>Input / Buat Resi</span>
+                                            </button>
+
+                                            <form action="{{ route('storefront.orders.biteship.create', $order) }}" method="POST"
+                                                onsubmit="return confirm('Proses penjemputan paket ke Biteship untuk kurir {{ $order->shipping_courier_code ?: 'ekspedisi' }}?')">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="h-9 px-4 rounded-[12px] bg-brand-primary hover:opacity-90 text-white font-bold text-[12px] transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                                    <span>Request Pickup Biteship</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif</div>
                 </div>
 
             </div>
@@ -920,6 +1089,97 @@
                 </button>
                 <img :src="activeImageUrl" alt="Preview Bukti Transfer"
                     class="w-full h-auto max-h-[85vh] object-contain rounded-[20px]">
+            </div>
+        </div>
+
+        {{-- MODAL INPUT / TERBITKAN NOMOR RESI --}}
+        <div x-show="waybillModalOpen" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
+                @click.outside="waybillModalOpen = false">
+                <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-[12px] bg-brand-primary/10 text-brand-primary flex items-center justify-center">
+                            <i data-lucide="tag" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Terbitkan / Ubah Nomor Resi</h3>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">Pesanan #{{ $order->order_number }} &bull; {{ $order->customer_name }}</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="waybillModalOpen = false"
+                        class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white cursor-pointer">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form action="{{ route('storefront.orders.waybill.update', $order) }}" method="POST" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                            Nomor Resi / AWB (Airway Bill)
+                        </label>
+                        <div class="relative">
+                            <input type="text" name="shipping_waybill_id" id="waybillInput"
+                                value="{{ $order->shipping_waybill_id }}"
+                                placeholder="Contoh: SOCAG0123456789 atau kosongkan untuk otomatis"
+                                class="w-full h-11 px-3.5 pr-28 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[14px] font-mono font-bold text-black dark:text-white uppercase">
+                            <button type="button"
+                                onclick="document.getElementById('waybillInput').value = 'CC' + '{{ strtoupper(substr($order->shipping_courier_code ?: 'JNE', 0, 3)) }}' + '{{ now()->format('ymd') }}' + Math.random().toString(36).substring(2, 6).toUpperCase();"
+                                class="absolute right-1.5 top-1.5 h-8 px-2.5 rounded-[8px] bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary font-bold text-[11px] transition cursor-pointer">
+                                Auto Resi
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">
+                            Masukkan resi resmi dari loket kurir atau klik <strong>Auto Resi</strong> untuk menghasilkan nomor resi toko.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                Ekspedisi Kurir
+                            </label>
+                            <select name="shipping_courier_code"
+                                class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white font-medium">
+                                @php
+                                    $currentCourier = strtolower($order->shipping_courier_code ?: 'jne');
+                                @endphp
+                                <option value="jne" {{ $currentCourier === 'jne' ? 'selected' : '' }}>JNE Express</option>
+                                <option value="sicepat" {{ $currentCourier === 'sicepat' ? 'selected' : '' }}>SiCepat Ekspres</option>
+                                <option value="jnt" {{ $currentCourier === 'jnt' ? 'selected' : '' }}>J&T Express</option>
+                                <option value="anteraja" {{ $currentCourier === 'anteraja' ? 'selected' : '' }}>AnterAja</option>
+                                <option value="gosend" {{ $currentCourier === 'gosend' ? 'selected' : '' }}>GoSend Instant</option>
+                                <option value="grab" {{ $currentCourier === 'grab' ? 'selected' : '' }}>GrabExpress</option>
+                                <option value="kurir_toko" {{ $currentCourier === 'kurir_toko' ? 'selected' : '' }}>Kurir Internal Toko</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                Layanan Pengiriman
+                            </label>
+                            <input type="text" name="shipping_courier_service"
+                                value="{{ $order->shipping_courier_service ?: 'REGULER' }}"
+                                placeholder="Contoh: REGULER / YES / INSTANT"
+                                class="w-full h-10 px-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white font-medium uppercase">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/5 dark:border-white/10">
+                        <button type="button" @click="waybillModalOpen = false"
+                            class="px-4 py-2 rounded-full text-[13px] font-semibold text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="px-5 py-2.5 rounded-full bg-brand-primary hover:opacity-90 text-white text-[13px] font-bold shadow-sm transition cursor-pointer">
+                            Simpan & Terbitkan Resi
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 

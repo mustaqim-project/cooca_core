@@ -1,75 +1,134 @@
-@extends('layouts.app', ['title' => 'Aturan Ongkir & Kurir Toko - Cooca'])
+@extends('layouts.app', ['title' => 'Integrasi Logistik & Pengiriman Biteship - Cooca'])
 
 @section('content')
     <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 sm:pb-32 lg:pb-10"
         x-data="{
-            showAddModal: false,
-            editMode: false,
-            deleteModalOpen: false,
-            ruleToDelete: null,
-            editRule: {
-                id: '',
-                name: '',
-                rule_type: 'flat',
-                rate_amount: 0,
-                min_distance_km: '',
-                max_distance_km: '',
-                min_order_for_free: '',
-                sort_order: 0
+            isTestingRate: false,
+            testPostalCode: '',
+            testWeight: 250,
+            testValue: 50000,
+            testResult: null,
+            testError: null,
+            detectingGps: false,
+            originLat: '{{ $storeSetting?->origin_latitude ?? '' }}',
+            originLng: '{{ $storeSetting?->origin_longitude ?? '' }}',
+            originPostalCode: '{{ $storeSetting?->origin_postal_code ?? '' }}',
+            originAreaId: '{{ $storeSetting?->origin_area_id ?? '' }}',
+            areaQuery: '',
+            areaResults: [],
+            isSearchingArea: false,
+            selectedAreaLabel: '{{ $storeSetting?->origin_area_id ? "ID: " . $storeSetting->origin_area_id : "" }}',
+
+            async searchArea() {
+                if (!this.areaQuery || this.areaQuery.trim().length < 2) {
+                    this.areaResults = [];
+                    return;
+                }
+                this.isSearchingArea = true;
+                try {
+                    const res = await fetch('{{ route('storefront.shipping.search_areas') }}?query=' + encodeURIComponent(this.areaQuery));
+                    const data = await res.json();
+                    this.areaResults = data.areas || [];
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    this.isSearchingArea = false;
+                }
             },
-            openEdit(rule) {
-                this.editMode = true;
-                this.editRule = {
-                    id: rule.id,
-                    name: rule.name,
-                    rule_type: rule.rule_type,
-                    rate_amount: rule.rate_amount,
-                    min_distance_km: rule.min_distance_km || '',
-                    max_distance_km: rule.max_distance_km || '',
-                    min_order_for_free: rule.min_order_for_free || '',
-                    sort_order: rule.sort_order || 0
-                };
-                this.showAddModal = true;
+
+            selectArea(area) {
+                this.originAreaId = area.id;
+                this.selectedAreaLabel = area.name;
+                if (area.postal_code) {
+                    this.originPostalCode = area.postal_code.toString();
+                }
+                this.areaResults = [];
+                this.areaQuery = '';
             },
-            openAdd() {
-                this.editMode = false;
-                this.editRule = {
-                    id: '',
-                    name: '',
-                    rule_type: 'flat',
-                    rate_amount: 10000,
-                    min_distance_km: '',
-                    max_distance_km: '',
-                    min_order_for_free: '',
-                    sort_order: 0
-                };
-                this.showAddModal = true;
+
+            detectLocation() {
+                if (!navigator.geolocation) {
+                    alert('Fitur GPS tidak didukung oleh browser Anda.');
+                    return;
+                }
+                this.detectingGps = true;
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        this.originLat = position.coords.latitude.toFixed(7);
+                        this.originLng = position.coords.longitude.toFixed(7);
+                        this.detectingGps = false;
+                    },
+                    (err) => {
+                        alert('Gagal mengambil koordinat: ' + err.message);
+                        this.detectingGps = false;
+                    },
+                    { timeout: 10000 }
+                );
+            },
+
+            async runRateTest() {
+                if (!this.testPostalCode || this.testPostalCode.trim().length < 4) {
+                    this.testError = 'Masukkan kode pos tujuan yang valid (minimal 4-5 digit).';
+                    return;
+                }
+                this.isTestingRate = true;
+                this.testError = null;
+                this.testResult = null;
+
+                try {
+                    const response = await fetch('{{ route('storefront.shipping.test_rate') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            destination_postal_code: this.testPostalCode,
+                            weight_grams: this.testWeight,
+                            item_value: this.testValue
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success && data.pricing && data.pricing.length > 0) {
+                        this.testResult = data.pricing;
+                    } else {
+                        this.testError = data.message || 'Tidak ada kurir yang menjangkau rute tersebut.';
+                    }
+                } catch (err) {
+                    this.testError = 'Gagal menghubungi server Biteship: ' + err.message;
+                } finally {
+                    this.isTestingRate = false;
+                }
             }
         }">
-        {{-- UNIFIED STOREFRONT HUB NAVIGATION --}}
-        @include('app.storefront.partials.navigation', ['title' => 'Aturan Ongkir & Kurir Toko'])
 
-        {{-- Action Bar --}}
+        {{-- UNIFIED STOREFRONT HUB NAVIGATION --}}
+        @include('app.storefront.partials.navigation', ['title' => 'Pengiriman & Logistik Biteship'])
+
+        {{-- Action & Overview Header --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-            <p class="text-[13px] text-black/60 dark:text-white/60 max-w-2xl">
-                Atur tarif ongkos kirim mandiri, pembagian zona radius jarak (KM), dan promo bebas ongkir otomatis untuk pelanggan etalase online Anda.
-            </p>
-            <button type="button" @click="openAdd()"
-                class="h-9 sm:h-10 px-4 sm:px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12.5px] font-bold tracking-wide transition-all shadow-xs hover:shadow-sm flex items-center gap-2 self-start sm:self-auto shrink-0 cursor-pointer">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tambah Aturan Ongkir</span>
-            </button>
+            <div>
+                <p class="text-[13px] text-black/60 dark:text-white/60 max-w-2xl">
+                    Koneksi resmi logistik <strong>Biteship.com</strong>. Tarif ongkir dihitung otomatis secara real-time langsung ke berbagai ekspedisi nasional dan instan (JNE, SiCepat, J&T, GoSend, GrabExpress).
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    API Biteship Terhubung
+                </span>
+            </div>
         </div>
 
         <!-- Bento Overview Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Delivery Mode Status Card -->
-            <div
-                class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-sm">
+            <div class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-xs">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-medium text-black/50 dark:text-white/50">Layanan Antar (Delivery)</span>
-                    <span
-                        class="p-2 rounded-xl {{ $storeSetting?->allow_delivery ?? true ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400' }}">
+                    <span class="p-2 rounded-xl {{ $storeSetting?->allow_delivery ?? true ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400' }}">
                         <i data-lucide="package" class="w-4 h-4"></i>
                     </span>
                 </div>
@@ -78,422 +137,311 @@
                         {{ $storeSetting?->allow_delivery ?? true ? 'Aktif & Menerima Pesanan' : 'Dinonaktifkan' }}
                     </div>
                     <p class="text-xs text-black/50 dark:text-white/50 mt-1">
-                        {{ $storeSetting?->allow_delivery ?? true ? 'Pelanggan dapat memilih opsi pengiriman ke alamat.' : 'Pelanggan hanya dapat memilih opsi Ambil di Toko (Pickup).' }}
+                        {{ $storeSetting?->allow_delivery ?? true ? 'Pelanggan dapat memilih opsi kurir pengiriman saat checkout.' : 'Toko hanya menerima opsi Ambil Sendiri (Pickup).' }}
                     </p>
                 </div>
             </div>
 
-            <!-- Active Rules Count -->
-            <div
-                class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-sm">
+            <!-- Origin Store Status -->
+            <div class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-medium text-black/50 dark:text-white/50">Total Aturan Aktif</span>
-                    <span class="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                    <span class="text-xs font-medium text-black/50 dark:text-white/50">Lokasi Asal Penjemputan</span>
+                    <span class="p-2 rounded-xl {{ !empty($storeSetting?->origin_postal_code) ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400' }}">
                         <i data-lucide="map-pin" class="w-4 h-4"></i>
                     </span>
                 </div>
                 <div class="mt-3">
-                    <div class="text-2xl font-bold text-black dark:text-white tabular-nums">
-                        {{ $rules->where('is_active', true)->count() }} <span
-                            class="text-sm font-normal text-black/40 dark:text-white/40">/ {{ $rules->count() }}
-                            aturan</span>
+                    <div class="text-lg font-bold text-black dark:text-white">
+                        {{ !empty($storeSetting?->origin_postal_code) ? 'Kode Pos ' . $storeSetting->origin_postal_code : 'Belum Dikonfigurasi' }}
                     </div>
-                    <p class="text-xs text-black/50 dark:text-white/50 mt-1">
-                        Aturan aktif akan otomatis dihitung saat checkout toko.
+                    <p class="text-xs text-black/50 dark:text-white/50 mt-1 truncate">
+                        {{ $storeSetting?->origin_address ?? 'Wajib diisi agar tarif pengiriman dapat dihitung akurat.' }}
                     </p>
                 </div>
             </div>
 
-            <!-- Free Delivery Threshold -->
-            @php
-                $freeRule = $rules->firstWhere('rule_type', 'free_threshold');
-            @endphp
-            <div
-                class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-sm">
+            <!-- Active Couriers Count -->
+            <div class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-medium text-black/50 dark:text-white/50">Bebas Ongkir Otomatis</span>
+                    <span class="text-xs font-medium text-black/50 dark:text-white/50">Ekspedisi Logistik Aktif</span>
                     <span class="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <i data-lucide="truck" class="w-4 h-4"></i>
                     </span>
                 </div>
                 <div class="mt-3">
-                    @if ($freeRule && $freeRule->is_active)
-                        <div class="text-lg font-bold text-purple-600 dark:text-purple-400 tabular-nums">
-                            Min. Rp {{ number_format((float) $freeRule->min_order_for_free, 0, ',', '.') }}
-                        </div>
-                        <p class="text-xs text-black/50 dark:text-white/50 mt-1">
-                            Otomatis Rp 0 jika subtotal pesanan mencapai batas ini.
-                        </p>
-                    @else
-                        <div class="text-sm font-bold text-black/60 dark:text-white/60">
-                            Belum Dikonfigurasi
-                        </div>
-                        <p class="text-xs text-black/50 dark:text-white/50 mt-1">
-                            Buat aturan baru bertipe "Ambang Belanja Gratis" untuk promo.
-                        </p>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Shipping Rules Table Card -->
-        <div
-            class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[24px] shadow-sm overflow-hidden">
-            <div class="p-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-bold text-black dark:text-white">Daftar Tarif & Aturan Pengiriman</h2>
-                    <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Sistem akan mengevaluasi aturan yang paling
-                        menguntungkan pelanggan secara otomatis.</p>
-                </div>
-                <span
-                    class="text-xs font-mono tabular-nums px-2.5 py-1 rounded-lg bg-black/[0.03] dark:bg-white/[0.05] text-black/60 dark:text-white/60">
-                    {{ $rules->count() }} Data
-                </span>
-            </div>
-
-            @if ($rules->isEmpty())
-                <div class="py-16 px-4 text-center">
-                    <div
-                        class="w-16 h-16 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] flex items-center justify-center mx-auto mb-4 text-black/40 dark:text-white/40">
-                        <i data-lucide="truck" class="w-8 h-8"></i>
+                    <div class="text-2xl font-bold text-black dark:text-white tabular-nums">
+                        {{ count($enabledCouriers) }} <span class="text-sm font-normal text-black/40 dark:text-white/40">/ {{ count($availableCouriers) }} kurir</span>
                     </div>
-                    <h3 class="text-base font-bold text-black dark:text-white">Belum Ada Aturan Ongkir</h3>
-                    <p class="text-xs text-black/50 dark:text-white/50 mt-1 max-w-sm mx-auto">
-                        Anda belum membuat aturan ongkos kirim. Secara default pengiriman akan menggunakan estimasi Rp 0
-                        atau konfirmasi manual kurir toko.
+                    <p class="text-xs text-black/50 dark:text-white/50 mt-1">
+                        JNE, SiCepat, J&T, AnterAja, GoSend, Grab
                     </p>
-                    <button type="button" @click="openAdd()"
-                        class="mt-4 inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold transition-all shadow-sm cursor-pointer">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Buat Aturan Ongkir Pertama</span>
-                    </button>
-                </div>
-            @else
-                {{-- DESKTOP TABLE VIEW (>= md) --}}
-                <div class="hidden md:block overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr
-                                class="border-b border-black/5 dark:border-white/5 text-[11px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-wider bg-black/[0.01] dark:bg-white/[0.01]">
-                                <th class="py-3.5 px-5">Nama Aturan</th>
-                                <th class="py-3.5 px-5">Tipe Logika</th>
-                                <th class="py-3.5 px-5">Kriteria & Batasan</th>
-                                <th class="py-3.5 px-5 text-right">Tarif Ongkir</th>
-                                <th class="py-3.5 px-5 text-center">Status</th>
-                                <th class="py-3.5 px-5 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-black/5 dark:divide-white/5 text-xs">
-                            @foreach ($rules as $rule)
-                                <tr class="hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors">
-                                    <td class="py-3.5 px-5 font-semibold text-black dark:text-white">
-                                        <div class="flex items-center gap-2">
-                                            <span>{{ $rule->name }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="py-3.5 px-5">
-                                        @if ($rule->rule_type === 'flat')
-                                            <span
-                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium text-[11px]">
-                                                <i data-lucide="tag" class="w-3 h-3"></i>
-                                                <span>Tarif Flat</span>
-                                            </span>
-                                        @elseif ($rule->rule_type === 'distance_tier')
-                                            <span
-                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium text-[11px]">
-                                                <i data-lucide="navigation" class="w-3 h-3"></i>
-                                                <span>Radius Jarak (KM)</span>
-                                            </span>
-                                        @else
-                                            <span
-                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium text-[11px]">
-                                                <i data-lucide="gift" class="w-3 h-3"></i>
-                                                <span>Bebas Ongkir (Threshold)</span>
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="py-3.5 px-5 text-black/60 dark:text-white/60">
-                                        @if ($rule->rule_type === 'distance_tier')
-                                            <span class="tabular-nums">Radius {{ $rule->min_distance_km ?? 0 }} - {{ $rule->max_distance_km ?? '∞' }} KM</span>
-                                        @elseif ($rule->rule_type === 'free_threshold')
-                                            <span class="tabular-nums">Min. Belanja Rp {{ number_format((float) $rule->min_order_for_free, 0, ',', '.') }}</span>
-                                        @else
-                                            Berlaku untuk semua jarak antar
-                                        @endif
-                                    </td>
-                                    <td class="py-3.5 px-5 text-right font-mono font-bold text-black dark:text-white tabular-nums">
-                                        @if ($rule->rate_amount <= 0 && $rule->rule_type === 'free_threshold')
-                                            <span class="text-emerald-600 dark:text-emerald-400 font-bold">GRATIS (Rp 0)</span>
-                                        @else
-                                            Rp {{ number_format((float) $rule->rate_amount, 0, ',', '.') }}
-                                        @endif
-                                    </td>
-                                    <td class="py-3.5 px-5 text-center">
-                                        <form action="{{ route('storefront.shipping.toggle', $rule) }}" method="POST">
-                                            @csrf
-                                            <button type="submit"
-                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors cursor-pointer {{ $rule->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 hover:bg-black/[0.08]' }}">
-                                                <span
-                                                    class="w-1.5 h-1.5 rounded-full {{ $rule->is_active ? 'bg-emerald-500' : 'bg-black/30 dark:bg-white/30' }}"></span>
-                                                <span>{{ $rule->is_active ? 'Aktif' : 'Nonaktif' }}</span>
-                                            </button>
-                                        </form>
-                                    </td>
-                                    <td class="py-3.5 px-5 text-right space-x-1">
-                                        <button type="button" @click='openEdit(@json($rule))'
-                                            class="p-1.5 rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-black/60 dark:text-white/60 transition-colors cursor-pointer"
-                                            title="Edit Aturan">
-                                            <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                        </button>
-                                        <button type="button"
-                                            @click='ruleToDelete = @json($rule); deleteModalOpen = true;'
-                                            class="p-1.5 rounded-lg hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 transition-colors cursor-pointer"
-                                            title="Hapus Aturan">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- MOBILE CARD LIST (< md) --}}
-                <div class="block md:hidden divide-y divide-black/5 dark:divide-white/5">
-                    @foreach ($rules as $rule)
-                        <div class="p-4 space-y-3">
-                            <div class="flex items-start justify-between gap-2">
-                                <div>
-                                    <h4 class="font-bold text-sm text-black dark:text-white">{{ $rule->name }}</h4>
-                                    <div class="mt-1">
-                                        @if ($rule->rule_type === 'flat')
-                                            <span
-                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium text-[11px]">
-                                                <i data-lucide="tag" class="w-3 h-3"></i>
-                                                <span>Tarif Flat</span>
-                                            </span>
-                                        @elseif ($rule->rule_type === 'distance_tier')
-                                            <span
-                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium text-[11px]">
-                                                <i data-lucide="navigation" class="w-3 h-3"></i>
-                                                <span>Radius Jarak (KM)</span>
-                                            </span>
-                                        @else
-                                            <span
-                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium text-[11px]">
-                                                <i data-lucide="gift" class="w-3 h-3"></i>
-                                                <span>Bebas Ongkir</span>
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <form action="{{ route('storefront.shipping.toggle', $rule) }}" method="POST">
-                                    @csrf
-                                    <button type="submit"
-                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors cursor-pointer {{ $rule->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40' }}">
-                                        <span
-                                            class="w-1.5 h-1.5 rounded-full {{ $rule->is_active ? 'bg-emerald-500' : 'bg-black/30 dark:bg-white/30' }}"></span>
-                                        <span>{{ $rule->is_active ? 'Aktif' : 'Nonaktif' }}</span>
-                                    </button>
-                                </form>
-                            </div>
-
-                            <div
-                                class="p-3 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 space-y-1.5 text-xs">
-                                <div class="flex items-center justify-between text-black/60 dark:text-white/60">
-                                    <span>Batasan</span>
-                                    <span class="font-medium text-black dark:text-white tabular-nums">
-                                        @if ($rule->rule_type === 'distance_tier')
-                                            Radius {{ $rule->min_distance_km ?? 0 }} - {{ $rule->max_distance_km ?? '∞' }} KM
-                                        @elseif ($rule->rule_type === 'free_threshold')
-                                            Min. Belanja Rp {{ number_format((float) $rule->min_order_for_free, 0, ',', '.') }}
-                                        @else
-                                            Semua Jarak Antar
-                                        @endif
-                                    </span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-black/60 dark:text-white/60">Tarif Ongkir</span>
-                                    <span class="font-bold text-black dark:text-white font-mono tabular-nums">
-                                        @if ($rule->rate_amount <= 0 && $rule->rule_type === 'free_threshold')
-                                            <span class="text-emerald-600 dark:text-emerald-400 font-bold">GRATIS (Rp 0)</span>
-                                        @else
-                                            Rp {{ number_format((float) $rule->rate_amount, 0, ',', '.') }}
-                                        @endif
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-end gap-2 pt-1">
-                                <button type="button" @click='openEdit(@json($rule))'
-                                    class="h-8 px-3 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 text-xs font-semibold text-black/70 dark:text-white/70 flex items-center gap-1.5 transition cursor-pointer">
-                                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                                    <span>Edit</span>
-                                </button>
-                                <button type="button"
-                                    @click='ruleToDelete = @json($rule); deleteModalOpen = true;'
-                                    class="h-8 px-3 rounded-lg hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
-                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                    <span>Hapus</span>
-                                </button>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-
-        {{-- APPLE ALERT CONFIRMATION DIALOG (DELETE SHIPPING RULE) --}}
-        <div x-show="deleteModalOpen" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
-                @click.outside="deleteModalOpen = false">
-                <div class="flex items-start gap-3.5">
-                    <div class="w-10 h-10 rounded-[14px] bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
-                        <i data-lucide="info" class="w-5 h-5"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Hapus Aturan Ongkir?</h3>
-                        <p class="text-[13px] text-black/60 dark:text-white/60 mt-1">
-                            Anda akan menghapus aturan <strong class="text-black dark:text-white font-semibold" x-text="ruleToDelete?.name"></strong>.
-                        </p>
-                    </div>
-                </div>
-
-                {{-- PENENANG JIWA MICROCOPY --}}
-                <div class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0 mt-0.5"></i>
-                    <span>Tenang: Riwayat pesanan dan ongkos kirim pada transaksi masa lalu tetap aman tercatat dan tidak akan berubah.</span>
-                </div>
-
-                <div class="flex items-center justify-end gap-2 pt-2">
-                    <button type="button" @click="deleteModalOpen = false"
-                        class="px-4 py-2 rounded-full text-[13px] font-semibold text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition cursor-pointer">
-                        Batal
-                    </button>
-                    <template x-if="ruleToDelete">
-                        <form :action="'{{ url('/storefront/shipping') }}/' + ruleToDelete.id" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                class="px-5 py-2.5 rounded-full bg-[#FF3B30] hover:bg-[#E0352B] text-white text-[13px] font-bold transition shadow-sm cursor-pointer">
-                                Ya, Hapus Aturan
-                            </button>
-                        </form>
-                    </template>
                 </div>
             </div>
         </div>
 
-        {{-- MODAL FORM (ADD / EDIT RULE) - APPLE HIG MULTI-DEVICE DIALOG --}}
-        <div x-show="showAddModal" x-cloak
-            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm transition-opacity"
-            @keydown.escape.window="showAddModal = false">
-            <div class="bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-t-[28px] sm:rounded-[24px] p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto"
-                @click.away="showAddModal = false">
-
-                {{-- Mobile Grab Bar --}}
-                <div class="w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto mb-1 sm:hidden"></div>
-
-                <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-4">
-                    <h3 class="text-lg font-bold text-black dark:text-white flex items-center gap-2">
-                        <i data-lucide="truck" class="w-5 h-5 text-[#007AFF]"></i>
-                        <span x-text="editMode ? 'Edit Aturan Ongkir' : 'Tambah Aturan Ongkir'"></span>
-                    </h3>
-                    <button type="button" @click="showAddModal = false"
-                        class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white cursor-pointer">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-
-                <form
-                    :action="editMode ? '{{ url('/storefront/shipping') }}/' + editRule.id :
-                        '{{ route('storefront.shipping.store') }}'"
-                    method="POST" class="space-y-4">
+        <!-- Main Form Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left: Origin Address & Couriers Form (8 Cols) -->
+            <div class="lg:col-span-8 space-y-6">
+                <form action="{{ route('storefront.shipping.origin.save') }}" method="POST"
+                    class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[24px] p-6 shadow-xs space-y-6">
                     @csrf
-                    <template x-if="editMode">
-                        <input type="hidden" name="_method" value="PUT">
-                    </template>
 
                     <div>
-                        <label
-                            class="block text-xs font-semibold text-black/60 dark:text-white/60 uppercase tracking-wider mb-1.5">Nama
-                            Aturan Ongkir</label>
-                        <input type="text" name="name" x-model="editRule.name" required
-                            placeholder="Contoh: Kurir Toko Flat, Radius Dekat (0-3km)"
-                            class="w-full h-11 px-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-[16px] sm:text-xs font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                    </div>
-
-                    <div>
-                        <label
-                            class="block text-xs font-semibold text-black/60 dark:text-white/60 uppercase tracking-wider mb-1.5">Tipe
-                            Perhitungan</label>
-                        <select name="rule_type" x-model="editRule.rule_type"
-                            class="w-full h-11 px-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-[16px] sm:text-xs font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="flat">Tarif Flat (Biaya Tetap per Pesanan)</option>
-                            <option value="distance_tier">Berdasarkan Radius Jarak (KM)</option>
-                            <option value="free_threshold">Ambang Belanja Bebas Ongkir (Promo)</option>
-                        </select>
-                    </div>
-
-                    <!-- Distance Tier Inputs -->
-                    <div x-show="editRule.rule_type === 'distance_tier'" class="grid grid-cols-2 gap-3" x-transition>
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-black/60 dark:text-white/60 uppercase tracking-wider mb-1.5">Jarak
-                                Min (KM)</label>
-                            <input type="number" step="0.1" min="0" name="min_distance_km"
-                                x-model="editRule.min_distance_km" placeholder="0"
-                                class="w-full h-11 px-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-[16px] sm:text-xs font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] tabular-nums">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i data-lucide="building" class="w-5 h-5 text-[#007AFF]"></i>
+                            <h2 class="text-base font-bold text-black dark:text-white">Alamat Asal Penjemputan Toko (Origin)</h2>
                         </div>
+                        <p class="text-xs text-black/60 dark:text-white/60">
+                            Lokasi fisik toko tempat kurir logistik (JNE, SiCepat, GoSend, dll.) akan mengambil paket pesanan pelanggan.
+                        </p>
+                    </div>
+
+                    {{-- Biteship Locations API Status Badge --}}
+                    @if(!empty($storeSetting?->origin_location_id))
+                        <div class="flex items-center justify-between p-3.5 rounded-[16px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+                                <span class="truncate">Tersimpan di <strong>Biteship Locations API</strong></span>
+                            </div>
+                            <span class="font-mono text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold">{{ $storeSetting->origin_location_id }}</span>
+                        </div>
+                    @else
+                        <div class="flex items-center gap-2.5 p-3.5 rounded-[16px] bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400 text-xs">
+                            <i data-lucide="info" class="w-4 h-4 text-blue-500 shrink-0"></i>
+                            <span>Alamat ini akan otomatis didaftarkan dan mendapatkan <strong>Biteship Location ID</strong> saat Anda menyimpan formulir.</span>
+                        </div>
+                    @endif
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label
-                                class="block text-xs font-semibold text-black/60 dark:text-white/60 uppercase tracking-wider mb-1.5">Jarak
-                                Max (KM)</label>
-                            <input type="number" step="0.1" min="0" name="max_distance_km"
-                                x-model="editRule.max_distance_km" placeholder="5"
-                                class="w-full h-11 px-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-[16px] sm:text-xs font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] tabular-nums">
+                            <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Nama PIC Pengirim Toko <span class="text-rose-500">*</span></label>
+                            <input type="text" name="origin_contact_name" required
+                                value="{{ old('origin_contact_name', $storeSetting?->origin_contact_name ?? $business->name) }}"
+                                placeholder="Contoh: Admin Pengiriman Cooca"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Nomor WhatsApp / Telepon Toko <span class="text-rose-500">*</span></label>
+                            <input type="tel" name="origin_contact_phone" required
+                                value="{{ old('origin_contact_phone', $storeSetting?->origin_contact_phone ?? $business->phone) }}"
+                                placeholder="081234567890"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                         </div>
                     </div>
 
-                    <!-- Free Threshold Input -->
-                    <div x-show="editRule.rule_type === 'free_threshold'" x-transition>
-                        <label
-                            class="block text-xs font-semibold text-black/60 dark:text-white/60 uppercase tracking-wider mb-1.5">Minimal
-                            Total Belanja untuk Bebas Ongkir (Rp)</label>
-                        <input type="number" min="0" name="min_order_for_free"
-                            x-model="editRule.min_order_for_free" placeholder="Contoh: 100000"
-                            class="w-full h-11 px-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-[16px] sm:text-xs font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] tabular-nums">
+                    {{-- Biteship Maps Search Area Autocomplete Widget --}}
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-semibold text-black/70 dark:text-white/70">
+                                Cari Area Administratif (Biteship Maps API)
+                            </label>
+                            <span class="text-[11px] text-black/40 dark:text-white/40">Kecamatan, Kelurahan, Kota</span>
+                        </div>
+                        <div class="relative">
+                            <div class="relative flex items-center">
+                                <i data-lucide="search" class="w-4 h-4 text-black/40 dark:text-white/40 absolute left-3.5 pointer-events-none"></i>
+                                <input type="text" x-model="areaQuery" @input.debounce.300ms="searchArea()"
+                                    placeholder="Ketik untuk mencari area: misal Cilandak, Kebayoran, Sukajadi, Wonokromo..."
+                                    class="w-full h-11 pl-9 pr-24 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                <button type="button" @click="searchArea()" :disabled="isSearchingArea"
+                                    class="absolute right-1.5 px-3 py-1.5 rounded-[8px] bg-black/10 dark:bg-white/10 hover:bg-black/15 text-xs font-medium text-black dark:text-white cursor-pointer transition-colors">
+                                    <span x-text="isSearchingArea ? 'Mencari...' : 'Cari Area'"></span>
+                                </button>
+                            </div>
+
+                            <!-- Dropdown Search Results -->
+                            <div x-show="areaResults.length > 0" @click.away="areaResults = []"
+                                class="absolute z-30 left-0 right-0 mt-1.5 max-h-56 overflow-y-auto rounded-[16px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 shadow-xl p-1.5 space-y-1">
+                                <template x-for="item in areaResults" :key="item.id">
+                                    <button type="button" @click="selectArea(item)"
+                                        class="w-full text-left p-2.5 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer flex flex-col gap-0.5">
+                                        <span class="text-xs font-bold text-black dark:text-white" x-text="item.name"></span>
+                                        <span class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-2">
+                                            <span>Area ID: <code class="font-mono text-[10px]" x-text="item.id"></code></span>
+                                            <span x-show="item.postal_code" class="text-black/40">• Kode Pos: <span x-text="item.postal_code"></span></span>
+                                        </span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Selected Area Badge -->
+                        <div x-show="selectedAreaLabel" class="flex items-center gap-2 text-xs text-black/60 dark:text-white/60 pt-0.5">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                            <span>Area Terpilih: <strong class="text-black dark:text-white" x-text="selectedAreaLabel"></strong></span>
+                        </div>
+                        <input type="hidden" name="origin_area_id" :value="originAreaId">
                     </div>
 
-                    <!-- Rate Amount -->
                     <div>
-                        <label
-                            class="block text-xs font-semibold text-black/60 dark:text-white/60 uppercase tracking-wider mb-1.5">
-                            <span
-                                x-text="editRule.rule_type === 'free_threshold' ? 'Tarif Ongkir Standar Jika Kurang dari Batas (Rp)' : 'Tarif Ongkos Kirim (Rp)'"></span>
-                        </label>
-                        <input type="number" min="0" name="rate_amount" x-model="editRule.rate_amount" required
-                            placeholder="10000"
-                            class="w-full h-11 px-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-[16px] sm:text-xs font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] tabular-nums">
+                        <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Alamat Lengkap Toko / Gudang <span class="text-rose-500">*</span></label>
+                        <textarea name="origin_address" rows="3" required
+                            placeholder="Jalan, Nomor Bangunan, RT/RW, Kelurahan, Kecamatan, Kota"
+                            class="w-full p-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">{{ old('origin_address', $storeSetting?->origin_address ?? $business->address) }}</textarea>
                     </div>
 
-                    <div class="pt-4 flex items-center justify-end gap-3 border-t border-black/5 dark:border-white/10">
-                        <button type="button" @click="showAddModal = false"
-                            class="h-11 px-5 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-xs font-semibold text-black/80 dark:text-white/80 transition-all cursor-pointer">
-                            Batal
-                        </button>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Kode Pos Toko <span class="text-rose-500">*</span></label>
+                            <input type="text" name="origin_postal_code" required maxlength="10"
+                                x-model="originPostalCode"
+                                placeholder="Contoh: 12440"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Latitude GPS</label>
+                            <input type="text" name="origin_latitude" x-model="originLat"
+                                placeholder="-6.2253114"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-semibold text-black/70 dark:text-white/70">Longitude GPS</label>
+                                <button type="button" @click="detectLocation()" :disabled="detectingGps"
+                                    class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1 cursor-pointer">
+                                    <i data-lucide="navigation" class="w-3 h-3"></i>
+                                    <span x-text="detectingGps ? 'Mendeteksi...' : 'GPS Otomatis'"></span>
+                                </button>
+                            </div>
+                            <input type="text" name="origin_longitude" x-model="originLng"
+                                placeholder="106.7993735"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        </div>
+                    </div>
+
+                    <hr class="border-black/5 dark:border-white/10 my-4">
+
+                    <!-- Courier Selection Checkboxes -->
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <i data-lucide="truck" class="w-5 h-5 text-[#007AFF]"></i>
+                            <h2 class="text-base font-bold text-black dark:text-white">Pilihan Kurir Ekspedisi yang Diaktifkan</h2>
+                        </div>
+                        <p class="text-xs text-black/60 dark:text-white/60 mb-4">
+                            Centang jasa pengiriman yang ingin Anda sediakan untuk pembeli di halaman etalase online.
+                        </p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            @foreach ($availableCouriers as $courier)
+                                <label class="relative flex items-start gap-3 p-3.5 rounded-[16px] border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-all cursor-pointer">
+                                    <input type="checkbox" name="biteship_enabled_couriers[]" value="{{ $courier['code'] }}"
+                                        {{ in_array($courier['code'], $enabledCouriers) ? 'checked' : '' }}
+                                        class="mt-1 w-4 h-4 rounded text-[#007AFF] focus:ring-[#007AFF] border-black/20 dark:border-white/20">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-bold text-black dark:text-white uppercase">{{ $courier['code'] }}</span>
+                                            <span class="text-[10px] px-2 py-0.5 rounded-full {{ $courier['category'] === 'instant' ? 'bg-amber-500/10 text-amber-600' : 'bg-blue-500/10 text-blue-600' }}">
+                                                {{ ucfirst($courier['category']) }}
+                                            </span>
+                                        </div>
+                                        <p class="text-[12px] font-semibold text-black/80 dark:text-white/80 mt-0.5">{{ $courier['name'] }}</p>
+                                        <p class="text-[11px] text-black/50 dark:text-white/50 mt-0.5 truncate">{{ $courier['service_types'] }}</p>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex justify-end">
                         <button type="submit"
-                            class="h-11 px-6 rounded-xl bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold tracking-wide transition-all shadow-sm cursor-pointer">
-                            Simpan Aturan
+                            class="h-11 px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold tracking-wide transition-all shadow-sm flex items-center gap-2 cursor-pointer">
+                            <i data-lucide="check" class="w-4 h-4"></i>
+                            <span>Simpan Konfigurasi Biteship</span>
                         </button>
                     </div>
                 </form>
             </div>
+
+            <!-- Right: Live Test Rate Simulator (4 Cols) -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[24px] p-5 shadow-xs space-y-4">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-5 h-5 text-[#007AFF]"></i>
+                        <h3 class="text-sm font-bold text-black dark:text-white">Simulator Ongkir Live</h3>
+                    </div>
+                    <p class="text-xs text-black/60 dark:text-white/60">
+                        Uji coba perhitungan ongkos kirim langsung dari alamat toko Anda ke kode pos tujuan pembeli.
+                    </p>
+
+                    <div class="space-y-3 pt-1">
+                        <div>
+                            <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Kode Pos Tujuan Uji Coba</label>
+                            <input type="text" x-model="testPostalCode" placeholder="Contoh: 12310 (Jakarta Selatan)"
+                                class="w-full h-10 px-3 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Berat (Gram)</label>
+                                <input type="number" x-model="testWeight" min="10" step="50"
+                                    class="w-full h-10 px-3 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Nilai Barang</label>
+                                <input type="number" x-model="testValue" min="1000" step="10000"
+                                    class="w-full h-10 px-3 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            </div>
+                        </div>
+
+                        <button type="button" @click="runRateTest()" :disabled="isTestingRate"
+                            class="w-full h-10 rounded-[12px] bg-black dark:bg-white text-white dark:text-black hover:bg-black/80 dark:hover:bg-white/90 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
+                            <i data-lucide="search" class="w-3.5 h-3.5" x-show="!isTestingRate"></i>
+                            <span x-show="!isTestingRate">Hitung Tarif Kurir</span>
+                            <span x-show="isTestingRate" class="flex items-center gap-1.5">
+                                <span class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                                Menghubungi Biteship...
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div x-show="testError" x-cloak
+                        class="p-3 rounded-[12px] bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400">
+                        <div class="flex items-start gap-2">
+                            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                            <span x-text="testError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Test Results List -->
+                    <div x-show="testResult && testResult.length > 0" x-cloak class="space-y-2 pt-2">
+                        <div class="flex items-center justify-between text-[11px] font-semibold text-black/50 dark:text-white/50">
+                            <span>Layanan Kurir</span>
+                            <span>Tarif Resmi</span>
+                        </div>
+                        <div class="space-y-1.5 max-h-72 overflow-y-auto pr-1">
+                            <template x-for="item in testResult" :key="item.id">
+                                <div class="p-2.5 rounded-[12px] border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-between gap-2">
+                                    <div class="min-w-0">
+                                        <div class="text-xs font-bold text-black dark:text-white truncate" x-text="item.description"></div>
+                                        <div class="text-[11px] text-black/50 dark:text-white/50" x-text="item.duration"></div>
+                                    </div>
+                                    <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 tabular-nums shrink-0"
+                                        x-text="'Rp ' + Number(item.price).toLocaleString('id-ID')">
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guidance Card -->
+                <div class="bg-blue-500/5 dark:bg-blue-500/10 border border-blue-500/15 rounded-[20px] p-4 text-xs text-blue-900 dark:text-blue-200 space-y-2">
+                    <div class="flex items-center gap-2 font-bold">
+                        <i data-lucide="info" class="w-4 h-4 text-[#007AFF]"></i>
+                        <span>Penenang Jiwa Operasional</span>
+                    </div>
+                    <p class="leading-relaxed text-[11.5px] text-blue-900/80 dark:text-blue-200/80">
+                        Tenang: Seluruh perhitungan ongkir etalase dilakukan secara otomatis dan transparan. Anda tidak perlu lagi repot menghitung jarak atau menetapkan tarif manual antar kota.
+                    </p>
+                </div>
+            </div>
+
         </div>
     </div>
 @endsection

@@ -228,7 +228,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
-                        <span x-text="isProcessing ? 'Memproses Jurnal...' : 'Cairkan &amp; Rekonsiliasi ke Bank'"></span>
+                        <span x-text="isProcessing ? 'Mengirim Pengajuan...' : 'Ajukan Pencairan Saldo ke COOCA'"></span>
                     </button>
                 </div>
             </form>
@@ -241,7 +241,7 @@
     <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 overflow-hidden shadow-sm">
         <div class="px-5 sm:px-6 py-4 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.01]">
             <h2 class="text-[16px] font-bold text-black dark:text-white">Riwayat Rekonsiliasi &amp; Payout Gateway</h2>
-            <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Daftar settlement yang telah selesai dijurnal ke buku kas dan akun bank operasional</p>
+            <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Daftar settlement yang diajukan dan bukti transfer resmi dari Finance COOCA</p>
         </div>
 
         <div class="overflow-x-auto">
@@ -256,7 +256,7 @@
                         <th class="py-3 px-5 text-right">Bersih Masuk Bank</th>
                         <th class="py-3 px-5 text-center">Jumlah Order</th>
                         <th class="py-3 px-5 text-center">Status</th>
-                        <th class="py-3 px-5 text-right">Aksi</th>
+                        <th class="py-3 px-5 text-right">Bukti Bayar &amp; Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5 dark:divide-white/5 text-black/80 dark:text-white/80">
@@ -286,18 +286,49 @@
                                 </span>
                             </td>
                             <td class="py-3.5 px-5 text-center">
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
-                                    Terekonsiliasi
-                                </span>
+                                @if($settlement->status === 'completed')
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
+                                        Ditransfer
+                                    </span>
+                                @elseif($settlement->status === 'pending')
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/15 text-[#D97706] dark:text-[#FBBF24]">
+                                        Menunggu Transfer
+                                    </span>
+                                @elseif($settlement->status === 'rejected')
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FF3B30]/15 text-[#FF3B30]">
+                                        Ditolak
+                                    </span>
+                                @else
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-black/10 text-black/70">
+                                        {{ ucfirst($settlement->status) }}
+                                    </span>
+                                @endif
                             </td>
                             <td class="py-3.5 px-5 text-right">
-                                <a href="{{ route('finance.settlements.show', $settlement) }}"
-                                    class="h-8 px-3 rounded-[8px] text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition inline-flex items-center gap-1">
-                                    <span>Detail Alokasi</span>
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                    </svg>
-                                </a>
+                                <div class="flex items-center justify-end gap-1.5">
+                                    @if($settlement->proof_image_path)
+                                        <button type="button"
+                                            @click="openProofModal('{{ $settlement->proof_image_url }}', '{{ $settlement->settlement_number }}', '{{ number_format($settlement->net_amount, 0, ',', '.') }}', '{{ $settlement->destination_bank }}', '{{ $settlement->transferred_at ? $settlement->transferred_at->format('d M Y H:i') : '-' }}', '{{ addslashes($settlement->admin_notes ?? '') }}')"
+                                            class="h-8 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#34C759] bg-[#34C759]/10 hover:bg-[#34C759]/20 transition flex items-center gap-1 shadow-xs">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                            </svg>
+                                            <span>Bukti Bayar</span>
+                                        </button>
+                                    @elseif($settlement->status === 'pending')
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-medium text-[#FF9500] bg-[#FF9500]/10">
+                                            Menunggu Bukti
+                                        </span>
+                                    @endif
+
+                                    <a href="{{ route('finance.settlements.show', $settlement) }}"
+                                        class="h-8 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition inline-flex items-center gap-1">
+                                        <span>Detail</span>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                        </svg>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -318,6 +349,62 @@
         @endif
     </div>
 
+    {{-- ========================================================== --}}
+    {{-- MODAL PREVIEW BUKTI TRANSFER UNTUK MERCHANT               --}}
+    {{-- ========================================================== --}}
+    <div x-show="showProofModal" x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+        @keydown.escape.window="showProofModal = false">
+        <div class="w-full max-w-lg rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden"
+            @click.outside="showProofModal = false">
+            
+            <div class="px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                <div>
+                    <h3 class="text-[15px] font-bold text-black dark:text-white">Bukti Transfer Pembayaran</h3>
+                    <p class="text-[11.5px] text-black/50 dark:text-white/50" x-text="'Settlement #' + proofSettlementNumber"></p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a :href="proofImageUrl" target="_blank" download title="Unduh Bukti"
+                        class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-black/60 dark:text-white/60">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                    </a>
+                    <button type="button" @click="showProofModal = false" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-black/40 dark:text-white/40">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="rounded-[18px] bg-black/[0.03] dark:bg-black/40 border border-black/[0.05] dark:border-white/5 p-2 flex items-center justify-center overflow-hidden">
+                    <img :src="proofImageUrl" alt="Bukti Transfer Bank" class="max-h-[380px] w-auto rounded-[12px] object-contain shadow-xs">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-xs p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
+                    <div>
+                        <span class="text-black/45 dark:text-white/45 block text-[11px]">Nominal Cair Masuk Bank:</span>
+                        <span class="font-extrabold text-[#34C759] text-[13px] tabular-nums" x-text="'Rp ' + proofNetAmount"></span>
+                    </div>
+                    <div>
+                        <span class="text-black/45 dark:text-white/45 block text-[11px]">Rekening Bank Tujuan:</span>
+                        <span class="font-semibold text-black dark:text-white" x-text="proofDestinationBank"></span>
+                    </div>
+                    <div>
+                        <span class="text-black/45 dark:text-white/45 block text-[11px]">Waktu Transfer Admin:</span>
+                        <span class="font-medium text-black dark:text-white" x-text="proofTransferredAt"></span>
+                    </div>
+                    <div x-show="proofAdminNotes">
+                        <span class="text-black/45 dark:text-white/45 block text-[11px]">Catatan Admin COOCA:</span>
+                        <span class="font-medium text-black dark:text-white" x-text="proofAdminNotes"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 {{-- ========================================================== --}}
@@ -334,9 +421,27 @@ function settlementApp() {
         settlementNotes: '',
         isProcessing: false,
 
+        showProofModal: false,
+        proofImageUrl: '',
+        proofSettlementNumber: '',
+        proofNetAmount: '',
+        proofDestinationBank: '',
+        proofTransferredAt: '',
+        proofAdminNotes: '',
+
         init() {
             // Auto-select all by default for convenient batching
             this.selectedItems = this.unsettledItems.map(i => i.payment_type + '-' + i.payment_id);
+        },
+
+        openProofModal(url, number, net, bank, time, notes) {
+            this.proofImageUrl = url;
+            this.proofSettlementNumber = number;
+            this.proofNetAmount = net;
+            this.proofDestinationBank = bank;
+            this.proofTransferredAt = time;
+            this.proofAdminNotes = notes;
+            this.showProofModal = true;
         },
 
         isSelected(item) {
@@ -420,10 +525,10 @@ function settlementApp() {
                 if (data.success) {
                     window.location.reload();
                 } else {
-                    alert(data.message || 'Gagal memproses settlement.');
+                    alert(data.message || 'Gagal memproses pengajuan pencairan.');
                 }
             } catch (e) {
-                alert('Terjadi kesalahan memproses settlement: ' + e.message);
+                alert('Terjadi kesalahan memproses pengajuan: ' + e.message);
             } finally {
                 this.isProcessing = false;
             }

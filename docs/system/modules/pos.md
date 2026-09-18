@@ -30,9 +30,10 @@ Setiap transaksi di kasir POS secara otonom memicu:
 * **Pencarian Real-Time & Barcode Scanner:** Mendukung pemindaian barcode fisik melalui barcode gun USB/Bluetooth atau pencarian instan nama/SKU.
 * **Dukungan Varian & Modifier FnB:** Kasir dapat memilih varian (misal: *Ukuran Reguler / Large*, *Panas / Dingin*) serta tambahan modifier (*Topping Boba, Less Sugar, Extra Shot*) yang secara otomatis memodifikasi harga dan stok bahan.
 
-### 2.3 Sesi Meja & Dine-In FnB (Table Sessions)
+### 2.3 Sesi Meja & Dine-In FnB (Table Sessions & Storefront Reservations)
 * Manajemen denah meja, nomor meja, status keterisian meja (*Kosong, Terisi, Menunggu Tagihan*).
 * Pemisahan tagihan (*Split Bill*) atau penggabungan tagihan (*Merge Bill*).
+* **Integrasi Reservasi Meja Online (Storefront Sync):** Menampilkan reservasi aktif hari ini (`today_reservations`) secara real-time pada header `/pos/tables`, kartu KPI reservasi harian, strip jadwal tamu bento, dan badge visual "Booked" pada nomor meja yang dipesan tamu melalui website toko.
 
 ### 2.4 Multi-Metode Pembayaran (Split Payment Support)
 * **Tunai (Cash):** Kalkulasi kembalian otomatis dengan rekomendasi pecahan uang pas (`Rp 50.000`, `Rp 100.000`).
@@ -58,11 +59,13 @@ Setiap transaksi di kasir POS secara otonom memicu:
 * **RULE-POS-001 (Shift Must Be Active):** Transaksi kasir hanya dapat dilakukan jika register kasir berada dalam status shift terbuka (`status = open`).
 * **RULE-POS-002 (Immutable Paid Orders):** Pesanan berstatus `paid` bersifat permanen dan tidak dapat diedit langsung; koreksi wajib melalui prosedur *Return / Refund* dengan audit trail lengkap.
 * **RULE-POS-003 (Negative Stock Handling):** Jika pengaturan bisnis `allow_negative_stock = false`, sistem menolak transaksi jika stok produk/bahan baku tidak mencukupi, disertai notifikasi ramah pengguna.
+* **RULE-POS-004 (Storefront Table Booking Awareness):** POS Meja mengonsumsi reservasi aktif hari ini yang dibuat via Storefront. Meja yang telah di-booking ditandai dengan badge "Booked" dan detail jam kedatangan tamu agar staf kasir/waiter tidak menempatkan pelanggan walk-in di meja tersebut.
 
 ---
 
 ## 4. Keterkaitan Lintas Modul
 
+* **Ke Modul Commerce / Storefront:** Menerima sinkronisasi data reservasi meja hari ini dari `commerce_reservations` untuk ditampilkan di antarmuka meja kasir.
 * **Ke Modul Inventory:** Mengurangi saldo stok secara atomik (*atomic stock decrement*) untuk mencegah *race condition* saat kasir ramai.
 * **Ke Modul Finance:** Memperbarui saldo kas laci kasir dan memicu `AutoJournalService`.
 * **Ke Modul CRM:** Menambahkan poin loyalitas pelanggan dan mencatat riwayat pembelian pelanggan.

@@ -16,6 +16,8 @@ class Post extends Model
     protected $fillable = [
         'title',
         'slug',
+        'cluster_id',
+        'category_id',
         'cluster', // 'tutorial' (Cluster K) or 'edukasi' (Cluster O)
         'category',
         'excerpt',
@@ -30,10 +32,28 @@ class Post extends Model
     ];
 
     protected $casts = [
+        'cluster_id' => 'integer',
+        'category_id' => 'integer',
         'is_published' => 'boolean',
         'published_at' => 'datetime',
         'views_count' => 'integer',
     ];
+
+    /**
+     * Relationship to PostCategory.
+     */
+    public function postCategory(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PostCategory::class, 'category_id');
+    }
+
+    /**
+     * Relationship to PostCluster.
+     */
+    public function postCluster(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PostCluster::class, 'cluster_id');
+    }
 
     /**
      * Scope for published posts.

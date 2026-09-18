@@ -557,15 +557,23 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::prefix('storefront')->name('storefront.')->group(function (): void {
             Route::get('/orders', [MerchantOrderController::class, 'index'])->name('orders.index');
             Route::get('/orders/{order}', [MerchantOrderController::class, 'show'])->name('orders.show');
+            Route::get('/orders/{order}/shipping-label', [MerchantOrderController::class, 'shippingLabel'])->name('orders.shipping_label');
+            Route::post('/orders/{order}/waybill', [MerchantOrderController::class, 'updateWaybill'])->name('orders.waybill.update');
             Route::post('/orders/{order}/verify-payment', [MerchantOrderController::class, 'verifyPayment'])->name('orders.verify_payment');
             Route::post('/orders/{order}/reject-payment', [MerchantOrderController::class, 'rejectPayment'])->name('orders.reject_payment');
             Route::post('/orders/{order}/status', [MerchantOrderController::class, 'updateStatus'])->name('orders.update_status');
             Route::post('/orders/{order}/quote', [MerchantOrderController::class, 'quoteRequestOrder'])->name('orders.quote');
             Route::post('/orders/{order}/batches/{batch}/status', [MerchantOrderController::class, 'updateBatchStatus'])->name('orders.batches.status');
             Route::post('/orders/{order}/sync-gateway', [MerchantOrderController::class, 'syncGatewayStatus'])->name('orders.sync_gateway');
+            Route::post('/orders/{order}/biteship/create', [MerchantOrderController::class, 'createBiteshipOrder'])->name('orders.biteship.create');
+            Route::post('/orders/{order}/biteship/track', [MerchantOrderController::class, 'trackBiteshipOrder'])->name('orders.biteship.track');
+            Route::post('/orders/{order}/biteship/cancel', [MerchantOrderController::class, 'cancelBiteshipOrder'])->name('orders.biteship.cancel');
             Route::get('/proofs/{proof}/stream', [MerchantOrderController::class, 'streamProof'])->name('proofs.stream');
 
             Route::get('/shipping', [MerchantShippingRuleController::class, 'index'])->name('shipping.index');
+            Route::post('/shipping/origin', [MerchantShippingRuleController::class, 'saveOrigin'])->name('shipping.origin.save');
+            Route::post('/shipping/test-rate', [MerchantShippingRuleController::class, 'testRate'])->name('shipping.test_rate');
+            Route::get('/shipping/search-areas', [MerchantShippingRuleController::class, 'searchAreas'])->name('shipping.search_areas');
             Route::post('/shipping', [MerchantShippingRuleController::class, 'store'])->name('shipping.store');
             Route::put('/shipping/{shippingRule}', [MerchantShippingRuleController::class, 'update'])->name('shipping.update');
             Route::post('/shipping/{shippingRule}/toggle', [MerchantShippingRuleController::class, 'toggle'])->name('shipping.toggle');

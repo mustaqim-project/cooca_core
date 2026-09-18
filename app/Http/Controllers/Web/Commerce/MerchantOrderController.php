@@ -6,14 +6,19 @@ namespace App\Http\Controllers\Web\Commerce;
 
 use App\Domain\Commerce\Storefront\CommercePaymentProofService;
 use App\Domain\Inventory\StockService;
+use App\Domain\Pos\TableQrCodeService;
+use App\Domain\Shipping\BarcodeService;
+use App\Domain\Shipping\BiteshipService;
 use App\Http\Controllers\Controller;
 use App\Models\CommerceOrder;
 use App\Models\CommercePaymentProof;
+use App\Models\CommerceStoreSetting;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
@@ -22,7 +27,10 @@ final class MerchantOrderController extends Controller
 {
     public function __construct(
         private readonly CommercePaymentProofService $proofService = new CommercePaymentProofService(),
-        private readonly StockService $stockService = new StockService()
+        private readonly StockService $stockService = new StockService(),
+        private readonly BiteshipService $biteshipService = new BiteshipService(),
+        private readonly BarcodeService $barcodeService = new BarcodeService(),
+        private readonly TableQrCodeService $qrCodeService = new TableQrCodeService()
     ) {}
 
     /**
@@ -343,4 +351,267 @@ final class MerchantOrderController extends Controller
             return back()->with('error', 'Gagal menyinkronkan status TriPay: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Request shipment pickup via Biteship API.
+     */
+    public function createBiteshipOrder(CommerceOrder $order): RedirectResponse
+    {
+        $business = Context::business();
+        abort_unless($business && $order->business_id === $business->id, 403);
+        abort_unless(Context::hasPermission('storefront.orders.process'), 403);
+
+        if ($order->biteship_order_id) {
+            return back()->with('info', 'Pesanan ini sudah memiliki pengiriman Biteship (Order ID: ' . $order->biteship_order_id . ').');
+        }
+
+        $storeSetting = CommerceStoreSetting::where('business_id', $business->id)->first();
+        if (! $storeSetting || empty($storeSetting->origin_address) || empty($storeSetting->origin_postal_code)) {
+            return back()->with('error', 'Alamat toko asal belum diisi lengkap. Silakan buka menu Ongkir & Pengiriman untuk melengkapi alamat pengirim.');
+        }
+
+        if (empty($order->shipping_address)) {
+            return back()->with('error', 'Pesanan ini tidak memiliki alamat pengiriman tujuan.');
+        }
+
+        $items = [];
+        foreach ($order->items as $item) {
+            $items[] = [
+                'name' => $item->product_name ?: 'Produk',
+                'description' => $item->product_name ?: 'Produk',
+                'value' => (int) round((float) $item->unit_price),
+                'quantity' => (int) $item->quantity,
+                'weight' => (int) round((float) ($item->product?->weight_grams ?: 200)),
+            ];
+        }
+
+        $courierCode = strtolower((string) ($order->shipping_courier_code ?: 'jne'));
+        $courierService = strtolower((string) ($order->shipping_courier_service ?: 'reg'));
+
+        $originCoordinate = [];
+        if ($storeSetting->origin_latitude && $storeSetting->origin_longitude) {
+            $originCoordinate = [
+                'latitude' => (float) $storeSetting->origin_latitude,
+                'longitude' => (float) $storeSetting->origin_longitude,
+            ];
+        }
+
+        $originData = [
+            'contact_name' => $storeSetting->origin_contact_name ?: $business->name,
+            'contact_phone' => $storeSetting->origin_contact_phone ?: ($business->phone ?: '081234567890'),
+            'address' => $storeSetting->origin_address,
+            'postal_code' => (int) $storeSetting->origin_postal_code,
+            'coordinate' => $originCoordinate,
+        ];
+        if (! empty($storeSetting->origin_location_id)) {
+            $originData['location_id'] = $storeSetting->origin_location_id;
+        }
+
+        $payload = [
+            'origin_location_id' => $storeSetting->origin_location_id ?: null,
+            'shipper' => [
+                'name' => $storeSetting->origin_contact_name ?: $business->name,
+                'email' => $business->email ?: 'store@cooca.id',
+                'phone' => $storeSetting->origin_contact_phone ?: ($business->phone ?: '081234567890'),
+                'organization' => $business->name,
+            ],
+            'origin' => $originData,
+            'destination' => [
+                'contact_name' => $order->customer_name,
+                'contact_phone' => $order->customer_phone,
+                'contact_email' => $order->customer_email ?: null,
+                'address' => $order->shipping_address,
+                'postal_code' => (int) ($order->destination_postal_code ?: 10110),
+            ],
+            'courier' => [
+                'company' => $courierCode,
+                'type' => $courierService,
+            ],
+            'delivery' => [
+                'datetime' => now()->addMinutes(30)->toIso8601String(),
+                'type' => 'later',
+            ],
+            'items' => $items,
+            'note' => $order->notes ?: 'Tolong hati-hati paket fragile',
+        ];
+
+        try {
+            $result = $this->biteshipService->createOrder($payload);
+
+            $order->update([
+                'biteship_order_id' => $result['id'] ?? null,
+                'shipping_waybill_id' => $result['courier']['waybill_id'] ?? null,
+                'shipping_tracking_url' => $result['courier']['link'] ?? null,
+                'shipping_status' => $result['status'] ?? 'allocated',
+                'shipping_payload' => $result,
+                'status' => in_array($order->status, [CommerceOrder::STATUS_PENDING_PAYMENT, CommerceOrder::STATUS_PROOF_SUBMITTED], true)
+                    ? $order->status
+                    : CommerceOrder::STATUS_PROCESSING,
+            ]);
+
+            $awb = $result['courier']['waybill_id'] ?? ($result['id'] ?? 'Terkonfirmasi');
+
+            return back()->with('success', "Order pengiriman Biteship berhasil dibuat! No Resi/AWB: {$awb}");
+        } catch (Throwable $e) {
+            return back()->with('error', 'Gagal membuat pengiriman Biteship: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Refresh live tracking information from Biteship API.
+     */
+    public function trackBiteshipOrder(CommerceOrder $order): RedirectResponse
+    {
+        $business = Context::business();
+        abort_unless($business && $order->business_id === $business->id, 403);
+        abort_unless(Context::hasPermission('storefront.orders.view'), 403);
+
+        if (! $order->biteship_order_id) {
+            return back()->with('error', 'Pesanan ini belum memiliki ID pengiriman Biteship.');
+        }
+
+        try {
+            $result = $this->biteshipService->getOrder($order->biteship_order_id);
+
+            $updateData = [
+                'shipping_status' => $result['status'] ?? $order->shipping_status,
+                'shipping_payload' => $result,
+            ];
+
+            if (! empty($result['courier']['waybill_id'])) {
+                $updateData['shipping_waybill_id'] = $result['courier']['waybill_id'];
+            }
+            if (! empty($result['courier']['link'])) {
+                $updateData['shipping_tracking_url'] = $result['courier']['link'];
+            }
+
+            if (($result['status'] ?? '') === 'delivered' && $order->status !== CommerceOrder::STATUS_COMPLETED) {
+                $updateData['status'] = CommerceOrder::STATUS_COMPLETED;
+            }
+
+            $order->update($updateData);
+
+            $currentStatus = strtoupper(str_replace('_', ' ', (string) ($result['status'] ?? 'UNKNOWN')));
+
+            return back()->with('success', "Status ekspedisi Biteship terupdate: {$currentStatus}");
+        } catch (Throwable $e) {
+            return back()->with('error', 'Gagal melacak pengiriman Biteship: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Cancel an active Biteship shipment.
+     */
+    public function cancelBiteshipOrder(Request $request, CommerceOrder $order): RedirectResponse
+    {
+        $business = Context::business();
+        abort_unless($business && $order->business_id === $business->id, 403);
+        abort_unless(Context::hasPermission('storefront.orders.process'), 403);
+
+        if (! $order->biteship_order_id) {
+            return back()->with('error', 'Pesanan ini belum memiliki ID pengiriman Biteship.');
+        }
+
+        $reason = $request->input('reason', 'Dibatalkan oleh merchant');
+
+        try {
+            $result = $this->biteshipService->cancelOrder($order->biteship_order_id, $reason);
+
+            $order->update([
+                'shipping_status' => 'cancelled',
+                'shipping_payload' => array_merge($order->shipping_payload ?? [], ['cancellation' => $result]),
+            ]);
+
+            return back()->with('success', 'Pengiriman Biteship berhasil dibatalkan.');
+        } catch (Throwable $e) {
+            return back()->with('error', 'Gagal membatalkan pengiriman Biteship: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Display printable AWB / Shipping Label (Thermal 100x150mm & A4 layout).
+     */
+    public function shippingLabel(CommerceOrder $order): View
+    {
+        $business = Context::business();
+        abort_unless($business && $order->business_id === $business->id, 403);
+        abort_unless(Context::hasPermission('storefront.orders.view'), 403);
+
+        $order->loadMissing(['items.product', 'business']);
+        $storeSetting = CommerceStoreSetting::where('business_id', $business->id)->first();
+
+        // Effective waybill number or fallback to order-based AWB
+        $waybillNumber = $order->shipping_waybill_id ?: ('CC' . str_replace('-', '', $order->order_number));
+
+        // Generate vector SVG barcode and QR tracking code
+        $barcodeSvg = $this->barcodeService->generateSvg($waybillNumber, 55);
+        $trackingUrl = $order->shipping_tracking_url ?: url("/b/{$business->slug}/order/{$order->tracking_token}");
+        $qrSvg = $this->qrCodeService->generateSvg($trackingUrl, null, 220);
+
+        // Calculate estimated total package weight
+        $totalWeightGrams = 0;
+        foreach ($order->items as $item) {
+            $itemWeight = (int) ($item->product?->weight_grams ?? 200);
+            $totalWeightGrams += ($itemWeight * (float) $item->quantity);
+        }
+        $totalWeightKg = max(0.1, round($totalWeightGrams / 1000, 2));
+
+        return view('app.storefront.orders.shipping_label', [
+            'order'            => $order,
+            'business'         => $business,
+            'storeSetting'     => $storeSetting,
+            'waybillNumber'    => $waybillNumber,
+            'barcodeSvg'       => $barcodeSvg,
+            'qrSvg'            => $qrSvg,
+            'trackingUrl'      => $trackingUrl,
+            'totalWeightKg'    => $totalWeightKg,
+            'totalWeightGrams' => $totalWeightGrams,
+        ]);
+    }
+
+    /**
+     * Issue or update shipping waybill (resi) manually or auto-generate store AWB.
+     */
+    public function updateWaybill(Request $request, CommerceOrder $order): RedirectResponse
+    {
+        $business = Context::business();
+        abort_unless($business && $order->business_id === $business->id, 403);
+        abort_unless(Context::hasPermission('storefront.orders.process'), 403);
+
+        $validated = $request->validate([
+            'shipping_waybill_id'      => ['nullable', 'string', 'max:100'],
+            'shipping_courier_code'    => ['nullable', 'string', 'max:50'],
+            'shipping_courier_service' => ['nullable', 'string', 'max:50'],
+            'shipping_courier_name'    => ['nullable', 'string', 'max:100'],
+            'generate_auto'            => ['nullable'],
+        ]);
+
+        $shouldGenerate = ! empty($validated['generate_auto']) || empty(trim((string) ($validated['shipping_waybill_id'] ?? '')));
+
+        if ($shouldGenerate) {
+            $prefix = strtoupper(substr($validated['shipping_courier_code'] ?? 'CC', 0, 3));
+            $waybill = 'CC' . $prefix . now()->format('ymd') . strtoupper(Str::random(4));
+        } else {
+            $waybill = strtoupper(trim((string) $validated['shipping_waybill_id']));
+        }
+
+        $courierName = $validated['shipping_courier_name'] ?? null;
+        if (empty($courierName) && ! empty($validated['shipping_courier_code'])) {
+            $courierName = strtoupper($validated['shipping_courier_code'] . ' ' . ($validated['shipping_courier_service'] ?? 'REGULER'));
+        }
+
+        $order->update([
+            'shipping_waybill_id'      => $waybill,
+            'shipping_courier_code'    => $validated['shipping_courier_code'] ?? $order->shipping_courier_code ?? 'kurir_toko',
+            'shipping_courier_service' => $validated['shipping_courier_service'] ?? $order->shipping_courier_service ?? 'standard',
+            'shipping_courier_name'    => $courierName ?? $order->shipping_courier_name ?? 'Kurir Pengiriman',
+            'shipping_status'          => 'allocated',
+            'status'                   => in_array($order->status, [CommerceOrder::STATUS_PENDING_PAYMENT, CommerceOrder::STATUS_PROOF_SUBMITTED], true)
+                ? $order->status
+                : CommerceOrder::STATUS_PROCESSING,
+        ]);
+
+        return back()->with('success', "Nomor Resi / AWB berhasil diperbarui: {$waybill}");
+    }
 }
+

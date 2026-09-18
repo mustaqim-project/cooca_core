@@ -53,6 +53,18 @@
             </a>
             @endif
 
+            @if(\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner())
+            <a href="{{ route('storefront.reservations.index') }}" class="h-9 px-3.5 rounded-[10px] bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-xs font-semibold flex items-center gap-2 transition active:scale-[0.98]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                <span>Buku Reservasi</span>
+                @if(($stats['today_reservations'] ?? 0) > 0)
+                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759] text-white tabular-nums">
+                    {{ $stats['today_reservations'] }}
+                </span>
+                @endif
+            </a>
+            @endif
+
             @if(\App\Support\Context::hasPermission('pos.tables'))
             <a href="{{ route('pos.tables.qr-cards') }}" target="_blank" class="h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-xs font-semibold flex items-center gap-2 transition">
                 <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"/></svg>
@@ -68,11 +80,11 @@
     </div>
 
     <!-- Stats Overview Cards (Apple HIG Bento) -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
         <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm">
             <div class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">Total Meja</div>
             <div class="text-2xl font-bold tracking-tight text-black dark:text-white mt-1 tabular-nums">{{ $stats['total_tables'] }}</div>
-            <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Seluruh unit meja terdaftar</div>
+            <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Seluruh unit terdaftar</div>
         </div>
 
         <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm">
@@ -87,18 +99,73 @@
         <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm">
             <div class="text-[11px] font-medium text-[#007AFF] uppercase tracking-wider flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-[#007AFF] animate-pulse"></span>
-                Meja Terisi (Aktif)
+                Meja Terisi
             </div>
             <div class="text-2xl font-bold tracking-tight text-black dark:text-white mt-1 tabular-nums">{{ $stats['occupied_tables'] }}</div>
-            <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Tamu sedang bersantap/pesan</div>
+            <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Tamu aktif bersantap</div>
         </div>
 
         <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm">
-            <div class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">Total Kapasitas</div>
-            <div class="text-2xl font-bold tracking-tight text-black dark:text-white mt-1 tabular-nums">{{ $stats['total_capacity'] }} <span class="text-sm font-normal text-black/40 dark:text-white/40">kursi</span></div>
+            <div class="text-[11px] font-medium text-[#248A3D] dark:text-[#30D158] uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
+                Reservasi Hari Ini
+            </div>
+            <div class="text-2xl font-bold tracking-tight text-black dark:text-white mt-1 tabular-nums">{{ $stats['today_reservations'] ?? 0 }}</div>
+            <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Jadwal booking aktif</div>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm col-span-2 sm:col-span-1">
+            <div class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">Kapasitas</div>
+            <div class="text-2xl font-bold tracking-tight text-black dark:text-white mt-1 tabular-nums">{{ $stats['total_capacity'] }} <span class="text-xs font-normal text-black/40 dark:text-white/40">kursi</span></div>
             <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Daya tampung simultan</div>
         </div>
     </div>
+
+    {{-- Today's Reservations Bento Strip --}}
+    @if(isset($todayReservations) && $todayReservations->isNotEmpty())
+    <div class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs space-y-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center font-bold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                </div>
+                <div>
+                    <h3 class="text-[14px] font-bold text-black dark:text-white">Jadwal Reservasi Hari Ini ({{ $todayReservations->count() }})</h3>
+                    <p class="text-[11px] text-black/50 dark:text-white/50">Tamu yang memiliki jadwal reservasi meja restoran hari ini</p>
+                </div>
+            </div>
+            <a href="{{ route('storefront.reservations.index') }}" class="text-[12px] text-[#007AFF] hover:underline font-semibold flex items-center gap-1">
+                <span>Buka Modul Reservasi</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+            </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            @foreach($todayReservations as $rsv)
+            <div class="p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 flex items-center justify-between text-xs gap-2">
+                <div class="min-w-0">
+                    <div class="font-bold text-black dark:text-white truncate">{{ $rsv->customer_name }}</div>
+                    <div class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-1.5 mt-0.5">
+                        <span class="font-semibold text-[#007AFF]">{{ $rsv->time_slot }}</span>
+                        <span>•</span>
+                        <span>{{ $rsv->guest_count }} Tamu</span>
+                    </div>
+                </div>
+                <div class="shrink-0 text-right">
+                    @if($rsv->posTable)
+                        <span class="px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[#5856D6]/10 text-[#5856D6]">
+                            Meja #{{ $rsv->posTable->table_number }}
+                        </span>
+                    @else
+                        <a href="{{ route('storefront.reservations.index') }}" class="px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[#FF9500]/10 text-[#D97706] hover:underline">
+                            Plot Meja
+                        </a>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     <!-- Filter Bar -->
     @if($locations->count() > 1)
@@ -222,6 +289,22 @@
                     @else
                     <div class="py-2 text-center text-xs text-black/40 dark:text-white/40">
                         Meja kosong. Siap menerima tamu.
+                    </div>
+                    @endif
+
+                    @php
+                        $tableBooking = isset($todayReservations) ? $todayReservations->where('pos_table_id', $table->id)->first() : null;
+                    @endphp
+                    @if($tableBooking)
+                    <div class="mt-2.5 p-2 rounded-[12px] bg-[#34C759]/10 border border-[#34C759]/20 flex items-center justify-between text-xs">
+                        <div class="min-w-0 pr-1">
+                            <span class="text-[9.5px] font-bold uppercase tracking-wider text-[#248A3D] dark:text-[#30D158] block">Booking Hari Ini</span>
+                            <div class="font-bold text-black dark:text-white truncate text-[11.5px]">{{ $tableBooking->customer_name }}</div>
+                            <div class="text-[10.5px] text-black/60 dark:text-white/60">{{ $tableBooking->time_slot }} • {{ $tableBooking->guest_count }} Orang</div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#34C759] text-white shrink-0 uppercase tracking-wide">
+                            Booked
+                        </span>
                     </div>
                     @endif
                 </div>

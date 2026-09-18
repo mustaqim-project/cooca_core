@@ -643,9 +643,18 @@
                 </div>
                 <div class="flex justify-between text-black/60 dark:text-white/60">
                     <span>Ongkos Kirim
-                        ({{ $order->fulfillment_type === 'pickup' ? 'Ambil Sendiri' : 'Pengiriman' }})</span>
+                        ({{ $order->shipping_courier_name ?: ($order->fulfillment_type === 'pickup' ? 'Ambil Sendiri' : 'Pengiriman') }})</span>
                     <span class="tabular-nums">Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}</span>
                 </div>
+                @if ((float) ($order->biteship_service_fee ?? 0) > 0)
+                    <div class="flex justify-between text-black/60 dark:text-white/60">
+                        <span class="flex items-center gap-1.5">
+                            <span>Biaya Layanan Pengiriman</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#007AFF]/10 text-[#007AFF]">Biteship</span>
+                        </span>
+                        <span class="tabular-nums font-semibold text-black dark:text-white">Rp {{ number_format((float) $order->biteship_service_fee, 0, ',', '.') }}</span>
+                    </div>
+                @endif
                 <div
                     class="pt-2 border-t border-black/10 dark:border-white/10 flex justify-between font-bold text-[16px] text-black dark:text-white">
                     <span>Total Tagihan</span>
@@ -685,11 +694,43 @@
                         WhatsApp</span>
                     <span class="font-semibold text-black dark:text-white">+{{ $order->customer_phone }}</span>
                 </div>
+                @if ($order->fulfillment_type !== 'pickup')
+                    <div>
+                        <span class="text-[11.5px] text-black/45 dark:text-white/45 block font-medium">Ekspedisi Pengiriman</span>
+                        <span class="font-bold text-black dark:text-white">
+                            {{ $order->shipping_courier_name ?: ($order->shipping_courier_code ? strtoupper($order->shipping_courier_code . ' ' . $order->shipping_courier_service) : 'Kurir Logistik') }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-[11.5px] text-black/45 dark:text-white/45 block font-medium">Nomor Resi / AWB</span>
+                        @if ($order->shipping_waybill_id)
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="font-mono font-bold text-brand-primary text-[14px]">{{ $order->shipping_waybill_id }}</span>
+                                <button type="button" onclick="navigator.clipboard.writeText('{{ $order->shipping_waybill_id }}'); alert('Nomor Resi disalin!')"
+                                    class="text-[11px] font-semibold text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white px-2 py-0.5 rounded bg-black/5 dark:bg-white/10 cursor-pointer">
+                                    Salin
+                                </button>
+                                @if ($order->shipping_tracking_url)
+                                    <a href="{{ $order->shipping_tracking_url }}" target="_blank" class="text-[11px] font-bold text-[#007AFF] hover:underline flex items-center gap-0.5">
+                                        <span>Lacak</span>
+                                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        @else
+                            <span class="text-black/50 dark:text-white/50 italic text-[12px]">Menunggu penjemputan oleh kurir</span>
+                        @endif
+                    </div>
+                @endif
                 <div class="sm:col-span-2">
-                    <span class="text-[11.5px] text-black/45 dark:text-white/45 block font-medium">Alamat /
+                    <span class="text-[11.5px] text-black/45 dark:text-white/45 block font-medium">Alamat Pengiriman /
                         Catatan</span>
-                    <span
-                        class="text-black/80 dark:text-white/80 leading-relaxed">{{ $order->shipping_address ?: 'Ambil sendiri di outlet resmi toko.' }}</span>
+                    <p class="text-black/80 dark:text-white/80 leading-relaxed bg-black/5 dark:bg-white/5 p-3 rounded-[14px]">
+                        {{ $order->shipping_address ?: 'Ambil sendiri di outlet resmi toko.' }}
+                        @if ($order->destination_postal_code)
+                            <span class="block mt-1 font-mono text-[11.5px] text-brand-primary font-semibold">Kode Pos: {{ $order->destination_postal_code }}</span>
+                        @endif
+                    </p>
                 </div>
             </div>
 

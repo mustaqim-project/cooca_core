@@ -337,18 +337,42 @@ final class CommerceOrderService
 
             $shippingCost = 0.0;
             $shippingRuleId = $options['shipping_rule_id'] ?? null;
+            $courierCode = $options['shipping_courier_code'] ?? null;
+            $courierService = $options['shipping_courier_service'] ?? null;
+            $courierName = $options['shipping_courier_name'] ?? null;
+
             if ($fulfillmentType === CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY) {
-                $shippingResult = (new CommerceShippingService())->calculateShipping(
-                    business: $business,
-                    subtotal: $subtotal,
-                    distanceKm: isset($options['distance_km']) ? (float) $options['distance_km'] : null,
-                    preferredRuleId: $shippingRuleId
-                );
-                $shippingCost = (float) $shippingResult['shipping_fee'];
-                $shippingRuleId = $shippingResult['applied_rule_id'];
+                if (isset($options['shipping_cost']) && is_numeric($options['shipping_cost'])) {
+                    $shippingCost = (float) $options['shipping_cost'];
+                } else {
+                    $shippingResult = (new CommerceShippingService())->calculateShipping(
+                        business: $business,
+                        subtotal: $subtotal,
+                        distanceKm: isset($options['distance_km']) ? (float) $options['distance_km'] : null,
+                        preferredRuleId: $shippingRuleId,
+                        destinationPostalCode: $options['destination_postal_code'] ?? null,
+                        items: $itemsData,
+                        destinationAddress: $address
+                    );
+                    $shippingCost = (float) $shippingResult['shipping_fee'];
+                    $shippingRuleId = $shippingResult['applied_rule_id'] ?? $shippingRuleId;
+                    $courierCode = $courierCode ?? ($shippingResult['courier_code'] ?? null);
+                    $courierService = $courierService ?? ($shippingResult['courier_service_code'] ?? null);
+                }
             }
 
-            $totalAmount = $subtotal + $shippingCost;
+            $biteshipServiceFee = 0.0;
+            if ($fulfillmentType === CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY) {
+                if (isset($options['biteship_service_fee']) && is_numeric($options['biteship_service_fee'])) {
+                    $biteshipServiceFee = (float) $options['biteship_service_fee'];
+                } elseif (isset($options['service_fee']) && is_numeric($options['service_fee'])) {
+                    $biteshipServiceFee = (float) $options['service_fee'];
+                } elseif (! empty($courierCode) || ! empty($courierService) || (! empty($shippingRuleId) && str_contains((string) $shippingRuleId, '_'))) {
+                    $biteshipServiceFee = (float) config('services.biteship.service_fee', \App\Domain\Shipping\BiteshipService::SERVICE_FEE);
+                }
+            }
+
+            $totalAmount = $subtotal + $shippingCost + $biteshipServiceFee;
 
             // Create Order
             $order = CommerceOrder::create([
@@ -358,6 +382,9 @@ final class CommerceOrderService
                 'global_customer_id' => auth('customer')->id() ?? null,
                 'payment_method_id' => $paymentMethod?->id,
                 'shipping_rule_id' => $shippingRuleId,
+                'shipping_courier_code' => $courierCode,
+                'shipping_courier_service' => $courierService,
+                'shipping_courier_name' => $courierName,
                 'order_number' => $orderNumber,
                 'tracking_token' => $trackingToken,
                 'order_type' => $options['order_type'] ?? CommerceOrder::TYPE_DIRECT_CHECKOUT,
@@ -368,11 +395,13 @@ final class CommerceOrderService
                 'customer_phone' => $custPhone,
                 'customer_email' => $customerData['email'] ?? null,
                 'shipping_address' => $fulfillmentType === CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY ? $address : null,
+                'destination_postal_code' => $fulfillmentType === CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY ? ($options['destination_postal_code'] ?? null) : null,
                 'shipping_notes' => $customerData['notes'] ?? null,
                 'scheduled_date' => $options['scheduled_date'] ?? null,
                 'scheduled_time_slot' => $options['scheduled_time_slot'] ?? null,
                 'subtotal' => $subtotal,
                 'shipping_cost' => $shippingCost,
+                'biteship_service_fee' => $biteshipServiceFee,
                 'discount_amount' => 0.0,
                 'total_amount' => $totalAmount,
                 'reserved_until' => $reservedUntil,

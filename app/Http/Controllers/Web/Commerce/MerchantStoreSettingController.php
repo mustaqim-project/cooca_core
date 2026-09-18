@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Commerce;
 
+use App\Domain\Finance\PaymentSettlementService;
 use App\Http\Controllers\Controller;
+use App\Models\CashAccount;
 use App\Models\CommercePaymentMethod;
 use App\Models\CommerceStoreSetting;
+use App\Models\PaymentSettlement;
+use App\Models\SystemSetting;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +18,10 @@ use Illuminate\View\View;
 
 final class MerchantStoreSettingController extends Controller
 {
+    public function __construct(
+        private readonly PaymentSettlementService $settlementService = new PaymentSettlementService,
+    ) {}
+
     /**
      * Display storefront operational and payment settings.
      */
@@ -38,7 +46,31 @@ final class MerchantStoreSettingController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return view('app.storefront.settings', compact('business', 'setting', 'paymentMethods'));
+        $unsettledData = $this->settlementService->getUnsettledPayments($business);
+
+        $recentSettlements = PaymentSettlement::where('business_id', $business->id)
+            ->latest('settlement_date')
+            ->take(5)
+            ->get();
+
+        $bankAccounts = CashAccount::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $tripayApiKey = (string) (SystemSetting::get('tripay_api_key') ?: config('services.tripay.api_key', env('TRIPAY_API_KEY', '')));
+        $tripayMerchantCode = (string) (SystemSetting::get('tripay_merchant_code') ?: config('services.tripay.merchant_code', env('TRIPAY_MERCHANT_CODE', '')));
+        $isGatewayConfigured = ! empty($tripayApiKey) && ! empty($tripayMerchantCode);
+
+        return view('app.storefront.settings', compact(
+            'business',
+            'setting',
+            'paymentMethods',
+            'unsettledData',
+            'recentSettlements',
+            'bankAccounts',
+            'isGatewayConfigured'
+        ));
     }
 
     /**

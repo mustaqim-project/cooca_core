@@ -232,7 +232,7 @@ class BusinessLandingPage extends Model
             return null;
         }
 
-        // If it's an absolute URL pointing to any domain's storage/ path (e.g. https://umkm.cooca.id/storage/...)
+        // If it's an absolute URL pointing to any domain's storage/ path (e.g. https://cooca.id/storage/...)
         if (preg_match('#^https?://[^/]+/storage/(.*)$#i', $url, $matches)) {
             return asset('storage/' . $matches[1]);
         }

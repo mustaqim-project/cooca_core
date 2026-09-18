@@ -30,6 +30,11 @@
    - [4.5 Protokol Dokumentasi Berkelanjutan Simultan (AiWorkHistory.md + SYSTEM_GUIDE.md)](#45-protokol-dokumentasi-berkelanjutan-simultan-aiworkhistorymd--system_guidemd)
    - [4.6 Arsitektur Multi-Tenant WhatsApp Cloud API](#46-arsitektur-multi-tenant-whatsapp-cloud-api)
    - [4.7 Arsitektur Media Sosial Omnichannel (Meta & TikTok Open API v2)](#47-arsitektur-media-sosial-omnichannel-meta--tiktok-open-api-v2)
+   - [4.8 Arsitektur Pre-Order & Batch Scheduling Dinamis Terparameterisasi](#48-arsitektur-pre-order--batch-scheduling-dinamis-terparameterisasi)
+   - [4.9 Pusat Verifikasi Pemulihan Akun Administrator (Account Recovery Desk)](#49-pusat-verifikasi-pemulihan-akun-administrator-account-recovery-desk)
+   - [4.10 Pusat Pengelolaan Katalog Paket Billing Platform (Billing Packages CMS)](#410-pusat-pengelolaan-katalog-paket-billing-platform-billing-packages-cms)
+   - [4.11 Pusat Pengelolaan CMS Artikel, Taksonomi Kategori, & Cluster Konten (Admin Posts CMS)](#411-pusat-pengelolaan-cms-artikel-taksonomi-kategori--cluster-konten-admin-posts-cms)
+   - [4.12 Pusat Pengaturan Platform & Integrasi Layanan Terpusat (Admin Settings & 5-Service Hub)](#412-pusat-pengaturan-platform--integrasi-layanan-terpusat-admin-settings--5-service-hub)
 5. [Matriks Penelusuran Pengetahuan (Traceability Matrix)](#5-matriks-penelusuran-pengetahuan-traceability-matrix)
 
 ---
@@ -233,6 +238,31 @@ Sebelum pekerjaan rekayasa dianggap selesai:
   - **Label Pemesan per Item:** Setiap item di keranjang dapat disematkan nama pemesan / catatan (`item.notes`), mencegah kekeliruan menu antar rekan kerja kantor.
   - **Lokalisasi 100% Bahasa Indonesia:** Hari (`SENIN`, `SELASA`, `RABU`, `KAMIS`, `JUMAT`, `SABTU`, `MINGGU`) dan bulan diformat secara deterministik independen dari setting locale server OS.
 
+### 4.9 Pusat Verifikasi Pemulihan Akun Administrator (Account Recovery Desk)
+Pusat Verifikasi Pemulihan Akun (`/admin/account-recoveries`) berfungsi sebagai instrumen audit dan proteksi identitas level platform untuk mencegah pengambilalihan akun sepihak (*account takeover*) dan melindungi data historis UMKM:
+* **Arsitektur Modal-First XXL Inspection Desk:** Halaman antrean index (`index.blade.php`) dilengkapi dengan modal pop-up berukuran Full Layout XXL (`max-w-6xl`) bergaya Apple HIG untuk memeriksa komparasi kontak lama vs baru dan meninjau berkas bukti otentik (KTP, legalitas usaha, selfie).
+* **Dukungan Berkas PDF & Multi-Format Dokumen:** Meja inspeksi dokumen secara dinamis mendeteksi berkas PDF legalitas usaha (`.pdf`) dan merender kartu dokumen PDF berstandar Apple lengkap dengan tombol pratinjau tab baru dan unduh langsung.
+* **Kepatuhan Bento Apple HIG v2.0 & Anti-Pill-Abuse:** Membersihkan fake pulse dots (`animate-ping`/`animate-pulse`), menerapkan fluid container (`max-w-7xl w-full min-w-0 pb-28 lg:pb-10`), font input anti auto-zoom iOS (`text-[16px] sm:text-xs`), dan touch target nyaman 44px–52px.
+
+### 4.10 Pusat Pengelolaan Katalog Paket Billing Platform (Billing Packages CMS)
+Pusat Pengelolaan Paket Billing (`/admin/billing-packages/{type?}`) adalah kontrol panel terpadu bagi Superadmin untuk mengelola monetisasi platform Cooca:
+* **Struktur Tiga Tab Terpadu (Apple Pill Segmented Control):** Paket & Durasi Subscription, Paket Top Up Token AI, dan Paket Top Up Storage.
+* **Single Source of Truth Default Pricing Panel:** Panel konfigurasi terpusat untuk menentukan tarif fallback bawaan platform (`subscription_price_monthly`, `subscription_price_annual`, dll.).
+* **Kepatuhan Desain Apple HIG v2.0:** Desain Bento squircle `rounded-[20px]`/`rounded-[22px]`, font minimal 16px di mobile anti auto-zoom, dan Zero Unicode Emoji.
+
+### 4.11 Pusat Pengelolaan CMS Artikel, Taksonomi Kategori, & Cluster Konten (Admin Posts CMS)
+Pusat manajemen konten publikasi blog dan edukasi bisnis Cooca (`/admin/posts`) mengintegrasikan strategi konten modern berbasis taksonomi terstruktur dan editor visual:
+* **Tabel Taksonomi Database Terstruktur:** Tabel `post_clusters` dan `post_categories` dengan Dual-Sync Backward Compatibility ke rute publik blog.
+* **Integrasi Text Editor Kaya TinyMCE Free:** CDN resmi TinyMCE Free pada target `#post-content` dengan sinkronisasi `tinymce.triggerSave()`.
+* **Apple HIG v2.0 & Ergonomi Navigasi:** 3-Tab navigasi segmented control, Inset Dialog Modal, tombol inline `[ + Kategori Baru ]`, dan Zero Unicode Emoji.
+
+### 4.12 Pusat Pengaturan Platform & Integrasi Layanan Terpusat (Admin Settings & 5-Service Hub)
+Pusat kontrol terpadu Superadmin (`/admin/settings`) mengadopsi **Model B (Platform Centralized Integration)** dengan arsitektur 6 tab modular Bento Apple HIG v2.0:
+* **Zero .env Mandate & Dynamic Database Resolution:** Seluruh kredensial dan parameter 5 layanan eksternal (TriPay, WhatsApp Cloud API, Meta Social, TikTok Open API, Biteship Logistics) dikonfigurasi melalui Web UI dan dipersistensikan langsung ke basis data `system_settings`.
+* **Integrasi Logistik & Ekspedisi Agregator (Biteship Multi-Courier API):** Mengelola API Secret Key (`biteship_api_key`), Base URL (`biteship_base_url`), Mode Lingkungan (`biteship_environment`: Sandbox vs Production), dan Platform Handling Fee (`biteship_service_fee`) dengan webhook tracking resi otomatis dan live diagnostic tester.
+* **Pengujian Konektivitas Real-Time (Live Diagnostic Testers):** Seluruh kanal dilengkapi tombol uji koneksi instan AJAX dengan diagnostic alert box terpadu.
+* **Kepatuhan Apple HIG v2.0 & Ergonomi Jempol:** Desain bento squircle `rounded-[20px]`/`rounded-[24px]`, fluid layout `max-w-7xl w-full min-w-0 pb-28 lg:pb-10`, Zero Unicode Emoji (100% Lucide SVG Icons), toggle intip kredensial sensitif, dan input anti auto-zoom iOS Safari (`text-[16px] sm:text-[13px]`).
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -291,8 +321,17 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    ├──► Media Sosial (Meta & TikTok) ─► docs/social-media/architecture.md ─────────────────► app/Domain/SocialMedia/
    │                                                                                            └──► WORK-2026-09-17-053
    │
-   └──► Unified Settings & SMTP ───► docs/system/architecture/ui-ux-design-system.md ──► AdminSettingController
-                                                                                                └──► WORK-2026-09-16-021
+   ├──► Unified Settings & SMTP ───► docs/system/modules/settings.md ───────────────► AdminSettingController
+   │                                                                                    └──► WORK-2026-09-18-082
+   │
+   ├──► Admin Recovery Desk ───────► docs/system/business-rules/security-rules.md ──► AdminAccountRecoveryController
+   │                                                                                    └──► WORK-2026-09-18-079
+   │
+   ├──► Admin Billing Packages CMS ─► docs/system/modules/saas-billing.md ──────────► AdminBillingPackageController
+   │                                                                                    └──► WORK-2026-09-18-080
+   │
+   └──► Admin Posts & Cluster CMS ──► docs/system/modules/cms.md ───────────────────► AdminPostController
+                                                                                        └──► WORK-2026-09-18-081
 ```
 
 ---

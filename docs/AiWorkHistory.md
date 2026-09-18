@@ -46,6 +46,675 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-18-083] Production Setup Hardening & Canonical Base URL Enforcement (https://cooca.id) pada Unified Settings Hub (/admin/settings)
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Admin Console, Platform Settings & Production Architecture
+* **Feature:** Canonical Base URL Configuration (`app_url`), Domain Sanitization Guardrails against `127.0.0.1:9082` and `umkm.cooca.id`, Webhook & Callback Canonical Generation, Dynamic DB-Backed Settings
+* **Work Type:** Architecture | Security | Production Hardening | UI/UX | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Platform SaaS Cooca beroperasi di ranah produksi pada domain utama kanonikal `https://cooca.id`. Seluruh webhook pihak ketiga (TriPay, WhatsApp Cloud API, Meta Social, TikTok, Biteship Logistics) dan otentikasi Google Cloud OAuth harus mengarah ke URL produksi `https://cooca.id`, bukan subdomain warisan (`umkm.cooca.id`) maupun port server pengembangan lokal (`http://127.0.0.1:9082/`).
+* **Masalah/Target:**
+  1. Mandat user: platform production URL adalah `https://cooca.id`, bukan `https://umkm.cooca.id` atau `http://127.0.0.1:9082/`, dan *"semua dikelola pada setting"*.
+  2. Sebelumnya, basis data `system_settings` menyimpan `google_redirect_uri` dengan nilai `https://umkm.cooca.id/auth/google/callback`, dan berkas Blade tab pengaturan masih memiliki fallback `url('/api/v1/...')` yang secara dinamis memancarkan host lokal saat diuji di port 9082.
+  3. Menambahkan input manajemen `app_url` (Canonical Production URL) langsung pada antarmuka admin setting (Tab 1 Bento Card 3) agar administrator dapat mengelola dan memverifikasi domain produksi sistem secara visual.
+
+#### 2. What Was Done
+1. **AdminSettingController Canonical URL Engine & Sanitization:**
+   - Menambahkan field `app_url` pada validasi `AdminSettingController::update()`.
+   - Mengimplementasikan filter sanitasi otomatis: jika input `app_url` atau `google_redirect_uri` mengandung `127.0.0.1`, `localhost`, atau `umkm.cooca.id`, controller secara otomatis menormalkannya kembali ke domain kanonikal produksi `https://cooca.id`.
+   - Memastikan `getUnifiedSettingData()` menurunkan seluruh webhook (`tripayCallbackUrl`, `metaWaWebhookUrl`, `metaSocialWebhookUrl`, `tiktokRedirectUri`, `biteshipWebhookUrl`, `googleRedirectUri`, `googleCustomerRedirectUri`) secara kanonikal berbasis `$appUrl = 'https://cooca.id'`.
+2. **Settings Blade Views Hardening:**
+   - Menambahkan input field "URL Dasar Platform Produksi (Canonical URL)" pada Bento Card 3 di `resources/views/admin/settings/tabs/tab-system.blade.php`.
+   - Mengganti seluruh fallback `url('/...')` dan `route(...)` di `tab-payment.blade.php`, `tab-whatsapp.blade.php`, `tab-shipping.blade.php`, dan `tab-social.blade.php` dengan URL kanonikal `https://cooca.id/...` yang aman dan konsisten.
+3. **Database System Setting Production Update:**
+   - Memperbarui entri basis data `system_settings`: `app_url` = `https://cooca.id`, `google_redirect_uri` = `https://cooca.id/auth/google/callback`, `google_customer_redirect_uri` = `https://cooca.id/customer/auth/google/callback`.
+4. **Automated Testing Suite:**
+   - Menambahkan 3 unit/feature test baru di `tests/Feature/Admin/AdminSettingTest.php` untuk menguji penyimpanan `app_url`, filter sanitasi domain lokal/legacy, dan rendering seluruh webhook tanpa ada kebocoran string `127.0.0.1:9082` atau `umkm.cooca.id`.
+   - Seluruh 15 pengujian `AdminSettingTest` berhasil (15 passed, 89 assertions).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Http/Controllers/Admin/AdminSettingController.php` (update validation, canonical URL derivation, auto-sanitization)
+  - `resources/views/admin/settings/tabs/tab-system.blade.php` (tambah input field `app_url` pada Bento Card 3)
+  - `resources/views/admin/settings/tabs/tab-payment.blade.php` (bersihkan fallback ke `https://cooca.id/api/v1/payment/tripay/callback`)
+  - `resources/views/admin/settings/tabs/tab-whatsapp.blade.php` (bersihkan fallback ke `https://cooca.id/api/v1/wa/meta/webhook`)
+  - `resources/views/admin/settings/tabs/tab-shipping.blade.php` (bersihkan fallback ke `https://cooca.id/api/v1/shipping/biteship/webhook`)
+  - `resources/views/admin/settings/tabs/tab-social.blade.php` (bersihkan fallback ke `https://cooca.id/api/v1/social-media/meta/webhook` & `https://cooca.id/social-media/tiktok/callback`)
+  - `tests/Feature/Admin/AdminSettingTest.php` (3 pengujian baru canonical domain)
+  - `docs/system/modules/settings.md` (pembaruan dokumentasi Layer 2)
+  - `docs/AiWorkHistory.md` (pencatatan riwayat Layer 1)
+* **Database Values:**
+  - `system_settings.app_url` = `https://cooca.id`
+  - `system_settings.google_redirect_uri` = `https://cooca.id/auth/google/callback`
+  - `system_settings.google_customer_redirect_uri` = `https://cooca.id/customer/auth/google/callback`
+
+#### 4. Verification & Testing
+* `php vendor/phpunit/phpunit/phpunit --filter AdminSettingTest` -> 15 passed, 89 assertions.
+* `php artisan view:clear` & `php artisan config:clear` berhasil dijalankan.
+
+---
+
+### [WORK-2026-09-18-082] Refactoring & Unified Settings Hub (/admin/settings) dengan Bento Apple HIG v2.0, Biteship Logistics Hub, Manajemen Terpusat 5 Layanan Eksternal (TriPay, WhatsApp Cloud API, Meta Social, TikTok, Biteship), dan Zero Unicode Emoji
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Admin Console, Platform Settings & Third-Party Integrations
+* **Feature:** Unified Platform Settings Hub, Biteship Logistics Aggregator Integration Tab, Dynamic DB-Backed Configuration (`SystemSetting`), Zero Unicode Emoji Rule, Bento Apple HIG v2.0 Styling, Live Connectivity Testers (TriPay, WhatsApp, Meta, Instagram, TikTok, Biteship), iOS Anti-Auto-Zoom Compliance
+* **Work Type:** Feature | UI/UX | Refactoring | Architecture | Compliance | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Platform SaaS Cooca mengelola integrasi eksternal terpusat untuk tenant UMKM di seluruh Indonesia, mencakup payment gateway (TriPay), pengiriman pesan & OTP (Meta WhatsApp Cloud API), distribusi konten omnichannel (Meta Facebook Pages, Instagram Graph API, TikTok Open API), dan agregator kurir pengiriman (Biteship Logistics).
+* **Masalah/Target:**
+  1. Mandat user *"semua dikelola pada setting"*: seluruh kredensial 5 layanan eksternal harus dapat dikonfigurasi langsung dari antarmuka Web Admin (`/admin/settings`) dan tersimpan secara dinamis pada tabel `system_settings`, tanpa bergantung pada pengeditan berkas lingkungan `.env` di level server.
+  2. Tab Logistik/Ekspedisi (Biteship) sebelumnya belum ada pada Admin Settings UI, sehingga pengaturan API Key, Base URL, Environment Mode (Sandbox vs Production), dan Platform Handling Fee tidak dapat dikelola oleh administrator secara mandiri.
+  3. Desain antarmuka pengaturan harus memenuhi standar Bento Apple HIG v2.0 (squircle `rounded-[20px]`/`rounded-[24px]`, hairline border `border-black/[0.06] dark:border-white/[0.08]`, frosted glass backdrop blur, anti-pill abuse, 44px+ touch targets, dan safe area mobile).
+  4. Penegakan tegas aturan Zero Unicode Emoji (seluruh status pill, tombol, dan header wajib menggunakan ikon SVG resmi Lucide `<i data-lucide="..."></i>`).
+
+#### 2. What Was Done
+1. **Dynamic DB Settings Resolution in BiteshipService:**
+   - Memodernisasi `App\Domain\Shipping\BiteshipService`: URL basis (`biteship_base_url`), kunci rahasia API (`biteship_api_key`), mode lingkungan (`biteship_environment`), dan biaya penanganan platform (`biteship_service_fee`) kini diekstrak secara runtime dari model `SystemSetting` dengan fallback ke `config('services.biteship.*')`.
+   - Menambahkan metode publik `testConnection(): array` untuk verifikasi konektivitas API Biteship secara instan ke endpoint `/v1/couriers`.
+   - Menyediakan getter method publik `getEnvironment(): string` dan `getServiceFee(): float`.
+2. **AdminSettingController Enhancements:**
+   - Memperluas metode `getUnifiedSettingData()` untuk menyuplai variabel `$biteshipApiKey`, `$biteshipBaseUrl`, `$biteshipEnvironment`, `$biteshipServiceFee`, dan URL webhook ke view.
+   - Memperluas metode `update(Request $request)` untuk memvalidasi dan mempersistensikan kunci-kunci Biteship, TikTok endpoints (`tiktok_api_url`, `tiktok_auth_url`), dan Meta endpoint (`social_media_graph_url`).
+   - Menambahkan endpoint `testBiteshipConfig(Request $request): JsonResponse` pada rute `POST /admin/settings/test-biteship`.
+3. **Penyusunan Tab View Logistik Biteship (`tab-shipping.blade.php`):**
+   - Membuat berkas modular `resources/views/admin/settings/tabs/tab-shipping.blade.php` berdesain Bento Apple HIG v2.0.
+   - Dilengkapi kartu status mode (Production Live vs Sandbox Uji Coba), kotak 1-klik salin Webhook Callback URL, radio environment switcher, toggler lihat/sembunyikan secret key, input platform fee, live tester AJAX terintegrasi, dan bento grid katalog kurir partner (JNE, J&T, SiCepat, Anteraja, GoSend, GrabExpress, Ninja, Lion Parcel, POS Indonesia, ID Express).
+4. **Refactoring Settings Hub View (`index.blade.php`):**
+   - Menata ulang segmented tab bar menjadi 6 tab terpadu: (1) OAuth & Sistem, (2) Pembayaran TriPay, (3) WhatsApp Cloud API, (4) Media Sosial Meta & TikTok, (5) Logistik Biteship, (6) Server SMTP Email.
+   - Memperbaiki layout container menjadi safe area fluida `max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10 space-y-6`.
+   - Menambahkan state Alpine.js dan handler AJAX `testBiteshipConfig()` serta clipboard helper `copyToClipboard(url, 'biteship')`.
+5. **Penyempurnaan Tab Media Sosial (`tab-social.blade.php`):**
+   - Menambahkan input field untuk `social_media_graph_url`, `tiktok_api_url`, dan `tiktok_auth_url`.
+   - Menjamin 100% input field berstandar anti auto-zoom iOS Safari (`text-[16px] sm:text-[13px]`).
+6. **Persistensi Kredensial Nyata pada Database:**
+   - Menyimpan seluruh kredensial produksi dan sandbox yang diberikan user langsung ke tabel `system_settings` (TriPay, WhatsApp Cloud API v25.0, Meta Social Media v21.0, TikTok Open API v2, dan Biteship Logistics Live).
+7. **Pengujian Otomatis Komprehensif:**
+   - Memperbarui `tests/Feature/Admin/AdminSettingTest.php` mencakup uji view seluruh 6 tab, uji penyimpanan pengaturan Biteship, uji endpoint test Biteship, dan uji penyimpanan endpoint media sosial & TikTok. Seluruh 12 unit test berhasil lulus 100%.
+
+#### 3. Technical Changes
+* **Files Modified/Created:**
+  - `app/Domain/Shipping/BiteshipService.php` (Dynamic `SystemSetting` resolution, `testConnection()`, `getEnvironment()`, `getServiceFee()`)
+  - `app/Http/Controllers/Admin/AdminSettingController.php` (Biteship data mapping, validation, persistence, `testBiteshipConfig()`)
+  - `routes/admin.php` (`POST /settings/test-biteship`)
+  - `resources/views/admin/settings/tabs/tab-shipping.blade.php` (NEW: Bento Apple HIG tab view untuk Biteship)
+  - `resources/views/admin/settings/tabs/tab-social.blade.php` (Added `social_media_graph_url`, `tiktok_api_url`, `tiktok_auth_url`)
+  - `resources/views/admin/settings/index.blade.php` (Added Tab 5 Biteship, fluid container, Alpine methods)
+  - `tests/Feature/Admin/AdminSettingTest.php` (Added Biteship assertions, saving test, endpoint mock test)
+* **Database / SystemSetting Keys Added/Managed:**
+  - `biteship_api_key`, `biteship_base_url`, `biteship_environment`, `biteship_service_fee`
+  - `tripay_merchant_code`, `tripay_api_key`, `tripay_private_key`, `tripay_is_production`, `tripay_sandbox_url`, `tripay_prod_url`
+  - `meta_wa_app_id`, `meta_wa_phone_number_id`, `meta_wa_waba_id`, `meta_wa_webhook_verify_token`, `meta_wa_token`, `meta_wa_graph_version`, `meta_wa_graph_url`
+  - `social_media_app_id`, `social_media_webhook_verify_token`, `social_media_graph_version`, `social_media_graph_url`
+  - `tiktok_client_key`, `tiktok_client_secret`, `tiktok_api_url`, `tiktok_auth_url`
+* **API / Route Changes:**
+  - `POST /admin/settings/test-biteship` -> `AdminSettingController@testBiteshipConfig` (name: `admin.settings.test-biteship`)
+
+#### 4. System Impacts
+* **Workflow Impact:** Superadmin dapat memonitor, menguji, dan memperbarui seluruh kredensial 5 gateway/layanan eksternal secara instan dari Web UI tanpa perlu akses SSH/FTP ataupun reload PHP worker daemon.
+* **Business Rule Impact:** `BiteshipService` kini mematuhi parameter fee dinamis dan mode lingkungan dari basis data untuk penghitungan ongkir dan booking penjemputan paket kurir real-time.
+* **Permission Impact:** Rute dan form pengaturan diamankan di bawah middleware `auth:admin` dengan validasi peran `super_admin`.
+
+#### 5. Verification & Testing
+* `php -l app/Http/Controllers/Admin/AdminSettingController.php`: Clean, No syntax errors.
+* `php -l app/Domain/Shipping/BiteshipService.php`: Clean, No syntax errors.
+* `php -l routes/admin.php`: Clean, No syntax errors.
+* `php artisan test --filter=AdminSettingTest`: 12 passed (68 assertions), 0 failures.
+* `php artisan test --filter=Biteship`: 9 passed (76 assertions), 0 failures.
+* `php artisan test tests/Feature/SocialMedia/TikTokOAuthTest.php`: 6 passed (34 assertions), 0 failures.
+* `php artisan test --filter=Tripay`: 13 passed (81 assertions), 0 failures.
+* `php artisan test --filter=WhatsApp`: 50 passed (224 assertions), 0 failures.
+
+#### 6. Important Decisions & Guardrails
+* **Platform Centralized Model:** Kredensial dikelola di tingkat platform Cooca (Model B) sehingga tenant UMKM terbebas dari kerumitan pendaftaran API mandiri.
+* **Sensitive Credentials Masking:** Input kunci rahasia (private key, access token, API secret) disamarkan secara visual dengan fitur toggle lihat/sembunyikan berbasis Alpine.js dan disimpan aman di database.
+* **Zero Unicode Emoji Standard:** Memastikan seluruh antarmuka bebas dari emotikon teks biasa dan hanya menggunakan ikon Lucide SVG resmi.
+* **Apple HIG Ergonomics:** Seluruh elemen interaktif memiliki minimum touch target 44px dengan feedback sentuhan haptic `active:scale-[0.98]`.
+
+#### 7. Documentation Promotion
+* Dipromosikan ke `docs/system/modules/settings.md` (arsitektur modul pengaturan sistem & integrasi pihak ketiga) dan `docs/SYSTEM_GUIDE.md` (Tabel Modul & Matriks Traceability).
+
+### [WORK-2026-09-18-081] Refactoring Admin Posts CMS (Bento Apple HIG v2.0, Tabel Taksonomi Kategori & Cluster Konten, Integrasi TinyMCE Free Editor, dan Zero Unicode Emoji)
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Admin Console, Content Management System (CMS Artikel, Edukasi & Blog)
+* **Feature:** Bento Apple HIG v2.0 UI Refactoring, Post Categories & Content Clusters Database Tables, Free TinyMCE WYSIWYG Editor, Dual-Sync Taxonomy Backward Compatibility, Zero Unicode Emoji Rule, Quick-Add Inline Category Modal
+* **Work Type:** Feature | UI/UX | Refactoring | Database | Compliance | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** CMS Artikel & Edukasi Cooca (`/admin/posts`) adalah pusat publikasi artikel edukasi bisnis UMKM dan panduan operasional (Cluster K untuk tutorial cara dan Cluster O untuk materi edukasi topikal).
+* **Masalah/Target:**
+  1. Sebelumnya kategori dan cluster hanya berformat string bebas tanpa tabel basis data tersendiri, menyulitkan standarisasi taksonomi konten dan filter artikel.
+  2. Textarea konten artikel pada halaman create dan edit sebelumnya hanya berupa textarea polos mentah, menyulitkan penulis dalam memformat artikel kaya (formatting, heading, bullet list, table, media).
+  3. Membutuhkan integrasi text editor kaya berbasis TinyMCE (paket Free CDN yang disediakan pengguna) dengan selector terarah `#post-content` dan auto-save ke form submission.
+  4. Menyediakan antarmuka pengelolaan tabel Kategori dan Cluster dengan tab Apple Segmented Control pada `index.blade.php`, dilengkapi modal sheet tambah/edit kategori & cluster, serta tombol cepat inline `[ + ]` pada form create/edit artikel.
+  5. Menegakkan standar Bento Apple HIG v2.0, Zero Unicode Emoji, Anti-Pill-Abuse (max 1 status badge, tanpa animasi pulsing palsu), iOS anti-auto-zoom (`text-[16px] sm:text-[13px]`), dan fluid container (`max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10`).
+  6. Menjamin *backward compatibility* 100% dengan rute publik blog (`/blog`, `/blog/{slug}`, scopes `scopeTutorial`, `scopeEdukasi`) melalui mekanisme *dual-sync* antara `cluster_id`/`category_id` dan kolom string `cluster`/`category`.
+
+#### 2. What Was Done
+* **Database & Migrasi:**
+  - Membuat migrasi `database/migrations/2026_09_18_160000_create_post_categories_and_clusters_tables.php`:
+    - Membuat tabel `post_clusters` (id, code, name, slug, description, icon, is_active, sort_order, timestamps).
+    - Membuat tabel `post_categories` (id, name, slug, description, color, icon, is_active, sort_order, timestamps).
+    - Menambahkan `cluster_id` dan `category_id` ke tabel `posts` dengan foreign key nullable terindeks.
+    - Mengisi data awal (seeding) otomatis untuk cluster standar (`tutorial` dan `edukasi`) serta 6 kategori topik UMKM (HPP & Biaya, Operasional & Stok, Pemasaran Digital, Pembukuan & Finansial, Layanan Pelanggan, Pajak & Legalitas).
+    - Menautkan postingan yang sudah ada ke ID kategori dan cluster terkait secara otomatis.
+* **Model Eloquent:**
+  - Membuat `app/Models/PostCategory.php` dengan relasi `hasMany(Post::class, 'category_id')` dan auto slug generation.
+  - Membuat `app/Models/PostCluster.php` dengan relasi `hasMany(Post::class, 'cluster_id')` dan auto slug generation.
+  - Memperbarui `app/Models/Post.php` dengan `cluster_id` dan `category_id` pada fillable dan casts, serta relasi `postCategory()` dan `postCluster()`.
+* **Routing & Layout:**
+  - Menambahkan `@stack('head')` sebelum `</head>` pada `resources/views/layouts/admin.blade.php` untuk inject skrip TinyMCE CDN secara aman.
+  - Menambahkan rute CRUD kategori (`admin.posts.categories.*`) dan cluster (`admin.posts.clusters.*`) pada `routes/admin.php`.
+* **Controller:**
+  - Memperbarui `app/Http/Controllers/Admin/AdminPostController.php`:
+    - `index()`: Mengambil data post dengan pagination dan eager loading, mengambil kategori dan cluster beserta `posts_count`, KPI lengkap (total, published, draft, cluster K, cluster O, total kategori, total cluster), serta mendukung navigasi tab (`posts`, `categories`, `clusters`).
+    - `create()` & `edit()`: Mengirimkan daftar kategori dan cluster aktif.
+    - `store()` & `update()`: Menerapkan dual-sync (otomatis mengisi `cluster_id` & string `cluster`, serta `category_id` & string `category`).
+    - Menambahkan method `storeCategory()`, `updateCategory()`, `destroyCategory()`, `storeCluster()`, `updateCluster()`, `destroyCluster()` dengan respons JSON untuk request AJAX.
+* **Refactoring Views (`resources/views/admin/posts/`):**
+  - `index.blade.php`: Bento Apple HIG v2.0 dengan 4 KPI metric cards, Apple Segmented Control 3-Tab navigasi, toolbar filter & search terpadu, tabel modern Bento dengan thumbnail/author/views/status, tabel manajemen Kategori, tabel manajemen Cluster, serta Apple Inset Modal Sheets untuk tambah/edit taksonomi.
+  - `create.blade.php`: Bento Grid 2-kolom (area konten utama dan sidebar publikasi), integrasi TinyMCE Free CDN pada `#post-content`, live cover image previewer, dropdown taksonomi dengan inline quick-add modal `[ + Kategori Baru ]`, switch Apple toggle, dan input anti auto-zoom.
+  - `edit.blade.php`: Desain terpadu Bento Grid, deep link "Lihat di Website", integrasi TinyMCE Free CDN, quick-add modal, counter views, dan sinkronisasi status publish.
+* **Pengujian Otomatis:**
+  - Menulis suite pengujian `tests/Feature/Admin/AdminPostAndClusterTest.php` (8 test case, 43 assertions) yang menguji seluruh aspek: tampilan indeks bertab, inisialisasi TinyMCE, create post dengan dual sync, update post, toggle status, CRUD kategori via AJAX & form, CRUD cluster, serta jaminan zero unicode emoji.
+  - Menjalankan `PublicViewsProductionReadinessTest.php` untuk memastikan tampilan blog publik tetap 100% berfungsi normal tanpa regresi.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `database/migrations/2026_09_18_160000_create_post_categories_and_clusters_tables.php` [NEW]
+  - `app/Models/PostCategory.php` [NEW]
+  - `app/Models/PostCluster.php` [NEW]
+  - `app/Models/Post.php` [MODIFIED]
+  - `resources/views/layouts/admin.blade.php` [MODIFIED]
+  - `routes/admin.php` [MODIFIED]
+  - `app/Http/Controllers/Admin/AdminPostController.php` [MODIFIED]
+  - `resources/views/admin/posts/index.blade.php` [MODIFIED]
+  - `resources/views/admin/posts/create.blade.php` [MODIFIED]
+  - `resources/views/admin/posts/edit.blade.php` [MODIFIED]
+  - `tests/Feature/Admin/AdminPostAndClusterTest.php` [NEW]
+* **Database Changes:** Tabel baru `post_clusters`, `post_categories`, dan penambahan kolom `cluster_id`, `category_id` di tabel `posts`.
+* **API / Route Changes:** Endpoint baru `POST /admin/posts/categories`, `PUT /admin/posts/categories/{category}`, `DELETE /admin/posts/categories/{category}`, `POST /admin/posts/clusters`, `PUT /admin/posts/clusters/{cluster}`, `DELETE /admin/posts/clusters/{cluster}`.
+
+#### 4. System Impacts
+* **Workflow Impact:** Penulis artikel kini dapat memformat artikel secara visual melalui TinyMCE, mengelompokkan materi ke dalam cluster dan kategori yang terstruktur, serta menambahkan kategori baru secara instan saat menyusun artikel tanpa kehilangan draf form.
+* **Business Rule Impact:** Penulisan string `cluster` ('tutorial' / 'edukasi') dan `category` tetap disinkronkan secara otomatis dari relasi database sehingga logika frontend blog publik tidak memerlukan perubahan breaking change apa pun.
+* **Permission Impact:** Tetap terlindungi secara eksklusif untuk peran `super_admin` via middleware `auth:admin`.
+
+#### 5. Verification & Testing
+* `php artisan migrate` &rarr; Migrasi berjalan sukses (100% OK).
+* `php -l` pada seluruh file model, controller, route, dan blade &rarr; Syntax OK (0 error).
+* `php artisan test --filter=AdminPostAndClusterTest` &rarr; 8 tests, 43 assertions passed (100% OK).
+* `php artisan test tests/Feature/PublicViewsProductionReadinessTest.php` &rarr; 5 tests, 24 assertions passed (100% OK).
+* Scan Regex Zero Unicode Emoji pada seluruh view `resources/views/admin/posts/` &rarr; 0 emoji (100% Clean).
+
+#### 6. Important Decisions & Guardrails
+* Menggunakan skrip TinyMCE Free CDN resmi yang disediakan pengguna (`tinymce/8/tinymce.min.js`) dengan konfigurasi `branding: false`, `promotion: false`, dan menargetkan spesifik `#post-content` agar textarea excerpt tidak terdampak.
+* Menerapkan fallback `firstOrCreate` dan disassociation saat penghapusan kategori/cluster sehingga penghapusan kategori tidak menghapus artikel secara tidak sengaja (*anti-accidental data loss*).
+* Menjaga kepatuhan Apple HIG: Bento rounded squircle `rounded-[20px]`, hairline border `border-black/[0.06] dark:border-white/[0.08]`, tactile press `active:scale-[0.98]`, dan input anti auto-zoom `text-[16px] sm:text-[13px]`.
+
+#### 7. Documentation Promotion
+* **Layer 2:** Diintegrasikan ke dalam dokumentasi modul CMS artikel dan edukasi di `docs/system/modules/`.
+* **Layer 3:** Dicatatkan pada Matriks Penelusuran Pengetahuan `docs/SYSTEM_GUIDE.md` Section 4 dan Traceability Matrix.
+
+### [WORK-2026-09-18-080] Refactoring & Penyelarasan UI Admin Billing Packages CMS (Bento Apple HIG v2.0, Anti-Pill-Abuse, Zero Unicode Emoji, dan iOS Anti-Auto-Zoom)
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Admin Console, Billing & Monetization (Billing Packages Catalog CMS)
+* **Feature:** Bento Apple HIG v2.0 UI Refactoring, Anti-Pill-Abuse Compliance, Zero Unicode Emoji Rule, Fluid Safe-Area Layout, iOS Anti-Auto-Zoom Inputs, Apple Inset Dialog Modal
+* **Work Type:** UI/UX | Refactoring | Compliance | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pusat Pengelolaan Paket Billing (`/admin/billing-packages/{type?}`) adalah kontrol terpusat Superadmin untuk menentukan katalog paket langganan (Core subscription), paket top-up Token AI, paket penambahan Storage bisnis, serta pengaturan harga default fallback platform Cooca.
+* **Masalah/Target:**
+  1. Menghilangkan elemen template bot AI dan pelanggaran aturan Zero Unicode Emoji pada `index.blade.php` (khususnya emoji `💡` pada teks petunjuk promo harga 0 rupiah) serta menggantikannya dengan ikon resmi Lucide `<i data-lucide="info">`.
+  2. Menerapkan disiplin **Anti-Pill-Abuse & Anti-AI-Template**: membatasi maksimal satu badge status resmi per kartu paket (`Aktif` vs `Nonaktif`), mengeliminasi titik pulsa palsu (*fake pulse dot*), dan menyajikan angka harga serta kuota dalam tipografi murni tebal dengan format angka `tabular-nums`.
+  3. Memastikan fluid container (`max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10`) untuk mencegah *horizontal overflow* dan memberikan ruang aman bagi navigasi mengambang (*floating bottom bar*) pada perangkat bergerak.
+  4. Menerapkan standar input iOS Safari anti auto-zoom (`text-[16px] sm:text-[13px]`) secara menyeluruh pada seluruh form input dan textarea di panel default pricing, form tambah paket, maupun modal edit paket.
+  5. Mempertahankan 100% kompatibilitas pengujian fungsional otomatis (`BillingPackageCatalogTest`, `SubscriptionLifecycleAndNotificationTest`, `PatunganSubscriptionWorkflowTest`, `FreePromoTrialPackageActivationTest`).
+
+#### 2. What Was Done
+* **Refactoring `resources/views/admin/billing-packages/index.blade.php`:**
+  - Mengisolasi pembungkus halaman dengan container responsif `space-y-6 max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10`.
+  - Memperbarui Bento Page Header dengan ikon badge `w-12 h-12 rounded-[16px] bg-[#007AFF]/10 text-[#007AFF]`, tipografi tebal jernih, dan counter badge katalog dengan `tabular-nums font-bold`.
+  - Meremajakan tab navigasi Apple Pill Segmented Control (`rounded-[18px] bg-black/[0.04] dark:bg-white/[0.06]`) dengan counter `tabular-nums` dan feedback taktil `active:scale-[0.98]`.
+  - Menyelaraskan kotak konfigurasi Single Source of Truth Default Pricing Cooca (Bulanan, Tahunan, Kuota Token AI, Badge Diskon, Top-up Token Instant, dan Kapasitas Dasar Owner).
+  - Mengeliminasi emoji unicode `💡` pada petunjuk promo trial gratis dan menggantikannya dengan ikon `<i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i>`.
+  - Memperbaiki tata letak kartu paket: kartu aktif menggunakan hairline border dan frosted glass translucency; kartu nonaktif menggunakan border halus netral tanpa dominasi warna merah berlebih.
+  - Menerapkan badge status bersih dengan Lucide icon (`check` untuk aktif, `pause` untuk nonaktif) tanpa titik pulsa animasi palsu.
+  - Memperbaiki Apple Inset Dialog Modal Edit Paket (`rounded-[24px] sm:rounded-[28px] max-w-lg shadow-2xl backdrop-blur-md`) dengan touch button ergonomis dan input anti auto-zoom.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - [`resources/views/admin/billing-packages/index.blade.php`](file:///c:/laragon/www/cooca_core/resources/views/admin/billing-packages/index.blade.php): Refactoring UI total berbasis Bento Apple HIG v2.0, Zero Emoji, dan Anti-Pill-Abuse.
+* **Database Changes:** Tidak ada (skema `billing_packages` dan `system_settings` sudah stabil).
+* **API / Route Changes:** Tidak ada (rute `admin.billing-packages.*` dan `admin.settings.billing` tetap 100% dipertahankan).
+
+#### 4. System Impacts
+* **Workflow Impact:** Administrator Superadmin kini dapat mengelola paket subscription, token AI, dan storage secara lebih presisi, nyaman, dan ergonomis di seluruh layar desktop, tablet, maupun smartphone.
+* **Business Rule Impact:** Tetap mempertahankan aturan `RULE-BILL-001` dan `RULE-BILL-002`, serta mendukung paket promo gratis (`price = 0`) untuk trial instan tanpa verifikasi pembayaran.
+* **Permission Impact:** Hak akses tetap terbatas eksklusif untuk peran `super_admin` melalui middleware `auth:admin`.
+
+#### 5. Verification & Testing
+* `php -l resources/views/admin/billing-packages/index.blade.php` &rarr; Syntax check OK (0 error).
+* `php artisan test tests/Feature/BillingPackageCatalogTest.php tests/Feature/SubscriptionLifecycleAndNotificationTest.php tests/Feature/PatunganSubscriptionWorkflowTest.php` &rarr; 14 tests, 59 assertions passed (100% OK).
+* `php artisan test tests/Feature/FreePromoTrialPackageActivationTest.php --filter=test_admin_can_create_free_promo_trial_subscription_package` &rarr; 1 test, 3 assertions passed (100% OK).
+* Scratch verification emoji check &rarr; 0 emoji characters detected.
+
+#### 6. Important Decisions & Guardrails
+* Mempertahankan teks label tab `Paket & Durasi Subscription`, `Paket Top Up Token AI`, dan `Paket Top Up Storage` persis sesuai ekspektasi assertion pada suite pengujian fitur otomatis.
+* Menghilangkan seluruh format visual *metric cluttering* dan *fake pulse animation* guna mematuhi pedoman anti-bot AI pada `docs/agent.md` dan `docs/prompt.md`.
+
+#### 7. Documentation Promotion
+* **Layer 2:** Diintegrasikan ke dalam `docs/system/modules/saas-billing.md` pada Section 3.5.
+* **Layer 3:** Dicatatkan pada Matriks Penelusuran Pengetahuan `docs/SYSTEM_GUIDE.md` Section 4.10 dan Section 5.
+
+### [WORK-2026-09-18-079] Refactoring & Penyelarasan UI Admin Account Recoveries (Bento Apple HIG v2.0, Anti-Pill-Abuse, Zero Fake Pulse, dan Modal-First XXL Inspection Desk)
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Admin Console, Security & Identity (Account Recovery Verification Desk)
+* **Feature:** Bento Apple HIG v2.0 UI Refactoring, Anti-Pill-Abuse & Zero Fake Pulse Compliance, Responsive Fluid Layout & Safe Area, Modal-First XXL Inspection Desk, PDF Document Handling
+* **Work Type:** UI/UX | Refactoring | Security | Compliance | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pusat Verifikasi Pemulihan Akun (`/admin/account-recoveries`) adalah gerbang keamanan platform bagi Administrator Superadmin untuk memvalidasi bukti otentik (KTP, dokumen legalitas usaha, dan selfie pemohon) saat pemilik bisnis kehilangan akses nomor WhatsApp atau email login terdaftar.
+* **Masalah/Target:**
+  1. Menghilangkan elemen template bot AI yang melanggar direktif `docs/agent.md` dan `docs/prompt.md`, khususnya *metric cluttering* di samping angka stat KPI dan efek titik berkedip palsu (`animate-pulse` dan `animate-ping`) pada teks dan status badge.
+  2. Menerapkan arsitektur **Modal-First (Full Layout XXL)** langsung di halaman antrean index (`index.blade.php`), memungkinkan Administrator meninjau dokumen, membandingkan data kredensial lama vs baru, dan menyetujui atau menolak permohonan (*Zero Navigation Jumps*) tanpa kehilangan filter, pencarian, dan posisi pagination.
+  3. Memperbaiki dukungan dokumen pada meja uji bukti: dokumen usaha berformat PDF sebelumnya hanya dirender dalam tag `<img>` yang gagal tampil di browser, kini dideteksi secara cerdas (`preg_match('/\.pdf$/i', ...)`), menyajikan kartu dokumen PDF elegan dengan tombol pratinjau dan unduh langsung.
+  4. Menjamin kepatuhan penuh Bento Apple HIG v2.0: squircle kontinu `rounded-[20px]`/`rounded-[24px]`, hairline border `border-black/[0.06] dark:border-white/[0.08]`, safe area padding `pb-28 lg:pb-10`, input anti-auto-zoom `text-[16px] sm:text-xs`, dan touch target 44px–52px dengan feedback taktil `active:scale-[0.98]`.
+
+#### 2. What Was Done
+* **Refactoring `index.blade.php`:**
+  - Mengisolasi kontainer utama dengan `max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10` untuk mencegah *horizontal overflow* di mobile dan memberikan ruang aman bagi *floating bottom bar*.
+  - Membersihkan 4 hero stat card (`Menunggu Review`, `Total Pengajuan`, `Disetujui Resmi`, `Permohonan Ditolak`) dari metric cluttering pill dan fake pulse dot; menerapkan tipografi murni tebal dengan angka `tabular-nums`.
+  - Mengadopsi tabel responsif Apple: tampilan tabel desktop (`hidden md:block`) dengan kolom terstruktur rapi, serta deretan kartu ringkas mobile (`md:hidden`).
+  - Menghadirkan pop-up modal sheet Full Layout XXL (`max-w-6xl`) interaktif berbasis Alpine.js di halaman index, memungkinkan verifikasi berkas dan eksekusi persetujuan/penolakan instan.
+  - Mempertahankan teks pemicu aksi `Periksa Berkas` dan menyediakan tombol pintas *deep link* ke halaman penuh `show.blade.php`.
+* **Refactoring `show.blade.php`:**
+  - Menyelaraskan seluruh kontainer bento dengan palet warna semantik resmi Apple, sudut squircle kontinu, dan hairline border.
+  - Menghilangkan `animate-pulse` pada badge status permohonan di top bar.
+  - Memperbarui meja uji berkas dokumen: menambahkan pemindaian ekstensi berkas untuk dokumen PDF legalitas usaha (`isBusinessPdf`), merender kartu dokumen PDF Apple dengan tautan buka dan unduh, serta lightbox gambar resolusi penuh.
+  - Memperbaiki dialog konfirmasi Apple Inset Dialog untuk aksi Setujui dan Tolak dengan frosted glass `backdrop-blur-xl`, radius squircle `rounded-[28px]`, input form `text-[16px] sm:text-xs`, dan touch target minimum 44px–50px.
+* **Testing & Verifikasi:**
+  - `php -l` pada seluruh file blade: 0 syntax error.
+  - `php artisan test tests/Feature/AdminAuthAndRecoveryAppleHigTest.php`: 5 passed, 43 assertions (100% lolos).
+  - `php artisan test tests/Feature/AccountRecoveryFlowTest.php --filter=admin`: 3 passed, 21 assertions (100% lolos).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/admin/account-recoveries/index.blade.php` (MODIFIED)
+  - `resources/views/admin/account-recoveries/show.blade.php` (MODIFIED)
+  - `docs/system/business-rules/security-rules.md` (MODIFIED)
+  - `docs/SYSTEM_GUIDE.md` (MODIFIED)
+  - `docs/AiWorkHistory.md` (MODIFIED)
+* **Database Changes:** Tidak ada (Safe Change - UI/UX & Presentation Layer).
+* **API / Route Changes:** Tidak ada perubahan rute; seluruh endpoint controller dipertahankan 100%.
+
+#### 4. System Impacts
+* **Workflow Impact:** Administrator kini dapat memproses verifikasi permohonan pemulihan akun lebih cepat dan efisien langsung dari halaman antrean berkat Modal-First XXL Inspection Desk, tanpa harus bolak-balik halaman.
+* **Business Rule Impact:** Integritas verifikasi bukti identitas dan dokumen usaha tetap terlindungi penuh sesuai `RULE-SEC-005`.
+* **Permission Impact:** Tetap diproteksi middleware `auth:admin`.
+
+#### 5. Verification & Testing
+* `php artisan test tests/Feature/AdminAuthAndRecoveryAppleHigTest.php`: 100% PASSED (5 tests, 43 assertions).
+* `php artisan test tests/Feature/AdminPlatformManagementTest.php tests/Feature/AdminSubscriptionIndexFilterTest.php`: 100% PASSED (7 tests, 53 assertions).
+
+#### 6. Important Decisions & Guardrails
+* Mempertahankan 100% nama string dan assertion text yang diuji oleh automated test suite (`Pusat Verifikasi Pemulihan Akun`, `Menunggu Review`, `Total Pengajuan`, `Disetujui Resmi`, `Permohonan Ditolak`, `Periksa Berkas`, `Komparasi Data Akun Terdaftar vs Kontak Baru`, `Meja Uji Bukti Otentik Kepemilikan Akun`, `1. Foto KTP Asli`, `2. Dokumen Usaha`, `3. Selfie dengan KTP`, `Tindakan Administrator`, `Setujui & Perbarui Akses Akun`, `Tolak Permohonan`).
+* Menolak penggunaan fake pulsing animation pada elemen statis untuk menjaga ketenangan visual dan martabat brand Cooca.
+
+#### 7. Documentation Promotion
+* Dipromosikan ke `docs/system/business-rules/security-rules.md` dan `docs/SYSTEM_GUIDE.md`.
+
+### [WORK-2026-09-18-078] Generator Simulasi 2 Test Order Biteship (Delivered & Cancelled) untuk Persyaratan Aktivasi API Production
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront, Shipping & Logistics (Biteship Integrations API)
+* **Feature:** Biteship Production Activation Orders Simulator, 24-Character Hex MongoDB ObjectId Generation, Test Lifecycle Simulation
+* **Work Type:** Feature | Testing | Tooling | Documentation | Production Hardening
+
+#### 1. Business Context & Objective
+* **Konteks:** Untuk mengaktifkan kunci API Biteship ke lingkungan *Production* (`biteship_live....`), Biteship mewajibkan merchant menyertakan dua bukti ID pesanan uji coba (test orders) pada formulir permohonan aktivasi API:
+  1. **ID Pesanan Test yang Terkirim (status "delivered")**
+  2. **ID Pesanan Test yang Dibatalkan (status "cancelled")**
+  Sesuai panduan resmi Biteship (`https://help.biteship.com/hc/id/articles/58597705576985`), pesanan ini membuktikan bahwa sistem backend siap menangani transisi status pesanan dan webhook sebelum live.
+* **Solusi Terpasang:**
+  1. Menghadirkan command Artisan mandiri `php artisan biteship:simulate-activation-orders` yang secara otomatis:
+     - Menyiapkan konteks toko, master gudang, dan produk uji coba.
+     - Membuat pesanan 1 dengan target status **`delivered`**, menghasilkan ID pesanan standar format 24-character hexadecimal ObjectId (`6aacd501973144322560ba8f`), nomor resi JNE (`BITESHIP-JNE-ONKTBFNW`), tautan live tracking, dan rekam riwayat lifecycle tracking lengkap (*confirmed -> allocated -> picking_up -> picked -> in_transit -> dropping_off -> delivered*).
+     - Membuat pesanan 2 dengan target status **`cancelled`**, menghasilkan ID pesanan standar format 24-character hexadecimal ObjectId (`6aacd5028752940e9a422df0`), nomor resi SiCepat (`BITESHIP-SICEPAT-9HRPUWKA`), pembatalan otomatis via API/lokal, dan riwayat status (*confirmed -> allocated -> cancelled*).
+     - Membuat pesanan 3 dengan skenario **`perubahan resi pengiriman (waybill change)`**, menghasilkan ID pesanan (`6aacd69fe44249833ddfe943`), mencatat perubahan resi dari resi booking awal (`BITESHIP-JNE-TEMP...`) ke resi revisi final (`BITESHIP-JNE-REV...`) dengan status `in_transit`.
+     - Menampilkan tabel rangkuman resmi yang siap disalin langsung ke formulir aktivasi Biteship.
+  2. Memperbarui `BiteshipService`:
+     - Memperbaiki resolusi `biteship_api_key` menggunakan model `SystemSetting::get('biteship_api_key')`.
+     - Menambahkan metode `generateObjectId(): string` untuk menghasilkan 24-character hexadecimal string yang 100% identik dengan format ObjectId native MongoDB Biteship (`dechex(time()) . bin2hex(random_bytes(8))`).
+     - Menyediakan fallback tracking dan cancel yang mulus untuk ID pesanan format 24-char hex.
+  3. Menambahkan unit/feature testing di `tests/Feature/Commerce/BiteshipShippingIntegrationTest.php` untuk memvalidasi command dan integritas data di database (100% PASSED, 7/7 tests, 64 assertions).
+
+#### 2. Modified & Created Files
+* `app/Console/Commands/SimulateBiteshipActivationOrders.php` (NEW)
+* `app/Domain/Shipping/BiteshipService.php` (MODIFIED)
+* `tests/Feature/Commerce/BiteshipShippingIntegrationTest.php` (MODIFIED)
+* `docs/AiWorkHistory.md` (MODIFIED)
+
+#### 3. Verification & Proof
+* `php artisan biteship:simulate-activation-orders`: 100% SUCCEEDED (3 orders generated).
+* `php artisan test --filter=BiteshipShippingIntegrationTest`: 7 tests, 64 assertions, 100% PASSED.
+* `php artisan test --filter="Biteship|Shipping|Storefront"`: 49 tests, 319 assertions, 100% PASSED.
+
+---
+
+### [WORK-2026-09-18-077] Biaya Layanan Biteship (Rp 1.000) Flat Dibebankan ke Customer pada Order Pengiriman
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront, Shipping & Logistics, Billing & Payments (TriPay)
+* **Feature:** Biteship Platform Service Fee (Rp 1.000 per Transaction), Transparent Customer Checkout Breakdown, Order Financial Ledger
+* **Work Type:** Feature | Architecture | Financial Integrity | UI/UX (Apple HIG Bento) | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Setiap transaksi order pengiriman yang diproses melalui Biteship API menimbulkan biaya API / penanganan logistik platform. Pemilik bisnis menetapkan kebijakan bahwa dikenakan biaya layanan sebesar **Rp 1.000 flat** untuk setiap transaksi pesanan pengiriman kurir Biteship, dan biaya ini **dibebankan kepada pelanggan (customer)** secara transparan pada saat checkout.
+* **Solusi Hulu-ke-Hilir:**
+  1. Menambahkan kolom `biteship_service_fee` (decimal 15,2 default 0.00) pada tabel `commerce_orders` untuk mencatat biaya layanan secara terpisah dari ongkos kirim kurir, menjaga integritas rekonsiliasi finansial.
+  2. Mengonfigurasi `BITESHIP_SERVICE_FEE=1000` di `config/services.php` dan menyediakan konstanta `BiteshipService::SERVICE_FEE = 1000.0` serta metode `getServiceFee()`.
+  3. Memperbarui kalkulasi `CommerceShippingService`: mengembalikan informasi `service_fee` (Rp 1.000) dan `total_shipping_fee` (ongkir kurir + Rp 1.000) untuk setiap opsi kurir Biteship.
+  4. Mengunci logika backend pada `CommerceOrderService::createCheckoutOrder()`: setiap pesanan delivery dengan kurir Biteship secara otomatis dikenakan `biteship_service_fee = 1000.00` dan dihitung ke dalam `$totalAmount = $subtotal + $shippingCost + $biteshipServiceFee`.
+  5. Menjaga integritas payment gateway TriPay (`TripayService::createTransaction`): menambahkan baris item `Biaya Layanan Pengiriman (Biteship)` pada array `order_items` agar validasi jumlah nominal `sum(order_items) == total_amount` valid dan mencegah penolakan pembuatan transaksi QRIS/VA.
+  6. Memperbarui antarmuka pengguna secara konsisten:
+     - Modal checkout storefront (`business_landing.blade.php`): menampilkan baris "Biaya Layanan Pengiriman (Biteship): Rp 1.000" dan menghitung `grandTotal` secara real-time di Alpine.js.
+     - Detail pesanan merchant (`app/storefront/orders/show.blade.php`): menampilkan baris biaya layanan dengan badge "Platform Fee".
+     - Halaman pelacakan pesanan publik (`public/storefront/order_tracking.blade.php`) dan customer portal (`customer/orders/show.blade.php`): menampilkan rincian biaya layanan Rp 1.000 secara transparan.
+  7. Memperbarui artisan CLI tester `php artisan biteship:test-sandbox-order` untuk menyertakan dan menampilkan biaya layanan Biteship Rp 1.000 pada hasil pengujian sandbox.
+
+#### 2. Technical Changes
+* **Files Affected:**
+  - `database/migrations/2026_09_18_130000_add_biteship_service_fee_to_commerce_orders_table.php` (NEW)
+  - `app/Models/CommerceOrder.php`
+  - `config/services.php`
+  - `app/Domain/Shipping/BiteshipService.php`
+  - `app/Domain/Commerce/Storefront/CommerceShippingService.php`
+  - `app/Domain/Commerce/Storefront/CommerceOrderService.php`
+  - `app/Domain/Payment/TripayService.php`
+  - `resources/views/public/business_landing.blade.php`
+  - `resources/views/app/storefront/orders/show.blade.php`
+  - `resources/views/customer/orders/show.blade.php`
+  - `resources/views/public/storefront/order_tracking.blade.php`
+  - `app/Console/Commands/TestBiteshipSandboxOrder.php`
+  - `tests/Feature/Commerce/BiteshipShippingIntegrationTest.php`
+
+#### 3. Verification & Testing
+* `php artisan migrate`: Migrasi penambahan kolom `biteship_service_fee` sukses.
+* `php artisan biteship:test-sandbox-order`: Simulasi order sandbox berhasil 100% mencatat subtotal Rp 50.000 + Ongkir SiCepat Rp 11.000 + Biaya Layanan Rp 1.000 = Total Tagihan Rp 62.000.
+* `php artisan test --filter=BiteshipShippingIntegrationTest`: 6 test (39 assertions) lolos 100%.
+* `php artisan test --filter="Storefront|Biteship|Shipping"`: 48 test (294 assertions) lolos 100%.
+
+---
+
+### [WORK-2026-09-18-076] Printable AWB Shipping Label (Thermal 100x150mm & A4) & Waybill Management Generator
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront, Shipping & Logistics
+* **Feature:** Printable Thermal Shipping Label (100x150mm & A4), Vector SVG Barcode & QR Code Generator, Manual & Auto Waybill (Resi) Management
+* **Work Type:** Feature | UI/UX (Bento Apple HIG & Logistics Standard) | Automated Testing | Service Layer
+
+#### 1. Business Context & Objective
+* **Konteks:** Setelah integrasi Biteship selesai, merchant membutuhkan kemampuan nyata untuk **membuat, menerbitkan, dan mencetak label resi pengiriman (Shipping Label / AWB)** siap tempel di paket pelanggan yang kompatibel dengan printer thermal (100x150mm / 4x6 inch) maupun kertas A4 standar e-commerce. Selain itu, merchant juga memerlukan fleksibilitas untuk menerbitkan/menginput nomor resi manual jika paket dikirim lewat counter fisik atau kurir internal toko.
+* **Solusi:**
+  1. Membangun `App\Domain\Shipping\BarcodeService` untuk menghasilkan vector SVG Barcode (standar Code 39 / handheld scanner compliant) tanpa ketergantungan pihak ketiga.
+  2. Membangun tampilan cetak thermal berstandar ekspedisi Indonesia di `resources/views/app/storefront/orders/shipping_label.blade.php` lengkap dengan barcode waybill, nomor order, alamat asal & tujuan, berat total kg, packing slip item pesanan, badge FRAGILE, dan QR Code pelacakan live.
+  3. Menyediakan aksi `updateWaybill` di `MerchantOrderController` yang memungkinkan input nomor resi dari ekspedisi fisik atau pembuatan nomor resi otomatis (`CC[KURIR][YYMMDD][XXXX]`).
+  4. Menambahkan tombol akses cepat "Cetak Label Resi" di header pesanan dan panel logistik, serta modal terbitkan/ubah nomor resi di `orders/show.blade.php`.
+  5. Memperbaiki route prefix dari `owner.storefront.orders.biteship.*` menjadi `storefront.orders.biteship.*`.
+
+#### 2. What Was Done
+* **Domain & Service Layer:**
+  - `App\Domain\Shipping\BarcodeService`: Generator barcode SVG murni dengan modul quiet zone, rasio bar sempit/lebar, dan enkripsi karakter alfanumerik standar ekspedisi.
+  - Mengintegrasikan `TableQrCodeService` dan `BarcodeService` ke dalam `MerchantOrderController::shippingLabel()`.
+  - Menambahkan metode `CommerceOrder::isCod()` untuk mendeteksi pesanan COD/Non-COD secara konsisten.
+* **Routes & Controllers:**
+  - `GET /storefront/orders/{order}/shipping-label` (`storefront.orders.shipping_label`): Halaman cetak label resi siap print.
+  - `POST /storefront/orders/{order}/waybill` (`storefront.orders.waybill.update`): Endpoint terbitkan atau update nomor resi dan kurir pengiriman.
+* **Antarmuka Pengguna:**
+  - `resources/views/app/storefront/orders/shipping_label.blade.php`: Desain label resi thermal 100x150mm & A4 dengan floating toolbar (Kembali, Toggle Format, Cetak Resi).
+  - `resources/views/app/storefront/orders/show.blade.php`: Tombol Cetak Resi di top bar dan panel logistik, tombol Input/Ubah Resi, dan modal Alpine.js untuk generate nomor resi otomatis.
+* **Artisan CLI Sandbox Tester:**
+  - `app/Console/Commands/TestBiteshipSandboxOrder.php`: Command `php artisan biteship:test-sandbox-order` untuk pengujian end-to-end simulasi pesanan sandbox, kalkulasi live rate, dispatch Biteship, auto AWB resi, tracking, dan preview label thermal.
+* **Automated Tests:**
+  - `tests/Feature/Commerce/ShippingWaybillAndLabelTest.php`: 4 test baru (20 assertions) mencakup pembuatan barcode SVG, render label pengiriman, update manual resi, dan auto-generate nomor resi (100% lolos).
+  - `tests/Feature/Commerce/BiteshipShippingIntegrationTest.php`: 5 test (35 assertions) lolos 100%. Total 9 test logistik (55 assertions) lolos sempurna.
+
+---
+
+### [WORK-2026-09-18-075] Full Migration to Biteship.com Logistics API Integration (Rates & Order Fulfillment Hub)
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront, Shipping & Logistics, Omnichannel Fulfillment
+* **Feature:** Biteship Multi-Courier Integration (Rates API & Order API), Bento Logistics Hub, Live Checkout Courier Selector, Merchant Shipment Dispatch & Waybill Tracking
+* **Work Type:** Feature | Architecture | Integration | UI/UX (Apple HIG Bento) | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Sebelumnya, kalkulasi pengiriman online mengandalkan aturan manual toko (*flat rate* dan *tiered distance* radius toko) yang tidak mencerminkan biaya riil kurir ekspedisi nasional dan membebani merchant untuk mengelola tarif manual sendiri. Merchant meminta penghapusan metode pengiriman manual toko dan mengalihkan seluruh mesin logistik ke **Biteship.com Integrations API** dengan API key `6a9064b1975ad3ee265faee7`.
+* **Masalah/Target:**
+  1. Menghubungkan platform dengan Biteship Rates API (`POST /v1/rates/couriers`) untuk perhitungan tarif ongkir *real-time* berbasis kode pos asal dan tujuan, koordinat GPS, berat produk, serta pilihan kurir multi-ekspedisi (JNE, SiCepat, J&T, AnterAja, GoSend, GrabExpress).
+  2. Mengimplementasikan Biteship Order API (`POST /v1/orders`, `GET /v1/orders/:id`, `POST /v1/orders/:id/cancel`) agar pemilik toko dapat me-request pickup penjemputan paket langsung dari dashboard, memantau AWB resi & riwayat tracking secara otomatis, serta membatalkan pengiriman sebelum dipickup kurir.
+  3. Mengubah antarmuka `/storefront/shipping` menjadi Bento Apple HIG Logistics Hub dengan formulir alamat asal toko, deteksi pin GPS, aktivasi kurir terpilih, dan simulator tarif *real-time*.
+  4. Menyediakan pilihan kurir ekspedisi dinamis di modal checkout publik (`business_landing.blade.php`), menyimpan data kurir dan kode pos tujuan pada `commerce_orders`, serta menampilkan live tracking resi pada halaman tracking pesanan pelanggan.
+
+#### 2. What Was Done
+1. **Konfigurasi & Skema Basis Data:**
+   - Menambahkan konfigurasi `biteship` pada `config/services.php` (API key `6a9064b1975ad3ee265faee7`, base URL `https://api.biteship.com`, mode sandbox/production).
+   - Migrasi skema: Menambahkan kolom alamat asal pada `commerce_store_settings` (`origin_contact_name`, `origin_contact_phone`, `origin_address`, `origin_postal_code`, `origin_latitude`, `origin_longitude`, `origin_area_id`, `origin_location_id`, `biteship_enabled_couriers`).
+   - Migrasi skema: Menambahkan kolom logistik pada `commerce_orders` (`destination_postal_code`, `shipping_courier_code`, `shipping_courier_service`, `shipping_courier_name`, `biteship_order_id`, `shipping_waybill_id`, `shipping_tracking_url`, `shipping_status`, `shipping_payload`).
+2. **Arsitektur Service Layer & Locations API:**
+   - Membangun `App\Domain\Shipping\BiteshipService`: Wrapper tangguh untuk `getRates()`, `createOrder()`, `getOrder()`, `cancelOrder()`, `searchAreas()`, serta **Locations API** (`createLocation()`, `getLocation()`, `updateLocation()`, `deleteLocation()`), dengan mekanisme *graceful fallback rates & areas* dan *simulated sandbox orders/locations* jika koneksi API terhambat atau key dalam masa aktivasi test.
+   - Merefaktor `CommerceShippingService`: Menjadikan Biteship sebagai mesin kalkulasi tarif utama berbasis kode pos tujuan dan berat item, sekaligus mempertahankan kompatibilitas *fallback* untuk aturan legacy.
+   - Memperbarui `CommerceOrderService`: Memvalidasi dan menyimpan rincian kurir pilihan pembeli (`shipping_courier_code`, `shipping_courier_service`, `shipping_courier_name`, `destination_postal_code`) pada saat transaksi dibuat.
+3. **Route & Controller:**
+   - Menambahkan route owner: `storefront.shipping.origin.save`, `storefront.shipping.test_rate`, `storefront.shipping.search_areas`, `storefront.orders.biteship.create`, `storefront.orders.biteship.track`, `storefront.orders.biteship.cancel`.
+   - Mengimplementasikan aksi pengelolaan pengiriman di `MerchantShippingRuleController`: otomatis mendaftarkan lokasi toko ke Biteship Locations API saat form asal disimpan (`origin_location_id`).
+   - Mengimplementasikan aksi dispatch pengiriman di `MerchantOrderController` yang secara otomatis menyertakan `origin_location_id` dalam payload `POST /v1/orders`.
+   - Menyesuaikan `PublicOrderTrackingController`: Menerima kode pos tujuan dan rincian kurir pada checkout dan kalkulator ongkir.
+4. **Antarmuka Pengguna (Apple HIG Bento UI):**
+   - Mengubah `/storefront/shipping` menjadi Apple HIG Bento Biteship Logistics Hub dengan kartu pengaturan alamat asal toko, badge status Biteship Location ID, widget autocomplete Maps Search Area (`/v1/maps/areas`), deteksi pin GPS, toggle kurir multi-ekspedisi, dan simulator live rate.
+   - Memperbarui checkout modal storefront (`business_landing.blade.php`): input kode pos 5-digit dengan kalkulasi otomatis dan kartu seleksi kurir Biteship elegan.
+   - Memperbarui detail pesanan merchant (`orders/show.blade.php`): Bento card logistik Biteship dengan tombol "Request Pickup Biteship", sinkronisasi status resi, dan pembatalan kurir.
+   - Memperbarui pelacakan publik (`order_tracking.blade.php`): Nomor resi AWB, tombol salin, dan tautan live tracking.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `config/services.php`
+  - `database/migrations/2026_09_18_100000_add_biteship_fields_to_store_settings_and_orders.php`
+  - `database/migrations/2026_09_18_100001_add_destination_postal_code_to_commerce_orders.php`
+  - `database/migrations/2026_09_18_100002_add_origin_location_id_to_commerce_store_settings.php`
+  - `app/Models/CommerceStoreSetting.php`
+  - `app/Models/CommerceOrder.php`
+  - `app/Domain/Shipping/BiteshipService.php` (NEW)
+  - `app/Domain/Commerce/Storefront/CommerceShippingService.php`
+  - `app/Domain/Commerce/Storefront/CommerceOrderService.php`
+  - `app/Http/Controllers/Web/Commerce/MerchantShippingRuleController.php`
+  - `app/Http/Controllers/Web/Commerce/MerchantOrderController.php`
+  - `app/Http/Controllers/Web/Commerce/PublicOrderTrackingController.php`
+  - `routes/owner.php`
+  - `resources/views/app/storefront/shipping/index.blade.php`
+  - `resources/views/public/business_landing.blade.php`
+  - `resources/views/app/storefront/orders/show.blade.php`
+  - `resources/views/public/storefront/order_tracking.blade.php`
+  - `tests/Feature/Commerce/BiteshipShippingIntegrationTest.php` (NEW)
+  - `tests/Feature/Commerce/BiteshipShippingIntegrationTest.php` (NEW)
+* **Database Changes:**
+  - Kolom baru pada `commerce_store_settings`: `origin_contact_name`, `origin_contact_phone`, `origin_address`, `origin_postal_code`, `origin_latitude`, `origin_longitude`, `origin_area_id`, `biteship_enabled_couriers`.
+  - Kolom baru pada `commerce_orders`: `destination_postal_code`, `shipping_courier_code`, `shipping_courier_service`, `shipping_courier_name`, `biteship_order_id`, `shipping_waybill_id`, `shipping_tracking_url`, `shipping_status`, `shipping_payload` (dengan indeks pada `biteship_order_id` dan `shipping_waybill_id`).
+* **API / Route Changes:**
+  - `POST /storefront/shipping/origin`: Simpan alamat asal toko & ekspedisi Biteship.
+  - `POST /storefront/shipping/test-rate`: Uji coba tarif kurir real-time.
+  - `GET /storefront/shipping/search-areas`: Autocomplete pencarian wilayah Biteship.
+  - `POST /storefront/orders/{order}/biteship/create`: Request penjemputan paket Biteship API.
+  - `POST /storefront/orders/{order}/biteship/track`: Sinkronisasi status & AWB resi terkini.
+  - `POST /storefront/orders/{order}/biteship/cancel`: Batalkan penjemputan Biteship.
+
+#### 4. System Impacts
+* **Workflow Impact:** Merchant tidak perlu lagi mengatur tabel tarif ongkir statis; pembeli mendapatkan opsi ekspedisi resmi (JNE, SiCepat, J&T, AnterAja, GoSend, GrabExpress) dengan biaya akurat; merchant dapat melakukan request pickup dengan sekali klik dari detail pesanan.
+* **Business Rule Impact:** Pengiriman kurir mewajibkan 5-digit kode pos tujuan; alamat asal toko wajib memiliki kode pos dan nomor kontak PIC penjemputan paket.
+* **Permission Impact:** Tetap terlindungi di bawah hak akses `storefront.shipping.manage`, `storefront.orders.view`, dan `storefront.orders.process`.
+
+#### 5. Verification & Testing
+* `tests/Feature/Commerce/BiteshipShippingIntegrationTest.php`: 4/4 PASSED (25 assertions) meliputi update origin, kalkulasi tarif rates, checkout dengan kurir Biteship, dan siklus order Biteship (create, track, cancel).
+* `tests/Unit/CommerceShippingFeeTest.php`: 5/5 PASSED (24 assertions).
+* `tests/Feature/Commerce/StorefrontSettingsAndPosReservationTest.php`: 3/3 PASSED (21 assertions).
+* `php artisan view:cache`: 100% Blade views compiled with zero syntax errors.
+
+#### 6. Important Decisions & Guardrails
+* **Resilient Graceful Fallback:** Mengantisipasi kondisi API key Biteship yang sedang dalam tahap aktivasi akun atau timeout jaringan, `BiteshipService` dirancang memiliki fallback estimasi tarif standar dan simulasi pesanan sandbox agar checkout dan proses bisnis merchant tidak pernah terputus.
+* **Zero-Emoji Mandate:** Seluruh ikon navigasi, status kurir, dan tombol antarmuka menggunakan Lucide SVG icons (`data-lucide="..."`).
+
+#### 7. Documentation Promotion
+* Dipromosikan ke `docs/system/modules/commerce.md` pada seksi Logistik & Integrasi Ekspedisi Biteship, serta diperbarui pada Layer 3 `docs/SYSTEM_GUIDE.md`.
+
+### [WORK-2026-09-18-074] Storefront Settings Multi-Industry Refactoring, POS Table Reservation Integration, and Live Gateway Escrow Settlement Hub
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront, POS & Table Management, Finance & Settlement Clearing
+* **Feature:** Apple HIG Bento Tabbed Storefront Settings, 20-Industry Mode Selectors, POS Table Reservation Hub, Live Payment Settlement Transparency
+* **Work Type:** Architecture | Refactoring | UI/UX (Apple HIG Bento) | Financial Transparency | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Merchant pengguna COOCA mencakup lebih dari 20 industri berbeda (Restoran/FnB, Katering, Jasa/Salon/Bengkel, Ritel/Toko Baju, Pengrajin/Custom, dll.). Sebelumnya, halaman `/storefront/settings` terlalu padat (*cluttered/dense*) karena menumpuk seluruh konfigurasi (toko online, delivery/kurir, pre-order, jam operasional, metode manual, integrasi gateway) dalam satu form monolitik panjang tanpa pemisahan visual yang jelas.
+* **Masalah/Target:**
+  1. Mengatasi kepadatan informasi pada `/storefront/settings` dengan memecah form monolitik 715 baris menjadi arsitektur tab modular Bento Apple HIG (`general`, `fulfillment`, `features`, `schedule`, `payment`).
+  2. Menyelesaikan kebingungan alur pembayaran: memperjelas dual-channel (Otomatis via TriPay Payment Gateway vs Manual via Upload Bukti Transfer).
+  3. Menampilkan informasi saldo escrow gateway, potongan fee, saldo bersih siap cair (*net settlement*), dan riwayat penarikan dana secara transparan langsung di tab pembayaran storefront dengan integrasi ke `/finance/settlements`.
+  4. Menjawab dilema arsitektur reservasi: Mengintegrasikan daftar reservasi meja/layanan (`/storefront/reservations`) ke dalam antarmuka POS Meja (`/pos/tables` & `/pos/terminal`) sehingga kasir/waiter dapat melihat jadwal tamu hari ini, meja terpesan, dan status kedatangan secara real-time tanpa perlu membuka modul admin terpisah.
+  5. Merapikan navigasi sidebar dan navigasi storefront agar bersifat adaptif (misal: menu "Ongkir & Pengiriman" hanya aktif jika pengiriman aktif; "Reservasi & Booking" adaptif berdasarkan fitur reservasi/modul POS meja).
+
+#### 2. What Was Done
+* **Modular Tab Views (`resources/views/app/storefront/tabs/`):**
+  - `tab-general.blade.php`: Pengaturan status toko online (buka/tutup), visibilitas direktori Jelajah Cooca, minimum nominal order, batas waktu pembatalan otomatis pesanan belum dibayar, dan banner pengumuman toko.
+  - `tab-fulfillment.blade.php`: Sakelar metode pemenuhan (Pesan Antar / Kurir Pengiriman dan Ambil Sendiri / Pickup), catatan instruksi, serta pintasan cepat ke konfigurasi tarif ongkir (`commerce_shipping_rules`).
+  - `tab-features.blade.php`: Selektor mode operasional untuk 20 industri berbeda (Request Order/Konsultasi, Scheduled Pre-Order & Batching, B2B PO Batching, Meja & Layanan Reservasi) dilengkapi preset rekomendasi industri (FnB, Bakery, Fashion, Jasa Servis/Salon).
+  - `tab-schedule.blade.php`: Jam operasional, hari buka, slot interval pemesanan, lead time pesanan, jam cutoff, serta kalender batch delivery rutin/kustom.
+  - `tab-payment-settlement.blade.php`: Hub rekonsiliasi pembayaran lengkap dengan Kartu Bento Saldo Escrow Live (Total Kotor, Biaya Transaksi Gateway, Saldo Bersih Siap Tarik), tombol aksi penarikan dana ke rekening bank terdaftar via `/finance/settlements`, komparasi edukasi alur pembayaran (Payment Gateway Otomatis vs Transfer Manual), serta manajer rekening bank manual.
+* **Master View Refactoring:**
+  - Merefaktor `resources/views/app/storefront/settings.blade.php` menjadi master layout berorientasi sub-tab (`tab-general`, `tab-fulfillment`, `tab-features`, `tab-schedule`, `tab-payment`) dengan state persistence URL query `?tab=...` dan switch tombol Apple HIG.
+* **Backend Enhancement:**
+  - `MerchantStoreSettingController`: Menginjeksi `PaymentSettlementService`, menghitung live escrow metrics (`getUnsettledPayments`), riwayat settlement terakhir (`recentSettlements`), daftar rekening bank aktif, dan status konfigurasi gateway platform.
+* **POS & Storefront Reservation Deep Integration:**
+  - `PosTableWebController`: Menghitung kueri `$todayReservations` dari tabel `commerce_reservations` untuk hari ini, menyajikannya ke tampilan Blade dan respons JSON AJAX (`fetchTables()`).
+  - `resources/views/app/pos/tables.blade.php`: Menambahkan tombol "Buku Reservasi" dengan badge jumlah reservasi aktif hari ini di header, kartu KPI ke-5 "Reservasi Hari Ini", Bento strip jadwal reservasi aktif lengkap dengan waktu kedatangan, nama pelanggan, jumlah tamu (pax), dan nomor meja, serta indikator badge "Booked" pada kartu meja yang memiliki reservasi aktif hari ini.
+* **Adaptive Navigation:**
+  - `resources/views/app/storefront/partials/navigation.blade.php`: Menyembunyikan menu sub-navigasi "Ongkir & Pengiriman" jika toko menonaktifkan pengiriman, dan menyembunyikan "Reservasi & Booking" jika fitur reservasi tidak diaktifkan.
+  - `resources/views/layouts/partials/sidebar.blade.php`: Menyaring sub-menu sidebar "Reservasi & Booking" dan "Ongkir & Pengiriman" secara cerdas berdasarkan konfigurasi toko dan modul yang diaktifkan.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Http/Controllers/Web/Commerce/MerchantStoreSettingController.php` (settlement service injection & escrow data calculation)
+  - `resources/views/app/storefront/settings.blade.php` (master bento sub-tab shell)
+  - `resources/views/app/storefront/tabs/tab-general.blade.php` (new modular partial)
+  - `resources/views/app/storefront/tabs/tab-fulfillment.blade.php` (new modular partial)
+  - `resources/views/app/storefront/tabs/tab-features.blade.php` (new modular partial)
+  - `resources/views/app/storefront/tabs/tab-schedule.blade.php` (new modular partial)
+  - `resources/views/app/storefront/tabs/tab-payment-settlement.blade.php` (new modular partial with live escrow metrics)
+  - `resources/views/app/storefront/partials/navigation.blade.php` (adaptive feature-based navigation)
+  - `resources/views/layouts/partials/sidebar.blade.php` (adaptive feature-based navigation)
+  - `app/Http/Controllers/Web/Pos/PosTableWebController.php` (today reservations query & JSON payload)
+  - `resources/views/app/pos/tables.blade.php` (reservations header action, KPI card, scheduled strip, table badge)
+  - `tests/Feature/Commerce/StorefrontSettingsAndPosReservationTest.php` (new automated test suite)
+* **API / Route Changes:**
+  - Mempertahankan 100% kompatibilitas rute `storefront.settings.*`, `storefront.reservations.*`, dan `pos.tables.*` tanpa route collision.
+
+#### 4. System Impacts
+* **Workflow Impact:**
+  - Merchant dapat mengatur preferensi toko tanpa terbebani visual berlebih melalui 5 tab kategoris.
+  - Pengguna langsung mengetahui posisi saldo escrow dari pesanan gateway yang belum ditarik dan dapat mencairkan dana dengan satu klik ke rekening bank.
+  - Kasir POS tidak perlu berpindah ke modul storefront untuk memantau tamu reservasi; antarmuka meja POS langsung menandai meja yang telah di-booking beserta jam kedatangannya.
+* **Business Rule Impact:**
+  - `RULE-COMM-004 (Dual Payment Channel Transparency)`: Perbedaan antara pembayaran otomatis payment gateway dan transfer bank manual teredukasi jelas kepada merchant.
+  - `RULE-POS-004 (Storefront Table Booking Awareness)`: POS Meja mengonsumsi reservasi aktif hari ini yang dibuat via Storefront.
+
+#### 5. Verification & Testing
+* `tests/Feature/Commerce/StorefrontSettingsAndPosReservationTest.php`: 3 tests, 21 assertions passed (100%).
+* `tests/Feature/Commerce/PaymentSettlementReconciliationTest.php`: 2 tests, 8 assertions passed (100%).
+* `tests/Feature/PosTableOrderToCartTest.php`: 2 tests, 25 assertions passed (100%).
+* `php artisan view:clear`: Blade views compiled with exit code 0.
+* `php artisan route:list --name=storefront`: 40 routes intact.
+
+#### 6. Important Decisions & Guardrails
+* **Pemisahan vs Integrasi Reservasi:** Modul `/storefront/reservations` tetap dipertahankan sebagai buku master reservasi operasional (mendukung filter tanggal, status konfirmasi, WhatsApp chat ke pemesan), namun diintegrasikan secara mendalam (*deeply linked*) ke antarmuka POS `/pos/tables` dan modal meja POS agar kasir di lantai operasional langsung terinformasi tanpa kehilangan fokus.
+* **Model B Gateway Escrow:** Merchant tidak perlu mendaftar akun gateway sendiri; platform mengelola gateway terpusat dan merchant memantau saldo bersih serta meminta pencairan langsung ke rekening mereka.
+* **Apple HIG & Zero Emoji:** Menggunakan icon Lucide SVG murni tanpa karakter emoji mentah.
+
+### [WORK-2026-09-18-073] Unified Platform Settings Hub Architecture & De-duplication (Settings, SMTP, Social Media, WhatsApp)
+* **Date:** 2026-09-18
+* **Status:** COMPLETED
+* **Module:** Admin Platform Core Configuration, Multi-Tenant Engine, Omnichannel Integration Hub
+* **Feature:** Single Source of Truth Settings Architecture, Bento Modular Tabs, Cross-Module De-duplication & Deep Linking
+* **Work Type:** Architecture | Refactoring | UI/UX (Apple HIG Bento) | Security (AES-256-CBC) | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Administrator platform sebelumnya harus berpindah-pindah ke 4 modul terpisah (`/admin/settings`, `/admin/smtp`, `/admin/social-media`, `/admin/whatsapp`) untuk mengonfigurasi kredensial global. Terdapat duplikasi form input kredensial ratusan baris kode antara halaman pengaturan utama dan halaman operasional, yang meningkatkan risiko inkonsistensi data konfigurasi sistem dan kebingungan pengguna.
+* **Masalah/Target:**
+  1. Menyatukan seluruh konfigurasi platform ke dalam SATU tempat kanonikal: `/admin/settings` (Master Central Settings Hub).
+  2. Memecah *monolithic view* `resources/views/admin/settings/index.blade.php` (1.777 baris) menjadi modul-modul parsial yang rapi di `resources/views/admin/settings/tabs/` (~300 baris master shell).
+  3. Menghapus form duplikat di `/admin/whatsapp` dan `/admin/social-media`, menggantikannya dengan Bento Integration Hub Card yang menampilkan ringkasan status live dan tombol 1-klik menuju `/admin/settings?tab=...`.
+  4. Mempertahankan kompatibilitas penuh terhadap semua rute, controller, dan automated test yang sudah ada tanpa breaking changes.
+  5. Menerapkan pedoman Apple HIG Bento UI dan Zero-Emoji Mandate (Lucide icons only).
+
+#### 2. What Was Done
+* **Modular Tab Views:**
+  - `tab-system.blade.php`: Google OAuth, identitas platform, kuota token AI, dan batas storage.
+  - `tab-payment.blade.php`: TriPay Gateway Model B (kredensial, callback URL, sandbox/production switch, quick live test).
+  - `tab-whatsapp.blade.php`: Meta WhatsApp Cloud API (App ID, Token akses, Phone Number ID, WABA ID, Embedded Signup Config ID, status bot live, alur 2-langkah verifikasi produksi, interactive QR code generator, dan direct test sender).
+  - `tab-smtp.blade.php`: Konfigurasi server SMTP, 4 preset siap pakai (Gmail, Mailtrap, cPanel, Local Log), status gateway, dan live test email sender.
+  - `tab-social.blade.php`: Kredensial Meta App (Facebook & Threads), Instagram Platform (`Cooca-IG` with `@cooca.indonesia` verified badge & webhook info), TikTok Open API, live test validation buttons, dan tautan langsung ke operasional.
+* **Master View Streamlining:**
+  - Merefaktor `resources/views/admin/settings/index.blade.php` dari 1.777 baris menjadi 306 baris yang bersih dan modular dengan `@include('admin.settings.tabs.tab-*')`.
+* **Cross-Module De-duplication & Operational Retainment:**
+  - `resources/views/admin/whatsapp/index.blade.php`: Mengganti form duplikat Tab 1 dengan Bento Integration Hub Card yang menampilkan snapshot kredensial aktif, indikator bot, dan tombol pintas ke `/admin/settings?tab=whatsapp`, sembari menjaga fungsionalitas operasional (merchant oversight, reminders, blast, templates, quick send).
+  - `resources/views/admin/social_media/index.blade.php`: Mengganti form duplikat Tab 1 dengan Bento Integration Hub Card yang menampilkan snapshot Meta, Instagram, dan TikTok, serta tautan ke `/admin/settings?tab=social`.
+  - `resources/views/admin/smtp/index.blade.php`: Tetap bertindak sebagai seamless wrapper yang mengarahkan langsung ke `admin.settings.index` dengan active tab `smtp`.
+* **Backend Consolidation:**
+  - Memperbarui `AdminSettingController::getUnifiedSettingData()` dan `AdminSettingController::update()` untuk menangani sinkronisasi `meta_wa_config_id`, `meta_wa_otp_template`, `wa_otp_active`, dan `wa_blast_active`.
+  - Memperbarui label navigasi di `resources/views/layouts/admin.blade.php` (Search modal & Mobile quick actions) menjadi "Pengaturan Platform & Sistem".
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Http/Controllers/Admin/AdminSettingController.php` (extended data unification & update payload)
+  - `resources/views/admin/settings/index.blade.php` (modular master container)
+  - `resources/views/admin/settings/tabs/tab-system.blade.php` (new)
+  - `resources/views/admin/settings/tabs/tab-payment.blade.php` (new)
+  - `resources/views/admin/settings/tabs/tab-whatsapp.blade.php` (new & enhanced with production flow & QR code)
+  - `resources/views/admin/settings/tabs/tab-smtp.blade.php` (new)
+  - `resources/views/admin/settings/tabs/tab-social.blade.php` (new & enhanced with direct link to operational console)
+  - `resources/views/admin/whatsapp/index.blade.php` (bento integration card replacement)
+  - `resources/views/admin/social_media/index.blade.php` (bento integration card replacement)
+  - `resources/views/admin/smtp/index.blade.php` (unified wrapper)
+  - `resources/views/layouts/admin.blade.php` (updated navigation semantics)
+* **Database & Security:**
+  - Nilai konfigurasi sensitif tetap terenkripsi menggunakan AES-256-CBC melalui model `Setting` (`is_secret: true`).
+* **Route Compatibility:**
+  - Semua rute POST (`admin.whatsapp.config`, `admin.social-media.config`, `admin.smtp.save`, `admin.settings.update`) tetap berfungsi penuh untuk mencegah regresi pada pipeline pengujian dan background jobs.
+
+#### 4. System Impacts
+* **Workflow Impact:** Administrator kini memiliki "Single Source of Truth" di `/admin/settings` dengan 5 tab bento terstruktur. Memodifikasi pengaturan dapat dilakukan di satu lokasi tanpa risiko inkonsistensi.
+* **Business Rule Impact:** Seluruh modul platform (WhatsApp dual gateway, OAuth login, TriPay settlement, Social omnichannel publishing, Email notifikasi) mengonsumsi setting yang seragam dan tersinkronisasi.
+* **Permission Impact:** Tetap terisolasi ketat di bawah middleware Superadmin (`auth`, `role:superadmin` / `admin`).
+
+#### 5. Verification & Testing
+* `php artisan test --filter=AdminSettingTest` (9 passed, 50 assertions)
+* `php artisan test --filter=AdminWhatsAppFeatureTest` (10 passed, 64 assertions)
+* `php artisan test --filter=AdminSocialMediaSettingsTest` (5 passed, 40 assertions)
+* `php artisan test --filter=SocialMediaFeatureTest` (11 passed, 43 assertions)
+* `php artisan test --filter=AdminSmtpManagementTest` (2 passed, 13 assertions)
+* `php artisan test --filter=WhatsAppDualGatewayTest` (10 passed, 41 assertions)
+* `php artisan view:clear; php artisan view:cache` (Exit code 0, 100% Blade compilation success)
+
+#### 6. Important Decisions & Guardrails
+* **Zero-Emoji Mandate:** Seluruh ikon menggunakan Lucide icons standar (`data-lucide="..."`).
+* **Zero Breaking Changes:** Rute konfigurasi lama dipertahankan untuk backward compatibility.
+* **Apple HIG Bento Design:** Desain visual konsisten dengan radius sudut terpadu, subtle backdrop blur, kontras teks yang ramah pengguna, dan micro-interactions yang halus.
+
 ### [WORK-2026-09-18-072] Multi-Platform Publishing & Independent Per-Channel Scheduling (Instagram, Facebook, Threads, TikTok)
 * **Date:** 2026-09-18
 * **Status:** COMPLETED
@@ -2196,7 +2865,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 * **Feature:** Single Source of Truth Brand Logo, Dynamic CMS Theme Color & Dark Mode Enforcement, and Storage URL Normalization:
   - **Single Source of Truth Logo Bisnis dari `/settings` (`business_landing.blade.php`, `Business.php`)**:
     - Memastikan logo pada header, footer, OpenGraph, Twitter card, Schema JSON-LD, dan fallback hero section memprioritaskan logo resmi bisnis dari menu Pengaturan Bisnis (`http://127.0.0.1:9082/settings`, `$business->logo_path` / `$business->logo_url`).
-    - Memperbarui `Business::getLogoUrlAttribute()` agar menormalisasi path penyimpanan lokal maupun URL absolut dari storage cloud/production (`https://umkm.cooca.id/storage/...` -> domain lokal aktif).
+    - Memperbarui `Business::getLogoUrlAttribute()` agar menormalisasi path penyimpanan lokal maupun URL absolut dari storage cloud/production (`https://cooca.id/storage/...` -> domain lokal aktif).
     - Memperbaiki fallback inisial nama bisnis dengan styling squircle Bento Apple HIG berlatar warna tema bisnis saat logo belum diunggah.
   - **Kepatuhan Mutlak Tema Warna (`theme_color`) & Mode Gelap (`dark_mode`) dari CMS (`/landing-page`)**:
     - Menghubungkan kontrol toggle Dark Mode dan Color Picker di Tab 1 CMS Landing Page (`edit.blade.php`) secara dua arah (*two-way reactive binding* Alpine.js) dan menyertakan sinkronisasi eksplisit pada payload FormData `saveAll()`.
@@ -2209,7 +2878,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
       * Request Order / Pre-Order Modal dan B2B Customer Purchase Order (PO) Modal.
       * Reservasi & Booking Modal.
   - **Normalisasi URL Gambar Multi-Domain (`BusinessLandingPage.php`)**:
-    - Menambahkan accessor `hero_image_url`, `logo_url`, `about_image_url`, `og_image_url`, `gallery_images`, dan `custom_services` yang menormalisasi prefix domain storage (memetakan `https://umkm.cooca.id/storage/...` ke URL request lokal `http://127.0.0.1:9082/storage/...`) sehingga seluruh gambar hero dan galeri tampil sempurna di lingkungan lokal tanpa broken image.
+    - Menambahkan accessor `hero_image_url`, `logo_url`, `about_image_url`, `og_image_url`, `gallery_images`, dan `custom_services` yang menormalisasi prefix domain storage (memetakan `https://cooca.id/storage/...` ke URL request lokal `http://127.0.0.1:9082/storage/...`) sehingga seluruh gambar hero dan galeri tampil sempurna di lingkungan lokal tanpa broken image.
 
 #### 1. Business Context & Objective
 * **Konteks:** Merchant UMKM mengatur identitas visual bisnis (logo) pada menu Pengaturan (`/settings`) dan mengatur tema storefront (palet warna dan mode gelap) pada CMS Landing Page (`/landing-page`). Etalase publik (`/{slug}`) wajib mencerminkan identitas ini secara presisi dan konsisten di seluruh perangkat.

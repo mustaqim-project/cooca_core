@@ -1167,7 +1167,7 @@
                         '{order_number}': 'POS-20260910-0042',
                         '{date}': @json(now()->format('d/m/Y H:i')),
                         '{cashier_name}': @json(auth()->user()?->name ?? 'Kasir'),
-                        '{receipt_link}': 'https://umkm.cooca.id/receipt/sample',
+                        '{receipt_link}': 'https://cooca.id/receipt/sample',
                         '{footer_note}': @json($business->pos_receipt_footer_note ?? 'Simpan struk ini sebagai bukti pembayaran sah.')
                     };
                     for (const [key, val] of Object.entries(replacements)) {
@@ -1188,7 +1188,7 @@
                     escaped = escaped.replace(/~([^~]+)~/g, '<del class="line-through opacity-60">$1</del>');
                     escaped = escaped.replace(/```([^`]+)```/g,
                         '<code class="bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded font-mono text-[11px]">$1</code>'
-                        );
+                    );
                     return escaped.replace(/\n/g, '<br>');
                 },
 

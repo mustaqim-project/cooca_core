@@ -41,6 +41,15 @@ class CommerceStoreSetting extends Model
         'custom_batch_dates',
         'order_notes_placeholder',
         'announcement_text',
+        'origin_contact_name',
+        'origin_contact_phone',
+        'origin_address',
+        'origin_postal_code',
+        'origin_latitude',
+        'origin_longitude',
+        'origin_area_id',
+        'origin_location_id',
+        'biteship_enabled_couriers',
     ];
 
     /**
@@ -62,6 +71,9 @@ class CommerceStoreSetting extends Model
             'preorder_quota_unit' => 'string',
             'batch_dates_mode' => 'string',
             'custom_batch_dates' => 'array',
+            'biteship_enabled_couriers' => 'array',
+            'origin_latitude' => 'float',
+            'origin_longitude' => 'float',
             'min_order_amount' => 'float',
             'order_auto_cancel_minutes' => 'integer',
             'lead_time_hours' => 'integer',

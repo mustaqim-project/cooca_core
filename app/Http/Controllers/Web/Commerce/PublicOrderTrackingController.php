@@ -38,7 +38,13 @@ final class PublicOrderTrackingController extends Controller
             'customer_email' => ['nullable', 'email', 'max:150'],
             'fulfillment_type' => ['required', 'string', 'in:pickup,merchant_delivery'],
             'shipping_address' => ['nullable', 'string', 'max:500'],
-            'shipping_rule_id' => ['nullable', 'uuid'],
+            'shipping_rule_id' => ['nullable', 'string', 'max:100'],
+            'shipping_fee' => ['nullable', 'numeric', 'min:0'],
+            'destination_postal_code' => ['nullable', 'string', 'max:10'],
+            'postal_code' => ['nullable', 'string', 'max:10'],
+            'courier_company' => ['nullable', 'string', 'max:50'],
+            'courier_type' => ['nullable', 'string', 'max:50'],
+            'courier_name' => ['nullable', 'string', 'max:100'],
             'distance_km' => ['nullable', 'numeric', 'min:0'],
             'scheduled_date' => ['nullable', 'date'],
             'scheduled_time_slot' => ['nullable', 'string', 'max:50'],
@@ -67,9 +73,14 @@ final class PublicOrderTrackingController extends Controller
             ];
 
             $options = [
-                'order_notes' => $validated['notes'] ?? null,
-                'shipping_rule_id' => $validated['shipping_rule_id'] ?? null,
-                'distance_km' => $validated['distance_km'] ?? null,
+                'order_notes'              => $validated['notes'] ?? null,
+                'shipping_rule_id'         => $validated['shipping_rule_id'] ?? null,
+                'shipping_cost'            => isset($validated['shipping_fee']) ? (float) $validated['shipping_fee'] : null,
+                'shipping_courier_code'    => $validated['courier_company'] ?? null,
+                'shipping_courier_service' => $validated['courier_type'] ?? null,
+                'shipping_courier_name'    => $validated['courier_name'] ?? null,
+                'destination_postal_code'  => $validated['destination_postal_code'] ?? ($validated['postal_code'] ?? null),
+                'distance_km'              => $validated['distance_km'] ?? null,
             ];
 
             $paymentGateway = $validated['payment_gateway'] ?? 'tripay';
@@ -316,13 +327,19 @@ final class PublicOrderTrackingController extends Controller
         $subtotal = (float) $request->input('subtotal', 0.0);
         $distanceKm = $request->filled('distance_km') ? (float) $request->input('distance_km') : null;
         $preferredRuleId = $request->input('shipping_rule_id');
+        $destinationPostalCode = $request->input('destination_postal_code', $request->input('postal_code'));
+        $destinationAddress = $request->input('destination_address', $request->input('shipping_address'));
+        $items = $request->input('items', []);
 
         $shippingService = new \App\Domain\Commerce\Storefront\CommerceShippingService();
         $result = $shippingService->calculateShipping(
             business: $business,
             subtotal: $subtotal,
             distanceKm: $distanceKm,
-            preferredRuleId: $preferredRuleId
+            preferredRuleId: $preferredRuleId,
+            destinationPostalCode: $destinationPostalCode ? (string) $destinationPostalCode : null,
+            items: is_array($items) ? $items : [],
+            destinationAddress: $destinationAddress ? (string) $destinationAddress : null
         );
 
         return response()->json([

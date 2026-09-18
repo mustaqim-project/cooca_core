@@ -61,23 +61,117 @@
                     <span class="text-[13px] font-mono font-bold text-black dark:text-white truncate block mt-0.5">{{ $waBotStatus['messaging_limit_tier'] ?? 'TIER_1K' }}</span>
                 </div>
             </div>
-
-            <!-- Readonly Callback Webhook Box with 1-click copy -->
-            <div class="p-4 rounded-[18px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
-                <div class="space-y-0.5">
-                    <div class="flex items-center gap-1.5 text-[12px] font-bold text-[#25D366]">
-                        <i data-lucide="webhook" class="w-3.5 h-3.5"></i>
-                        <span>Webhook Callback URL (Inbound Messages &amp; Delivery Receipts)</span>
+            <!-- BENTO CARD: LANGKAH 2 PENYIAPAN PRODUKSI META WHATSAPP CLOUD API -->
+            <div class="rounded-[24px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-md p-6 space-y-4 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/[0.04] dark:border-white/[0.06] pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-[10px] bg-[#25D366]/15 text-[#25D366] flex items-center justify-center font-bold text-[14px]">2</div>
+                        <div>
+                            <h3 class="text-[15px] font-bold text-black dark:text-white">Langkah 2. Penyiapan Produksi WhatsApp API</h3>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">Siapkan satu atau beberapa akun untuk menghubungi pelanggan Anda melalui WhatsApp API resmi Meta.</p>
+                        </div>
                     </div>
-                    <code class="text-[11px] font-mono text-black/80 dark:text-white/80 select-all break-all">{{ $metaWaWebhookUrl ?? url('/api/v1/whatsapp/webhook') }}</code>
-                    <p class="text-[11px] text-black/45 dark:text-white/45">Daftarkan URL ini beserta Webhook Verify Token pada WhatsApp &gt; Configuration di Meta Developer Portal.</p>
+                    <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 self-start sm:self-auto">
+                        Meta Cloud API v25.0
+                    </span>
                 </div>
-                <button type="button" @click="copyToClipboard('{{ $metaWaWebhookUrl ?? url('/api/v1/whatsapp/webhook') }}', 'wa')"
-                    class="h-8 px-3 rounded-[9px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-[11px] font-bold text-black dark:text-white flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer">
-                    <i data-lucide="copy" class="w-3.5 h-3.5" x-show="!copiedWaWebhook"></i>
-                    <i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759]" x-show="copiedWaWebhook"></i>
-                    <span x-text="copiedWaWebhook ? 'Tersalin!' : 'Salin URL'"></span>
-                </button>
+
+                <!-- 3-Column Checklist Bento Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                    <!-- Kartu 1: Konfigurasikan Webhooks -->
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2.5 flex flex-col justify-between">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[12.5px] font-bold text-black dark:text-white flex items-center gap-1.5">
+                                    <i data-lucide="webhook" class="w-3.5 h-3.5 text-[#25D366]"></i>
+                                    <span>Konfigurasikan Webhooks</span>
+                                </span>
+                                <span class="text-[10.5px] text-black/45 dark:text-white/45">~3 menit</span>
+                            </div>
+                            <p class="text-[11.5px] text-black/60 dark:text-white/60 leading-relaxed">
+                                Siapkan endpoint Webhooks untuk mendapatkan notifikasi pesan masuk dan status.
+                                <a href="https://developers.facebook.com/documentation/business-messaging/whatsapp/webhooks/overview/" target="_blank" class="text-[#007AFF] hover:underline font-medium inline-flex items-center gap-0.5">
+                                    <span>Panduan</span>
+                                    <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                </a>
+                            </p>
+                            <p class="text-[10.5px] text-[#FF9500] leading-tight">
+                                Catatan: Mode aplikasi harus <strong>&ldquo;Aktif / Live&rdquo;</strong> untuk menerima data produksi.
+                            </p>
+                        </div>
+                        <div class="space-y-1.5 pt-1">
+                            <div class="p-2 rounded-[8px] bg-white dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between gap-1 text-[11px]">
+                                <span class="text-black/50 dark:text-white/50 shrink-0">Callback:</span>
+                                <code class="font-mono text-[10px] text-black/80 dark:text-white/80 truncate">{{ $metaWaWebhookUrl ?? 'https://cooca.id/api/v1/wa/meta/webhook' }}</code>
+                                <button type="button" @click="copyToClipboard('{{ $metaWaWebhookUrl ?? 'https://cooca.id/api/v1/wa/meta/webhook' }}', 'wa_url')" class="text-[#007AFF] hover:underline shrink-0 text-[10.5px] font-bold">Salin</button>
+                            </div>
+                            <div class="p-2 rounded-[8px] bg-white dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between gap-1 text-[11px]">
+                                <span class="text-black/50 dark:text-white/50 shrink-0">Verify Token:</span>
+                                <code class="font-mono text-[10px] text-black/80 dark:text-white/80">{{ $metaWaWebhookVerifyToken ?? 'cooca_meta_wa_webhook_secret' }}</code>
+                                <button type="button" @click="copyToClipboard('{{ $metaWaWebhookVerifyToken ?? 'cooca_meta_wa_webhook_secret' }}', 'wa_tok')" class="text-[#007AFF] hover:underline shrink-0 text-[10.5px] font-bold">Salin</button>
+                            </div>
+                            <a href="https://developers.facebook.com/docs/graph-api/webhooks/getting-started/#mtls-for-webhooks" target="_blank"
+                                class="text-[10.5px] text-[#007AFF] hover:underline flex items-center gap-1">
+                                <span>Lampirkan sertifikat mTLS</span>
+                                <i data-lucide="external-link" class="w-3 h-3"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Kartu 2: Daftarkan nomor telepon WhatsApp Anda -->
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2.5 flex flex-col justify-between">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[12.5px] font-bold text-black dark:text-white flex items-center gap-1.5">
+                                    <i data-lucide="phone" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                    <span>Daftarkan Nomor WhatsApp</span>
+                                </span>
+                                <span class="text-[10.5px] text-black/45 dark:text-white/45">~1 menit</span>
+                            </div>
+                            <p class="text-[11.5px] text-black/60 dark:text-white/60 leading-relaxed">
+                                Tambahkan dan verifikasi nomor telepon bisnis Anda. Kelola nomor kapan saja di WhatsApp Manager resmi.
+                            </p>
+                            <p class="text-[10.5px] text-black/50 dark:text-white/50 leading-tight">
+                                Anda bisa menambahkan hingga 2 nomor telepon per bisnis. Setelah verifikasi bisnis selesai, Anda bisa menambahkan hingga <strong>20 nomor</strong>.
+                            </p>
+                        </div>
+                        <div class="pt-1">
+                            <a href="https://business.facebook.com/latest/whatsapp_manager/phone_numbers/?business_id=2409028599628721&tab=phone-numbers&nav_ref=whatsapp_manager&asset_id="
+                                target="_blank"
+                                class="w-full h-8 px-3 rounded-[8px] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[11px] font-bold transition flex items-center justify-center gap-1">
+                                <span>Buka WhatsApp Manager</span>
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Kartu 3: Pembayaran & Kuota Pesan Bisnis -->
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2.5 flex flex-col justify-between">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[12.5px] font-bold text-black dark:text-white flex items-center gap-1.5">
+                                    <i data-lucide="credit-card" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                    <span>Metode Pembayaran Meta</span>
+                                </span>
+                                <span class="text-[10.5px] text-black/45 dark:text-white/45">~1 menit</span>
+                            </div>
+                            <p class="text-[11.5px] text-black/60 dark:text-white/60 leading-relaxed">
+                                Tambahkan metode pembayaran untuk pesan yang diinisiasi bisnis (marketing, utilitas, dan autentikasi).
+                            </p>
+                            <p class="text-[10.5px] text-[#34C759] leading-tight">
+                                <strong>1.000 percakapan</strong> yang dimulai oleh pelanggan diberikan gratis setiap bulan (layanan customer care).
+                            </p>
+                        </div>
+                        <div class="pt-1">
+                            <a href="https://business.facebook.com/billing_hub/?business_id=2409028599628721&placement=whatsapp_ads&account_type=whatsapp-business-account"
+                                target="_blank"
+                                class="w-full h-8 px-3 rounded-[8px] bg-[#34C759]/10 hover:bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[11px] font-bold transition flex items-center justify-center gap-1">
+                                <span>Buka Billing Hub Meta</span>
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -275,16 +369,29 @@
                     </div>
                 </form>
 
-                <!-- Live Test Message Sender Card -->
-                <div class="rounded-[24px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-md p-6 space-y-4 shadow-sm"
+                <!-- Live Test Message Sender Card & QR Code Verification -->
+                <div class="rounded-[24px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-md p-6 sm:p-7 space-y-5 shadow-sm"
                     x-data="{
                         testPhone: '',
+                        testCountryCode: '62',
                         testMsg: 'Halo! Ini adalah pesan uji coba dari Meta WhatsApp Cloud API resmi Platform Cooca.',
+                        botPhone: '{{ !empty($waBotStatus['phone']) ? $waBotStatus['phone'] : '' }}',
                         sendingTest: false,
                         testSendResult: null,
+                        showQrModal: false,
+                        get fullPhone() {
+                            let clean = this.testPhone.replace(/[^0-9]/g, '');
+                            if (clean.startsWith('0')) clean = this.testCountryCode + clean.substring(1);
+                            return clean;
+                        },
+                        get qrCodeUrl() {
+                            let phone = this.botPhone.replace(/[^0-9]/g, '') || this.fullPhone || '6281234567890';
+                            let msg = encodeURIComponent('Halo Cooca! Memulai sesi layanan pelanggan 24 jam.');
+                            return 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent('https://wa.me/' + phone + '?text=' + msg);
+                        },
                         sendTest() {
                             if (!this.testPhone) {
-                                if (window.AppAlert) AppAlert.warning('Masukkan nomor WhatsApp tujuan.');
+                                if (window.AppAlert) AppAlert.warning('Masukkan nomor WhatsApp penerima.');
                                 return;
                             }
                             this.sendingTest = true;
@@ -297,7 +404,7 @@
                                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '{{ csrf_token() }}'
                                 },
                                 body: JSON.stringify({
-                                    phone: this.testPhone,
+                                    phone: this.fullPhone,
                                     message: this.testMsg
                                 })
                             })
@@ -317,40 +424,115 @@
                             });
                         }
                     }">
-                    <div class="flex items-center gap-3 pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
-                        <div class="w-8 h-8 rounded-[10px] bg-[#25D366]/10 text-[#25D366] flex items-center justify-center shrink-0">
-                            <i data-lucide="send" class="w-4 h-4"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-[14px] font-bold text-black dark:text-white">Uji Kirim Pesan WhatsApp Langsung</h4>
-                            <p class="text-[11.5px] text-black/50 dark:text-white/50">Kirim pesan uji coba nyata ke nomor WhatsApp Anda untuk memverifikasi jalur gateway</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="sm:col-span-1">
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1">Nomor WhatsApp Tujuan</label>
-                            <input type="text" x-model="testPhone" placeholder="6281234567890"
-                                class="w-full h-10 px-3 bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 rounded-[10px] text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#25D366]/40">
-                        </div>
-                        <div class="sm:col-span-2">
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1">Pesan Uji Coba</label>
-                            <div class="flex items-center gap-2">
-                                <input type="text" x-model="testMsg"
-                                    class="w-full h-10 px-3 bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 rounded-[10px] text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#25D366]/40">
-                                <button type="button" @click="sendTest()" :disabled="sendingTest"
-                                    class="h-10 px-4 rounded-[10px] bg-[#25D366] hover:bg-[#20BA5A] text-white text-[12.5px] font-bold inline-flex items-center gap-1.5 shrink-0 transition cursor-pointer disabled:opacity-50">
-                                    <i data-lucide="loader-2" x-show="sendingTest" class="w-3.5 h-3.5 animate-spin"></i>
-                                    <i data-lucide="send" x-show="!sendingTest" class="w-3.5 h-3.5"></i>
-                                    <span x-text="sendingTest ? 'Mengirim...' : 'Kirim'"></span>
-                                </button>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-[10px] bg-[#25D366]/15 text-[#25D366] flex items-center justify-center shrink-0">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-[15px] font-bold text-black dark:text-white">Kirim Pesan &amp; Pengujian Gateway</h4>
+                                <p class="text-[12px] text-black/50 dark:text-white/50">Sekitar 2 menit untuk menyelesaikan tugas penyiapan dan verifikasi jalur live.</p>
                             </div>
                         </div>
+                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45">Penyiapan Produksi Akhir</span>
                     </div>
 
-                    <div x-show="testSendResult" x-transition class="p-3 rounded-[10px] text-[12px]"
-                        :class="testSendResult?.success ? 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30' : 'bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/30'">
-                        <span x-text="testSendResult?.message || (testSendResult?.success ? 'Pesan terkirim!' : 'Gagal mengirim')"></span>
+                    <!-- 2 Langkah Meta: Buat Token & Kirim Pesan -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                        <!-- Langkah 1: Buat token permanen System User -->
+                        <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2 flex flex-col justify-between">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2 text-[12px] font-bold text-black dark:text-white">
+                                    <span class="w-4.5 h-4.5 rounded-full bg-[#25D366]/15 text-[#25D366] text-[10px] font-black flex items-center justify-center">1</span>
+                                    <span>Langkah 1: Buat Token Permanen</span>
+                                </div>
+                                <p class="text-[11px] text-black/60 dark:text-white/60 leading-relaxed">
+                                    Generate token akses permanen untuk akun WhatsApp Business Anda via Pengguna Sistem (System User) agar tidak kadaluarsa dalam 24 jam.
+                                </p>
+                            </div>
+                            <a href="https://developers.facebook.com/documentation/business-messaging/whatsapp/get-started#step-5-create-a-system-user-and-generate-a-permanent-access-token"
+                                target="_blank"
+                                class="w-full h-8 px-2.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[#007AFF] text-[11px] font-semibold transition flex items-center justify-center gap-1">
+                                <span>Panduan Token System User Meta</span>
+                                <i data-lucide="external-link" class="w-3 h-3"></i>
+                            </a>
+                        </div>
+
+                        <!-- Langkah 2: Jangka Waktu Layanan 24 Jam & QR Code -->
+                        <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2 flex flex-col justify-between">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2 text-[12px] font-bold text-black dark:text-white">
+                                    <span class="w-4.5 h-4.5 rounded-full bg-[#007AFF]/15 text-[#007AFF] text-[10px] font-black flex items-center justify-center">2</span>
+                                    <span>Langkah 2: Sesi Layanan 24 Jam</span>
+                                </div>
+                                <p class="text-[11px] text-black/60 dark:text-white/60 leading-relaxed">
+                                    <strong>Perhatikan:</strong> Jangka waktu layanan pelanggan 24 jam dimulai saat menerima pesan dari pelanggan. Setelah periode ini, pesan harus dikirim via template.
+                                </p>
+                            </div>
+                            <button type="button" @click="showQrModal = !showQrModal"
+                                class="w-full h-8 px-2.5 rounded-[8px] bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+                                <span x-text="showQrModal ? 'Tutup Kode QR' : 'Pindai Kode QR WhatsApp'"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- QR Code Viewer Box (Expandable) -->
+                    <div x-show="showQrModal" x-transition class="p-4.5 rounded-[18px] bg-[#25D366]/5 border border-[#25D366]/20 flex flex-col sm:flex-row items-center gap-4">
+                        <div class="p-2 bg-white rounded-[14px] shadow-sm shrink-0 border border-black/10">
+                            <img :src="qrCodeUrl" alt="WhatsApp QR Code" class="w-32 h-32 rounded-[8px]">
+                        </div>
+                        <div class="space-y-1.5 text-center sm:text-left">
+                            <div class="flex items-center justify-center sm:justify-start gap-1.5 text-[#248A3D] dark:text-[#30D158] font-bold text-[13px]">
+                                <i data-lucide="scan" class="w-4 h-4"></i>
+                                <span>Pindai untuk Membuka Sesi 24 Jam</span>
+                            </div>
+                            <p class="text-[11.5px] text-black/70 dark:text-white/70 leading-relaxed">
+                                Pindai kode QR ini dengan kamera ponsel Anda untuk membuka WhatsApp, lalu kirim pesan pertama ke nomor bot terdaftar guna memverifikasi endpoint webhook masuk secara riil.
+                            </p>
+                            <p class="text-[11px] font-mono text-black/50 dark:text-white/50">
+                                Bot Target: <span class="font-bold text-black dark:text-white" x-text="botPhone ? '+' + botPhone : 'ID: {{ $metaWaPhoneNumberId ?? 'Belum terkonfigurasi' }}'"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Direct Test Send Form -->
+                    <div class="space-y-3 pt-1">
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div class="sm:col-span-1">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1">Negara / Kode</label>
+                                <select x-model="testCountryCode" class="w-full h-10 px-3 bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 rounded-[10px] text-[13px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#25D366]/40">
+                                    <option value="62">Indonesia (+62)</option>
+                                    <option value="1">US / Canada (+1)</option>
+                                    <option value="60">Malaysia (+60)</option>
+                                    <option value="65">Singapore (+65)</option>
+                                    <option value="61">Australia (+61)</option>
+                                </select>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1">Nomor Penerima</label>
+                                <input type="text" x-model="testPhone" placeholder="81234567890"
+                                    class="w-full h-10 px-3 bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 rounded-[10px] text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#25D366]/40">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1">Isi Pesan Uji</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" x-model="testMsg"
+                                        class="w-full h-10 px-3 bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 rounded-[10px] text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#25D366]/40">
+                                    <button type="button" @click="sendTest()" :disabled="sendingTest"
+                                        class="h-10 px-4 rounded-[10px] bg-[#25D366] hover:bg-[#20BA5A] text-white text-[12.5px] font-bold inline-flex items-center gap-1.5 shrink-0 transition cursor-pointer disabled:opacity-50">
+                                        <i data-lucide="loader-2" x-show="sendingTest" class="w-3.5 h-3.5 animate-spin"></i>
+                                        <i data-lucide="send" x-show="!sendingTest" class="w-3.5 h-3.5"></i>
+                                        <span x-text="sendingTest ? 'Mengirim...' : 'Kirim'"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="testSendResult" x-transition class="p-3.5 rounded-[12px] text-[12px]"
+                            :class="testSendResult?.success ? 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30' : 'bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/30'">
+                            <span x-text="testSendResult?.message || (testSendResult?.success ? 'Pesan berhasil terkirim ke nomor terdaftar!' : 'Gagal mengirim pesan.')"></span>
+                        </div>
                     </div>
                 </div>
             </div>

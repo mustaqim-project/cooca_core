@@ -7,10 +7,12 @@ namespace App\Http\Controllers\Web\Pos;
 use App\Domain\Pos\PosTableService;
 use App\Domain\Pos\TableQrCodeService;
 use App\Http\Controllers\Controller;
+use App\Models\CommerceReservation;
 use App\Models\Location;
 use App\Models\PosTable;
 use App\Models\PosTableSession;
 use App\Support\Context;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +28,7 @@ final class PosTableWebController extends Controller
     ) {}
 
     /**
-     * Display table layout, status grid, and active sessions.
+     * Display tables layout and status overview.
      */
     public function index(Request $request): View|JsonResponse
     {
@@ -35,6 +37,17 @@ final class PosTableWebController extends Controller
 
         $selectedLocationId = $request->query('location_id');
         $tables = $this->tableService->getTables($business, $selectedLocationId);
+
+        $todayReservations = CommerceReservation::where('business_id', $business->id)
+            ->whereDate('reservation_date', Carbon::today()->toDateString())
+            ->whereIn('status', [
+                CommerceReservation::STATUS_PENDING_CONFIRMATION,
+                CommerceReservation::STATUS_CONFIRMED,
+                CommerceReservation::STATUS_SEATED,
+            ])
+            ->with(['posTable', 'product'])
+            ->orderBy('time_slot')
+            ->get();
 
         // AJAX call from POS terminal's fetchTables()
         if ($request->wantsJson()) {
@@ -46,6 +59,9 @@ final class PosTableWebController extends Controller
                     'name'           => $t->name,
                     'capacity'       => $t->capacity,
                     'status'         => $t->status,
+                    'today_reservation' => $todayReservations->firstWhere('pos_table_id', $t->id)?->only([
+                        'id', 'reservation_code', 'customer_name', 'customer_phone', 'guest_count', 'time_slot', 'status'
+                    ]),
                     'active_session' => $t->activeSession ? [
                         'id'             => $t->activeSession->id,
                         'session_number' => $t->activeSession->session_number,
@@ -83,19 +99,20 @@ final class PosTableWebController extends Controller
         }
 
         $stats = [
-            'total_tables'    => $tables->count(),
-            'available_tables'=> $tables->where('status', PosTable::STATUS_AVAILABLE)->count(),
-            'occupied_tables' => $tables->whereIn('status', [
+            'total_tables'       => $tables->count(),
+            'available_tables'   => $tables->where('status', PosTable::STATUS_AVAILABLE)->count(),
+            'occupied_tables'    => $tables->whereIn('status', [
                 PosTable::STATUS_OCCUPIED,
                 PosTable::STATUS_ORDERING,
                 PosTable::STATUS_PREPARING,
                 PosTable::STATUS_SERVING,
                 PosTable::STATUS_WAITING_PAYMENT,
             ])->count(),
-            'total_capacity'  => $tables->sum('capacity'),
+            'total_capacity'     => $tables->sum('capacity'),
+            'today_reservations' => $todayReservations->count(),
         ];
 
-        return view('app.pos.tables', compact('business', 'locations', 'selectedLocationId', 'tables', 'stats'));
+        return view('app.pos.tables', compact('business', 'locations', 'selectedLocationId', 'tables', 'stats', 'todayReservations'));
     }
 
     /**

@@ -119,15 +119,25 @@
                                     placeholder="v21.0"
                                     class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#1877F2]/50 transition">
                             </div>
+
+                            <!-- Graph API Base URL -->
+                            <div class="sm:col-span-2">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    Meta Graph API Base URL
+                                </label>
+                                <input type="url" name="social_media_graph_url" value="{{ old('social_media_graph_url', $metaSocialGraphUrl ?? 'https://graph.facebook.com') }}"
+                                    placeholder="https://graph.facebook.com"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#1877F2]/50 transition">
+                            </div>
                         </div>
 
                         <!-- Readonly Callback Webhook Box -->
                         <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
                             <div class="space-y-0.5">
                                 <span class="text-[11px] font-semibold text-black/50 dark:text-white/50">Meta Webhook Callback URL:</span>
-                                <div class="font-mono text-[12px] text-[#1877F2] select-all break-all">{{ $metaSocialWebhookUrl ?? url('/api/v1/social-media/meta/webhook') }}</div>
+                                <div class="font-mono text-[12px] text-[#1877F2] select-all break-all">{{ $metaSocialWebhookUrl ?? 'https://cooca.id/api/v1/social-media/meta/webhook' }}</div>
                             </div>
-                            <button type="button" @click="copyToClipboard('{{ $metaSocialWebhookUrl ?? url('/api/v1/social-media/meta/webhook') }}', 'webhook')"
+                            <button type="button" @click="copyToClipboard('{{ $metaSocialWebhookUrl ?? 'https://cooca.id/api/v1/social-media/meta/webhook' }}', 'webhook')"
                                 class="h-8 px-3 rounded-[9px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-[11px] font-bold text-black dark:text-white flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer">
                                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                                 <span x-text="copiedWebhook ? 'Tersalin!' : 'Salin URL'"></span>
@@ -161,6 +171,113 @@
                                     <span>Belum Terhubung</span>
                                 </span>
                             @endif
+                        </div>
+
+                        <!-- Official Meta Instagram API Guidance Banner -->
+                        <div class="p-4.5 rounded-[18px] bg-gradient-to-r from-[#E1306C]/8 via-[#8134AF]/5 to-transparent border border-[#E1306C]/20 space-y-2.5">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-[9px] bg-gradient-to-tr from-[#F58529] to-[#DD2A7B] text-white flex items-center justify-center shrink-0">
+                                    <i data-lucide="instagram" class="w-4 h-4"></i>
+                                </div>
+                                <h4 class="text-[13.5px] font-bold text-black dark:text-white">Selamat datang di Instagram API</h4>
+                            </div>
+                            <p class="text-[12px] text-black/70 dark:text-white/70 leading-relaxed">
+                                Mulailah menggunakan API Instagram untuk membuat, menerbitkan, dan mengelola konten. Anda juga bisa berinteraksi dengan pengguna dengan mengirim dan menerima pesan, serta memoderasi komentar.
+                                <a href="https://developers.facebook.com/docs/instagram-platform/" target="_blank" class="text-[#007AFF] font-medium hover:underline inline-flex items-center gap-0.5">
+                                    <span>Pelajari selengkapnya</span>
+                                    <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                </a>
+                            </p>
+                            <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] text-[11.5px] text-black/60 dark:text-white/60 flex flex-wrap items-center gap-x-2 gap-y-1">
+                                <span>Jika Anda ingin bisa melacak tagar dan insight, beralihlah ke:</span>
+                                <a href="https://developers.facebook.com/apps/1454871749894754/instagram-business/API-Setup/?business_id=2409028599628721#" target="_blank"
+                                    class="text-[#E1306C] font-semibold hover:underline inline-flex items-center gap-1">
+                                    <span>API setup with Facebook login</span>
+                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 2-Step Production Walkthrough Cards (Meta Developer Exact Flow) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            <!-- Langkah 1: Buat Token Akses & Role Penguji -->
+                            <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2.5 flex flex-col justify-between">
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2 text-[12.5px] font-bold text-black dark:text-white">
+                                            <span class="w-5 h-5 rounded-full bg-[#E1306C]/15 text-[#E1306C] text-[11px] font-black flex items-center justify-center">1</span>
+                                            <span>Buat Token Akses</span>
+                                        </div>
+                                        <a href="https://developers.facebook.com/apps/1454871749894754/roles/roles/" target="_blank"
+                                            class="text-[11px] font-semibold text-[#007AFF] hover:underline inline-flex items-center gap-0.5">
+                                            <span>Tab Peran</span>
+                                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                        </a>
+                                    </div>
+                                    <p class="text-[11.5px] text-black/60 dark:text-white/60 leading-relaxed">
+                                        Tambahkan akun Instagram untuk membuat token akses dan menyiapkan langganan webhook. Pastikan menetapkan peran <strong>Penguji Instagram</strong> pada tab <a href="https://developers.facebook.com/apps/1454871749894754/roles/roles/" target="_blank" class="text-[#007AFF] underline font-medium">Peran</a>.
+                                    </p>
+                                </div>
+                                <div class="space-y-1.5 pt-1">
+                                    <div class="p-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11.5px]">
+                                        <span class="text-black/50 dark:text-white/50">Akun:</span>
+                                        <span class="font-mono font-bold text-[#E1306C]">&#64;cooca.indonesia</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11.5px]">
+                                        <span class="text-black/50 dark:text-white/50">ID Akun:</span>
+                                        <a href="https://developers.facebook.com/apps/1454871749894754/instagram-business/API-Setup/?business_id=2409028599628721#" target="_blank" class="font-mono font-bold text-[#007AFF] hover:underline flex items-center gap-1">
+                                            <span>17841439846162016</span>
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                        </a>
+                                    </div>
+                                    <div class="p-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11.5px]">
+                                        <span class="text-black/50 dark:text-white/50">Langganan Webhook:</span>
+                                        <span class="font-bold text-[#34C759] flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                            <span>Aktif</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Langkah 2: Konfigurasi Webhook & mTLS -->
+                            <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2.5 flex flex-col justify-between">
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2 text-[12.5px] font-bold text-black dark:text-white">
+                                            <span class="w-5 h-5 rounded-full bg-[#1877F2]/15 text-[#1877F2] text-[11px] font-black flex items-center justify-center">2</span>
+                                            <span>Konfigurasi Webhook</span>
+                                        </div>
+                                        <a href="https://developers.facebook.com/docs/instagram/platform/instagram-api/webhooks/" target="_blank"
+                                            class="text-[11px] font-semibold text-[#007AFF] hover:underline inline-flex items-center gap-0.5">
+                                            <span>Dokumentasi</span>
+                                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                        </a>
+                                    </div>
+                                    <p class="text-[11.5px] text-black/60 dark:text-white/60 leading-relaxed">
+                                        Konfigurasikan URL webhook khusus endpoint. Untuk menerima data real-time, <strong>mode aplikasi harus diatur ke &ldquo;Aktif&rdquo;</strong> di portal Meta Developer.
+                                    </p>
+                                </div>
+                                <div class="space-y-1.5 pt-1">
+                                    <div class="p-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11.5px]">
+                                        <span class="text-black/50 dark:text-white/50">mTLS Sertifikat:</span>
+                                        <a href="https://developers.facebook.com/docs/graph-api/webhooks/getting-started/#mtls-for-webhooks" target="_blank"
+                                            class="text-[#007AFF] font-medium hover:underline inline-flex items-center gap-1">
+                                            <span>Pelajari mTLS</span>
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                        </a>
+                                    </div>
+                                    <div class="p-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11.5px]">
+                                        <span class="text-black/50 dark:text-white/50">Verify Token:</span>
+                                        <span class="font-mono text-[11px] text-black/80 dark:text-white/80 select-all">{{ $metaSocialWebhookToken ?? 'cooca_meta_social_webhook_token' }}</span>
+                                    </div>
+                                    <a href="https://developers.facebook.com/apps/1454871749894754/instagram-business/API-Setup/?business_id=2409028599628721#" target="_blank"
+                                        class="w-full h-8 px-3 rounded-[8px] bg-[#E1306C]/10 hover:bg-[#E1306C]/20 text-[#E1306C] text-[11.5px] font-bold transition flex items-center justify-center gap-1">
+                                        <span>Buka API Setup Instagram di Meta</span>
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Connected Account Snapshot Pill -->
@@ -198,9 +315,12 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Nama Aplikasi Instagram -->
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
-                                    Nama Aplikasi Instagram
-                                </label>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
+                                        Nama Aplikasi Instagram
+                                    </label>
+                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40">Cooca-IG</span>
+                                </div>
                                 <input type="text" name="instagram_app_name" value="{{ old('instagram_app_name', $instagramAppName ?? 'Cooca-IG') }}"
                                     placeholder="Cooca-IG"
                                     class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#E1306C]/50 transition">
@@ -208,9 +328,15 @@
 
                             <!-- ID Aplikasi Instagram -->
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
-                                    ID Aplikasi Instagram
-                                </label>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
+                                        ID Aplikasi Instagram
+                                    </label>
+                                    <a href="https://developers.facebook.com/apps/1454871749894754/instagram-business/API-Setup/?business_id=2409028599628721#" target="_blank" class="text-[11px] text-[#007AFF] hover:underline font-mono inline-flex items-center gap-0.5">
+                                        <span>1813131243044390</span>
+                                        <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                    </a>
+                                </div>
                                 <input type="text" name="instagram_app_id" value="{{ old('instagram_app_id', $instagramAppId ?? '1813131243044390') }}"
                                     placeholder="1813131243044390"
                                     class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#E1306C]/50 transition">
@@ -335,15 +461,35 @@
                                     placeholder="••••••••••••••••••••••••"
                                     class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-black/40 dark:focus:ring-white/40 transition">
                             </div>
+
+                            <!-- TikTok API Base URL -->
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    TikTok API Base URL
+                                </label>
+                                <input type="url" name="tiktok_api_url" value="{{ old('tiktok_api_url', $tiktokApiUrl ?? 'https://open.tiktokapis.com/v2/') }}"
+                                    placeholder="https://open.tiktokapis.com/v2/"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-black/40 dark:focus:ring-white/40 transition">
+                            </div>
+
+                            <!-- TikTok Auth URL -->
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    TikTok Auth Authorize URL
+                                </label>
+                                <input type="url" name="tiktok_auth_url" value="{{ old('tiktok_auth_url', $tiktokAuthUrl ?? 'https://www.tiktok.com/v2/auth/authorize/') }}"
+                                    placeholder="https://www.tiktok.com/v2/auth/authorize/"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-black/40 dark:focus:ring-white/40 transition">
+                            </div>
                         </div>
 
                         <!-- Readonly TikTok OAuth Redirect URI Box -->
                         <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
                             <div class="space-y-0.5">
                                 <span class="text-[11px] font-semibold text-black/50 dark:text-white/50">TikTok Redirect URI Callback:</span>
-                                <div class="font-mono text-[12px] text-black dark:text-white select-all break-all">{{ $tiktokRedirectUri ?? route('social-media.tiktok.callback') }}</div>
+                                <div class="font-mono text-[12px] text-black dark:text-white select-all break-all">{{ $tiktokRedirectUri ?? 'https://cooca.id/social-media/tiktok/callback' }}</div>
                             </div>
-                            <button type="button" @click="copyToClipboard('{{ $tiktokRedirectUri ?? route('social-media.tiktok.callback') }}', 'tiktok')"
+                            <button type="button" @click="copyToClipboard('{{ $tiktokRedirectUri ?? 'https://cooca.id/social-media/tiktok/callback' }}', 'tiktok')"
                                 class="h-8 px-3 rounded-[9px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-[11px] font-bold text-black dark:text-white flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer">
                                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                                 <span x-text="copiedTikTokRedirect ? 'Tersalin!' : 'Salin URI'"></span>

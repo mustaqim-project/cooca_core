@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AdminPasswordResetController;
 use App\Http\Controllers\Admin\AdminPaymentAccountController;
 use App\Http\Controllers\Admin\AdminPostController;
 use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\Admin\AdminSettlementController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminSmtpController;
 use App\Http\Controllers\Admin\AdminSocialMediaController;
@@ -84,6 +85,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('/settings/test-tripay', [AdminSettingController::class, 'testTripayConfig'])->name('settings.test-tripay');
         Route::post('/settings/test-whatsapp', [AdminSettingController::class, 'testWhatsAppConfig'])->name('settings.test-whatsapp');
         Route::post('/settings/test-instagram', [AdminSettingController::class, 'testInstagramConfig'])->name('settings.test-instagram');
+        Route::post('/settings/test-biteship', [AdminSettingController::class, 'testBiteshipConfig'])->name('settings.test-biteship');
         Route::get('/smtp', [AdminSmtpController::class, 'index'])->name('smtp.index');
         Route::post('/smtp', [AdminSmtpController::class, 'update'])->name('smtp.update');
         Route::post('/smtp/test', [AdminSmtpController::class, 'test'])->name('smtp.test');
@@ -99,6 +101,14 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/subscriptions/{payment}', [AdminSubscriptionController::class, 'show'])->name('subscriptions.show');
         Route::post('/subscriptions/{payment}/approve', [AdminSubscriptionController::class, 'approve'])->name('subscriptions.approve');
         Route::post('/subscriptions/{payment}/reject', [AdminSubscriptionController::class, 'reject'])->name('subscriptions.reject');
+
+        // Merchant Gateway Settlement & Payout Hub (Bukti Transfer Upload & Verifikasi)
+        Route::prefix('settlements')->name('settlements.')->group(function (): void {
+            Route::get('/', [AdminSettlementController::class, 'index'])->name('index');
+            Route::get('/{settlement}', [AdminSettlementController::class, 'show'])->name('show');
+            Route::post('/{settlement}/approve', [AdminSettlementController::class, 'approve'])->name('approve');
+            Route::post('/{settlement}/reject', [AdminSettlementController::class, 'reject'])->name('reject');
+        });
 
         // Feedback: Bug Reports & Feature Requests
         Route::get('/feedback/bugs', [AdminFeedbackController::class, 'bugs'])->name('feedback.bugs.index');
@@ -117,7 +127,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::delete('/payment-accounts/{paymentAccount}', [AdminPaymentAccountController::class, 'destroy'])->name('payment-accounts.destroy');
         Route::post('/payment-accounts/{paymentAccount}/toggle-status', [AdminPaymentAccountController::class, 'toggleStatus'])->name('payment-accounts.toggle-status');
 
-        // CMS Artikel & Edukasi
+        // CMS Artikel, Kategori, & Cluster
         Route::get('/posts', [AdminPostController::class, 'index'])->name('posts.index');
         Route::get('/posts/create', [AdminPostController::class, 'create'])->name('posts.create');
         Route::post('/posts', [AdminPostController::class, 'store'])->name('posts.store');
@@ -125,6 +135,16 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/posts/{post}', [AdminPostController::class, 'update'])->name('posts.update');
         Route::delete('/posts/{post}', [AdminPostController::class, 'destroy'])->name('posts.destroy');
         Route::post('/posts/{post}/toggle', [AdminPostController::class, 'toggleStatus'])->name('posts.toggle-status');
+
+        // Post Categories CRUD
+        Route::post('/posts/categories', [AdminPostController::class, 'storeCategory'])->name('posts.categories.store');
+        Route::put('/posts/categories/{category}', [AdminPostController::class, 'updateCategory'])->name('posts.categories.update');
+        Route::delete('/posts/categories/{category}', [AdminPostController::class, 'destroyCategory'])->name('posts.categories.destroy');
+
+        // Post Clusters CRUD
+        Route::post('/posts/clusters', [AdminPostController::class, 'storeCluster'])->name('posts.clusters.store');
+        Route::put('/posts/clusters/{cluster}', [AdminPostController::class, 'updateCluster'])->name('posts.clusters.update');
+        Route::delete('/posts/clusters/{cluster}', [AdminPostController::class, 'destroyCluster'])->name('posts.clusters.destroy');
 
         // CMS Leads
         Route::get('/leads', [AdminLeadController::class, 'index'])->name('leads.index');

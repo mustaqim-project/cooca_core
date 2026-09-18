@@ -437,7 +437,7 @@ class MetaWhatsAppCloudApiTest extends TestCase
             invoiceNumber: 'INV-2026-0042',
             dueDate: now()->addDays(7),
             totalAmount: 2500000,
-            invoicePdfUrl: 'https://umkm.cooca.id/docs/inv-0042.pdf',
+            invoicePdfUrl: 'https://cooca.id/docs/inv-0042.pdf',
             invoiceUrlSuffix: 'inv-0042'
         );
 

@@ -246,11 +246,22 @@
                         <span class="tabular-nums font-semibold">Rp {{ number_format($order->subtotal, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex items-center justify-between text-black/60 dark:text-white/60">
-                        <span>Ongkos Kirim ({{ $order->fulfillment_type === 'pickup' ? 'Ambil di Toko' : 'Kurir Toko' }})</span>
+                        <span>Ongkos Kirim ({{ $order->shipping_courier_name ?: ($order->fulfillment_type === 'pickup' ? 'Ambil di Toko' : 'Kurir Toko') }})</span>
                         <span class="tabular-nums font-semibold">
                             {{ $order->shipping_cost > 0 ? 'Rp ' . number_format($order->shipping_cost, 0, ',', '.') : 'Gratis' }}
                         </span>
                     </div>
+                    @if((float) ($order->biteship_service_fee ?? 0) > 0)
+                        <div class="flex items-center justify-between text-black/60 dark:text-white/60">
+                            <span class="flex items-center gap-1.5">
+                                <span>Biaya Layanan Pengiriman</span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#007AFF]/10 text-[#007AFF]">Biteship</span>
+                            </span>
+                            <span class="tabular-nums font-semibold text-black dark:text-white">
+                                Rp {{ number_format((float) $order->biteship_service_fee, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    @endif
                     @if($order->discount_amount > 0)
                         <div class="flex items-center justify-between text-[#34C759]">
                             <span>Diskon / Potongan</span>

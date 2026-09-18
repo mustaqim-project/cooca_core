@@ -21,11 +21,31 @@ final class AdminSettingController extends Controller
      */
     public static function getUnifiedSettingData(): array
     {
+        // Canonical Production Base URL (Defaults strictly to https://cooca.id, never localhost/127.0.0.1 or umkm.cooca.id)
+        $rawAppUrl = (string) (SystemSetting::get('app_url') ?: config('app.url', 'https://cooca.id'));
+        $appUrl = rtrim($rawAppUrl, '/');
+        if (empty($appUrl) || str_contains($appUrl, '127.0.0.1') || str_contains($appUrl, 'localhost') || str_contains($appUrl, 'umkm.cooca.id')) {
+            $appUrl = 'https://cooca.id';
+        }
+
+        $canonicalUrl = static fn (string $path): string => $appUrl . '/' . ltrim($path, '/');
+
+        $googleRedirectUri = (string) (SystemSetting::get('google_redirect_uri') ?: '');
+        if (empty($googleRedirectUri) || str_contains($googleRedirectUri, 'umkm.cooca.id') || str_contains($googleRedirectUri, '127.0.0.1') || str_contains($googleRedirectUri, 'localhost')) {
+            $googleRedirectUri = $canonicalUrl('/auth/google/callback');
+        }
+
+        $googleCustomerRedirectUri = (string) (SystemSetting::get('google_customer_redirect_uri') ?: '');
+        if (empty($googleCustomerRedirectUri) || str_contains($googleCustomerRedirectUri, 'umkm.cooca.id') || str_contains($googleCustomerRedirectUri, '127.0.0.1') || str_contains($googleCustomerRedirectUri, 'localhost')) {
+            $googleCustomerRedirectUri = $canonicalUrl('/customer/auth/google/callback');
+        }
+
         return [
+            'appUrl' => $appUrl,
             'googleClientId' => SystemSetting::get('google_client_id') ?? config('services.google.client_id', ''),
             'googleClientSecret' => SystemSetting::get('google_client_secret') ?? config('services.google.client_secret', ''),
-            'googleRedirectUri' => SystemSetting::get('google_redirect_uri') ?? config('services.google.redirect', url('/auth/google/callback')),
-            'googleCustomerRedirectUri' => SystemSetting::get('google_customer_redirect_uri') ?? config('services.google.customer_redirect', url('/customer/auth/google/callback')),
+            'googleRedirectUri' => $googleRedirectUri,
+            'googleCustomerRedirectUri' => $googleCustomerRedirectUri,
             'allowGoogleLogin' => SystemSetting::get('allow_google_login', '1'),
             'allowCustomerGoogleLogin' => SystemSetting::get('allow_customer_google_login', '1'),
             'appName' => SystemSetting::get('app_name', config('app.name', 'Universal HPP Calculator')),
@@ -57,11 +77,11 @@ final class AdminSettingController extends Controller
             'metaSocialWebhookToken' => SystemSetting::get('social_media_webhook_verify_token', 'cooca_meta_social_webhook_token'),
             'metaSocialGraphVersion' => SystemSetting::get('social_media_graph_version', 'v21.0'),
             'metaSocialGraphUrl'     => SystemSetting::get('social_media_graph_url', 'https://graph.facebook.com'),
-            'metaSocialWebhookUrl'   => url('/api/v1/social-media/meta/webhook'),
+            'metaSocialWebhookUrl'   => (string) (SystemSetting::get('social_media_webhook_url') ?: $canonicalUrl('/api/v1/social-media/meta/webhook')),
 
             'tiktokClientKey'        => SystemSetting::get('tiktok_client_key', ''),
             'tiktokClientSecret'     => SystemSetting::get('tiktok_client_secret', ''),
-            'tiktokRedirectUri'      => route('social-media.tiktok.callback'),
+            'tiktokRedirectUri'      => (string) (SystemSetting::get('tiktok_redirect_uri') ?: $canonicalUrl('/social-media/tiktok/callback')),
             'tiktokApiUrl'           => SystemSetting::get('tiktok_api_url', 'https://open.tiktokapis.com/v2/'),
             'tiktokAuthUrl'          => SystemSetting::get('tiktok_auth_url', 'https://www.tiktok.com/v2/auth/authorize/'),
 
@@ -89,7 +109,7 @@ final class AdminSettingController extends Controller
             'tripayIsProduction'     => SystemSetting::get('tripay_is_production') !== null ? filter_var(SystemSetting::get('tripay_is_production'), FILTER_VALIDATE_BOOLEAN) : (bool) config('services.tripay.is_production', false),
             'tripaySandboxUrl'       => SystemSetting::get('tripay_sandbox_url') ?? config('services.tripay.sandbox_url', 'https://tripay.co.id/api-sandbox/'),
             'tripayProdUrl'          => SystemSetting::get('tripay_prod_url') ?? config('services.tripay.prod_url', 'https://tripay.co.id/api/'),
-            'tripayCallbackUrl'      => url('/api/v1/payment/tripay/callback'),
+            'tripayCallbackUrl'      => (string) (SystemSetting::get('tripay_callback_url') ?: $canonicalUrl('/api/v1/payment/tripay/callback')),
 
             // Meta WhatsApp Cloud API Configuration (Official Tech Provider)
             'metaWaAppId'            => SystemSetting::get('meta_wa_app_id') ?? config('services.meta_whatsapp.app_id', ''),
@@ -107,7 +127,15 @@ final class AdminSettingController extends Controller
             'waBotStatus'            => app(\App\Domain\WhatsApp\AdminWhatsAppService::class)->getStatus(),
             'metaWaGraphVersion'     => SystemSetting::get('meta_wa_graph_version') ?? config('services.meta_whatsapp.version', 'v25.0'),
             'metaWaGraphUrl'         => SystemSetting::get('meta_wa_graph_url') ?? config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com'),
-            'metaWaWebhookUrl'       => url('/api/v1/whatsapp/webhook'),
+            'metaWaWebhookUrl'       => (string) (SystemSetting::get('meta_wa_webhook_url') ?: $canonicalUrl('/api/v1/wa/meta/webhook')),
+
+            // Biteship Logistics Aggregator Configuration
+            'biteshipApiKey'         => SystemSetting::get('biteship_api_key') ?? config('services.biteship.api_key', ''),
+            'biteshipHasApiKey'      => ! empty(SystemSetting::get('biteship_api_key') ?? config('services.biteship.api_key', '')),
+            'biteshipBaseUrl'        => SystemSetting::get('biteship_base_url') ?? config('services.biteship.base_url', 'https://api.biteship.com'),
+            'biteshipEnvironment'    => SystemSetting::get('biteship_environment') ?? config('services.biteship.environment', 'production'),
+            'biteshipServiceFee'     => (string) (SystemSetting::get('biteship_service_fee') ?? config('services.biteship.service_fee', '1000')),
+            'biteshipWebhookUrl'     => (string) (SystemSetting::get('biteship_webhook_url') ?: $canonicalUrl('/api/v1/shipping/biteship/webhook')),
         ];
     }
 
@@ -129,6 +157,7 @@ final class AdminSettingController extends Controller
     {
         $validated = $request->validate([
             'app_name' => ['nullable', 'string', 'max:255'],
+            'app_url'  => ['nullable', 'url', 'max:255'],
             'google_client_id' => ['nullable', 'string', 'max:500'],
             'google_client_secret' => ['nullable', 'string', 'max:500'],
             'google_redirect_uri' => ['nullable', 'string', 'max:500'],
@@ -186,10 +215,26 @@ final class AdminSettingController extends Controller
             'instagram_account_id'              => ['nullable', 'string', 'max:100'],
             'instagram_username'                => ['nullable', 'string', 'max:100'],
             'instagram_access_token'            => ['nullable', 'string', 'max:1000'],
+
+            // Biteship Logistics Aggregator API Settings
+            'biteship_api_key'                  => ['nullable', 'string', 'max:500'],
+            'biteship_base_url'                 => ['nullable', 'url', 'max:255'],
+            'biteship_environment'              => ['nullable', 'string', 'in:sandbox,production'],
+            'biteship_service_fee'              => ['nullable', 'numeric', 'min:0'],
         ]);
 
         if (! empty($validated['app_name'])) {
             SystemSetting::set('app_name', $validated['app_name'], 'general');
+        }
+
+        if (array_key_exists('app_url', $validated) && ! empty($validated['app_url'])) {
+            $normalizedAppUrl = rtrim($validated['app_url'], '/');
+            if (str_contains($normalizedAppUrl, '127.0.0.1') || str_contains($normalizedAppUrl, 'localhost') || str_contains($normalizedAppUrl, 'umkm.cooca.id')) {
+                $normalizedAppUrl = 'https://cooca.id';
+            }
+            SystemSetting::set('app_url', $normalizedAppUrl, 'general');
+        } elseif (! SystemSetting::get('app_url')) {
+            SystemSetting::set('app_url', 'https://cooca.id', 'general');
         }
 
         if (array_key_exists('google_client_id', $validated)) {
@@ -201,11 +246,19 @@ final class AdminSettingController extends Controller
         }
 
         if (array_key_exists('google_redirect_uri', $validated)) {
-            SystemSetting::set('google_redirect_uri', $validated['google_redirect_uri'] ?? url('/auth/google/callback'), 'google_api');
+            $redirectUri = trim((string) ($validated['google_redirect_uri'] ?? ''));
+            if (empty($redirectUri) || str_contains($redirectUri, '127.0.0.1') || str_contains($redirectUri, 'localhost') || str_contains($redirectUri, 'umkm.cooca.id')) {
+                $redirectUri = 'https://cooca.id/auth/google/callback';
+            }
+            SystemSetting::set('google_redirect_uri', $redirectUri, 'google_api');
         }
 
         if (array_key_exists('google_customer_redirect_uri', $validated)) {
-            SystemSetting::set('google_customer_redirect_uri', $validated['google_customer_redirect_uri'] ?? url('/customer/auth/google/callback'), 'google_api');
+            $customerRedirectUri = trim((string) ($validated['google_customer_redirect_uri'] ?? ''));
+            if (empty($customerRedirectUri) || str_contains($customerRedirectUri, '127.0.0.1') || str_contains($customerRedirectUri, 'localhost') || str_contains($customerRedirectUri, 'umkm.cooca.id')) {
+                $customerRedirectUri = 'https://cooca.id/customer/auth/google/callback';
+            }
+            SystemSetting::set('google_customer_redirect_uri', $customerRedirectUri, 'google_api');
         }
 
         if ($request->has('allow_google_login') || $request->has('google_client_id')) {
@@ -322,6 +375,20 @@ final class AdminSettingController extends Controller
         }
         if (! empty($validated['instagram_access_token'])) {
             SystemSetting::set('instagram_access_token', trim((string) $validated['instagram_access_token']), 'social_media', true);
+        }
+
+        // Save Biteship Logistics Settings
+        if (array_key_exists('biteship_api_key', $validated)) {
+            SystemSetting::set('biteship_api_key', trim((string) $validated['biteship_api_key']), 'shipping');
+        }
+        if (array_key_exists('biteship_base_url', $validated)) {
+            SystemSetting::set('biteship_base_url', trim((string) $validated['biteship_base_url']), 'shipping');
+        }
+        if (array_key_exists('biteship_environment', $validated)) {
+            SystemSetting::set('biteship_environment', trim((string) $validated['biteship_environment']), 'shipping');
+        }
+        if (array_key_exists('biteship_service_fee', $validated) && $validated['biteship_service_fee'] !== null) {
+            SystemSetting::set('biteship_service_fee', (string) $validated['biteship_service_fee'], 'shipping');
         }
 
         // Save Subscription Pricing if provided
@@ -600,5 +667,28 @@ final class AdminSettingController extends Controller
             'success' => false,
             'message' => 'Validasi Meta WhatsApp gagal: ' . ($result['error'] ?? 'Autentikasi ditolak'),
         ]);
+    }
+
+    /**
+     * Test connection to Biteship Logistics API.
+     */
+    public function testBiteshipConfig(): JsonResponse
+    {
+        /** @var \App\Domain\Shipping\BiteshipService $biteshipService */
+        $biteshipService = app(\App\Domain\Shipping\BiteshipService::class);
+        $result = $biteshipService->testConnection();
+
+        if ($result['success'] ?? false) {
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+                'data'    => $result['data'] ?? [],
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $result['message'] ?? 'Validasi Biteship API gagal.',
+        ], 422);
     }
 }

@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-<div class="max-w-5xl space-y-6" x-data="{
+<div class="max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10 space-y-6" x-data="{
     activeTab: '{{ $defaultTab ?? request('tab', 'system') }}',
     showSecret: false,
     showPassword: false,
@@ -17,12 +17,14 @@
     showTripayPrivateKey: false,
     showWaToken: false,
     showWaSecret: false,
+    showBiteshipKey: false,
     copiedOwner: false,
     copiedCustomer: false,
     copiedWebhook: false,
     copiedTikTokRedirect: false,
     copiedTripayCallback: false,
     copiedWaWebhook: false,
+    copiedBiteshipWebhook: false,
     switchTab(tab) {
         this.activeTab = tab;
         const url = new URL(window.location);
@@ -49,6 +51,9 @@
             } else if (type === 'wa') {
                 this.copiedWaWebhook = true;
                 setTimeout(() => this.copiedWaWebhook = false, 2000);
+            } else if (type === 'biteship') {
+                this.copiedBiteshipWebhook = true;
+                setTimeout(() => this.copiedBiteshipWebhook = false, 2000);
             }
         });
     },
@@ -172,6 +177,36 @@
             }
         });
     },
+    testingBiteship: false,
+    testBiteshipResult: null,
+    testBiteshipConfig() {
+        this.testingBiteship = true;
+        this.testBiteshipResult = null;
+        fetch('{{ route('admin.settings.test-biteship') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '{{ csrf_token() }}'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            this.testingBiteship = false;
+            this.testBiteshipResult = data;
+            if (data.success && window.AppAlert) {
+                AppAlert.success(data.message);
+            } else if (!data.success && window.AppAlert) {
+                AppAlert.error(data.message);
+            }
+        })
+        .catch(e => {
+            this.testingBiteship = false;
+            if (window.AppAlert) {
+                AppAlert.error('Gagal menguji koneksi Biteship: ' + (e.message || e));
+            }
+        });
+    },
     applyPreset(preset) {
         if (preset === 'gmail') {
             const m = document.querySelector('[name=mail_mailer]'); if (m) m.value = 'smtp';
@@ -268,7 +303,25 @@
                 @endif
             </button>
 
-            <!-- Tab 5: Server SMTP Email -->
+            <!-- Tab 5: Ekspedisi & Logistik (Biteship) -->
+            <button type="button" @click="switchTab('shipping')"
+                :class="activeTab === 'shipping'
+                    ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold border border-black/[0.06] dark:border-white/[0.08]'
+                    : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-semibold hover:bg-black/[0.03] dark:hover:bg-white/[0.04]'"
+                class="h-11 sm:h-10 px-4 sm:px-4 rounded-[14px] text-[13px] sm:text-[13.5px] transition-all flex items-center gap-2 shrink-0 cursor-pointer">
+                <i data-lucide="truck" class="w-4 h-4 shrink-0" :class="activeTab === 'shipping' ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40'"></i>
+                <span>Logistik (Biteship)</span>
+                @if(!empty($biteshipApiKey))
+                    <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-md {{ ($biteshipEnvironment ?? 'production') === 'production' ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A]' }}">
+                        {{ strtoupper($biteshipEnvironment ?? 'PROD') }}
+                    </span>
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759] shrink-0" title="Biteship Terkonfigurasi"></i>
+                @else
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-[#FF9500] shrink-0" title="Belum Dikonfigurasi"></i>
+                @endif
+            </button>
+
+            <!-- Tab 6: Server SMTP Email -->
             <button type="button" @click="switchTab('smtp')"
                 :class="activeTab === 'smtp'
                     ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold border border-black/[0.06] dark:border-white/[0.08]'
@@ -298,8 +351,9 @@
     @include('admin.settings.tabs.tab-system')
     @include('admin.settings.tabs.tab-payment')
     @include('admin.settings.tabs.tab-whatsapp')
-    @include('admin.settings.tabs.tab-smtp')
     @include('admin.settings.tabs.tab-social')
+    @include('admin.settings.tabs.tab-shipping')
+    @include('admin.settings.tabs.tab-smtp')
 
 </div>
 @endsection

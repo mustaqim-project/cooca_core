@@ -222,12 +222,25 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-[13px] font-semibold text-black/75 dark:text-white/75 mb-1.5">
-                        Nama Aplikasi (Platform Title) <span class="text-[#FF3B30] dark:text-[#FF453A]">*</span>
-                    </label>
-                    <input type="text" name="app_name" value="{{ old('app_name', $appName) }}" required
-                        class="w-full h-11 px-4 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[13px] font-semibold text-black/75 dark:text-white/75 mb-1.5">
+                            Nama Aplikasi (Platform Title) <span class="text-[#FF3B30] dark:text-[#FF453A]">*</span>
+                        </label>
+                        <input type="text" name="app_name" value="{{ old('app_name', $appName) }}" required
+                            class="w-full h-11 px-4 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Nama platform bisnis yang tampil pada judul halaman dan portal.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-[13px] font-semibold text-black/75 dark:text-white/75 mb-1.5">
+                            URL Dasar Platform Produksi (Canonical URL) <span class="text-[#FF3B30] dark:text-[#FF453A]">*</span>
+                        </label>
+                        <input type="url" name="app_url" value="{{ old('app_url', $appUrl ?? 'https://cooca.id') }}" required
+                            placeholder="https://cooca.id"
+                            class="w-full h-11 px-4 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Domain utama produksi (https://cooca.id). Seluruh webhook &amp; callback diturunkan dari URL ini.</p>
+                    </div>
                 </div>
             </div>
 

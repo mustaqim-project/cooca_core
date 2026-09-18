@@ -31,9 +31,9 @@ final class PaymentSettlementService
      * @param array<string, mixed> $data
      * @param array<int, array{payment_type: string, payment_id: string, amount: float|int}> $allocations
      */
-    public function reconcile(Business $business, array $data, array $allocations, ?string $userId = null): PaymentSettlement
+    public function reconcile(Business $business, array $data, array $allocations, ?string $userId = null, bool $immediateComplete = true): PaymentSettlement
     {
-        return DB::transaction(function () use ($business, $data, $allocations, $userId): PaymentSettlement {
+        return DB::transaction(function () use ($business, $data, $allocations, $userId, $immediateComplete): PaymentSettlement {
             $settlementNumber = (string) ($data['settlement_number'] ?? '');
             if ($settlementNumber === '') throw new InvalidArgumentException('Nomor settlement wajib diisi.');
 
@@ -87,16 +87,66 @@ final class PaymentSettlementService
                 'destination_bank' => $data['destination_bank'] ?? null,
                 'status' => PaymentSettlement::STATUS_PENDING,
                 'notes' => $data['notes'] ?? null,
+                'reconciled_by' => $userId,
             ]);
 
             foreach ($resolved as [$type, $paymentId, $amount]) {
                 PaymentSettlementAllocation::create(['business_id' => $business->id, 'payment_settlement_id' => $settlement->id, 'payment_type' => $type, 'payment_id' => $paymentId, 'amount' => $amount]);
             }
-            $method = strtolower((string) ($settlement->payment_channel ?? '')) === 'qris' ? 'qris' : 'bank_transfer';
-            $this->cashLedger->recordInflow($business, $net, 'settlement', $settlement->id, "Settlement {$settlement->settlement_number}", $method, $userId);
-            $this->recordJournal($business, $settlement, $userId);
-            $settlement->update(['status' => PaymentSettlement::STATUS_COMPLETED, 'reconciled_by' => $userId]);
+
+            if ($immediateComplete) {
+                $method = strtolower((string) ($settlement->payment_channel ?? '')) === 'qris' ? 'qris' : 'bank_transfer';
+                $this->cashLedger->recordInflow($business, $net, 'settlement', $settlement->id, "Settlement {$settlement->settlement_number}", $method, $userId);
+                $this->recordJournal($business, $settlement, $userId);
+                $settlement->update(['status' => PaymentSettlement::STATUS_COMPLETED, 'reconciled_by' => $userId]);
+            }
+
             return $settlement->fresh('allocations');
+        });
+    }
+
+    /**
+     * Approve and complete a payout by Admin COOCA, recording payment proof image, ledger inflow, and auto-journal.
+     */
+    public function completePayout(PaymentSettlement $settlement, ?string $adminId = null, ?string $proofImagePath = null, ?string $adminNotes = null): PaymentSettlement
+    {
+        return DB::transaction(function () use ($settlement, $adminId, $proofImagePath, $adminNotes): PaymentSettlement {
+            $business = $settlement->business ?? Business::findOrFail($settlement->business_id);
+
+            // Record cash inflow & double-entry journal if not already recorded
+            $method = strtolower((string) ($settlement->payment_channel ?? '')) === 'qris' ? 'qris' : 'bank_transfer';
+            $merchantUserId = $settlement->reconciled_by ?: $business->users()->first()?->id;
+            $this->cashLedger->recordInflow($business, $settlement->net_amount, 'settlement', $settlement->id, "Settlement {$settlement->settlement_number}", $method, $merchantUserId);
+            $this->recordJournal($business, $settlement, $merchantUserId);
+
+            $settlement->update([
+                'status'           => PaymentSettlement::STATUS_COMPLETED,
+                'proof_image_path' => $proofImagePath ?? $settlement->proof_image_path,
+                'admin_id'         => $adminId,
+                'transferred_at'   => now(),
+                'admin_notes'      => $adminNotes ?? $settlement->admin_notes,
+            ]);
+
+            return $settlement->fresh(['allocations', 'admin', 'reconciler']);
+        });
+    }
+
+    /**
+     * Reject payout request by Admin COOCA and release allocations back to unsettled pool.
+     */
+    public function rejectPayout(PaymentSettlement $settlement, ?string $adminId = null, string $reason = ''): PaymentSettlement
+    {
+        return DB::transaction(function () use ($settlement, $adminId, $reason): PaymentSettlement {
+            // Delete allocations so transactions are unlocked for merchant re-request
+            $settlement->allocations()->delete();
+
+            $settlement->update([
+                'status'           => PaymentSettlement::STATUS_REJECTED,
+                'admin_id'         => $adminId,
+                'rejection_reason' => $reason,
+            ]);
+
+            return $settlement->fresh(['admin', 'reconciler']);
         });
     }
 

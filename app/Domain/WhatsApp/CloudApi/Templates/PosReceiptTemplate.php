@@ -20,7 +20,7 @@ use App\Models\PosOrder;
  * • Tanggal: *{{4}}*
  * • Total Bayar: *{{3}}*
  *
- * Tombol URL: "Buka Struk Digital" -> https://umkm.cooca.id/r/{{1}}
+ * Tombol URL: "Buka Struk Digital" -> https://cooca.id/r/{{1}}
  */
 class PosReceiptTemplate
 {

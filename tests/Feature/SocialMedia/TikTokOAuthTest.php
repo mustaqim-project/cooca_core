@@ -28,7 +28,7 @@ class TikTokOAuthTest extends TestCase
 
         Config::set('services.tiktok.client_key', 'mock_tiktok_client_key');
         Config::set('services.tiktok.client_secret', 'mock_tiktok_client_secret');
-        Config::set('services.tiktok.redirect_uri', 'https://umkm.cooca.id/social-media/tiktok/callback');
+        Config::set('services.tiktok.redirect_uri', 'https://cooca.id/social-media/tiktok/callback');
     }
 
     protected function tearDown(): void

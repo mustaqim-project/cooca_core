@@ -233,6 +233,7 @@
     </style>
 
     @stack('styles')
+    @stack('head')
 </head>
 
 @php
@@ -264,7 +265,7 @@
             { title: 'Database Leads', desc: 'Database prospek & kontak calon tenant', url: '{{ route('admin.leads.index') }}', icon: 'users-round', cat: 'Pemasaran' },
             { title: 'Artikel & Edukasi', desc: 'CMS blog bisnis & artikel UMKM', url: '{{ route('admin.posts.index') }}', icon: 'file-text', cat: 'Pemasaran' },
             { title: 'Template Excel', desc: 'Unduhan berkas spreadsheet master', url: '{{ route('admin.templates.index') }}', icon: 'file-spreadsheet', cat: 'Pemasaran' },
-            { title: 'Pengaturan Sistem', desc: 'Google Cloud OAuth, server SMTP & parameter platform', url: '{{ route('admin.settings.index') }}', icon: 'sliders', cat: 'Konfigurasi' },
+            { title: 'Pengaturan Platform & Sistem', desc: 'Google OAuth, TriPay Gateway, WhatsApp API, Instagram, TikTok & SMTP', url: '{{ route('admin.settings.index') }}', icon: 'sliders', cat: 'Konfigurasi' },
             { title: 'Log Error & Diagnostik', desc: 'Pemantauan runtime exception & file log', url: '{{ route('admin.error-logs.index') }}', icon: 'terminal', cat: 'Konfigurasi' },
             { title: 'Profil Administrator', desc: 'Kelola identitas & ubah kata sandi', url: '{{ route('admin.profile.index') }}', icon: 'key-round', cat: 'Konfigurasi' }
         ],
@@ -412,6 +413,23 @@
                         <span
                             class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500] text-white shadow-sm tabular-nums shrink-0 ml-2">
                             {{ $pendingSubscriptionsCount }}
+                        </span>
+                    @endif
+                </a>
+
+                @php
+                    $pendingSettlementsBadge = \App\Models\PaymentSettlement::where('status', \App\Models\PaymentSettlement::STATUS_PENDING)->count();
+                @endphp
+                <a href="{{ route('admin.settlements.index') }}"
+                    class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.settlements.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <i data-lucide="arrow-down-to-dot" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
+                        <span class="whitespace-nowrap truncate min-w-0 flex-1">Pencairan Merchant</span>
+                    </div>
+                    @if ($pendingSettlementsBadge > 0)
+                        <span
+                            class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500] text-white shadow-sm tabular-nums shrink-0 ml-2">
+                            {{ $pendingSettlementsBadge }}
                         </span>
                     @endif
                 </a>
@@ -905,8 +923,8 @@
                             <i data-lucide="sliders" class="w-4.5 h-4.5" stroke-width="1.8"></i>
                         </div>
                         <div>
-                            <div class="text-[13px] font-bold text-black dark:text-white">Pengaturan Sistem</div>
-                            <div class="text-[10px] text-black/50 dark:text-white/50">Google OAuth &amp; SMTP</div>
+                            <div class="text-[13px] font-bold text-black dark:text-white">Pengaturan Platform</div>
+                            <div class="text-[10px] text-black/50 dark:text-white/50">OAuth, TriPay, WA, Social &amp; SMTP</div>
                         </div>
                     </a>
                 </div>

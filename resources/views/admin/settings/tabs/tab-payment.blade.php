@@ -44,10 +44,10 @@
                         <i data-lucide="webhook" class="w-3.5 h-3.5"></i>
                         <span>Webhook Callback URL (Notifikasi Pembayaran Real-Time)</span>
                     </div>
-                    <code class="text-[11px] font-mono text-black/80 dark:text-white/80 select-all break-all">{{ $tripayCallbackUrl ?? url('/api/v1/payment/tripay/callback') }}</code>
+                    <code class="text-[11px] font-mono text-black/80 dark:text-white/80 select-all break-all">{{ $tripayCallbackUrl ?? 'https://cooca.id/api/v1/payment/tripay/callback' }}</code>
                     <p class="text-[11px] text-black/45 dark:text-white/45">Pasang URL ini pada menu Merchant Dashboard TriPay &gt; Pengaturan &gt; Webhook.</p>
                 </div>
-                <button type="button" @click="copyToClipboard('{{ $tripayCallbackUrl ?? url('/api/v1/payment/tripay/callback') }}', 'tripay')"
+                <button type="button" @click="copyToClipboard('{{ $tripayCallbackUrl ?? 'https://cooca.id/api/v1/payment/tripay/callback' }}', 'tripay')"
                     class="h-8 px-3 rounded-[9px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-[11px] font-bold text-black dark:text-white flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer">
                     <i data-lucide="copy" class="w-3.5 h-3.5" x-show="!copiedTripayCallback"></i>
                     <i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759]" x-show="copiedTripayCallback"></i>

@@ -67,7 +67,7 @@ final class SitemapService
         }
 
         // 3. Fallback to production URL
-        return 'https://umkm.cooca.id';
+        return 'https://cooca.id';
     }
 
     /**

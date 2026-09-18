@@ -88,11 +88,21 @@ class CommerceOrder extends Model
         'customer_phone',
         'customer_email',
         'shipping_address',
+        'destination_postal_code',
         'shipping_notes',
         'scheduled_date',
         'scheduled_time_slot',
         'subtotal',
         'shipping_cost',
+        'biteship_service_fee',
+        'shipping_courier_code',
+        'shipping_courier_service',
+        'shipping_courier_name',
+        'biteship_order_id',
+        'shipping_waybill_id',
+        'shipping_tracking_url',
+        'shipping_status',
+        'shipping_payload',
         'discount_amount',
         'total_amount',
         'reserved_until',
@@ -111,11 +121,13 @@ class CommerceOrder extends Model
             'scheduled_date' => 'date',
             'subtotal' => 'float',
             'shipping_cost' => 'float',
+            'biteship_service_fee' => 'float',
             'discount_amount' => 'float',
             'total_amount' => 'float',
             'gateway_fee' => 'float',
             'gateway_expired_at' => 'datetime',
             'gateway_payload' => 'array',
+            'shipping_payload' => 'array',
             'reserved_until' => 'datetime',
             'paid_at' => 'datetime',
             'cancelled_at' => 'datetime',
@@ -249,6 +261,12 @@ class CommerceOrder extends Model
     public function isManualPayment(): bool
     {
         return $this->payment_gateway === self::GATEWAY_MANUAL || empty($this->payment_gateway);
+    }
+
+    public function isCod(): bool
+    {
+        return strtolower((string) ($this->payment_channel ?? '')) === 'cod'
+            || strtolower((string) ($this->payment_method ?? '')) === 'cod';
     }
 
     public function getNetRevenueAttribute(): float

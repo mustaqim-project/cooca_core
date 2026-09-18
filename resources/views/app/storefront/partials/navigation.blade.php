@@ -3,6 +3,21 @@
     $currentBusiness = \App\Support\Context::business();
     $businessSlug = $currentBusiness?->slug ?? '';
     $publicStoreUrl = $businessSlug ? url("/b/{$businessSlug}") : '#';
+    $storeSetting = $currentBusiness?->storeSetting;
+
+    $showReservationsTab = request()->routeIs('storefront.reservations.*')
+        || (
+            $currentBusiness
+            && $currentBusiness->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RESERVATION)
+            && ($storeSetting->allow_reservation ?? true)
+        );
+
+    $showShippingTab = request()->routeIs('storefront.shipping.*')
+        || (
+            $currentBusiness
+            && $currentBusiness->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_MERCHANT_SHIPPING)
+            && ($storeSetting->allow_delivery ?? true)
+        );
 @endphp
 
 <div class="space-y-4">
@@ -55,8 +70,8 @@
                 </a>
             @endif
 
-            {{-- Tab 3: Reservations --}}
-            @if (\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner())
+            {{-- Tab 3: Reservations (Adaptive) --}}
+            @if ($showReservationsTab && (\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner()))
                 <a href="{{ route('storefront.reservations.index') }}"
                     class="px-3.5 py-1.5 rounded-[10px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 {{ request()->routeIs('storefront.reservations.*') ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]' }}">
                     <i data-lucide="calendar" class="w-4 h-4 {{ request()->routeIs('storefront.reservations.*') ? 'text-[#007AFF]' : 'opacity-70' }}"></i>
@@ -64,8 +79,8 @@
                 </a>
             @endif
 
-            {{-- Tab 4: Shipping --}}
-            @if (\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isOwner())
+            {{-- Tab 4: Shipping (Adaptive) --}}
+            @if ($showShippingTab && (\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isOwner()))
                 <a href="{{ route('storefront.shipping.index') }}"
                     class="px-3.5 py-1.5 rounded-[10px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 {{ request()->routeIs('storefront.shipping.*') ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]' }}">
                     <i data-lucide="truck" class="w-4 h-4 {{ request()->routeIs('storefront.shipping.*') ? 'text-[#007AFF]' : 'opacity-70' }}"></i>

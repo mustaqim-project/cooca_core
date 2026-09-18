@@ -78,7 +78,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                       style: const TextStyle(
                           color: AppColors.textPrimary, fontSize: 13),
                       decoration: InputDecoration(
-                        hintText: 'https://umkm.cooca.id/api/v1',
+                        hintText: 'https://cooca.id/api/v1',
                         hintStyle: const TextStyle(
                             color: AppColors.textMuted, fontSize: 12),
                         filled: true,
@@ -97,7 +97,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                     runSpacing: 8,
                     children: [
                       ActionChip(
-                        label: const Text('☁️ Production (umkm.cooca.id)',
+                        label: const Text('☁️ Production (cooca.id)',
                             style: TextStyle(
                                 fontSize: 11, color: AppColors.primaryLight)),
                         backgroundColor:
@@ -106,7 +106,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                             color: AppColors.primary, width: 0.5),
                         onPressed: () {
                           setState(() {
-                            _urlCtrl.text = 'https://umkm.cooca.id/api/v1';
+                            _urlCtrl.text = 'https://cooca.id/api/v1';
                           });
                         },
                       ),

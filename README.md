@@ -12,7 +12,7 @@
 ## Production Deployment & Domain
 
 - **Domain Utama Production (Canonical):** **[https://cooca.id](https://cooca.id)**
-- **Legacy Subdomain (Auto 301 Redirect):** `https://umkm.cooca.id`
+- **Legacy Subdomain (Auto 301 Redirect):** `https://cooca.id`
 - **Folder Root Web Server:** `public_html/cooca.id`
 - **API Base URL:** `https://cooca.id/api/v1`
 - **Microservice WhatsApp:** Terhubung mandiri ke WhatsApp Cloud API & microservice gateway
@@ -75,7 +75,7 @@ Akses lokal di browser: `http://127.0.0.1:1986`.
 
 ## 📖 Dokumentasi Deployment
 
-- 📘 [Panduan Deployment Hostinger (umkm.cooca.id)](docs/HOSTINGER_DEPLOYMENT_GUIDE.md)
+- 📘 [Panduan Deployment Hostinger (cooca.id)](docs/HOSTINGER_DEPLOYMENT_GUIDE.md)
 - 📗 [Panduan Microservice WhatsApp Gateway](docs/GOOGLE_CLOUD_FREE_VPS_WA_GUIDE.md)
 
 ---

@@ -123,6 +123,21 @@
         $canAccessRoles ||
         $canAccessBilling ||
         \App\Support\Context::isOwner();
+
+    $sidebarBiz = \App\Support\Context::business();
+    $sidebarStoreSetting = $sidebarBiz?->storeSetting;
+    $sidebarShowReservation = request()->routeIs('storefront.reservations.*')
+        || (
+            $sidebarBiz
+            && $sidebarBiz->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RESERVATION)
+            && ($sidebarStoreSetting->allow_reservation ?? true)
+        );
+    $sidebarShowShipping = request()->routeIs('storefront.shipping.*')
+        || (
+            $sidebarBiz
+            && $sidebarBiz->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_MERCHANT_SHIPPING)
+            && ($sidebarStoreSetting->allow_delivery ?? true)
+        );
 @endphp
 
 {{-- Apple HIG (macOS Sonoma & iOS 18) Sidebar Rail Styles --}}
@@ -873,14 +888,14 @@
                                     <span class="truncate">Pesanan Masuk</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner())
+                            @if ($sidebarShowReservation && (\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner()))
                                 <a href="{{ route('storefront.reservations.index') }}"
                                     class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.reservations.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
                                     <i data-lucide="calendar-check" class="w-3.5 h-3.5 shrink-0"></i>
                                     <span class="truncate">Reservasi &amp; Booking</span>
                                 </a>
                             @endif
-                            @if (\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isOwner())
+                            @if ($sidebarShowShipping && (\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isOwner()))
                                 <a href="{{ route('storefront.shipping.index') }}"
                                     class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium transition-all {{ request()->routeIs('storefront.shipping.*') ? 'text-[#007AFF] font-semibold bg-[#007AFF]/10' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.05]' }}">
                                     <i data-lucide="truck" class="w-3.5 h-3.5 shrink-0"></i>
@@ -2175,8 +2190,7 @@
                     class="sidebar-item flex items-center gap-2.5 px-2.5 py-1.5 rounded-[8px] text-[13px] font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('roles.*') || request()->routeIs('settings.roles.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                     <i data-lucide="shield-check"
                         class="w-4 h-4 {{ request()->routeIs('roles.*') || request()->routeIs('settings.roles.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                    <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Kontrol Akses &amp;
-                        Role</span>
+                    <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Kontrol Akses &amp; Role</span>
                 </a>
             @endif
 
@@ -2238,8 +2252,7 @@
                         <div class="flex items-center justify-between gap-1.5">
                             <div class="flex items-center gap-1.5 min-w-0">
                                 <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse shrink-0"></span>
-                                <span class="text-[12px] font-semibold text-black dark:text-white truncate">Cooca
-                                    UMKM</span>
+                                <span class="text-[12px] font-semibold text-black dark:text-white truncate">Cooca UMKM</span>
                             </div>
                             <span
                                 class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158] border border-[#34C759]/25 shrink-0">

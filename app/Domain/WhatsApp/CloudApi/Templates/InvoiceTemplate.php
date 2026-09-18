@@ -19,7 +19,7 @@ use App\Models\Business;
  * • Jatuh Tempo: *{{3}}*
  * • Total Tagihan: *{{4}}*
  *
- * Tombol URL: "Lihat / Bayar Invoice" -> https://umkm.cooca.id/inv/{{1}}
+ * Tombol URL: "Lihat / Bayar Invoice" -> https://cooca.id/inv/{{1}}
  */
 class InvoiceTemplate
 {

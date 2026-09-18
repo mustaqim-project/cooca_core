@@ -229,6 +229,15 @@ final class TripayService
             ];
         }
 
+        // If biteship service fee exists, append as an item line
+        if ((float) ($order->biteship_service_fee ?? 0) > 0) {
+            $orderItems[] = [
+                'name' => 'Biaya Layanan Pengiriman (Biteship)',
+                'price' => (int) round((float) $order->biteship_service_fee),
+                'quantity' => 1,
+            ];
+        }
+
         // If no items extracted, fallback to single order item
         if (empty($orderItems)) {
             $orderItems[] = [

@@ -56,6 +56,16 @@ Setiap bisnis tenant terikat pada satu langganan aktif (`saas_subscriptions`):
 * Notifikasi email dan WhatsApp otomatis sebelum paket langganan habis (H-7, H-3, H-1).
 * **Masa Tenggang (Grace Period):** Bisnis diberikan masa tenggang beberapa hari dengan akses terbatas (read-only mode atau fallback paket free) sebelum data disuspensi, menjamin data keuangan historis tetap aman.
 
+### 3.5 CMS Katalog Paket Billing Platform & Harga Default Cooca
+* Terletak pada rute Superadmin `/admin/billing-packages/{type?}` (`AdminBillingPackageController`).
+* Mengelola 3 tab katalog terpadu:
+  1. **Paket & Durasi Subscription:** Paket langganan Core bertempo (30 hari, 90 hari, 365 hari) dengan opsi kuota bonus token AI.
+  2. **Paket Top Up Token AI:** Kuota instan pemrosesan model kecerdasan buatan Cooca dengan masa berlaku hari tertentu.
+  3. **Paket Top Up Storage:** Kuota ruang penyimpanan permanen yang diakumulasikan ke kapasitas dasar akun owner.
+* **Single Source of Truth Default Pricing:**
+  - Panel konfigurasi fallback bawaan platform (`subscription_price_monthly`, `subscription_price_annual`, `subscription_ai_tokens_monthly`, `subscription_annual_discount_badge`, `ai_token_topup_price`, `ai_token_topup_amount`, `storage_topup_price`, `storage_topup_gb`, `owner_storage_limit_gb`).
+* **Kepatuhan Desain Apple HIG v2.0:** Mengadopsi Bento Cards squircle `rounded-[22px]`, Apple Pill Segmented Control, modal edit inset dialog `rounded-[28px]`, input anti auto-zoom iOS `text-[16px] sm:text-[13px]`, tipografi angka murni `tabular-nums`, serta kepatuhan Anti-Pill-Abuse (maksimal 1 badge status resmi `Aktif`/`Nonaktif`, nol fake pulse dots) dan aturan Zero Unicode Emoji.
+
 ---
 
 ## 4. Aturan Bisnis Billing (Business Rules)

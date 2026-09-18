@@ -77,5 +77,12 @@ return [
         'prod_url'      => env('TRIPAY_PROD_URL', 'https://tripay.co.id/api/'),
     ],
 
+    'biteship' => [
+        'api_key'     => env('BITESHIP_API_KEY', 'biteship_live.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQ29vY2EgU2hpcHBpbmciLCJ1c2VySWQiOiI2YTcyY2VkN2UzMmQxOTRlNmRmODFjZGIiLCJpYXQiOjE3ODk3MTIzOTB9.x-gMrVA4kpFdQWa-fKeDe7b1TO5c-Y5b0ZnTj3RC1vU'),
+        'base_url'    => env('BITESHIP_BASE_URL', 'https://api.biteship.com'),
+        'environment' => env('BITESHIP_ENVIRONMENT', 'production'),
+        'service_fee' => (float) env('BITESHIP_SERVICE_FEE', 1000.0),
+    ],
+
 ];
 

@@ -2027,9 +2027,15 @@
                             this.showToast('Silakan isi nomor WhatsApp pemesan');
                             return;
                         }
-                        if (this.checkoutForm.fulfillment_type === 'merchant_delivery' && (!this.checkoutForm.shipping_address || !this.checkoutForm.shipping_address.trim())) {
-                            this.showToast('Silakan lengkapi alamat pengiriman');
-                            return;
+                        if (this.checkoutForm.fulfillment_type === 'merchant_delivery') {
+                            if (!this.checkoutForm.shipping_address || !this.checkoutForm.shipping_address.trim()) {
+                                this.showToast('Silakan lengkapi alamat pengiriman');
+                                return;
+                            }
+                            if (!this.checkoutForm.destination_postal_code || !this.checkoutForm.destination_postal_code.trim()) {
+                                this.showToast('Silakan isi 5 digit kode pos tujuan untuk kalkulasi kurir Biteship');
+                                return;
+                            }
                         }
                         const hasScheduling = this.checkoutForm.is_scheduled || this.hasPreorderItems;
                         if (!hasScheduling) {
@@ -2145,11 +2151,16 @@
                     customer_email: @json($authCust?->email ?? ''),
                     fulfillment_type: '{{ $storeSetting?->allow_pickup ?? true ? 'pickup' : 'merchant_delivery' }}',
                     shipping_address: @json($authCust?->shipping_address ?? ''),
+                    destination_postal_code: @json($authCust?->postal_code ?? ''),
                     shipping_rule_id: '',
                     shipping_fee: 0,
+                    service_fee: 0,
                     is_free_shipping: false,
                     shipping_options: [],
                     is_loading_shipping: false,
+                    courier_company: '',
+                    courier_type: '',
+                    courier_name: '',
                     payment_gateway: 'tripay',
                     payment_channel: 'QRIS',
                     payment_method_id: '{{ $paymentMethods->first()?->id ?? '' }}',
@@ -2303,7 +2314,9 @@
                 get grandTotal() {
                     const fee = (this.checkoutForm.fulfillment_type === 'merchant_delivery') ? Number(this
                         .checkoutForm.shipping_fee || 0) : 0;
-                    return this.cartTotal + fee;
+                    const serviceFee = (this.checkoutForm.fulfillment_type === 'merchant_delivery') ? Number(this
+                        .checkoutForm.service_fee || 0) : 0;
+                    return this.cartTotal + fee + serviceFee;
                 },
                 get hasPreorderItems() {
                     return this.cart.some(item => {
@@ -2341,6 +2354,7 @@
                         await this.fetchShippingQuote();
                     } else {
                         this.checkoutForm.shipping_fee = 0;
+                        this.checkoutForm.service_fee = 0;
                         this.checkoutForm.is_free_shipping = false;
                     }
                 },
@@ -2350,6 +2364,12 @@
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
                             'content') || '';
+                        const cartItems = (this.cart || []).map(item => ({
+                            name: item.name || 'Produk',
+                            quantity: item.quantity || 1,
+                            value: (item.price || 0) * (item.quantity || 1),
+                            weight: 250 * (item.quantity || 1)
+                        }));
                         const response = await fetch(
                             '{{ route('public.storefront.shipping.calculate', $business->slug) }}', {
                                 method: 'POST',
@@ -2360,17 +2380,29 @@
                                 },
                                 body: JSON.stringify({
                                     subtotal: this.cartTotal,
-                                    shipping_rule_id: preferredRuleId || this.checkoutForm
-                                        .shipping_rule_id || null
+                                    shipping_rule_id: preferredRuleId || this.checkoutForm.shipping_rule_id || null,
+                                    destination_postal_code: this.checkoutForm.destination_postal_code || null,
+                                    destination_address: this.checkoutForm.shipping_address || null,
+                                    items: cartItems
                                 })
                             });
                         const resData = await response.json();
                         if (response.ok && resData.success && resData.data) {
                             this.checkoutForm.shipping_options = resData.data.options || [];
                             this.checkoutForm.shipping_fee = Number(resData.data.shipping_fee || 0);
+                            this.checkoutForm.service_fee = Number(resData.data.service_fee || 0);
                             this.checkoutForm.is_free_shipping = Boolean(resData.data.is_free);
                             if (resData.data.applied_rule_id) {
                                 this.checkoutForm.shipping_rule_id = resData.data.applied_rule_id;
+                                const selected = this.checkoutForm.shipping_options.find(o => o.id === resData.data.applied_rule_id);
+                                if (selected) {
+                                    this.checkoutForm.courier_company = selected.courier_code || '';
+                                    this.checkoutForm.courier_type = selected.courier_service_code || '';
+                                    this.checkoutForm.courier_name = selected.name || '';
+                                    if (selected.service_fee !== undefined) {
+                                        this.checkoutForm.service_fee = Number(selected.service_fee || 0);
+                                    }
+                                }
                             }
                         }
                     } catch (err) {
@@ -2378,6 +2410,15 @@
                     } finally {
                         this.checkoutForm.is_loading_shipping = false;
                     }
+                },
+                selectCourier(opt) {
+                    this.checkoutForm.shipping_rule_id = opt.id;
+                    this.checkoutForm.shipping_fee = Number(opt.fee || 0);
+                    this.checkoutForm.service_fee = Number(opt.service_fee || (opt.rule_type === 'biteship' ? 1000 : 0));
+                    this.checkoutForm.is_free_shipping = Boolean(opt.is_free);
+                    this.checkoutForm.courier_company = opt.courier_code || '';
+                    this.checkoutForm.courier_type = opt.courier_service_code || '';
+                    this.checkoutForm.courier_name = opt.name || '';
                 },
                 async submitCheckout() {
                     if (!this.isCustomerLoggedIn) {
@@ -2393,10 +2434,17 @@
                         this.checkoutStep = 1;
                         return;
                     }
-                    if (this.checkoutForm.fulfillment_type === 'merchant_delivery' && !this.checkoutForm.shipping_address) {
-                        this.checkoutError = 'Alamat pengiriman wajib diisi untuk kurir toko.';
-                        this.checkoutStep = 1;
-                        return;
+                    if (this.checkoutForm.fulfillment_type === 'merchant_delivery') {
+                        if (!this.checkoutForm.shipping_address) {
+                            this.checkoutError = 'Alamat pengiriman wajib diisi.';
+                            this.checkoutStep = 1;
+                            return;
+                        }
+                        if (!this.checkoutForm.destination_postal_code) {
+                            this.checkoutError = 'Kode pos tujuan wajib diisi untuk menghitung ongkos kirim Biteship.';
+                            this.checkoutStep = 1;
+                            return;
+                        }
                     }
                     if (this.cart.length === 0) {
                         this.checkoutError = 'Keranjang pesanan masih kosong.';
@@ -2439,8 +2487,22 @@
                         fulfillment_type: this.checkoutForm.fulfillment_type,
                         shipping_address: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? this
                             .checkoutForm.shipping_address : null,
+                        destination_postal_code: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
+                            .checkoutForm.destination_postal_code || null) : null,
                         shipping_rule_id: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
                             .checkoutForm.shipping_rule_id || null) : null,
+                        shipping_fee: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
+                            .checkoutForm.shipping_fee || 0) : 0,
+                        service_fee: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
+                            .checkoutForm.service_fee || 0) : 0,
+                        biteship_service_fee: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
+                            .checkoutForm.service_fee || 0) : 0,
+                        courier_company: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
+                            .checkoutForm.courier_company || null) : null,
+                        courier_type: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
+                            .checkoutForm.courier_type || null) : null,
+                        courier_name: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
+                            .checkoutForm.courier_name || null) : null,
                         payment_gateway: this.checkoutForm.payment_gateway || 'tripay',
                         payment_channel: this.checkoutForm.payment_channel || 'QRIS',
                         payment_method_id: this.checkoutForm.payment_gateway === 'manual' ? (this.checkoutForm.payment_method_id || null) : null,
@@ -6551,49 +6613,89 @@
                                     class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Alamat
                                     Pengiriman Lengkap <span class="text-red-500">*</span></label>
                                 <textarea x-model="checkoutForm.shipping_address" rows="2"
-                                    placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, patokan..."
+                                    placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, kecamatan, patokan..."
                                     class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
                             </div>
 
-                            {{-- Aturan Ongkir / Pilihan Kurir Toko --}}
+                            {{-- Kode Pos Tujuan & Hitung Biteship --}}
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-end">
+                                <div class="sm:col-span-2">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                        Kode Pos Tujuan <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" maxlength="5" x-model="checkoutForm.destination_postal_code"
+                                        @input="if (checkoutForm.destination_postal_code && checkoutForm.destination_postal_code.trim().length === 5) fetchShippingQuote()"
+                                        @blur="if (checkoutForm.destination_postal_code && checkoutForm.destination_postal_code.trim().length >= 4) fetchShippingQuote()"
+                                        placeholder="Contoh: 12310"
+                                        class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                                </div>
+                                <div class="sm:col-span-1">
+                                    <button type="button" @click="fetchShippingQuote()" :disabled="checkoutForm.is_loading_shipping"
+                                        class="w-full h-11 px-3 rounded-[14px] bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 text-black dark:text-white text-[12.5px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50">
+                                        <i data-lucide="truck" class="w-4 h-4 text-brand-primary shrink-0"></i>
+                                        <span x-show="!checkoutForm.is_loading_shipping">Cek Kurir</span>
+                                        <span x-show="checkoutForm.is_loading_shipping">Memuat...</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Pilihan Kurir Biteship --}}
                             <div x-show="checkoutForm.shipping_options && checkoutForm.shipping_options.length > 0"
-                                class="space-y-1.5">
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Pilihan
-                                    Kurir &amp; Tarif Ongkir</label>
-                                <div class="space-y-1.5">
+                                class="space-y-1.5 pt-1">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-[12px] font-bold text-black/70 dark:text-white/70">
+                                        Pilihan Ekspedisi &amp; Tarif Biteship
+                                    </label>
+                                    <span class="text-[11px] text-brand-primary font-semibold flex items-center gap-1">
+                                        <i data-lucide="zap" class="w-3 h-3"></i> Real-time API
+                                    </span>
+                                </div>
+                                <div class="space-y-1.5 max-h-56 overflow-y-auto pr-0.5">
                                     <template x-for="opt in checkoutForm.shipping_options" :key="opt.id">
-                                        <label
-                                            class="p-2.5 rounded-[12px] border border-black/10 dark:border-white/10 flex items-center justify-between cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition"
-                                            :class="checkoutForm.shipping_rule_id === opt.id ? 'border-brand-primary bg-brand-50' :
-                                                ''">
-                                            <div class="flex items-center gap-2.5">
-                                                <input type="radio" name="shipping_rule_choice"
-                                                    :value="opt.id" x-model="checkoutForm.shipping_rule_id"
-                                                    @change="fetchShippingQuote(opt.id)"
-                                                    class="text-brand-primary focus:ring-brand-primary">
-                                                <div>
-                                                    <span class="text-[13px] font-bold text-black dark:text-white block"
-                                                        x-text="opt.name"></span>
-                                                    <span class="text-[11px] text-black/50 dark:text-white/50"
+                                        <div @click="selectCourier(opt)"
+                                            class="p-2.5 rounded-[14px] border transition cursor-pointer flex items-center justify-between gap-3"
+                                            :class="checkoutForm.shipping_rule_id === opt.id ? 'border-brand-primary bg-brand-50/70 dark:bg-brand-500/10 shadow-xs' : 'border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5'">
+                                            <div class="flex items-center gap-2.5 min-w-0">
+                                                <div class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0"
+                                                    :class="checkoutForm.shipping_rule_id === opt.id ? 'border-brand-primary bg-brand-primary' : 'border-black/30 dark:border-white/30'">
+                                                    <div x-show="checkoutForm.shipping_rule_id === opt.id" class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                                        <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80"
+                                                            x-text="(opt.courier_code || 'EXP').toUpperCase()"></span>
+                                                        <span class="text-[13px] font-bold text-black dark:text-white truncate"
+                                                            x-text="opt.name"></span>
+                                                    </div>
+                                                    <span class="text-[11px] text-black/50 dark:text-white/50 block truncate"
                                                         x-text="opt.description"></span>
                                                 </div>
                                             </div>
-                                            <div>
+                                            <div class="shrink-0 text-right">
                                                 <span x-show="opt.is_free"
                                                     class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/10 text-[#34C759]">Gratis</span>
                                                 <span x-show="!opt.is_free"
-                                                    class="text-[12.5px] font-bold text-black dark:text-white tabular-nums"
+                                                    class="text-[13px] font-bold text-black dark:text-white tabular-nums block"
                                                     x-text="formatPrice(opt.fee)"></span>
                                             </div>
-                                        </label>
+                                        </div>
                                     </template>
                                 </div>
                             </div>
 
                             <div x-show="checkoutForm.is_loading_shipping"
-                                class="text-[11.5px] text-brand-primary flex items-center gap-1.5 py-1">
-                                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                                <span>Menghitung ongkos kirim...</span>
+                                class="p-3 rounded-[14px] bg-brand-50/50 dark:bg-brand-500/5 border border-brand-primary/20 text-[12px] text-brand-primary flex items-center gap-2">
+                                <i data-lucide="loader-2" class="w-4 h-4 animate-spin shrink-0"></i>
+                                <span>Menghubungkan ke Biteship API &amp; menghitung opsi ekspedisi...</span>
+                            </div>
+
+                            <div x-show="!checkoutForm.is_loading_shipping && (!checkoutForm.shipping_options || checkoutForm.shipping_options.length === 0) && checkoutForm.destination_postal_code"
+                                class="p-3 rounded-[14px] bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-[12px] flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                                    <span>Belum ada kurir aktif untuk rute ini atau hubungi toko.</span>
+                                </div>
+                                <button type="button" @click="fetchShippingQuote()" class="text-[11px] font-bold underline cursor-pointer">Coba Lagi</button>
                             </div>
                         </div>
                     </div>
@@ -6998,6 +7100,16 @@
                                         <span class="tabular-nums font-semibold text-black dark:text-white"
                                             x-text="formatPrice(checkoutForm.shipping_fee)"></span>
                                     </template>
+                                </div>
+
+                                <div x-show="checkoutForm.fulfillment_type === 'merchant_delivery' && checkoutForm.service_fee > 0"
+                                    class="flex items-center justify-between text-[13px]">
+                                    <span class="text-black/60 dark:text-white/60 flex items-center gap-1.5">
+                                        <span>Biaya Layanan Pengiriman</span>
+                                        <span class="text-[10.5px] font-semibold px-1.5 py-0.5 rounded bg-[#007AFF]/10 text-[#007AFF]">Biteship</span>
+                                    </span>
+                                    <span class="tabular-nums font-semibold text-black dark:text-white"
+                                        x-text="formatPrice(checkoutForm.service_fee)"></span>
                                 </div>
 
                                 <div class="flex items-center justify-between text-[15px] pt-1 border-t border-black/5 dark:border-white/10">

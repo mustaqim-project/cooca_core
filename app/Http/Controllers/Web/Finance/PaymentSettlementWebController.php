@@ -120,10 +120,11 @@ final class PaymentSettlementWebController extends Controller
                 business: $business,
                 data: $data,
                 allocations: $allocations,
-                userId: $user?->id
+                userId: $user?->id,
+                immediateComplete: false
             );
 
-            $message = "Settlement #{$settlement->settlement_number} sebesar Rp " . number_format($netAmount, 0, ',', '.') . " berhasil dicairkan dan dijurnal ke rekening bank.";
+            $message = "Pengajuan pencairan saldo #{$settlement->settlement_number} sebesar Rp " . number_format($netAmount, 0, ',', '.') . " berhasil dikirim ke Admin COOCA. Bukti transfer akan dapat dilihat di sini setelah dana dikirim.";
 
             if ($request->wantsJson()) {
                 return response()->json([
@@ -156,7 +157,7 @@ final class PaymentSettlementWebController extends Controller
             abort(403);
         }
 
-        $settlement->load(['allocations', 'reconciledBy']);
+        $settlement->load(['allocations', 'reconciledBy', 'admin']);
 
         if (request()->wantsJson()) {
             return response()->json([

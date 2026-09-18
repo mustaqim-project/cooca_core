@@ -40,4 +40,9 @@
 ### RULE-SEC-005: Protection Against Accidental Account Deletion
 * **Name:** Larangan Penghapusan Sepihak Akun Bisnis
 * **Deskripsi:** Akun pemilik usaha tidak boleh dihapus secara instan melalui tombol form sederhana untuk mencegah hilangnya data keuangan, stok, dan perpajakan historis.
-* **Prosedur:** Permintaan penutupan akun harus melewati alur **Account Recovery / Deactivation Request** resmi dengan masa tunggu dan verifikasi identitas pemilik.
+* **Prosedur:** Permintaan pemulihan atau penggantian kontak darurat akun (WhatsApp / Email) wajib melalui alur **Account Recovery Request** resmi (`account_recovery_requests`) dengan melampirkan 3 bukti otentik: (1) Foto KTP asli pemilik, (2) Dokumen legalitas/bukti kepemilikan usaha (PDF/JPG/PNG), dan (3) Foto selfie bersama KTP.
+* **Meja Verifikasi Administrator (`/admin/account-recoveries`):**
+  - Mengadopsi arsitektur **Modal-First XXL Inspection Desk** di antrean index (`index.blade.php`) dan halaman detail mendalam (`show.blade.php`).
+  - Administrator memeriksa kesesuaian nama pemohon, kecocokan dokumen usaha, dan nomor WhatsApp baru sebelum memberikan persetujuan (`approve`) atau penolakan (`reject`).
+  - Persetujuan memperbarui kredensial `User` (`email` dan `phone`), menandai email terverifikasi, dan menyinkronkan profil bisnis terkait, disertai notifikasi otomatis via WhatsApp.
+

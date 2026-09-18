@@ -7,7 +7,7 @@ Integrasi TikTok di COOCA menggunakan **TikTok Open API v2** dan **Content Posti
 Dikonfigurasi melalui environment variables (`.env`) atau Admin Center:
 - `TIKTOK_CLIENT_KEY`: Client Key dari TikTok Developer App.
 - `TIKTOK_CLIENT_SECRET`: Client Secret dari TikTok Developer App.
-- `TIKTOK_REDIRECT_URI`: URI Callback terdaftar (contoh: `https://umkm.cooca.id/social-media/tiktok/callback`).
+- `TIKTOK_REDIRECT_URI`: URI Callback terdaftar (contoh: `https://cooca.id/social-media/tiktok/callback`).
 
 Cakupan Izin (*Scopes*):
 - `user.info.basic`: Mengambil OpenID dan informasi profil dasar pembuat konten.
