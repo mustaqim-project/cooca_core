@@ -119,6 +119,11 @@ final class PaymentSettlementService
             $this->cashLedger->recordInflow($business, $settlement->net_amount, 'settlement', $settlement->id, "Settlement {$settlement->settlement_number}", $method, $merchantUserId);
             $this->recordJournal($business, $settlement, $merchantUserId);
 
+            // Auto-clean old proof file if replaced
+            if ($proofImagePath && $settlement->proof_image_path && $settlement->proof_image_path !== $proofImagePath) {
+                \App\Domain\Storage\AdminStorage::deletePrivateFile($settlement->proof_image_path);
+            }
+
             $settlement->update([
                 'status'           => PaymentSettlement::STATUS_COMPLETED,
                 'proof_image_path' => $proofImagePath ?? $settlement->proof_image_path,

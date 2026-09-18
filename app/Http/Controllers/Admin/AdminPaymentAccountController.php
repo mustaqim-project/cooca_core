@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Storage\AdminStorage;
 use App\Http\Controllers\Controller;
 use App\Models\PaymentAccount;
 use Illuminate\Http\RedirectResponse;
@@ -84,7 +85,7 @@ final class AdminPaymentAccountController extends Controller
 
         $qrImagePath = null;
         if ($request->hasFile('qr_image')) {
-            $qrImagePath = $request->file('qr_image')->store('qris-codes', 'public');
+            $qrImagePath = AdminStorage::storePublicFile($request->file('qr_image'), AdminStorage::FOLDER_QRIS);
         }
 
         PaymentAccount::create([
@@ -136,10 +137,10 @@ final class AdminPaymentAccountController extends Controller
 
         $qrImagePath = $paymentAccount->qr_image_path;
         if ($request->hasFile('qr_image')) {
-            if ($qrImagePath && Storage::disk('public')->exists($qrImagePath)) {
-                Storage::disk('public')->delete($qrImagePath);
+            if ($qrImagePath) {
+                AdminStorage::deletePublicFile($qrImagePath);
             }
-            $qrImagePath = $request->file('qr_image')->store('qris-codes', 'public');
+            $qrImagePath = AdminStorage::storePublicFile($request->file('qr_image'), AdminStorage::FOLDER_QRIS);
         }
 
         $paymentAccount->update([
@@ -177,8 +178,8 @@ final class AdminPaymentAccountController extends Controller
      */
     public function destroy(PaymentAccount $paymentAccount): RedirectResponse
     {
-        if ($paymentAccount->qr_image_path && Storage::disk('public')->exists($paymentAccount->qr_image_path)) {
-            Storage::disk('public')->delete($paymentAccount->qr_image_path);
+        if ($paymentAccount->qr_image_path) {
+            AdminStorage::deletePublicFile($paymentAccount->qr_image_path);
         }
 
         $name = $paymentAccount->bank_name;

@@ -115,7 +115,13 @@ final class PublicTemplateController extends Controller
             return Storage::disk('public')->download($template->file_path, $template->file_name);
         }
 
-        // 2. Fallback to public/downloads/
+        // 2. Try direct public path
+        $directPublic = public_path($template->file_path);
+        if ($template->file_path && file_exists($directPublic)) {
+            return response()->download($directPublic, $template->file_name);
+        }
+
+        // 3. Fallback to public/downloads/
         $fallback = public_path('downloads/' . $template->file_name);
         if (file_exists($fallback)) {
             return response()->download($fallback, $template->file_name);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Domain\Finance\PaymentSettlementService;
+use App\Domain\Storage\AdminStorage;
 use App\Http\Controllers\Controller;
 use App\Models\PaymentSettlement;
 use Carbon\Carbon;
@@ -134,7 +135,7 @@ final class AdminSettlementController extends Controller
         try {
             $file = $request->file('proof_image');
             $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('settlements/proofs', $filename, 'public');
+            $path = AdminStorage::storePrivateFile($file, AdminStorage::FOLDER_SETTLEMENT_PROOFS, $filename);
 
             $admin = auth('admin')->user();
             $adminId = $admin?->id;

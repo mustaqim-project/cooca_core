@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Storage\AdminStorage;
 use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use Illuminate\Http\JsonResponse;
@@ -45,10 +46,7 @@ final class AdminSettingController extends Controller
             if (empty($path)) {
                 return $fallback;
             }
-            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-                return $path;
-            }
-            return Storage::disk('public')->url($path);
+            return AdminStorage::publicUrl($path) ?? $fallback;
         };
 
         $rawLogoLight = SystemSetting::get('site_logo_light');
@@ -530,49 +528,49 @@ final class AdminSettingController extends Controller
             if (isset($validated[$setting])) SystemSetting::set($setting, (string) $validated[$setting], 'billing');
         }
 
-        // --- Platform Branding & Logos ---
+        // --- Platform Branding & Logos (Stored in public/admin/branding with Auto-Cleanup) ---
         if ($request->boolean('reset_logo_light')) {
             $old = SystemSetting::get('site_logo_light');
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
+            if ($old) {
+                AdminStorage::deletePublicFile($old);
             }
             SystemSetting::set('site_logo_light', '', 'branding');
         } elseif ($request->hasFile('site_logo_light_file')) {
             $old = SystemSetting::get('site_logo_light');
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
+            if ($old) {
+                AdminStorage::deletePublicFile($old);
             }
-            $path = $request->file('site_logo_light_file')->store('branding', 'public');
+            $path = AdminStorage::storePublicFile($request->file('site_logo_light_file'), AdminStorage::FOLDER_BRANDING);
             SystemSetting::set('site_logo_light', $path, 'branding');
         }
 
         if ($request->boolean('reset_logo_dark')) {
             $old = SystemSetting::get('site_logo_dark');
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
+            if ($old) {
+                AdminStorage::deletePublicFile($old);
             }
             SystemSetting::set('site_logo_dark', '', 'branding');
         } elseif ($request->hasFile('site_logo_dark_file')) {
             $old = SystemSetting::get('site_logo_dark');
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
+            if ($old) {
+                AdminStorage::deletePublicFile($old);
             }
-            $path = $request->file('site_logo_dark_file')->store('branding', 'public');
+            $path = AdminStorage::storePublicFile($request->file('site_logo_dark_file'), AdminStorage::FOLDER_BRANDING);
             SystemSetting::set('site_logo_dark', $path, 'branding');
         }
 
         if ($request->boolean('reset_favicon')) {
             $old = SystemSetting::get('site_favicon');
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
+            if ($old) {
+                AdminStorage::deletePublicFile($old);
             }
             SystemSetting::set('site_favicon', '', 'branding');
         } elseif ($request->hasFile('site_favicon_file')) {
             $old = SystemSetting::get('site_favicon');
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
+            if ($old) {
+                AdminStorage::deletePublicFile($old);
             }
-            $path = $request->file('site_favicon_file')->store('branding', 'public');
+            $path = AdminStorage::storePublicFile($request->file('site_favicon_file'), AdminStorage::FOLDER_BRANDING);
             SystemSetting::set('site_favicon', $path, 'branding');
         }
 
@@ -603,19 +601,19 @@ final class AdminSettingController extends Controller
             }
         }
 
-        // --- SEO & Metadata Complete CMS ---
+        // --- SEO & Metadata Complete CMS (Stored in public/admin/branding with Auto-Cleanup) ---
         if ($request->boolean('reset_og_image')) {
             $old = SystemSetting::get('seo_og_image');
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
+            if ($old) {
+                AdminStorage::deletePublicFile($old);
             }
             SystemSetting::set('seo_og_image', '', 'seo');
         } elseif ($request->hasFile('seo_og_image_file')) {
             $old = SystemSetting::get('seo_og_image');
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
+            if ($old) {
+                AdminStorage::deletePublicFile($old);
             }
-            $path = $request->file('seo_og_image_file')->store('branding', 'public');
+            $path = AdminStorage::storePublicFile($request->file('seo_og_image_file'), AdminStorage::FOLDER_BRANDING);
             SystemSetting::set('seo_og_image', $path, 'seo');
         }
 

@@ -59,7 +59,7 @@ class PaymentAccount extends Model
             return null;
         }
 
-        return Storage::disk('public')->url($this->qr_image_path);
+        return \App\Domain\Storage\AdminStorage::publicUrl($this->qr_image_path);
     }
 
     public function isQris(): bool

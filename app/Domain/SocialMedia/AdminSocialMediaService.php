@@ -473,10 +473,20 @@ class AdminSocialMediaService
     }
 
     /**
-     * Delete a platform post.
+     * Delete a platform post and its local physical media files.
      */
     public function deletePlatformPost(SocialMediaPost $post): bool
     {
+        if (is_array($post->local_media_paths)) {
+            foreach ($post->local_media_paths as $localPath) {
+                if (! empty($localPath)) {
+                    \App\Domain\Storage\AdminStorage::deletePublicFile((string) $localPath);
+                }
+            }
+        } elseif (is_string($post->local_media_paths) && ! empty($post->local_media_paths)) {
+            \App\Domain\Storage\AdminStorage::deletePublicFile($post->local_media_paths);
+        }
+
         return (bool) $post->delete();
     }
 

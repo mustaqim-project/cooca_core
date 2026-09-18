@@ -89,7 +89,7 @@ class PaymentSettlement extends Model
             return null;
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->proof_image_path);
+        return route('settlements.proof', $this->id);
     }
 
     public function isCompleted(): bool

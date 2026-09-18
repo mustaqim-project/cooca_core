@@ -27,10 +27,16 @@
     RewriteRule \.(key|pem|log|sql|sh|yml|yaml|lock|bak|config)$ - [F,L,NC]
 
     # Block script execution in uploads directory
-    RewriteRule ^(bisnis|storage)/.*\.(php|phtml|php[0-9]|phps|cgi|pl|py|sh|exe)$ - [F,L,NC]
+    RewriteRule ^(bisnis|storage|admin)/.*\.(php|phtml|php[0-9]|phps|cgi|pl|py|sh|exe)$ - [F,L,NC]
+
+    # Ensure Laravel handles /admin and /admin/* routes when not requesting a physical static file
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_URI} ^/admin(/.*)?$
+    RewriteRule ^ index.php [L]
 
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+

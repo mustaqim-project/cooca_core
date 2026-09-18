@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Storage\AdminStorage;
 use App\Http\Controllers\Controller;
 use App\Models\ExcelTemplate;
 use App\Models\TemplateLead;
@@ -110,8 +111,8 @@ final class AdminTemplateController extends Controller
         $format = strtoupper($originalExtension);
         $safeFileName = 'Template_' . Str::studly($slug) . '_COOCA.' . $originalExtension;
 
-        // Store file in public storage disk under templates/
-        $storedPath = $file->storeAs('templates', $safeFileName, 'public');
+        // Store file in public admin storage under admin/templates/
+        $storedPath = AdminStorage::storePublicFile($file, AdminStorage::FOLDER_TEMPLATES, $safeFileName);
         $fileSize = $file->getSize();
 
         ExcelTemplate::create([
@@ -181,15 +182,15 @@ final class AdminTemplateController extends Controller
         ];
 
         if ($request->hasFile('excel_file')) {
-            // Delete old file if exists in storage
-            if ($template->file_path && Storage::disk('public')->exists($template->file_path)) {
-                Storage::disk('public')->delete($template->file_path);
+            // Delete old file if exists in storage/public
+            if ($template->file_path) {
+                AdminStorage::deletePublicFile($template->file_path);
             }
 
             $file = $request->file('excel_file');
             $originalExtension = strtolower($file->getClientOriginalExtension());
             $safeFileName = 'Template_' . Str::studly($slug) . '_COOCA.' . $originalExtension;
-            $storedPath = $file->storeAs('templates', $safeFileName, 'public');
+            $storedPath = AdminStorage::storePublicFile($file, AdminStorage::FOLDER_TEMPLATES, $safeFileName);
 
             $dataToUpdate['file_path'] = $storedPath;
             $dataToUpdate['file_name'] = $safeFileName;
@@ -222,8 +223,8 @@ final class AdminTemplateController extends Controller
      */
     public function destroy(ExcelTemplate $template): RedirectResponse
     {
-        if ($template->file_path && Storage::disk('public')->exists($template->file_path)) {
-            Storage::disk('public')->delete($template->file_path);
+        if ($template->file_path) {
+            AdminStorage::deletePublicFile($template->file_path);
         }
 
         $name = $template->name;
@@ -240,6 +241,11 @@ final class AdminTemplateController extends Controller
     {
         if ($template->file_path && Storage::disk('public')->exists($template->file_path)) {
             return Storage::disk('public')->download($template->file_path, $template->file_name);
+        }
+
+        $directPublic = public_path($template->file_path);
+        if ($template->file_path && file_exists($directPublic)) {
+            return response()->download($directPublic, $template->file_name);
         }
 
         // Fallback to public/downloads

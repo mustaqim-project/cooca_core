@@ -23,3 +23,8 @@ require __DIR__ . '/auth.php';
 require __DIR__ . '/customer.php';
 require __DIR__ . '/owner.php';
 require __DIR__ . '/public.php';
+
+// Protected Payout Transfer Proof Document (Authorized Superadmin or Merchant Owner Only)
+\Illuminate\Support\Facades\Route::get('/settlements/{settlement}/proof', [\App\Http\Controllers\Common\SettlementProofController::class, 'show'])
+    ->name('settlements.proof');
+
