@@ -36,6 +36,8 @@ _ide_helper_models.php
 /public/bisnis
 /public/payment-proofs/*
 !/public/payment-proofs/.gitkeep
+/public/admin/*
+!/public/admin/.gitkeep
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

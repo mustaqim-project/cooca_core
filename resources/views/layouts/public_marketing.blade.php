@@ -24,10 +24,10 @@
         $siteFaviconSetting   = \App\Models\SystemSetting::get('site_favicon');
         $seoOgImageSetting    = \App\Models\SystemSetting::get('seo_og_image');
 
-        $siteLogoLightUrl = $siteLogoLightSetting ? asset('storage/' . $siteLogoLightSetting) : asset('assets/image/1785229034_logo_dark.png');
-        $siteLogoDarkUrl  = $siteLogoDarkSetting ? asset('storage/' . $siteLogoDarkSetting) : asset('assets/image/1785229034_logo_dark.png');
-        $siteFaviconUrl   = $siteFaviconSetting ? asset('storage/' . $siteFaviconSetting) : asset('assets/image/1785229034_favicon.png');
-        $seoOgImageUrl    = $seoOgImageSetting ? asset('storage/' . $seoOgImageSetting) : asset('assets/image/cooca.png');
+        $siteLogoLightUrl = \App\Domain\Storage\AdminStorage::publicUrl($siteLogoLightSetting) ?? asset('assets/image/1785229034_logo_dark.png');
+        $siteLogoDarkUrl  = \App\Domain\Storage\AdminStorage::publicUrl($siteLogoDarkSetting) ?? asset('assets/image/1785229034_logo_dark.png');
+        $siteFaviconUrl   = \App\Domain\Storage\AdminStorage::publicUrl($siteFaviconSetting) ?? asset('assets/image/1785229034_favicon.png');
+        $seoOgImageUrl    = \App\Domain\Storage\AdminStorage::publicUrl($seoOgImageSetting) ?? asset('assets/image/cooca.png');
 
         $siteAppName           = \App\Models\SystemSetting::get('app_name', 'Cooca UMKM');
         $siteTagline           = \App\Models\SystemSetting::get('site_tagline', 'Business Operating System & Omnichannel ERP');

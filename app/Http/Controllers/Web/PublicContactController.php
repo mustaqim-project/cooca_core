@@ -16,9 +16,15 @@ final class PublicContactController extends Controller
      */
     public function show(): View
     {
+        $officialWhatsapp = (string) (\App\Models\SystemSetting::get('social_whatsapp_number') ?: '0852 8786 4176');
+        $rawDigits = preg_replace('/[^0-9]/', '', $officialWhatsapp) ?: '6285287864176';
+        if (str_starts_with($rawDigits, '0')) {
+            $rawDigits = '62' . substr($rawDigits, 1);
+        }
+
         return view('public.contact.index', [
-            'officialWhatsapp' => '0852 8786 4176',
-            'officialWhatsappRaw' => '6285287864176',
+            'officialWhatsapp' => $officialWhatsapp,
+            'officialWhatsappRaw' => $rawDigits,
             'officialEmail' => 'support@cooca.id',
             'officeLocation' => 'Jakarta Selatan, DKI Jakarta, Indonesia',
         ]);

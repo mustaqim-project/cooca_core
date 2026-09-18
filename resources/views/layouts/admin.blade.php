@@ -41,7 +41,7 @@
     <!-- Favicon -->
     @php
         $adminFavicon = \App\Models\SystemSetting::get('site_favicon');
-        $adminFaviconUrl = $adminFavicon ? asset('storage/' . $adminFavicon) : asset('assets/image/1785229034_favicon.png');
+        $adminFaviconUrl = \App\Domain\Storage\AdminStorage::publicUrl($adminFavicon) ?? asset('assets/image/1785229034_favicon.png');
     @endphp
     <link rel="icon" type="image/png" href="{{ $adminFaviconUrl }}">
     <link rel="apple-touch-icon" href="{{ $adminFaviconUrl }}">
@@ -313,8 +313,8 @@
                     @php
                         $adminLogoDark = \App\Models\SystemSetting::get('site_logo_dark');
                         $adminLogoLight = \App\Models\SystemSetting::get('site_logo_light');
-                        $adminLogoDarkUrl = $adminLogoDark ? asset('storage/' . $adminLogoDark) : asset('assets/image/1785229034_logo_dark.png');
-                        $adminLogoLightUrl = $adminLogoLight ? asset('storage/' . $adminLogoLight) : asset('assets/image/1785229034_logo_dark.png');
+                        $adminLogoDarkUrl = \App\Domain\Storage\AdminStorage::publicUrl($adminLogoDark) ?? asset('assets/image/1785229034_logo_dark.png');
+                        $adminLogoLightUrl = \App\Domain\Storage\AdminStorage::publicUrl($adminLogoLight) ?? asset('assets/image/1785229034_logo_dark.png');
                         $adminAppName = \App\Models\SystemSetting::get('app_name', 'Cooca');
                     @endphp
                     <div class="h-8 max-w-[130px] flex items-center shrink-0">

@@ -69,6 +69,7 @@ Route::get('/blog/{slug}', [PublicBlogController::class, 'show'])->middleware('t
 
 // 5. Halaman Kontak
 Route::get('/kontak', [PublicContactController::class, 'show'])->name('contact');
+Route::permanentRedirect('/contact', '/kontak');
 Route::post('/kontak', [PublicContactController::class, 'submit'])->middleware('throttle:5,5')->name('contact.submit');
 
 // 6. Public Business Discovery Directory (/jelajah & /direktori)
