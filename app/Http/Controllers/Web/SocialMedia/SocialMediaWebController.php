@@ -244,7 +244,16 @@ class SocialMediaWebController extends Controller
         $posts = $query->paginate(15);
         $accounts = SocialMediaAccount::where('business_id', $business->id)->where('status', 'active')->get();
 
-        return view('app.social_media.posts', compact('business', 'posts', 'accounts', 'status', 'platform'));
+        $entitlement = app(\App\Domain\Billing\EntitlementService::class);
+        $canSchedulePost = $entitlement->canScheduleSocialPostThisMonth($business);
+        $hasSocialAddon = $entitlement->hasActiveSocialMediaSubscription($business);
+        $postsUsedThisMonth = $entitlement->getMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_SOCIAL_POST);
+        $socialPostLimit = \App\Domain\Billing\EntitlementService::FREE_SOCIAL_POST_MONTHLY_LIMIT;
+
+        return view('app.social_media.posts', compact(
+            'business', 'posts', 'accounts', 'status', 'platform',
+            'canSchedulePost', 'hasSocialAddon', 'postsUsedThisMonth', 'socialPostLimit'
+        ));
     }
 
     /**
@@ -253,6 +262,11 @@ class SocialMediaWebController extends Controller
     public function storePost(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
+
+        $entitlement = app(\App\Domain\Billing\EntitlementService::class);
+        if (! $entitlement->canScheduleSocialPostThisMonth($business)) {
+            return redirect()->back()->withInput()->with('error', 'Batas kuota gratis posting media sosial bulan ini (3 posting) telah tercapai. Kuota akan otomatis di-reset pada tanggal 1 awal bulan berikutnya. Upgrade ke Add-On Social Media Management (Rp 89.000/bln) untuk posting tanpa batas!');
+        }
 
         $validated = $request->validate([
             'social_media_account_id'  => ['nullable', 'uuid'],
@@ -478,7 +492,13 @@ class SocialMediaWebController extends Controller
 
         $post->syncStatusFromTargets();
 
-        // 8. User feedback response
+        // 8. Track quota usage for free tier businesses
+        if (! $entitlement->hasActiveSocialMediaSubscription($business)) {
+            $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_SOCIAL_POST, \App\Domain\Billing\EntitlementService::FREE_SOCIAL_POST_MONTHLY_LIMIT);
+            $entitlement->clearUsageCache($business);
+        }
+
+        // 9. User feedback response
         if ($hasScheduledTargets && ! empty($immediateTargets)) {
             return redirect()->route('social-media.posts.index')
                 ->with('success', 'Sebagian saluran berhasil dikirim untuk dipublikasikan langsung, dan saluran lainnya dijadwalkan sesuai waktu yang ditentukan.');

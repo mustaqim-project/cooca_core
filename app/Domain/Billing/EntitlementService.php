@@ -35,18 +35,20 @@ use Illuminate\Support\Str;
 final class EntitlementService
 {
     // ── Business-level Master Data Limits ─────────────────────────────────────
-    public const FREE_PRODUCT_LIMIT           = 50;
-    public const FREE_RECIPE_LIMIT            = 20;
-    public const FREE_MATERIAL_LIMIT          = 20;
-    public const FREE_CUSTOMER_LIMIT          = 30;
-    public const FREE_SUPPLIER_LIMIT          = 20;
+    public const FREE_PRODUCT_LIMIT           = 10;
+    public const FREE_RECIPE_LIMIT            = 3;
+    public const FREE_MATERIAL_LIMIT          = 10;
+    public const FREE_CUSTOMER_LIMIT          = 10;
+    public const FREE_SUPPLIER_LIMIT          = 2;
     public const FREE_OUTLET_LIMIT            = 1;
     public const FREE_WAREHOUSE_LIMIT         = 1;
 
     // ── Business-level Monthly Transaction Quotas ─────────────────────────────
-    public const FREE_INVOICE_MONTHLY_LIMIT   = 10;
-    public const FREE_PO_MONTHLY_LIMIT        = 10;
-    public const FREE_POS_MONTHLY_LIMIT       = 100;
+    public const FREE_INVOICE_MONTHLY_LIMIT   = 3;
+    public const FREE_PO_MONTHLY_LIMIT        = 3;
+    public const FREE_POS_MONTHLY_LIMIT       = 30;
+    public const FREE_SOCIAL_POST_MONTHLY_LIMIT = 3;
+    public const FREE_WHATSAPP_MONTHLY_LIMIT  = 10;
 
     // ── Owner-level Limits ────────────────────────────────────────────────────
     public const FREE_BUSINESS_LIMIT          = 1;
@@ -54,8 +56,9 @@ final class EntitlementService
 
     // ── Plan Pricing & AI ─────────────────────────────────────────────────────
     public const DEFAULT_CORE_AI_MONTHLY_TOKENS = 0;
-    public const DEFAULT_MONTHLY_PRICE        = 25_000.0;
-    public const DEFAULT_ANNUAL_PRICE         = 250_000.0;
+    public const DEFAULT_MONTHLY_PRICE        = 49_000.0;
+    public const DEFAULT_ANNUAL_PRICE         = 490_000.0;
+    public const DEFAULT_SOCIAL_MONTHLY_PRICE = 89_000.0;
 
     /**
      * Get configured monthly price for Core plan (from BillingPackage subscription catalog).
@@ -369,6 +372,51 @@ final class EntitlementService
     }
 
     /**
+     * Check if the business has an active paid Social Media Management Add-on.
+     */
+    public function hasActiveSocialMediaSubscription(Business $business): bool
+    {
+        return SubscriptionPayment::where('business_id', $business->id)
+            ->where('status', SubscriptionPayment::STATUS_APPROVED)
+            ->where(function ($q) {
+                $q->where('payment_type', 'social_media')
+                    ->orWhere('plan_code', 'addon_social_media')
+                    ->orWhere('package_name', 'like', '%Social Media%');
+            })
+            ->where('created_at', '>=', Carbon::now()->subDays(31))
+            ->exists();
+    }
+
+    /**
+     * Can business schedule a new social media post this calendar month?
+     * Free: max FREE_SOCIAL_POST_MONTHLY_LIMIT per month. Add-on: unlimited.
+     */
+    public function canScheduleSocialPostThisMonth(Business $business): bool
+    {
+        if ($this->hasActiveSocialMediaSubscription($business)) {
+            return true;
+        }
+
+        $used = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_SOCIAL_POST);
+        return $used < self::FREE_SOCIAL_POST_MONTHLY_LIMIT;
+    }
+
+    /**
+     * Can business send a WhatsApp notification/blast this calendar month?
+     * Free: max FREE_WHATSAPP_MONTHLY_LIMIT per month. Core: unlimited.
+     */
+    public function canSendWhatsAppThisMonth(Business $business): bool
+    {
+        $sub = $this->getSubscription($business);
+        if ($sub->isCorePlan()) {
+            return true;
+        }
+
+        $used = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_WHATSAPP);
+        return $used < self::FREE_WHATSAPP_MONTHLY_LIMIT;
+    }
+
+    /**
      * Atomically increment monthly usage counter and return new count.
      * Returns false if quota would be exceeded after increment.
      */
@@ -613,6 +661,9 @@ final class EntitlementService
 
         $poMonthCount  = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_PO);
         $posMonthCount = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_POS);
+        $socialPostsMonthCount = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_SOCIAL_POST);
+        $waMonthCount = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_WHATSAPP);
+        $hasSocialAddon = $this->hasActiveSocialMediaSubscription($business);
 
         // ── Owner-level: Business count & User count ────────────────────────
         $owner = $business->users()->wherePivot('role', 'owner')->first();
@@ -675,6 +726,9 @@ final class EntitlementService
             'invoices_this_month' => $buildStat($invoiceMonthCount, $isCore ? null : self::FREE_INVOICE_MONTHLY_LIMIT),
             'po_this_month'       => $buildStat($poMonthCount,      $isCore ? null : self::FREE_PO_MONTHLY_LIMIT),
             'pos_this_month'      => $buildStat($posMonthCount,     $isCore ? null : self::FREE_POS_MONTHLY_LIMIT),
+            'social_posts_this_month' => $buildStat($socialPostsMonthCount, $hasSocialAddon ? null : self::FREE_SOCIAL_POST_MONTHLY_LIMIT),
+            'whatsapp_this_month'     => $buildStat($waMonthCount,          $isCore ? null : self::FREE_WHATSAPP_MONTHLY_LIMIT),
+            'has_social_addon'        => $hasSocialAddon,
 
             // AI & Storage
             'ai_tokens' => [

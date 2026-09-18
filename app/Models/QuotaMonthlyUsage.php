@@ -20,6 +20,10 @@ class QuotaMonthlyUsage extends Model
 
     public const TYPE_POS = 'pos_transaction';
 
+    public const TYPE_SOCIAL_POST = 'social_post';
+
+    public const TYPE_WHATSAPP = 'whatsapp_message';
+
     protected $fillable = ['business_id', 'resource_type', 'year', 'month', 'usage_count'];
 
     /**

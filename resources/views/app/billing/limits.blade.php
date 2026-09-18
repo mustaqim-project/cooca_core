@@ -705,7 +705,7 @@
                     tanggal 1 awal bulan (00:00 WIB)</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
                 <!-- 1. POS Orders -->
                 @php
                     $pos = $usage['pos_this_month'] ?? [];
@@ -716,7 +716,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $posReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Transaksi Kasir POS</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">Transaksi Kasir</span>
                             <div class="p-1.5 rounded-[8px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                                 aria-hidden="true">
                                 <i data-lucide="shopping-cart" class="w-4 h-4"></i>
@@ -745,7 +745,7 @@
                     <div
                         class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
                         <span
-                            class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas transaksi kasir' : 'Maks. 100 struk/bln (Free)' }}</span>
+                            class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas transaksi kasir' : 'Maks. 30 struk/bln (Free)' }}</span>
                         @if ($posReached)
                             <span
                                 class="rounded-[6px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90">Batas
@@ -766,7 +766,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $invReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Faktur Penjualan (B2B)</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">Faktur B2B</span>
                             <div class="p-1.5 rounded-[8px] bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400"
                                 aria-hidden="true">
                                 <i data-lucide="receipt" class="w-4 h-4"></i>
@@ -795,7 +795,7 @@
                     <div
                         class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
                         <span
-                            class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas cetak faktur digital' : 'Maks. 10 faktur/bln (Free)' }}</span>
+                            class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas cetak faktur digital' : 'Maks. 3 faktur/bln (Free)' }}</span>
                         @if ($invReached)
                             <span
                                 class="rounded-[6px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90">Batas
@@ -816,7 +816,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $poReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Purchase Order (PO)</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">Purchase Order</span>
                             <div class="p-1.5 rounded-[8px] bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
                                 aria-hidden="true">
                                 <i data-lucide="clipboard-list" class="w-4 h-4"></i>
@@ -844,13 +844,137 @@
                     <div
                         class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
                         <span
-                            class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas order supplier' : 'Maks. 10 PO/bln (Free)' }}</span>
+                            class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas order supplier' : 'Maks. 3 PO/bln (Free)' }}</span>
                         @if ($poReached)
                             <span
                                 class="rounded-[6px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90">Batas
                                 Tercapai</span>
                         @elseif($usage['is_core'])
                             <span class="text-cyan-600 dark:text-cyan-400 font-bold font-mono">UNLIMITED</span>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- 4. Media Sosial Scheduler (Add-on / Freemium) -->
+                @php
+                    $soc = $usage['social_posts_this_month'] ?? [];
+                    $hasSocAddon = !empty($usage['has_social_addon']);
+                    $socPercent = $hasSocAddon ? 100 : min(100, max(0, (int) ($soc['percent'] ?? 0)));
+                    $socReached = $soc['is_reached'] ?? false;
+                @endphp
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $socReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
+                    <div>
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                            <span class="text-xs font-bold uppercase tracking-wider">Media Sosial</span>
+                            <div class="p-1.5 rounded-[8px] bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400"
+                                aria-hidden="true">
+                                <i data-lucide="share-2" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 flex items-baseline gap-1.5">
+                            <span
+                                class="text-2xl font-black font-mono tabular-nums {{ $socReached ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
+                                {{ number_format($soc['used'] ?? 0, 0, ',', '.') }}
+                            </span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                                / {{ $soc['limit'] ? number_format($soc['limit'], 0, ',', '.') . ' posting' : '∞ Unlimited' }}
+                            </span>
+                        </div>
+
+                        <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-2 overflow-hidden mt-3 border border-slate-200 dark:border-slate-800"
+                            role="progressbar" aria-valuenow="{{ $socPercent }}" aria-valuemin="0"
+                            aria-valuemax="100" aria-label="Kuota Posting Media Sosial">
+                            <div class="h-full rounded-full transition-all duration-500 {{ $socReached ? 'bg-rose-500' : ($socPercent >= 80 ? 'bg-amber-400' : 'bg-pink-500') }}"
+                                style="width: {{ $socPercent }}%"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
+                        <span
+                            class="text-slate-500 dark:text-slate-400">{{ $hasSocAddon ? 'Add-On Aktif' : 'Maks. 3 konten/bln (Free)' }}</span>
+                        @if ($socReached)
+                            <button type="button"
+                                @click="window.dispatchEvent(new CustomEvent('open-quota-modal', {
+                                    detail: {
+                                        title: 'Kuota Posting Media Sosial Habis',
+                                        desc: 'Anda telah mencapai batas 3 posting gratis bulan ini. Kuota akan otomatis di-reset pada tanggal 1 awal bulan berikutnya atau aktifkan Add-On untuk posting tanpa batas.',
+                                        used: {{ $soc['used'] ?? 0 }},
+                                        limit: 3,
+                                        unit: 'posting',
+                                        upgradeUrl: '{{ route('billing.checkout') }}',
+                                        upgradeFee: 'Rp 89.000/bln',
+                                        isAddon: true
+                                    }
+                                }))"
+                                class="rounded-[6px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90 cursor-pointer hover:bg-rose-100 transition">
+                                Batas Tercapai
+                            </button>
+                        @elseif($hasSocAddon)
+                            <span class="text-pink-600 dark:text-pink-400 font-bold font-mono">UNLIMITED</span>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- 5. WhatsApp Gateway (Notification & Receipts) -->
+                @php
+                    $wa = $usage['whatsapp_this_month'] ?? [];
+                    $waPercent = $usage['is_core'] ? 100 : min(100, max(0, (int) ($wa['percent'] ?? 0)));
+                    $waReached = $wa['is_reached'] ?? false;
+                @endphp
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $waReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
+                    <div>
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                            <span class="text-xs font-bold uppercase tracking-wider">WhatsApp Gateway</span>
+                            <div class="p-1.5 rounded-[8px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                aria-hidden="true">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 flex items-baseline gap-1.5">
+                            <span
+                                class="text-2xl font-black font-mono tabular-nums {{ $waReached ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
+                                {{ number_format($wa['used'] ?? 0, 0, ',', '.') }}
+                            </span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                                / {{ $wa['limit'] ? number_format($wa['limit'], 0, ',', '.') . ' pesan' : '∞ Unlimited' }}
+                            </span>
+                        </div>
+
+                        <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-2 overflow-hidden mt-3 border border-slate-200 dark:border-slate-800"
+                            role="progressbar" aria-valuenow="{{ $waPercent }}" aria-valuemin="0"
+                            aria-valuemax="100" aria-label="Kuota Pesan WhatsApp Gateway">
+                            <div class="h-full rounded-full transition-all duration-500 {{ $waReached ? 'bg-rose-500' : ($waPercent >= 80 ? 'bg-amber-400' : 'bg-emerald-500') }}"
+                                style="width: {{ $waPercent }}%"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
+                        <span
+                            class="text-slate-500 dark:text-slate-400">{{ $usage['is_core'] ? 'Bebas notifikasi & struk' : 'Maks. 10 pesan/bln (Free)' }}</span>
+                        @if ($waReached)
+                            <button type="button"
+                                @click="window.dispatchEvent(new CustomEvent('open-quota-modal', {
+                                    detail: {
+                                        title: 'Kuota Pesan WhatsApp Habis',
+                                        desc: 'Anda telah mencapai batas 10 pesan WhatsApp gratis bulan ini. Kuota akan otomatis di-reset pada awal bulan berikutnya atau upgrade ke Cooca Core.',
+                                        used: {{ $wa['used'] ?? 0 }},
+                                        limit: 10,
+                                        unit: 'pesan',
+                                        upgradeUrl: '{{ route('billing.checkout') }}',
+                                        upgradeFee: 'Rp 49.000/bln'
+                                    }
+                                }))"
+                                class="rounded-[6px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200/90 dark:border-rose-800/90 cursor-pointer hover:bg-rose-100 transition">
+                                Batas Tercapai
+                            </button>
+                        @elseif($usage['is_core'])
+                            <span class="text-emerald-600 dark:text-emerald-400 font-bold font-mono">UNLIMITED</span>
                         @endif
                     </div>
                 </div>
@@ -899,7 +1023,7 @@
                         </div>
                     </div>
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
-                        {{ $usage['is_core'] ? 'Katalog tanpa batas' : 'Maks. 50 produk (Free)' }}</div>
+                        {{ $usage['is_core'] ? 'Katalog tanpa batas' : 'Maks. 10 produk (Free)' }}</div>
                 </div>
 
                 <!-- 2. Bahan Baku -->
@@ -927,7 +1051,7 @@
                         </div>
                     </div>
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
-                        {{ $usage['is_core'] ? 'Bahan baku tanpa batas' : 'Maks. 20 bahan baku (Free)' }}</div>
+                        {{ $usage['is_core'] ? 'Bahan baku tanpa batas' : 'Maks. 10 bahan baku (Free)' }}</div>
                 </div>
 
                 <!-- 3. Resep HPP (BOM) -->
@@ -955,7 +1079,7 @@
                         </div>
                     </div>
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
-                        {{ $usage['is_core'] ? 'Resep tanpa batas' : 'Maks. 20 resep (Free)' }}</div>
+                        {{ $usage['is_core'] ? 'Resep tanpa batas' : 'Maks. 3 resep (Free)' }}</div>
                 </div>
 
                 <!-- 4. Pelanggan CRM -->
@@ -983,7 +1107,7 @@
                         </div>
                     </div>
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
-                        {{ $usage['is_core'] ? 'Database kontak unlimited' : 'Maks. 30 kontak (Free)' }}</div>
+                        {{ $usage['is_core'] ? 'Database kontak unlimited' : 'Maks. 10 kontak (Free)' }}</div>
                 </div>
 
                 <!-- 5. Pemasok / Supplier -->
@@ -1011,7 +1135,7 @@
                         </div>
                     </div>
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
-                        {{ $usage['is_core'] ? 'Daftar vendor tanpa batas' : 'Maks. 20 vendor (Free)' }}</div>
+                        {{ $usage['is_core'] ? 'Daftar vendor tanpa batas' : 'Maks. 2 vendor (Free)' }}</div>
                 </div>
 
                 <!-- 6. Outlet & Gudang -->
@@ -1145,7 +1269,7 @@
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Katalog Produk &amp; SKU
                                 Varian</td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">Maks. 50 Item
+                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">Maks. 10 Item
                             </td>
                             <td
                                 class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
@@ -1155,7 +1279,7 @@
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Resep HPP / Bill of Materials
                                 (BOM)</td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">Maks. 20 Resep
+                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">Maks. 3 Resep
                             </td>
                             <td
                                 class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
@@ -1165,7 +1289,7 @@
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Transaksi Kasir POS Per Bulan
                             </td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">100 Struk /
+                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">30 Struk /
                                 bln</td>
                             <td
                                 class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
@@ -1175,7 +1299,7 @@
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Faktur Penjualan &amp; Surat
                                 Jalan (B2B)</td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">10 Faktur /
+                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">3 Faktur /
                                 bln</td>
                             <td
                                 class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
@@ -1189,6 +1313,22 @@
                             <td
                                 class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
                                 Multi-Gudang Aktif
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Kelola Konten &amp; Jadwal Media Sosial</td>
+                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">3 Konten / bln</td>
+                            <td
+                                class="py-3.5 px-4 text-center font-mono font-bold text-pink-700 dark:text-pink-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
+                                Add-On (Rp 89k/bln)
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Notifikasi &amp; Struk Bot WhatsApp</td>
+                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">10 Pesan / bln</td>
+                            <td
+                                class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
+                                ∞ Tanpa Batas
                             </td>
                         </tr>
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">

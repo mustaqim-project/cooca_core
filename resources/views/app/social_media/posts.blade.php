@@ -38,13 +38,68 @@
             </div>
 
             <div class="flex items-center gap-2.5 w-full lg:w-auto">
-                <button @click="openComposerModal = true"
-                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm">
-                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                    <span>Tulis Postingan Baru</span>
-                </button>
+                @if(isset($canSchedulePost) && !$canSchedulePost && empty($hasSocialAddon))
+                    <button type="button"
+                        @click="window.dispatchEvent(new CustomEvent('open-quota-modal', {
+                            detail: {
+                                title: 'Kuota Posting Media Sosial Habis',
+                                desc: 'Anda telah mencapai batas 3 posting gratis bulan ini. Kuota akan otomatis di-reset pada tanggal 1 awal bulan berikutnya atau aktifkan Add-On Social Media Management untuk posting tanpa batas.',
+                                used: {{ $postsUsedThisMonth ?? 3 }},
+                                limit: {{ $socialPostLimit ?? 3 }},
+                                unit: 'posting',
+                                upgradeUrl: '{{ route('billing.checkout') }}',
+                                upgradeFee: 'Rp 89.000/bln',
+                                isAddon: true
+                            }
+                        }))"
+                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-slate-700 hover:bg-slate-800 active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm cursor-pointer">
+                        <i data-lucide="lock" class="w-4 h-4 text-rose-300"></i>
+                        <span>Tulis Postingan (Batas Tercapai)</span>
+                    </button>
+                @else
+                    <button @click="openComposerModal = true"
+                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Tulis Postingan Baru</span>
+                    </button>
+                @endif
             </div>
         </header>
+
+        {{-- QUOTA LIMIT BANNER IF REACHED --}}
+        @if(isset($canSchedulePost) && !$canSchedulePost && empty($hasSocialAddon))
+            <div class="rounded-[16px] p-4 sm:p-5 bg-rose-50/80 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 backdrop-blur-md">
+                <div class="flex items-start sm:items-center gap-3">
+                    <div class="w-10 h-10 rounded-[12px] bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                        <i data-lucide="lock" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="text-[14px] font-bold text-slate-900 dark:text-white">
+                            Kuota Posting Gratis Bulan Ini Habis ({{ $postsUsedThisMonth ?? 3 }}/{{ $socialPostLimit ?? 3 }} Posting)
+                        </div>
+                        <div class="text-[12px] text-slate-600 dark:text-slate-400 mt-0.5">
+                            Seluruh riwayat postingan dan analitik tetap aman dapat diakses. Kuota akan otomatis di-reset pada tanggal 1 awal bulan berikutnya.
+                        </div>
+                    </div>
+                </div>
+                <button type="button"
+                    @click="window.dispatchEvent(new CustomEvent('open-quota-modal', {
+                        detail: {
+                            title: 'Kuota Posting Media Sosial Terpakai',
+                            desc: 'Anda telah mencapai batas 3 posting gratis bulan ini. Aktifkan Add-On Social Media Management untuk posting & jadwal konten tanpa batas.',
+                            used: {{ $postsUsedThisMonth ?? 3 }},
+                            limit: {{ $socialPostLimit ?? 3 }},
+                            unit: 'posting',
+                            upgradeUrl: '{{ route('billing.checkout') }}',
+                            upgradeFee: 'Rp 89.000/bln',
+                            isAddon: true
+                        }
+                    }))"
+                    class="h-9 px-4 rounded-[10px] text-[12px] font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm transition whitespace-nowrap cursor-pointer shrink-0">
+                    Aktifkan Unlimited
+                </button>
+            </div>
+        @endif
 
         {{-- 2. MODULE NAVIGATION SUB-TABS --}}
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-sm">

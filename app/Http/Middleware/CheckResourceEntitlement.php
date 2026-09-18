@@ -41,6 +41,8 @@ final class CheckResourceEntitlement
             'warehouse' => $this->entitlementService->canCreateLocation($business, 'warehouse'),
             'purchase_order', 'po' => $this->entitlementService->canCreatePurchaseOrderThisMonth($business),
             'pos' => $this->entitlementService->canCreatePosTransactionThisMonth($business),
+            'social_post' => $this->entitlementService->canScheduleSocialPostThisMonth($business),
+            'whatsapp' => $this->entitlementService->canSendWhatsAppThisMonth($business),
             'import' => $this->entitlementService->canImportData($business),
             'export' => $this->entitlementService->canExportData($business),
             'member', 'user' => $this->entitlementService->canAddMember($business),
@@ -49,36 +51,40 @@ final class CheckResourceEntitlement
 
         if (!$canProceed) {
             $labels = [
-                'product' => 'Katalog Produk (Maks. 50 pada paket Free)',
-                'recipe' => 'Resep HPP / BOM (Maks. 20 pada paket Free)',
-                'material' => 'Bahan Baku (Maks. 20 pada paket Free)',
-                'customer' => 'Pelanggan / CRM (Maks. 30 pada paket Free)',
-                'supplier' => 'Pemasok / Supplier (Maks. 20 pada paket Free)',
+                'product' => 'Katalog Produk (Maks. 10 pada paket Free)',
+                'recipe' => 'Resep HPP / BOM (Maks. 3 pada paket Free)',
+                'material' => 'Bahan Baku (Maks. 10 pada paket Free)',
+                'customer' => 'Pelanggan / CRM (Maks. 10 pada paket Free)',
+                'supplier' => 'Pemasok / Supplier (Maks. 2 pada paket Free)',
                 'outlet' => 'Outlet / Cabang (Maks. 1 pada paket Free)',
                 'warehouse' => 'Gudang / Central Kitchen (Maks. 1 pada paket Free)',
-                'invoice' => 'Faktur Penjualan (Maks. 10 per bulan pada paket Free)',
-                'purchase_order' => 'Purchase Order (Maks. 10 per bulan pada paket Free)',
-                'po' => 'Purchase Order (Maks. 10 per bulan pada paket Free)',
-                'pos' => 'Transaksi POS Kasir (Maks. 100 per bulan pada paket Free)',
+                'invoice' => 'Faktur Penjualan (Maks. 3 per bulan pada paket Free)',
+                'purchase_order' => 'Purchase Order (Maks. 3 per bulan pada paket Free)',
+                'po' => 'Purchase Order (Maks. 3 per bulan pada paket Free)',
+                'pos' => 'Transaksi POS Kasir (Maks. 30 per bulan pada paket Free)',
+                'social_post' => 'Jadwal Postingan Media Sosial (Maks. 3 per bulan pada paket Free)',
+                'whatsapp' => 'Pesan WhatsApp Gateway (Maks. 10 per bulan pada paket Free)',
                 'ai' => 'Fitur Asisten & Prediksi AI (Khusus Paket Core)',
-                'import' => 'Fitur Import Data Excel/CSV (Khusus Paket Core)',
-                'export' => 'Fitur Export Data Lanjutan (Khusus Paket Core)',
+                'import' => 'Fitur Import Data Excel/CSV (Khusus Paket Cooca Patungan)',
+                'export' => 'Fitur Export Data Excel/CSV (Khusus Paket Cooca Patungan)',
                 'member' => 'Tambah Karyawan / Pengguna (Maks. 1 Owner Solo pada paket Free)',
                 'user' => 'Tambah Karyawan / Pengguna (Maks. 1 Owner Solo pada paket Free)',
             ];
             $label = $labels[$resourceType] ?? $resourceType;
 
+            $upgradeFee = in_array($resourceType, ['social_post'], true) ? 'Rp89.000/bln' : 'Rp49.000/bln';
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'code' => 'RESOURCE_LIMIT_EXCEEDED',
-                    'message' => "Batas kuota {$label} telah tercapai. Tingkatkan ke Cooca (Rp129.000/bln) untuk akses tanpa batas.",
+                    'message' => "Batas kuota {$label} telah tercapai. Tingkatkan ke Cooca ({$upgradeFee}) untuk akses tanpa batas.",
                     'upgrade_url' => route('billing.limits'),
                 ], 403);
             }
 
             return redirect()->route('billing.limits')
-                ->with('error', "Batas kuota {$label} telah tercapai. Data lama Anda tetap aman (No Data Punishment). Silakan tingkatkan paket Anda untuk menambah data baru.");
+                ->with('error', "Batas kuota {$label} telah tercapai. Data lama Anda tetap aman (No Data Punishment). Silakan tingkatkan paket Anda ({$upgradeFee}) untuk menambah data baru.");
         }
 
         return $next($request);

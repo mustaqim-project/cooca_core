@@ -80,10 +80,10 @@ class SaaSPlanAndEntitlementTest extends TestCase
         $this->assertFalse($this->entitlementService->canAccessAi($this->business));
     }
 
-    public function test_free_plan_blocks_product_creation_at_fifty_items(): void
+    public function test_free_plan_blocks_product_creation_at_limit(): void
     {
-        // Create 50 products
-        for ($i = 1; $i <= 50; $i++) {
+        // Create 10 products (FREE_PRODUCT_LIMIT)
+        for ($i = 1; $i <= EntitlementService::FREE_PRODUCT_LIMIT; $i++) {
             Product::create([
                 'business_id' => $this->business->id,
                 'category_id' => $this->category->id,
@@ -103,7 +103,7 @@ class SaaSPlanAndEntitlementTest extends TestCase
         session(['active_business_id' => $this->business->id]);
 
         $response = $this->post(route('products.store'), [
-            'name' => 'Produk ke-51',
+            'name' => 'Produk ke-11',
             'selling_price' => 20000,
         ]);
 

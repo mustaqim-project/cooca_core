@@ -161,6 +161,29 @@ class WhatsAppGatewayService
      */
     public function sendMessage(Business $business, string $phone, string $message, array $options = []): array
     {
+        $entitlement = app(\App\Domain\Billing\EntitlementService::class);
+        if (! $entitlement->canSendWhatsAppThisMonth($business)) {
+            return [
+                'success' => false,
+                'error'   => 'Batas kuota pesan WhatsApp gratis bulan ini (10 pesan) telah tercapai. Upgrade ke Cooca Core (Rp 49.000/bln) untuk kirim tanpa batas!',
+            ];
+        }
+
+        $result = $this->executeSendMessage($business, $phone, $message, $options);
+
+        if ($result['success'] ?? false) {
+            $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_WHATSAPP, \App\Domain\Billing\EntitlementService::FREE_WHATSAPP_MONTHLY_LIMIT);
+            $entitlement->clearUsageCache($business);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Internal implementation of Meta Cloud API / WABA sending.
+     */
+    protected function executeSendMessage(Business $business, string $phone, string $message, array $options = []): array
+    {
         // 1. Prioritaskan Akun Meta WhatsApp Cloud API resmi toko (WhatsAppAccount)
         $account = WhatsAppAccount::where('business_id', $business->id)->first();
         if ($account && $account->isConnected()) {

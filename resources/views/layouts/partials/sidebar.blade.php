@@ -1971,7 +1971,7 @@
                                 <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Media Sosial</span>
                             </div>
                             <div class="flex items-center gap-1 shrink-0" x-show="!sidebarCollapsed">
-                                <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-[#1877F2]/15 text-[#1877F2] font-semibold border border-[#1877F2]/30">Meta</span>
+                                <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-gradient-to-r from-[#FF9500]/15 to-[#AF52DE]/15 text-[#AF52DE] dark:text-[#BF5AF2] font-bold border border-[#AF52DE]/30">Add-On</span>
                                 <i data-lucide="chevron-down"
                                     class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
                                     :class="socialMediaOpen ? 'rotate-180 text-[#1877F2]' : ''"></i>
@@ -1995,6 +1995,13 @@
                                     class="w-3.5 h-3.5 {{ request()->routeIs('social-media.posts.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                                 <span class="truncate">Posting Konten</span>
                             </a>
+                            <a href="{{ route('social-media.calendar') }}"
+                                {{ request()->routeIs('social-media.calendar') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('social-media.calendar') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="calendar"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('social-media.calendar') ? 'text-white' : 'text-[#007AFF]' }} shrink-0"></i>
+                                <span class="truncate">Kalender Konten</span>
+                            </a>
                             <a href="{{ route('social-media.inbox.index') }}"
                                 {{ request()->routeIs('social-media.inbox.*') ? 'aria-current="page"' : '' }}
                                 class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('social-media.inbox.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -2016,8 +2023,9 @@
                             class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                             style="display: none;">
                             <div
-                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
-                                Media Sosial
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1 flex items-center justify-between">
+                                <span>Media Sosial</span>
+                                <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-[#AF52DE]/15 text-[#AF52DE] font-bold">Add-On</span>
                             </div>
                             <a href="{{ route('social-media.index') }}"
                                 class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
@@ -2028,6 +2036,11 @@
                                 class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="image" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                 <span>Posting Konten</span>
+                            </a>
+                            <a href="{{ route('social-media.calendar') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Kalender Konten</span>
                             </a>
                             <a href="{{ route('social-media.inbox.index') }}"
                                 class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">

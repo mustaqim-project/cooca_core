@@ -514,7 +514,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
                 Route::get('/broadcast', [WhatsAppBroadcastWebController::class, 'index'])->name('broadcast.index');
                 Route::get('/broadcast/create', [WhatsAppBroadcastWebController::class, 'create'])->name('broadcast.create');
                 Route::get('/broadcast/estimate', [WhatsAppBroadcastWebController::class, 'estimateRecipients'])->name('broadcast.estimate');
-                Route::post('/broadcast', [WhatsAppBroadcastWebController::class, 'store'])->name('broadcast.store');
+                Route::post('/broadcast', [WhatsAppBroadcastWebController::class, 'store'])->middleware('entitlement:whatsapp')->name('broadcast.store');
                 Route::get('/broadcast/{campaign}', [WhatsAppBroadcastWebController::class, 'show'])->name('broadcast.show');
             });
         });
@@ -532,7 +532,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
 
             // Posts, Targets & Publishing
             Route::get('/posts', [SocialMediaWebController::class, 'posts'])->name('posts.index');
-            Route::post('/posts', [SocialMediaWebController::class, 'storePost'])->name('posts.store');
+            Route::post('/posts', [SocialMediaWebController::class, 'storePost'])->middleware('entitlement:social_post')->name('posts.store');
             Route::post('/targets/{target}/retry', [SocialMediaWebController::class, 'retryTarget'])->name('targets.retry');
             Route::get('/calendar', [SocialMediaWebController::class, 'calendar'])->name('calendar');
 

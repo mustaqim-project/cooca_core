@@ -29,6 +29,7 @@ class QuotaEnforcementTest extends TestCase
             'name' => 'Test Owner',
             'email' => 'owner_' . Str::random(5) . '@test.com',
             'password' => 'password123',
+            'email_verified_at' => now(),
         ]);
 
         $business = Business::create([
@@ -128,14 +129,16 @@ class QuotaEnforcementTest extends TestCase
         $summary = app(EntitlementService::class)->getUsageSummary($business);
 
         $this->assertFalse($summary['is_core']);
-        $this->assertEquals(50, $summary['products']['limit']);
-        $this->assertEquals(20, $summary['materials']['limit']);
-        $this->assertEquals(20, $summary['recipes']['limit']);
-        $this->assertEquals(30, $summary['customers']['limit']);
-        $this->assertEquals(20, $summary['suppliers']['limit']);
-        $this->assertEquals(10, $summary['invoices_this_month']['limit']);
-        $this->assertEquals(10, $summary['po_this_month']['limit']);
-        $this->assertEquals(100, $summary['pos_this_month']['limit']);
+        $this->assertEquals(EntitlementService::FREE_PRODUCT_LIMIT, $summary['products']['limit']);
+        $this->assertEquals(EntitlementService::FREE_MATERIAL_LIMIT, $summary['materials']['limit']);
+        $this->assertEquals(EntitlementService::FREE_RECIPE_LIMIT, $summary['recipes']['limit']);
+        $this->assertEquals(EntitlementService::FREE_CUSTOMER_LIMIT, $summary['customers']['limit']);
+        $this->assertEquals(EntitlementService::FREE_SUPPLIER_LIMIT, $summary['suppliers']['limit']);
+        $this->assertEquals(EntitlementService::FREE_INVOICE_MONTHLY_LIMIT, $summary['invoices_this_month']['limit']);
+        $this->assertEquals(EntitlementService::FREE_PO_MONTHLY_LIMIT, $summary['po_this_month']['limit']);
+        $this->assertEquals(EntitlementService::FREE_POS_MONTHLY_LIMIT, $summary['pos_this_month']['limit']);
+        $this->assertEquals(EntitlementService::FREE_SOCIAL_POST_MONTHLY_LIMIT, $summary['social_posts_this_month']['limit']);
+        $this->assertEquals(EntitlementService::FREE_WHATSAPP_MONTHLY_LIMIT, $summary['whatsapp_this_month']['limit']);
         $this->assertEquals(1, $summary['businesses']['limit']);
         $this->assertEquals(1, $summary['users']['limit']);
     }

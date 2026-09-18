@@ -1839,6 +1839,9 @@
         });
     </script>
 
+    {{-- Reusable Quota & Lock Modal (Bento Apple HIG) --}}
+    <x-quota-modal />
+
     @stack('scripts')
 </body>
 
