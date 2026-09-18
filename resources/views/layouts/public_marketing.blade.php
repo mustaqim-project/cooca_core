@@ -18,38 +18,96 @@
             } catch (e) {}
         })();
     </script>
+    @php
+        $siteLogoLightSetting = \App\Models\SystemSetting::get('site_logo_light');
+        $siteLogoDarkSetting  = \App\Models\SystemSetting::get('site_logo_dark');
+        $siteFaviconSetting   = \App\Models\SystemSetting::get('site_favicon');
+        $seoOgImageSetting    = \App\Models\SystemSetting::get('seo_og_image');
+
+        $siteLogoLightUrl = $siteLogoLightSetting ? asset('storage/' . $siteLogoLightSetting) : asset('assets/image/1785229034_logo_dark.png');
+        $siteLogoDarkUrl  = $siteLogoDarkSetting ? asset('storage/' . $siteLogoDarkSetting) : asset('assets/image/1785229034_logo_dark.png');
+        $siteFaviconUrl   = $siteFaviconSetting ? asset('storage/' . $siteFaviconSetting) : asset('assets/image/1785229034_favicon.png');
+        $seoOgImageUrl    = $seoOgImageSetting ? asset('storage/' . $seoOgImageSetting) : asset('assets/image/cooca.png');
+
+        $siteAppName           = \App\Models\SystemSetting::get('app_name', 'Cooca UMKM');
+        $siteTagline           = \App\Models\SystemSetting::get('site_tagline', 'Business Operating System & Omnichannel ERP');
+        $seoMetaTitle          = \App\Models\SystemSetting::get('seo_meta_title', 'Cooca UMKM - Business Operating System & Omnichannel ERP');
+        $seoMetaDesc           = \App\Models\SystemSetting::get('seo_meta_description', 'Cooca UMKM: Software kasir POS, pembukuan otomatis, kalkulator bisnis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.');
+        $seoKeywords           = \App\Models\SystemSetting::get('seo_meta_keywords', 'Cooca UMKM, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, cooca.id');
+        $seoAuthor             = \App\Models\SystemSetting::get('seo_author', 'Cooca Indonesia');
+        $seoRobots             = \App\Models\SystemSetting::get('seo_robots', 'index, follow');
+        $seoCanonical          = \App\Models\SystemSetting::get('seo_canonical_url') ?: url()->current();
+        $seoOgTitle            = \App\Models\SystemSetting::get('seo_og_title') ?: $seoMetaTitle;
+        $seoOgDesc             = \App\Models\SystemSetting::get('seo_og_description') ?: $seoMetaDesc;
+        $seoTwitterCard        = \App\Models\SystemSetting::get('seo_twitter_card', 'summary_large_image');
+        $seoTwitterSite        = \App\Models\SystemSetting::get('seo_twitter_site', '@cooca_id');
+        $seoGoogleVerification = \App\Models\SystemSetting::get('seo_google_verification');
+        $seoBingVerification   = \App\Models\SystemSetting::get('seo_bing_verification');
+        $seoGaId               = \App\Models\SystemSetting::get('seo_google_analytics_id');
+        $seoCustomHeadScripts  = \App\Models\SystemSetting::get('seo_custom_head_scripts');
+    @endphp
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? View::yieldContent('title', 'Cooca UMKM - Business Operating System & Omnichannel ERP') }}
-    </title>
-    <meta name="description" content="@yield('description', 'Cooca UMKM: Software kasir POS, pembukuan otomatis, kalkulator bisnis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.')">
-    <meta name="keywords" content="@yield('keywords', 'Cooca UMKM, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, cooca.id')">
+    <title>@hasSection('title')@yield('title')@else{{ $title ?? $seoMetaTitle }}@endif</title>
+    <meta name="description" content="@yield('description', $seoMetaDesc)">
+    <meta name="keywords" content="@yield('keywords', $seoKeywords)">
+    <meta name="author" content="{{ $seoAuthor }}">
 
-    <!-- Open Graph -->
+    <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="COOCA.ID">
+    <meta property="og:site_name" content="{{ $siteAppName }}">
     <meta property="og:locale" content="id_ID">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title"
-        content="{{ $title ?? View::yieldContent('title', 'Cooca UMKM - Business Operating System & Omnichannel ERP') }}">
-    <meta property="og:description" content="@yield('description', 'Cooca UMKM: Software kasir, pembukuan, kalkulator bisnis & AI Assistant gratis selamanya.')">
-    <meta property="og:image" content="@yield('og_image', 'https://cooca.id/assets/image/cooca.png')">
+    <meta property="og:url" content="{{ $seoCanonical }}">
+    <meta property="og:title" content="{{ $seoOgTitle ?: ($title ?? (View::hasSection('title') ? View::yieldContent('title') : $seoMetaTitle)) }}">
+    <meta property="og:description" content="@yield('description', $seoOgDesc ?: $seoMetaDesc)">
+    <meta property="og:image" content="@yield('og_image', $seoOgImageUrl)">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="{{ $seoTwitterCard }}">
+    <meta name="twitter:site" content="{{ $seoTwitterSite }}">
+    <meta name="twitter:title" content="{{ $seoOgTitle ?: ($title ?? (View::hasSection('title') ? View::yieldContent('title') : $seoMetaTitle)) }}">
+    <meta name="twitter:description" content="@yield('description', $seoOgDesc ?: $seoMetaDesc)">
+    <meta name="twitter:image" content="@yield('og_image', $seoOgImageUrl)">
+
+    <!-- Webmaster Verification -->
+    @if(!empty($seoGoogleVerification))
+    <meta name="google-site-verification" content="{{ $seoGoogleVerification }}">
+    @endif
+    @if(!empty($seoBingVerification))
+    <meta name="msvalidate.01" content="{{ $seoBingVerification }}">
+    @endif
+
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="https://cooca.id/assets/image/1785229034_favicon.png">
-    <link rel="alternate icon" type="image/png" href="https://cooca.id/favicon.png">
+    <link rel="icon" type="image/png" href="{{ $siteFaviconUrl }}">
+    <link rel="apple-touch-icon" href="{{ $siteFaviconUrl }}">
 
     <!-- SEO Canonical & Robots -->
-    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="canonical" href="{{ $seoCanonical }}">
     @if ($noindex ?? false)
         <meta name="robots" content="noindex, nofollow">
     @else
-        <meta name="robots" content="@yield('robots', 'index, follow')">
+        <meta name="robots" content="@yield('robots', $seoRobots)">
     @endif
     @stack('seo')
+
+    <!-- Google Analytics (GA4) -->
+    @if(!empty($seoGaId))
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $seoGaId }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ $seoGaId }}');
+    </script>
+    @endif
+
+    <!-- Custom Head Scripts -->
+    @if(!empty($seoCustomHeadScripts))
+    {!! $seoCustomHeadScripts !!}
+    @endif
 
     <!-- Fonts (SF Pro Fallback: Inter & JetBrains Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -234,17 +292,15 @@
 
                 <!-- Logo Cooca -->
                 <a href="{{ route('landing') }}" class="flex items-center gap-3 group shrink-0">
-                    <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="Cooca"
+                    <img src="{{ $siteLogoLightUrl }}" alt="{{ $siteAppName }}"
                         class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden">
-                    <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="Cooca"
+                    <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
                         class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block">
                     <div class="border-l border-black/10 dark:border-white/10 pl-3 hidden xs:block">
                         <span
-                            class="font-extrabold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">Cooca
-                            UMKM</span>
+                            class="font-extrabold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
                         <span
-                            class="text-[9px] sm:text-[10px] uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-[0.15em]">100%
-                            Gratis Selamanya</span>
+                            class="text-[9px] sm:text-[10px] uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-[0.15em]">{{ $siteTagline }}</span>
                     </div>
                 </a>
 
@@ -674,17 +730,15 @@
                     <!-- Col 1: Brand & Contact (Full width on mobile/tablet, 2 cols on desktop) -->
                     <div class="space-y-4 lg:col-span-2">
                         <div class="flex items-center gap-3">
-                            <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="Cooca"
+                            <img src="{{ $siteLogoLightUrl }}" alt="{{ $siteAppName }}"
                                 class="h-7 w-auto object-contain dark:hidden">
-                            <img src="https://cooca.id/assets/image/1785229034_logo_dark.png" alt="Cooca"
+                            <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
                                 class="h-7 w-auto object-contain hidden dark:block">
                             <div class="border-l border-black/10 dark:border-white/10 pl-3">
                                 <span
-                                    class="font-bold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">Cooca
-                                    UMKM</span>
+                                    class="font-bold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
                                 <span
-                                    class="text-[9px] uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-wider">Business
-                                    Operating System</span>
+                                    class="text-[9px] uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-wider">{{ $siteTagline }}</span>
                             </div>
                         </div>
                         <p class="text-xs text-black/50 dark:text-white/50 leading-relaxed max-w-sm">
@@ -693,8 +747,12 @@
                         </p>
 
                         <!-- Contact Widgets -->
+                        @php
+                            $footerWaUrl = \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6282337499577');
+                            $footerWaNum = \App\Models\SystemSetting::get('social_whatsapp_number', '0823 3749 9577');
+                        @endphp
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm pt-1">
-                            <a href="https://wa.me/6282337499577" target="_blank"
+                            <a href="{{ $footerWaUrl }}" target="_blank"
                                 class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5 hover:bg-[#34C759]/10 active:scale-[0.98] transition-all">
                                 <div
                                     class="w-7 h-7 rounded-[10px] bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158] flex items-center justify-center shrink-0">
@@ -705,8 +763,7 @@
                                         class="text-[9px] uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">WhatsApp
                                         CS</span>
                                     <span
-                                        class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block font-mono">0823
-                                        3749 9577</span>
+                                        class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block font-mono">{{ $footerWaNum }}</span>
                                 </div>
                             </a>
                             <a href="mailto:support@cooca.id"
@@ -723,6 +780,84 @@
                                         class="font-medium text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block">support@cooca.id</span>
                                 </div>
                             </a>
+                        </div>
+
+                        <!-- Official Social Media Channels (CMS Dynamic) -->
+                        @php
+                            $footerSocialChannels = [
+                                'instagram' => [
+                                    'active' => filter_var(\App\Models\SystemSetting::get('social_instagram_active', '1'), FILTER_VALIDATE_BOOLEAN),
+                                    'url'    => \App\Models\SystemSetting::get('social_instagram_url', 'https://instagram.com/cooca.indonesia'),
+                                    'name'   => 'Instagram',
+                                    'handle' => \App\Models\SystemSetting::get('social_instagram_handle', '@cooca.indonesia'),
+                                    'svg'    => '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>',
+                                    'hover'  => 'hover:bg-[#DD2A7B]/15 hover:text-[#DD2A7B] dark:hover:text-[#DD2A7B]',
+                                ],
+                                'facebook' => [
+                                    'active' => filter_var(\App\Models\SystemSetting::get('social_facebook_active', '1'), FILTER_VALIDATE_BOOLEAN),
+                                    'url'    => \App\Models\SystemSetting::get('social_facebook_url', 'https://facebook.com/cooca.id'),
+                                    'name'   => 'Facebook',
+                                    'handle' => \App\Models\SystemSetting::get('social_facebook_name', 'Cooca Indonesia'),
+                                    'svg'    => '<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>',
+                                    'hover'  => 'hover:bg-[#1877F2]/15 hover:text-[#1877F2] dark:hover:text-[#1877F2]',
+                                ],
+                                'tiktok' => [
+                                    'active' => filter_var(\App\Models\SystemSetting::get('social_tiktok_active', '1'), FILTER_VALIDATE_BOOLEAN),
+                                    'url'    => \App\Models\SystemSetting::get('social_tiktok_url', 'https://tiktok.com/@cooca.id'),
+                                    'name'   => 'TikTok',
+                                    'handle' => \App\Models\SystemSetting::get('social_tiktok_handle', '@cooca.id'),
+                                    'svg'    => '<path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>',
+                                    'hover'  => 'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
+                                ],
+                                'youtube' => [
+                                    'active' => filter_var(\App\Models\SystemSetting::get('social_youtube_active', '1'), FILTER_VALIDATE_BOOLEAN),
+                                    'url'    => \App\Models\SystemSetting::get('social_youtube_url', 'https://youtube.com/@cooca_id'),
+                                    'name'   => 'YouTube',
+                                    'handle' => \App\Models\SystemSetting::get('social_youtube_name', 'Cooca UMKM Official'),
+                                    'svg'    => '<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>',
+                                    'hover'  => 'hover:bg-[#FF0000]/15 hover:text-[#FF0000] dark:hover:text-[#FF0000]',
+                                ],
+                                'twitter' => [
+                                    'active' => filter_var(\App\Models\SystemSetting::get('social_twitter_active', '1'), FILTER_VALIDATE_BOOLEAN),
+                                    'url'    => \App\Models\SystemSetting::get('social_twitter_url', 'https://x.com/cooca_id'),
+                                    'name'   => 'X (Twitter)',
+                                    'handle' => \App\Models\SystemSetting::get('social_twitter_handle', '@cooca_id'),
+                                    'svg'    => '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>',
+                                    'hover'  => 'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
+                                ],
+                                'linkedin' => [
+                                    'active' => filter_var(\App\Models\SystemSetting::get('social_linkedin_active', '1'), FILTER_VALIDATE_BOOLEAN),
+                                    'url'    => \App\Models\SystemSetting::get('social_linkedin_url', 'https://linkedin.com/company/cooca'),
+                                    'name'   => 'LinkedIn',
+                                    'handle' => \App\Models\SystemSetting::get('social_linkedin_name', 'Cooca Indonesia'),
+                                    'svg'    => '<path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>',
+                                    'hover'  => 'hover:bg-[#0A66C2]/15 hover:text-[#0A66C2] dark:hover:text-[#0A66C2]',
+                                ],
+                                'telegram' => [
+                                    'active' => filter_var(\App\Models\SystemSetting::get('social_telegram_active', '0'), FILTER_VALIDATE_BOOLEAN),
+                                    'url'    => \App\Models\SystemSetting::get('social_telegram_url', 'https://t.me/cooca_id'),
+                                    'name'   => 'Telegram',
+                                    'handle' => \App\Models\SystemSetting::get('social_telegram_name', 'Komunitas Cooca UMKM'),
+                                    'svg'    => '<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.536-.196 1.006.128.832.942z"/>',
+                                    'hover'  => 'hover:bg-[#229ED9]/15 hover:text-[#229ED9] dark:hover:text-[#229ED9]',
+                                ],
+                            ];
+                        @endphp
+                        <div class="pt-2">
+                            <span class="text-[11px] font-bold text-black/40 dark:text-white/40 uppercase tracking-wider block mb-2">Ikuti Kanal Resmi Cooca:</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                @foreach($footerSocialChannels as $key => $soc)
+                                    @if($soc['active'] && !empty($soc['url']))
+                                    <a href="{{ $soc['url'] }}" target="_blank" rel="noopener noreferrer"
+                                        title="{{ $soc['name'] }}: {{ $soc['handle'] }}"
+                                        class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.06] text-black/70 dark:text-white/70 flex items-center justify-center {{ $soc['hover'] }} active:scale-95 transition-all">
+                                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                            {!! $soc['svg'] !!}
+                                        </svg>
+                                    </a>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
 
                         <div class="pt-1">

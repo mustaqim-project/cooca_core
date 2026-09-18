@@ -38,6 +38,14 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
 
+    <!-- Favicon -->
+    @php
+        $adminFavicon = \App\Models\SystemSetting::get('site_favicon');
+        $adminFaviconUrl = $adminFavicon ? asset('storage/' . $adminFavicon) : asset('assets/image/1785229034_favicon.png');
+    @endphp
+    <link rel="icon" type="image/png" href="{{ $adminFaviconUrl }}">
+    <link rel="apple-touch-icon" href="{{ $adminFaviconUrl }}">
+
     <!-- Tailwind CSS CDN with Apple System Design Tokens -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -301,15 +309,21 @@
             <!-- Brand Banner -->
             <div
                 class="flex items-center justify-between px-2 pb-4 border-b border-black/[0.04] dark:border-white/[0.06]">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 group min-w-0">
-                    <div
-                        class="w-9 h-9 rounded-[11px] bg-gradient-to-tr from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-md shadow-[#007AFF]/25 transition-transform group-hover:scale-105 shrink-0">
-                        <i data-lucide="shield-check" class="w-5 h-5 text-white" stroke-width="2"></i>
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 group min-w-0">
+                    @php
+                        $adminLogoDark = \App\Models\SystemSetting::get('site_logo_dark');
+                        $adminLogoLight = \App\Models\SystemSetting::get('site_logo_light');
+                        $adminLogoDarkUrl = $adminLogoDark ? asset('storage/' . $adminLogoDark) : asset('assets/image/1785229034_logo_dark.png');
+                        $adminLogoLightUrl = $adminLogoLight ? asset('storage/' . $adminLogoLight) : asset('assets/image/1785229034_logo_dark.png');
+                        $adminAppName = \App\Models\SystemSetting::get('app_name', 'Cooca');
+                    @endphp
+                    <div class="h-8 max-w-[130px] flex items-center shrink-0">
+                        <img src="{{ $adminLogoLightUrl }}" alt="{{ $adminAppName }}" class="h-7 w-auto object-contain dark:hidden">
+                        <img src="{{ $adminLogoDarkUrl }}" alt="{{ $adminAppName }}" class="h-7 w-auto object-contain hidden dark:block">
                     </div>
-                    <div class="leading-tight min-w-0">
-                        <span
-                            class="font-extrabold text-[14px] tracking-tight text-black dark:text-white truncate block">Cooca Admin</span>
-                        <span class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate block">Platform Operations</span>
+                    <div class="border-l border-black/10 dark:border-white/10 pl-2 leading-tight min-w-0">
+                        <span class="font-extrabold text-[13px] tracking-tight text-black dark:text-white truncate block">Admin</span>
+                        <span class="text-[10px] font-medium text-black/45 dark:text-white/45 truncate block">Operations</span>
                     </div>
                 </a>
                 <button @click="sidebarOpen = false"

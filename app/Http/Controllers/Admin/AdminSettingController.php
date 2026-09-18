@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 final class AdminSettingController extends Controller
@@ -40,6 +41,21 @@ final class AdminSettingController extends Controller
             $googleCustomerRedirectUri = $canonicalUrl('/customer/auth/google/callback');
         }
 
+        $resolveAssetUrl = static function (?string $path, string $fallback): string {
+            if (empty($path)) {
+                return $fallback;
+            }
+            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                return $path;
+            }
+            return Storage::disk('public')->url($path);
+        };
+
+        $rawLogoLight = SystemSetting::get('site_logo_light');
+        $rawLogoDark  = SystemSetting::get('site_logo_dark');
+        $rawFavicon   = SystemSetting::get('site_favicon');
+        $rawOgImage   = SystemSetting::get('seo_og_image');
+
         return [
             'appUrl' => $appUrl,
             'googleClientId' => SystemSetting::get('google_client_id') ?? config('services.google.client_id', ''),
@@ -48,7 +64,60 @@ final class AdminSettingController extends Controller
             'googleCustomerRedirectUri' => $googleCustomerRedirectUri,
             'allowGoogleLogin' => SystemSetting::get('allow_google_login', '1'),
             'allowCustomerGoogleLogin' => SystemSetting::get('allow_customer_google_login', '1'),
-            'appName' => SystemSetting::get('app_name', config('app.name', 'Universal HPP Calculator')),
+            'appName' => SystemSetting::get('app_name', config('app.name', 'Cooca UMKM')),
+
+            // Platform Branding & Logos (Light & Dark Mode)
+            'siteLogoLight'           => $resolveAssetUrl($rawLogoLight, asset('assets/image/1785229034_logo_dark.png')),
+            'siteLogoLightRaw'        => $rawLogoLight,
+            'siteLogoDark'            => $resolveAssetUrl($rawLogoDark, asset('assets/image/1785229034_logo_dark.png')),
+            'siteLogoDarkRaw'         => $rawLogoDark,
+            'siteFavicon'             => $resolveAssetUrl($rawFavicon, asset('assets/image/1785229034_favicon.png')),
+            'siteFaviconRaw'          => $rawFavicon,
+            'siteTagline'             => SystemSetting::get('site_tagline', 'Business Operating System & Omnichannel ERP'),
+
+            // Official Social Media Channels (Platform Public CMS)
+            'socialInstagramUrl'      => SystemSetting::get('social_instagram_url', 'https://instagram.com/cooca.indonesia'),
+            'socialInstagramHandle'   => SystemSetting::get('social_instagram_handle', '@cooca.indonesia'),
+            'socialInstagramActive'   => filter_var(SystemSetting::get('social_instagram_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'socialFacebookUrl'       => SystemSetting::get('social_facebook_url', 'https://facebook.com/cooca.id'),
+            'socialFacebookName'      => SystemSetting::get('social_facebook_name', 'Cooca Indonesia'),
+            'socialFacebookActive'    => filter_var(SystemSetting::get('social_facebook_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'socialTiktokUrl'         => SystemSetting::get('social_tiktok_url', 'https://tiktok.com/@cooca.id'),
+            'socialTiktokHandle'      => SystemSetting::get('social_tiktok_handle', '@cooca.id'),
+            'socialTiktokActive'      => filter_var(SystemSetting::get('social_tiktok_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'socialYoutubeUrl'        => SystemSetting::get('social_youtube_url', 'https://youtube.com/@cooca_id'),
+            'socialYoutubeName'       => SystemSetting::get('social_youtube_name', 'Cooca UMKM Official'),
+            'socialYoutubeActive'     => filter_var(SystemSetting::get('social_youtube_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'socialTwitterUrl'        => SystemSetting::get('social_twitter_url', 'https://x.com/cooca_id'),
+            'socialTwitterHandle'     => SystemSetting::get('social_twitter_handle', '@cooca_id'),
+            'socialTwitterActive'     => filter_var(SystemSetting::get('social_twitter_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'socialLinkedinUrl'       => SystemSetting::get('social_linkedin_url', 'https://linkedin.com/company/cooca'),
+            'socialLinkedinName'      => SystemSetting::get('social_linkedin_name', 'Cooca Indonesia'),
+            'socialLinkedinActive'    => filter_var(SystemSetting::get('social_linkedin_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'socialWhatsappUrl'       => SystemSetting::get('social_whatsapp_url', 'https://wa.me/6282337499577'),
+            'socialWhatsappNumber'    => SystemSetting::get('social_whatsapp_number', '0823 3749 9577'),
+            'socialWhatsappActive'    => filter_var(SystemSetting::get('social_whatsapp_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'socialTelegramUrl'       => SystemSetting::get('social_telegram_url', 'https://t.me/cooca_id'),
+            'socialTelegramName'      => SystemSetting::get('social_telegram_name', 'Komunitas Cooca UMKM'),
+            'socialTelegramActive'    => filter_var(SystemSetting::get('social_telegram_active', '0'), FILTER_VALIDATE_BOOLEAN),
+
+            // SEO & Metadata Complete CMS
+            'seoMetaTitle'            => SystemSetting::get('seo_meta_title', 'Cooca UMKM - Business Operating System & Omnichannel ERP'),
+            'seoMetaDescription'      => SystemSetting::get('seo_meta_description', 'Cooca UMKM: Software kasir POS, pembukuan otomatis, kalkulator bisnis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.'),
+            'seoMetaKeywords'         => SystemSetting::get('seo_meta_keywords', 'Cooca UMKM, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, cooca.id'),
+            'seoAuthor'               => SystemSetting::get('seo_author', 'Cooca Indonesia'),
+            'seoRobots'               => SystemSetting::get('seo_robots', 'index, follow'),
+            'seoCanonicalUrl'         => SystemSetting::get('seo_canonical_url', $appUrl),
+            'seoOgTitle'              => SystemSetting::get('seo_og_title', 'Cooca UMKM - Business Operating System & Omnichannel ERP'),
+            'seoOgDescription'        => SystemSetting::get('seo_og_description', 'Software kasir, pembukuan, kalkulator bisnis & AI Assistant gratis selamanya untuk UMKM Indonesia.'),
+            'seoOgImage'              => $resolveAssetUrl($rawOgImage, asset('assets/image/cooca.png')),
+            'seoOgImageRaw'           => $rawOgImage,
+            'seoTwitterCard'          => SystemSetting::get('seo_twitter_card', 'summary_large_image'),
+            'seoTwitterSite'          => SystemSetting::get('seo_twitter_site', '@cooca_id'),
+            'seoGoogleVerification'   => SystemSetting::get('seo_google_verification', ''),
+            'seoBingVerification'     => SystemSetting::get('seo_bing_verification', ''),
+            'seoGoogleAnalyticsId'    => SystemSetting::get('seo_google_analytics_id', ''),
+            'seoCustomHeadScripts'    => SystemSetting::get('seo_custom_head_scripts', ''),
 
             // Subscription Pricing Settings
             'subscriptionPriceMonthly' => SystemSetting::get('subscription_price_monthly', '25000'),
@@ -221,6 +290,59 @@ final class AdminSettingController extends Controller
             'biteship_base_url'                 => ['nullable', 'url', 'max:255'],
             'biteship_environment'              => ['nullable', 'string', 'in:sandbox,production'],
             'biteship_service_fee'              => ['nullable', 'numeric', 'min:0'],
+
+            // Platform Branding & Logos
+            'site_logo_light_file'              => ['nullable', 'image', 'mimes:png,jpg,jpeg,svg,webp', 'max:2048'],
+            'site_logo_dark_file'               => ['nullable', 'image', 'mimes:png,jpg,jpeg,svg,webp', 'max:2048'],
+            'site_favicon_file'                 => ['nullable', 'file', 'mimes:ico,png,svg', 'max:1024'],
+            'site_tagline'                      => ['nullable', 'string', 'max:255'],
+            'reset_logo_light'                  => ['nullable', 'boolean'],
+            'reset_logo_dark'                   => ['nullable', 'boolean'],
+            'reset_favicon'                     => ['nullable', 'boolean'],
+
+            // Official Social Media Channels (Platform CMS)
+            'social_instagram_url'              => ['nullable', 'url', 'max:255'],
+            'social_instagram_handle'           => ['nullable', 'string', 'max:100'],
+            'social_instagram_active'           => ['nullable', 'boolean'],
+            'social_facebook_url'               => ['nullable', 'url', 'max:255'],
+            'social_facebook_name'              => ['nullable', 'string', 'max:100'],
+            'social_facebook_active'            => ['nullable', 'boolean'],
+            'social_tiktok_url'                 => ['nullable', 'url', 'max:255'],
+            'social_tiktok_handle'              => ['nullable', 'string', 'max:100'],
+            'social_tiktok_active'              => ['nullable', 'boolean'],
+            'social_youtube_url'                => ['nullable', 'url', 'max:255'],
+            'social_youtube_name'               => ['nullable', 'string', 'max:100'],
+            'social_youtube_active'             => ['nullable', 'boolean'],
+            'social_twitter_url'                => ['nullable', 'url', 'max:255'],
+            'social_twitter_handle'             => ['nullable', 'string', 'max:100'],
+            'social_twitter_active'             => ['nullable', 'boolean'],
+            'social_linkedin_url'               => ['nullable', 'url', 'max:255'],
+            'social_linkedin_name'              => ['nullable', 'string', 'max:100'],
+            'social_linkedin_active'            => ['nullable', 'boolean'],
+            'social_whatsapp_url'               => ['nullable', 'url', 'max:255'],
+            'social_whatsapp_number'            => ['nullable', 'string', 'max:50'],
+            'social_whatsapp_active'            => ['nullable', 'boolean'],
+            'social_telegram_url'               => ['nullable', 'url', 'max:255'],
+            'social_telegram_name'              => ['nullable', 'string', 'max:100'],
+            'social_telegram_active'            => ['nullable', 'boolean'],
+
+            // SEO & Metadata Complete CMS
+            'seo_meta_title'                    => ['nullable', 'string', 'max:255'],
+            'seo_meta_description'              => ['nullable', 'string', 'max:1000'],
+            'seo_meta_keywords'                 => ['nullable', 'string', 'max:1000'],
+            'seo_author'                        => ['nullable', 'string', 'max:150'],
+            'seo_robots'                        => ['nullable', 'string', 'max:100'],
+            'seo_canonical_url'                 => ['nullable', 'url', 'max:255'],
+            'seo_og_title'                      => ['nullable', 'string', 'max:255'],
+            'seo_og_description'                => ['nullable', 'string', 'max:1000'],
+            'seo_og_image_file'                 => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:3072'],
+            'reset_og_image'                    => ['nullable', 'boolean'],
+            'seo_twitter_card'                  => ['nullable', 'string', 'max:50'],
+            'seo_twitter_site'                  => ['nullable', 'string', 'max:100'],
+            'seo_google_verification'           => ['nullable', 'string', 'max:255'],
+            'seo_bing_verification'             => ['nullable', 'string', 'max:255'],
+            'seo_google_analytics_id'           => ['nullable', 'string', 'max:100'],
+            'seo_custom_head_scripts'           => ['nullable', 'string', 'max:5000'],
         ]);
 
         if (! empty($validated['app_name'])) {
@@ -408,9 +530,120 @@ final class AdminSettingController extends Controller
             if (isset($validated[$setting])) SystemSetting::set($setting, (string) $validated[$setting], 'billing');
         }
 
-        $activeTab = (string) $request->input('active_tab', 'system');
+        // --- Platform Branding & Logos ---
+        if ($request->boolean('reset_logo_light')) {
+            $old = SystemSetting::get('site_logo_light');
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+            SystemSetting::set('site_logo_light', '', 'branding');
+        } elseif ($request->hasFile('site_logo_light_file')) {
+            $old = SystemSetting::get('site_logo_light');
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+            $path = $request->file('site_logo_light_file')->store('branding', 'public');
+            SystemSetting::set('site_logo_light', $path, 'branding');
+        }
 
-        return redirect()->route('admin.settings.index', ['tab' => $activeTab])
+        if ($request->boolean('reset_logo_dark')) {
+            $old = SystemSetting::get('site_logo_dark');
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+            SystemSetting::set('site_logo_dark', '', 'branding');
+        } elseif ($request->hasFile('site_logo_dark_file')) {
+            $old = SystemSetting::get('site_logo_dark');
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+            $path = $request->file('site_logo_dark_file')->store('branding', 'public');
+            SystemSetting::set('site_logo_dark', $path, 'branding');
+        }
+
+        if ($request->boolean('reset_favicon')) {
+            $old = SystemSetting::get('site_favicon');
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+            SystemSetting::set('site_favicon', '', 'branding');
+        } elseif ($request->hasFile('site_favicon_file')) {
+            $old = SystemSetting::get('site_favicon');
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+            $path = $request->file('site_favicon_file')->store('branding', 'public');
+            SystemSetting::set('site_favicon', $path, 'branding');
+        }
+
+        if (array_key_exists('site_tagline', $validated)) {
+            SystemSetting::set('site_tagline', trim((string) $validated['site_tagline']), 'branding');
+        }
+
+        // --- Official Social Media Channels (Platform CMS) ---
+        $socialChannels = ['instagram', 'facebook', 'tiktok', 'youtube', 'twitter', 'linkedin', 'whatsapp', 'telegram'];
+        foreach ($socialChannels as $ch) {
+            $urlKey = "social_{$ch}_url";
+            $activeKey = "social_{$ch}_active";
+
+            if (array_key_exists($urlKey, $validated)) {
+                SystemSetting::set($urlKey, trim((string) ($validated[$urlKey] ?? '')), 'social_links');
+            }
+            if ($request->has("social_{$ch}_handle")) {
+                SystemSetting::set("social_{$ch}_handle", trim((string) $request->input("social_{$ch}_handle", '')), 'social_links');
+            }
+            if ($request->has("social_{$ch}_name")) {
+                SystemSetting::set("social_{$ch}_name", trim((string) $request->input("social_{$ch}_name", '')), 'social_links');
+            }
+            if ($request->has("social_{$ch}_number")) {
+                SystemSetting::set("social_{$ch}_number", trim((string) $request->input("social_{$ch}_number", '')), 'social_links');
+            }
+            if ($request->input('active_tab') === 'social_links' || $request->has($activeKey)) {
+                SystemSetting::set($activeKey, $request->boolean($activeKey) ? '1' : '0', 'social_links');
+            }
+        }
+
+        // --- SEO & Metadata Complete CMS ---
+        if ($request->boolean('reset_og_image')) {
+            $old = SystemSetting::get('seo_og_image');
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+            SystemSetting::set('seo_og_image', '', 'seo');
+        } elseif ($request->hasFile('seo_og_image_file')) {
+            $old = SystemSetting::get('seo_og_image');
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+            $path = $request->file('seo_og_image_file')->store('branding', 'public');
+            SystemSetting::set('seo_og_image', $path, 'seo');
+        }
+
+        $seoFields = [
+            'seo_meta_title',
+            'seo_meta_description',
+            'seo_meta_keywords',
+            'seo_author',
+            'seo_robots',
+            'seo_canonical_url',
+            'seo_og_title',
+            'seo_og_description',
+            'seo_twitter_card',
+            'seo_twitter_site',
+            'seo_google_verification',
+            'seo_bing_verification',
+            'seo_google_analytics_id',
+            'seo_custom_head_scripts',
+        ];
+        foreach ($seoFields as $field) {
+            if (array_key_exists($field, $validated)) {
+                SystemSetting::set($field, (string) ($validated[$field] ?? ''), 'seo');
+            }
+        }
+
+        $redirectParams = $request->filled('active_tab') ? ['tab' => $request->input('active_tab')] : [];
+
+        return redirect()->route('admin.settings.index', $redirectParams)
             ->with('success', 'Konfigurasi platform berhasil disimpan ke database.');
     }
 

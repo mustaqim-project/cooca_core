@@ -1,9 +1,5 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Cooca UMKM - Software Kasir & ERP Gratis untuk UMKM Indonesia | cooca.id')
-@section('description', 'Cooca UMKM: Software kasir POS, HPP, inventori, pembukuan otomatis & AI Assistant 100% GRATIS selamanya. Digunakan 10.000+ UMKM Indonesia. Tanpa biaya langganan, tanpa kartu kredit.')
-@section('keywords', 'Cooca UMKM, software kasir gratis, erp umkm gratis, aplikasi toko gratis, pos gratis indonesia, software akuntansi gratis umkm, manajemen inventori gratis, ai assistant bisnis umkm, cooca.id')
-
     @push('seo')
         <script type="application/ld+json">
     {

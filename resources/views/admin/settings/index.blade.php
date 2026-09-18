@@ -250,6 +250,40 @@
                 @endif
             </button>
 
+            <!-- Tab: Branding & Identitas Logo -->
+            <button type="button" @click="switchTab('branding')"
+                :class="activeTab === 'branding'
+                    ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold border border-black/[0.06] dark:border-white/[0.08]'
+                    : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-semibold hover:bg-black/[0.03] dark:hover:bg-white/[0.04]'"
+                class="h-11 sm:h-10 px-4 sm:px-4 rounded-[14px] text-[13px] sm:text-[13.5px] transition-all flex items-center gap-2 shrink-0 cursor-pointer">
+                <i data-lucide="palette" class="w-4 h-4 shrink-0" :class="activeTab === 'branding' ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40'"></i>
+                <span>Branding &amp; Logo</span>
+                @if(!empty($siteLogoLightRaw) || !empty($siteLogoDarkRaw))
+                    <span class="w-2 h-2 rounded-full bg-[#34C759]" title="Logo Kustom Aktif"></span>
+                @endif
+            </button>
+
+            <!-- Tab: Media Sosial Resmi (Public CMS) -->
+            <button type="button" @click="switchTab('social_links')"
+                :class="activeTab === 'social_links'
+                    ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold border border-black/[0.06] dark:border-white/[0.08]'
+                    : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-semibold hover:bg-black/[0.03] dark:hover:bg-white/[0.04]'"
+                class="h-11 sm:h-10 px-4 sm:px-4 rounded-[14px] text-[13px] sm:text-[13.5px] transition-all flex items-center gap-2 shrink-0 cursor-pointer">
+                <i data-lucide="share-2" class="w-4 h-4 shrink-0" :class="activeTab === 'social_links' ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40'"></i>
+                <span>Medsos Resmi CMS</span>
+            </button>
+
+            <!-- Tab: SEO & SERP CMS -->
+            <button type="button" @click="switchTab('seo')"
+                :class="activeTab === 'seo'
+                    ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold border border-black/[0.06] dark:border-white/[0.08]'
+                    : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-semibold hover:bg-black/[0.03] dark:hover:bg-white/[0.04]'"
+                class="h-11 sm:h-10 px-4 sm:px-4 rounded-[14px] text-[13px] sm:text-[13.5px] transition-all flex items-center gap-2 shrink-0 cursor-pointer">
+                <i data-lucide="search" class="w-4 h-4 shrink-0" :class="activeTab === 'seo' ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40'"></i>
+                <span>SEO Komplit CMS</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">SERP</span>
+            </button>
+
             <!-- Tab 2: Gateway Pembayaran (TriPay) -->
             <button type="button" @click="switchTab('payment')"
                 :class="activeTab === 'payment'
@@ -286,14 +320,14 @@
                 @endif
             </button>
 
-            <!-- Tab 4: Media Sosial (Meta & TikTok) -->
+            <!-- Tab 4: Media Sosial API (Meta & TikTok) -->
             <button type="button" @click="switchTab('social')"
                 :class="activeTab === 'social'
                     ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold border border-black/[0.06] dark:border-white/[0.08]'
                     : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-semibold hover:bg-black/[0.03] dark:hover:bg-white/[0.04]'"
                 class="h-11 sm:h-10 px-4 sm:px-4 rounded-[14px] text-[13px] sm:text-[13.5px] transition-all flex items-center gap-2 shrink-0 cursor-pointer">
                 <i data-lucide="share-2" class="w-4 h-4 shrink-0" :class="activeTab === 'social' ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40'"></i>
-                <span>Media Sosial</span>
+                <span>API Meta &amp; TikTok</span>
                 @if(!empty($metaSocialAppId) && !empty($tiktokClientKey))
                     <i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759] shrink-0" title="Meta &amp; TikTok Terkonfigurasi"></i>
                 @elseif(!empty($metaSocialAppId) || !empty($tiktokClientKey))
@@ -349,6 +383,9 @@
     <!-- MODULAR SETTINGS TABS (UNIFIED PLATFORM SETTINGS HUB)                     -->
     <!-- ========================================================================= -->
     @include('admin.settings.tabs.tab-system')
+    @include('admin.settings.tabs.tab-branding')
+    @include('admin.settings.tabs.tab-social-links')
+    @include('admin.settings.tabs.tab-seo')
     @include('admin.settings.tabs.tab-payment')
     @include('admin.settings.tabs.tab-whatsapp')
     @include('admin.settings.tabs.tab-social')
