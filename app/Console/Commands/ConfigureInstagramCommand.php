@@ -16,6 +16,11 @@ class ConfigureInstagramCommand extends Command
     public function handle(): int
     {
         SystemSetting::set('social_media_app_id', '1454871749894754', 'social_media');
+        SystemSetting::set('social_media_app_secret', '73b4d4fcdb8e5178c27ed47eeedd83d8', 'social_media', isSecret: true);
+        SystemSetting::set('instagram_app_secret', '73b4d4fcdb8e5178c27ed47eeedd83d8', 'social_media', isSecret: true);
+        SystemSetting::set('meta_wa_app_id', '1454871749894754', 'whatsapp');
+        SystemSetting::set('meta_wa_app_secret', '73b4d4fcdb8e5178c27ed47eeedd83d8', 'whatsapp', isSecret: true);
+
         SystemSetting::set('instagram_app_id', '1813131243044390', 'social_media');
         SystemSetting::set('instagram_app_name', 'Cooca-IG', 'social_media');
         SystemSetting::set('instagram_account_id', '17841439846162016', 'social_media');
