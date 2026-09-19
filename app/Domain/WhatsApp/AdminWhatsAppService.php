@@ -64,7 +64,7 @@ class AdminWhatsAppService
                     'status'               => 'connected',
                     'phone'                => $data['display_phone_number'] ?? $verified['display_phone_number'] ?? null,
                     'verified_name'        => $data['verified_name'] ?? $verified['verified_name'] ?? 'COOCA Official Platform',
-                    'quality_rating'       => $data['quality_rating'] ?? $verified['quality_rating'] ?? 'GREEN',
+                    'quality_rating'       => (!empty($data['quality_rating']) && $data['quality_rating'] !== 'UNKNOWN') ? $data['quality_rating'] : 'GREEN',
                     'messaging_limit_tier' => $data['messaging_limit_tier'] ?? $verified['messaging_limit_tier'] ?? 'TIER_1K',
                     'waba_id'              => $creds['waba_id'],
                     'phone_number_id'      => $phoneId,
