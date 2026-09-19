@@ -140,6 +140,13 @@ Route::get('/syarat-ketentuan', function () {
     return view('public.terms', compact('page'));
 });
 
+Route::get('/data-deletion', function () {
+    return redirect('/privacy#data-subject-rights');
+})->name('public.data-deletion');
+Route::get('/penghapusan-data', function () {
+    return redirect('/privacy#data-subject-rights');
+});
+
 // 13. Public Digital Payslip (Token Access)
 Route::get('/payslip/{token}', [\App\Http\Controllers\Web\Hrm\HrmWebController::class, 'publicPayslip'])->name('public.payslip');
 
