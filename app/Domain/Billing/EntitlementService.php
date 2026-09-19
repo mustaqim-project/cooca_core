@@ -34,16 +34,122 @@ use Illuminate\Support\Str;
 
 final class EntitlementService
 {
-    // ── Business-level Master Data Limits ─────────────────────────────────────
+    // ── 4-Tier Quota Mapping (§Blueprint v2.3) ────────────────────────────────
+    public const TIER_PRODUCT_LIMITS = [
+        BusinessSubscription::TIER_FREE => 10,
+        BusinessSubscription::TIER_STANDARD => 50,
+        BusinessSubscription::TIER_PREMIUM => null, // Unlimited
+        BusinessSubscription::TIER_PRESTIGE => null, // Unlimited
+    ];
+
+    public const TIER_RECIPE_LIMITS = [
+        BusinessSubscription::TIER_FREE => 3,
+        BusinessSubscription::TIER_STANDARD => 10,
+        BusinessSubscription::TIER_PREMIUM => null,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_MATERIAL_LIMITS = [
+        BusinessSubscription::TIER_FREE => 10,
+        BusinessSubscription::TIER_STANDARD => 30,
+        BusinessSubscription::TIER_PREMIUM => null,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_CUSTOMER_LIMITS = [
+        BusinessSubscription::TIER_FREE => 15,
+        BusinessSubscription::TIER_STANDARD => 100,
+        BusinessSubscription::TIER_PREMIUM => 1000,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_SUPPLIER_LIMITS = [
+        BusinessSubscription::TIER_FREE => 2,
+        BusinessSubscription::TIER_STANDARD => 5,
+        BusinessSubscription::TIER_PREMIUM => null, // Unlimited per Blueprint v2.3
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_OUTLET_LIMITS = [
+        BusinessSubscription::TIER_FREE => 1,
+        BusinessSubscription::TIER_STANDARD => 1,
+        BusinessSubscription::TIER_PREMIUM => 3,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_WAREHOUSE_LIMITS = [
+        BusinessSubscription::TIER_FREE => 1,
+        BusinessSubscription::TIER_STANDARD => 1,
+        BusinessSubscription::TIER_PREMIUM => 3,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_USER_PER_OWNER_LIMITS = [
+        BusinessSubscription::TIER_FREE => 1,
+        BusinessSubscription::TIER_STANDARD => 3,
+        BusinessSubscription::TIER_PREMIUM => 10,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_BUSINESS_LIMITS = [
+        BusinessSubscription::TIER_FREE => 1,
+        BusinessSubscription::TIER_STANDARD => 1,
+        BusinessSubscription::TIER_PREMIUM => 3,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_MONTHLY_POS_LIMITS = [
+        BusinessSubscription::TIER_FREE => 30,
+        BusinessSubscription::TIER_STANDARD => null,
+        BusinessSubscription::TIER_PREMIUM => null,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_MONTHLY_INVOICE_LIMITS = [
+        BusinessSubscription::TIER_FREE => 3,
+        BusinessSubscription::TIER_STANDARD => 15, // 15 faktur per bulan per Blueprint v2.3
+        BusinessSubscription::TIER_PREMIUM => null,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_MONTHLY_PO_LIMITS = [
+        BusinessSubscription::TIER_FREE => 3,
+        BusinessSubscription::TIER_STANDARD => 15, // 15 PO per bulan per Blueprint v2.3
+        BusinessSubscription::TIER_PREMIUM => null,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_WHATSAPP_LIMITS = [
+        BusinessSubscription::TIER_FREE => 10,
+        BusinessSubscription::TIER_STANDARD => 50,
+        BusinessSubscription::TIER_PREMIUM => 300,
+        BusinessSubscription::TIER_PRESTIGE => 1000,
+    ];
+
+    public const TIER_SOCIAL_LIMITS = [
+        BusinessSubscription::TIER_FREE => 3,
+        BusinessSubscription::TIER_STANDARD => 10,
+        BusinessSubscription::TIER_PREMIUM => 30,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_TABLE_LIMITS = [
+        BusinessSubscription::TIER_FREE => 0,
+        BusinessSubscription::TIER_STANDARD => 5,
+        BusinessSubscription::TIER_PREMIUM => null,
+        BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    // ── Business-level Master Data Limits (Legacy Backward Compatibility) ─────
     public const FREE_PRODUCT_LIMIT           = 10;
     public const FREE_RECIPE_LIMIT            = 3;
     public const FREE_MATERIAL_LIMIT          = 10;
-    public const FREE_CUSTOMER_LIMIT          = 10;
+    public const FREE_CUSTOMER_LIMIT          = 15;
     public const FREE_SUPPLIER_LIMIT          = 2;
     public const FREE_OUTLET_LIMIT            = 1;
     public const FREE_WAREHOUSE_LIMIT         = 1;
 
-    // ── Business-level Monthly Transaction Quotas ─────────────────────────────
+    // ── Business-level Monthly Transaction Quotas (Legacy Backward Compatibility)
     public const FREE_INVOICE_MONTHLY_LIMIT   = 3;
     public const FREE_PO_MONTHLY_LIMIT        = 3;
     public const FREE_POS_MONTHLY_LIMIT       = 30;
@@ -59,6 +165,13 @@ final class EntitlementService
     public const DEFAULT_MONTHLY_PRICE        = 49_000.0;
     public const DEFAULT_ANNUAL_PRICE         = 490_000.0;
     public const DEFAULT_SOCIAL_MONTHLY_PRICE = 89_000.0;
+
+    public const PRICE_STANDARD_MONTHLY = 29_000.0;
+    public const PRICE_STANDARD_ANNUAL  = 290_000.0;
+    public const PRICE_PREMIUM_MONTHLY  = 89_000.0;
+    public const PRICE_PREMIUM_ANNUAL   = 890_000.0;
+    public const PRICE_PRESTIGE_MONTHLY = 199_000.0;
+    public const PRICE_PRESTIGE_ANNUAL  = 1_990_000.0;
 
     /**
      * Get configured monthly price for Core plan (from BillingPackage subscription catalog).
@@ -155,18 +268,36 @@ final class EntitlementService
     }
 
     /**
+     * Get Product limit for business. Null means unlimited.
+     */
+    public function getProductLimit(Business $business): ?int
+    {
+        $tier = $this->getSubscription($business)->getTier();
+        return array_key_exists($tier, self::TIER_PRODUCT_LIMITS) ? self::TIER_PRODUCT_LIMITS[$tier] : self::FREE_PRODUCT_LIMIT;
+    }
+
+    /**
      * Can business create a new product?
      */
     public function canCreateProduct(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $limit = $this->getProductLimit($business);
+        if ($limit === null) {
             return true;
         }
 
         $currentProducts = Product::where('business_id', $business->id)->count();
 
-        return $currentProducts < self::FREE_PRODUCT_LIMIT;
+        return $currentProducts < $limit;
+    }
+
+    /**
+     * Get Recipe limit for business. Null means unlimited.
+     */
+    public function getRecipeLimit(Business $business): ?int
+    {
+        $tier = $this->getSubscription($business)->getTier();
+        return array_key_exists($tier, self::TIER_RECIPE_LIMITS) ? self::TIER_RECIPE_LIMITS[$tier] : self::FREE_RECIPE_LIMIT;
     }
 
     /**
@@ -174,8 +305,8 @@ final class EntitlementService
      */
     public function canCreateRecipe(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $limit = $this->getRecipeLimit($business);
+        if ($limit === null) {
             return true;
         }
 
@@ -183,7 +314,7 @@ final class EntitlementService
             $q->where('business_id', $business->id);
         })->count();
 
-        return $currentRecipes < self::FREE_RECIPE_LIMIT;
+        return $currentRecipes < $limit;
     }
 
     /**
@@ -191,8 +322,9 @@ final class EntitlementService
      */
     public function canCreateInvoiceThisMonth(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $tier = $this->getSubscription($business)->getTier();
+        $limit = array_key_exists($tier, self::TIER_MONTHLY_INVOICE_LIMITS) ? self::TIER_MONTHLY_INVOICE_LIMITS[$tier] : null;
+        if ($limit === null) {
             return true;
         }
 
@@ -201,7 +333,7 @@ final class EntitlementService
             ->whereYear('invoice_date', Carbon::today()->year)
             ->count();
 
-        return $currentMonthInvoices < self::FREE_INVOICE_MONTHLY_LIMIT;
+        return $currentMonthInvoices < $limit;
     }
 
     /**
@@ -217,18 +349,23 @@ final class EntitlementService
 
     /**
      * Can business add team members / employees?
-     * Free plan: max FREE_USER_PER_OWNER_LIMIT users across ALL businesses owned by same owner.
-     * Core plan: unlimited.
      */
     public function canAddMember(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $owner = $business->users()->wherePivot('role', 'owner')->first();
+        if (! $owner) {
+            return false;
+        }
+
+        $highestTier = app(OwnerStorageQuotaService::class)->getHighestTierForOwner($owner);
+        $userLimit = array_key_exists($highestTier, self::TIER_USER_PER_OWNER_LIMITS) ? self::TIER_USER_PER_OWNER_LIMITS[$highestTier] : 1;
+
+        if ($userLimit === null) {
             return true;
         }
 
-        // Free plan is strictly for 1 solo user (the owner). Additional employees require Core plan.
-        return false;
+        $currentUserCount = $this->countOwnerUsers($owner);
+        return $currentUserCount < $userLimit;
     }
 
     /**
@@ -243,10 +380,27 @@ final class EntitlementService
     }
 
     // ── Owner-Level Checks ────────────────────────────────────────────────────
+    
+    /**
+     * Get Business count limit for an owner or business. Null means unlimited.
+     */
+    public function getBusinessLimit(Business|User $target): ?int
+    {
+        if ($target instanceof User) {
+            $highestTier = app(OwnerStorageQuotaService::class)->getHighestTierForOwner($target);
+            return array_key_exists($highestTier, self::TIER_BUSINESS_LIMITS)
+                ? self::TIER_BUSINESS_LIMITS[$highestTier]
+                : self::FREE_BUSINESS_LIMIT;
+        }
+
+        $tier = $this->getSubscription($target)->getTier();
+        return array_key_exists($tier, self::TIER_BUSINESS_LIMITS) ? self::TIER_BUSINESS_LIMITS[$tier] : self::FREE_BUSINESS_LIMIT;
+    }
 
     /**
      * Can this owner create another Business?
-     * Free: max FREE_BUSINESS_LIMIT. Core: checks subscription on any existing business.
+     * Tier-based business limits (Blueprint v2.3):
+     * Free: 1, Standard: 1, Premium: 3, Prestige: Unlimited.
      */
     public function canCreateBusiness(User $owner): bool
     {
@@ -255,35 +409,47 @@ final class EntitlementService
             return true;
         }
 
-        // Check if owner has any active core subscription across their businesses
-        $hasCorePlan = BusinessSubscription::whereIn(
-            'business_id',
-            $owner->businesses()->pluck('businesses.id')
-        )->where('status', BusinessSubscription::STATUS_ACTIVE)
-            ->whereIn('plan_code', [BusinessSubscription::PLAN_CORE_MONTHLY, BusinessSubscription::PLAN_CORE_ANNUAL])
-            ->exists();
+        $limit = $this->getBusinessLimit($owner);
 
-        if ($hasCorePlan) {
+        if ($limit === null) {
             return true;
         }
 
-        return $businessCount < self::FREE_BUSINESS_LIMIT;
+        return $businessCount < $limit;
     }
 
     // ── Business-Level Master Data Checks ─────────────────────────────────────
+
+    /**
+     * Get Material limit for business. Null means unlimited.
+     */
+    public function getMaterialLimit(Business $business): ?int
+    {
+        $tier = $this->getSubscription($business)->getTier();
+        return array_key_exists($tier, self::TIER_MATERIAL_LIMITS) ? self::TIER_MATERIAL_LIMITS[$tier] : self::FREE_MATERIAL_LIMIT;
+    }
 
     /**
      * Can business create a new Material (Bahan Baku)?
      */
     public function canCreateMaterial(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $limit = $this->getMaterialLimit($business);
+        if ($limit === null) {
             return true;
         }
 
         $count = Material::where('business_id', $business->id)->count();
-        return $count < self::FREE_MATERIAL_LIMIT;
+        return $count < $limit;
+    }
+
+    /**
+     * Get Customer limit for business. Null means unlimited.
+     */
+    public function getCustomerLimit(Business $business): ?int
+    {
+        $tier = $this->getSubscription($business)->getTier();
+        return array_key_exists($tier, self::TIER_CUSTOMER_LIMITS) ? self::TIER_CUSTOMER_LIMITS[$tier] : self::FREE_CUSTOMER_LIMIT;
     }
 
     /**
@@ -291,13 +457,22 @@ final class EntitlementService
      */
     public function canCreateCustomer(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $limit = $this->getCustomerLimit($business);
+        if ($limit === null) {
             return true;
         }
 
         $count = Customer::where('business_id', $business->id)->count();
-        return $count < self::FREE_CUSTOMER_LIMIT;
+        return $count < $limit;
+    }
+
+    /**
+     * Get Supplier limit for business. Null means unlimited.
+     */
+    public function getSupplierLimit(Business $business): ?int
+    {
+        $tier = $this->getSubscription($business)->getTier();
+        return array_key_exists($tier, self::TIER_SUPPLIER_LIMITS) ? self::TIER_SUPPLIER_LIMITS[$tier] : self::FREE_SUPPLIER_LIMIT;
     }
 
     /**
@@ -305,13 +480,23 @@ final class EntitlementService
      */
     public function canCreateSupplier(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $limit = $this->getSupplierLimit($business);
+        if ($limit === null) {
             return true;
         }
 
         $count = Supplier::where('business_id', $business->id)->count();
-        return $count < self::FREE_SUPPLIER_LIMIT;
+        return $count < $limit;
+    }
+
+    /**
+     * Get Location limit for business. Null means unlimited.
+     */
+    public function getLocationLimit(Business $business, string $type): ?int
+    {
+        $tier = $this->getSubscription($business)->getTier();
+        $map = ($type === 'warehouse') ? self::TIER_WAREHOUSE_LIMITS : self::TIER_OUTLET_LIMITS;
+        return array_key_exists($tier, $map) ? $map[$tier] : 1;
     }
 
     /**
@@ -320,17 +505,10 @@ final class EntitlementService
      */
     public function canCreateLocation(Business $business, string $type): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $limit = $this->getLocationLimit($business, $type);
+        if ($limit === null) {
             return true;
         }
-
-        $limit = match ($type) {
-            'outlet'          => self::FREE_OUTLET_LIMIT,
-            'warehouse'       => self::FREE_WAREHOUSE_LIMIT,
-            'central_kitchen' => self::FREE_WAREHOUSE_LIMIT,
-            default           => 1,
-        };
 
         $count = Location::where('business_id', $business->id)
             ->where('type', $type)
@@ -343,32 +521,32 @@ final class EntitlementService
 
     /**
      * Can business create a new Purchase Order this calendar month?
-     * Free: max FREE_PO_MONTHLY_LIMIT per month.
      */
     public function canCreatePurchaseOrderThisMonth(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $tier = $this->getSubscription($business)->getTier();
+        $limit = array_key_exists($tier, self::TIER_MONTHLY_PO_LIMITS) ? self::TIER_MONTHLY_PO_LIMITS[$tier] : null;
+        if ($limit === null) {
             return true;
         }
 
         $used = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_PO);
-        return $used < self::FREE_PO_MONTHLY_LIMIT;
+        return $used < $limit;
     }
 
     /**
      * Can business process a new POS transaction this calendar month?
-     * Free: max FREE_POS_MONTHLY_LIMIT per month.
      */
     public function canCreatePosTransactionThisMonth(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $tier = $this->getSubscription($business)->getTier();
+        $limit = array_key_exists($tier, self::TIER_MONTHLY_POS_LIMITS) ? self::TIER_MONTHLY_POS_LIMITS[$tier] : null;
+        if ($limit === null) {
             return true;
         }
 
         $used = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_POS);
-        return $used < self::FREE_POS_MONTHLY_LIMIT;
+        return $used < $limit;
     }
 
     /**
@@ -389,7 +567,7 @@ final class EntitlementService
 
     /**
      * Can business schedule a new social media post this calendar month?
-     * Free: max FREE_SOCIAL_POST_MONTHLY_LIMIT per month. Add-on: unlimited.
+     * Free: 3, Standard: 10, Premium: 30, Prestige/Add-on: unlimited.
      */
     public function canScheduleSocialPostThisMonth(Business $business): bool
     {
@@ -397,23 +575,53 @@ final class EntitlementService
             return true;
         }
 
+        $tier = $this->getSubscription($business)->getTier();
+        $limit = array_key_exists($tier, self::TIER_SOCIAL_LIMITS) ? self::TIER_SOCIAL_LIMITS[$tier] : self::FREE_SOCIAL_POST_MONTHLY_LIMIT;
+        if ($limit === null) {
+            return true;
+        }
+
         $used = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_SOCIAL_POST);
-        return $used < self::FREE_SOCIAL_POST_MONTHLY_LIMIT;
+        return $used < $limit;
     }
 
     /**
      * Can business send a WhatsApp notification/blast this calendar month?
-     * Free: max FREE_WHATSAPP_MONTHLY_LIMIT per month. Core: unlimited.
+     * Tier limits (Blueprint v2.3): Free: 10, Standard: 50, Premium: 300, Prestige: 1000.
      */
     public function canSendWhatsAppThisMonth(Business $business): bool
     {
-        $sub = $this->getSubscription($business);
-        if ($sub->isCorePlan()) {
+        $tier = $this->getSubscription($business)->getTier();
+        $limit = array_key_exists($tier, self::TIER_WHATSAPP_LIMITS) ? self::TIER_WHATSAPP_LIMITS[$tier] : self::FREE_WHATSAPP_MONTHLY_LIMIT;
+        if ($limit === null) {
             return true;
         }
 
         $used = $this->getMonthlyUsage($business, QuotaMonthlyUsage::TYPE_WHATSAPP);
-        return $used < self::FREE_WHATSAPP_MONTHLY_LIMIT;
+        return $used < $limit;
+    }
+
+    /**
+     * Get Table limit for dine-in POS. Null means unlimited.
+     */
+    public function getTableLimit(Business $business): ?int
+    {
+        $tier = $this->getSubscription($business)->getTier();
+        return array_key_exists($tier, self::TIER_TABLE_LIMITS) ? self::TIER_TABLE_LIMITS[$tier] : 0;
+    }
+
+    /**
+     * Can business create a new POS Table?
+     */
+    public function canCreateTable(Business $business): bool
+    {
+        $limit = $this->getTableLimit($business);
+        if ($limit === null) {
+            return true;
+        }
+
+        $count = \App\Models\PosTable::where('business_id', $business->id)->count();
+        return $count < $limit;
     }
 
     /**
@@ -473,6 +681,92 @@ final class EntitlementService
     public function canExportData(Business $business): bool
     {
         return $this->getSubscription($business)->isCorePlan();
+    }
+
+    // ── Multi-Branch & Central Kitchen Feature Gates (§Blueprint v2.3) ────────
+
+    /**
+     * Can business transfer stock between branches/warehouses? (Tier Premium & Prestige)
+     */
+    public function canTransferStock(Business $business): bool
+    {
+        return $this->getSubscription($business)->hasTier(BusinessSubscription::TIER_PREMIUM);
+    }
+
+    /**
+     * Can business set specific product prices per branch? (Tier Premium & Prestige)
+     */
+    public function canSetBranchPrices(Business $business): bool
+    {
+        return $this->getSubscription($business)->hasTier(BusinessSubscription::TIER_PREMIUM);
+    }
+
+    // ── HRM & Payroll Feature Gates (§Blueprint v2.3) ─────────────────────────
+
+    /**
+     * Can business calculate and track employee commissions per transaction/SPK? (Tier Premium & Prestige)
+     */
+    public function canCalculateCommissions(Business $business): bool
+    {
+        return $this->getSubscription($business)->hasTier(BusinessSubscription::TIER_PREMIUM);
+    }
+
+    /**
+     * Can business manage employee loans and automated salary deductions? (Tier Premium & Prestige)
+     */
+    public function canManageEmployeeLoans(Business $business): bool
+    {
+        return $this->getSubscription($business)->hasTier(BusinessSubscription::TIER_PREMIUM);
+    }
+
+    /**
+     * Can business manage Daily Workers / Pekerja Harian Lepas? (Tier Premium & Prestige)
+     */
+    public function canManageDailyWorkers(Business $business): bool
+    {
+        return $this->getSubscription($business)->hasTier(BusinessSubscription::TIER_PREMIUM);
+    }
+
+    /**
+     * Can business calculate BPJS Ketenagakerjaan & Kesehatan? (Tier Premium & Prestige)
+     */
+    public function canCalculateBPJS(Business $business): bool
+    {
+        return $this->getSubscription($business)->hasTier(BusinessSubscription::TIER_PREMIUM);
+    }
+
+    /**
+     * Can business calculate prorated THR based on join date? (Tier Premium & Prestige)
+     */
+    public function canCalculateTHR(Business $business): bool
+    {
+        return $this->getSubscription($business)->hasTier(BusinessSubscription::TIER_PREMIUM);
+    }
+
+    // ── Tax Compliance Engine Feature Gates (§Blueprint v2.3) ─────────────────
+
+    /**
+     * Can business calculate PPh 21 TER (PP 58/2023) and December Pasal 17 reconciliation? (Tier Prestige only)
+     */
+    public function canCalculatePPh21(Business $business): bool
+    {
+        return $this->getSubscription($business)->hasTier(BusinessSubscription::TIER_PRESTIGE);
+    }
+
+    /**
+     * Can business track PPh Final UMKM 0.5% with Rp 500M annual threshold? (All active tiers)
+     */
+    public function canTrackPPhFinalUMKM(Business $business): bool
+    {
+        return true;
+    }
+
+    /**
+     * Can business send automated salary slips via WhatsApp? (Tier Prestige only)
+     */
+    public function canAutomatePayrollWhatsApp(Business $business): bool
+    {
+        return $this->getSubscription($business)->hasTier(BusinessSubscription::TIER_PRESTIGE);
     }
 
     /**
@@ -653,6 +947,8 @@ final class EntitlementService
             $q->where('business_id', $business->id);
         })->count();
 
+        $tableCount = \App\Models\PosTable::where('business_id', $business->id)->count();
+
         // ── Monthly transaction counts ──────────────────────────────────────
         $invoiceMonthCount = Invoice::where('business_id', $business->id)
             ->whereMonth('invoice_date', $now->month)
@@ -698,36 +994,48 @@ final class EntitlementService
             ];
         };
 
+        $tier = $sub->getTier();
+        $tierUserLimit = array_key_exists($tier, self::TIER_USER_PER_OWNER_LIMITS) ? self::TIER_USER_PER_OWNER_LIMITS[$tier] : 1;
+        $tierBusinessLimit = array_key_exists($tier, self::TIER_BUSINESS_LIMITS) ? self::TIER_BUSINESS_LIMITS[$tier] : 1;
+        $tierTableLimit = array_key_exists($tier, self::TIER_TABLE_LIMITS) ? self::TIER_TABLE_LIMITS[$tier] : null;
+
+        $tierLabel = match ($tier) {
+            BusinessSubscription::TIER_PRESTIGE => 'Prestige Plan (Rp199.000/bln)',
+            BusinessSubscription::TIER_PREMIUM => 'Premium Plan (Rp89.000/bln)',
+            BusinessSubscription::TIER_STANDARD => 'Standard Plan (Rp29.000/bln)',
+            default => 'Free Plan (Rp0)',
+        };
+
         $result = [
+            'tier'       => $tier,
+            'tier_level' => $sub->getTierLevel(),
             'plan_code'  => $sub->plan_code,
-            'plan_label' => $isCore
-                ? ($sub->plan_code === BusinessSubscription::PLAN_CORE_ANNUAL
-                    ? "Core Annual (Rp{$annualPriceFormatted}/thn)"
-                    : "Core Monthly (Rp{$monthlyPriceFormatted}/bln)")
-                : 'Free Plan (Rp0)',
+            'plan_label' => $tierLabel,
             'is_core' => $isCore,
+            'is_past_due' => $sub->isPastDue(),
             'status'  => $sub->status,
             'ends_at' => $sub->ends_at?->format('d M Y'),
 
             // Owner-level
-            'businesses' => $buildStat($businessCount, $isCore ? null : self::FREE_BUSINESS_LIMIT),
-            'users'      => $buildStat($userCount,     $isCore ? null : self::FREE_USER_PER_OWNER_LIMIT),
+            'businesses' => $buildStat($businessCount, $tierBusinessLimit),
+            'users'      => $buildStat($userCount,     $tierUserLimit),
 
             // Business master data
-            'products'   => $buildStat($productCount,   $isCore ? null : self::FREE_PRODUCT_LIMIT),
-            'materials'  => $buildStat($materialCount,  $isCore ? null : self::FREE_MATERIAL_LIMIT),
-            'customers'  => $buildStat($customerCount,  $isCore ? null : self::FREE_CUSTOMER_LIMIT),
-            'suppliers'  => $buildStat($supplierCount,  $isCore ? null : self::FREE_SUPPLIER_LIMIT),
-            'outlets'    => $buildStat($outletCount,    $isCore ? null : self::FREE_OUTLET_LIMIT),
-            'warehouses' => $buildStat($warehouseCount, $isCore ? null : self::FREE_WAREHOUSE_LIMIT),
-            'recipes'    => $buildStat($recipeCount,    $isCore ? null : self::FREE_RECIPE_LIMIT),
+            'products'   => $buildStat($productCount,   array_key_exists($tier, self::TIER_PRODUCT_LIMITS) ? self::TIER_PRODUCT_LIMITS[$tier] : self::FREE_PRODUCT_LIMIT),
+            'materials'  => $buildStat($materialCount,  array_key_exists($tier, self::TIER_MATERIAL_LIMITS) ? self::TIER_MATERIAL_LIMITS[$tier] : self::FREE_MATERIAL_LIMIT),
+            'customers'  => $buildStat($customerCount,  array_key_exists($tier, self::TIER_CUSTOMER_LIMITS) ? self::TIER_CUSTOMER_LIMITS[$tier] : self::FREE_CUSTOMER_LIMIT),
+            'suppliers'  => $buildStat($supplierCount,  array_key_exists($tier, self::TIER_SUPPLIER_LIMITS) ? self::TIER_SUPPLIER_LIMITS[$tier] : self::FREE_SUPPLIER_LIMIT),
+            'outlets'    => $buildStat($outletCount,    array_key_exists($tier, self::TIER_OUTLET_LIMITS) ? self::TIER_OUTLET_LIMITS[$tier] : self::FREE_OUTLET_LIMIT),
+            'warehouses' => $buildStat($warehouseCount, array_key_exists($tier, self::TIER_WAREHOUSE_LIMITS) ? self::TIER_WAREHOUSE_LIMITS[$tier] : self::FREE_WAREHOUSE_LIMIT),
+            'recipes'    => $buildStat($recipeCount,    array_key_exists($tier, self::TIER_RECIPE_LIMITS) ? self::TIER_RECIPE_LIMITS[$tier] : self::FREE_RECIPE_LIMIT),
+            'tables'     => $buildStat($tableCount,     $tierTableLimit),
 
             // Monthly quotas
-            'invoices_this_month' => $buildStat($invoiceMonthCount, $isCore ? null : self::FREE_INVOICE_MONTHLY_LIMIT),
-            'po_this_month'       => $buildStat($poMonthCount,      $isCore ? null : self::FREE_PO_MONTHLY_LIMIT),
-            'pos_this_month'      => $buildStat($posMonthCount,     $isCore ? null : self::FREE_POS_MONTHLY_LIMIT),
-            'social_posts_this_month' => $buildStat($socialPostsMonthCount, $hasSocialAddon ? null : self::FREE_SOCIAL_POST_MONTHLY_LIMIT),
-            'whatsapp_this_month'     => $buildStat($waMonthCount,          $isCore ? null : self::FREE_WHATSAPP_MONTHLY_LIMIT),
+            'invoices_this_month' => $buildStat($invoiceMonthCount, array_key_exists($tier, self::TIER_MONTHLY_INVOICE_LIMITS) ? self::TIER_MONTHLY_INVOICE_LIMITS[$tier] : null),
+            'po_this_month'       => $buildStat($poMonthCount,      array_key_exists($tier, self::TIER_MONTHLY_PO_LIMITS) ? self::TIER_MONTHLY_PO_LIMITS[$tier] : null),
+            'pos_this_month'      => $buildStat($posMonthCount,     array_key_exists($tier, self::TIER_MONTHLY_POS_LIMITS) ? self::TIER_MONTHLY_POS_LIMITS[$tier] : null),
+            'social_posts_this_month' => $buildStat($socialPostsMonthCount, $hasSocialAddon ? null : (array_key_exists($tier, self::TIER_SOCIAL_LIMITS) ? self::TIER_SOCIAL_LIMITS[$tier] : self::FREE_SOCIAL_POST_MONTHLY_LIMIT)),
+            'whatsapp_this_month'     => $buildStat($waMonthCount,          array_key_exists($tier, self::TIER_WHATSAPP_LIMITS) ? self::TIER_WHATSAPP_LIMITS[$tier] : self::FREE_WHATSAPP_MONTHLY_LIMIT),
             'has_social_addon'        => $hasSocialAddon,
 
             // AI & Storage
@@ -744,6 +1052,18 @@ final class EntitlementService
             // Feature flags
             'can_import' => $isCore,
             'can_export' => $isCore,
+            'can_create_table' => $this->canCreateTable($business),
+            'can_use_kds' => $sub->hasTier(BusinessSubscription::TIER_PREMIUM),
+            'can_transfer_stock' => $this->canTransferStock($business),
+            'can_set_branch_prices' => $this->canSetBranchPrices($business),
+            'can_calculate_commissions' => $this->canCalculateCommissions($business),
+            'can_manage_employee_loans' => $this->canManageEmployeeLoans($business),
+            'can_manage_daily_workers' => $this->canManageDailyWorkers($business),
+            'can_calculate_bpjs' => $this->canCalculateBPJS($business),
+            'can_calculate_thr' => $this->canCalculateTHR($business),
+            'can_calculate_pph21' => $this->canCalculatePPh21($business),
+            'can_track_pph_final_umkm' => $this->canTrackPPhFinalUMKM($business),
+            'can_automate_payroll_wa' => $this->canAutomatePayrollWhatsApp($business),
         ];
 
         if (! app()->environment('testing')) {
@@ -768,24 +1088,66 @@ final class EntitlementService
         Business $business,
         User $user,
         string $cycle = 'monthly',
-        string $paymentMethod = SubscriptionPayment::METHOD_BCA
+        string $paymentMethod = SubscriptionPayment::METHOD_QRIS,
+        string $tier = BusinessSubscription::TIER_STANDARD
     ): SubscriptionPayment {
         $isAnnual = $cycle === 'annual';
-        $planCode = $isAnnual ? BusinessSubscription::PLAN_CORE_ANNUAL : BusinessSubscription::PLAN_CORE_MONTHLY;
-        $baseAmount = $isAnnual ? $this->getAnnualPrice() : $this->getMonthlyPrice();
 
-        // Generate 3-digit random code between 100 and 999
-        $uniqueCode = random_int(100, 999);
+        $tier = match (strtolower($tier)) {
+            BusinessSubscription::TIER_PRESTIGE => BusinessSubscription::TIER_PRESTIGE,
+            BusinessSubscription::TIER_PREMIUM => BusinessSubscription::TIER_PREMIUM,
+            default => BusinessSubscription::TIER_STANDARD,
+        };
+
+        $planCode = match ($tier) {
+            BusinessSubscription::TIER_PRESTIGE => $isAnnual ? BusinessSubscription::PLAN_PRESTIGE_ANNUAL : BusinessSubscription::PLAN_PRESTIGE_MONTHLY,
+            BusinessSubscription::TIER_PREMIUM => $isAnnual ? BusinessSubscription::PLAN_PREMIUM_ANNUAL : BusinessSubscription::PLAN_PREMIUM_MONTHLY,
+            default => $isAnnual ? BusinessSubscription::PLAN_STANDARD_ANNUAL : BusinessSubscription::PLAN_STANDARD_MONTHLY,
+        };
+
+        $baseAmount = match ($tier) {
+            BusinessSubscription::TIER_PRESTIGE => $isAnnual ? 1990000.0 : 199000.0,
+            BusinessSubscription::TIER_PREMIUM => $isAnnual ? 890000.0 : 89000.0,
+            default => $isAnnual ? 290000.0 : 29000.0,
+        };
+
+        if ($tier === BusinessSubscription::TIER_STANDARD) {
+            if ($isAnnual && SystemSetting::get('subscription_price_annual') !== null) {
+                $baseAmount = (float) SystemSetting::get('subscription_price_annual');
+            } elseif (! $isAnnual && SystemSetting::get('subscription_price_monthly') !== null) {
+                $baseAmount = (float) SystemSetting::get('subscription_price_monthly');
+            }
+        }
+
+        $isGateway = in_array($paymentMethod, [
+            SubscriptionPayment::METHOD_QRIS,
+            SubscriptionPayment::METHOD_BCA_VA,
+            SubscriptionPayment::METHOD_MANDIRI_VA,
+            SubscriptionPayment::METHOD_BRI_VA,
+            SubscriptionPayment::METHOD_BNI_VA,
+            SubscriptionPayment::METHOD_PERMATA_VA,
+            SubscriptionPayment::METHOD_INDOMARET,
+            SubscriptionPayment::METHOD_ALFAMART,
+        ], true);
+
+        $uniqueCode = $isGateway ? 0 : random_int(100, 999);
         $totalPayable = $baseAmount + $uniqueCode;
 
-        // Generate unique order number SUB-YYYYMM-XXXX (global - pencacah tak boleh ter-scope per-bisnis(
+        // Generate unique order number SUB-YYYYMM-XXXX
         $orderNumber = $this->nextOrderNumber('SUB-' . date('Ym') . '-');
+
+        $packageName = match ($tier) {
+            BusinessSubscription::TIER_PRESTIGE => 'Paket Prestige ' . ($isAnnual ? 'Tahunan' : 'Bulanan'),
+            BusinessSubscription::TIER_PREMIUM => 'Paket Premium ' . ($isAnnual ? 'Tahunan' : 'Bulanan'),
+            default => 'Paket Standard ' . ($isAnnual ? 'Tahunan' : 'Bulanan'),
+        };
 
         return SubscriptionPayment::create([
             'business_id' => $business->id,
             'user_id' => $user->id,
             'order_number' => $orderNumber,
             'plan_code' => $planCode,
+            'package_name' => $packageName,
             'cycle' => $isAnnual ? 'annual' : 'monthly',
             'amount' => $baseAmount,
             'unique_code' => $uniqueCode,

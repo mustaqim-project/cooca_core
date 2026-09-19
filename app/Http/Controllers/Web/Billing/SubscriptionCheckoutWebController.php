@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\Billing;
 use App\Domain\Billing\EntitlementService;
 use App\Domain\Payment\TripayService;
 use App\Http\Controllers\Controller;
+use App\Models\BusinessSubscription;
 use App\Models\PaymentAccount;
 use App\Models\BillingPackage;
 use App\Models\SubscriptionPayment;
@@ -64,21 +65,25 @@ final class SubscriptionCheckoutWebController extends Controller
             'storage_bytes' => $package->storage_bytes,
         ])->values()->all();
 
-        // Auto-seed default accounts if table is empty
-        if (PaymentAccount::count() === 0) {
-            foreach (PaymentAccount::getDefaultAccounts() as $account) {
-                PaymentAccount::create($account);
-            }
+        // Ensure default TriPay payment accounts exist
+        foreach (PaymentAccount::getDefaultAccounts() as $account) {
+            PaymentAccount::firstOrCreate(['bank_code' => $account['bank_code']], $account);
         }
 
         $paymentAccounts = PaymentAccount::active()->ordered()->get();
         $annualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
         $currentUsage = $this->entitlementService->getUsageSummary($business);
 
+        $selectedTier = $request->get('tier', BusinessSubscription::TIER_STANDARD);
+        if (!in_array($selectedTier, [BusinessSubscription::TIER_STANDARD, BusinessSubscription::TIER_PREMIUM, BusinessSubscription::TIER_PRESTIGE], true)) {
+            $selectedTier = BusinessSubscription::TIER_STANDARD;
+        }
+
         return view('app.billing.checkout', compact(
             'business',
             'type',
             'cycle',
+            'selectedTier',
             'basePrice',
             'monthlyPrice',
             'annualPrice',
@@ -107,15 +112,14 @@ final class SubscriptionCheckoutWebController extends Controller
 
         // Get allowed bank codes
         $validCodes = PaymentAccount::active()->pluck('bank_code')->toArray();
-        if (empty($validCodes)) {
-            $validCodes = array_keys(SubscriptionPayment::PAYMENT_METHODS);
-        }
+        $validCodes = array_unique(array_merge($validCodes, array_keys(SubscriptionPayment::PAYMENT_METHODS)));
         $validCodes[] = SubscriptionPayment::METHOD_FREE_PROMO;
 
         $validated = $request->validate([
             'order_type' => ['nullable', 'string', 'in:subscription,ai_token,storage'],
             'package_id' => ['nullable', 'uuid', 'exists:billing_packages,id'],
             'cycle' => ['nullable', 'string', 'in:monthly,annual'],
+            'tier' => ['nullable', 'string', 'in:standard,premium,prestige'],
             'payment_method' => [$isFreePackage ? 'nullable' : 'required', 'string', 'in:' . implode(',', $validCodes)],
         ]);
 
@@ -127,28 +131,46 @@ final class SubscriptionCheckoutWebController extends Controller
                 ->with('success', "Selamat! Paket promo '{$package->name}' ({$payment->package_duration_days} Hari Trial Pro) berhasil diaktifkan secara instan tanpa perlu transfer pembayaran.");
         }
 
-        // If subscription order without explicit package_id, resolve from BillingPackage catalog
-        if (!$package && $orderType === 'subscription'
-            && SystemSetting::get('subscription_price_monthly') === null
-            && SystemSetting::get('subscription_price_annual') === null) {
-            $cycle = $validated['cycle'] ?? 'monthly';
-            $package = $cycle === 'annual'
-                ? BillingPackage::active()->where('type', BillingPackage::TYPE_SUBSCRIPTION)->where(fn ($q) => $q->where('code', 'core-annual')->orWhere('duration_days', '>=', 360))->orderBy('sort_order')->first()
-                : BillingPackage::active()->where('type', BillingPackage::TYPE_SUBSCRIPTION)->where(fn ($q) => $q->where('code', 'core-monthly')->orWhere('duration_days', '<=', 31))->orderBy('sort_order')->first();
-        }
+        $paymentMethod = $validated['payment_method'] ?? SubscriptionPayment::METHOD_QRIS;
 
-        $paymentMethod = $validated['payment_method'] ?? SubscriptionPayment::METHOD_BCA;
-
-        $payment = $package
+        $payment = ($package && $orderType !== 'subscription')
             ? $this->entitlementService->createPackageOrder($business, $user, $package, $paymentMethod)
             : ($orderType === 'ai_token'
             ? $this->entitlementService->createTokenTopupOrder($business, $user, $paymentMethod)
             : ($orderType === 'storage'
                 ? $this->entitlementService->createStorageTopupOrder($business, $user, $paymentMethod)
-                : $this->entitlementService->createPaymentOrder($business, $user, $validated['cycle'] ?? 'monthly', $paymentMethod)));
+                : $this->entitlementService->createPaymentOrder(
+                    $business,
+                    $user,
+                    $validated['cycle'] ?? 'monthly',
+                    $paymentMethod,
+                    $validated['tier'] ?? $request->input('tier', BusinessSubscription::TIER_STANDARD)
+                )));
+
+        // Automatically trigger TriPay transaction for all non-free orders
+        if ($payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
+            $channelCode = $payment->getTripayChannelCode();
+            try {
+                $tripayRes = $this->tripayService->createSubscriptionTransaction($payment, $channelCode);
+                if ($tripayRes['success'] ?? false) {
+                    $payment->update([
+                        'payment_gateway'   => SubscriptionPayment::GATEWAY_TRIPAY,
+                        'gateway_reference' => $tripayRes['reference'] ?? null,
+                        'gateway_pay_code'  => $tripayRes['pay_code'] ?? null,
+                        'gateway_pay_url'   => $tripayRes['checkout_url'] ?? null,
+                        'gateway_qr_url'    => $tripayRes['qr_url'] ?? null,
+                        'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
+                        'gateway_fee'       => (float) ($tripayRes['fee'] ?? 0.0),
+                        'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('[SubscriptionCheckout] TriPay subscription auto-init failed: ' . $e->getMessage());
+            }
+        }
 
         return redirect()->route('billing.payment.show', $payment)
-            ->with('success', "Pesanan #{$payment->order_number} berhasil dibuat. Silakan selesaikan pembayaran sesuai nominal unik.");
+            ->with('success', "Pesanan #{$payment->order_number} berhasil dibuat. Silakan selesaikan pembayaran via TriPay Payment Gateway.");
     }
 
     /**
@@ -159,10 +181,11 @@ final class SubscriptionCheckoutWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
 
-        // If payment method is QRIS and gateway not initialized, trigger TriPay dynamic QRIS
-        if ($payment->payment_method === 'qris' && empty($payment->gateway_qr_url) && $payment->status === SubscriptionPayment::STATUS_PENDING) {
+        // If payment gateway not initialized and order is pending, initialize TriPay
+        if (empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
             try {
-                $tripayRes = $this->tripayService->createSubscriptionTransaction($payment, 'QRIS');
+                $channelCode = $payment->getTripayChannelCode();
+                $tripayRes = $this->tripayService->createSubscriptionTransaction($payment, $channelCode);
                 if ($tripayRes['success'] ?? false) {
                     $payment->update([
                         'payment_gateway'   => SubscriptionPayment::GATEWAY_TRIPAY,

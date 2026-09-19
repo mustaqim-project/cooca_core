@@ -20,8 +20,8 @@
    - [3.6 Manajemen Katalog Produk, Resep (BOM), & Modifiers (Varian)](#36-manajemen-katalog-produk-resep-bom--modifiers-varian)
    - [3.7 Manajemen Bahan Baku, Pemasok, & Layanan Jasa Bebas Stok](#37-manajemen-bahan-baku-pemasok--layanan-jasa-bebas-stok)
    - [3.8 Toko Online (Storefront Hub) & Website Landing Page Studio](#38-toko-online-storefront-hub--website-landing-page-studio)
-   - [3.9 Saluran WhatsApp Resmi (WhatsApp Cloud API Meta)](#39-saluran-whatsapp-resmi-whatsapp-cloud-api-meta)
-   - [3.10 Pengelolaan Media Sosial Terpadu (Meta & TikTok)](#310-pengelolaan-media-sosial-terpadu-meta--tiktok)
+   - [3.9 Saluran WhatsApp Resmi (WhatsApp Cloud API Meta)](#39-saluran-whatsapp-resmi-whatsapp-cloud    - [3.10 Pengelolaan Media Sosial Terpadu (Meta & TikTok)](#310-pengelolaan-media-sosial-terpadu-meta--tiktok)
+   - [3.11 Kepatuhan Pajak UMKM & Penggajian Karyawan (HRM & Tax Compliance)](#311-kepatuhan-pajak-umkm--penggajian-karyawan-hrm--tax-compliance)
 4. [Panduan Rekayasa Developer & AI Agent (Engineering Blueprint)](#4-panduan-rekayasa-developer--ai-agent-engineering-blueprint)
    - [4.1 Struktur 33 Domain Packages DDD](#41-struktur-33-domain-packages-ddd)
    - [4.2 Aturan Scoping Tenant & Proteksi Keamanan](#42-aturan-scoping-tenant--proteksi-keamanan)
@@ -35,7 +35,8 @@
    - [4.10 Pusat Pengelolaan Katalog Paket Billing Platform (Billing Packages CMS)](#410-pusat-pengelolaan-katalog-paket-billing-platform-billing-packages-cms)
    - [4.11 Pusat Pengelolaan CMS Artikel, Taksonomi Kategori, & Cluster Konten (Admin Posts CMS)](#411-pusat-pengelolaan-cms-artikel-taksonomi-kategori--cluster-konten-admin-posts-cms)
    - [4.12 Pusat Pengaturan Platform & Integrasi Layanan Terpusat (Admin Settings & 5-Service Hub)](#412-pusat-pengaturan-platform--integrasi-layanan-terpusat-admin-settings--5-service-hub)
-5. [Matriks Penelusuran Pengetahuan (Traceability Matrix)](#5-matriks-penelusuran-pengetahuan-traceability-matrix)
+   - [4.13 Arsitektur Blueprint Tier Pricing v2.3, Multi-Branch & Tax Compliance Engine](#413-arsitektur-blueprint-tier-pricing-v23-multi-branch--tax-compliance-engine)
+5. [Matriks Penelusuran Pengetahuan (Traceability Matrix)](#5-matriks-penelusuran-pengetahuan-traceability-matrix)ity-matrix)
 
 ---
 
@@ -101,7 +102,7 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
 * **Otomasi Latar Belakang:** Sesaat setelah disimpan, stok bertambah seketika, HPP modal rata-rata diperbarui otomatis, dan tagihan hutang supplier (AP) langsung tercatat di menu keuangan tanpa perlu input ulang.
 
 ### 3.4 Mengembangkan Kanal Penjualan Online (Storefront)
-* **Kapan Digunakan?** Membagikan link toko online Anda (`cooca.id/b/nama-toko-anda`) ke media sosial, Instagram Bio, atau status WhatsApp.
+* **Kapan Digunakan?** Membagikan link toko online Anda (`cooca.id/nama-toko-anda` atau alias `cooca.id/b/nama-toko-anda`) ke media sosial, Instagram Bio, atau status WhatsApp.
 * **Cara Kerjanya:**
   - Pembeli memilih produk, memasukkan ke keranjang, dan melakukan checkout mandiri.
   - Pembeli mentransfer dana dan mengunggah foto bukti bayar.
@@ -171,6 +172,23 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Aturan Bisnis COOCA (Maksimal 5 Tagar Unik):** Menegakkan batas maksimal 5 tagar per postingan/kanal secara otomatis dengan deduplikasi case-insensitive dan indikator badge live (`Tagar: X / 5`) demi memaksimalkan jangkauan algoritma dan estetika feed.
   - **Penyimpanan Server Bebas Beban (*Storage Auto-Purge*):** Berkas video/foto yang diunggah langsung dibersihkan permanen dari server COOCA segera setelah postingan sukses terbit ke API platform.
   - **Kalender Konten & Analitik:** Tampilan kalender jadwal tayang bulanan dan pemantauan metrik impresi, jangkauan (*reach*), interaksi, dan komentar.
+
+### 3.11 Kepatuhan Pajak UMKM & Penggajian Karyawan (HRM & Tax Compliance Hub)
+* **Kapan Digunakan?** Saat Anda ingin memantau kewajiban perpajakan bisnis (PPh Final UMKM 0.5% PP 55/2022, PB1 Restoran / PPN) atau mengelola seluruh operasional SDM & penggajian staf (profil data karyawan, struktur upah, BPJS Ketenagakerjaan & Kesehatan, pinjaman kasbon, pekerja harian lepas, penggajian bulanan batch PPh 21 TER A/B/C, dan slip gaji digital).
+* **Fitur Utama & Keunggulan Operasional:**
+  - **HRM Hub Terpadu (`/hrm`):** 
+    1. *Profil Karyawan Lengkap:* Menyimpan data jabatan, jenis status kerja (tetap/kontrak/harian lepas), tanggal bergabung, gaji pokok, tunjangan tetap & variabel, status PTKP (TK/0 s/d K/3), keikutsertaan BPJS TK & Kes, rekening bank penerima, dan nomor WhatsApp.
+    2. *Pengelolaan Kasbon & Pinjaman (`employee_loans`):* Pencatatan pinjaman darurat karyawan lengkap dengan tenor, jadwal cicilan, dan auto-pemotongan otomatis saat penggajian bulanan dibayarkan.
+    3. *Mesin Penggajian Bulanan Batch (`/hrm/payrolls`):* Kalkulasi penggajian massal 1-klik untuk seluruh staf dengan penghitungan presisi PPh 21 TER (PP 58/2023 & PMK 168/2023), iuran BPJS TK & Kesehatan, upah lembur, komisi SPK, dan THR prorata.
+    4. *Siklus Draf-Setujui-Bayar:* Alur kerja aman multi-langkah (`draft` -> `approved` -> `paid`) yang secara otonom membukukan beban upah perusahaan ke modul pengeluaran (`finance.expenses`) dan memperbarui saldo kasbon staf.
+    5. *Slip Gaji Digital Apple HIG (`/hrm/payslips/{item}` & `/payslip/{token}`):* Dokumen slip gaji elegan berstandar Apple Bento HIG dengan opsi cetak printer A4/thermal 80mm, download PDF instan, tombol bagikan WhatsApp, serta link token publik aman yang dapat diakses langsung oleh karyawan tanpa login dashboard.
+  - **Smart 500M Threshold Meter (PP 55/2022):** Pelacak visual omzet kumulatif tahunan khusus Wajib Pajak Orang Pribadi. Menghitung omzet bebas pajak hingga Rp 500.000.000 secara otomatis, dan hanya memotong PPh Final 0.5% atas kelebihan omzet di atas ambang batas.
+  - **Rekapitulasi 12 Bulan Omzet Riil:** Mengonsolidasi seluruh invoice penjualan dan transaksi kasir POS secara otomatis ke kartu pajak bulanan tanpa input manual.
+  - **Kalkulator Interaktif 4-in-1:**
+    1. *Simulasi PPh Final UMKM:* Menghitung tarif 0.5% berdasarkan omzet bulanan dan status wajib pajak.
+    2. *Simulasi PPh 21 TER & Daily Worker:* Menghitung pemotongan bulanan TER Kategori A/B/C (PP 58/2023) dan upah harian lepas.
+    3. *Simulasi Pajak Penjualan (PB1 & PPN):* Menghitung pajak resto 10% atau PPN 11%/12% dengan service charge secara inklusif atau eksklusif.
+    4. *Simulasi Penggajian & THR Terpadu:* Menggabungkan gaji pokok, tunjangan, lembur, komisi, iuran BPJS, THR prorata join date, potongan pinjaman, dan PPh 21 TER menjadi Take Home Pay bersih.
 
 ---
 
@@ -263,6 +281,21 @@ Pusat kontrol terpadu Superadmin (`/admin/settings`) mengadopsi **Model B (Platf
 * **Pengujian Konektivitas Real-Time (Live Diagnostic Testers):** Seluruh kanal dilengkapi tombol uji koneksi instan AJAX dengan diagnostic alert box terpadu.
 * **Kepatuhan Apple HIG v2.0 & Ergonomi Jempol:** Desain bento squircle `rounded-[20px]`/`rounded-[24px]`, fluid layout `max-w-7xl w-full min-w-0 pb-28 lg:pb-10`, Zero Unicode Emoji (100% Lucide SVG Icons), toggle intip kredensial sensitif, dan input anti auto-zoom iOS Safari (`text-[16px] sm:text-[13px]`).
 
+### 4.13 Arsitektur Blueprint Tier Pricing v2.3, Multi-Branch & Tax Compliance Engine
+Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.md` (Versi 2.3):
+* **4-Tier Pricing Model:** Free (Rp 0), Standard (Rp 29.000/bln), Premium (Rp 89.000/bln), Prestige (Rp 199.000/bln).
+* **Storage Melekat pada Owner:** Kapasitas penyimpanan media (gambar produk, nota, berkas) melekat pada akun Owner (1 GB Free, 3 GB Standard, 10 GB Premium, 30 GB Prestige) dan berlaku gabungan untuk seluruh bisnis miliknya.
+* **Multi-Branch & Central Kitchen (Premium & Prestige):** Transfer stok antar gudang/cabang dan penetapan harga produk spesifik per cabang (`branch_product_prices`).
+* **HRM Comprehensive Suite:**
+  - `BPJSCalculationService`: JHT (3.7%/2%), JKK (0.24%-1.74%), JKM (0.3%), JP (2%/1% cap Rp 10.042.300), BPJS Kesehatan (4%/1% cap Rp 12.000.000).
+  - `THRCalculationService`: Sesuai Permenaker 6/2016 (>= 12 bln = 1 bln, 1 <= bln < 12 = prorata, < 1 bln = Rp 0; daily worker avg wage 12 bln).
+  - `PayrollCalculationService`: Mengintegrasikan seluruh komponen gaji, lembur, komisi SPK (`spk_commissions`), cicilan kasbon (`employee_loans`), BPJS, THR, dan PPh 21 TER.
+* **Tax Compliance Engine:**
+  - `PPh21CalculationService`: Kategori TER A/B/C (PP 58/2023 & PMK 168/2023), rekonsiliasi Desember Pasal 17, dan upah harian lepas.
+  - `PPhFinalUMKMService`: PP 55/2022 tarif 0.5% dengan batas bebas pajak Rp 500.000.000 untuk Orang Pribadi.
+  - `SalesTaxService`: PB1 10%, PPN 11%/12%, Service Charge, mode inklusif vs eksklusif.
+* **Payment Gateway Eksklusif TriPay:** Pembayaran langganan SaaS 100% dialirkan melalui TriPay resmi (Virtual Account, QRIS, E-Wallet, Retail Mart).
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -330,8 +363,11 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    ├──► Admin Billing Packages CMS ─► docs/system/modules/saas-billing.md ──────────► AdminBillingPackageController
    │                                                                                    └──► WORK-2026-09-18-080
    │
-   └──► Admin Posts & Cluster CMS ──► docs/system/modules/cms.md ───────────────────► AdminPostController
-                                                                                        └──► WORK-2026-09-18-081
+   ├──► Admin Posts & Cluster CMS ──► docs/system/modules/cms.md ───────────────────► AdminPostController
+   │                                                                                    └──► WORK-2026-09-18-081
+   │
+   └──► Modul HRM & Tax Engine ────► docs/system/modules/hrm-and-tax.md ────────────► app/Domain/Tax/ & app/Domain/HRM/
+                                                                                        └──► WORK-2026-09-19-085
 ```
 
 ---

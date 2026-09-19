@@ -1,8 +1,7 @@
 {{-- Shared Apple HIG Segmented Control Navigation for Storefront & Website Hub --}}
 @php
     $currentBusiness = \App\Support\Context::business();
-    $businessSlug = $currentBusiness?->slug ?? '';
-    $publicStoreUrl = $businessSlug ? url("/b/{$businessSlug}") : '#';
+    $publicStoreUrl = $currentBusiness?->public_url ?? '#';
     $storeSetting = $currentBusiness?->storeSetting;
 
     $showReservationsTab = request()->routeIs('storefront.reservations.*')

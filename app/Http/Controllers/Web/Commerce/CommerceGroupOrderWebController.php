@@ -77,7 +77,7 @@ final class CommerceGroupOrderWebController extends Controller
         try {
             $group = $this->groupService->createGroup($business, $customer, $validated);
 
-            $targetUrl = url("/b/{$business->slug}?group_order={$group->share_token}");
+            $targetUrl = url("/{$business->slug}?group_order={$group->share_token}");
 
             return response()->json([
                 'success'      => true,

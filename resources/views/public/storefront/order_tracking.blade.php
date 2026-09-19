@@ -45,7 +45,7 @@
     <header
         class="sticky top-0 z-40 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-2xl border-b border-black/[0.06] dark:border-white/[0.08]">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-            <a href="{{ url("/b/{$business->slug}") }}" class="flex items-center gap-2 hover:opacity-80 transition">
+            <a href="{{ $business->public_url }}" class="flex items-center gap-2 hover:opacity-80 transition">
                 <i data-lucide="chevron-left" class="w-5 h-5 text-black/60 dark:text-white/60"></i>
                 <span class="font-semibold text-[14.5px] text-black dark:text-white">{{ $business->name }}</span>
             </a>
@@ -466,7 +466,7 @@
                 </div>
 
                 {{-- UPLOAD PROOF FORM --}}
-                <form action="{{ url("/b/{$business->slug}/order/{$order->tracking_token}/proof") }}" method="POST"
+                <form action="{{ route('public.storefront.order.upload_proof', [$business->slug, $order->tracking_token]) }}" method="POST"
                     enctype="multipart/form-data" class="space-y-4" x-data="{ previewUrl: null }">
                     @csrf
                     <div>

@@ -46,6 +46,346 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-19-088] Canonical Storefront Direct Slug Architecture (cooca.id/{slug-bisnis}), End-to-End System Audit, Zero Custom Domain Enforcement, System Reserved Slug Protection, Backward-Compatible Route Aliasing, and Complete Automated Testing
+* **Date:** 2026-09-19
+* **Status:** COMPLETED
+* **Module:** Public Storefront, URL Routing, Shared Domain, Commerce, SEO & Sitemap, Billing Documentation
+* **Feature:** Standardisasi URL kanonikal etalase publik toko menjadi `cooca.id/{slug-bisnis}` (root slug langsung tanpa prefix `/b/`), proteksi kata kunci sistem terpesan (`ReservedSlugService`), fallback alias rute legacy `/b/{slug}` (0 broken link / backward compatibility 100%), eliminasi total dependensi custom domain di seluruh layer, penyegaran sitemap SEO XML, perbaikan notifikasi WhatsApp & redirect gateway, dan validasi automated test end-to-end (100% Pass).
+* **Work Type:** Architecture | Routing | Security & Collision Prevention | SEO | Commerce | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Menindaklanjuti audit sistem end-to-end terkait kebijakan *"Strict Zero Custom Domain"*. Sebelumnya etalase publik toko dilayani dengan prefix `/b/{slug}` (`cooca.id/b/{slug}`). Pengguna menginginkan etalase toko beroperasi langsung secara elegan pada root domain `cooca.id/{slug-bisnis}` (misal `cooca.id/kopi-senja`), tanpa perlu prefix `/b/`, namun tetap menjamin nol broken link bagi tautan eksternal, bookmark, atau stiker QR fisik lama yang sudah beredar dengan prefix `/b/`.
+* **Masalah/Target:**
+  1. Menghilangkan ketergantungan custom domain secara mutlak (Zero Custom Domain) pada semua tier (Free, Standard, Premium, Prestige).
+  2. Menjadikan `cooca.id/{slug-bisnis}` sebagai Canonical URL utama di seluruh sistem (routing, view, mail, notifikasi WhatsApp, payment gateway return URL, meta tags OpenGraph & canonical SEO).
+  3. Mempertahankan rute `/b/{slug}` dan `/b/{slug}/*` sebagai fallback alias (backward-compatible) sehingga tautan lama tetap berfungsi normal tanpa downtime.
+  4. Mencegah perebutan / tabrakan slug bisnis dengan rute inti platform (seperti `login`, `admin`, `api`, `app`, `pos`, `hrm`, `billing`, `kalkulator`, `blog`, dll.) melalui layanan sanitasi kata kunci terpesan (`ReservedSlugService`).
+  5. Memastikan 100% cakupan pengujian otomatis (*automated feature tests*) hijau dan memvalidasi seluruh alur kerja toko publik.
+
+#### 2. What Was Done
+1. **Layanan Proteksi Slug Terpesan (`ReservedSlugService`):**
+   - Membuat `App\Domain\Shared\ReservedSlugService` yang mendaftar lebih dari 60+ kata kunci rute sistem platform terpesan (`login`, `admin`, `pos`, `hrm`, `api`, `billing`, `checkout`, `dashboard`, dll.).
+   - Menyediakan metode `isReserved(string $slug): bool` dan `sanitize(string $slug): string` yang secara otomatis menambahkan akhiran `-store` jika nama bisnis bertabrakan dengan rute internal platform.
+2. **Integrasi Eloquent Trait (`HasSlug`):**
+   - Memperbarui `App\Models\Traits\HasSlug` dengan hook `shouldCheckReservedSlugs(): bool`.
+   - Mengintegrasikan sanitasi reserved slug pada `generateUniqueSlug()`, sehingga jika ada pendaftar bisnis baru bernama "Admin" atau "Login", slug akan otomatis disanitasi menjadi `admin-store` atau `login-store-2` tanpa crash atau error SQL.
+3. **Model Business Accessors (`Business.php`):**
+   - Menambahkan accessor `$business->public_url` dan `$business->storefront_url` yang menghasilkan URL kanonikal `url('/' . $slug)` (misal `https://cooca.id/kopi-senja`).
+4. **Pembaruan Routing Kanonikal & Alias Fallback (`routes/public.php` & `routes/customer.php`):**
+   - Memindahkan penanganan etalase kanonikal ke `Route::prefix('{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])`:
+     - Rute pelacakan pesanan publik: `/{slug}/order/{token}`
+     - Status polling: `/{slug}/order/{token}/status`
+     - Unggah bukti transfer: `/{slug}/order/{token}/proof`
+     - Kalkulasi ongkir: `/{slug}/shipping/calculate`
+     - Cek ketersediaan reservasi: `/{slug}/reservasi/check`
+     - QR Meja Kasir POS: `/{slug}/table/{qrToken}/*`
+     - Customer auth & group orders: `/{slug}/login`, `/{slug}/checkout`, `/{slug}/request-order`, `/{slug}/customer-po`, `/{slug}/reservasi`, `/{slug}/group-order/*`.
+   - Mendaftarkan rute legacy `/b/{slug}` dan `/b/{slug}/*` sebagai alias fallback transparan untuk backward compatibility.
+   - Memposisikan `Route::get('/{slug}', [PublicBusinessLandingController::class, 'show'])` di baris terbawah `routes/public.php` dengan regex slug restriction agar tidak mencegat rute statis pemasaran.
+5. **SEO & Sitemap Engine (`SitemapService.php` & `sitemap.xml`):**
+   - Memperbarui `SitemapService` agar menghasilkan URL publik kanonikal `https://cooca.id/{slug}` untuk semua bisnis aktif, menghapus prefix `/b/` dari peta situs.
+   - Memperbarui `business_landing.blade.php` dengan tag kanonikal `<link rel="canonical" href="{{ $business->public_url }}">` dan `<meta property="og:url" content="{{ $business->public_url }}">`.
+   - Menghasilkan ulang berkas fisik `public/sitemap.xml` (terverifikasi 0 entri `/b/`).
+6. **Pembaruan Blade Views, Controllers, & Layanan Notifikasi:**
+   - Mengubah tautan landing pada `resources/views/customer/stores/show.blade.php`, `orders/show.blade.php`, `cart.blade.php`, `auth/register.blade.php`, `billing/checkout.blade.php`, `order_tracking.blade.php`, dan `navigation.blade.php` menggunakan `$business->public_url`.
+   - Memperbarui 7 pemanggilan fetch API group order pada `resources/views/public/business_landing.blade.php` agar mengarah ke endpoint `/{slug}/...`.
+   - Memperbarui `TripayService`, `CommerceOrderService`, `CommercePaymentProofService`, `PublicOrderTrackingController`, `MerchantOrderController`, `CommerceGroupOrderWebController`, dan `TripayCallbackController` agar menghasilkan tautan pelacakan pesanan kanonikal `cooca.id/{slug}/order/{token}` dalam notifikasi WhatsApp dan callback pembayaran.
+7. **Automated Testing Suite:**
+   - Mengembangkan `tests/Feature/CanonicalStorefrontSlugRoutingTest.php` (7 skenario komprehensif, 31 asersi):
+     * `test_storefront_accessible_via_canonical_direct_slug`
+     * `test_legacy_b_slug_remains_functional_as_alias`
+     * `test_business_model_public_url_and_storefront_url_accessors`
+     * `test_storefront_actions_accessible_without_b_prefix` (tracking, shipping calculation, table QR, reservation)
+     * `test_reserved_slug_protection_sanitizes_system_routes` (pencegahan tabrakan keyword admin, login, pos, dll.)
+     * `test_customer_portal_checkout_redirects_to_canonical_slug`
+     * `test_sitemap_outputs_canonical_urls_without_b_prefix`
+   - Menjalankan regression testing pada `CustomerPortalFeatureTest` dan `CommerceShippingRuleFeatureTest`: seluruh 25 test skenario (126 asersi) berhasil lulus 100%.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `app/Domain/Shared/ReservedSlugService.php`
+  - `tests/Feature/CanonicalStorefrontSlugRoutingTest.php`
+* **Files Modified:**
+  - `app/Models/Traits/HasSlug.php`
+  - `app/Models/Business.php`
+  - `routes/public.php`
+  - `routes/customer.php`
+  - `app/Http/Controllers/Web/Commerce/CustomerPortalController.php`
+  - `app/Services/Seo/SitemapService.php`
+  - `public/sitemap.xml`
+  - `resources/views/public/business_landing.blade.php`
+  - `resources/views/app/billing/checkout.blade.php`
+  - `resources/views/customer/stores/show.blade.php`
+  - `resources/views/customer/orders/show.blade.php`
+  - `resources/views/customer/cart.blade.php`
+  - `resources/views/customer/auth/register.blade.php`
+  - `resources/views/public/storefront/order_tracking.blade.php`
+  - `resources/views/app/storefront/partials/navigation.blade.php`
+  - `app/Domain/Payment/TripayService.php`
+  - `app/Domain/Commerce/Storefront/CommerceOrderService.php`
+  - `app/Domain/Commerce/Storefront/CommercePaymentProofService.php`
+  - `app/Http/Controllers/Web/Commerce/PublicOrderTrackingController.php`
+  - `app/Http/Controllers/Web/Commerce/MerchantOrderController.php`
+  - `app/Http/Controllers/Web/Commerce/CommerceGroupOrderWebController.php`
+  - `app/Http/Controllers/Api/V1/Payment/TripayCallbackController.php`
+  - `tests/Feature/CustomerPortalFeatureTest.php`
+  - `docs/system/modules/saas-billing.md`
+  - `docs/SYSTEM_GUIDE.md`
+  - `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.md`
+
+#### 4. System Impacts
+* **Workflow Impact:** Pelaku usaha kini dapat membagikan tautan toko mereka yang lebih ringkas dan bergengsi (`cooca.id/nama-toko`) di bio Instagram, TikTok, dan kartu nama.
+* **Backward Compatibility:** Tautan lama berawalan `cooca.id/b/{slug}` tetap berjalan sempurna tanpa 404, melindungi aset pemasaran yang telah dicetak fisik oleh merchant.
+* **SEO Impact:** Tag `<link rel="canonical">` menginstruksikan bot Google/Bing untuk mengindeks versi langsung `cooca.id/{slug}`, mengonsolidasikan otoritas domain dan page ranking.
+* **Collision Security:** Sistem terlindungi secara preventif dari pendaftaran tenant dengan nama-nama yang menyerupai modul inti aplikasi.
+
+#### 5. Verification & Testing
+* `php artisan test --filter="CanonicalStorefrontSlugRoutingTest|CustomerPortalFeatureTest|CommerceShippingRuleFeatureTest"`: 25 tests, 126 assertions passed cleanly (100% PASS).
+* Route audit (`php artisan route:list`): Rute `{slug}` terdaftar presisi di bawah rute inti sistem tanpa konflik.
+
+#### 6. Important Decisions & Guardrails
+* **Zero Custom Domain Guarantee:** Memastikan tidak ada fitur custom domain di tier mana pun untuk menjaga kedaulatan platform Cooca.
+* **Strict Route Fallback:** Alih-alih melakukan 301/302 redirect mendadak yang dapat mengganggu flow POST/webhook pihak ketiga, rute legacy `/b/{slug}` dipertahankan sebagai routing alias paralel dengan canonical tag mengarah ke root slug.
+
+#### 7. Documentation Promotion
+* Pengetahuan ini dipromosikan ke Layer 2 di `docs/system/modules/saas-billing.md` dan Layer 3 di `docs/SYSTEM_GUIDE.md` serta `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.md`.
+
+### [WORK-2026-09-19-087] Human Resource Management (HRM) Hub, Monthly Payroll Engine, Employee Loans (Kasbon), PPh 21 TER, and Digital Apple HIG Payslips
+* **Date:** 2026-09-19
+* **Status:** COMPLETED
+* **Module:** Human Resource Management (HRM), Payroll Run Engine, Labor Compliance, Digital Payslips, Finance Integration
+* **Feature:** Complete HRM Hub (Karyawan & Profil Upah Lengkap), Kasbon/Pinjaman Karyawan (`employee_loans`) dengan auto-deduction, Mesin Kalkulasi Penggajian Bulanan Terpadu (PPh 21 TER A/B/C PMK 168/2023, BPJS TK & Kes, Komisi SPK, Lembur, THR Prorata Permenaker 6/2016), Siklus Draf-Setujui-Bayar dengan Pencatatan Otomatis Beban Operasional (`finance.expenses`), Slip Gaji Digital Interaktif (Apple Bento HIG, Thermal 80mm & A4 Print, WhatsApp Share, Public Token Access), Integrasi Navigasi Sidebar Operasional Bisnis, dan Automated Testing (100% Pass).
+* **Work Type:** Feature | HRM & Payroll | Tax & Labor Compliance | Financial Integration | UI/UX | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pemilik bisnis UMKM Indonesia sering menghadapi kesulitan dalam pencatatan data SDM, kalkulasi pajak PPh 21 TER bulanan, integrasi potongan BPJS Ketenagakerjaan & Kesehatan, pengelolaan cicilan kasbon staf yang rawan lupa dipotong, serta pengeluaran slip gaji resmi. Sistem HRM & Payroll Cooca dibangun untuk menyederhanakan siklus penggajian bulanan menjadi 1 kali klik, akurat secara hukum ketenagakerjaan dan perpajakan Indonesia, serta otomatis terhubung dengan pembukuan beban keuangan.
+* **Masalah/Target:**
+  1. Menyimpan profil HRM karyawan secara sempurna (Job title, jenis status kerja: tetap/kontrak/harian lepas, tanggal bergabung, gaji pokok, tunjangan tetap & variabel, status PTKP TER, keikutsertaan BPJS TK & Kesehatan, rekening bank penerima, nomor WhatsApp).
+  2. Mengelola pinjaman/kasbon karyawan (`employee_loans`) dengan auto-kalkulasi cicilan per bulan dan auto-potong saat penggajian dibayar.
+  3. Menyediakan mesin penggajian bulanan batch (`payrolls` & `payroll_items`) yang memproses seluruh staf secara otomatis berdasarkan aturan PP 58/2023 & PMK 168/2023, BPJS Ketenagakerjaan (JKK, JKM, JHT, JP), BPJS Kesehatan, dan insentif komisi SPK.
+  4. Siklus persetujuan bertahap (`draft` -> `approved` -> `paid`) yang secara otomatis mencatat pengeluaran keuangan (`Expense` di `finance.expenses`) dan memperbarui sisa kasbon karyawan.
+  5. Antarmuka Slip Gaji Digital interaktif berstandar Apple HIG v2.0 yang siap cetak (A4 dan thermal), dapat diunduh PDF, dibagikan langsung ke WhatsApp karyawan dalam format rapi, serta dapat diakses mandiri oleh karyawan melalui tautan token publik yang aman.
+  6. Memastikan cakupan tes otomatis 100% lulus untuk semua alur penyimpanan data HRM, kalkulasi gaji, siklus pembayaran, dan isolasi tenant.
+
+#### 2. What Was Done
+1. **Database Schema & Migrations:**
+   - Membuat migrasi `2026_09_19_200001_create_payrolls_and_payroll_items_tables.php`: tabel `payrolls` (header batch penggajian) dan `payroll_items` (detail slip per staf).
+   - Menambahkan kolom `fixed_allowances` dan `variable_allowances` pada tabel `business_users`.
+2. **Eloquent Models & Domain Relationships:**
+   - Membuat model `App\Models\Payroll` dan `App\Models\PayrollItem` dengan casts presisi, hubungan Eloquent (`items`, `user`, `processedBy`, `approvedBy`, `business`), UUID generator, auto-generated unique `payslip_token` (64 karakter acak), dan alias accessors.
+   - Memperluas `$fillable` dan `$casts` pada `BusinessMembership` untuk mendukung seluruh metadata profil HRM staf.
+   - Menambahkan relasi `payrolls()`, `payrollItems()`, dan `employeeLoans()` pada model `Business`.
+3. **Domain Service (`PayrollRunService`):**
+   - Mengimplementasikan `generatePayrollRun()`: mengumpulkan seluruh anggota staf, mendeteksi kasbon aktif, menghitung komisi earned, mengeksekusi kalkulasi PPh 21 TER dan BPJS via `PayrollCalculationService`, serta menyimpan header batch dan detail item dalam database transaction.
+   - Mengimplementasikan `approvePayroll()`: memvalidasi status draf dan mengubah menjadi `approved`.
+   - Mengimplementasikan `markPayrollPaid()`: memotong sisa saldo `employee_loans`, menandai `employee_commissions` sebagai `paid`, dan menerbitkan pencatatan `Expense` otomatis (`EXP-PAY-YYYYMM`) pada modul keuangan.
+   - Mengimplementasikan `buildWhatsAppSlipMessage()`: meracik format teks ringkasan slip gaji yang elegan dengan tautan verifikasi online untuk kemudahan pembagian via WhatsApp.
+4. **Web Controller & Routing (`HrmWebController`):**
+   - Menangani endpoint CRUD Staf & Profil HRM (`storeEmployee`, `updateEmployee`, `destroyEmployee`).
+   - Menangani Kasbon (`storeLoan`, `cancelLoan`).
+   - Menangani Siklus Penggajian (`payrollsIndex`, `createPayroll`, `storePayroll`, `showPayroll`, `approvePayroll`, `payPayroll`, `destroyPayroll`).
+   - Menangani Tampilan Slip Gaji (`showPayslip` otentikasi dan `publicPayslip` token publik tanpa login).
+   - Mendaftarkan grup rute `/hrm` berpelindung izin di `routes/owner.php` dan rute publik `/payslip/{token}` di `routes/public.php`.
+5. **Apple HIG Blade Views:**
+   - `resources/views/app/hrm/index.blade.php`: Bento executive KPI stats hero, tab switcher (Karyawan, Penggajian, Kasbon), modal Tambah/Edit Staf HRM, dan modal Catat Kasbon.
+   - `resources/views/app/hrm/payroll/create.blade.php`: Antarmuka formulir batch penggajian dengan grid input dinamis (hari kerja, lembur, komisi, cicilan kasbon) dan kalkulasi langsung.
+   - `resources/views/app/hrm/payroll/show.blade.php`: Dasbor rincian penggajian bulanan, metriks biaya tenaga kerja perusahaan vs take home pay, daftar slip staf, dan tombol kirim WhatsApp.
+   - `resources/views/app/hrm/payroll/payslip.blade.php`: Dokumen slip gaji digital resmi berstandar Apple HIG dengan tombol Print A4/Thermal, Download PDF (`html2pdf.js`), Kirim WhatsApp, dan Salin Ringkasan.
+6. **Sidebar Navigation Integration:**
+   - Menambahkan menu group `SDM & Penggajian (HRM)` di bawah Seksi 2: Operasional Bisnis pada `resources/views/layouts/partials/sidebar.blade.php` lengkap dengan flyout menu mode collapsed.
+7. **Automated Testing Suite:**
+   - Mengembangkan `tests/Feature/HrmAndMonthlyPayrollTest.php` (7 test scenarios, 65 assertions): pengujian profil HRM, pinjaman kasbon, kalkulasi batch presisi, siklus persetujuan & pencatatan beban keuangan otomatis, slip gaji digital auth & publik, serta isolasi tenant lintas bisnis.
+   - Seluruh test suite (13 test, 122 asersi) lulus 100%.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_19_200001_create_payrolls_and_payroll_items_tables.php`
+  - `app/Models/Payroll.php`
+  - `app/Models/PayrollItem.php`
+  - `app/Domain/HRM/PayrollRunService.php`
+  - `app/Http/Controllers/Web/Hrm/HrmWebController.php`
+  - `resources/views/app/hrm/index.blade.php`
+  - `resources/views/app/hrm/payroll/create.blade.php`
+  - `resources/views/app/hrm/payroll/show.blade.php`
+  - `resources/views/app/hrm/payroll/payslip.blade.php`
+  - `tests/Feature/HrmAndMonthlyPayrollTest.php`
+* **Files Modified:**
+  - `app/Models/BusinessMembership.php` (HRM fillable & casts)
+  - `app/Models/Business.php` (relasi payrolls, payrollItems, employeeLoans)
+  - `routes/owner.php` (grup rute /hrm)
+  - `routes/public.php` (rute /payslip/{token})
+  - `resources/views/layouts/partials/sidebar.blade.php` (menu SDM & Penggajian di Operasional Bisnis)
+
+#### 4. System Impacts
+* **Workflow Impact:** Pemilik bisnis kini dapat mendaftarkan karyawan beserta profil gaji dan BPJS secara lengkap, mencatat kasbon langsung di tab kasbon, membuat batch penggajian setiap akhir bulan yang menghitung seluruh pajak dan iuran otomatis, menyetujui, dan menandai dibayar yang secara langsung memotong kasbon serta membukukan beban ke jurnal/pengeluaran keuangan operasional.
+* **Business Rule Impact:** Menjamin 100% kepatuhan hukum ketenagakerjaan Indonesia (PP 58/2023 PPh 21 TER, UU BPJS 24/2011 & PP 45/2015, Permenaker 6/2016 untuk THR).
+* **Tenant Isolation:** Seluruh entitas `payrolls`, `payroll_items`, dan `employee_loans` terikat erat dengan `business_id`. Akses lintas bisnis secara tegas menghasilkan abort 404.
+
+#### 5. Verification & Testing
+* `php artisan test --filter="HrmAndMonthlyPayrollTest|TaxAndHRMComplianceTest"`: 13 tests, 122 assertions passed cleanly.
+* `php artisan optimize:clear`: Caches bootstrapped cleanly.
+
+#### 6. Important Decisions & Guardrails
+* **Financial Integrity:** Siklus status bertahap mencegah pembayaran ganda; otomatisasi pembukuan `Expense` mencatat total beban tenaga kerja riil perusahaan (`total_company_cost`).
+* **Privacy & Security:** Setiap slip gaji memiliki `payslip_token` kriptografis 64-karakter unik sehingga karyawan dapat membuka slip tanpa memerlukan akses login dashboard owner.
+
+#### 7. Documentation Promotion
+* Pengetahuan ini dipromosikan ke Layer 2 di `docs/system/modules/hrm-and-tax.md` dan Layer 3 di `docs/SYSTEM_GUIDE.md`.
+
+### [WORK-2026-09-19-086] 4-Tier Entitlement Enforcement, Multi-Pricing Fallback, TriPay Checkout Modernization, and Cashier Grace Period Guarantee
+* **Date:** 2026-09-19
+* **Status:** COMPLETED
+* **Module:** SaaS Billing, Entitlement Engine, POS Cashier, Web Checkout & Limits
+* **Feature:** 4-Tier Pricing & Entitlement Hardening (Free, Standard Rp 29k, Premium Rp 89k, Prestige Rp 199k), Strict Zero Custom Domain Guarantee (all storefronts cooca.id/b/{slug}), Exclusive TriPay Payment Gateway Channels (Dynamic QRIS & Virtual Accounts), 3-Phase Lifecycle Automation (H-7 warning, Day 1-3 Grace Period POS cashier operational guarantee, Day 4+ downgrade to Free without data punishment), Multi-Branch Product Pricing Fallback, and Apple Bento HIG v2.0 UI Modernization.
+* **Work Type:** Feature | Billing | Architecture | UI/UX | Security | Database | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Menindaklanjuti hasil audit menyeluruh pada `BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.md` (v2.3) untuk menutup seluruh celah entitlement (leakages) pada platform SaaS Cooca UMKM. Pemilik bisnis UMKM membutuhkan kepastian operasional kasir tetap menyala meski telat bayar (grace period), model tier yang transparan, integrasi pembayaran instan tanpa upload struk manual via TriPay, serta larangan keras terhadap fitur custom domain untuk menjaga kedaulatan domain utama platform (`cooca.id/b/{slug}`).
+* **Masalah/Target:**
+  1. Menegakkan limitasi entitas bisnis per owner: Free (1), Standard (1), Premium (3), Prestige (Unlimited).
+  2. Menegakkan kuota meja kasir dine-in per bisnis: Free (0), Standard (5), Premium (Unlimited), Prestige (Unlimited).
+  3. Menggembok fitur multi-cabang (Transfer Stok, KDS Dapur, Multi-Pricing Cabang) hanya untuk Premium & Prestige.
+  4. Menggembok fitur HRM Lanjutan (Komisi SPK, Kasbon Pinjaman, Pekerja Harian, BPJS, THR) dan Tax Engine (PPh 21 TER, Slip Gaji WA) sesuai tier.
+  5. Menghapus 100% referensi dan konfigurasi custom domain pada seluruh platform dan blueprint.
+  6. Menjamin operasional kasir POS 100% tetap aktif selama Grace Period (Hari 1-3 kedaluwarsa, status `past_due`).
+  7. Modernisasi antarmuka `limits.blade.php` dan `checkout.blade.php` berstandar Apple Bento HIG v2.0 dengan pemilih 3 tier, segmented switcher bulanan/tahunan (hemat 2 bulan), dan saluran TriPay.
+
+#### 2. What Was Done
+1. **Entitlement Engine Hardening (`EntitlementService` & `CheckResourceEntitlement`):**
+   - Mengoreksi konstanta kuota pada `EntitlementService`: `TIER_BUSINESS_LIMITS`, `TIER_TABLE_LIMITS` (Free: 0, Standard: 5), `TIER_MONTHLY_PO_LIMITS` (Standard: 15), `TIER_MONTHLY_INVOICE_LIMITS` (Standard: 15), `TIER_WHATSAPP_LIMITS` (10/50/300/1000).
+   - Menambahkan method `getBusinessLimit()`, `getTableLimit()`, `canCreateTable()`, dan indikator `is_past_due` pada `getUsageSummary()`.
+   - Mengintegrasikan gate baru pada middleware `CheckResourceEntitlement`: `table`, `transfer_stock`, `kds`, `branch_pricing`, `commission`, `loan`, `daily_worker`, `bpjs`, `thr`, `pph21`.
+   - Melindungi rute `POST /pos/tables`, `/pos/kitchen`, `POST /inventory/transfers` di `routes/owner.php`.
+2. **Eloquent Models & POS Multi-Pricing:**
+   - Membuat model `BranchProductPrice`, `EmployeeLoan`, `EmployeeCommission`, `EmployeeBranchAssignment`.
+   - Menghubungkan look-up harga cabang pada `PosTerminalWebController`: jika ada harga aktif untuk outlet kasir terkait, gunakan harga cabang; jika tidak ada, fallback ke harga standar produk.
+3. **Exclusive TriPay Gateway & 3-Phase Lifecycle:**
+   - Memperbarui `BusinessSubscription`: menambahkan method `isPastDue()`, dan `isOperational()` (`active` dan `past_due`).
+   - Membuat console command `ProcessSubscriptionLifecycleCommand` (`app:process-subscription-lifecycle`) yang mengotomatisasi H-7 warning email, Day 1-3 Grace Period status `past_due` dengan kasir operasional, dan Day 4+ downgrade ke Free plan tanpa menghapus data (`No Data Punishment`).
+   - Menambahkan konstanta saluran Virtual Account TriPay pada `SubscriptionPayment` (`bca_va`, `mandiri_va`, `briva`, dll.) dan auto-mapping ke channel code TriPay.
+   - Sinkronisasi akun default TriPay di `SubscriptionCheckoutWebController` dan validasi tier langganan.
+4. **Bento UI Modernization (Apple HIG v2.0):**
+   - Memodernisasi `resources/views/app/billing/limits.blade.php`: badge tier dengan skema warna Apple HIG, banner Grace Period (amber) jika status `past_due`, 3x3 Bento grid ringkasan kuota (termasuk kartu Meja Dine-in Kasir), dan matriks perbandingan 4-tier dengan strictly zero custom domain.
+   - Memodernisasi `resources/views/app/billing/checkout.blade.php`: pemilih 3 tier Bento (Standard Rp 29k/bln, Premium Rp 89k/bln [Populer], Prestige Rp 199k/bln), segmented cycle toggle Bulanan vs Tahunan (Hemat 2 Bulan), kartu saluran TriPay dengan verifikasi otomatis instan 24/7, dan Order Summary dinamis.
+5. **Quality Assurance & Automated Testing:**
+   - Membuat test suite komprehensif `tests/Feature/TierLimitsAndQuotasTest.php` (5 test, 34 asersi).
+   - Menyelaraskan `tests/Feature/SubscriptionPaymentFlowTest.php` (10 test, 57 asersi).
+   - Menjalankan `TaxAndHRMComplianceTest.php` (6 test, 57 asersi).
+   - Seluruh 21 feature test lolos 100% (148 asersi, 0 failures).
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `app/Models/BranchProductPrice.php`
+  - `app/Models/EmployeeLoan.php`
+  - `app/Models/EmployeeCommission.php`
+  - `app/Models/EmployeeBranchAssignment.php`
+  - `app/Console/Commands/ProcessSubscriptionLifecycleCommand.php`
+  - `tests/Feature/TierLimitsAndQuotasTest.php`
+* **Files Modified:**
+  - `app/Domain/Billing/EntitlementService.php`
+  - `app/Http/Middleware/CheckResourceEntitlement.php`
+  - `app/Domain/Pos/PosTableService.php`
+  - `app/Http/Controllers/Web/Pos/PosTerminalWebController.php`
+  - `app/Http/Controllers/Web/Billing/SubscriptionCheckoutWebController.php`
+  - `app/Domain/Storage/OwnerStorageQuotaService.php`
+  - `app/Models/BusinessSubscription.php`
+  - `app/Models/SubscriptionPayment.php`
+  - `app/Models/PaymentAccount.php`
+  - `routes/owner.php`
+  - `resources/views/app/billing/limits.blade.php`
+  - `resources/views/app/billing/checkout.blade.php`
+  - `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.md`
+  - `tests/Feature/SubscriptionPaymentFlowTest.php`
+
+#### 4. Verification & Testing
+* `php artisan test tests/Feature/TierLimitsAndQuotasTest.php tests/Feature/SubscriptionPaymentFlowTest.php tests/Feature/TaxAndHRMComplianceTest.php` -> PASSED 21 tests, 148 assertions.
+* `php -l` lolos untuk seluruh file PHP & Blade yang dimodifikasi.
+
+### [WORK-2026-09-19-085] Blueprint Tier Pricing v2.3, Multi-Branch, HRM Comprehensive Suite, and Tax Compliance Engine
+* **Date:** 2026-09-19
+* **Status:** COMPLETED
+* **Module:** SaaS Billing, Multi-Branch, HRM & Payroll, Tax Compliance Engine
+* **Feature:** Blueprint Tier Pricing v2.3 (Free, Standard, Premium, Prestige), Multi-Branch & Central Kitchen, HRM (BPJS TK & Kes, THR Join Date, Kasbon Pinjaman, Daily Worker), Tax Compliance Engine (PPh 21 TER A/B/C, PPh Final UMKM 0.5% Threshold Rp 500 Jt, PB1 & PPN), Bento Apple HIG Tax Dashboard (`/tax`), Exclusive TriPay Payment Gateway
+* **Work Type:** Architecture | Billing | HRM | Tax Compliance | UI/UX | Database | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pemilik bisnis UMKM Indonesia (Owner) membutuhkan sistem ERP multi-tenant yang adil, transparan, dan terstandar: kuota penyimpanan media melekat pada akun Owner (lintas seluruh unit bisnis miliknya), model tier berjenjang (Free, Standard, Premium, Prestige) dengan harga psikologis UMKM (Rp 29k, Rp 89k, Rp 199k), mitigasi tidak bayar yang anggun (graceful degradation read-only tanpa penghapusan data), multi-cabang & central kitchen, serta kepatuhan penuh terhadap regulasi ketenagakerjaan dan perpajakan Indonesia (PP 55/2022, PP 58/2023, PMK 168/2023, Permenaker 6/2016).
+* **Masalah/Target:**
+  1. Merumuskan dokumen arsitektur komprehensif dalam Markdown: `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.md` (Versi 2.3).
+  2. Mengimplementasikan domain service ketenagakerjaan: `BPJSCalculationService`, `THRCalculationService`, `PayrollCalculationService`.
+  3. Mengimplementasikan domain service perpajakan: `PPh21CalculationService` (TER Kategori A, B, C dan Pasal 17 Desember), `PPhFinalUMKMService` (0.5% PP 55/2022 dengan batas bebas pajak Rp 500 Juta untuk Orang Pribadi), dan `SalesTaxService` (PB1 10% dan PPN 11%/12%).
+  4. Menyelaraskan `EntitlementService` dan `OwnerStorageQuotaService` dengan 4-tier limits mapping dan feature gates baru.
+  5. Membangun antarmuka interaktif Bento Apple HIG v2.0 di `/tax` (`TaxWebController`, `resources/views/app/tax/index.blade.php`) dengan 4 simulator interaktif.
+  6. Menjamin 100% tes otomatis lolos tanpa regresi.
+
+#### 2. What Was Done
+1. **Penyusunan Blueprint Arsitektur v2.3:**
+   - Menyusun `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.md` (838 baris) mencakup 4 tier (Free, Standard, Premium, Prestige), storage melekat pada owner, mitigasi non-pembayaran 3 tahap (H-7 s/d H+7), multi-cabang, HRM komprehensif, perpajakan, dan TriPay eksklusif.
+2. **Database Schema & Migrations:**
+   - Membuat migrasi `2026_09_19_100001_create_hrm_loans_commissions_and_branch_pricing_tables.php` untuk tabel `employee_loans`, `employee_loan_installments`, `spk_commissions`, dan `branch_product_prices`.
+3. **Domain Services Ketenagakerjaan (HRM):**
+   - `BPJSCalculationService`: Menghitung JHT (3.7%/2%), JKK (0.24%-1.74%), JKM (0.3%), JP (2%/1% cap Rp 10.042.300), dan BPJS Kesehatan (4%/1% cap Rp 12.000.000).
+   - `THRCalculationService`: Menghitung THR prorata berdasarkan tanggal bergabung ($m/12 \times \text{upah}$, $< 1$ bulan = Rp 0) dan rata-rata 12 bulan untuk pekerja harian lepas sesuai Permenaker 6/2016.
+   - `PayrollCalculationService`: Orkestrasi gaji pokok, tunjangan, overtime, komisi SPK, cicilan kasbon, iuran BPJS, THR, dan PPh 21 TER menjadi Take Home Pay.
+4. **Domain Services Perpajakan (Tax Compliance Engine):**
+   - `PPh21CalculationService`: Menghitung tarif efektif bulanan TER A/B/C PP 58/2023, rekonsiliasi masa Desember Pasal 17 ayat (1) huruf a UU HPP, dan pemotongan pekerja harian lepas sesuai PMK 168/2023.
+   - `PPhFinalUMKMService`: Pelacakan omzet riil 12 bulan (invoice + POS), ambang bebas pajak Rp 500 Juta untuk Wajib Pajak Orang Pribadi, dan perhitungan tarif 0.5%.
+   - `SalesTaxService`: Perhitungan PB1 10% / PPN 11%/12% dengan service charge secara inklusif vs eksklusif.
+5. **Entitlement & Quota Integration:**
+   - Memperbarui `BusinessSubscription` dengan 4 tier konstan dan helper level.
+   - Memperbarui `OwnerStorageQuotaService` agar kapasitas dasar penyimpanan (1 GB, 3 GB, 10 GB, 30 GB) melekat pada akun Owner (tier tertinggi bisnis miliknya).
+   - Memperbarui `EntitlementService` dengan `TIER_*_LIMITS` mapping, feature gates (`canTransferStock`, `canSetBranchPrices`, `canCalculateBPJS`, `canCalculateTHR`, `canManageEmployeeLoans`, `canManageDailyWorkers`, `canCalculatePPh21`, `canTrackPPhFinalUMKM`, `canAutomatePayrollWhatsApp`), dan penanganan `null` menggunakan `array_key_exists`.
+6. **Bento Apple HIG User Interface (`/tax`):**
+   - Controller `TaxWebController` (`index`, `simulatePPh21`, `simulateUmkm`, `simulateSales`, `simulatePayroll`).
+   - Tampilan `resources/views/app/tax/index.blade.php`: Smart 500M Threshold Meter, Rekapitulasi 12 Bulan Omzet & PPh Final, dan 4 Simulator Interaktif AJAX.
+   - Navigasi sidebar: Menambahkan item "Pajak & Kepatuhan UMKM" pada sub-menu Laporan.
+7. **Automated Testing:**
+   - Membuat `tests/Feature/TaxAndHRMComplianceTest.php` (6 test cases, 57 assertions) lolos 100%.
+   - Menyesuaikan `tests/Feature/SubscriptionPaymentFlowTest.php` (10 test cases, 57 assertions) lolos 100%.
+   - Menjalankan `tests/Feature/QuotaEnforcementTest.php` (6 test cases, 23 assertions) lolos 100%.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.md`
+  - `database/migrations/2026_09_19_100001_create_hrm_loans_commissions_and_branch_pricing_tables.php`
+  - `app/Domain/HRM/BPJSCalculationService.php`
+  - `app/Domain/HRM/THRCalculationService.php`
+  - `app/Domain/HRM/PayrollCalculationService.php`
+  - `app/Domain/Tax/PPh21CalculationService.php`
+  - `app/Domain/Tax/PPhFinalUMKMService.php`
+  - `app/Domain/Tax/SalesTaxService.php`
+  - `app/Domain/Billing/EntitlementService.php`
+  - `app/Domain/Storage/OwnerStorageQuotaService.php`
+  - `app/Models/BusinessSubscription.php`
+  - `app/Http/Controllers/Web/TaxWebController.php`
+  - `routes/owner.php`
+  - `resources/views/app/tax/index.blade.php`
+  - `resources/views/layouts/partials/sidebar.blade.php`
+  - `resources/views/app/billing/limits.blade.php`
+  - `tests/Feature/TaxAndHRMComplianceTest.php`
+  - `tests/Feature/SubscriptionPaymentFlowTest.php`
+  - `docs/system/modules/hrm-and-tax.md`
+  - `docs/system/modules/saas-billing.md`
+  - `docs/SYSTEM_GUIDE.md`
+  - `docs/AiWorkHistory.md`
+
+#### 4. Verification & Testing
+* `php -l`: 12 files verified, 0 syntax errors.
+* `php artisan test tests/Feature/TaxAndHRMComplianceTest.php`: 6 passed, 57 assertions (100% PASS).
+* `php artisan test tests/Feature/SubscriptionPaymentFlowTest.php`: 10 passed, 57 assertions (100% PASS).
+* `php artisan test tests/Feature/QuotaEnforcementTest.php`: 6 passed, 23 assertions (100% PASS).
+* `php artisan route:list --path=tax`: 5 routes verified.
+
+#### 5. Important Decisions & Guardrails
+* **Financial Integrity:** Data transaksi historis penjualan tetap tidak tersentuh; kalkulasi pajak dan payroll bersifat deterministik dan idempotensial.
+* **Tenant Isolation:** Seluruh perhitungan omzet dan pajak discoped ke `Context::requireBusiness()`.
+* **Graceful Degradation:** Penanganan kadaluarsa langganan beralih ke mode *read-only* tanpa menghapus data historis operasional.
+
+#### 6. Documentation Promotion
+* Layer 1: Dicatat pada entri ini di `docs/AiWorkHistory.md`.
+* Layer 2: Dibuat `docs/system/modules/hrm-and-tax.md` dan diperbarui `docs/system/modules/saas-billing.md`.
+* Layer 3: Dirangkum di Bagian 3.11 dan 4.13 serta Traceability Matrix `docs/SYSTEM_GUIDE.md`.
+
 ### [WORK-2026-09-18-084] End-to-End System Analysis, Detailed Privacy Policy & Terms of Service (Owner vs Customer), and Database-Backed Legal CMS Hub
 * **Date:** 2026-09-18
 * **Status:** COMPLETED

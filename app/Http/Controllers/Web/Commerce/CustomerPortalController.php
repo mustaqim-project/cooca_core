@@ -440,7 +440,7 @@ final class CustomerPortalController extends Controller
         // via session - storefront sudah handle payment method, alamat, dsb.
         session()->put("customer_cart_checkout_{$business->id}", $cart->id);
 
-        return redirect()->route('public.business.landing.legacy', ['slug' => $slug])
+        return redirect()->route('public.business.landing', ['slug' => $slug])
             ->with('info', 'Lanjutkan proses checkout di bawah.');
     }
 

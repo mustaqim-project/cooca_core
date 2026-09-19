@@ -32,6 +32,7 @@ class SubscriptionPaymentFlowTest extends TestCase
         parent::setUp();
         Context::flush();
         Storage::fake('public');
+        Storage::fake('local');
 
         $this->user = User::create([
             'name' => 'Owner Tenant',
@@ -69,9 +70,11 @@ class SubscriptionPaymentFlowTest extends TestCase
         $response = $this->get(route('billing.checkout', ['cycle' => 'monthly']));
 
         $response->assertStatus(200);
-        $response->assertSee('Cooca UMKM');
+        $response->assertSee('Pilih Paket & Metode Pembayaran');
+        $response->assertSee('Standard Plan');
+        $response->assertSee('Premium Plan');
+        $response->assertSee('Prestige Plan');
         $response->assertSee('Pilih Metode Pembayaran');
-        $response->assertSee('Bank BCA Transfer');
         $response->assertSee('QRIS');
     }
 
@@ -81,15 +84,14 @@ class SubscriptionPaymentFlowTest extends TestCase
 
         $response = $this->post(route('billing.order.store'), [
             'cycle' => 'monthly',
-            'payment_method' => 'bca',
+            'tier' => 'standard',
+            'payment_method' => 'bca_va',
         ]);
 
         $payment = SubscriptionPayment::where('business_id', $this->business->id)->first();
         $this->assertNotNull($payment);
         $this->assertTrue(str_starts_with($payment->order_number, 'SUB-') || str_starts_with($payment->order_number, 'PKG-'));
-        $this->assertEquals(25000, $payment->amount);
-        $this->assertGreaterThan(0, $payment->unique_code);
-        $this->assertEquals($payment->amount + $payment->unique_code, $payment->total_payable);
+        $this->assertEquals(29000, $payment->amount);
         $this->assertEquals('pending', $payment->status);
 
         $response->assertRedirect(route('billing.payment.show', $payment));
@@ -126,7 +128,7 @@ class SubscriptionPaymentFlowTest extends TestCase
         $this->assertNotNull($payment->payment_proof_path);
         $this->assertNotNull($payment->proof_uploaded_at);
 
-        Storage::disk('public')->assertExists($payment->payment_proof_path);
+        Storage::disk('local')->assertExists($payment->payment_proof_path);
     }
 
     public function test_admin_can_view_pending_subscriptions(): void
@@ -250,7 +252,7 @@ class SubscriptionPaymentFlowTest extends TestCase
         $service->approvePayment($payment, $this->admin);
 
         $summary = app(\App\Domain\Storage\OwnerStorageQuotaService::class)->getSummary($this->user);
-        $this->assertSame(4.0, $summary['limit_gb']);
+        $this->assertSame(2.0, $summary['limit_gb']);
         $this->assertDatabaseHas('owner_storage_topups', [
             'owner_id' => $this->user->id,
             'payment_id' => $payment->id,

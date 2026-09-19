@@ -25,17 +25,46 @@
             </span>
         </nav>
 
+        @php
+            $tier = $usage['tier'] ?? 'free';
+            $tierBadge = match($tier) {
+                'prestige' => ['label' => 'Prestige Plan', 'bg' => 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 border-purple-200/90 dark:border-purple-800/90', 'dot' => 'bg-purple-500'],
+                'premium' => ['label' => 'Premium Plan', 'bg' => 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border-indigo-200/90 dark:border-indigo-800/90', 'dot' => 'bg-indigo-500'],
+                'standard' => ['label' => 'Standard Plan', 'bg' => 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90', 'dot' => 'bg-emerald-500'],
+                default => ['label' => 'Free Solo', 'bg' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700', 'dot' => 'bg-slate-400'],
+            };
+        @endphp
+
+        @if(!empty($usage['is_past_due']))
+            <!-- Amber Bento Banner: Grace Period -->
+            <div class="p-4 sm:p-5 rounded-[20px] bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="p-2 rounded-[12px] bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+                        <i data-lucide="clock" class="w-5 h-5"></i>
+                    </div>
+                    <div class="space-y-0.5 text-xs">
+                        <p class="font-extrabold text-sm text-amber-900 dark:text-amber-100">Masa Tenggang Aktif (Grace Period Hari ke-1 s/d ke-3)</p>
+                        <p class="text-amber-800 dark:text-amber-300">Langganan Anda telah melewati batas tempo. Kasir POS tetap beroperasi normal. Fitur penambahan data dikunci sementara hingga tagihan diselesaikan.</p>
+                    </div>
+                </div>
+                <a href="{{ route('billing.checkout') }}" class="px-4 py-2 rounded-[12px] text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 shadow-sm shrink-0 flex items-center gap-1.5">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span>Selesaikan Tagihan</span>
+                </a>
+            </div>
+        @endif
+
         <!-- 1. Top Header Banner -->
         <div
             class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 transition-colors">
             <div class="space-y-2 max-w-3xl">
                 <div class="flex items-center gap-2">
                     <span
-                        class="rounded-[10px] px-2.5 py-1 text-xs font-bold border inline-flex items-center gap-1.5 font-mono uppercase tracking-wider {{ $usage['is_core'] ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700' }}">
+                        class="rounded-[10px] px-2.5 py-1 text-xs font-bold border inline-flex items-center gap-1.5 font-mono uppercase tracking-wider {{ $tierBadge['bg'] }}">
                         <span
-                            class="w-1.5 h-1.5 rounded-full {{ $usage['is_core'] ? 'bg-emerald-500' : 'bg-slate-400' }}"
+                            class="w-1.5 h-1.5 rounded-full {{ $tierBadge['dot'] }}"
                             aria-hidden="true"></span>
-                        <span>{{ $usage['is_core'] ? 'Enterprise Pro' : 'Free Solo' }}</span>
+                        <span>{{ $tierBadge['label'] }}</span>
                     </span>
                     @if (!empty($usage['ends_at']))
                         <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -62,13 +91,13 @@
                         <a href="{{ route('billing.checkout') }}"
                             class="px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 flex-1 sm:flex-none focus-visible:ring-2 focus-visible:ring-emerald-500">
                             <i data-lucide="refresh-cw" class="w-4 h-4" aria-hidden="true"></i>
-                            <span>Perpanjang Masa Aktif</span>
+                            <span>Perpanjang / Ganti Paket</span>
                         </a>
                     @else
                         <a href="{{ route('billing.checkout') }}"
                             class="px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 flex-1 sm:flex-none focus-visible:ring-2 focus-visible:ring-emerald-500">
                             <i data-lucide="sparkles" class="w-4 h-4" aria-hidden="true"></i>
-                            <span>Ikut Patungan</span>
+                            <span>Pilih Paket Berlangganan</span>
                         </a>
                     @endif
                 @endif
@@ -91,14 +120,14 @@
                     </div>
                     <div
                         class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white truncate">
-                        {{ $usage['is_core'] ? 'Enterprise Pro' : 'Free Solo' }}
+                        {{ $tierBadge['label'] }}
                     </div>
                 </div>
                 <div
                     class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
                     <span>Lisensi</span>
                     <span
-                        class="font-bold text-emerald-600 dark:text-emerald-400">{{ $usage['is_core'] ? 'Patungan Aktif' : 'Gratis Standar' }}</span>
+                        class="font-bold text-emerald-600 dark:text-emerald-400">{{ $usage['is_core'] ? 'Langganan Aktif' : 'Gratis Standar' }}</span>
                 </div>
             </div>
 
@@ -1034,7 +1063,7 @@
                     operasional terstruktur</span>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
                 <!-- 1. Katalog Produk -->
                 @php $prd = $usage['products'] ?? []; @endphp
                 <div
@@ -1200,7 +1229,7 @@
                         </div>
                     </div>
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
-                        {{ $usage['is_core'] ? 'Multi-cabang & multi-gudang' : '1 cabang outlet (Free)' }}</div>
+                        {{ $usage['outlets']['limit'] ? 'Maks. ' . $usage['outlets']['limit'] . ' cabang/gudang' : 'Multi-cabang & multi-gudang (Unlimited)' }}</div>
                 </div>
 
                 <!-- 7. Pengguna / Karyawan -->
@@ -1208,7 +1237,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Karyawan / Kasir</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">Karyawan / Staf</span>
                             <i data-lucide="user-check" class="w-4 h-4 text-blue-600 dark:text-blue-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1216,19 +1245,19 @@
                             <span
                                 class="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">{{ $usage['users']['used'] ?? 0 }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
-                                {{ $usage['is_core'] ? '∞ Unlimited' : 'Solo Owner' }}</span>
+                                {{ $usage['users']['limit'] ? $usage['users']['limit'] . ' staf' : '∞ Unlimited' }}</span>
                         </div>
                         <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-1.5 overflow-hidden mt-2 border border-slate-200 dark:border-slate-800"
                             role="progressbar"
-                            aria-valuenow="{{ $usage['is_core'] ? 100 : min(100, $usage['users']['percent'] ?? 0) }}"
-                            aria-valuemin="0" aria-valuemax="100" aria-label="Kapasitas Karyawan Kasir">
+                            aria-valuenow="{{ min(100, $usage['users']['percent'] ?? 0) }}"
+                            aria-valuemin="0" aria-valuemax="100" aria-label="Kapasitas Karyawan Staf">
                             <div class="h-full rounded-full bg-blue-500 transition-all duration-500"
-                                style="width: {{ $usage['is_core'] ? 100 : min(100, $usage['users']['percent'] ?? 0) }}%">
+                                style="width: {{ min(100, $usage['users']['percent'] ?? 0) }}%">
                             </div>
                         </div>
                     </div>
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
-                        {{ $usage['is_core'] ? 'Multi-user kasir & admin' : 'Hanya Owner (Free)' }}</div>
+                        {{ $usage['users']['limit'] ? 'Maks. ' . $usage['users']['limit'] . ' staf tim' : 'Multi-user staf tim (Unlimited)' }}</div>
                 </div>
 
                 <!-- 8. Entitas Bisnis -->
@@ -1244,19 +1273,47 @@
                             <span
                                 class="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">{{ $usage['businesses']['used'] ?? 1 }}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
-                                {{ $usage['is_core'] ? '∞ Unlimited' : '1 Bisnis' }}</span>
+                                {{ $usage['businesses']['limit'] ? $usage['businesses']['limit'] . ' Bisnis' : '∞ Unlimited' }}</span>
                         </div>
                         <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-1.5 overflow-hidden mt-2 border border-slate-200 dark:border-slate-800"
                             role="progressbar"
-                            aria-valuenow="{{ $usage['is_core'] ? 100 : min(100, $usage['businesses']['percent'] ?? 0) }}"
+                            aria-valuenow="{{ min(100, $usage['businesses']['percent'] ?? 0) }}"
                             aria-valuemin="0" aria-valuemax="100" aria-label="Kapasitas Entitas Bisnis">
                             <div class="h-full rounded-full bg-violet-500 transition-all duration-500"
-                                style="width: {{ $usage['is_core'] ? 100 : min(100, $usage['businesses']['percent'] ?? 0) }}%">
+                                style="width: {{ min(100, $usage['businesses']['percent'] ?? 0) }}%">
                             </div>
                         </div>
                     </div>
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
-                        {{ $usage['is_core'] ? 'Multi-bisnis dalam 1 akun' : '1 bisnis tunggal (Free)' }}</div>
+                        {{ $usage['businesses']['limit'] ? 'Maks. ' . $usage['businesses']['limit'] . ' bisnis dalam 1 akun' : 'Multi-bisnis tanpa batas (Prestige)' }}</div>
+                </div>
+
+                <!-- 9. Meja Kasir POS (Dine-In) -->
+                @php $tbl = $usage['tables'] ?? []; @endphp
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $tbl['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
+                    <div>
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                            <span class="text-xs font-bold uppercase tracking-wider">Meja Kasir (Dine-In)</span>
+                            <i data-lucide="layout-grid" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"
+                                aria-hidden="true"></i>
+                        </div>
+                        <div class="mt-1.5 flex items-baseline gap-1.5">
+                            <span
+                                class="text-2xl font-black font-mono tabular-nums {{ $tbl['is_reached'] ?? false ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">{{ $tbl['used'] ?? 0 }}</span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">/
+                                {{ $tbl['limit'] ? $tbl['limit'] . ' meja' : ($usage['is_core'] ? '∞ Unlimited' : '0 Meja') }}</span>
+                        </div>
+                        <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-1.5 overflow-hidden mt-2 border border-slate-200 dark:border-slate-800"
+                            role="progressbar"
+                            aria-valuenow="{{ min(100, $tbl['percent'] ?? 0) }}"
+                            aria-valuemin="0" aria-valuemax="100" aria-label="Kapasitas Meja Kasir">
+                            <div class="h-full rounded-full transition-all duration-500 {{ $tbl['is_reached'] ?? false ? 'bg-rose-500' : 'bg-emerald-500' }}"
+                                style="width: {{ min(100, $tbl['percent'] ?? 0) }}%"></div>
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
+                        {{ $tbl['limit'] ? 'Maks. ' . $tbl['limit'] . ' meja (Standard: 5)' : ($usage['is_core'] ? 'Meja dine-in tanpa batas' : 'Fitur berbayar (Standard/Premium)') }}</div>
                 </div>
             </div>
         </section>
@@ -1289,132 +1346,152 @@
 
             <!-- Matrix Table Container with Horizontal Scroll Notice on Mobile -->
             <div class="relative overflow-x-auto -mx-5 sm:mx-0 px-5 sm:px-0">
-                <table class="w-full text-left text-xs min-w-[620px] border-collapse"
-                    aria-label="Tabel Matriks Perbandingan Fitur Paket">
+                <table class="w-full text-left text-xs min-w-[780px] border-collapse"
+                    aria-label="Tabel Matriks Perbandingan Fitur 4 Paket">
                     <thead
                         class="bg-slate-50/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-mono uppercase text-[10px] font-bold border-b border-slate-200 dark:border-slate-800 whitespace-nowrap">
                         <tr>
-                            <th scope="col" class="py-3 px-4 w-1/2">Fitur &amp; Kemampuan Utama</th>
-                            <th scope="col" class="py-3 px-4 text-center w-1/4">Paket Free (Solo)</th>
+                            <th scope="col" class="py-3.5 px-4 w-1/3">Fitur &amp; Kemampuan Utama</th>
+                            <th scope="col" class="py-3.5 px-3 text-center">Free (Rp 0)</th>
+                            <th scope="col" class="py-3.5 px-3 text-center">Standard (Rp 29k/bln)</th>
                             <th scope="col"
-                                class="py-3 px-4 text-center w-1/4 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 rounded-t-[14px] font-bold border-t border-x border-emerald-200 dark:border-emerald-500/30">
-                                Cooca (Patungan)
+                                class="py-3.5 px-3 text-center bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-bold border-t-2 border-indigo-500">
+                                Premium (Rp 89k/bln)
+                            </th>
+                            <th scope="col"
+                                class="py-3.5 px-3 text-center bg-purple-50/80 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-bold border-t-2 border-purple-500">
+                                Prestige (Rp 199k/bln)
                             </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-sans">
+                        <!-- Entitas Bisnis -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Katalog Produk &amp; SKU
-                                Varian</td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">Maks. 10 Item
-                            </td>
-                            <td
-                                class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
-                                ∞ Tanpa Batas
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Entitas Bisnis (Multi-Company)</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">1 Bisnis</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">1 Bisnis</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">3 Bisnis</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">∞ Unlimited</td>
                         </tr>
+                        <!-- Katalog Produk -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Resep HPP / Bill of Materials
-                                (BOM)</td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">Maks. 3 Resep
-                            </td>
-                            <td
-                                class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
-                                ∞ Tanpa Batas
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Katalog Produk &amp; SKU Varian</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">10 Item</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">100 Item</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">∞ Unlimited</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">∞ Unlimited</td>
                         </tr>
+                        <!-- Resep BOM -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Transaksi Kasir POS Per Bulan
-                            </td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">30 Struk /
-                                bln</td>
-                            <td
-                                class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
-                                ∞ Tanpa Batas
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Resep HPP / Bill of Materials (BOM)</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">3 Resep</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">20 Resep</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">∞ Unlimited</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">∞ Unlimited</td>
                         </tr>
+                        <!-- Transaksi Kasir POS -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Faktur Penjualan &amp; Surat
-                                Jalan (B2B)</td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">3 Faktur /
-                                bln</td>
-                            <td
-                                class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
-                                ∞ Tanpa Batas
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Transaksi Kasir POS Per Bulan</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">30 / bln</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">1.000 / bln</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">∞ Unlimited</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">∞ Unlimited</td>
                         </tr>
+                        <!-- Outlet & Gudang -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Multi-Cabang Outlet &amp;
-                                Gudang Terpisah</td>
-                            <td class="py-3.5 px-4 text-center text-slate-500 dark:text-slate-400">1 Toko Tunggal</td>
-                            <td
-                                class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
-                                Multi-Gudang Aktif
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Outlet &amp; Gudang Terpisah</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">1 Toko + 1 Gudang</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">2 Lokasi</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">5 Lokasi</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">∞ Unlimited</td>
                         </tr>
+                        <!-- Karyawan / Staf -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Kelola Konten &amp; Jadwal Media Sosial</td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">3 Konten / bln</td>
-                            <td
-                                class="py-3.5 px-4 text-center font-mono font-bold text-pink-700 dark:text-pink-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
-                                Add-On (Rp 89k/bln)
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Karyawan / Staf Terdaftar</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">1 (Solo Owner)</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">3 Staf</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">10 Staf</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">∞ Unlimited</td>
                         </tr>
+                        <!-- Meja Dine-in -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Notifikasi &amp; Struk Bot WhatsApp</td>
-                            <td class="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-mono">10 Pesan / bln</td>
-                            <td
-                                class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
-                                ∞ Tanpa Batas
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Meja Kasir POS (Dine-In)</td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600 font-mono">-</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">5 Meja</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">∞ Unlimited</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">∞ Unlimited</td>
                         </tr>
+                        <!-- Transfer Stok Multi-Gudang -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Ekspor Laporan Excel
-                                Multi-Sheet Komprehensif</td>
-                            <td class="py-3.5 px-4 text-center text-slate-400 dark:text-slate-600">
-                                <i data-lucide="x" class="w-4 h-4 mx-auto text-slate-400 dark:text-slate-600"
-                                    aria-label="Tidak Tersedia"></i>
-                            </td>
-                            <td
-                                class="py-3.5 px-4 text-center text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30 font-bold">
-                                <i data-lucide="check"
-                                    class="w-4 h-4 mx-auto text-emerald-600 dark:text-emerald-400 font-black"
-                                    aria-label="Tersedia"></i>
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Transfer Stok Multi-Gudang / Cabang</td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                            <td class="py-3 px-3 text-center text-purple-600 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
                         </tr>
+                        <!-- Kitchen Display System (KDS) -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Impor Massal Produk &amp;
-                                Resep Excel</td>
-                            <td class="py-3.5 px-4 text-center text-slate-400 dark:text-slate-600">
-                                <i data-lucide="x" class="w-4 h-4 mx-auto text-slate-400 dark:text-slate-600"
-                                    aria-label="Tidak Tersedia"></i>
-                            </td>
-                            <td
-                                class="py-3.5 px-4 text-center text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30 font-bold">
-                                <i data-lucide="check"
-                                    class="w-4 h-4 mx-auto text-emerald-600 dark:text-emerald-400 font-black"
-                                    aria-label="Tersedia"></i>
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Kitchen Display System (KDS Dapur)</td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                            <td class="py-3 px-3 text-center text-purple-600 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
                         </tr>
+                        <!-- Multi-Pricing Produk Cabang -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Akun Karyawan &amp; Hak Akses
-                                Kasir/Admin</td>
-                            <td class="py-3.5 px-4 text-center text-slate-500 dark:text-slate-400">Solo Owner Only</td>
-                            <td
-                                class="py-3.5 px-4 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
-                                Multi-User Terkendali
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Multi-Pricing Produk per Cabang</td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                            <td class="py-3 px-3 text-center text-purple-600 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
                         </tr>
+                        <!-- HRM: Komisi & Kasbon -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">Kirim Struk Otomatis Bot
-                                WhatsApp Kasir</td>
-                            <td class="py-3.5 px-4 text-center text-slate-500 dark:text-slate-400">Manual Share</td>
-                            <td
-                                class="py-3.5 px-4 text-center text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 border-x border-emerald-200 dark:border-emerald-500/30">
-                                <i data-lucide="check"
-                                    class="w-4 h-4 mx-auto text-emerald-600 dark:text-emerald-400 font-black"
-                                    aria-label="Tersedia"></i>
-                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">HRM: Komisi Staf &amp; Kasbon Cicilan</td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                            <td class="py-3 px-3 text-center text-purple-600 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                        </tr>
+                        <!-- HRM: Pekerja Harian & BPJS/THR -->
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">HRM: Pekerja Harian, BPJS &amp; THR</td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                            <td class="py-3 px-3 text-center text-purple-600 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                        </tr>
+                        <!-- Tax PPh 21 TER -->
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Tax Engine: PPh 21 TER (PP 58/2023) &amp; Rekonsiliasi</td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600 bg-indigo-50/30 dark:bg-indigo-950/20"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-purple-600 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                        </tr>
+                        <!-- Auto Slip Gaji WA -->
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Auto Kirim Slip Gaji via WhatsApp</td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600 bg-indigo-50/30 dark:bg-indigo-950/20"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-purple-600 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                        </tr>
+                        <!-- Ekspor Impor Excel -->
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Ekspor / Impor Massal Excel Lengkap</td>
+                            <td class="py-3 px-3 text-center text-slate-400 dark:text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                            <td class="py-3 px-3 text-center text-emerald-600 dark:text-emerald-400"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                            <td class="py-3 px-3 text-center text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                            <td class="py-3 px-3 text-center text-purple-600 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20"><i data-lucide="check" class="w-4 h-4 mx-auto font-black"></i></td>
+                        </tr>
+                        <!-- WhatsApp Kuota -->
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Notifikasi WhatsApp Gateway / Bulan</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">10 Pesan</td>
+                            <td class="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">50 Pesan</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">200 Pesan</td>
+                            <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">1.000 Pesan</td>
                         </tr>
                     </tbody>
                 </table>

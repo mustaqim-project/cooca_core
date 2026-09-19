@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="flex items-center gap-3 self-end sm:self-center">
-                    <a href="{{ url('/b/' . $cart->business->slug) }}" target="_blank"
+                    <a href="{{ $cart->business->public_url }}" target="_blank"
                        class="text-[11.5px] font-semibold text-black/50 dark:text-white/50 hover:text-[#007AFF] flex items-center gap-1 transition-colors">
                         <i data-lucide="external-link" class="w-3 h-3"></i>
                         <span>Etalase Toko</span>

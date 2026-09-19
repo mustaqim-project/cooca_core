@@ -22,7 +22,41 @@ class BusinessMembership extends Pivot
         'user_id',
         'role',
         'role_id',
+        'job_title',
+        'employment_type',
+        'join_date',
+        'base_salary',
+        'daily_rate',
+        'hourly_rate',
+        'fixed_allowances',
+        'variable_allowances',
+        'pin_hash',
+        'bank_name',
+        'bank_account_number',
+        'bank_account_holder',
+        'whatsapp_number',
+        'tax_ptkp_status',
+        'bpjs_tk_enabled',
+        'bpjs_kes_enabled',
+        'primary_location_id',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'join_date' => 'date',
+            'base_salary' => 'decimal:2',
+            'daily_rate' => 'decimal:2',
+            'hourly_rate' => 'decimal:2',
+            'fixed_allowances' => 'decimal:2',
+            'variable_allowances' => 'decimal:2',
+            'bpjs_tk_enabled' => 'boolean',
+            'bpjs_kes_enabled' => 'boolean',
+        ];
+    }
 
     /**
      * Get user of this membership.

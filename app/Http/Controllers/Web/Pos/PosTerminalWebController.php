@@ -61,11 +61,24 @@ final class PosTerminalWebController extends Controller
         $categories = ProductCategory::where('business_id', $business->id)->get();
 
         // 4. Products with Selling Price and Effective Stock (Material Master)
+        $branchPrices = [];
+        if ($selectedLocationId) {
+            $branchPrices = \App\Models\BranchProductPrice::where('business_id', $business->id)
+                ->where('location_id', $selectedLocationId)
+                ->where('is_available', true)
+                ->pluck('price', 'product_id')
+                ->toArray();
+        }
+
         $products = Product::where('business_id', $business->id)
             ->forPos()
             ->with(['category', 'outputUnit', 'costModels.costingRuns.result'])
             ->get()
-            ->map(function ($p) use ($selectedLocationId) {
+            ->map(function ($p) use ($selectedLocationId, $branchPrices) {
+                if (isset($branchPrices[$p->id])) {
+                    $p->price = (float) $branchPrices[$p->id];
+                    $p->selling_price = (float) $branchPrices[$p->id];
+                }
                 // Effective stock dihitung dari Material master stock (via BOM/direct material).
                 $p->current_stock = $p->calculateEffectiveStock($selectedLocationId);
                 $p->modifier_groups = $p->getAvailableModifierGroupsWithStock($selectedLocationId);
@@ -141,6 +154,15 @@ final class PosTerminalWebController extends Controller
         $query = (string) $request->get('q', '');
         $locationId = (string) $request->get('location_id', '');
 
+        $branchPrices = [];
+        if ($locationId !== '') {
+            $branchPrices = \App\Models\BranchProductPrice::where('business_id', $business->id)
+                ->where('location_id', $locationId)
+                ->where('is_available', true)
+                ->pluck('price', 'product_id')
+                ->toArray();
+        }
+
         $products = Product::where('business_id', $business->id)
             ->where('is_active', true)
             ->where(function ($q) use ($query) {
@@ -154,13 +176,14 @@ final class PosTerminalWebController extends Controller
             }])
             ->limit(20)
             ->get()
-            ->map(function ($p) {
+            ->map(function ($p) use ($branchPrices) {
                 $locStock = $p->stocks->first();
+                $price = isset($branchPrices[$p->id]) ? (float) $branchPrices[$p->id] : (float) $p->selling_price;
                 return [
                     'id' => $p->id,
                     'name' => $p->name,
                     'code' => $p->code,
-                    'selling_price' => (float) $p->selling_price,
+                    'selling_price' => $price,
                     'base_cost' => (float) $p->base_cost,
                     'stock' => $locStock ? (float) $locStock->quantity : 0.0,
                 ];

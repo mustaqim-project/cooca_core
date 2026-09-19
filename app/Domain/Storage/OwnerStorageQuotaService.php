@@ -16,8 +16,39 @@ final class OwnerStorageQuotaService
 {
     public const DEFAULT_LIMIT_BYTES = 3 * 1024 * 1024 * 1024;
 
-    public function getBaseLimitBytes(): int
+    public function getHighestTierForOwner(User $owner): string
     {
+        $owner->load(['businesses.subscription']);
+        $maxLevel = 0;
+        $highestTier = \App\Models\BusinessSubscription::TIER_FREE;
+
+        foreach ($owner->businesses as $biz) {
+            $sub = $biz->subscription;
+            if ($sub && $sub->isOperational()) {
+                $level = $sub->getTierLevel();
+                if ($level > $maxLevel) {
+                    $maxLevel = $level;
+                    $highestTier = $sub->getTier();
+                }
+            }
+        }
+
+        return $highestTier;
+    }
+
+    public function getBaseLimitBytes(?User $owner = null): int
+    {
+        if ($owner !== null) {
+            $tier = $this->getHighestTierForOwner($owner);
+            $gb = match ($tier) {
+                \App\Models\BusinessSubscription::TIER_PRESTIGE => 30,
+                \App\Models\BusinessSubscription::TIER_PREMIUM => 10,
+                \App\Models\BusinessSubscription::TIER_STANDARD => 3,
+                default => 1, // Free Tier: 1 GB
+            };
+            return $gb * 1024 * 1024 * 1024;
+        }
+
         $gb = SystemSetting::get('owner_storage_limit_gb', '3');
         return max(0, (int) $gb) * 1024 * 1024 * 1024;
     }
@@ -72,7 +103,7 @@ final class OwnerStorageQuotaService
 
     public function getLimitBytes(User $owner): int
     {
-        return $this->getBaseLimitBytes() + (int) OwnerStorageTopup::where('owner_id', $owner->id)
+        return $this->getBaseLimitBytes($owner) + (int) OwnerStorageTopup::where('owner_id', $owner->id)
             ->whereHas('payment', fn ($query) => $query->where('status', 'approved'))
             ->sum('storage_bytes');
     }

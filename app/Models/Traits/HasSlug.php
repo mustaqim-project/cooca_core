@@ -60,18 +60,31 @@ trait HasSlug
     }
 
     /**
+     * Whether this model should prevent claiming reserved system route slugs.
+     */
+    public function shouldCheckReservedSlugs(): bool
+    {
+        return $this instanceof \App\Models\Business;
+    }
+
+    /**
      * Generate a unique slug by appending numbers if duplicates exist.
      */
     public function generateUniqueSlug(string $baseSlug): string
     {
-        $slug = $baseSlug;
+        $candidate = $baseSlug;
+        if ($this->shouldCheckReservedSlugs() && \App\Domain\Shared\ReservedSlugService::isReserved($candidate)) {
+            $candidate = \App\Domain\Shared\ReservedSlugService::sanitize($candidate);
+        }
+
+        $slug = $candidate;
         $count = 1;
         $slugColumn = $this->slugColumn();
         $keyName = $this->getKeyName();
 
-        while ($this->slugExists($slug, $slugColumn, $keyName)) {
+        while ($this->slugExists($slug, $slugColumn, $keyName) || ($this->shouldCheckReservedSlugs() && \App\Domain\Shared\ReservedSlugService::isReserved($slug))) {
             $count++;
-            $slug = "{$baseSlug}-{$count}";
+            $slug = "{$candidate}-{$count}";
         }
 
         return $slug;

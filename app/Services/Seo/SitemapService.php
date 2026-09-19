@@ -206,32 +206,31 @@ final class SitemapService
             // Graceful fallback if database unavailable during static boot
         }
 
-        // 6. Public Business Single-Page Landings (/b/{slug})
+        // 6. Public Business Single-Page Landings & Discoverable Commerce Storefronts (cooca.id/{slug-bisnis})
         try {
+            $seenBusinessSlugs = [];
+
             $businessLandings = BusinessLandingPage::where('is_published', true)
                 ->whereHas('business', fn($q) => $q->where('is_active', true))
                 ->with('business')
                 ->get();
 
             foreach ($businessLandings as $landing) {
-                if ($landing->business && $landing->business->name) {
+                if ($landing->business && ($landing->business->slug || $landing->business->name)) {
+                    $slug = $landing->business->slug ?: Str::slug($landing->business->name);
+                    $seenBusinessSlugs[$slug] = true;
                     $landingDate = ($landing->updated_at ?? Carbon::now())->toIso8601String();
                     $urls[] = [
-                        'loc' => $baseUrl . '/' . Str::slug($landing->business->name),
+                        'loc' => $baseUrl . '/' . $slug,
                         'lastmod' => $landingDate,
                         'changefreq' => 'weekly',
-                        'priority' => '0.7',
-                        'category' => 'Profil Bisnis UMKM',
+                        'priority' => '0.8',
+                        'category' => 'Toko & Etalase UMKM',
                         'title' => (string) ($landing->headline ?: $landing->business->name),
                     ];
                 }
             }
-        } catch (\Throwable) {
-            // Graceful fallback
-        }
 
-        // 7. Discoverable Commerce Storefronts (/b/{slug})
-        try {
             $discoverableStores = \App\Models\CommerceStoreSetting::where('is_storefront_enabled', true)
                 ->where('is_discoverable', true)
                 ->whereHas('business', fn($q) => $q->where('is_active', true))
@@ -240,8 +239,13 @@ final class SitemapService
 
             foreach ($discoverableStores as $setting) {
                 if ($setting->business && $setting->business->slug) {
+                    $slug = $setting->business->slug;
+                    if (isset($seenBusinessSlugs[$slug])) {
+                        continue;
+                    }
+                    $seenBusinessSlugs[$slug] = true;
                     $urls[] = [
-                        'loc' => $baseUrl . '/b/' . $setting->business->slug,
+                        'loc' => $baseUrl . '/' . $slug,
                         'lastmod' => ($setting->updated_at ?? Carbon::now())->toIso8601String(),
                         'changefreq' => 'daily',
                         'priority' => '0.8',

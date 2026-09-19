@@ -30,6 +30,7 @@
         request()->routeIs('labor-machines.*') ||
         request()->routeIs('profitability.*') ||
         request()->routeIs('simulator.*');
+    $isHrmRoute = request()->routeIs('hrm.*') || request()->routeIs('tax.*');
     $isWhatsAppRoute = request()->routeIs('whatsapp.*');
     $isSocialMediaRoute = request()->routeIs('social-media.*');
     $isFinanceRoute = request()->routeIs('finance.*');
@@ -93,6 +94,8 @@
 
     $canAccessReports =
         \App\Support\Context::hasPermission('reports.view') || \App\Support\Context::hasPermission('pos.reports');
+
+    $canAccessHrm = \App\Support\Context::hasPermission('users.manage') || \App\Support\Context::isOwner();
 
     $canAccessChannels =
         \App\Support\Context::hasPermission('whatsapp.view') ||
@@ -788,6 +791,7 @@
             masterDataOpen: {{ $isMasterDataRoute ? 'true' : 'false' }},
             inventoryOpen: {{ $isInventoryRoute ? 'true' : 'false' }},
             costingOpen: {{ $isCostingRoute ? 'true' : 'false' }},
+            hrmOpen: {{ $isHrmRoute ? 'true' : 'false' }},
             financeOpen: {{ $isFinanceRoute ? 'true' : 'false' }},
             reportsOpen: {{ $isReportsRoute ? 'true' : 'false' }}
         }">
@@ -842,7 +846,7 @@
         {{-- ======================================================== --}}
         {{-- SEKSI 2: OPERASIONAL BISNIS                              --}}
         {{-- ======================================================== --}}
-        @if ($canAccessStorefront || $canAccessSales || $canAccessInventory || $canAccessPurchasing || $canAccessCosting)
+        @if ($canAccessStorefront || $canAccessSales || $canAccessInventory || $canAccessPurchasing || $canAccessCosting || $canAccessHrm)
             <div class="space-y-0.5 pt-1.5">
                 <div x-show="!sidebarCollapsed"
                     class="px-2.5 pt-1 pb-1 text-[11px] font-semibold tracking-wide uppercase text-black/55 dark:text-white/55 select-none">
@@ -1609,6 +1613,94 @@
                         </div>
                     </div>
                 @endif
+
+                {{-- 5. SDM & PENGGAJIAN (HRM) --}}
+                @if ($canAccessHrm)
+                    <div class="relative group" x-data="{ flyoutOpen: false }"
+                        @mouseenter="if(sidebarCollapsed) flyoutOpen = true" @mouseleave="flyoutOpen = false">
+                        <button type="button" id="tour-group-hrm" data-tour-group="hrm"
+                            @click="hrmOpen = !hrmOpen" role="button"
+                            :aria-expanded="hrmOpen ? 'true' : 'false'"
+                            :title="sidebarCollapsed ? 'SDM & Penggajian (HRM)' : ''"
+                            class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.97] active:opacity-80 {{ $isHrmRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                            <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
+                                <i data-lucide="users"
+                                    class="w-4 h-4 {{ $isHrmRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>SDM &amp;
+                                    Penggajian</span>
+                            </div>
+                            <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
+                                class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
+                                :class="hrmOpen ? 'rotate-180 text-[#007AFF]' : ''"></i>
+                        </button>
+
+                        <div x-show="hrmOpen && !sidebarCollapsed"
+                            x-transition:enter="transition-all ease-out duration-150"
+                            class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
+                            <a href="{{ route('hrm.index') }}" id="tour-nav-hrm-employees"
+                                {{ request()->routeIs('hrm.index') && request('tab') !== 'loans' && request('tab') !== 'payrolls' ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('hrm.index') && request('tab') !== 'loans' && request('tab') !== 'payrolls' ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="users"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('hrm.index') && request('tab') !== 'loans' && request('tab') !== 'payrolls' ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                <span class="truncate">Karyawan &amp; Profil Gaji</span>
+                            </a>
+
+                            <a href="{{ route('hrm.payrolls.index') }}" id="tour-nav-hrm-payrolls"
+                                {{ request()->routeIs('hrm.payrolls.*') || (request()->routeIs('hrm.index') && request('tab') === 'payrolls') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('hrm.payrolls.*') || (request()->routeIs('hrm.index') && request('tab') === 'payrolls') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="banknote"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('hrm.payrolls.*') || (request()->routeIs('hrm.index') && request('tab') === 'payrolls') ? 'text-white' : 'text-[#34C759]' }} shrink-0"></i>
+                                <span class="truncate">Penggajian Bulanan</span>
+                            </a>
+
+                            <a href="{{ route('hrm.index', ['tab' => 'loans']) }}" id="tour-nav-hrm-loans"
+                                {{ request()->routeIs('hrm.index') && request('tab') === 'loans' ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('hrm.index') && request('tab') === 'loans' ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="credit-card"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('hrm.index') && request('tab') === 'loans' ? 'text-white' : 'text-[#FF9500]' }} shrink-0"></i>
+                                <span class="truncate">Kasbon &amp; Pinjaman</span>
+                            </a>
+
+                            <a href="{{ route('tax.index') }}" id="tour-nav-hrm-tax"
+                                {{ request()->routeIs('tax.*') ? 'aria-current="page"' : '' }}
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('tax.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="scale"
+                                    class="w-3.5 h-3.5 {{ request()->routeIs('tax.*') ? 'text-white' : 'text-[#AF52DE]' }} shrink-0"></i>
+                                <span class="truncate">Kalkulator Pajak &amp; BPJS</span>
+                            </a>
+                        </div>
+
+                        {{-- Flyout on Collapsed Hover --}}
+                        <div x-show="sidebarCollapsed && flyoutOpen" x-transition.opacity
+                            class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                            style="display: none;">
+                            <div
+                                class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                                SDM &amp; Penggajian
+                            </div>
+                            <a href="{{ route('hrm.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="users" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Karyawan &amp; Profil Gaji</span>
+                            </a>
+                            <a href="{{ route('hrm.payrolls.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="banknote" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                <span>Penggajian Bulanan</span>
+                            </a>
+                            <a href="{{ route('hrm.index', ['tab' => 'loans']) }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="credit-card" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                <span>Kasbon &amp; Pinjaman</span>
+                            </a>
+                            <a href="{{ route('tax.index') }}"
+                                class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="scale" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                                <span>Kalkulator Pajak &amp; BPJS</span>
+                            </a>
+                        </div>
+                    </div>
+                @endif
             </div>
         @endif
 
@@ -1832,6 +1924,16 @@
                                     <span class="truncate">Laporan Kasir POS</span>
                                 </a>
                             @endif
+
+                            @if (\App\Support\Context::hasPermission('reports.view'))
+                                <a href="{{ route('tax.index') }}" id="tour-nav-tax"
+                                    {{ request()->routeIs('tax.*') ? 'aria-current="page"' : '' }}
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs font-medium transition-all active:scale-[0.97] active:opacity-80 {{ request()->routeIs('tax.*') ? 'bg-[#007AFF] text-white font-medium shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="scale"
+                                        class="w-3.5 h-3.5 {{ request()->routeIs('tax.*') ? 'text-white' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                    <span class="truncate">Pajak &amp; Gaji (HRM)</span>
+                                </a>
+                            @endif
                         </div>
 
                         {{-- Flyout on Collapsed Hover --}}
@@ -1854,6 +1956,13 @@
                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="file-pie-chart" class="w-3.5 h-3.5 text-[#34C759]"></i>
                                     <span>Laporan Kasir POS</span>
+                                </a>
+                            @endif
+                            @if (\App\Support\Context::hasPermission('reports.view'))
+                                <a href="{{ route('tax.index') }}"
+                                    class="flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="scale" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                                    <span>Pajak &amp; Gaji (HRM)</span>
                                 </a>
                             @endif
                         </div>

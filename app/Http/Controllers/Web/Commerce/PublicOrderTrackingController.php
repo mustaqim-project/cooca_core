@@ -162,7 +162,7 @@ final class PublicOrderTrackingController extends Controller
                     'status' => $order->status,
                     'payment_gateway' => $order->payment_gateway,
                     'payment_channel' => $order->payment_channel,
-                    'tracking_url' => url("/b/{$business->slug}/order/{$order->tracking_token}"),
+                    'tracking_url' => url("/{$business->slug}/order/{$order->tracking_token}"),
                 ],
             ]);
         } catch (Throwable $e) {
@@ -231,7 +231,7 @@ final class PublicOrderTrackingController extends Controller
                     'tracking_token' => $order->tracking_token,
                     'total_amount' => (float) $order->total_amount,
                     'status' => $order->status,
-                    'tracking_url' => url("/b/{$business->slug}/order/{$order->tracking_token}"),
+                    'tracking_url' => url("/{$business->slug}/order/{$order->tracking_token}"),
                 ],
             ]);
         } catch (Throwable $e) {
@@ -417,7 +417,7 @@ final class PublicOrderTrackingController extends Controller
                     'total_amount' => (float) $order->total_amount,
                     'status' => $order->status,
                     'batches_count' => $order->batches->count(),
-                    'tracking_url' => url("/b/{$business->slug}/order/{$order->tracking_token}"),
+                    'tracking_url' => url("/{$business->slug}/order/{$order->tracking_token}"),
                 ],
             ]);
         } catch (Throwable $e) {

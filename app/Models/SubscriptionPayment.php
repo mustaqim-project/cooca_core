@@ -21,56 +21,140 @@ class SubscriptionPayment extends Model
     public const STATUS_REJECTED = 'rejected';
     public const STATUS_CANCELLED = 'cancelled';
 
+    public const METHOD_QRIS = 'qris';
+    public const METHOD_BCA_VA = 'bca_va';
+    public const METHOD_MANDIRI_VA = 'mandiri_va';
+    public const METHOD_BRI_VA = 'bri_va';
+    public const METHOD_BNI_VA = 'bni_va';
+    public const METHOD_PERMATA_VA = 'permata_va';
+    public const METHOD_INDOMARET = 'indomaret';
+    public const METHOD_ALFAMART = 'alfamart';
     public const METHOD_BCA = 'bca';
     public const METHOD_MANDIRI = 'mandiri';
     public const METHOD_BRI = 'bri';
-    public const METHOD_QRIS = 'qris';
     public const METHOD_FREE_PROMO = 'free_promo';
 
     public const PAYMENT_METHODS = [
-        self::METHOD_BCA => [
-            'code' => self::METHOD_BCA,
-            'name' => 'Bank BCA Transfer',
-            'type' => 'bank_transfer',
-            'bank_name' => 'Bank Central Asia (BCA)',
-            'account_number' => '8735-0812-999',
-            'account_name' => 'PT Cooca Teknologi Indonesia',
-            'icon' => 'credit-card',
-            'color' => 'blue',
-            'instructions' => 'Transfer tepat hingga 3 digit terakhir ke rekening BCA resmi Cooca, lalu upload bukti struk transfer.',
-        ],
-        self::METHOD_MANDIRI => [
-            'code' => self::METHOD_MANDIRI,
-            'name' => 'Bank Mandiri Transfer',
-            'type' => 'bank_transfer',
-            'bank_name' => 'Bank Mandiri',
-            'account_number' => '137-00-1928374-1',
-            'account_name' => 'PT Cooca Teknologi Indonesia',
-            'icon' => 'credit-card',
-            'color' => 'amber',
-            'instructions' => 'Transfer via ATM/Livin Mandiri sesuai nominal unik ke rekening Mandiri Cooca, lalu upload bukti transfer.',
-        ],
-        self::METHOD_BRI => [
-            'code' => self::METHOD_BRI,
-            'name' => 'Bank BRI Transfer',
-            'type' => 'bank_transfer',
-            'bank_name' => 'Bank Rakyat Indonesia (BRI)',
-            'account_number' => '0341-01-002847-50-3',
-            'account_name' => 'PT Cooca Teknologi Indonesia',
-            'icon' => 'credit-card',
-            'color' => 'cyan',
-            'instructions' => 'Transfer via ATM/BRImo sesuai nominal unik ke rekening BRI Cooca, lalu upload bukti transfer.',
-        ],
         self::METHOD_QRIS => [
             'code' => self::METHOD_QRIS,
-            'name' => 'QRIS Instant (Semua Bank & e-Wallet)',
+            'name' => 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin, BRImo)',
             'type' => 'qris',
             'bank_name' => 'QRIS Nasional (NMID: ID1020304050)',
             'account_number' => 'Scan QR Code Cooca Pay',
             'account_name' => 'COOCA.ID INDONESIA',
             'icon' => 'qr-code',
             'color' => 'emerald',
-            'instructions' => 'Buka aplikasi BCA Mobile, GoPay, OVO, ShopeePay, atau Dana, scan kode QRIS Cooca, masukkan nominal sesuai angka unik, dan upload screenshot bukti bayar.',
+            'instructions' => 'Buka aplikasi m-Banking atau e-Wallet apa pun, scan kode QRIS dinamis di layar. Pembayaran terverifikasi otomatis seketika.',
+        ],
+        self::METHOD_BCA_VA => [
+            'code' => self::METHOD_BCA_VA,
+            'name' => 'BCA Virtual Account',
+            'type' => 'virtual_account',
+            'bank_name' => 'Bank Central Asia (BCA)',
+            'account_number' => 'Nomor VA Otomatis',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'credit-card',
+            'color' => 'blue',
+            'instructions' => 'Salin nomor Virtual Account BCA dan bayar melalui BCA Mobile, KlikBCA, atau ATM BCA. Verifikasi otomatis.',
+        ],
+        self::METHOD_MANDIRI_VA => [
+            'code' => self::METHOD_MANDIRI_VA,
+            'name' => 'Mandiri Virtual Account',
+            'type' => 'virtual_account',
+            'bank_name' => 'Bank Mandiri',
+            'account_number' => 'Nomor VA Otomatis',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'credit-card',
+            'color' => 'amber',
+            'instructions' => 'Bayar melalui Livin by Mandiri atau ATM Mandiri ke nomor Mandiri Virtual Account. Verifikasi otomatis.',
+        ],
+        self::METHOD_BRI_VA => [
+            'code' => self::METHOD_BRI_VA,
+            'name' => 'BRI Virtual Account (BRIVA)',
+            'type' => 'virtual_account',
+            'bank_name' => 'Bank Rakyat Indonesia (BRI)',
+            'account_number' => 'Nomor BRIVA Otomatis',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'credit-card',
+            'color' => 'cyan',
+            'instructions' => 'Bayar melalui BRImo atau ATM BRI ke nomor BRIVA yang tertera. Verifikasi otomatis seketika.',
+        ],
+        self::METHOD_BNI_VA => [
+            'code' => self::METHOD_BNI_VA,
+            'name' => 'BNI Virtual Account',
+            'type' => 'virtual_account',
+            'bank_name' => 'Bank Negara Indonesia (BNI)',
+            'account_number' => 'Nomor VA Otomatis',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'credit-card',
+            'color' => 'orange',
+            'instructions' => 'Bayar melalui BNI Mobile Banking atau ATM BNI ke nomor BNI Virtual Account. Verifikasi otomatis seketika.',
+        ],
+        self::METHOD_PERMATA_VA => [
+            'code' => self::METHOD_PERMATA_VA,
+            'name' => 'Permata Virtual Account',
+            'type' => 'virtual_account',
+            'bank_name' => 'Bank Permata',
+            'account_number' => 'Nomor VA Otomatis',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'credit-card',
+            'color' => 'violet',
+            'instructions' => 'Bayar melalui PermataMobile X atau transfer antar-bank ke nomor Permata VA.',
+        ],
+        self::METHOD_INDOMARET => [
+            'code' => self::METHOD_INDOMARET,
+            'name' => 'Gerai Indomaret',
+            'type' => 'retail',
+            'bank_name' => 'Indomaret Payment Point',
+            'account_number' => 'Kode Pembayaran Kasir',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'store',
+            'color' => 'blue',
+            'instructions' => 'Tunjukkan kode bayar kepada kasir Indomaret terdekat dan lakukan pembayaran tunai/non-tunai.',
+        ],
+        self::METHOD_ALFAMART => [
+            'code' => self::METHOD_ALFAMART,
+            'name' => 'Gerai Alfamart',
+            'type' => 'retail',
+            'bank_name' => 'Alfamart / Alfamidi',
+            'account_number' => 'Kode Pembayaran Kasir',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'store',
+            'color' => 'red',
+            'instructions' => 'Tunjukkan kode bayar kepada kasir Alfamart/Alfamidi terdekat dan lakukan pembayaran.',
+        ],
+        self::METHOD_BCA => [
+            'code' => self::METHOD_BCA,
+            'name' => 'BCA Virtual Account',
+            'type' => 'virtual_account',
+            'bank_name' => 'Bank Central Asia (BCA)',
+            'account_number' => 'Nomor VA Otomatis',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'credit-card',
+            'color' => 'blue',
+            'instructions' => 'Bayar ke nomor Virtual Account BCA resmi Cooca. Verifikasi instan otomatis.',
+        ],
+        self::METHOD_MANDIRI => [
+            'code' => self::METHOD_MANDIRI,
+            'name' => 'Mandiri Virtual Account',
+            'type' => 'virtual_account',
+            'bank_name' => 'Bank Mandiri',
+            'account_number' => 'Nomor VA Otomatis',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'credit-card',
+            'color' => 'amber',
+            'instructions' => 'Bayar ke nomor Virtual Account Mandiri resmi Cooca. Verifikasi instan otomatis.',
+        ],
+        self::METHOD_BRI => [
+            'code' => self::METHOD_BRI,
+            'name' => 'BRI Virtual Account',
+            'type' => 'virtual_account',
+            'bank_name' => 'Bank Rakyat Indonesia (BRI)',
+            'account_number' => 'Nomor BRIVA Otomatis',
+            'account_name' => 'COOCA INDONESIA',
+            'icon' => 'credit-card',
+            'color' => 'cyan',
+            'instructions' => 'Bayar ke nomor BRIVA resmi Cooca. Verifikasi instan otomatis.',
         ],
         self::METHOD_FREE_PROMO => [
             'code' => self::METHOD_FREE_PROMO,
@@ -229,8 +313,45 @@ class SubscriptionPayment extends Model
         return $this->status === self::STATUS_REJECTED;
     }
 
+    public function getTripayChannelCode(): string
+    {
+        return match ($this->payment_method) {
+            self::METHOD_QRIS => 'QRIS',
+            self::METHOD_BCA_VA, self::METHOD_BCA => 'BCAVA',
+            self::METHOD_MANDIRI_VA, self::METHOD_MANDIRI => 'MANDIRIVA',
+            self::METHOD_BRI_VA, self::METHOD_BRI => 'BRIVA',
+            self::METHOD_BNI_VA => 'BNIVA',
+            self::METHOD_PERMATA_VA => 'PERMATAVA',
+            self::METHOD_INDOMARET => 'INDOMARET',
+            self::METHOD_ALFAMART => 'ALFAMART',
+            default => 'QRIS',
+        };
+    }
+
     public function getPaymentMethodDetails(): array
     {
+        if ($this->payment_gateway === self::GATEWAY_TRIPAY) {
+            $base = self::PAYMENT_METHODS[$this->payment_method] ?? [
+                'code' => $this->payment_method,
+                'name' => strtoupper($this->payment_method),
+                'type' => 'gateway',
+                'bank_name' => 'TriPay Gateway',
+                'account_number' => $this->gateway_pay_code ?: '-',
+                'account_name' => 'COOCA INDONESIA',
+                'icon' => 'credit-card',
+                'color' => 'blue',
+                'instructions' => 'Selesaikan pembayaran sebelum batas waktu.',
+                'qr_image_url' => $this->gateway_qr_url,
+            ];
+            if ($this->gateway_pay_code) {
+                $base['account_number'] = $this->gateway_pay_code;
+            }
+            if ($this->gateway_qr_url) {
+                $base['qr_image_url'] = $this->gateway_qr_url;
+            }
+            return $base;
+        }
+
         $account = PaymentAccount::where('bank_code', $this->payment_method)->first();
         if ($account) {
             return [

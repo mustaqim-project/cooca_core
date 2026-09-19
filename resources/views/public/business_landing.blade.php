@@ -21,7 +21,7 @@
     @if ($landingPage->meta_keywords)
         <meta name="keywords" content="{{ $landingPage->meta_keywords }}">
     @endif
-    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="canonical" href="{{ $business->public_url }}">
 
     {{-- Open Graph / Social Sharing --}}
     <meta property="og:type" content="business.business">
@@ -29,7 +29,7 @@
     @if ($landingPage->meta_description ?: $landingPage->subheadline)
         <meta property="og:description" content="{{ $landingPage->meta_description ?: $landingPage->subheadline }}">
     @endif
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $business->public_url }}">
     <meta property="og:site_name" content="{{ $business->name }}">
     @php
         $canonicalBrandLogo = $business->logo_url ?: $landingPage->logo_url;
@@ -2582,7 +2582,7 @@
                     if (!this.groupOrder.token) return;
                     if (showLoading) this.groupOrder.actionLoading = true;
                     try {
-                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/data');
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/data');
                         const data = await res.json();
                         if (res.ok && data.success && data.group) {
                             this.groupOrder.data = data.group;
@@ -2616,7 +2616,7 @@
                     this.groupOrder.createForm.error = null;
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                        const res = await fetch('/b/{{ $business->slug }}/group-order', {
+                        const res = await fetch('/{{ $business->slug }}/group-order', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2661,7 +2661,7 @@
                     this.groupOrder.actionError = null;
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items', {
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2716,7 +2716,7 @@
                             return;
                         }
 
-                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2749,7 +2749,7 @@
                     this.groupOrder.actionLoading = true;
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
                             method: 'DELETE',
                             headers: {
                                 'Accept': 'application/json',
@@ -2779,7 +2779,7 @@
                     const action = this.groupOrder.data.is_locked ? 'unlock' : 'lock';
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/' + action, {
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/' + action, {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
@@ -2830,7 +2830,7 @@
                     };
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                        const res = await fetch('/b/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/checkout', {
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/checkout', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

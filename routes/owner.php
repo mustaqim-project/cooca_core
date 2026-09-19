@@ -19,6 +19,7 @@ use App\Http\Controllers\Web\FeedbackWebController;
 use App\Http\Controllers\Web\Finance\CashLedgerWebController;
 use App\Http\Controllers\Web\Finance\PaymentSettlementWebController;
 use App\Http\Controllers\Web\Finance\PosFinanceWebController;
+use App\Http\Controllers\Web\Hrm\HrmWebController;
 use App\Http\Controllers\Web\ImportWebController;
 use App\Http\Controllers\Web\Inventory\InventoryWebController;
 use App\Http\Controllers\Web\InvoiceWebController;
@@ -53,6 +54,7 @@ use App\Http\Controllers\Web\SettingWebController;
 use App\Http\Controllers\Web\SimulationWebController;
 use App\Http\Controllers\Web\SocialMedia\SocialMediaWebController;
 use App\Http\Controllers\Web\SupplierWebController;
+use App\Http\Controllers\Web\TaxWebController;
 use App\Http\Controllers\Web\UnitConversionWebController;
 use App\Http\Controllers\Web\UnitWebController;
 use App\Http\Controllers\Web\Warehouse\WarehouseWebController;
@@ -295,6 +297,15 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/reports', [ReportWebController::class, 'index'])->middleware('require.permission:reports.view')->name('reports.index');
         Route::get('/reports/export-excel', [ReportWebController::class, 'exportExcel'])->middleware(['require.permission:reports.export', 'entitlement:export'])->name('reports.export-excel');
 
+        // Tax Compliance Engine & Calculators (§Blueprint v2.3)
+        Route::middleware('require.permission:reports.view')->group(function (): void {
+            Route::get('/tax', [TaxWebController::class, 'index'])->name('tax.index');
+            Route::post('/tax/simulate-pph21', [TaxWebController::class, 'simulatePPh21'])->name('tax.simulate.pph21');
+            Route::post('/tax/simulate-umkm', [TaxWebController::class, 'simulateUmkm'])->name('tax.simulate.umkm');
+            Route::post('/tax/simulate-sales', [TaxWebController::class, 'simulateSales'])->name('tax.simulate.sales');
+            Route::post('/tax/simulate-payroll', [TaxWebController::class, 'simulatePayroll'])->name('tax.simulate.payroll');
+        });
+
         // Business Settings (Profil Usaha, POS & Template Industri)
         Route::get('/settings', [SettingWebController::class, 'index'])->middleware('require.permission:settings.view')->name('settings.index');
         Route::put('/settings', [SettingWebController::class, 'update'])->middleware('require.permission:settings.edit')->name('settings.update');
@@ -318,6 +329,30 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::post('/settings/members', [SettingWebController::class, 'storeMember'])->middleware(['require.permission:users.manage', 'entitlement:member'])->name('settings.members.store');
         Route::put('/settings/members/{member}/role', [SettingWebController::class, 'updateMemberRole'])->middleware(['require.permission:users.manage'])->name('settings.members.role');
         Route::delete('/settings/members/{member}', [SettingWebController::class, 'destroyMember'])->middleware(['require.permission:users.manage'])->name('settings.members.destroy');
+
+        // Human Resource Management (HRM) & Monthly Payroll Engine
+        Route::prefix('hrm')->name('hrm.')->middleware('require.permission:users.view')->group(function (): void {
+            Route::get('/', [HrmWebController::class, 'index'])->name('index');
+            Route::post('/employees', [HrmWebController::class, 'storeEmployee'])->middleware('require.permission:users.manage')->name('employees.store');
+            Route::put('/employees/{membership}', [HrmWebController::class, 'updateEmployee'])->middleware('require.permission:users.manage')->name('employees.update');
+            Route::delete('/employees/{membership}', [HrmWebController::class, 'destroyEmployee'])->middleware('require.permission:users.manage')->name('employees.destroy');
+
+            // Kasbon & Pinjaman Karyawan
+            Route::post('/loans', [HrmWebController::class, 'storeLoan'])->middleware('require.permission:users.manage')->name('loans.store');
+            Route::post('/loans/{loan}/cancel', [HrmWebController::class, 'cancelLoan'])->middleware('require.permission:users.manage')->name('loans.cancel');
+
+            // Penggajian Bulanan / Monthly Payroll Runs
+            Route::get('/payrolls', [HrmWebController::class, 'index'])->name('payrolls.index');
+            Route::get('/payrolls/create', [HrmWebController::class, 'createPayroll'])->middleware('require.permission:users.manage')->name('payrolls.create');
+            Route::post('/payrolls', [HrmWebController::class, 'storePayroll'])->middleware('require.permission:users.manage')->name('payrolls.store');
+            Route::get('/payrolls/{payroll}', [HrmWebController::class, 'showPayroll'])->name('payrolls.show');
+            Route::post('/payrolls/{payroll}/approve', [HrmWebController::class, 'approvePayroll'])->middleware('require.permission:users.manage')->name('payrolls.approve');
+            Route::post('/payrolls/{payroll}/pay', [HrmWebController::class, 'payPayroll'])->middleware('require.permission:users.manage')->name('payrolls.pay');
+            Route::delete('/payrolls/{payroll}', [HrmWebController::class, 'destroyPayroll'])->middleware('require.permission:users.manage')->name('payrolls.destroy');
+
+            // Digital Payslip View
+            Route::get('/payslips/{item}', [HrmWebController::class, 'showPayslip'])->name('payslips.show');
+        });
 
         // Owner Feedback & Community
         Route::middleware('require.role:owner')->group(function (): void {
@@ -407,7 +442,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::middleware('require.permission:pos.tables')->group(function (): void {
             Route::get('/pos/tables', [PosTableWebController::class, 'index'])->name('pos.tables.index');
             Route::get('/pos/tables/qr-cards', [PosTableWebController::class, 'allQrCards'])->name('pos.tables.qr-cards');
-            Route::post('/pos/tables', [PosTableWebController::class, 'store'])->name('pos.tables.store');
+            Route::post('/pos/tables', [PosTableWebController::class, 'store'])->middleware('entitlement:table')->name('pos.tables.store');
             Route::put('/pos/tables/{table}', [PosTableWebController::class, 'update'])->name('pos.tables.update');
             Route::delete('/pos/tables/{table}', [PosTableWebController::class, 'destroy'])->name('pos.tables.destroy');
             Route::post('/pos/tables/{table}/regenerate-qr', [PosTableWebController::class, 'regenerateQr'])->name('pos.tables.regenerate-qr');
@@ -428,7 +463,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
 
         // Kitchen & Bar Display (KDS)
-        Route::middleware('require.permission:pos.kitchen')->group(function (): void {
+        Route::middleware(['require.permission:pos.kitchen', 'entitlement:kds'])->group(function (): void {
             Route::get('/pos/kitchen', [PosKitchenWebController::class, 'index'])->name('pos.kitchen.index');
             Route::get('/pos/kitchen/orders', [PosKitchenWebController::class, 'getActiveOrders'])->name('pos.kitchen.orders');
             Route::get('/pos/kitchen/active', [PosKitchenWebController::class, 'getActiveOrders'])->name('pos.kitchen.active');
@@ -452,7 +487,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::post('/inventory/stocks/adjust', [InventoryWebController::class, 'quickAdjust'])->middleware('require.permission:inventory.manage')->name('inventory.stocks.adjust');
         Route::post('/inventory/opnames', [InventoryWebController::class, 'storeOpname'])->middleware('require.permission:inventory.manage')->name('inventory.opnames.store');
         Route::post('/inventory/opnames/{opname}/reconcile', [InventoryWebController::class, 'reconcileOpname'])->middleware('require.permission:inventory.manage')->name('inventory.opnames.reconcile');
-        Route::post('/inventory/transfers', [InventoryWebController::class, 'storeTransfer'])->middleware('require.permission:inventory.manage')->name('inventory.transfers.store');
+        Route::post('/inventory/transfers', [InventoryWebController::class, 'storeTransfer'])->middleware(['require.permission:inventory.manage', 'entitlement:transfer_stock'])->name('inventory.transfers.store');
         Route::post('/inventory/transfers/{transfer}/receive', [InventoryWebController::class, 'receiveTransfer'])->middleware('require.permission:inventory.manage')->name('inventory.transfers.receive');
 
         // CRM & Loyalty

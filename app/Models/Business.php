@@ -300,6 +300,21 @@ class Business extends Model
         return $this->hasMany(SocialMediaAccount::class, 'business_id');
     }
 
+    public function payrolls(): HasMany
+    {
+        return $this->hasMany(Payroll::class, 'business_id');
+    }
+
+    public function payrollItems(): HasMany
+    {
+        return $this->hasMany(PayrollItem::class, 'business_id');
+    }
+
+    public function employeeLoans(): HasMany
+    {
+        return $this->hasMany(EmployeeLoan::class, 'business_id');
+    }
+
     /**
      * Determine if a functional module is enabled for this business.
      */
@@ -353,5 +368,23 @@ class Business extends Model
             $disabled[] = $moduleKey;
             $this->update(['disabled_modules' => $disabled]);
         }
+    }
+
+    /**
+     * Canonical public storefront URL for this business (e.g. https://cooca.id/kopi-senja-utama).
+     */
+    public function getPublicUrlAttribute(): string
+    {
+        $slug = $this->slug ?: \Illuminate\Support\Str::slug($this->name);
+
+        return url('/' . $slug);
+    }
+
+    /**
+     * Alias for canonical public storefront URL.
+     */
+    public function getStorefrontUrlAttribute(): string
+    {
+        return $this->public_url;
     }
 }

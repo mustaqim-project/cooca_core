@@ -76,29 +76,42 @@ Route::post('/kontak', [PublicContactController::class, 'submit'])->middleware('
 Route::get('/jelajah', [PublicDiscoveryController::class, 'index'])->name('public.discovery.index');
 Route::get('/direktori', [PublicDiscoveryController::class, 'index'])->name('public.directory.index');
 
-// 7. Public Business Single-Page Landing Pages
+// 7. Canonical Public Storefront Tracking, Table QR & Calculation (cooca.id/{slug-bisnis})
+Route::prefix('{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->group(function (): void {
+    Route::post('/order/{token}/proof', [PublicOrderTrackingController::class, 'uploadProof'])
+        ->middleware('throttle:10,60')
+        ->name('public.storefront.order.upload_proof');
+    Route::post('/shipping/calculate', [PublicOrderTrackingController::class, 'calculateShippingQuote'])
+        ->middleware('throttle:30,1')
+        ->name('public.storefront.shipping.calculate');
+    Route::get('/order/{token}', [PublicOrderTrackingController::class, 'show'])->name('public.storefront.order.track');
+    Route::get('/order/{token}/status', [PublicOrderTrackingController::class, 'checkStatus'])->name('public.storefront.order.status');
+    Route::get('/reservasi/check', [PublicReservationController::class, 'checkAvailability'])->name('public.storefront.reservation.check');
+
+    // Public Customer QR Table Ordering
+    Route::get('/table/{qrToken}', [PublicQrOrderWebController::class, 'showMenu'])->name('public.qr.menu.slug');
+    Route::post('/table/{qrToken}/order', [PublicQrOrderWebController::class, 'submitOrder'])->middleware('throttle:20,1')->name('public.qr.order.slug');
+    Route::get('/table/{qrToken}/order/{order}/status', [PublicQrOrderWebController::class, 'checkStatus'])->name('public.qr.order.status.slug');
+});
+
+// 8. Legacy /b/{slug} aliases for backward compatibility (0 broken links)
 Route::get('/b/{slug}', [PublicBusinessLandingController::class, 'show'])->name('public.business.landing.legacy');
+Route::prefix('b/{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->group(function (): void {
+    Route::post('/order/{token}/proof', [PublicOrderTrackingController::class, 'uploadProof'])->middleware('throttle:10,60');
+    Route::post('/shipping/calculate', [PublicOrderTrackingController::class, 'calculateShippingQuote'])->middleware('throttle:30,1');
+    Route::get('/order/{token}', [PublicOrderTrackingController::class, 'show']);
+    Route::get('/order/{token}/status', [PublicOrderTrackingController::class, 'checkStatus']);
+    Route::get('/reservasi/check', [PublicReservationController::class, 'checkAvailability']);
+    Route::get('/table/{qrToken}', [PublicQrOrderWebController::class, 'showMenu']);
+    Route::post('/table/{qrToken}/order', [PublicQrOrderWebController::class, 'submitOrder'])->middleware('throttle:20,1');
+    Route::get('/table/{qrToken}/order/{order}/status', [PublicQrOrderWebController::class, 'checkStatus']);
+});
 
-// 8. Public Storefront Tracking & Calculation
-Route::post('/b/{slug}/order/{token}/proof', [PublicOrderTrackingController::class, 'uploadProof'])
-    ->middleware('throttle:10,60')
-    ->name('public.storefront.order.upload_proof');
-Route::post('/b/{slug}/shipping/calculate', [PublicOrderTrackingController::class, 'calculateShippingQuote'])
-    ->middleware('throttle:30,1')
-    ->name('public.storefront.shipping.calculate');
-Route::get('/b/{slug}/order/{token}', [PublicOrderTrackingController::class, 'show'])->name('public.storefront.order.track');
-Route::get('/b/{slug}/order/{token}/status', [PublicOrderTrackingController::class, 'checkStatus'])->name('public.storefront.order.status');
-Route::get('/b/{slug}/reservasi/check', [PublicReservationController::class, 'checkAvailability'])->name('public.storefront.reservation.check');
-
-
-// 9. Public Customer QR Table Ordering
+// 9. Short QR Table Ordering Direct Route
 Route::get('/t/{qrToken}', [PublicQrOrderWebController::class, 'showMenu'])->name('public.qr.menu');
 Route::post('/t/{qrToken}/order', [PublicQrOrderWebController::class, 'submitOrder'])->middleware('throttle:20,1')->name('public.qr.order');
 Route::get('/t/{qrToken}/order/{order}/track', [PublicQrOrderWebController::class, 'trackOrder'])->name('public.qr.track');
 Route::get('/t/{qrToken}/order/{order}/status', [PublicQrOrderWebController::class, 'checkStatus'])->name('public.qr.order.status');
-Route::get('/b/{slug}/table/{qrToken}', [PublicQrOrderWebController::class, 'showMenu'])->name('public.qr.menu.slug');
-Route::post('/b/{slug}/table/{qrToken}/order', [PublicQrOrderWebController::class, 'submitOrder'])->middleware('throttle:20,1')->name('public.qr.order.slug');
-Route::get('/b/{slug}/table/{qrToken}/order/{order}/status', [PublicQrOrderWebController::class, 'checkStatus'])->name('public.qr.order.status.slug');
 
 // 10. Sitemap XML & HTML (SEO & Web Crawlers)
 Route::get('/sitemap.xml', [SitemapController::class, 'xml'])->name('sitemap.xml');
@@ -127,7 +140,10 @@ Route::get('/syarat-ketentuan', function () {
     return view('public.terms', compact('page'));
 });
 
-// 13. Public business landing pages using business name as direct URL slug (Must be last)
+// 13. Public Digital Payslip (Token Access)
+Route::get('/payslip/{token}', [\App\Http\Controllers\Web\Hrm\HrmWebController::class, 'publicPayslip'])->name('public.payslip');
+
+// 14. Public business landing pages using business name as direct URL slug (Must be last)
 Route::get('/{slug}', [PublicBusinessLandingController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('public.business.landing');

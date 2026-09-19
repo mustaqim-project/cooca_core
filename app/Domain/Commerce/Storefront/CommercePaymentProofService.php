@@ -166,7 +166,7 @@ final class CommercePaymentProofService
     {
         try {
             $business = $order->business;
-            $trackingUrl = url("/b/{$business->slug}/order/{$order->tracking_token}");
+            $trackingUrl = url("/{$business->slug}/order/{$order->tracking_token}");
 
             $msg = "✅ Pembayaran Dikonfirmasi!\n\n";
             $msg .= "Halo *{$order->customer_name}*, pembayaran untuk pesanan #{$order->order_number} telah diverifikasi oleh *{$business->name}*.\n";
@@ -183,7 +183,7 @@ final class CommercePaymentProofService
     {
         try {
             $business = $order->business;
-            $trackingUrl = url("/b/{$business->slug}/order/{$order->tracking_token}");
+            $trackingUrl = url("/{$business->slug}/order/{$order->tracking_token}");
 
             $msg = "⚠️ Verifikasi Pembayaran Tertolak\n\n";
             $msg .= "Halo *{$order->customer_name}*, bukti transfer untuk pesanan #{$order->order_number} belum dapat diverifikasi.\n";

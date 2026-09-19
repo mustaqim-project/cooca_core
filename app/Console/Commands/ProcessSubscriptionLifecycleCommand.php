@@ -40,11 +40,31 @@ class ProcessSubscriptionLifecycleCommand extends Command
         $today = Carbon::today();
         $now = Carbon::now();
 
-        // 1. Check and Expire Overdue Subscriptions
-        $expiredSubs = BusinessSubscription::withoutGlobalScopes()
+        // 1. Check and Process Subscriptions: Active -> Past Due (Day 1-3 Grace Period) -> Expired (Day 4+)
+        $pastDueCutoff = $now->copy()->subDays(3);
+
+        // A. Active subs where ends_at has passed but within 3 days -> Move to PAST_DUE
+        $toPastDueSubs = BusinessSubscription::withoutGlobalScopes()
             ->where('status', BusinessSubscription::STATUS_ACTIVE)
             ->whereNotNull('ends_at')
             ->where('ends_at', '<', $now->toDateTimeString())
+            ->where('ends_at', '>=', $pastDueCutoff->toDateTimeString())
+            ->get();
+
+        $pastDueCount = 0;
+        foreach ($toPastDueSubs as $sub) {
+            $sub->update([
+                'status' => BusinessSubscription::STATUS_PAST_DUE,
+            ]);
+            $pastDueCount++;
+            Log::info("Langganan Bisnis ID: {$sub->business_id} memasuki masa tenggang toleransi (past_due) selama 3 hari.");
+        }
+
+        // B. Active or Past Due subs where ends_at has passed the 3-day grace period -> Move to EXPIRED
+        $expiredSubs = BusinessSubscription::withoutGlobalScopes()
+            ->whereIn('status', [BusinessSubscription::STATUS_ACTIVE, BusinessSubscription::STATUS_PAST_DUE])
+            ->whereNotNull('ends_at')
+            ->where('ends_at', '<', $pastDueCutoff->toDateTimeString())
             ->get();
 
         $expiredCount = 0;
@@ -53,9 +73,9 @@ class ProcessSubscriptionLifecycleCommand extends Command
                 'status' => BusinessSubscription::STATUS_EXPIRED,
             ]);
             $expiredCount++;
-            Log::info("Langganan Bisnis ID: {$sub->business_id} telah kedaluwarsa pada {$sub->ends_at} dan dinonaktifkan.");
+            Log::info("Langganan Bisnis ID: {$sub->business_id} telah melewati masa tenggang toleransi 3 hari pada {$sub->ends_at} dan dinonaktifkan (EXPIRED).");
         }
-        $this->info("Berhasil menonaktifkan {$expiredCount} langganan yang telah melewati masa aktif.");
+        $this->info("Berhasil memproses siklus: {$pastDueCount} masuk masa tenggang (past_due), {$expiredCount} kedaluwarsa (expired).");
 
         // 2. Check and Send Expiry Reminders (H-7, H-3, H-1)
         $activeSubs = BusinessSubscription::withoutGlobalScopes()

@@ -807,7 +807,7 @@ final class CommerceOrderService
 
             // Notify customer via WhatsApp about the quotation
             try {
-                $trackingUrl = url("/b/{$order->business->slug}/order/{$order->tracking_token}");
+                $trackingUrl = url("/{$order->business->slug}/order/{$order->tracking_token}");
                 $totalFmt = number_format($totalAmount, 0, ',', '.');
                 $msg = "Halo *{$order->customer_name}*, penawaran harga untuk pesanan khusus Anda di *{$order->business->name}* sudah siap!\n\n";
                 $msg .= "📋 *No. Pesanan:* #{$order->order_number}\n";
@@ -830,7 +830,7 @@ final class CommerceOrderService
     private function sendOrderCreatedNotification(CommerceOrder $order, Business $business, ?CommercePaymentMethod $paymentMethod): void
     {
         try {
-            $trackingUrl = url("/b/{$business->slug}/order/{$order->tracking_token}");
+            $trackingUrl = url("/{$business->slug}/order/{$order->tracking_token}");
             $totalFmt = number_format((float) $order->total_amount, 0, ',', '.');
 
             $msg = "Halo *{$order->customer_name}*, pesanan Anda di *{$business->name}* berhasil dibuat!\n\n";

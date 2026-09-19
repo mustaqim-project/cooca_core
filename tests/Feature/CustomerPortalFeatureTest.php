@@ -246,7 +246,7 @@ final class CustomerPortalFeatureTest extends TestCase
         // Clicking checkout for Toko B redirects to Toko B's landing page
         $checkoutB = $this->actingAs($this->globalCustomer, 'customer')
             ->post(route('customer.cart.checkout', ['slug' => $storeB->slug]));
-        $checkoutB->assertRedirect(route('public.business.landing.legacy', ['slug' => $storeB->slug]));
+        $checkoutB->assertRedirect(route('public.business.landing', ['slug' => $storeB->slug]));
     }
 
     public function test_checkout_and_reservation_require_verified_otp(): void

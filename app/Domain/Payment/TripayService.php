@@ -264,7 +264,7 @@ final class TripayService
             'customer_email' => $customerEmail,
             'customer_phone' => $customerPhone,
             'order_items' => $orderItems,
-            'return_url' => url("/b/{$order->business?->slug}/order/{$order->tracking_token}"),
+            'return_url' => url("/{$order->business?->slug}/order/{$order->tracking_token}"),
             'expired_time' => $expiredTime,
             'signature' => $signature,
         ];

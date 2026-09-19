@@ -141,7 +141,7 @@
             </p>
             @if(isset($store) && $store)
                 <p>
-                    <a href="{{ url('/b/' . $store->slug) }}" class="text-black/50 dark:text-white/50 hover:underline">
+                    <a href="{{ url('/' . $store->slug) }}" class="text-black/50 dark:text-white/50 hover:underline">
                         &larr; Kembali ke Etalase Toko {{ $store->name }}
                     </a>
                 </p>

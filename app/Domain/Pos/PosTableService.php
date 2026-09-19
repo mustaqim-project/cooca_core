@@ -61,6 +61,12 @@ final class PosTableService
             throw new DomainException("Meja dengan nomor '{$tableNumber}' sudah terdaftar.");
         }
 
+        $entitlement = app(\App\Domain\Billing\EntitlementService::class);
+        if (! $entitlement->canCreateTable($business)) {
+            $limit = $entitlement->getTableLimit($business);
+            throw new DomainException("Batas kuota meja kasir ({$limit} meja) telah tercapai untuk paket langganan Anda. Tingkatkan paket ke Premium untuk meja tanpa batas.");
+        }
+
         return PosTable::create([
             'business_id' => $business->id,
             'location_id' => $data['location_id'] ?? null,

@@ -18,6 +18,18 @@ final class BusinessSubscription extends Model
     public const PLAN_CORE_MONTHLY = 'core_monthly';
     public const PLAN_CORE_ANNUAL = 'core_annual';
 
+    public const PLAN_STANDARD_MONTHLY = 'standard_monthly';
+    public const PLAN_STANDARD_ANNUAL = 'standard_annual';
+    public const PLAN_PREMIUM_MONTHLY = 'premium_monthly';
+    public const PLAN_PREMIUM_ANNUAL = 'premium_annual';
+    public const PLAN_PRESTIGE_MONTHLY = 'prestige_monthly';
+    public const PLAN_PRESTIGE_ANNUAL = 'prestige_annual';
+
+    public const TIER_FREE = 'free';
+    public const TIER_STANDARD = 'standard';
+    public const TIER_PREMIUM = 'premium';
+    public const TIER_PRESTIGE = 'prestige';
+
     public const STATUS_ACTIVE = 'active';
     public const STATUS_PAST_DUE = 'past_due';
     public const STATUS_EXPIRED = 'expired';
@@ -49,14 +61,68 @@ final class BusinessSubscription extends Model
         return $this->status === self::STATUS_ACTIVE;
     }
 
+    public function isPastDue(): bool
+    {
+        return $this->status === self::STATUS_PAST_DUE;
+    }
+
+    public function isOperational(): bool
+    {
+        return in_array($this->status, [self::STATUS_ACTIVE, self::STATUS_PAST_DUE], true);
+    }
+
     public function isCorePlan(): bool
     {
-        return in_array($this->plan_code, [self::PLAN_CORE_MONTHLY, self::PLAN_CORE_ANNUAL], true)
-            && $this->status === self::STATUS_ACTIVE;
+        return $this->isOperational() && $this->plan_code !== self::PLAN_FREE;
     }
 
     public function isFreePlan(): bool
     {
-        return !$this->isCorePlan();
+        return ! $this->isCorePlan();
+    }
+
+    public function getTier(): string
+    {
+        if (! $this->isOperational()) {
+            return self::TIER_FREE;
+        }
+
+        $code = (string) $this->plan_code;
+
+        if (str_starts_with($code, 'prestige')) {
+            return self::TIER_PRESTIGE;
+        }
+
+        if (str_starts_with($code, 'premium') || str_starts_with($code, 'core')) {
+            return self::TIER_PREMIUM;
+        }
+
+        if (str_starts_with($code, 'standard')) {
+            return self::TIER_STANDARD;
+        }
+
+        return self::TIER_FREE;
+    }
+
+    public function getTierLevel(): int
+    {
+        return match ($this->getTier()) {
+            self::TIER_PRESTIGE => 3,
+            self::TIER_PREMIUM => 2,
+            self::TIER_STANDARD => 1,
+            default => 0,
+        };
+    }
+
+    public function hasTier(string $requiredTier): bool
+    {
+        $requiredLevel = match ($requiredTier) {
+            self::TIER_PRESTIGE => 3,
+            self::TIER_PREMIUM => 2,
+            self::TIER_STANDARD => 1,
+            default => 0,
+        };
+
+        return $this->getTierLevel() >= $requiredLevel;
     }
 }

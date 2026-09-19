@@ -499,7 +499,7 @@ final class TripayCallbackController extends Controller
                 return;
             }
 
-            $trackingUrl = url("/b/{$business->slug}/order/{$order->tracking_token}");
+            $trackingUrl = url("/{$business->slug}/order/{$order->tracking_token}");
             $channelLabel = $order->payment_channel ?? 'QRIS';
 
             $msg = "✅ *Pembayaran Berhasil Dikonfirmasi!*\n\n";

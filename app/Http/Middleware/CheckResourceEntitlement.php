@@ -41,6 +41,16 @@ final class CheckResourceEntitlement
             'warehouse' => $this->entitlementService->canCreateLocation($business, 'warehouse'),
             'purchase_order', 'po' => $this->entitlementService->canCreatePurchaseOrderThisMonth($business),
             'pos' => $this->entitlementService->canCreatePosTransactionThisMonth($business),
+            'table' => $this->entitlementService->canCreateTable($business),
+            'transfer_stock' => $this->entitlementService->canTransferStock($business),
+            'kds' => $business->subscription?->hasTier(\App\Models\BusinessSubscription::TIER_PREMIUM) ?? false,
+            'branch_pricing' => $this->entitlementService->canSetBranchPrices($business),
+            'commission' => $this->entitlementService->canCalculateCommissions($business),
+            'loan' => $this->entitlementService->canManageEmployeeLoans($business),
+            'daily_worker' => $this->entitlementService->canManageDailyWorkers($business),
+            'bpjs' => $this->entitlementService->canCalculateBPJS($business),
+            'thr' => $this->entitlementService->canCalculateTHR($business),
+            'pph21' => $this->entitlementService->canCalculatePPh21($business),
             'social_post' => $this->entitlementService->canScheduleSocialPostThisMonth($business),
             'whatsapp' => $this->entitlementService->canSendWhatsAppThisMonth($business),
             'import' => $this->entitlementService->canImportData($business),
@@ -51,40 +61,55 @@ final class CheckResourceEntitlement
 
         if (!$canProceed) {
             $labels = [
-                'product' => 'Katalog Produk (Maks. 10 pada paket Free)',
-                'recipe' => 'Resep HPP / BOM (Maks. 3 pada paket Free)',
-                'material' => 'Bahan Baku (Maks. 10 pada paket Free)',
-                'customer' => 'Pelanggan / CRM (Maks. 10 pada paket Free)',
-                'supplier' => 'Pemasok / Supplier (Maks. 2 pada paket Free)',
-                'outlet' => 'Outlet / Cabang (Maks. 1 pada paket Free)',
-                'warehouse' => 'Gudang / Central Kitchen (Maks. 1 pada paket Free)',
-                'invoice' => 'Faktur Penjualan (Maks. 3 per bulan pada paket Free)',
-                'purchase_order' => 'Purchase Order (Maks. 3 per bulan pada paket Free)',
-                'po' => 'Purchase Order (Maks. 3 per bulan pada paket Free)',
-                'pos' => 'Transaksi POS Kasir (Maks. 30 per bulan pada paket Free)',
-                'social_post' => 'Jadwal Postingan Media Sosial (Maks. 3 per bulan pada paket Free)',
-                'whatsapp' => 'Pesan WhatsApp Gateway (Maks. 10 per bulan pada paket Free)',
-                'ai' => 'Fitur Asisten & Prediksi AI (Khusus Paket Core)',
-                'import' => 'Fitur Import Data Excel/CSV (Khusus Paket Cooca Patungan)',
-                'export' => 'Fitur Export Data Excel/CSV (Khusus Paket Cooca Patungan)',
-                'member' => 'Tambah Karyawan / Pengguna (Maks. 1 Owner Solo pada paket Free)',
-                'user' => 'Tambah Karyawan / Pengguna (Maks. 1 Owner Solo pada paket Free)',
+                'product' => 'Katalog Produk',
+                'recipe' => 'Resep HPP / BOM (Fitur Paket Premium)',
+                'material' => 'Bahan Baku',
+                'customer' => 'Pelanggan / CRM',
+                'supplier' => 'Pemasok / Supplier',
+                'outlet' => 'Outlet / Cabang',
+                'warehouse' => 'Gudang / Central Kitchen',
+                'invoice' => 'Faktur Penjualan Bulanan',
+                'purchase_order' => 'Purchase Order Bulanan',
+                'po' => 'Purchase Order Bulanan',
+                'pos' => 'Transaksi POS Kasir Bulanan',
+                'table' => 'Meja Kasir Dine-in',
+                'transfer_stock' => 'Transfer Stok Antar-Cabang (Fitur Paket Premium)',
+                'kds' => 'Kitchen Display System (KDS) (Fitur Paket Premium)',
+                'branch_pricing' => 'Multi-Harga per Cabang (Fitur Paket Premium)',
+                'social_post' => 'Jadwal Postingan Media Sosial Bulanan',
+                'whatsapp' => 'Pesan WhatsApp Gateway Bulanan',
+                'ai' => 'Fitur Asisten & Prediksi AI',
+                'import' => 'Fitur Import Data Excel/CSV',
+                'export' => 'Fitur Export Data Excel/CSV',
+                'member' => 'Tambah Karyawan / Pengguna',
+                'user' => 'Tambah Karyawan / Pengguna',
+                'commission' => 'Komisi Karyawan (Fitur Paket Premium)',
+                'loan' => 'Kasbon & Pinjaman Karyawan (Fitur Paket Premium)',
+                'daily_worker' => 'Manajemen Pekerja Harian Lepas (Fitur Paket Premium)',
+                'bpjs' => 'Kalkulasi BPJS Ketenagakerjaan & Kesehatan (Fitur Paket Premium)',
+                'thr' => 'Kalkulasi THR Prorata (Fitur Paket Premium)',
+                'pph21' => 'Kalkulasi PPh 21 TER PP 58/2023 (Fitur Paket Prestige)',
             ];
             $label = $labels[$resourceType] ?? $resourceType;
 
-            $upgradeFee = in_array($resourceType, ['social_post'], true) ? 'Rp89.000/bln' : 'Rp49.000/bln';
+            $upgradeFee = match ($resourceType) {
+                'pph21', 'payroll_wa' => 'Prestige (Rp199.000/bln)',
+                'recipe', 'transfer_stock', 'kds', 'branch_pricing', 'commission', 'loan', 'daily_worker', 'bpjs', 'thr', 'outlet', 'warehouse' => 'Premium (Rp89.000/bln)',
+                'pos', 'table', 'invoice', 'purchase_order', 'po', 'product', 'material', 'customer', 'supplier', 'member', 'user' => 'Standard (Rp29.000/bln) atau Premium (Rp89.000/bln)',
+                default => 'paket yang lebih tinggi',
+            };
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'code' => 'RESOURCE_LIMIT_EXCEEDED',
-                    'message' => "Batas kuota {$label} telah tercapai. Tingkatkan ke Cooca ({$upgradeFee}) untuk akses tanpa batas.",
+                    'message' => "Batas kuota {$label} telah tercapai. Tingkatkan paket ke {$upgradeFee} untuk akses tanpa batas. Data lama Anda tetap aman (No Data Punishment).",
                     'upgrade_url' => route('billing.limits'),
                 ], 403);
             }
 
             return redirect()->route('billing.limits')
-                ->with('error', "Batas kuota {$label} telah tercapai. Data lama Anda tetap aman (No Data Punishment). Silakan tingkatkan paket Anda ({$upgradeFee}) untuk menambah data baru.");
+                ->with('error', "Batas kuota {$label} telah tercapai. Data lama Anda tetap aman (No Data Punishment). Silakan tingkatkan paket Anda ke {$upgradeFee} untuk menambah data baru.");
         }
 
         return $next($request);

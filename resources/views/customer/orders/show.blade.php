@@ -53,12 +53,12 @@
 
         <div class="flex items-center gap-2 flex-wrap">
             @if($order->business)
-                <a href="{{ url('/b/' . $order->business->slug) }}" target="_blank"
+                <a href="{{ $order->business->public_url }}" target="_blank"
                    class="h-9 px-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 text-black dark:text-white text-[12.5px] font-semibold transition active:scale-95 flex items-center gap-1.5">
                     <i data-lucide="store" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                     <span>Kunjungi Toko</span>
                 </a>
-                <a href="{{ url('/b/' . $order->business->slug . '/order/' . $order->tracking_token) }}" target="_blank"
+                <a href="{{ url('/' . $order->business->slug . '/order/' . $order->tracking_token) }}" target="_blank"
                    class="h-9 px-4 rounded-full bg-[#007AFF]/10 hover:bg-[#007AFF]/15 text-[#007AFF] text-[12.5px] font-semibold transition active:scale-95 flex items-center gap-1.5 border border-[#007AFF]/20">
                     <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                     <span>Lacak Publik</span>

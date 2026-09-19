@@ -44,7 +44,7 @@
 
             {{-- Action CTAs --}}
             <div class="flex flex-wrap items-center gap-2 shrink-0 pt-2 md:pt-0">
-                <a href="{{ url('/b/' . $business->slug) }}" target="_blank"
+                <a href="{{ $business->public_url }}" target="_blank"
                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white rounded-xl text-xs font-semibold transition-colors">
                     <i data-lucide="external-link" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                     <span>Etalase Toko</span>
