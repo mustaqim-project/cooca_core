@@ -1,4 +1,9 @@
 <IfModule mod_rewrite.c>
+    # Disable DirectorySlash so Apache doesn't auto-redirect routes matching directory names
+    <IfModule mod_dir.c>
+        DirectorySlash Off
+    </IfModule>
+
     RewriteEngine On
 
     # Prevent direct access to sensitive files
@@ -8,8 +13,13 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+    # Canonical redirect: If /public/ is in the raw browser request, redirect to clean URL
+    RewriteCond %{THE_REQUEST} \s/public/([^\s?]*) [NC]
+    RewriteRule ^public/(.*)$ /$1 [L,R=302]
+
     # Redirect to public folder
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
+
 

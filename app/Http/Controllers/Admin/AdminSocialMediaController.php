@@ -73,7 +73,7 @@ class AdminSocialMediaController extends Controller
         if ($request->hasFile('media_file')) {
             $file = $request->file('media_file');
             $filename = (string) \Illuminate\Support\Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $path = \App\Domain\Storage\AdminStorage::storePublicFile($file, 'social-media/platform', $filename);
+            $path = \App\Domain\Storage\AdminStorage::storePublicFile($file, 'social-media-assets/platform', $filename);
             $mediaUrls[] = \App\Domain\Storage\AdminStorage::publicUrl($path);
             $localPaths[] = $path;
         } elseif (! empty($validated['media_url'])) {

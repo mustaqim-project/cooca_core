@@ -3,6 +3,11 @@
         Options -MultiViews -Indexes
     </IfModule>
 
+    # Disable DirectorySlash so Apache doesn't auto-redirect routes matching directory names
+    <IfModule mod_dir.c>
+        DirectorySlash Off
+    </IfModule>
+
     RewriteEngine On
     
     # Handle Authorization Header
@@ -31,7 +36,7 @@
 
     # Ensure Laravel handles /admin and /admin/* routes when not requesting a physical static file
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_URI} ^/admin(/.*)?$
+    RewriteCond %{REQUEST_URI} ^(/public)?/admin(/.*)?$ [NC]
     RewriteRule ^ index.php [L]
 
     # Send Requests To Front Controller...

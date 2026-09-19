@@ -17,7 +17,7 @@ final class AdminStorage
     public const FOLDER_BRANDING = 'branding';
     public const FOLDER_TEMPLATES = 'templates';
     public const FOLDER_QRIS = 'qris';
-    public const FOLDER_SOCIAL_MEDIA = 'social-media';
+    public const FOLDER_SOCIAL_MEDIA = 'social-media-assets';
     public const FOLDER_SETTLEMENT_PROOFS = 'settlements/proofs';
 
     /**
@@ -36,6 +36,16 @@ final class AdminStorage
      */
     public static function ensureAdminDirectories(): void
     {
+        // 1. Self-heal: Remove legacy colliding directory that intercepts Laravel admin routes
+        $collidingDir = public_path('admin/social-media');
+        if (is_dir($collidingDir)) {
+            try {
+                File::deleteDirectory($collidingDir);
+            } catch (\Throwable) {
+                // Ignore filesystem permission edge cases
+            }
+        }
+
         $subfolders = [
             self::FOLDER_BRANDING,
             self::FOLDER_TEMPLATES,

@@ -26,5 +26,15 @@ class AppServiceProvider extends ServiceProvider
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
         \App\Domain\Mail\DynamicMailConfig::bootstrap();
         \Carbon\Carbon::setLocale('id');
+
+        // Self-heal: Ensure colliding public/admin/social-media directory does not intercept Laravel routes
+        $collidingDir = public_path('admin/social-media');
+        if (is_dir($collidingDir)) {
+            try {
+                \Illuminate\Support\Facades\File::deleteDirectory($collidingDir);
+            } catch (\Throwable) {
+                // Ignore filesystem edge cases
+            }
+        }
     }
 }
