@@ -34,7 +34,14 @@ class ConfigureInstagramCommand extends Command
         SystemSetting::set('instagram_status', 'active', 'social_media');
         SystemSetting::set('instagram_verified_at', now()->toIso8601String(), 'social_media');
 
-        $this->info('Instagram credentials configured successfully.');
+        // Facebook Official Page Settings (Cooca Indonesia)
+        SystemSetting::set('social_media_app_token', 'EAAUrMrnYomIBSkhDNZCNn1G3xl2cZC8hWEPeW8JWWTSTmTqZC8CZBue46fZCXOe0MbZBSqPDFsOZCB8vqwx18wA7r7Ps7PBNHFo9fDRjVOWNI5zTWkrM8sGyGitpXTHa5Qka86uoiORUZBeMtO3uosVoZA9JHGTwWFGUdHZBluHzxT7wV4kE6NMZCWQ6kGFEEhTCloacwZDZD', 'social_media', isSecret: true);
+        SystemSetting::set('social_media_page_id', '1340316975827711', 'social_media');
+        SystemSetting::set('social_media_page_name', 'Cooca Indonesia', 'social_media');
+        SystemSetting::set('social_media_page_token', 'EAAUrMrnYomIBSnmQvQYJZANBTnhStlxZBEkXpZAblx2jVe1q4m4EfZAOMsK4Xas2ZCsV4CqnxCugEv0EMM2ihA7Ut5gJyPS0spHv2a9riMqu4fsjiNjrtxYxxZBrk07wE3b2JgpaFrGZAKMOJHFTUhboK5uZCarNBaU2nVfAGJCAeZB4BxoUw3PhTBtwarTJZBoy2RTgLvkkfz', 'social_media', isSecret: true);
+        SystemSetting::set('social_media_page_status', 'active', 'social_media');
+
+        $this->info('Instagram and Facebook credentials configured successfully.');
 
         return self::SUCCESS;
     }

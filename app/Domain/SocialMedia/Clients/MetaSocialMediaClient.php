@@ -180,6 +180,22 @@ class MetaSocialMediaClient
     }
 
     /**
+     * Publish photo to Facebook Page with caption.
+     */
+    public function publishPagePhoto(string $pageId, string $pageToken, string $caption, string $imageUrl): array
+    {
+        return $this->publishFacebookPost($pageId, $pageToken, $caption, imageUrl: $imageUrl);
+    }
+
+    /**
+     * Publish text/link feed to Facebook Page.
+     */
+    public function publishPageFeed(string $pageId, string $pageToken, string $message, ?string $link = null): array
+    {
+        return $this->publishFacebookPost($pageId, $pageToken, $message, link: $link);
+    }
+
+    /**
      * Publish video to Facebook Page (/{page-id}/videos).
      */
     public function publishFacebookVideo(string $pageId, string $pageToken, string $description, string $videoUrl, ?string $title = null): array
