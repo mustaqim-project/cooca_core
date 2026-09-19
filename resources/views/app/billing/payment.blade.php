@@ -380,13 +380,14 @@
                     <div class="border-b border-black/[0.06] dark:border-white/[0.08] pb-4 flex items-center justify-between">
                         <div>
                             <span
-                                class="text-[10px] font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 font-semibold block mb-1">Rekening
-                                Tujuan Resmi</span>
+                                class="text-[10px] font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 font-semibold block mb-1">
+                                {{ ($payment->isTripay() || $payment->payment_method === 'qris') ? 'Gateway Pembayaran Resmi' : 'Rekening Tujuan Resmi' }}
+                            </span>
                             <h3 id="destination-account-heading"
                                 class="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">
-                                <i data-lucide="building-2" class="w-4 h-4 text-[#007AFF]"
+                                <i data-lucide="{{ ($payment->isTripay() || $payment->payment_method === 'qris') ? 'qr-code' : 'building-2' }}" class="w-4 h-4 text-[#007AFF]"
                                     aria-hidden="true"></i>
-                                <span>{{ $methodDetails['bank_name'] }}</span>
+                                <span>{{ ($payment->isTripay() || $payment->payment_method === 'qris') ? 'TriPay Gateway (QRIS Nasional)' : $methodDetails['bank_name'] }}</span>
                             </h3>
                         </div>
                         <span class="text-xs font-mono font-semibold uppercase text-gray-500 dark:text-gray-400">
@@ -394,25 +395,44 @@
                         </span>
                     </div>
 
-                    <!-- Account Number Display with Copy Action -->
-                    <div class="space-y-2">
-                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
-                            {{ ($payment->isTripay()) ? (str_contains(strtolower($methodDetails['bank_name']), 'gerai') || str_contains(strtolower($payment->payment_method), 'alfa') || str_contains(strtolower($payment->payment_method), 'indo') ? 'Kode Pembayaran Kasir Gerai:' : 'Nomor Virtual Account:') : 'Nomor Rekening Tujuan:' }}
-                        </label>
-                        <div
-                            class="p-4 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    @if(!empty($payment->gateway_pay_url))
+                        <div class="p-4 rounded-[14px] bg-[#007AFF]/10 border border-[#007AFF]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="space-y-0.5">
-                                <div
-                                    class="text-xl sm:text-2xl font-bold font-mono tabular-nums text-black dark:text-white tracking-wider">
-                                    {{ $payment->gateway_pay_code ?: $methodDetails['account_number'] }}
+                                <div class="text-xs font-bold text-black dark:text-white flex items-center gap-1.5">
+                                    <i data-lucide="external-link" class="w-4 h-4 text-[#007AFF]"></i>
+                                    <span>Halaman Checkout TriPay Resmi</span>
                                 </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">
-                                    a/n <span
-                                        class="font-semibold text-black dark:text-white">{{ $methodDetails['account_name'] }}</span>
+                                <div class="text-[11px] text-gray-500 dark:text-gray-400">
+                                    Buka langsung halaman checkout resmi TriPay untuk menyelesaikan pembayaran atau mengunduh QRIS.
                                 </div>
                             </div>
+                            <a href="{{ $payment->gateway_pay_url }}" target="_blank"
+                                class="h-10 px-4 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition inline-flex items-center justify-center gap-2 shadow-sm shrink-0 cursor-pointer">
+                                <span>Buka Halaman TriPay</span>
+                                <i data-lucide="arrow-up-right" class="w-4 h-4" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    @endif
 
-                            @if (($methodDetails['type'] ?? '') !== 'qris')
+                    @if (($methodDetails['type'] ?? '') !== 'qris' && $payment->payment_method !== 'qris')
+                        <!-- Account Number Display with Copy Action (Only for Non-QRIS Accounts) -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                {{ ($payment->isTripay()) ? (str_contains(strtolower($methodDetails['bank_name']), 'gerai') || str_contains(strtolower($payment->payment_method), 'alfa') || str_contains(strtolower($payment->payment_method), 'indo') ? 'Kode Pembayaran Kasir Gerai:' : 'Nomor Virtual Account:') : 'Nomor Rekening Tujuan:' }}
+                            </label>
+                            <div
+                                class="p-4 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="space-y-0.5">
+                                    <div
+                                        class="text-xl sm:text-2xl font-bold font-mono tabular-nums text-black dark:text-white tracking-wider">
+                                        {{ $payment->gateway_pay_code ?: $methodDetails['account_number'] }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        a/n <span
+                                            class="font-semibold text-black dark:text-white">{{ $methodDetails['account_name'] }}</span>
+                                    </div>
+                                </div>
+
                                 <button type="button"
                                     @click="copyToClipboard('{{ str_replace(['-', ' '], '', $payment->gateway_pay_code ?: $methodDetails['account_number']) }}', 'rekening')"
                                     class="h-10 px-3.5 rounded-[12px] text-xs font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] hover:bg-black/[0.04] dark:hover:bg-white/[0.08] active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 shrink-0 focus-visible:ring-2 focus-visible:ring-[#007AFF]"
@@ -424,18 +444,9 @@
                                     <span
                                         x-text="copiedText === 'rekening' ? 'Nomor Tersalin!' : 'Salin Nomor'"></span>
                                 </button>
-                            @endif
-                        </div>
-                        @if(!empty($payment->gateway_pay_url))
-                            <div class="pt-2">
-                                <a href="{{ $payment->gateway_pay_url }}" target="_blank"
-                                    class="h-10 px-4 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition inline-flex items-center gap-2 shadow-xs cursor-pointer">
-                                    <i data-lucide="external-link" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                                    <span>Buka Halaman Pembayaran TriPay</span>
-                                </a>
                             </div>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
 
                     <!-- QRIS Visual Card if QRIS selected -->
                     @if (($methodDetails['type'] ?? '') === 'qris' || $payment->payment_method === 'qris')

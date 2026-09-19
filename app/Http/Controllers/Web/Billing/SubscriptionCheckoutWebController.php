@@ -65,23 +65,23 @@ final class SubscriptionCheckoutWebController extends Controller
             'storage_bytes' => $package->storage_bytes,
         ])->values()->all();
 
-        // If admin has configured custom active payment accounts, use them; otherwise fallback to TriPay channels
+        // If admin has configured custom active payment accounts, use them; otherwise default exclusively to TriPay QRIS
         $dbAccounts = PaymentAccount::active()->ordered()->get();
         if ($dbAccounts->isNotEmpty()) {
             $paymentAccounts = $dbAccounts;
         } else {
-            $paymentAccounts = collect(SubscriptionPayment::TRIPAY_CHANNELS)->map(function ($ch) {
-                return (object) [
-                    'bank_code' => $ch['code'],
-                    'bank_name' => $ch['name'],
-                    'type' => $ch['type'] === 'qris' ? PaymentAccount::TYPE_QRIS : PaymentAccount::TYPE_BANK_TRANSFER,
-                    'account_number' => $ch['account_number'],
-                    'account_name' => $ch['account_name'],
-                    'icon' => $ch['icon'] ?? 'credit-card',
-                    'color' => $ch['color'] ?? 'blue',
-                    'instructions' => $ch['instructions'] ?? '',
-                ];
-            });
+            $paymentAccounts = collect([
+                (object) [
+                    'bank_code' => SubscriptionPayment::METHOD_QRIS,
+                    'bank_name' => 'QRIS Dinamis (TriPay Gateway)',
+                    'type' => PaymentAccount::TYPE_QRIS,
+                    'account_number' => 'Scan QRIS TriPay',
+                    'account_name' => 'COOCA INDONESIA',
+                    'icon' => 'qr-code',
+                    'color' => 'emerald',
+                    'instructions' => 'Pembayaran instan seketika via QRIS (BCA Mobile, Livin Mandiri, BRImo, BNI, GoPay, OVO, ShopeePay, Dana).',
+                ],
+            ]);
         }
 
         $annualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
@@ -179,6 +179,11 @@ final class SubscriptionCheckoutWebController extends Controller
                         'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
                         'admin_notes'       => null,
                     ]);
+
+                    // Direct to TriPay if checkout_url is provided
+                    if (!empty($tripayRes['checkout_url'])) {
+                        return redirect()->away($tripayRes['checkout_url']);
+                    }
                 } else {
                     $errorMsg = $tripayRes['message'] ?? 'Gagal membuat tagihan TriPay';
                     $payment->update([
