@@ -416,6 +416,152 @@
                         </div>
                     </div>
 
+                    <!-- BENTO CARD 2.5A: FACEBOOK OFFICIAL PAGE (POSTING & FOTO) -->
+                    <div class="rounded-[24px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-md p-6 sm:p-7 space-y-5 shadow-sm">
+                        <div class="flex items-center justify-between border-b border-black/[0.04] dark:border-white/[0.06] pb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-[14px] bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center shrink-0">
+                                    <i data-lucide="facebook" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-[16px] font-bold text-black dark:text-white">Facebook Official Page</h3>
+                                        <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#1877F2]/10 text-[#1877F2] border border-[#1877F2]/20">Halaman Resmi</span>
+                                    </div>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Penerbitan postingan feed, foto, dan video ke Halaman Facebook resmi Cooca</p>
+                                </div>
+                            </div>
+                            @if(!empty($socialMediaPageToken))
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25 flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                    <span>Aktif Terhubung</span>
+                                </span>
+                            @else
+                                <span class="text-[11px] font-semibold text-[#FF9500] flex items-center gap-1">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                    <span>Belum Terhubung</span>
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Facebook Page ID -->
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    Facebook Page ID <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <input type="text" name="social_media_page_id" value="{{ old('social_media_page_id', $socialMediaPageId ?? '1340316975827711') }}"
+                                    placeholder="Contoh: 1340316975827711"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#1877F2]/50 transition">
+                            </div>
+
+                            <!-- Facebook Page Name -->
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    Nama Halaman Facebook
+                                </label>
+                                <input type="text" name="social_media_page_name" value="{{ old('social_media_page_name', $socialMediaPageName ?? 'Cooca Indonesia') }}"
+                                    placeholder="Cooca Indonesia"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#1877F2]/50 transition">
+                            </div>
+
+                            <!-- Facebook Page Access Token -->
+                            <div class="sm:col-span-2">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
+                                        Page Access Token (Permanen) <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <button type="button" @click="showFbPageToken = !showFbPageToken" class="text-[11px] font-medium text-[#007AFF] hover:underline cursor-pointer">
+                                        <span x-text="showFbPageToken ? 'Sembunyikan' : 'Tampilkan'"></span>
+                                    </button>
+                                </div>
+                                <input :type="showFbPageToken ? 'text' : 'password'" name="social_media_page_token" value="{{ old('social_media_page_token', $socialMediaPageToken ?? '') }}"
+                                    placeholder="{{ !empty($socialMediaPageToken) ? '••••••••••••••••••••••••' : 'EAAU...' }}"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#1877F2]/50 transition">
+                                <p class="text-[11px] text-black/50 dark:text-white/50 mt-1">
+                                    Gunakan Page Access Token resmi yang memiliki izin <code>pages_manage_posts</code> dan <code>pages_read_engagement</code>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BENTO CARD 2.5B: META THREADS API -->
+                    <div class="rounded-[24px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-md p-6 sm:p-7 space-y-5 shadow-sm">
+                        <div class="flex items-center justify-between border-b border-black/[0.04] dark:border-white/[0.06] pb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-[14px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center shrink-0">
+                                    <i data-lucide="at-sign" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-[16px] font-bold text-black dark:text-white">Threads API (graph.threads.net)</h3>
+                                        <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-black/10 dark:bg-white/10 text-black dark:text-white border border-black/15 dark:border-white/15">Meta Threads</span>
+                                    </div>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Publikasi postingan teks, foto, dan video ke akun resmi Threads Cooca</p>
+                                </div>
+                            </div>
+                            @if(!empty($threadsAccessToken))
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25 flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                    <span>Aktif Terhubung</span>
+                                </span>
+                            @else
+                                <span class="text-[11px] font-semibold text-[#FF9500] flex items-center gap-1">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                    <span>Belum Dikonfigurasi</span>
+                                </span>
+                            @endif
+                        </div>
+
+                        <!-- Threads Guidance Banner -->
+                        <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] space-y-1 text-[11.5px] text-black/70 dark:text-white/70">
+                            <div class="font-bold flex items-center gap-1.5 text-black dark:text-white">
+                                <i data-lucide="info" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Persyaratan Otorisasi Threads API:</span>
+                            </div>
+                            <p>
+                                Threads API dihosting pada domain khusus <code>https://graph.threads.net/v1.0/</code>. Token akses harus merupakan User Token Threads dengan cakupan izin <code>threads_basic</code> dan <code>threads_content_publish</code>.
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Threads User ID -->
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    Threads User ID
+                                </label>
+                                <input type="text" name="threads_user_id" value="{{ old('threads_user_id', $threadsUserId ?? '') }}"
+                                    placeholder="Contoh: 17841400000000000"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-black/30 dark:focus:ring-white/30 transition">
+                            </div>
+
+                            <!-- Threads Username -->
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    Threads Username
+                                </label>
+                                <input type="text" name="threads_username" value="{{ old('threads_username', $threadsUsername ?? 'cooca.indonesia') }}"
+                                    placeholder="cooca.indonesia"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-black/30 dark:focus:ring-white/30 transition">
+                            </div>
+
+                            <!-- Threads Access Token -->
+                            <div class="sm:col-span-2">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
+                                        Token Akses Threads
+                                    </label>
+                                    <button type="button" @click="showThreadsToken = !showThreadsToken" class="text-[11px] font-medium text-[#007AFF] hover:underline cursor-pointer">
+                                        <span x-text="showThreadsToken ? 'Sembunyikan' : 'Tampilkan'"></span>
+                                    </button>
+                                </div>
+                                <input :type="showThreadsToken ? 'text' : 'password'" name="threads_access_token" value="{{ old('threads_access_token', $threadsAccessToken ?? '') }}"
+                                    placeholder="{{ !empty($threadsAccessToken) ? '••••••••••••••••••••••••' : 'TH...' }}"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-black/30 dark:focus:ring-white/30 transition">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- BENTO CARD 3: TIKTOK DEVELOPER PLATFORM (CONTENT POSTING API) -->
                     <div class="rounded-[24px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-md p-6 sm:p-7 space-y-5 shadow-sm">
                         <div class="flex items-center justify-between border-b border-black/[0.04] dark:border-white/[0.06] pb-4">

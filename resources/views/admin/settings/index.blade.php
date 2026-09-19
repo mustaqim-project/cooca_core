@@ -13,6 +13,8 @@
     showTikTokSecret: false,
     showIgSecret: false,
     showIgToken: false,
+    showFbPageToken: false,
+    showThreadsToken: false,
     showTripayKey: false,
     showTripayPrivateKey: false,
     showWaToken: false,

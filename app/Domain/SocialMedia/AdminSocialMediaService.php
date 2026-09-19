@@ -334,12 +334,15 @@ class AdminSocialMediaService
                 }
                 $platformPostId = (string) ($res['id'] ?? $res['post_id'] ?? '');
             } elseif ($target->channel === 'threads') {
-                $threadsUserId = (string) (SystemSetting::get('threads_user_id') ?: 'me');
-                $threadsToken = (string) (SystemSetting::get('threads_access_token') ?: SystemSetting::get('social_media_app_token', ''));
-                if (empty($threadsToken)) {
-                    throw new \RuntimeException('Token Akses Threads Platform belum dikonfigurasi.');
+                $threadsUserId = (string) SystemSetting::get('threads_user_id', '');
+                $threadsToken = (string) SystemSetting::get('threads_access_token', '');
+
+                if (empty($threadsToken) || empty($threadsUserId)) {
+                    throw new \RuntimeException('Kredensial Threads Platform resmi (Threads User ID & Access Token dengan izin threads_content_publish) belum dikonfigurasi di Pengaturan Media Sosial.');
                 }
-                $res = $this->metaClient->publishThreadsPost($threadsUserId, $threadsToken, $content, $firstMediaUrl);
+
+                $threadsType = in_array($post->media_type, ['video', 'reels']) ? 'VIDEO' : (! empty($firstMediaUrl) ? 'IMAGE' : 'TEXT');
+                $res = $this->metaClient->publishThreadsPost($threadsUserId, $threadsToken, $content, $firstMediaUrl, $threadsType);
                 $platformPostId = (string) ($res['id'] ?? '');
             } else {
                 // TikTok
@@ -424,6 +427,17 @@ class AdminSocialMediaService
                     $res = $this->metaClient->publishPageFeed($fbPageId, $fbPageToken, $post->content);
                 }
                 $platformPostId = (string) ($res['id'] ?? $res['post_id'] ?? '');
+            } elseif ($post->platform === 'threads') {
+                $threadsUserId = (string) SystemSetting::get('threads_user_id', '');
+                $threadsToken = (string) SystemSetting::get('threads_access_token', '');
+
+                if (empty($threadsToken) || empty($threadsUserId)) {
+                    throw new \RuntimeException('Kredensial Threads Platform resmi (Threads User ID & Access Token dengan izin threads_content_publish) belum dikonfigurasi di Pengaturan Media Sosial.');
+                }
+
+                $threadsType = in_array($post->media_type, ['video', 'reels']) ? 'VIDEO' : (! empty($firstMediaUrl) ? 'IMAGE' : 'TEXT');
+                $res = $this->metaClient->publishThreadsPost($threadsUserId, $threadsToken, $post->content, $firstMediaUrl, $threadsType);
+                $platformPostId = (string) ($res['id'] ?? '');
             } else {
                 // TikTok or fallback
                 $platformPostId = 'tt_plat_' . (string) \Illuminate\Support\Str::uuid();

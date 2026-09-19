@@ -223,21 +223,65 @@
                                             </div>
                                         </td>
                                         <td class="px-4 py-3.5">
-                                            @if($p->platform === 'instagram')
-                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#E1306C]/10 text-[#E1306C]">
-                                                    <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
-                                                    <span>Instagram</span>
-                                                </span>
-                                            @elseif($p->platform === 'facebook')
-                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#1877F2]/10 text-[#1877F2]">
-                                                    <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
-                                                    <span>Facebook</span>
-                                                </span>
+                                            @php
+                                                $targetChannels = $p->targets->pluck('channel')->filter()->unique();
+                                            @endphp
+                                            @if($targetChannels->isNotEmpty())
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    @foreach($targetChannels as $ch)
+                                                        @if($ch === 'instagram')
+                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#E1306C]/10 text-[#E1306C]">
+                                                                <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
+                                                                <span>Instagram</span>
+                                                            </span>
+                                                        @elseif($ch === 'facebook')
+                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#1877F2]/10 text-[#1877F2]">
+                                                                <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
+                                                                <span>Facebook</span>
+                                                            </span>
+                                                        @elseif($ch === 'threads')
+                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/10">
+                                                                <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
+                                                                <span>Threads</span>
+                                                            </span>
+                                                        @elseif($ch === 'tiktok')
+                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/10 text-black dark:text-white">
+                                                                <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                                                                <span>TikTok</span>
+                                                            </span>
+                                                        @else
+                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/5 text-black dark:text-white">
+                                                                <span>{{ ucfirst($ch) }}</span>
+                                                            </span>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
                                             @else
-                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/10 text-black dark:text-white">
-                                                    <i data-lucide="video" class="w-3.5 h-3.5"></i>
-                                                    <span>TikTok</span>
-                                                </span>
+                                                @if($p->platform === 'instagram')
+                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#E1306C]/10 text-[#E1306C]">
+                                                        <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
+                                                        <span>Instagram</span>
+                                                    </span>
+                                                @elseif($p->platform === 'facebook')
+                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#1877F2]/10 text-[#1877F2]">
+                                                        <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
+                                                        <span>Facebook</span>
+                                                    </span>
+                                                @elseif($p->platform === 'threads')
+                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/10">
+                                                        <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
+                                                        <span>Threads</span>
+                                                    </span>
+                                                @elseif($p->platform === 'tiktok')
+                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/10 text-black dark:text-white">
+                                                        <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                                                        <span>TikTok</span>
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/5 text-black dark:text-white">
+                                                        <span>{{ ucfirst($p->platform) }}</span>
+                                                    </span>
+                                                @endif
                                             @endif
                                         </td>
                                         <td class="px-4 py-3.5 text-center">
@@ -560,8 +604,12 @@
                                                             <i data-lucide="facebook" class="w-3 h-3 text-[#1877F2]"></i>
                                                         @elseif ($acc->platform === 'instagram')
                                                             <i data-lucide="instagram" class="w-3 h-3 text-[#E1306C]"></i>
-                                                        @else
+                                                        @elseif ($acc->platform === 'threads')
+                                                            <i data-lucide="at-sign" class="w-3 h-3 text-black dark:text-white"></i>
+                                                        @elseif ($acc->platform === 'tiktok')
                                                             <i data-lucide="video" class="w-3 h-3 text-black dark:text-white"></i>
+                                                        @else
+                                                            <i data-lucide="globe" class="w-3 h-3 text-black/50"></i>
                                                         @endif
                                                         <span>{{ $acc->account_name }}</span>
                                                     </span>

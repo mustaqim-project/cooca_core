@@ -370,6 +370,42 @@ class MetaSocialMediaClient
     }
 
     /**
+     * Threads API base endpoint (hosted on graph.threads.net, distinct from graph.facebook.com).
+     */
+    public function threadsEndpoint(string $path): string
+    {
+        $cleanPath = ltrim($path, '/');
+        return "https://graph.threads.net/v1.0/{$cleanPath}";
+    }
+
+    /**
+     * Wait for a Threads media container to finish processing before publishing.
+     */
+    public function waitForThreadsContainerReady(string $containerId, string $token, int $maxAttempts = 8, int $sleepSeconds = 2): void
+    {
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            $res = Http::get($this->threadsEndpoint($containerId), [
+                'fields'       => 'status,error_message',
+                'access_token' => $token,
+            ]);
+
+            if ($res->successful()) {
+                $status = strtoupper((string) ($res->json('status') ?? ''));
+                if ($status === 'FINISHED') {
+                    return;
+                }
+                if ($status === 'ERROR' || $status === 'EXPIRED') {
+                    throw new \RuntimeException('Gagal memproses media di Threads: ' . ($res->json('error_message') ?? $status));
+                }
+            }
+
+            if ($attempt < $maxAttempts) {
+                sleep($sleepSeconds);
+            }
+        }
+    }
+
+    /**
      * Publish Threads post using 2-step container process (Text, Image, or Video).
      */
     public function publishThreadsPost(string $threadsUserId, string $token, string $text, ?string $mediaUrl = null, string $mediaType = 'TEXT'): array
@@ -390,18 +426,23 @@ class MetaSocialMediaClient
             }
         }
 
-        // Step 1: Create Threads container
-        $containerResponse = Http::asForm()->post($this->endpoint("{$threadsUserId}/threads"), $payload);
+        // Step 1: Create Threads container on graph.threads.net
+        $containerResponse = Http::asForm()->post($this->threadsEndpoint("{$threadsUserId}/threads"), $payload);
 
         if (! $containerResponse->successful()) {
             Log::error('Meta create Threads container failed', ['body' => $containerResponse->body()]);
             throw new \RuntimeException($containerResponse->json('error.message') ?? 'Gagal membuat postingan Threads.');
         }
 
-        $creationId = $containerResponse->json('id');
+        $creationId = (string) $containerResponse->json('id');
 
-        // Step 2: Publish Threads container
-        $publishResponse = Http::asForm()->post($this->endpoint("{$threadsUserId}/threads_publish"), [
+        // Wait for media container readiness if media is attached
+        if (! empty($mediaUrl)) {
+            $this->waitForThreadsContainerReady($creationId, $token);
+        }
+
+        // Step 2: Publish Threads container on graph.threads.net
+        $publishResponse = Http::asForm()->post($this->threadsEndpoint("{$threadsUserId}/threads_publish"), [
             'creation_id'  => $creationId,
             'access_token' => $token,
         ]);

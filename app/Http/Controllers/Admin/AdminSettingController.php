@@ -166,7 +166,19 @@ final class AdminSettingController extends Controller
             'instagramMediaCount'         => (string) SystemSetting::get('instagram_media_count', '11'),
             'instagramProfilePicture'     => (string) SystemSetting::get('instagram_profile_picture_url', ''),
             'instagramStatus'             => (string) SystemSetting::get('instagram_status', 'active'),
-            'instagramVerifiedAt'         => (string) SystemSetting::get('instagram_verified_at', ''),
+            // Facebook Official Page Settings (Cooca Indonesia)
+            'socialMediaPageId'           => (string) SystemSetting::get('social_media_page_id', '1340316975827711'),
+            'socialMediaPageName'         => (string) SystemSetting::get('social_media_page_name', 'Cooca Indonesia'),
+            'socialMediaPageToken'        => (string) SystemSetting::get('social_media_page_token', ''),
+            'socialMediaHasPageToken'     => ! empty(SystemSetting::get('social_media_page_token', '')),
+            'socialMediaPageStatus'       => (string) SystemSetting::get('social_media_page_status', 'active'),
+
+            // Threads Official Platform Configuration
+            'threadsUserId'               => (string) SystemSetting::get('threads_user_id', ''),
+            'threadsUsername'             => (string) SystemSetting::get('threads_username', 'cooca.indonesia'),
+            'threadsAccessToken'          => (string) SystemSetting::get('threads_access_token', ''),
+            'threadsHasAccessToken'       => ! empty(SystemSetting::get('threads_access_token', '')),
+            'threadsStatus'               => (string) SystemSetting::get('threads_status', 'inactive'),
 
             // TriPay Payment Gateway Configuration (Model B - Platform Centralized)
             'tripayMerchantCode'     => SystemSetting::get('tripay_merchant_code') ?? config('services.tripay.merchant_code', ''),
@@ -282,6 +294,16 @@ final class AdminSettingController extends Controller
             'instagram_account_id'              => ['nullable', 'string', 'max:100'],
             'instagram_username'                => ['nullable', 'string', 'max:100'],
             'instagram_access_token'            => ['nullable', 'string', 'max:1000'],
+
+            // Facebook Official Page Settings
+            'social_media_page_id'              => ['nullable', 'string', 'max:100'],
+            'social_media_page_name'            => ['nullable', 'string', 'max:150'],
+            'social_media_page_token'           => ['nullable', 'string', 'max:1000'],
+
+            // Threads Official Platform Settings
+            'threads_user_id'                   => ['nullable', 'string', 'max:100'],
+            'threads_username'                  => ['nullable', 'string', 'max:100'],
+            'threads_access_token'              => ['nullable', 'string', 'max:1000'],
 
             // Biteship Logistics Aggregator API Settings
             'biteship_api_key'                  => ['nullable', 'string', 'max:500'],
@@ -495,6 +517,30 @@ final class AdminSettingController extends Controller
         }
         if (! empty($validated['instagram_access_token'])) {
             SystemSetting::set('instagram_access_token', trim((string) $validated['instagram_access_token']), 'social_media', true);
+        }
+
+        // Save Facebook Official Page Settings
+        if (array_key_exists('social_media_page_id', $validated)) {
+            SystemSetting::set('social_media_page_id', trim((string) $validated['social_media_page_id']), 'social_media');
+        }
+        if (array_key_exists('social_media_page_name', $validated)) {
+            SystemSetting::set('social_media_page_name', trim((string) $validated['social_media_page_name']), 'social_media');
+        }
+        if (! empty($validated['social_media_page_token'])) {
+            SystemSetting::set('social_media_page_token', trim((string) $validated['social_media_page_token']), 'social_media', true);
+            SystemSetting::set('social_media_page_status', 'active', 'social_media');
+        }
+
+        // Save Threads Official Settings
+        if (array_key_exists('threads_user_id', $validated)) {
+            SystemSetting::set('threads_user_id', trim((string) $validated['threads_user_id']), 'social_media');
+        }
+        if (array_key_exists('threads_username', $validated)) {
+            SystemSetting::set('threads_username', trim((string) $validated['threads_username']), 'social_media');
+        }
+        if (! empty($validated['threads_access_token'])) {
+            SystemSetting::set('threads_access_token', trim((string) $validated['threads_access_token']), 'social_media', true);
+            SystemSetting::set('threads_status', 'active', 'social_media');
         }
 
         // Save Biteship Logistics Settings
