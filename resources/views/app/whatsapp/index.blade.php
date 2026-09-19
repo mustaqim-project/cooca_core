@@ -431,9 +431,11 @@
 
                         // 3. Launch FB.login dengan WhatsApp Embedded Signup
                         const loginOptions = {
+                            scope: 'whatsapp_business_management,whatsapp_business_messaging',
                             response_type: 'code',
                             override_default_response_type: true,
                             extras: {
+                                feature: 'whatsapp_embedded_signup',
                                 setup: {
                                     business: {
                                         name: '{{ addslashes($business->name) }}'
@@ -441,8 +443,8 @@
                                 }
                             }
                         };
-                        if (configData.config_id) {
-                            loginOptions.config_id = configData.config_id;
+                        if (configData.config_id && String(configData.config_id).trim() !== '') {
+                            loginOptions.config_id = String(configData.config_id).trim();
                         }
 
                         FB.login((response) => {
