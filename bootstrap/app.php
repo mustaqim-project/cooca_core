@@ -57,6 +57,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer.otp'       => \App\Http\Middleware\RequireCustomerOtp::class,
             'verified'           => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
+        $middleware->prepend(\App\Http\Middleware\EnsureCleanUrl::class);
+
         $middleware->web(append: [
             \App\Http\Middleware\WebSecurityHeaders::class,
             SetActiveBusinessContext::class,

@@ -14,8 +14,8 @@
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     # Canonical redirect: If /public/ is in the raw browser request, redirect to clean URL
-    RewriteCond %{THE_REQUEST} \s/public/([^\s?]*) [NC]
-    RewriteRule ^public/(.*)$ /$1 [L,R=302]
+    RewriteCond %{THE_REQUEST} \s/+public(?:/([^\s?]*))? [NC]
+    RewriteRule ^ /%1 [L,R=301,NE]
 
     # Redirect to public folder
     RewriteCond %{REQUEST_URI} !^/public/

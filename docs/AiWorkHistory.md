@@ -46,6 +46,49 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-19-090] Resolving Public URL Prefix Contamination & Enforcing Canonical Clean URLs (/admin/login)
+* **Date:** 2026-09-19
+* **Status:** COMPLETED
+* **Module:** HTTP Foundation, Routing, Web Server Integration (.htaccess), Security Headers, Admin Portal Entry Point
+* **Feature:** Investigasi mendalam dan penerapan sistem pertahanan 4 lapis untuk mengeliminasi kontaminasi prefix `/public` pada seluruh tautan internal (misal `https://cooca.id/public/admin/login` dikembalikan menjadi `https://cooca.id/admin/login`), redirect otomatis (301) setiap request mentah berawalan `/public/`, penguncian kanonikal root URL pada Laravel `UrlGenerator`, penambahan fallback route `/admin` menuju `admin.login` / `admin.dashboard`, dan perbaikan kompatibilitas migrasi SQLite pada environment testing.
+* **Work Type:** Bug Fix | Security | Routing & URL Canonicalization | Web Server (.htaccess)
+
+#### 1. Business Context & Objective
+* **Konteks:** Pengguna menemukan bahwa berbagai tautan di sistem (khususnya URL admin) berubah menjadi mengandung `/public/` (seperti `https://cooca.id/public/admin/login`). Hal ini merusak estetika antarmuka, membingungkan pengguna, dan dapat mengacaukan sesi otentikasi serta pengalihan halaman.
+* **Masalah/Target:**
+  1. Mengidentifikasi akar penyebab mengapa tautan berubah mengandung prefix `/public/`.
+  2. Memastikan setiap permintaan browser yang mengandung `/public/` secara otomatis di-redirect 301 ke URL kanonikal bersih.
+  3. Memastikan Laravel `UrlGenerator` (`route()`, `url()`, `asset()`) tidak pernah terkontaminasi atau menghasilkan tautan berawalan `/public`.
+  4. Menyediakan rute langsung untuk `GET /admin` agar tidak lagi menghasilkan `404 Not Found`.
+
+#### 2. What Was Done
+* Mengidentifikasi akar masalah: pada shared hosting (Hostinger), `public_html` merupakan document root, sedangkan file entri Laravel berada di `public_html/public/index.php`. Ketika request pertama kali masuk dengan URI berawalan `/public/`, Symfony `Request::prepareBaseUrl()` mendeteksi `$baseUrl = '/public'`, yang kemudian secara domino mencemari seluruh URL generator Laravel pada Blade template.
+* **Lapis 1 (Root .htaccess):** Memperbaiki aturan rewrite `%{THE_REQUEST}` agar me-redirect 301 permintaan mentah berawalan `/public/`.
+* **Lapis 2 (Public .htaccess):** Menambahkan canonical redirect 301 di dalam `public/.htaccess` dan membersihkan pola `(/public)?` pada handler rute admin.
+* **Lapis 3 (Laravel Middleware & Provider):** Membuat `EnsureCleanUrl` global middleware yang mengintersep request berawalan `/public/` dan me-redirect 301 ke path bersih. Menambahkan `URL::forceRootUrl` dan `URL::forceScheme` di `AppServiceProvider` & middleware untuk mengunci URL kanonikal secara permanen.
+* **Lapis 4 (Admin Entry Route):** Menambahkan `Route::get('/', ...)` pada prefix `admin` di `routes/admin.php` dan catch-all redirect `/public/{any?}` di `routes/web.php`.
+* **Testing & SQLite Fix:** Membuat feature test `CleanUrlCanonicalTest` dengan 5 skenario uji, serta memperbaiki sintaks `ALTER TABLE ... MODIFY COLUMN` pada migrasi agar kompatibel dengan MySQL dan SQLite.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `.htaccess`
+  - `public/.htaccess`
+  - `app/Http/Middleware/EnsureCleanUrl.php`
+  - `bootstrap/app.php`
+  - `app/Providers/AppServiceProvider.php`
+  - `routes/admin.php`
+  - `routes/web.php`
+  - `database/migrations/2026_09_19_084000_fix_admin_id_column_type_in_social_media_posts.php`
+  - `tests/Feature/Security/CleanUrlCanonicalTest.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. Verification & Testing
+* **PHPUnit:** 5 tes passed (14 assertions) di `tests/Feature/Security/CleanUrlCanonicalTest.php`.
+* **Sintaks:** 0 error sintaks pada seluruh file.
+* **Cache:** `optimize:clear` dan `view:cache` berhasil 100%.
+
+---
+
 ### [WORK-2026-09-19-089] Instagram Reels & Stories Publishing Engine, Live Organic Analytics Cockpit, API Quota Safeguard, and Explicit Meta Ads Exclusion
 * **Date:** 2026-09-19
 * **Status:** COMPLETED

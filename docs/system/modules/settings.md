@@ -34,6 +34,7 @@ Antarmuka Pengaturan dirancang dengan panduan desain **Bento Apple HIG v2.0** ya
 ### 2.1 Tab 1: Google Cloud OAuth & Parameter Sistem (Canonical Production URL)
 * **Fungsi:** Mengelola identitas platform, canonical production base URL, serta kredensial Client ID & Client Secret Google OAuth.
 * **Canonical Base URL (`app_url`):** Diatur ke domain utama produksi `https://cooca.id`. Seluruh callback URL dan webhook eksternal diturunkan secara kanonikal dari basis data ini. Sistem secara otomatis menolak dan menormalkan rujukan lokal (`127.0.0.1:9082`, `localhost`) ataupun subdomain warisan (`umkm.cooca.id`) menjadi `https://cooca.id`.
+* **Canonical URL & `/public` Immunity:** Menerapkan sistem pertahanan 4-lapis (root `.htaccess`, `public/.htaccess`, middleware `EnsureCleanUrl`, dan `URL::forceRootUrl`) yang secara mutlak mengeliminasi kontaminasi prefix `/public` pada URL dan me-redirect (301) setiap permintaan browser berawalan `/public/` kembali ke URL kanonikal bersih `https://cooca.id/...`.
 * **Dual Callback Architecture:**
   - *Owner / Kasir Callback:* `https://cooca.id/auth/google/callback` (guard: `web`)
   - *Customer Storefront Callback:* `https://cooca.id/customer/auth/google/callback` (guard: `customer`)

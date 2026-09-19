@@ -28,3 +28,9 @@ require __DIR__ . '/public.php';
 \Illuminate\Support\Facades\Route::get('/settlements/{settlement}/proof', [\App\Http\Controllers\Common\SettlementProofController::class, 'show'])
     ->name('settlements.proof');
 
+// Catch-all Canonical Redirection: Eliminate any accidental /public prefix
+\Illuminate\Support\Facades\Route::any('/public/{any?}', function (?string $any = null) {
+    return redirect('/' . ($any ?? ''), 301);
+})->where('any', '.*');
+
+

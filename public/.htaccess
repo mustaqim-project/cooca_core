@@ -10,6 +10,10 @@
 
     RewriteEngine On
     
+    # Canonical redirect: If /public/ is in the raw browser request, redirect to clean URL
+    RewriteCond %{THE_REQUEST} \s/+public(?:/([^\s?]*))? [NC]
+    RewriteRule ^ /%1 [L,R=301,NE]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -36,7 +40,7 @@
 
     # Ensure Laravel handles /admin and /admin/* routes when not requesting a physical static file
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_URI} ^(/public)?/admin(/.*)?$ [NC]
+    RewriteCond %{REQUEST_URI} ^/admin(/.*)?$ [NC]
     RewriteRule ^ index.php [L]
 
     # Send Requests To Front Controller...

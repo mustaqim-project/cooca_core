@@ -15,7 +15,13 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasColumn('social_media_posts', 'admin_id')) {
-            DB::statement('ALTER TABLE social_media_posts MODIFY COLUMN admin_id CHAR(36) NULL');
+            if (DB::getDriverName() === 'mysql') {
+                DB::statement('ALTER TABLE social_media_posts MODIFY COLUMN admin_id CHAR(36) NULL');
+            } else {
+                Schema::table('social_media_posts', function (Blueprint $table): void {
+                    $table->uuid('admin_id')->nullable()->change();
+                });
+            }
         } else {
             Schema::table('social_media_posts', function (Blueprint $table): void {
                 $table->uuid('admin_id')->nullable()->after('business_id')->index();
@@ -29,7 +35,9 @@ return new class extends Migration
     public function down(): void
     {
         if (Schema::hasColumn('social_media_posts', 'admin_id')) {
-            DB::statement('ALTER TABLE social_media_posts MODIFY COLUMN admin_id BIGINT UNSIGNED NULL');
+            if (DB::getDriverName() === 'mysql') {
+                DB::statement('ALTER TABLE social_media_posts MODIFY COLUMN admin_id BIGINT UNSIGNED NULL');
+            }
         }
     }
 };

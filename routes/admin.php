@@ -36,6 +36,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::prefix('admin')->name('admin.')->group(function (): void {
+    // Direct /admin entry point: Redirect authenticated superadmin to dashboard, guests to login
+    Route::get('/', function () {
+        return auth('admin')->check()
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('admin.login');
+    })->name('index');
+
     // 1. Guest Admin Authentication
     Route::middleware('guest:admin')->group(function (): void {
         Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
