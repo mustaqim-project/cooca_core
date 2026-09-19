@@ -34,6 +34,8 @@ class SubscriptionPayment extends Model
     public const METHOD_BRI = 'bri';
     public const METHOD_FREE_PROMO = 'free_promo';
 
+    public const TRIPAY_CHANNELS = self::PAYMENT_METHODS;
+
     public const PAYMENT_METHODS = [
         self::METHOD_QRIS => [
             'code' => self::METHOD_QRIS,
@@ -335,6 +337,22 @@ class SubscriptionPayment extends Model
 
     public function getPaymentMethodDetails(): array
     {
+        $account = PaymentAccount::where('bank_code', $this->payment_method)->first();
+        if ($account) {
+            return [
+                'code' => $account->bank_code,
+                'name' => $account->bank_name,
+                'type' => $account->type,
+                'bank_name' => $account->bank_name,
+                'account_number' => $this->gateway_pay_code ?: $account->account_number,
+                'account_name' => $account->account_name,
+                'icon' => $account->icon ?? 'credit-card',
+                'color' => $account->color ?? 'blue',
+                'instructions' => $account->instructions,
+                'qr_image_url' => $this->gateway_qr_url ?: $account->qr_image_url,
+            ];
+        }
+
         $normMethod = strtolower(str_replace(['tripay_', 'va'], ['', '_va'], $this->payment_method ?? ''));
         $normRaw = strtolower(str_replace('tripay_', '', $this->payment_method ?? ''));
 
@@ -362,22 +380,6 @@ class SubscriptionPayment extends Model
                 $base['qr_image_url'] = $this->gateway_qr_url;
             }
             return $base;
-        }
-
-        $account = PaymentAccount::where('bank_code', $this->payment_method)->first();
-        if ($account) {
-            return [
-                'code' => $account->bank_code,
-                'name' => $account->bank_name,
-                'type' => $account->type,
-                'bank_name' => $account->bank_name,
-                'account_number' => $account->account_number,
-                'account_name' => $account->account_name,
-                'icon' => $account->icon,
-                'color' => $account->color,
-                'instructions' => $account->instructions,
-                'qr_image_url' => $account->qr_image_url,
-            ];
         }
 
         return self::PAYMENT_METHODS[$this->payment_method] ?? [

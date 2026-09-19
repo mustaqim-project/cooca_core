@@ -65,13 +65,25 @@ final class SubscriptionCheckoutWebController extends Controller
             'storage_bytes' => $package->storage_bytes,
         ])->values()->all();
 
-        // Ensure default TriPay payment accounts exist and load only TriPay channels
-        $tripayCodes = array_keys(PaymentAccount::getDefaultAccounts());
-        foreach (PaymentAccount::getDefaultAccounts() as $account) {
-            PaymentAccount::firstOrCreate(['bank_code' => $account['bank_code']], $account);
+        // If admin has configured custom active payment accounts, use them; otherwise fallback to TriPay channels
+        $dbAccounts = PaymentAccount::active()->ordered()->get();
+        if ($dbAccounts->isNotEmpty()) {
+            $paymentAccounts = $dbAccounts;
+        } else {
+            $paymentAccounts = collect(SubscriptionPayment::TRIPAY_CHANNELS)->map(function ($ch) {
+                return (object) [
+                    'bank_code' => $ch['code'],
+                    'bank_name' => $ch['name'],
+                    'type' => $ch['type'] === 'qris' ? PaymentAccount::TYPE_QRIS : PaymentAccount::TYPE_BANK_TRANSFER,
+                    'account_number' => $ch['account_number'],
+                    'account_name' => $ch['account_name'],
+                    'icon' => $ch['icon'] ?? 'credit-card',
+                    'color' => $ch['color'] ?? 'blue',
+                    'instructions' => $ch['instructions'] ?? '',
+                ];
+            });
         }
 
-        $paymentAccounts = PaymentAccount::active()->whereIn('bank_code', $tripayCodes)->ordered()->get();
         $annualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
         $currentUsage = $this->entitlementService->getUsageSummary($business);
 
@@ -111,11 +123,9 @@ final class SubscriptionCheckoutWebController extends Controller
 
         $isFreePackage = $package && (float) $package->price <= 0.0;
 
-        // Get allowed bank codes: Exclusively TriPay channels + Free Promo
-        $tripayCodes = array_keys(PaymentAccount::getDefaultAccounts());
-        $validCodes = PaymentAccount::active()->whereIn('bank_code', $tripayCodes)->pluck('bank_code')->toArray();
-        $validCodes[] = SubscriptionPayment::METHOD_FREE_PROMO;
-        $validCodes = array_values(array_unique($validCodes));
+        // Allowed bank codes: custom PaymentAccount codes (if configured) + TriPay channels + Free Promo
+        $dbCodes = PaymentAccount::active()->pluck('bank_code')->all();
+        $validCodes = array_values(array_unique(array_merge($dbCodes, array_keys(SubscriptionPayment::TRIPAY_CHANNELS), [SubscriptionPayment::METHOD_FREE_PROMO])));
 
         $validated = $request->validate([
             'order_type' => ['nullable', 'string', 'in:subscription,ai_token,storage'],
@@ -149,8 +159,11 @@ final class SubscriptionCheckoutWebController extends Controller
                     $validated['tier'] ?? $request->input('tier', BusinessSubscription::TIER_STANDARD)
                 )));
 
-        // Automatically trigger TriPay transaction for all non-free orders
-        if ($payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
+        // Automatically trigger TriPay transaction for all non-free TriPay orders
+        $isTripayChannel = array_key_exists($payment->payment_method, SubscriptionPayment::TRIPAY_CHANNELS)
+            || str_starts_with($payment->payment_method, 'tripay_');
+
+        if ($payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO && $isTripayChannel) {
             $channelCode = $payment->getTripayChannelCode();
             try {
                 $tripayRes = $this->tripayService->createSubscriptionTransaction($payment, $channelCode);
@@ -164,27 +177,44 @@ final class SubscriptionCheckoutWebController extends Controller
                         'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
                         'gateway_fee'       => (float) ($tripayRes['fee'] ?? 0.0),
                         'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                        'admin_notes'       => null,
                     ]);
+                } else {
+                    $errorMsg = $tripayRes['message'] ?? 'Gagal membuat tagihan TriPay';
+                    $payment->update([
+                        'admin_notes' => 'TriPay Error: ' . $errorMsg,
+                    ]);
+                    Log::warning("[SubscriptionCheckout] TriPay transaction failed for order {$payment->order_number}: {$errorMsg}");
                 }
             } catch (\Throwable $e) {
+                $payment->update([
+                    'admin_notes' => 'TriPay Exception: ' . $e->getMessage(),
+                ]);
                 Log::warning('[SubscriptionCheckout] TriPay subscription auto-init failed: ' . $e->getMessage());
             }
+        } elseif (! $isTripayChannel && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
+            $payment->update([
+                'payment_gateway' => SubscriptionPayment::GATEWAY_MANUAL,
+            ]);
         }
 
         return redirect()->route('billing.payment.show', $payment)
-            ->with('success', "Pesanan #{$payment->order_number} berhasil dibuat. Silakan selesaikan pembayaran via TriPay Payment Gateway.");
+            ->with('success', "Pesanan #{$payment->order_number} berhasil dibuat. Silakan selesaikan pembayaran.");
     }
 
     /**
-     * Show payment instructions and proof upload form.
+     * Show payment confirmation and step-by-step transfer guide.
      */
     public function payment(SubscriptionPayment $payment): View
     {
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
 
-        // If payment gateway not initialized and order is pending, initialize TriPay
-        if (empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
+        $isTripayChannel = array_key_exists($payment->payment_method, SubscriptionPayment::TRIPAY_CHANNELS)
+            || str_starts_with($payment->payment_method, 'tripay_');
+
+        // If payment gateway not initialized and order is pending, try initialize TriPay
+        if ($isTripayChannel && empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
             try {
                 $channelCode = $payment->getTripayChannelCode();
                 $tripayRes = $this->tripayService->createSubscriptionTransaction($payment, $channelCode);
@@ -198,10 +228,19 @@ final class SubscriptionCheckoutWebController extends Controller
                         'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
                         'gateway_fee'       => (float) ($tripayRes['fee'] ?? 0.0),
                         'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                        'admin_notes'       => null,
                     ]);
                     $payment->refresh();
+                } else {
+                    $errorMsg = $tripayRes['message'] ?? 'Gagal membuat tagihan TriPay';
+                    $payment->update([
+                        'admin_notes' => 'TriPay Error: ' . $errorMsg,
+                    ]);
                 }
             } catch (\Throwable $e) {
+                $payment->update([
+                    'admin_notes' => 'TriPay Exception: ' . $e->getMessage(),
+                ]);
                 Log::warning('[SubscriptionCheckout] TriPay subscription auto-init failed: ' . $e->getMessage());
             }
         }
@@ -216,11 +255,43 @@ final class SubscriptionCheckoutWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
 
+        $isTripayChannel = array_key_exists($payment->payment_method, SubscriptionPayment::TRIPAY_CHANNELS)
+            || str_starts_with($payment->payment_method, 'tripay_');
+
+        // If not initialized yet, try to initialize TriPay on status check as well
+        if ($isTripayChannel && empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
+            try {
+                $channelCode = $payment->getTripayChannelCode();
+                $tripayRes = $this->tripayService->createSubscriptionTransaction($payment, $channelCode);
+                if ($tripayRes['success'] ?? false) {
+                    $payment->update([
+                        'payment_gateway'   => SubscriptionPayment::GATEWAY_TRIPAY,
+                        'gateway_reference' => $tripayRes['reference'] ?? null,
+                        'gateway_pay_code'  => $tripayRes['pay_code'] ?? null,
+                        'gateway_pay_url'   => $tripayRes['checkout_url'] ?? null,
+                        'gateway_qr_url'    => $tripayRes['qr_url'] ?? null,
+                        'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
+                        'gateway_fee'       => (float) ($tripayRes['fee'] ?? 0.0),
+                        'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                        'admin_notes'       => null,
+                    ]);
+                    $payment->refresh();
+                }
+            } catch (\Throwable) {
+                // Ignore background re-init errors
+            }
+        }
+
         return response()->json([
             'success'     => true,
             'status'      => $payment->status,
             'is_paid'     => $payment->isPaid(),
             'is_rejected' => $payment->isRejected(),
+            'has_qr'      => !empty($payment->gateway_qr_url) || !empty($payment->gateway_qr_string),
+            'qr_url'      => $payment->gateway_qr_url,
+            'pay_code'    => $payment->gateway_pay_code,
+            'gateway_reference' => $payment->gateway_reference,
+            'gateway_error' => $payment->admin_notes,
         ]);
     }
 

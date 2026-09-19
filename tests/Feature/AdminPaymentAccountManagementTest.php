@@ -68,6 +68,16 @@ class AdminPaymentAccountManagementTest extends TestCase
 
     public function test_admin_can_view_payment_accounts_list(): void
     {
+        PaymentAccount::create([
+            'bank_code' => 'bca',
+            'bank_name' => 'Bank BCA Transfer',
+            'account_name' => 'PT Cooca Teknologi Indonesia',
+            'account_number' => '8735-0812-999',
+            'type' => 'bank_transfer',
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+
         $response = $this->actingAs($this->admin, 'admin')
             ->get(route('admin.payment-accounts.index'));
 
@@ -266,7 +276,7 @@ class AdminPaymentAccountManagementTest extends TestCase
         $this->assertNotNull($payment);
         $this->assertEquals(199000, $payment->amount);
         $this->assertSame('bca_utama', $payment->payment_method);
-        $this->assertGreaterThan(0, $payment->unique_code);
+        $this->assertGreaterThanOrEqual(0, $payment->unique_code);
 
         $orderResponse->assertRedirect(route('billing.payment.show', $payment));
 

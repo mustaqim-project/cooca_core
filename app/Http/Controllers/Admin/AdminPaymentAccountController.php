@@ -21,13 +21,6 @@ final class AdminPaymentAccountController extends Controller
      */
     public function index(Request $request): View
     {
-        // If empty, populate with default accounts
-        if (PaymentAccount::count() === 0) {
-            foreach (PaymentAccount::getDefaultAccounts() as $account) {
-                PaymentAccount::create($account);
-            }
-        }
-
         $search = trim((string) $request->query('search', ''));
         $type = (string) $request->query('type', '');
 

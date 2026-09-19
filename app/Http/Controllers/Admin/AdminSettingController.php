@@ -881,14 +881,34 @@ final class AdminSettingController extends Controller
 
             if ($response->successful() && ($response->json('success') ?? false)) {
                 $data = (array) $response->json('data', []);
-                $channelCount = count($data);
+                $groupCount = count($data);
+                $totalChannels = 0;
+                $activeChannels = 0;
+                foreach ($data as $item) {
+                    if (isset($item['payment']) && is_array($item['payment'])) {
+                        $totalChannels += count($item['payment']);
+                        foreach ($item['payment'] as $ch) {
+                            if ($ch['active'] ?? false) {
+                                $activeChannels++;
+                            }
+                        }
+                    } else {
+                        $totalChannels++;
+                    }
+                }
+
+                $statusDetail = $activeChannels > 0
+                    ? "({$activeChannels} kanal aktif siap transaksi)"
+                    : "(Perhatian: Saluran pembayaran masih nonaktif di dasbor TriPay. Aktifkan di Dasbor TriPay > Saluran Pembayaran)";
 
                 return response()->json([
                     'success' => true,
-                    'message' => "Koneksi ke TriPay Gateway ({$modeText}) BERHASIL! Ditemukan {$channelCount} grup kanal pembayaran aktif.",
+                    'message' => "Koneksi ke TriPay Gateway ({$modeText}) BERHASIL! Ditemukan {$groupCount} grup ({$totalChannels} kanal) {$statusDetail}.",
                     'data' => [
                         'mode' => $modeText,
-                        'channels_count' => $channelCount,
+                        'groups_count' => $groupCount,
+                        'channels_count' => $totalChannels,
+                        'active_channels_count' => $activeChannels,
                         'base_url' => $baseUrl,
                     ],
                 ]);

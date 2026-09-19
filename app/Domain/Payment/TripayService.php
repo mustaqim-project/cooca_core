@@ -89,6 +89,20 @@ final class TripayService
                 if ($response->successful() && ($response->json('success') ?? false)) {
                     $data = (array) $response->json('data', []);
                     if (! empty($data)) {
+                        $flattened = [];
+                        foreach ($data as $item) {
+                            if (isset($item['payment']) && is_array($item['payment'])) {
+                                foreach ($item['payment'] as $ch) {
+                                    $ch['group'] = $item['group_name'] ?? ($ch['group'] ?? 'Lainnya');
+                                    $flattened[] = $ch;
+                                }
+                            } elseif (isset($item['code'])) {
+                                $flattened[] = $item;
+                            }
+                        }
+                        if (! empty($flattened)) {
+                            return $flattened;
+                        }
                         return $data;
                     }
                 }

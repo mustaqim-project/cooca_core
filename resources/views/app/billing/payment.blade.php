@@ -454,6 +454,31 @@
                                     ID1020304050</span>
                             </div>
 
+                            <!-- TriPay Channel Disabled / Inactive Alert -->
+                            @if (empty($payment->gateway_reference) && !empty($payment->admin_notes) && str_contains($payment->admin_notes, 'TriPay'))
+                                <div class="p-4 rounded-[14px] bg-amber-500/10 border border-amber-500/25 text-amber-900 dark:text-amber-200 text-xs text-left space-y-2">
+                                    <div class="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+                                        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                                        <span>Saluran Pembayaran TriPay Belum Aktif</span>
+                                    </div>
+                                    <p class="leading-relaxed">
+                                        {{ str_replace(['TriPay Error: ', 'TriPay Exception: '], '', $payment->admin_notes) }}
+                                    </p>
+                                    <div class="text-[11px] text-amber-800/90 dark:text-amber-300/90 bg-amber-500/10 p-2.5 rounded-[10px] space-y-1">
+                                        <div class="font-semibold">Cara Mengaktifkan di Akun TriPay:</div>
+                                        <ol class="list-decimal list-inside space-y-0.5">
+                                            <li>Buka dasbor TriPay (<a href="https://tripay.co.id" target="_blank" class="underline font-bold text-amber-700 dark:text-amber-200">tripay.co.id</a>)</li>
+                                            <li>Pilih menu <strong>Merchant &gt; Saluran Pembayaran</strong></li>
+                                            <li>Aktifkan (centang) saluran <strong>{{ strtoupper($payment->payment_method) }}</strong></li>
+                                        </ol>
+                                    </div>
+                                    <button type="button" @click="checkPaymentStatus()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-amber-600 hover:bg-amber-700 text-white font-semibold text-[11px] transition-all cursor-pointer">
+                                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5" :class="checkingStatus ? 'animate-spin' : ''"></i>
+                                        <span>Muat Ulang / Inisialisasi Ulang Tagihan</span>
+                                    </button>
+                                </div>
+                            @endif
+
                             <div
                                 class="p-4 bg-gray-50 rounded-[14px] border border-dashed border-gray-300 inline-block">
                                 @if (!empty($payment->gateway_qr_url))
@@ -466,15 +491,21 @@
                                             <span>Unduh Gambar QRIS</span>
                                         </a>
                                     </div>
+                                @elseif (!empty($payment->gateway_qr_string))
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data={{ urlencode($payment->gateway_qr_string) }}" alt="QRIS Dinamis TriPay"
+                                        class="w-56 h-56 object-contain mx-auto rounded-[8px]">
+                                    <div class="mt-2 text-center">
+                                        <span class="text-[10px] text-gray-500 font-mono">Dibuat dari kode QRIS resmi TriPay</span>
+                                    </div>
                                 @elseif (!empty($methodDetails['qr_image_url']))
                                     <img src="{{ $methodDetails['qr_image_url'] }}" alt="QRIS QR Code"
                                         class="w-56 h-56 object-contain mx-auto rounded-[8px]">
                                 @else
                                     <div class="w-56 h-56 flex flex-col items-center justify-center text-center p-3">
-                                        <i data-lucide="qr-code" class="w-36 h-36 text-black mx-auto"
+                                        <i data-lucide="qr-code" class="w-28 h-28 text-black/25 dark:text-white/25 mx-auto"
                                             aria-hidden="true"></i>
                                         <span
-                                            class="text-[10px] font-mono font-bold text-gray-700 mt-2 block">{{ $methodDetails['account_number'] }}</span>
+                                            class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-2 block">Menunggu Inisialisasi QR TriPay...</span>
                                     </div>
                                 @endif
                             </div>
