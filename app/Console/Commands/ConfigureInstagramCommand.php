@@ -41,7 +41,11 @@ class ConfigureInstagramCommand extends Command
         SystemSetting::set('social_media_page_token', 'EAAUrMrnYomIBSnmQvQYJZANBTnhStlxZBEkXpZAblx2jVe1q4m4EfZAOMsK4Xas2ZCsV4CqnxCugEv0EMM2ihA7Ut5gJyPS0spHv2a9riMqu4fsjiNjrtxYxxZBrk07wE3b2JgpaFrGZAKMOJHFTUhboK5uZCarNBaU2nVfAGJCAeZB4BxoUw3PhTBtwarTJZBoy2RTgLvkkfz', 'social_media', isSecret: true);
         SystemSetting::set('social_media_page_status', 'active', 'social_media');
 
-        $this->info('Instagram and Facebook credentials configured successfully.');
+        // Threads Official Platform Settings (cooca.indonesia)
+        SystemSetting::set('threads_user_id', '1585093700053942', 'social_media');
+        SystemSetting::set('threads_username', 'cooca.indonesia', 'social_media');
+
+        $this->info('Instagram, Facebook, and Threads credentials configured successfully.');
 
         return self::SUCCESS;
     }
