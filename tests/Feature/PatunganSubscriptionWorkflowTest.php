@@ -92,14 +92,13 @@ class PatunganSubscriptionWorkflowTest extends TestCase
 
         $response = $this->get('/patungan');
         $response->assertStatus(200);
-        $response->assertSee('Patungan Bulanan');
-        $response->assertSee('Patungan Tahunan');
-        $response->assertSee('25.000');
-        $response->assertSee('250.000');
+        $response->assertSee('Standard Plan');
+        $response->assertSee('29.000');
+        $response->assertSee('290.000');
         $response->assertDontSee('10 Juta Token AI');
     }
 
-    public function test_order_creation_calculates_exact_total_with_unique_code(): void
+    public function test_order_creation_calculates_exact_total_without_unique_code(): void
     {
         $this->actingAs($this->user);
 
@@ -107,25 +106,25 @@ class PatunganSubscriptionWorkflowTest extends TestCase
 
         $response = $this->post(route('billing.order.store'), [
             'package_id' => $monthlyPkg->id,
-            'payment_method' => 'bca',
+            'payment_method' => 'bca_va',
         ]);
 
         $payment = SubscriptionPayment::where('business_id', $this->business->id)->first();
         $this->assertNotNull($payment);
-        $this->assertEquals(25000, $payment->amount);
-        $this->assertGreaterThanOrEqual(100, $payment->unique_code);
-        $this->assertEquals($payment->amount + $payment->unique_code, $payment->total_payable);
+        $this->assertEquals(29000, $payment->amount);
+        $this->assertEquals(0, $payment->unique_code);
+        $this->assertEquals($payment->amount, $payment->total_payable);
         $this->assertEquals('pending', $payment->status);
 
         $response->assertRedirect(route('billing.payment.show', $payment));
     }
 
-    public function test_proof_upload_sets_awaiting_approval_without_activating_subscription(): void
+    public function test_proof_upload_is_disabled_and_redirects(): void
     {
         $this->actingAs($this->user);
 
         $monthlyPkg = BillingPackage::where('code', 'core-monthly')->firstOrFail();
-        $payment = $this->entitlementService->createPackageOrder($this->business, $this->user, $monthlyPkg, 'bca');
+        $payment = $this->entitlementService->createPackageOrder($this->business, $this->user, $monthlyPkg, 'bca_va');
 
         $fakeProof = UploadedFile::fake()->image('bukti_transfer.jpg');
 
@@ -137,12 +136,13 @@ class PatunganSubscriptionWorkflowTest extends TestCase
             'notes' => 'Patungan bulan ini',
         ]);
 
-        $response->assertRedirect();
-        $payment->refresh();
-        $this->assertEquals('awaiting_approval', $payment->status);
-        $this->assertEquals('Budi Santoso', $payment->sender_account_name);
+        $response->assertRedirect(route('billing.payment.show', $payment));
+        $response->assertSessionHas('info');
 
-        // Verify subscription is STILL FREE (not activated on proof upload!)
+        $payment->refresh();
+        $this->assertEquals('pending', $payment->status);
+
+        // Verify subscription is STILL FREE (not activated!)
         $sub = $this->entitlementService->getSubscription($this->business);
         $this->assertFalse($sub->isCorePlan());
     }

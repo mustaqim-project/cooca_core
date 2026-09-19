@@ -142,7 +142,7 @@ class SubscriptionLifecycleAndNotificationTest extends TestCase
             'price' => 149000,
             'status' => BusinessSubscription::STATUS_ACTIVE,
             'starts_at' => Carbon::now()->subDays(35),
-            'ends_at' => Carbon::now()->subDay(),
+            'ends_at' => Carbon::now()->subDays(4),
         ]);
 
         $this->artisan('cooca:process-subscriptions')

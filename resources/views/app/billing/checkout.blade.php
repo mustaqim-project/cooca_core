@@ -6,7 +6,7 @@
 
 @section('content')
     @php
-        $defaultSelectedCode = $paymentAccounts->first()?->bank_code ?? 'bca';
+        $defaultSelectedCode = $paymentAccounts->first()?->bank_code ?? 'qris';
 
         // Build duration tiers from packages for subscription type
         $durationTiers = [];

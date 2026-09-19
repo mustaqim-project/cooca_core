@@ -885,19 +885,18 @@ final class EntitlementService
         return max(0, (float) SystemSetting::get('storage_topup_price', '50000'));
     }
 
-    public function createTokenTopupOrder(Business $business, User $user, string $paymentMethod = SubscriptionPayment::METHOD_BCA): SubscriptionPayment
+    public function createTokenTopupOrder(Business $business, User $user, string $paymentMethod = SubscriptionPayment::METHOD_QRIS): SubscriptionPayment
     {
         return $this->createTopupOrder($business, $user, 'ai_token', $this->getTokenTopupAmount(), 0, $this->getTokenTopupPrice(), $paymentMethod);
     }
 
-    public function createStorageTopupOrder(Business $business, User $user, string $paymentMethod = SubscriptionPayment::METHOD_BCA): SubscriptionPayment
+    public function createStorageTopupOrder(Business $business, User $user, string $paymentMethod = SubscriptionPayment::METHOD_QRIS): SubscriptionPayment
     {
         return $this->createTopupOrder($business, $user, 'storage', 0, $this->getStorageTopupBytes(), $this->getStorageTopupPrice(), $paymentMethod);
     }
 
     private function createTopupOrder(Business $business, User $user, string $type, int $quantity, int $storageBytes, float $amount, string $paymentMethod): SubscriptionPayment
     {
-        $uniqueCode = random_int(100, 999);
         $orderNumber = $this->nextOrderNumber('TOP-' . date('Ym') . '-');
         return SubscriptionPayment::create([
             'business_id' => $business->id,
@@ -907,11 +906,12 @@ final class EntitlementService
             'plan_code' => 'topup',
             'cycle' => 'one_time',
             'amount' => $amount,
-            'unique_code' => $uniqueCode,
-            'total_payable' => $amount + $uniqueCode,
+            'unique_code' => 0,
+            'total_payable' => $amount,
             'topup_quantity' => $quantity ?: null,
             'topup_storage_bytes' => $storageBytes ?: null,
             'payment_method' => $paymentMethod,
+            'payment_gateway' => SubscriptionPayment::GATEWAY_TRIPAY,
             'status' => SubscriptionPayment::STATUS_PENDING,
         ]);
     }
@@ -1177,22 +1177,8 @@ final class EntitlementService
             }
         }
 
-        $isGateway = in_array($paymentMethod, [
-            SubscriptionPayment::METHOD_QRIS,
-            SubscriptionPayment::METHOD_BCA_VA,
-            SubscriptionPayment::METHOD_MANDIRI_VA,
-            SubscriptionPayment::METHOD_BRI_VA,
-            SubscriptionPayment::METHOD_BNI_VA,
-            SubscriptionPayment::METHOD_PERMATA_VA,
-            SubscriptionPayment::METHOD_INDOMARET,
-            SubscriptionPayment::METHOD_ALFAMART,
-            SubscriptionPayment::METHOD_BCA,
-            SubscriptionPayment::METHOD_MANDIRI,
-            SubscriptionPayment::METHOD_BRI,
-        ], true);
-
-        $uniqueCode = $isGateway ? 0 : random_int(100, 999);
-        $totalPayable = $baseAmount + $uniqueCode;
+        $uniqueCode = 0;
+        $totalPayable = $baseAmount;
 
         // Generate unique order number SUB-YYYYMM-XXXX
         $orderNumber = $this->nextOrderNumber('SUB-' . date('Ym') . '-');
@@ -1211,22 +1197,21 @@ final class EntitlementService
             'package_name' => $packageName,
             'cycle' => $isAnnual ? 'annual' : 'monthly',
             'amount' => $baseAmount,
-            'unique_code' => $uniqueCode,
+            'unique_code' => 0,
             'total_payable' => $totalPayable,
             'payment_method' => $paymentMethod,
-            'payment_gateway' => $isGateway ? SubscriptionPayment::GATEWAY_TRIPAY : SubscriptionPayment::GATEWAY_MANUAL,
+            'payment_gateway' => SubscriptionPayment::GATEWAY_TRIPAY,
             'status' => SubscriptionPayment::STATUS_PENDING,
         ]);
     }
 
-    public function createPackageOrder(Business $business, User $user, BillingPackage $package, string $paymentMethod = SubscriptionPayment::METHOD_BCA): SubscriptionPayment
+    public function createPackageOrder(Business $business, User $user, BillingPackage $package, string $paymentMethod = SubscriptionPayment::METHOD_QRIS): SubscriptionPayment
     {
         // If package is free / promo trial (price <= 0), activate immediately without payment
         if ((float) $package->price <= 0.0) {
             return $this->activateFreePackage($business, $user, $package);
         }
 
-        $uniqueCode = random_int(100, 999);
         $orderNumber = $this->nextOrderNumber('PKG-' . date('Ym') . '-');
         $paymentType = $package->type;
         $isSubscription = $paymentType === BillingPackage::TYPE_SUBSCRIPTION;
@@ -1242,11 +1227,12 @@ final class EntitlementService
             'plan_code' => $isSubscription ? BusinessSubscription::PLAN_CORE_MONTHLY : 'topup',
             'cycle' => $isSubscription ? 'package' : 'one_time',
             'amount' => $package->price,
-            'unique_code' => $uniqueCode,
-            'total_payable' => $package->price + $uniqueCode,
+            'unique_code' => 0,
+            'total_payable' => $package->price,
             'topup_quantity' => $package->token_quantity,
             'topup_storage_bytes' => $package->storage_bytes,
             'payment_method' => $paymentMethod,
+            'payment_gateway' => SubscriptionPayment::GATEWAY_TRIPAY,
             'status' => SubscriptionPayment::STATUS_PENDING,
         ]);
     }

@@ -65,12 +65,13 @@ final class SubscriptionCheckoutWebController extends Controller
             'storage_bytes' => $package->storage_bytes,
         ])->values()->all();
 
-        // Ensure default TriPay payment accounts exist
+        // Ensure default TriPay payment accounts exist and load only TriPay channels
+        $tripayCodes = array_keys(PaymentAccount::getDefaultAccounts());
         foreach (PaymentAccount::getDefaultAccounts() as $account) {
             PaymentAccount::firstOrCreate(['bank_code' => $account['bank_code']], $account);
         }
 
-        $paymentAccounts = PaymentAccount::active()->ordered()->get();
+        $paymentAccounts = PaymentAccount::active()->whereIn('bank_code', $tripayCodes)->ordered()->get();
         $annualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
         $currentUsage = $this->entitlementService->getUsageSummary($business);
 
@@ -110,10 +111,11 @@ final class SubscriptionCheckoutWebController extends Controller
 
         $isFreePackage = $package && (float) $package->price <= 0.0;
 
-        // Get allowed bank codes
-        $validCodes = PaymentAccount::active()->pluck('bank_code')->toArray();
-        $validCodes = array_unique(array_merge($validCodes, array_keys(SubscriptionPayment::PAYMENT_METHODS)));
+        // Get allowed bank codes: Exclusively TriPay channels + Free Promo
+        $tripayCodes = array_keys(PaymentAccount::getDefaultAccounts());
+        $validCodes = PaymentAccount::active()->whereIn('bank_code', $tripayCodes)->pluck('bank_code')->toArray();
         $validCodes[] = SubscriptionPayment::METHOD_FREE_PROMO;
+        $validCodes = array_values(array_unique($validCodes));
 
         $validated = $request->validate([
             'order_type' => ['nullable', 'string', 'in:subscription,ai_token,storage'],
@@ -243,26 +245,7 @@ final class SubscriptionCheckoutWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
 
-        $validated = $request->validate([
-            'payment_proof' => ['required', 'file', 'mimes:jpeg,png,jpg,webp,pdf', 'max:5120'],
-            'sender_bank' => ['nullable', 'string', 'max:64'],
-            'sender_account_name' => ['required', 'string', 'max:128'],
-            'sender_account_number' => ['nullable', 'string', 'max:64'],
-            'notes' => ['nullable', 'string', 'max:500'],
-        ]);
-
-        $this->entitlementService->submitPaymentProof(
-            payment: $payment,
-            file: $request->file('payment_proof'),
-            senderData: [
-                'sender_bank' => $validated['sender_bank'] ?? null,
-                'sender_account_name' => $validated['sender_account_name'],
-                'sender_account_number' => $validated['sender_account_number'] ?? null,
-                'notes' => $validated['notes'] ?? null,
-            ]
-        );
-
-        return back()->with('success', 'Bukti transfer berhasil diunggah! Tim Billing Cooca akan memverifikasi dalam 15-30 menit.');
+        return redirect()->route('billing.payment.show', $payment)->with('info', 'Pembayaran langganan diverifikasi otomatis secara instan oleh TriPay Payment Gateway. Anda tidak perlu mengunggah bukti bayar.');
     }
 
     /**

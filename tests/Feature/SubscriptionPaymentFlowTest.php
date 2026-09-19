@@ -78,7 +78,7 @@ class SubscriptionPaymentFlowTest extends TestCase
         $response->assertSee('QRIS');
     }
 
-    public function test_tenant_can_create_subscription_payment_order_with_unique_code(): void
+    public function test_tenant_can_create_subscription_payment_order_with_zero_unique_code(): void
     {
         $this->actingAs($this->user);
 
@@ -92,12 +92,15 @@ class SubscriptionPaymentFlowTest extends TestCase
         $this->assertNotNull($payment);
         $this->assertTrue(str_starts_with($payment->order_number, 'SUB-') || str_starts_with($payment->order_number, 'PKG-'));
         $this->assertEquals(29000, $payment->amount);
+        $this->assertEquals(0, $payment->unique_code);
+        $this->assertEquals(29000, $payment->total_payable);
+        $this->assertEquals('tripay', $payment->payment_gateway);
         $this->assertEquals('pending', $payment->status);
 
         $response->assertRedirect(route('billing.payment.show', $payment));
     }
 
-    public function test_tenant_can_upload_payment_proof_and_status_becomes_awaiting_approval(): void
+    public function test_manual_proof_upload_is_disabled_and_redirects_with_info_notice(): void
     {
         $this->actingAs($this->user);
 
@@ -106,7 +109,7 @@ class SubscriptionPaymentFlowTest extends TestCase
             business: $this->business,
             user: $this->user,
             cycle: 'monthly',
-            paymentMethod: 'bca'
+            paymentMethod: 'bca_va'
         );
 
         $fakeFile = UploadedFile::fake()->image('struk_bca.jpg');
@@ -119,16 +122,12 @@ class SubscriptionPaymentFlowTest extends TestCase
             'notes' => 'Transfer via BCA Mobile jam 08:30 WIB',
         ]);
 
-        $response->assertRedirect();
-        $response->assertSessionHas('success');
+        $response->assertRedirect(route('billing.payment.show', $payment));
+        $response->assertSessionHas('info');
 
         $payment->refresh();
-        $this->assertEquals('awaiting_approval', $payment->status);
-        $this->assertEquals('Ahmad Dahlan', $payment->sender_account_name);
-        $this->assertNotNull($payment->payment_proof_path);
-        $this->assertNotNull($payment->proof_uploaded_at);
-
-        Storage::disk('local')->assertExists($payment->payment_proof_path);
+        $this->assertEquals('pending', $payment->status);
+        $this->assertNull($payment->payment_proof_path);
     }
 
     public function test_admin_can_view_pending_subscriptions(): void

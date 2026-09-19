@@ -324,7 +324,7 @@ class SubscriptionPayment extends Model
             self::METHOD_QRIS => 'QRIS',
             self::METHOD_BCA_VA, self::METHOD_BCA => 'BCAVA',
             self::METHOD_MANDIRI_VA, self::METHOD_MANDIRI => 'MANDIRIVA',
-            self::METHOD_BRI_VA, self::METHOD_BRI => 'BRIVA',
+            self::METHOD_BRI_VA, self::METHOD_BRI, 'briva' => 'BRIVA',
             self::METHOD_BNI_VA => 'BNIVA',
             self::METHOD_PERMATA_VA => 'PERMATAVA',
             self::METHOD_INDOMARET => 'INDOMARET',
