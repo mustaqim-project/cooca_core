@@ -247,22 +247,31 @@ class MetaSocialMediaClient
     }
 
     /**
-     * Publish Instagram post (Photo, Video, or Reels) using 2-step media container process.
+     * Publish Instagram post (Photo, Video, Reels, or Stories) using 2-step media container process.
      */
     public function publishInstagramPost(string $igUserId, string $pageToken, string $caption, string $mediaUrl, string $mediaType = 'IMAGE'): array
     {
         $normalizedType = strtoupper($mediaType);
         $payload = [
-            'caption'      => $caption,
             'access_token' => $pageToken,
         ];
 
         if ($normalizedType === 'REELS' || $normalizedType === 'VIDEO') {
             $payload['media_type'] = 'REELS';
             $payload['video_url'] = $mediaUrl;
+            $payload['caption'] = $caption;
             $payload['share_to_feed'] = true;
+        } elseif ($normalizedType === 'STORIES' || $normalizedType === 'STORY') {
+            $payload['media_type'] = 'STORIES';
+            // Stories API does NOT accept caption.
+            if (preg_match('/\.(mp4|mov)$/i', $mediaUrl)) {
+                $payload['video_url'] = $mediaUrl;
+            } else {
+                $payload['image_url'] = $mediaUrl;
+            }
         } else {
             $payload['image_url'] = $mediaUrl;
+            $payload['caption'] = $caption;
         }
 
         // Step 1: Create media container
@@ -280,8 +289,8 @@ class MetaSocialMediaClient
 
         // Wait until container status is FINISHED before publishing.
         // Instagram asynchronously downloads media from external URLs.
-        // Calling media_publish prematurely triggers (#9007) "Media ID is not available".
-        $this->waitForMediaContainerReady($creationId, $pageToken);
+        // Reels and video stories may take slightly longer.
+        $this->waitForMediaContainerReady($creationId, $pageToken, maxAttempts: 12, sleepSeconds: 2);
 
         // Step 2: Publish media container
         $publishResponse = Http::asForm()->post($this->endpoint("{$igUserId}/media_publish", $pageToken), [
@@ -295,6 +304,22 @@ class MetaSocialMediaClient
         }
 
         return $publishResponse->json();
+    }
+
+    /**
+     * Publish Instagram Story (Photo or Video).
+     */
+    public function publishInstagramStory(string $igUserId, string $pageToken, string $mediaUrl): array
+    {
+        return $this->publishInstagramPost($igUserId, $pageToken, '', $mediaUrl, 'STORIES');
+    }
+
+    /**
+     * Publish Instagram Reels Video.
+     */
+    public function publishInstagramReels(string $igUserId, string $pageToken, string $caption, string $videoUrl, bool $shareToFeed = true): array
+    {
+        return $this->publishInstagramPost($igUserId, $pageToken, $caption, $videoUrl, 'REELS');
     }
 
     /**
@@ -541,4 +566,155 @@ class MetaSocialMediaClient
 
         return hash_equals($expected, $signatureHeader);
     }
+
+    /**
+     * Fetch complete organic metrics for an Instagram Professional Account.
+     *
+     * @return array<string, mixed>
+     */
+    public function getInstagramAccountMetrics(string $igUserId, string $pageToken): array
+    {
+        $profile = [
+            'id'                  => $igUserId,
+            'username'            => '',
+            'name'                => '',
+            'biography'           => '',
+            'profile_picture_url' => '',
+            'followers_count'     => 0,
+            'follows_count'       => 0,
+            'media_count'         => 0,
+        ];
+        $quotaUsage = 0;
+        $recentMedia = [];
+        $totalLikes = 0;
+        $totalComments = 0;
+        $reelsCount = 0;
+        $feedCount = 0;
+
+        try {
+            // 1. Profile information & follower counts
+            $profRes = Http::timeout(8)->get($this->endpoint($igUserId, $pageToken), [
+                'fields'       => 'id,username,name,biography,profile_picture_url,followers_count,follows_count,media_count',
+                'access_token' => $pageToken,
+            ]);
+
+            if ($profRes->successful()) {
+                $profile = array_merge($profile, (array) $profRes->json());
+            }
+
+            // 2. Content Publishing Limit (25 posts per 24 hours)
+            $limitRes = Http::timeout(6)->get($this->endpoint("{$igUserId}/content_publishing_limit", $pageToken), [
+                'access_token' => $pageToken,
+            ]);
+
+            if ($limitRes->successful()) {
+                $quotaUsage = (int) ($limitRes->json('data.0.quota_usage') ?? 0);
+            }
+
+            // 3. Recent Media Performance (up to 15 items)
+            $mediaRes = Http::timeout(10)->get($this->endpoint("{$igUserId}/media", $pageToken), [
+                'fields'       => 'id,caption,media_type,media_product_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count',
+                'limit'        => 15,
+                'access_token' => $pageToken,
+            ]);
+
+            if ($mediaRes->successful()) {
+                $items = (array) ($mediaRes->json('data') ?? []);
+                foreach ($items as $item) {
+                    $likes = (int) ($item['like_count'] ?? 0);
+                    $comments = (int) ($item['comments_count'] ?? 0);
+                    $prodType = strtoupper((string) ($item['media_product_type'] ?? ''));
+
+                    $totalLikes += $likes;
+                    $totalComments += $comments;
+
+                    if ($prodType === 'REELS') {
+                        $reelsCount++;
+                    } else {
+                        $feedCount++;
+                    }
+
+                    $recentMedia[] = [
+                        'id'                 => $item['id'] ?? '',
+                        'caption'            => $item['caption'] ?? '',
+                        'media_type'         => $item['media_type'] ?? 'IMAGE',
+                        'media_product_type' => $prodType ?: 'FEED',
+                        'media_url'          => $item['media_url'] ?? '',
+                        'thumbnail_url'      => $item['thumbnail_url'] ?? ($item['media_url'] ?? ''),
+                        'permalink'          => $item['permalink'] ?? '',
+                        'timestamp'          => $item['timestamp'] ?? '',
+                        'like_count'         => $likes,
+                        'comments_count'     => $comments,
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Failed fetching Instagram account metrics', ['error' => $e->getMessage()]);
+        }
+
+        $followers = (int) ($profile['followers_count'] ?? 0);
+        $totalInteractions = $totalLikes + $totalComments;
+        $engagementRate = $followers > 0 ? round(($totalInteractions / $followers) * 100, 2) : 0.0;
+
+        return [
+            'profile'            => $profile,
+            'quota_usage'        => $quotaUsage,
+            'quota_max'          => 25,
+            'quota_remaining'    => max(0, 25 - $quotaUsage),
+            'recent_media'       => $recentMedia,
+            'total_likes'        => $totalLikes,
+            'total_comments'     => $totalComments,
+            'total_interactions' => $totalInteractions,
+            'reels_count'        => $reelsCount,
+            'feed_count'         => $feedCount,
+            'engagement_rate'    => $engagementRate,
+        ];
+    }
+
+    /**
+     * Fetch complete organic metrics for a Facebook Page.
+     *
+     * @return array<string, mixed>
+     */
+    public function getFacebookPageMetrics(string $pageId, string $pageToken): array
+    {
+        $page = [
+            'id'                  => $pageId,
+            'name'                => 'Cooca Indonesia',
+            'fan_count'           => 0,
+            'followers_count'     => 0,
+            'talking_about_count' => 0,
+            'category'            => 'Technology',
+        ];
+        $recentPosts = [];
+
+        try {
+            $pageRes = Http::timeout(8)->get($this->endpoint($pageId, $pageToken), [
+                'fields'       => 'id,name,fan_count,followers_count,talking_about_count,category',
+                'access_token' => $pageToken,
+            ]);
+
+            if ($pageRes->successful()) {
+                $page = array_merge($page, (array) $pageRes->json());
+            }
+
+            $feedRes = Http::timeout(8)->get($this->endpoint("{$pageId}/feed", $pageToken), [
+                'fields'       => 'id,message,created_time,shares',
+                'limit'        => 5,
+                'access_token' => $pageToken,
+            ]);
+
+            if ($feedRes->successful()) {
+                $recentPosts = (array) ($feedRes->json('data') ?? []);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Failed fetching Facebook page metrics', ['error' => $e->getMessage()]);
+        }
+
+        return [
+            'page'         => $page,
+            'recent_posts' => $recentPosts,
+        ];
+    }
 }
+

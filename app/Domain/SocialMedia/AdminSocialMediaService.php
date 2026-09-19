@@ -268,7 +268,7 @@ class AdminSocialMediaService
                 'social_media_account_id' => null,
                 'provider'                => in_array($channel, ['facebook', 'instagram', 'threads'], true) ? 'meta' : 'tiktok',
                 'channel'                 => $channel,
-                'content_type'            => in_array($mediaType, ['video', 'reels']) ? 'video' : 'photo',
+                'content_type'            => $mediaType === 'reels' ? 'reels' : ($mediaType === 'story' ? 'story' : (in_array($mediaType, ['video']) ? 'video' : 'photo')),
                 'custom_caption'          => null,
                 'status'                  => $isTargetScheduled ? 'scheduled' : 'pending',
                 'scheduled_at'            => $isTargetScheduled ? $channelSchedTime : null,
@@ -307,7 +307,7 @@ class AdminSocialMediaService
 
             if ($target->channel === 'instagram') {
                 $igUserId = (string) (SystemSetting::get('instagram_account_id') ?: SystemSetting::get('instagram_graph_user_id') ?: 'me');
-                $igToken = (string) (SystemSetting::get('instagram_access_token') ?: SystemSetting::get('social_media_app_token', ''));
+                $igToken = (string) (SystemSetting::get('instagram_access_token') ?: SystemSetting::get('social_media_page_token', SystemSetting::get('social_media_app_token', '')));
 
                 if (empty($igToken)) {
                     throw new \RuntimeException('Token Akses Instagram Platform Cooca belum dikonfigurasi di Pengaturan.');
@@ -316,8 +316,14 @@ class AdminSocialMediaService
                     throw new \InvalidArgumentException('Instagram mewajibkan minimal 1 URL media (foto atau video).');
                 }
 
-                $igType = in_array($post->media_type, ['video', 'reels']) ? 'REELS' : 'IMAGE';
-                $res = $this->metaClient->publishInstagramPost($igUserId, $igToken, $content, $firstMediaUrl, $igType);
+                if ($post->media_type === 'story') {
+                    $res = $this->metaClient->publishInstagramStory($igUserId, $igToken, $firstMediaUrl);
+                } elseif ($post->media_type === 'reels') {
+                    $res = $this->metaClient->publishInstagramReels($igUserId, $igToken, $content, $firstMediaUrl);
+                } else {
+                    $igType = in_array($post->media_type, ['video']) ? 'VIDEO' : 'IMAGE';
+                    $res = $this->metaClient->publishInstagramPost($igUserId, $igToken, $content, $firstMediaUrl, $igType);
+                }
                 $platformPostId = (string) ($res['id'] ?? '');
             } elseif ($target->channel === 'facebook') {
                 $fbPageId = (string) SystemSetting::get('social_media_page_id', '');
@@ -327,10 +333,15 @@ class AdminSocialMediaService
                     throw new \RuntimeException('Token Halaman Facebook Platform belum dikonfigurasi.');
                 }
 
-                if (! empty($firstMediaUrl)) {
+                if (in_array($post->media_type, ['video', 'reels']) && ! empty($firstMediaUrl)) {
+                    $res = $this->metaClient->publishFacebookVideo($fbPageId, $fbPageToken, $content, $firstMediaUrl, 'Cooca Official Video');
+                    $platformPostId = (string) ($res['id'] ?? '');
+                } elseif (! empty($firstMediaUrl)) {
                     $res = $this->metaClient->publishPagePhoto($fbPageId, $fbPageToken, $content, $firstMediaUrl);
+                    $platformPostId = (string) ($res['id'] ?? $res['post_id'] ?? '');
                 } else {
                     $res = $this->metaClient->publishPageFeed($fbPageId, $fbPageToken, $content);
+                    $platformPostId = (string) ($res['id'] ?? $res['post_id'] ?? '');
                 }
                 $platformPostId = (string) ($res['id'] ?? $res['post_id'] ?? '');
             } elseif ($target->channel === 'threads') {
@@ -401,7 +412,7 @@ class AdminSocialMediaService
 
             if ($post->platform === 'instagram') {
                 $igUserId = (string) (SystemSetting::get('instagram_account_id') ?: SystemSetting::get('instagram_graph_user_id') ?: 'me');
-                $igToken = (string) (SystemSetting::get('instagram_access_token') ?: SystemSetting::get('social_media_app_token', ''));
+                $igToken = (string) (SystemSetting::get('instagram_access_token') ?: SystemSetting::get('social_media_page_token', SystemSetting::get('social_media_app_token', '')));
 
                 if (empty($igToken)) {
                     throw new \RuntimeException('Token Akses Instagram Platform Cooca belum dikonfigurasi di Pengaturan.');
@@ -410,8 +421,14 @@ class AdminSocialMediaService
                     throw new \InvalidArgumentException('Instagram mewajibkan minimal 1 URL media (foto atau video).');
                 }
 
-                $igType = in_array($post->media_type, ['video', 'reels']) ? 'REELS' : 'IMAGE';
-                $res = $this->metaClient->publishInstagramPost($igUserId, $igToken, $post->content, $firstMediaUrl, $igType);
+                if ($post->media_type === 'story') {
+                    $res = $this->metaClient->publishInstagramStory($igUserId, $igToken, $firstMediaUrl);
+                } elseif ($post->media_type === 'reels') {
+                    $res = $this->metaClient->publishInstagramReels($igUserId, $igToken, $post->content, $firstMediaUrl);
+                } else {
+                    $igType = in_array($post->media_type, ['video']) ? 'VIDEO' : 'IMAGE';
+                    $res = $this->metaClient->publishInstagramPost($igUserId, $igToken, $post->content, $firstMediaUrl, $igType);
+                }
                 $platformPostId = (string) ($res['id'] ?? '');
             } elseif ($post->platform === 'facebook') {
                 $fbPageId = (string) SystemSetting::get('social_media_page_id', '');
@@ -421,12 +438,16 @@ class AdminSocialMediaService
                     throw new \RuntimeException('Token Halaman Facebook Platform belum dikonfigurasi.');
                 }
 
-                if (! empty($firstMediaUrl)) {
+                if (in_array($post->media_type, ['video', 'reels']) && ! empty($firstMediaUrl)) {
+                    $res = $this->metaClient->publishFacebookVideo($fbPageId, $fbPageToken, $post->content, $firstMediaUrl, 'Cooca Official Video');
+                    $platformPostId = (string) ($res['id'] ?? '');
+                } elseif (! empty($firstMediaUrl)) {
                     $res = $this->metaClient->publishPagePhoto($fbPageId, $fbPageToken, $post->content, $firstMediaUrl);
+                    $platformPostId = (string) ($res['id'] ?? $res['post_id'] ?? '');
                 } else {
                     $res = $this->metaClient->publishPageFeed($fbPageId, $fbPageToken, $post->content);
+                    $platformPostId = (string) ($res['id'] ?? $res['post_id'] ?? '');
                 }
-                $platformPostId = (string) ($res['id'] ?? $res['post_id'] ?? '');
             } elseif ($post->platform === 'threads') {
                 $threadsUserId = (string) SystemSetting::get('threads_user_id', '');
                 $threadsToken = (string) SystemSetting::get('threads_access_token', '');
@@ -554,4 +575,45 @@ class AdminSocialMediaService
             'created_time'            => now(),
         ]);
     }
+
+    /**
+     * Get aggregated organic analytics for official platform channels (Instagram & Facebook Page).
+     *
+     * @return array<string, mixed>
+     */
+    public function getPlatformAnalytics(bool $forceRefresh = false): array
+    {
+        $cacheKey = 'admin_platform_social_analytics_v2';
+
+        if ($forceRefresh) {
+            \Illuminate\Support\Facades\Cache::forget($cacheKey);
+        }
+
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 600, function () {
+            $igUserId = (string) (SystemSetting::get('instagram_account_id') ?: SystemSetting::get('instagram_graph_user_id') ?: '17841439846162016');
+            $igToken = (string) (SystemSetting::get('instagram_access_token') ?: SystemSetting::get('social_media_page_token', ''));
+
+            $fbPageId = (string) SystemSetting::get('social_media_page_id', '1340316975827711');
+            $fbPageToken = (string) SystemSetting::get('social_media_page_token', '');
+
+            $igMetrics = ! empty($igToken) ? $this->metaClient->getInstagramAccountMetrics($igUserId, $igToken) : [];
+            $fbMetrics = ! empty($fbPageToken) ? $this->metaClient->getFacebookPageMetrics($fbPageId, $fbPageToken) : [];
+
+            $dbPosts = SocialMediaPost::query()
+                ->where(function ($q) {
+                    $q->where('is_platform', true)->orWhereNull('business_id');
+                });
+
+            return [
+                'instagram'          => $igMetrics,
+                'facebook'           => $fbMetrics,
+                'total_db_posts'     => (clone $dbPosts)->count(),
+                'published_db_posts' => (clone $dbPosts)->where('status', 'published')->count(),
+                'scheduled_db_posts' => (clone $dbPosts)->where('status', 'scheduled')->count(),
+                'failed_db_posts'    => (clone $dbPosts)->where('status', 'failed')->count(),
+                'refreshed_at'       => now()->toIso8601String(),
+            ];
+        });
+    }
 }
+

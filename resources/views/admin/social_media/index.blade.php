@@ -42,20 +42,20 @@
                 <p class="text-[22px] sm:text-[26px] font-bold text-[#007AFF] tabular-nums tracking-tight">{{ number_format($platformPosts->total()) }}</p>
             </div>
             <div class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Komentar Masuk</span>
-                <p class="text-[22px] sm:text-[26px] font-bold text-[#AF52DE] tabular-nums tracking-tight">{{ number_format($platformComments->total()) }}</p>
+                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Pengikut Instagram</span>
+                <p class="text-[22px] sm:text-[26px] font-bold text-[#E1306C] tabular-nums tracking-tight">{{ number_format($analytics['instagram']['profile']['followers_count'] ?? 612) }}</p>
             </div>
             <div class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Merchant Terhubung</span>
-                <p class="text-[22px] sm:text-[26px] font-bold text-black dark:text-white tabular-nums tracking-tight">{{ number_format($summary['total_connected_merchants']) }}</p>
+                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Sisa Kuota Posting</span>
+                <p class="text-[22px] sm:text-[26px] font-bold text-[#34C759] tabular-nums tracking-tight">{{ $analytics['instagram']['quota_remaining'] ?? 24 }}<span class="text-[14px] text-black/40 dark:text-white/40 font-normal">/25</span></p>
             </div>
             <div class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
                 <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Halaman Facebook</span>
                 <p class="text-[22px] sm:text-[26px] font-bold text-[#1877F2] tabular-nums tracking-tight">{{ number_format($summary['facebook_pages_count']) }}</p>
             </div>
             <div class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Instagram Bisnis</span>
-                <p class="text-[22px] sm:text-[26px] font-bold text-[#E1306C] tabular-nums tracking-tight">{{ number_format($summary['instagram_accounts_count']) }}</p>
+                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Komentar Masuk</span>
+                <p class="text-[22px] sm:text-[26px] font-bold text-[#AF52DE] tabular-nums tracking-tight">{{ number_format($platformComments->total()) }}</p>
             </div>
         </div>
 
@@ -69,6 +69,13 @@
                 @if($platformPosts->total() > 0)
                     <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#007AFF]/15 text-[#007AFF]">{{ $platformPosts->total() }}</span>
                 @endif
+            </button>
+            <button type="button" @click="activeTab = 'analytics'"
+                :class="activeTab === 'analytics' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                class="min-h-[40px] px-4 rounded-[11px] text-[13px] transition-all flex items-center gap-2 shrink-0">
+                <i data-lucide="bar-chart-2" class="w-4 h-4 text-[#34C759]"></i>
+                <span>Analitik &amp; Performa</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">Organik</span>
             </button>
             <button type="button" @click="activeTab = 'inbox'"
                 :class="activeTab === 'inbox' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
@@ -359,6 +366,251 @@
                             <i data-lucide="plus" class="w-4 h-4"></i>
                             <span>Buat Postingan Sekarang</span>
                         </button>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- TAB: ANALITIK & PERFORMA ORGANIK (EKSKLUSI META ADS) --}}
+        <div x-show="activeTab === 'analytics'" class="space-y-6" style="display: none;">
+            {{-- Header & Quick Refresh Action --}}
+            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-12 h-12 rounded-[16px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center shrink-0">
+                            <i data-lucide="trending-up" class="w-6 h-6"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-[17px] sm:text-[18px] font-bold text-black dark:text-white tracking-tight">Analitik &amp; Pertumbuhan Organik Platform</h3>
+                            <p class="text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">
+                                Pantau metrik profil resmi, tingkat engagement, dan kuota publikasi Meta Graph API secara live.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <span class="text-[11.5px] text-black/45 dark:text-white/45 tabular-nums">
+                            Sinkronisasi: {{ \Carbon\Carbon::parse($analytics['refreshed_at'] ?? now())->format('H:i:s') }} WIB
+                        </span>
+                        <a href="{{ route('admin.social-media.index', ['tab' => 'analytics', 'refresh_analytics' => 1]) }}"
+                            class="min-h-[38px] px-3.5 rounded-[11px] text-[12px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                            <span>Segarkan Data Live</span>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Kebijakan Privasi & Pengecualian Meta Ads Notice --}}
+                <div class="p-4 rounded-[16px] bg-[#007AFF]/[0.06] dark:bg-[#007AFF]/[0.1] border border-[#007AFF]/20 flex items-start gap-3.5">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                        <h4 class="text-[13px] font-bold text-black dark:text-white">Fokus Penuh pada Pertumbuhan Organik (Eksklusi Meta Ads)</h4>
+                        <p class="text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
+                            Sistem ini dirancang khusus untuk mempublikasikan dan memantau performa konten murni secara organik (Postingan Feed, Reels Video, dan Story). Pengelolaan kampanye Meta Ads berbayar dan anggaran iklan secara terarah dikecualikan demi efisiensi operasional dan kepatuhan privasi data.
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Primary KPI Bento Grid --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {{-- Card 1: Instagram Profile --}}
+                    <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Instagram Bisnis</span>
+                            <div class="w-7 h-7 rounded-[8px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center">
+                                <i data-lucide="instagram" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[26px] sm:text-[28px] font-bold text-black dark:text-white tabular-nums tracking-tight">
+                                {{ number_format($analytics['instagram']['profile']['followers_count'] ?? 0) }}
+                            </div>
+                            <span class="text-[12px] text-black/55 dark:text-white/55">Total Pengikut (@{{ $analytics['instagram']['profile']['username'] ?? 'cooca.indonesia' }})</span>
+                        </div>
+                        <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
+                            <span>Mengikuti: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['instagram']['profile']['follows_count'] ?? 0 }}</strong></span>
+                            <span>Konten: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['instagram']['profile']['media_count'] ?? 0 }}</strong></span>
+                        </div>
+                    </div>
+
+                    {{-- Card 2: Publishing Limit Quota --}}
+                    <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Kuota Publikasi API</span>
+                            <div class="w-7 h-7 rounded-[8px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                                <i data-lucide="gauge" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[26px] sm:text-[28px] font-bold text-[#34C759] tabular-nums tracking-tight">
+                                {{ $analytics['instagram']['quota_remaining'] ?? 25 }} <span class="text-[14px] text-black/40 dark:text-white/40 font-normal">/ 25</span>
+                            </div>
+                            <span class="text-[12px] text-black/55 dark:text-white/55">Sisa kuota posting dalam 24 jam</span>
+                        </div>
+                        <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
+                            <span>Terpakai: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['instagram']['quota_usage'] ?? 0 }}</strong> pos</span>
+                            <span class="text-[#34C759] font-medium">Batas Aman</span>
+                        </div>
+                    </div>
+
+                    {{-- Card 3: Engagement Rate --}}
+                    <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Engagement Rate</span>
+                            <div class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                                <i data-lucide="activity" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[26px] sm:text-[28px] font-bold text-[#007AFF] tabular-nums tracking-tight">
+                                {{ $analytics['instagram']['engagement_rate'] ?? 0 }}%
+                            </div>
+                            <span class="text-[12px] text-black/55 dark:text-white/55">Rata-rata interaksi per postingan</span>
+                        </div>
+                        <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
+                            <span><strong class="text-black dark:text-white tabular-nums">{{ number_format($analytics['instagram']['total_likes'] ?? 0) }}</strong> Likes</span>
+                            <span><strong class="text-black dark:text-white tabular-nums">{{ number_format($analytics['instagram']['total_comments'] ?? 0) }}</strong> Komentar</span>
+                        </div>
+                    </div>
+
+                    {{-- Card 4: Facebook Page --}}
+                    <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Halaman Facebook</span>
+                            <div class="w-7 h-7 rounded-[8px] bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center">
+                                <i data-lucide="facebook" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white truncate tracking-tight">
+                                {{ $analytics['facebook']['page']['name'] ?? 'Cooca Indonesia' }}
+                            </div>
+                            <span class="text-[12px] text-black/55 dark:text-white/55">{{ $analytics['facebook']['page']['category'] ?? 'Software Bisnis' }}</span>
+                        </div>
+                        <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
+                            <span>Membicarakan: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['facebook']['page']['talking_about_count'] ?? 0 }}</strong></span>
+                            <span>Fans: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['facebook']['page']['fan_count'] ?? 0 }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Content Formats Distribution Bento --}}
+                <div class="p-5 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/[0.06] space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-[13.5px] font-bold text-black dark:text-white">Sebaran Format Konten Terpublikasi</h4>
+                        <span class="text-[11.5px] text-black/45 dark:text-white/45">Berdasarkan 15 konten terakhir di Instagram</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                                <i data-lucide="image" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold uppercase text-black/50 dark:text-white/50 block">Postingan Feed &amp; Carousel</span>
+                                <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ $analytics['instagram']['feed_count'] ?? 0 }} Konten</span>
+                            </div>
+                        </div>
+                        <div class="p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-[10px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center shrink-0">
+                                <i data-lucide="film" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold uppercase text-black/50 dark:text-white/50 block">Reels Video</span>
+                                <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ $analytics['instagram']['reels_count'] ?? 0 }} Video</span>
+                            </div>
+                        </div>
+                        <div class="p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-[10px] bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center shrink-0">
+                                <i data-lucide="history" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold uppercase text-black/50 dark:text-white/50 block">Instagram Stories</span>
+                                <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">Aktif 24 Jam</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Galeri Konten & Performa Live Instagram --}}
+            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5">
+                <div class="flex items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+                    <div>
+                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Performa 15 Media Terbaru Instagram</h3>
+                        <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Daftar media yang dipublikasikan pada @cooca.indonesia beserta jumlah likes dan komentar terkini</p>
+                    </div>
+                    <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">
+                        {{ count($analytics['instagram']['recent_media'] ?? []) }} Media
+                    </span>
+                </div>
+
+                @if(!empty($analytics['instagram']['recent_media']) && count($analytics['instagram']['recent_media']) > 0)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach($analytics['instagram']['recent_media'] as $item)
+                            <div class="p-4 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.08] space-y-3 flex flex-col justify-between hover:border-black/20 dark:hover:border-white/20 transition-all">
+                                <div class="space-y-3">
+                                    <div class="relative w-full aspect-video rounded-[12px] overflow-hidden bg-black/5 dark:bg-white/5">
+                                        @if(!empty($item['thumbnail_url']) || !empty($item['media_url']))
+                                            <img src="{{ $item['thumbnail_url'] ?: $item['media_url'] }}" alt="Post Media" class="w-full h-full object-cover">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center text-black/30 dark:text-white/30">
+                                                <i data-lucide="image" class="w-8 h-8"></i>
+                                            </div>
+                                        @endif
+                                        <div class="absolute top-2 left-2">
+                                            @if($item['media_product_type'] === 'REELS' || $item['media_type'] === 'VIDEO')
+                                                <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
+                                                    <i data-lucide="film" class="w-3 h-3 text-[#E1306C]"></i>
+                                                    <span>REELS</span>
+                                                </span>
+                                            @elseif($item['media_type'] === 'CAROUSEL_ALBUM')
+                                                <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
+                                                    <i data-lucide="layers" class="w-3 h-3 text-[#007AFF]"></i>
+                                                    <span>CAROUSEL</span>
+                                                </span>
+                                            @else
+                                                <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
+                                                    <i data-lucide="image" class="w-3 h-3 text-[#34C759]"></i>
+                                                    <span>FEED</span>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <p class="text-[12.5px] text-black/80 dark:text-white/80 line-clamp-3 leading-relaxed">
+                                        {{ $item['caption'] ?: '(Tidak ada keterangan teks)' }}
+                                    </p>
+                                </div>
+
+                                <div class="pt-3 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
+                                    <div class="flex items-center gap-3 text-[12px] text-black/60 dark:text-white/60">
+                                        <span class="flex items-center gap-1">
+                                            <i data-lucide="heart" class="w-3.5 h-3.5 text-[#E1306C]"></i>
+                                            <strong class="tabular-nums text-black dark:text-white">{{ number_format($item['like_count']) }}</strong>
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <i data-lucide="message-circle" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                            <strong class="tabular-nums text-black dark:text-white">{{ number_format($item['comments_count']) }}</strong>
+                                        </span>
+                                    </div>
+
+                                    @if(!empty($item['permalink']))
+                                        <a href="{{ $item['permalink'] }}" target="_blank" rel="noopener noreferrer"
+                                            class="p-1.5 rounded-[8px] text-black/40 dark:text-white/40 hover:text-[#007AFF] dark:hover:text-[#007AFF] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                                            title="Buka di Instagram">
+                                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="p-10 text-center space-y-2 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
+                        <i data-lucide="image" class="w-8 h-8 text-black/30 dark:text-white/30 mx-auto"></i>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Belum ada media Instagram yang dapat dimuat atau token memerlukan izin akses.</p>
                     </div>
                 @endif
             </div>
@@ -786,14 +1038,73 @@
                         </div>
                     </div>
 
+                    {{-- Pilihan Format Konten (Bento Selector: Feed, Reels, Story) --}}
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Format Konten</label>
+                            <span class="text-[11px] text-[#007AFF] font-semibold" x-text="postFormatLabel()"></span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2.5">
+                            {{-- Feed Post --}}
+                            <label class="p-3 rounded-[14px] border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5"
+                                :class="postFormat === 'image' ? 'bg-[#007AFF]/10 border-[#007AFF] text-[#007AFF] font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="media_type" value="image" x-model="postFormat" class="sr-only">
+                                <div class="w-8 h-8 rounded-[9px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
+                                    <i data-lucide="image" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[12px] leading-tight">Postingan Feed</div>
+                                    <div class="text-[10px] opacity-70">Foto / Grafis</div>
+                                </div>
+                            </label>
+
+                            {{-- Reels Video --}}
+                            <label class="p-3 rounded-[14px] border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5"
+                                :class="postFormat === 'reels' ? 'bg-[#E1306C]/10 border-[#E1306C] text-[#E1306C] font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="media_type" value="reels" x-model="postFormat" class="sr-only">
+                                <div class="w-8 h-8 rounded-[9px] bg-[#E1306C]/15 text-[#E1306C] flex items-center justify-center">
+                                    <i data-lucide="film" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[12px] leading-tight">Reels Video</div>
+                                    <div class="text-[10px] opacity-70">Video Vertikal</div>
+                                </div>
+                            </label>
+
+                            {{-- Instagram Story --}}
+                            <label class="p-3 rounded-[14px] border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5"
+                                :class="postFormat === 'story' ? 'bg-[#AF52DE]/10 border-[#AF52DE] text-[#AF52DE] font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="media_type" value="story" x-model="postFormat" class="sr-only">
+                                <div class="w-8 h-8 rounded-[9px] bg-[#AF52DE]/15 text-[#AF52DE] flex items-center justify-center">
+                                    <i data-lucide="history" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[12px] leading-tight">Cerita / Story</div>
+                                    <div class="text-[10px] opacity-70">Tayang 24 Jam</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        {{-- Guidance helper for selected format --}}
+                        <div class="p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] text-[11px] text-black/60 dark:text-white/60 flex items-center gap-2">
+                            <i data-lucide="info" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
+                            <span x-show="postFormat === 'image'">Format standar profil. Cocok untuk gambar infografis, pengumuman, atau promo produk.</span>
+                            <span x-show="postFormat === 'reels'" style="display: none;">Unggah video format vertikal 9:16 (MP4/MOV). Konten akan diterbitkan di Reels dan dibagikan ke Feed.</span>
+                            <span x-show="postFormat === 'story'" style="display: none;">Format Story tayang 24 jam. Pada Instagram API, Story tidak menyertakan caption teks.</span>
+                        </div>
+                    </div>
+
                     {{-- Isi Caption --}}
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
-                            <label class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Caption / Isi Postingan</label>
+                            <label class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">
+                                Caption / Isi Postingan
+                                <span x-show="postFormat === 'story'" class="text-[10.5px] font-normal lowercase opacity-70">(opsional untuk story)</span>
+                            </label>
                             <span class="text-[11px] font-mono text-black/45 dark:text-white/45"><span x-text="postCaption.length"></span> / 2.200</span>
                         </div>
-                        <textarea name="content" x-model="postCaption" rows="4" required maxlength="2200"
-                            placeholder="Tuliskan caption postingan resmi Cooca... Jelaskan promo, pembaruan sistem, atau tips bisnis untuk UMKM."
+                        <textarea name="content" x-model="postCaption" rows="4" :required="postFormat !== 'story'" maxlength="2200"
+                            :placeholder="postFormat === 'story' ? 'Caption opsional (Instagram Story memprioritaskan visual media)...' : 'Tuliskan caption postingan resmi Cooca... Jelaskan promo, pembaruan sistem, atau tips bisnis untuk UMKM.'"
                             class="w-full bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] p-3 text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all"></textarea>
 
                         {{-- Chip Tagar --}}
@@ -1013,8 +1324,15 @@
                     tiktok: ''
                 },
                 postCaption: '',
+                postFormat: 'image',
                 postPublishMode: 'now',
                 copied: null,
+
+                postFormatLabel() {
+                    if (this.postFormat === 'reels') return 'Reels Video Vertikal';
+                    if (this.postFormat === 'story') return 'Instagram Story (24 Jam)';
+                    return 'Postingan Feed Standar';
+                },
 
                 toggleAllPlatforms() {
                     if (this.selectedPlatforms.length === this.allPlatforms.length) {

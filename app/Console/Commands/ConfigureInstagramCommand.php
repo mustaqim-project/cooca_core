@@ -30,15 +30,15 @@ class ConfigureInstagramCommand extends Command
         SystemSetting::set('instagram_account_id', '17841439846162016', 'social_media');
         SystemSetting::set('instagram_graph_user_id', '28475871372070145', 'social_media');
         SystemSetting::set('instagram_username', 'cooca.indonesia', 'social_media');
-        SystemSetting::set('instagram_access_token', 'IGAAZAxCIOsPiZABZAGFuUnVkMjh3bXFPSUJMM1M5YVdNdXAzNnd5Mm1qWnVLNUl0c0dLYnNCMmRPWFN6OTFYUjhiLWl3WFFjS2pISXBMMWRjSUZAXMzBwT2ZA2Q2hVN1FfZA0t5RDA0ZAWEyUEJYNEVmRTREN1BXbGt6OUR0bVdSOWZAIdwZDZD', 'social_media', isSecret: true);
+        SystemSetting::set('instagram_access_token', 'EAAUrMrnYomIBSnHFS1cqo1lWu4ASkv40YKkkZC7GRsejz4bEwKwwKDYlMpmrig9HsNfPB4zrY72exKIkGpgum5QIU1vw5sJOLqwjah14557GKCIBjdM87XXMFHwcWOiynb7fOt99eRwDuRbmCAKMrBjixqjbyPbK22hZAoNrIZCuKD4mVmAsvED3DyofQhZCvxBLR3g33D7AcRwXUcANPtBX4cWQflpSMENxwpuqAy233n5ZABN0MX6XLZBq0ZD', 'social_media', isSecret: true);
         SystemSetting::set('instagram_status', 'active', 'social_media');
         SystemSetting::set('instagram_verified_at', now()->toIso8601String(), 'social_media');
 
         // Facebook Official Page Settings (Cooca Indonesia)
-        SystemSetting::set('social_media_app_token', 'EAAUrMrnYomIBSkhDNZCNn1G3xl2cZC8hWEPeW8JWWTSTmTqZC8CZBue46fZCXOe0MbZBSqPDFsOZCB8vqwx18wA7r7Ps7PBNHFo9fDRjVOWNI5zTWkrM8sGyGitpXTHa5Qka86uoiORUZBeMtO3uosVoZA9JHGTwWFGUdHZBluHzxT7wV4kE6NMZCWQ6kGFEEhTCloacwZDZD', 'social_media', isSecret: true);
+        SystemSetting::set('social_media_app_token', 'EAAUrMrnYomIBSgRg9vc9IWZB2GacTjr2YQ5Na12pdJvmpVPr5yD0KgtfanHsICHwMPyB6XVuqrLcr1ZCHPFQNjheRBhZA4Y9aBh3RX80Wq2pArLdlq2taM1ZBFFrs9Uq5xvmwz3QeiRAUaGx4wS95sNCbdNxav8HP3FpG1XsQqzZBybGIfNelXFH41YXTc2clzCg9HZCZCEoxf4XZCEgzeTQDuzzD0gqIMQZAgZAO3VqAGMYX2EDQGe1f5', 'social_media', isSecret: true);
         SystemSetting::set('social_media_page_id', '1340316975827711', 'social_media');
         SystemSetting::set('social_media_page_name', 'Cooca Indonesia', 'social_media');
-        SystemSetting::set('social_media_page_token', 'EAAUrMrnYomIBSnmQvQYJZANBTnhStlxZBEkXpZAblx2jVe1q4m4EfZAOMsK4Xas2ZCsV4CqnxCugEv0EMM2ihA7Ut5gJyPS0spHv2a9riMqu4fsjiNjrtxYxxZBrk07wE3b2JgpaFrGZAKMOJHFTUhboK5uZCarNBaU2nVfAGJCAeZB4BxoUw3PhTBtwarTJZBoy2RTgLvkkfz', 'social_media', isSecret: true);
+        SystemSetting::set('social_media_page_token', 'EAAUrMrnYomIBSnHFS1cqo1lWu4ASkv40YKkkZC7GRsejz4bEwKwwKDYlMpmrig9HsNfPB4zrY72exKIkGpgum5QIU1vw5sJOLqwjah14557GKCIBjdM87XXMFHwcWOiynb7fOt99eRwDuRbmCAKMrBjixqjbyPbK22hZAoNrIZCuKD4mVmAsvED3DyofQhZCvxBLR3g33D7AcRwXUcANPtBX4cWQflpSMENxwpuqAy233n5ZABN0MX6XLZBq0ZD', 'social_media', isSecret: true);
         SystemSetting::set('social_media_page_status', 'active', 'social_media');
 
         // Threads Official Platform Settings (cooca.indonesia)

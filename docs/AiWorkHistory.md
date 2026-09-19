@@ -46,6 +46,59 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-19-089] Instagram Reels & Stories Publishing Engine, Live Organic Analytics Cockpit, API Quota Safeguard, and Explicit Meta Ads Exclusion
+* **Date:** 2026-09-19
+* **Status:** COMPLETED
+* **Module:** Social Media Platform Admin Center, Meta Graph API v21.0, Instagram Professional, Facebook Pages
+* **Feature:** Implementasi penerbitan Reels Video vertikal (`media_type=REELS`), Instagram Stories (`media_type=STORIES`), integrasi token Meta Graph API terbaru dengan Page Access Token permanen, dasbor Bento Apple HIG untuk Analitik & Performa Organik real-time (Followers, Engagement Rate, Kuota API 25/hari, Galeri 15 Konten Terkini), serta penegasan arsitektural pengecualian Meta Ads berbayar (Zero Paid Ads Management).
+* **Work Type:** Feature | API Integration | UI/UX (Bento Apple HIG) | Analytics | Security & Privacy Compliance
+
+#### 1. Business Context & Objective
+* **Konteks:** Tim marketing dan administrator membutuhkan kemampuan untuk menerbitkan konten format modern (Reels Video vertikal dan Instagram Story 24 jam) serta memantau pertumbuhan pengikut dan jangkauan engagement secara organik langsung dari cockpit Admin Cooca tanpa harus berganti tab atau aplikasi eksternal. Pengguna secara spesifik menginstruksikan untuk tidak mengelola Meta Ads berbayar.
+* **Masalah/Target:**
+  1. Mendukung format penerbitan Reels Video dengan transkoding asynchronous dan Story tanpa caption error.
+  2. Menerapkan User Access Token dan Page Access Token resmi Meta yang baru untuk Cooca Indonesia.
+  3. Menyediakan tab Analitik & Performa terpadu yang menampilkan metrik live akun Instagram & Facebook Page.
+  4. Menjaga batas kuota penerbitan Meta API (maksimum 25 konten per 24 jam) secara transparan.
+  5. Menegaskan kebijakan nol Meta Ads demi privasi, keamanan, dan efisiensi operasional.
+
+#### 2. What Was Done
+* Memperbarui `ConfigureInstagramCommand` dengan User Token dan Page Access Token terbaru.
+* Memperluas `MetaSocialMediaClient` dengan method `publishInstagramStory`, `publishInstagramReels`, `getInstagramAccountMetrics`, dan `getFacebookPageMetrics`.
+* Menyesuaikan `AdminSocialMediaService` untuk menangani routing `story` dan `reels` ke target Instagram & Facebook Page, serta menambahkan caching analitik `getPlatformAnalytics()`.
+* Memperbarui `AdminSocialMediaController` untuk memvalidasi `media_type` (`reels`, `story`), menyajikan tab `analytics`, serta menyediakan refresh live.
+* Mendesain tab Analitik & Performa Organik berstandar Bento Apple HIG pada `index.blade.php`, lengkap dengan KPI live, sebaran format, dan galeri performa 15 media.
+* Menambahkan pemilih format konten (Feed, Reels, Story) pada modal pembuatan postingan.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Console/Commands/ConfigureInstagramCommand.php`
+  - `app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`
+  - `app/Domain/SocialMedia/AdminSocialMediaService.php`
+  - `app/Http/Controllers/Admin/AdminSocialMediaController.php`
+  - `resources/views/admin/social_media/index.blade.php`
+  - `docs/system/modules/social-media.md`
+  - `docs/AiWorkHistory.md`
+* **Database Changes:** Tidak ada perubahan skema (kolom `media_type` dan `content_type` yang sudah ada mendukung string `reels` dan `story`).
+* **API / Route Changes:** Parameter query `tab=analytics` dan `refresh_analytics=1` pada `admin.social-media.index`.
+
+#### 4. System Impacts
+* **Workflow Impact:** Administrator kini dapat memilih format konten (Feed, Reels, Story) sebelum menerbitkan pos, serta memeriksa analitik berkala.
+* **Business Rule Impact:** Format Story secara otomatis tidak mengirimkan caption ke Instagram API demi mencegah error (#100) dari server Meta.
+* **Permission Impact:** Tetap terlindungi di bawah guard `auth:admin`.
+
+#### 5. Verification & Testing
+* `php -l` pada semua berkas: 100% Passed.
+* Eksekusi langsung `getPlatformAnalytics`: Mengambil 612 pengikut, kuota sisa 24/25, 11 media, 31 likes, dan 5.23% engagement rate dengan sukses.
+* `php artisan optimize:clear` dan `php artisan view:cache`: Sukses tanpa error.
+
+#### 6. Important Decisions & Guardrails
+* **Eksklusi Meta Ads:** Tidak ada endpoint iklan berbayar yang dibuat, menjaga kesederhanaan dan keamanan sistem.
+* **Pencegahan Rate Limit:** Kuota API harian dipantau langsung dari `/content_publishing_limit`.
+
+#### 7. Documentation Promotion
+* Menambahkan dokumentasi modul di `docs/system/modules/social-media.md`.
+
 ### [WORK-2026-09-19-088] Canonical Storefront Direct Slug Architecture (cooca.id/{slug-bisnis}), End-to-End System Audit, Zero Custom Domain Enforcement, System Reserved Slug Protection, Backward-Compatible Route Aliasing, and Complete Automated Testing
 * **Date:** 2026-09-19
 * **Status:** COMPLETED

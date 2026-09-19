@@ -22,7 +22,7 @@ class AdminSocialMediaController extends Controller
     public function index(Request $request): View
     {
         $tab = (string) $request->query('tab', 'posts');
-        $validTabs = ['posts', 'inbox', 'settings', 'merchants', 'app_review'];
+        $validTabs = ['posts', 'analytics', 'inbox', 'settings', 'merchants', 'app_review'];
         if (! in_array($tab, $validTabs, true)) {
             $tab = 'posts';
         }
@@ -32,8 +32,9 @@ class AdminSocialMediaController extends Controller
         $merchants = $this->adminService->getConnectedMerchantsList(20);
         $platformPosts = $this->adminService->getPlatformPosts(12);
         $platformComments = $this->adminService->getPlatformComments(20);
+        $analytics = $this->adminService->getPlatformAnalytics($request->boolean('refresh_analytics', false));
 
-        return view('admin.social_media.index', compact('tab', 'platform', 'summary', 'merchants', 'platformPosts', 'platformComments'));
+        return view('admin.social_media.index', compact('tab', 'platform', 'summary', 'merchants', 'platformPosts', 'platformComments', 'analytics'));
     }
 
     /**
@@ -50,8 +51,8 @@ class AdminSocialMediaController extends Controller
             'platform_timing.*'     => ['nullable', 'string', 'in:now,schedule'],
             'platform_scheduled_at' => ['nullable', 'array'],
             'platform_scheduled_at.*' => ['nullable', 'date'],
-            'content'               => ['required', 'string', 'max:2200'],
-            'media_type'            => ['nullable', 'string', 'in:image,video,reels,carousel,text'],
+            'content'               => ['nullable', 'string', 'max:2200'],
+            'media_type'            => ['nullable', 'string', 'in:image,video,reels,story,carousel,text'],
             'media_url'             => ['nullable', 'url', 'max:1000'],
             'media_file'            => ['nullable', 'file', 'mimes:jpg,jpeg,png,mp4,mov', 'max:102400'],
             'scheduled_at'          => ['nullable', 'date'],
@@ -81,6 +82,11 @@ class AdminSocialMediaController extends Controller
         }
 
         $mediaType = $validated['media_type'] ?? (! empty($mediaUrls) ? 'image' : 'text');
+        $content = (string) ($validated['content'] ?? '');
+
+        if (empty($content) && empty($mediaUrls)) {
+            return back()->with('error', 'Postingan memerlukan isi caption teks atau unggahan berkas media (foto/video).');
+        }
 
         $post = $this->adminService->createAndPublishPlatformPost($admin, [
             'platforms'             => $selectedPlatforms,
@@ -88,7 +94,7 @@ class AdminSocialMediaController extends Controller
             'timing_mode'           => $validated['timing_mode'] ?? 'now',
             'platform_timing'       => $validated['platform_timing'] ?? [],
             'platform_scheduled_at' => $validated['platform_scheduled_at'] ?? [],
-            'content'               => $validated['content'],
+            'content'               => $content,
             'media_type'            => $mediaType,
             'media_urls'            => $mediaUrls,
             'local_media_paths'     => $localPaths,
