@@ -75,8 +75,6 @@ class MetaSocialMediaClient
             'instagram_basic',
             'instagram_content_publish',
             'instagram_manage_messages',
-            'threads_content_publish',
-            'threads_manage_replies',
         ]);
 
         $params = http_build_query([
