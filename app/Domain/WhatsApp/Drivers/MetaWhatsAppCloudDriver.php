@@ -98,7 +98,7 @@ class MetaWhatsAppCloudDriver
                 ];
             }
 
-            $errorMessage = $response->json('error.message') ?? 'HTTP Error ' . $response->status();
+            $errorMessage = $this->formatErrorMessage($response);
             Log::error("[Meta WA Cloud] sendOtp error ({$cleanPhone}): {$errorMessage}");
 
             return [
@@ -159,7 +159,7 @@ class MetaWhatsAppCloudDriver
                 ];
             }
 
-            $errorMessage = $response->json('error.message') ?? 'HTTP Error ' . $response->status();
+            $errorMessage = $this->formatErrorMessage($response);
             Log::error("[Meta WA Cloud] sendTextMessage error: {$errorMessage}");
 
             return [
@@ -176,6 +176,22 @@ class MetaWhatsAppCloudDriver
     }
 
     /**
+     * Format user-friendly error message from Meta response.
+     */
+    protected function formatErrorMessage(\Illuminate\Http\Client\Response $response): string
+    {
+        $errorCode = (int) $response->json('error.code');
+        $rawMessage = (string) ($response->json('error.message') ?? ('HTTP Error ' . $response->status()));
+
+        if ($errorCode === 133010) {
+            $wabaParam = $this->defaultWabaId ? "?waba_id={$this->defaultWabaId}" : '';
+            return "Nomor WhatsApp belum terdaftar/terverifikasi di Meta Cloud API (#133010: Account not registered). Status nomor masih DISCONNECTED / NOT_VERIFIED. Silakan selesaikan verifikasi nomor di Meta WhatsApp Manager: https://business.facebook.com/wa/manage/phone-numbers/{$wabaParam}";
+        }
+
+        return $rawMessage;
+    }
+
+    /**
      * Verify credentials by querying phone number details from Meta Graph API.
      */
     public function verifyCredentials(string $token, string $phoneNumberId): array
@@ -186,13 +202,22 @@ class MetaWhatsAppCloudDriver
             $response = Http::withToken($token)
                 ->timeout(10)
                 ->get($url, [
-                    'fields' => 'id,verified_name,display_phone_number,quality_rating',
+                    'fields' => 'id,verified_name,display_phone_number,quality_rating,code_verification_status,status,platform_type',
                 ]);
 
             if ($response->successful()) {
+                $data = $response->json();
+                $isCodeVerified = strtoupper((string) ($data['code_verification_status'] ?? '')) === 'VERIFIED';
+                $isStatusConnected = strtoupper((string) ($data['status'] ?? '')) === 'CONNECTED';
+                $isFullyConnected = $isCodeVerified && $isStatusConnected;
+
                 return [
-                    'success' => true,
-                    'data'    => $response->json(),
+                    'success'                  => true,
+                    'is_connected'             => $isFullyConnected,
+                    'status'                   => $data['status'] ?? 'DISCONNECTED',
+                    'code_verification_status' => $data['code_verification_status'] ?? 'NOT_VERIFIED',
+                    'platform_type'            => $data['platform_type'] ?? 'UNKNOWN',
+                    'data'                     => $data,
                 ];
             }
 

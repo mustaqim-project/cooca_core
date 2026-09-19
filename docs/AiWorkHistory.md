@@ -46,6 +46,49 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-19-091] WhatsApp Cloud API (#133010 Account not registered) Diagnostic Engine, Accurate Meta Verification State Detection, and WhatsApp Manager Action Workflow
+* **Date:** 2026-09-19
+* **Status:** COMPLETED
+* **Module:** WhatsApp Cloud API, Admin WhatsApp Center, Meta Graph API v21.0, Verification Engine
+* **Feature:** Investigasi tuntas kegagalan pengiriman pesan WhatsApp Meta Cloud API dengan error `(#133010) Account not registered`, sinkronisasi status verifikasi nyata dari Meta Graph API (`code_verification_status`, `status`, `platform_type`), pencegahan status palsu "Aktif Terhubung" saat nomor sebenarnya masih `DISCONNECTED / NOT_VERIFIED`, penerjemahan pesan kesalahan menjadi instruktif, serta penyediaan banner tindakan Bento Apple HIG dan panduan verifikasi OTP nomor langsung di Meta WhatsApp Manager.
+* **Work Type:** Bug Fix | Diagnostic & Integration | UI/UX (Bento Apple HIG) | Documentation
+
+#### 1. Business Context & Objective
+* **Konteks:** Administrator menguji kirim pesan dari WhatsApp Admin Center tetapi mengalami penolakan dari Meta Graph API: `[Meta WA Client] POST /1344185355444409/messages FAILED: (#133010) Account not registered`.
+* **Masalah/Target:**
+  1. Menemukan akar penyebab teknis kegagalan pengiriman pada nomor `+62 852-8786-4176` (ID `1344185355444409`) under WABA `1546059137323420`.
+  2. Memperbaiki audit status koneksi: sebelumnya sistem menganggap "connected" hanya karena nomor ditemukan di Meta (HTTP 200), mengabaikan status `code_verification_status: NOT_VERIFIED`.
+  3. Menyajikan panduan tindakan presisi bagi pemilik nomor untuk menyelesaikan verifikasi OTP di Meta WhatsApp Manager.
+
+#### 2. What Was Done
+* **Meta Graph API Live Audit:**
+  - Menemukan nomor `1344185355444409` memiliki `code_verification_status: NOT_VERIFIED`, `status: DISCONNECTED`, dan `platform_type: ON_PREMISE`.
+  - Menguji `/register` via API: Meta menolak dengan `Register endpoint is not available for SMB businesses`.
+  - Menguji `/request_code`: Meta menerapkan cooldown 1 jam anti-spam.
+  - Kesimpulan pasti: Registrasi/verifikasi nomor SMB/On-Premise wajib diselesaikan via portal WhatsApp Manager web Meta melalui OTP SMS/Voice.
+* **Backend Refinement (`MetaWhatsAppCloudDriver.php` & `AdminWhatsAppService.php`):**
+  - Mengambil field `code_verification_status,status,platform_type` dari Meta.
+  - Menetapkan status `connected` HANYA jika `code_verification_status === 'VERIFIED'` dan `status === 'CONNECTED'`.
+  - Memformat pesan error `#133010` menjadi instruksi actionable lengkap dengan URL ke WhatsApp Manager.
+* **UI/UX Enhancement (`admin/whatsapp/index.blade.php`):**
+  - Mengganti status palsu dengan badge semantik Apple HIG: "Perlu Verifikasi Nomor".
+  - Menambahkan Alert Banner aksi langsung dengan tombol "Buka WhatsApp Manager Meta" dan panduan 4 langkah verifikasi.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Domain/WhatsApp/Drivers/MetaWhatsAppCloudDriver.php`
+  - `app/Domain/WhatsApp/AdminWhatsAppService.php`
+  - `app/Domain/WhatsApp/CloudApi/WhatsAppClient.php`
+  - `resources/views/admin/whatsapp/index.blade.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. Verification & Testing
+* **PHP Syntax:** `php -l` lolos 100% pada semua file PHP.
+* **PHPUnit:** Seluruh test suite WhatsApp (`MetaWhatsAppCloudApiTest`, `AdminWhatsAppFeatureTest`, `WhatsAppDualGatewayTest`) lolos 100% (25 tests, 126 assertions).
+* **Live Test:** Endpoint verifikasi dan simulasi pesan kini mendiagnosis kondisi nomor secara transparan dan akurat.
+
+---
+
 ### [WORK-2026-09-19-090] Resolving Public URL Prefix Contamination & Enforcing Canonical Clean URLs (/admin/login)
 * **Date:** 2026-09-19
 * **Status:** COMPLETED

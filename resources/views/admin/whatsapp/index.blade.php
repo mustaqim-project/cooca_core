@@ -48,7 +48,14 @@
                         <span class="font-mono truncate" x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : 'Online'"></span>
                     </div>
                 </template>
-                <template x-if="status !== 'connected'">
+                <template x-if="status !== 'connected' && codeVerificationStatus === 'NOT_VERIFIED' && phone">
+                    <div
+                        class="flex items-center justify-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-[12px] bg-[#FF9500]/12 border border-[#FF9500]/25 text-[#B25E00] dark:text-[#FF9F0A] text-[12px] font-semibold min-h-[40px] sm:min-h-[44px] min-w-0">
+                        <span class="w-2 h-2 rounded-full bg-[#FF9500] shrink-0 animate-pulse"></span>
+                        <span class="truncate">Perlu Verifikasi Nomor</span>
+                    </div>
+                </template>
+                <template x-if="status !== 'connected' && (codeVerificationStatus !== 'NOT_VERIFIED' || !phone)">
                     <div
                         class="flex items-center justify-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/10 dark:border-white/10 text-black/55 dark:text-white/55 text-[12px] font-semibold min-h-[40px] sm:min-h-[44px] min-w-0">
                         <span class="w-2 h-2 rounded-full bg-[#FF9500] shrink-0"></span>
@@ -266,7 +273,13 @@
                                         <span>Aktif Terhubung</span>
                                     </span>
                                 </template>
-                                <template x-if="status !== 'connected'">
+                                <template x-if="status !== 'connected' && codeVerificationStatus === 'NOT_VERIFIED' && phone">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/25">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span>
+                                        <span>Perlu Verifikasi Nomor</span>
+                                    </span>
+                                </template>
+                                <template x-if="status !== 'connected' && (codeVerificationStatus !== 'NOT_VERIFIED' || !phone)">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/25">
                                         <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span>
                                         <span>Belum Dikonfigurasi</span>
@@ -322,6 +335,51 @@
                     </div>
                 </div>
             </div>
+
+            {{-- BANNER TINDAKAN: VERIFIKASI NOMOR META WHATSAPP MANAGER --}}
+            <template x-if="status !== 'connected' && codeVerificationStatus === 'NOT_VERIFIED' && phone">
+                <div class="rounded-[22px] sm:rounded-[24px] bg-[#FF9500]/10 border border-[#FF9500]/25 p-5 sm:p-6 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-start gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] flex items-center justify-center shrink-0">
+                                <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-[15px] sm:text-[16px] font-bold text-black dark:text-white tracking-tight">
+                                    Tindakan Diperlukan: Verifikasi Kepemilikan Nomor di Meta WhatsApp Manager
+                                </h3>
+                                <p class="text-[12px] sm:text-[12.5px] text-black/65 dark:text-white/65 mt-1 leading-relaxed max-w-3xl">
+                                    Nomor <strong class="font-mono text-black dark:text-white" x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : '+62 852-8786-4176'"></strong> telah terhubung ke WABA <em>Cooca ID</em>, tetapi status registrasi di server Meta masih <span class="font-mono font-bold text-[#D97706] dark:text-[#FFA114]" x-text="metaStatus + ' / ' + codeVerificationStatus">DISCONNECTED / NOT_VERIFIED</span>. Meta Cloud API menolak pengiriman pesan (<code class="text-[11px] bg-black/5 dark:bg-white/10 px-1 py-0.5 rounded font-mono">#133010 Account not registered</code>) hingga verifikasi SMS OTP diselesaikan langsung di Meta.
+                                </p>
+                            </div>
+                        </div>
+                        <a :href="managerUrl" target="_blank" rel="noopener noreferrer"
+                            class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-bold bg-[#FF9500] hover:bg-[#E08500] text-white active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-sm shrink-0">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                            <span>Buka WhatsApp Manager Meta</span>
+                        </a>
+                    </div>
+
+                    <div class="pt-3 border-t border-[#FF9500]/20 text-[12px] text-black/70 dark:text-white/70 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">1</span>
+                            <span>Buka link WhatsApp Manager</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">2</span>
+                            <span>Cari nomor &amp; klik <strong>Verifikasi</strong></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">3</span>
+                            <span>Input 6-digit SMS &amp; PIN 2FA</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">4</span>
+                            <span>Status aktif &amp; pesan siap terkirim</span>
+                        </div>
+                    </div>
+                </div>
+            </template>
 
             {{-- 2. BENTO INTEGRATION HUB: PUSAT PENGATURAN TERPADU --}}
             <div class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
@@ -1325,6 +1383,11 @@
                     activeTab: @json($initialTab),
                     status: @json($liveStatus ?? 'disconnected'),
                     phone: @json($initialPhone),
+                    codeVerificationStatus: @json($waStatus['code_verification_status'] ?? 'NOT_VERIFIED'),
+                    metaStatus: @json($waStatus['meta_status'] ?? 'DISCONNECTED'),
+                    platformType: @json($waStatus['platform_type'] ?? 'ON_PREMISE'),
+                    statusDetail: @json($waStatus['status_detail'] ?? ''),
+                    managerUrl: @json($waStatus['manager_url'] ?? 'https://business.facebook.com/wa/manage/phone-numbers/?waba_id=1546059137323420'),
                     isLoading: false,
                     blastMessage: '',
 
@@ -1511,6 +1574,11 @@
                         const rawStatus = String(data.status || '').toLowerCase();
                         this.status = rawStatus === 'connected' ? 'connected' : 'disconnected';
                         this.phone = data.phone || this.phone;
+                        this.codeVerificationStatus = data.code_verification_status || this.codeVerificationStatus;
+                        this.metaStatus = data.meta_status || this.metaStatus;
+                        this.platformType = data.platform_type || this.platformType;
+                        this.statusDetail = data.status_detail || this.statusDetail;
+                        this.managerUrl = data.manager_url || this.managerUrl;
                         this.refreshIcons();
                     },
 

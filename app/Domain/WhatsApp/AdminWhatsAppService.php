@@ -60,14 +60,31 @@ class AdminWhatsAppService
             $verified = $this->metaDriver->verifyCredentials($token, $phoneId);
             if ($verified['success'] ?? false) {
                 $data = $verified['data'] ?? [];
+                $isCodeVerified = strtoupper((string) ($data['code_verification_status'] ?? '')) === 'VERIFIED';
+                $isStatusConnected = strtoupper((string) ($data['status'] ?? '')) === 'CONNECTED';
+                $isFullyConnected = ($verified['is_connected'] ?? false) || ($isCodeVerified && $isStatusConnected);
+
+                $wabaId = $creds['waba_id'] ?: '1546059137323420';
+                $managerUrl = "https://business.facebook.com/wa/manage/phone-numbers/?waba_id={$wabaId}";
+
+                $statusDetail = $isFullyConnected
+                    ? 'Nomor WhatsApp resmi aktif dan terverifikasi penuh di Meta Cloud API.'
+                    : 'Nomor terdaftar di WABA tetapi status saat ini: ' . ($data['status'] ?? 'DISCONNECTED') . ' (' . ($data['code_verification_status'] ?? 'NOT_VERIFIED') . '). Lakukan verifikasi nomor di Meta WhatsApp Manager.';
+
                 return [
-                    'status'               => 'connected',
-                    'phone'                => $data['display_phone_number'] ?? $verified['display_phone_number'] ?? null,
-                    'verified_name'        => $data['verified_name'] ?? $verified['verified_name'] ?? 'COOCA Official Platform',
-                    'quality_rating'       => (!empty($data['quality_rating']) && $data['quality_rating'] !== 'UNKNOWN') ? $data['quality_rating'] : 'GREEN',
-                    'messaging_limit_tier' => $data['messaging_limit_tier'] ?? $verified['messaging_limit_tier'] ?? 'TIER_1K',
-                    'waba_id'              => $creds['waba_id'],
-                    'phone_number_id'      => $phoneId,
+                    'status'                   => $isFullyConnected ? 'connected' : 'disconnected',
+                    'is_connected'             => $isFullyConnected,
+                    'phone'                    => $data['display_phone_number'] ?? $verified['display_phone_number'] ?? null,
+                    'verified_name'            => $data['verified_name'] ?? $verified['verified_name'] ?? 'COOCA Official Platform',
+                    'quality_rating'           => (!empty($data['quality_rating']) && $data['quality_rating'] !== 'UNKNOWN') ? $data['quality_rating'] : 'GREEN',
+                    'messaging_limit_tier'     => $data['messaging_limit_tier'] ?? $verified['messaging_limit_tier'] ?? 'TIER_1K',
+                    'code_verification_status' => $data['code_verification_status'] ?? 'NOT_VERIFIED',
+                    'meta_status'              => $data['status'] ?? 'DISCONNECTED',
+                    'platform_type'            => $data['platform_type'] ?? 'UNKNOWN',
+                    'waba_id'                  => $wabaId,
+                    'phone_number_id'          => $phoneId,
+                    'manager_url'              => $managerUrl,
+                    'status_detail'            => $statusDetail,
                 ];
             }
 

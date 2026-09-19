@@ -405,22 +405,30 @@ class WhatsAppClient
 
         // Tangani Error Meta
         $error = $body['error'] ?? [];
-        $errorMessage = $error['message'] ?? ("HTTP {$statusCode} Error from Meta Graph API");
+        $rawErrorMessage = $error['message'] ?? ("HTTP {$statusCode} Error from Meta Graph API");
         $errorCode    = $error['code'] ?? $statusCode;
         $errorSubcode = $error['error_subcode'] ?? null;
         $fbtraceId    = $error['fbtrace_id'] ?? null;
+
+        $errorMessage = $rawErrorMessage;
+        if ((int) $errorCode === 133010) {
+            $wabaParam = $this->wabaId ? "?waba_id={$this->wabaId}" : '';
+            $errorMessage = "Nomor WhatsApp belum terdaftar/terverifikasi di Meta Cloud API (#133010: Account not registered). Status nomor masih DISCONNECTED atau NOT_VERIFIED. Silakan lakukan verifikasi nomor di Meta WhatsApp Manager: https://business.facebook.com/wa/manage/phone-numbers/{$wabaParam}";
+        }
 
         $this->logError($method, $endpoint, $errorMessage, [
             'status_code'   => $statusCode,
             'error_code'    => $errorCode,
             'error_subcode' => $errorSubcode,
             'fbtrace_id'    => $fbtraceId,
+            'raw_error'     => $rawErrorMessage,
             'params'        => $this->sanitizePayload($params),
         ]);
 
         return [
             'success'       => false,
             'error'         => $errorMessage,
+            'raw_error'     => $rawErrorMessage,
             'error_code'    => $errorCode,
             'error_subcode' => $errorSubcode,
             'fbtrace_id'    => $fbtraceId,
