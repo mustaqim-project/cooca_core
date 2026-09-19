@@ -45,7 +45,7 @@
                         <span class="w-2 h-2 rounded-full bg-[#34C759] shrink-0"></span>
                         <span class="truncate">Meta Resmi Aktif</span>
                         <span class="text-black/30 dark:text-white/30">|</span>
-                        <span class="font-mono truncate" x-text="phone ? '+' + phone : 'Online'"></span>
+                        <span class="font-mono truncate" x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : 'Online'"></span>
                     </div>
                 </template>
                 <template x-if="status !== 'connected'">
@@ -299,7 +299,7 @@
 
                     <div class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
                         <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Nomor Telepon Bot</span>
-                        <div class="text-[13.5px] sm:text-[14px] font-bold font-mono text-black dark:text-white truncate" x-text="phone ? '+' + phone : '{{ $waStatus['display_phone'] ?? '-' }}'">
+                        <div class="text-[13.5px] sm:text-[14px] font-bold font-mono text-black dark:text-white truncate" x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : '{{ $waStatus['display_phone'] ?? '-' }}'">
                             {{ $waStatus['display_phone'] ?? '-' }}
                         </div>
                     </div>
