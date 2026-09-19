@@ -114,7 +114,7 @@
                 annual: 290000,
                 popular: false,
                 desc: 'Cocok untuk 1 usaha rintisan dengan 100 produk dan kasir POS digital.',
-                features: ['1 Bisnis', '100 Produk & 20 Resep', '1.000 Struk Kasir/bln', '3 Karyawan / Staf', '5 Meja Dine-In', 'Ekspor Excel Lengkap']
+                features: ['1 Bisnis', '100 Produk & 20 Resep', '1.000 Struk Kasir/bln', '2 Lokasi (Toko/Gudang)', '3 Karyawan / Staf', '5 Meja Dine-In', 'Ekspor / Impor Excel', '50 Notifikasi WA/bln']
             },
             premium: {
                 key: 'premium',
@@ -126,7 +126,7 @@
                 annual: 890000,
                 popular: true,
                 desc: 'Solusi lengkap multi-cabang, resep & kasir unlimited, KDS, dan otomasi stok.',
-                features: ['3 Bisnis', 'Produk & Resep Unlimited', 'Kasir POS Unlimited', '5 Cabang / Gudang', '10 Karyawan', 'KDS Dapur & Transfer Stok', 'Multi-Pricing Cabang', 'Komisi & Kasbon']
+                features: ['3 Bisnis (Multi-Company)', 'Produk & Resep Unlimited', 'Kasir POS Unlimited', '5 Cabang & Meja Unlimited', '10 Karyawan', 'KDS Dapur & Transfer Stok', 'Multi-Pricing Cabang', 'Komisi & Kasbon', '200 Notifikasi WA/bln']
             },
             prestige: {
                 key: 'prestige',
@@ -138,7 +138,7 @@
                 annual: 1990000,
                 popular: false,
                 desc: 'Kapasitas penuh enterprise tanpa batas, pajak PPh 21 TER, dan slip gaji WhatsApp.',
-                features: ['Bisnis & Cabang Unlimited', 'Semua Fitur Tanpa Batas', 'Karyawan Unlimited', 'Pajak PPh 21 TER (PP 58/2023)', 'Auto Slip Gaji WhatsApp', '1.000 Notifikasi WA/bln']
+                features: ['Bisnis & Cabang Unlimited', 'Semua Fitur Tanpa Batas', 'Karyawan Unlimited', 'Pajak PPh 21 TER (PP 58/2023)', 'Auto Slip Gaji WhatsApp', '1.000 Notifikasi WA/bln', 'Prioritas Dukungan 24/7']
             }
         },
         selectedDurationDays: {{ $defaultDurationDays }},
@@ -335,8 +335,11 @@
                                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>1 Bisnis Cooca</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>100 Produk &amp; 20 Resep</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>1.000 Struk Kasir/bln</span></li>
+                                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>2 Lokasi (Toko/Gudang)</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>3 Karyawan / Staf</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>5 Meja Kasir Dine-in</span></li>
+                                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>Ekspor / Impor Excel</span></li>
+                                        <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>50 Notifikasi WA / bln</span></li>
                                     </ul>
                                 </div>
                             </div>

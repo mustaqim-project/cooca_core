@@ -140,13 +140,13 @@
                         <div>
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Bulanan (Rp)</label>
                             <input type="number" name="subscription_price_monthly"
-                                value="{{ $subscriptionPriceMonthly ?? 129000 }}" min="0" step="1000"
+                                value="{{ $subscriptionPriceMonthly ?? 29000 }}" min="0" step="1000"
                                 class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
                         </div>
                         <div>
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Tahunan (Rp)</label>
                             <input type="number" name="subscription_price_annual"
-                                value="{{ $subscriptionPriceAnnual ?? 1290000 }}" min="0" step="1000"
+                                value="{{ $subscriptionPriceAnnual ?? 290000 }}" min="0" step="1000"
                                 class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
                         </div>
                         <div>

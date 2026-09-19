@@ -35,16 +35,35 @@ use Illuminate\Support\Str;
 final class EntitlementService
 {
     // ── 4-Tier Quota Mapping (§Blueprint v2.3) ────────────────────────────────
+    public const TIER_PRICES = [
+        BusinessSubscription::TIER_FREE => [
+            'monthly' => 0,
+            'annual'  => 0,
+        ],
+        BusinessSubscription::TIER_STANDARD => [
+            'monthly' => 29000,
+            'annual'  => 290000,
+        ],
+        BusinessSubscription::TIER_PREMIUM => [
+            'monthly' => 89000,
+            'annual'  => 890000,
+        ],
+        BusinessSubscription::TIER_PRESTIGE => [
+            'monthly' => 199000,
+            'annual'  => 1990000,
+        ],
+    ];
+
     public const TIER_PRODUCT_LIMITS = [
         BusinessSubscription::TIER_FREE => 10,
-        BusinessSubscription::TIER_STANDARD => 50,
+        BusinessSubscription::TIER_STANDARD => 100, // 100 Item per User Spec
         BusinessSubscription::TIER_PREMIUM => null, // Unlimited
         BusinessSubscription::TIER_PRESTIGE => null, // Unlimited
     ];
 
     public const TIER_RECIPE_LIMITS = [
         BusinessSubscription::TIER_FREE => 3,
-        BusinessSubscription::TIER_STANDARD => 10,
+        BusinessSubscription::TIER_STANDARD => 20, // 20 Resep per User Spec
         BusinessSubscription::TIER_PREMIUM => null,
         BusinessSubscription::TIER_PRESTIGE => null,
     ];
@@ -72,16 +91,23 @@ final class EntitlementService
 
     public const TIER_OUTLET_LIMITS = [
         BusinessSubscription::TIER_FREE => 1,
-        BusinessSubscription::TIER_STANDARD => 1,
-        BusinessSubscription::TIER_PREMIUM => 3,
+        BusinessSubscription::TIER_STANDARD => 2,
+        BusinessSubscription::TIER_PREMIUM => 5,
         BusinessSubscription::TIER_PRESTIGE => null,
     ];
 
     public const TIER_WAREHOUSE_LIMITS = [
         BusinessSubscription::TIER_FREE => 1,
-        BusinessSubscription::TIER_STANDARD => 1,
-        BusinessSubscription::TIER_PREMIUM => 3,
+        BusinessSubscription::TIER_STANDARD => 2,
+        BusinessSubscription::TIER_PREMIUM => 5,
         BusinessSubscription::TIER_PRESTIGE => null,
+    ];
+
+    public const TIER_TOTAL_LOCATION_LIMITS = [
+        BusinessSubscription::TIER_FREE => 2, // 1 Toko + 1 Gudang
+        BusinessSubscription::TIER_STANDARD => 2, // 2 Lokasi
+        BusinessSubscription::TIER_PREMIUM => 5, // 5 Lokasi
+        BusinessSubscription::TIER_PRESTIGE => null, // Unlimited
     ];
 
     public const TIER_USER_PER_OWNER_LIMITS = [
@@ -100,7 +126,7 @@ final class EntitlementService
 
     public const TIER_MONTHLY_POS_LIMITS = [
         BusinessSubscription::TIER_FREE => 30,
-        BusinessSubscription::TIER_STANDARD => null,
+        BusinessSubscription::TIER_STANDARD => 1000, // 1.000 / bln per User Spec
         BusinessSubscription::TIER_PREMIUM => null,
         BusinessSubscription::TIER_PRESTIGE => null,
     ];
@@ -122,7 +148,7 @@ final class EntitlementService
     public const TIER_WHATSAPP_LIMITS = [
         BusinessSubscription::TIER_FREE => 10,
         BusinessSubscription::TIER_STANDARD => 50,
-        BusinessSubscription::TIER_PREMIUM => 300,
+        BusinessSubscription::TIER_PREMIUM => 200, // 200 Pesan per User Spec
         BusinessSubscription::TIER_PRESTIGE => 1000,
     ];
 
@@ -500,21 +526,52 @@ final class EntitlementService
     }
 
     /**
+     * Get total combined locations (outlets + warehouses) limit for business. Null means unlimited.
+     */
+    public function getTotalLocationLimit(Business $business): ?int
+    {
+        $tier = $this->getSubscription($business)->getTier();
+        return array_key_exists($tier, self::TIER_TOTAL_LOCATION_LIMITS)
+            ? self::TIER_TOTAL_LOCATION_LIMITS[$tier]
+            : 2;
+    }
+
+    /**
      * Can business create a new Location of given type?
      * type: 'outlet' | 'warehouse' | 'central_kitchen'
      */
     public function canCreateLocation(Business $business, string $type): bool
     {
-        $limit = $this->getLocationLimit($business, $type);
-        if ($limit === null) {
-            return true;
+        $tier = $this->getSubscription($business)->getTier();
+        $totalLimit = $this->getTotalLocationLimit($business);
+        if ($totalLimit !== null) {
+            $totalCount = Location::where('business_id', $business->id)->count();
+            if ($totalCount >= $totalLimit) {
+                return false;
+            }
         }
 
-        $count = Location::where('business_id', $business->id)
-            ->where('type', $type)
-            ->count();
+        // For Free tier: max 1 outlet and max 1 warehouse
+        if ($tier === BusinessSubscription::TIER_FREE) {
+            $typeCount = Location::where('business_id', $business->id)
+                ->where('type', $type)
+                ->count();
+            if ($typeCount >= 1) {
+                return false;
+            }
+        }
 
-        return $count < $limit;
+        $limit = $this->getLocationLimit($business, $type);
+        if ($limit !== null) {
+            $count = Location::where('business_id', $business->id)
+                ->where('type', $type)
+                ->count();
+            if ($count >= $limit) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // ── Monthly Transaction Quota Checks ──────────────────────────────────────
@@ -1027,6 +1084,7 @@ final class EntitlementService
             'suppliers'  => $buildStat($supplierCount,  array_key_exists($tier, self::TIER_SUPPLIER_LIMITS) ? self::TIER_SUPPLIER_LIMITS[$tier] : self::FREE_SUPPLIER_LIMIT),
             'outlets'    => $buildStat($outletCount,    array_key_exists($tier, self::TIER_OUTLET_LIMITS) ? self::TIER_OUTLET_LIMITS[$tier] : self::FREE_OUTLET_LIMIT),
             'warehouses' => $buildStat($warehouseCount, array_key_exists($tier, self::TIER_WAREHOUSE_LIMITS) ? self::TIER_WAREHOUSE_LIMITS[$tier] : self::FREE_WAREHOUSE_LIMIT),
+            'locations'  => $buildStat($outletCount + $warehouseCount, $this->getTotalLocationLimit($business)),
             'recipes'    => $buildStat($recipeCount,    array_key_exists($tier, self::TIER_RECIPE_LIMITS) ? self::TIER_RECIPE_LIMITS[$tier] : self::FREE_RECIPE_LIMIT),
             'tables'     => $buildStat($tableCount,     $tierTableLimit),
 
@@ -1128,6 +1186,9 @@ final class EntitlementService
             SubscriptionPayment::METHOD_PERMATA_VA,
             SubscriptionPayment::METHOD_INDOMARET,
             SubscriptionPayment::METHOD_ALFAMART,
+            SubscriptionPayment::METHOD_BCA,
+            SubscriptionPayment::METHOD_MANDIRI,
+            SubscriptionPayment::METHOD_BRI,
         ], true);
 
         $uniqueCode = $isGateway ? 0 : random_int(100, 999);
@@ -1153,6 +1214,7 @@ final class EntitlementService
             'unique_code' => $uniqueCode,
             'total_payable' => $totalPayable,
             'payment_method' => $paymentMethod,
+            'payment_gateway' => $isGateway ? SubscriptionPayment::GATEWAY_TRIPAY : SubscriptionPayment::GATEWAY_MANUAL,
             'status' => SubscriptionPayment::STATUS_PENDING,
         ]);
     }
@@ -1363,8 +1425,27 @@ final class EntitlementService
                     'ai_tokens_monthly_allowance' => 0,
                     'last_token_reset_at' => Carbon::today()->toDateString(),
                 ]);
+                $this->clearUsageCache($payment->business);
+            } elseif ($payment->plan_code && $payment->plan_code !== BusinessSubscription::PLAN_FREE) {
+                $subscription = $this->getSubscription($payment->business);
+                $isAnnual = $payment->cycle === 'annual';
+                $durationDays = $isAnnual ? 365 : 30;
+                $currentEnd = ($subscription->isActive() && $subscription->ends_at && $subscription->ends_at->isFuture())
+                    ? $subscription->ends_at
+                    : Carbon::now();
+                $subscription->update([
+                    'plan_code' => $payment->plan_code,
+                    'price' => $payment->amount,
+                    'status' => BusinessSubscription::STATUS_ACTIVE,
+                    'starts_at' => Carbon::now(),
+                    'ends_at' => $currentEnd->copy()->addDays($durationDays),
+                    'ai_tokens_monthly_allowance' => 0,
+                    'last_token_reset_at' => Carbon::today()->toDateString(),
+                ]);
+                $this->clearUsageCache($payment->business);
             } else {
                 $this->upgradeToCore($payment->business, $payment->cycle);
+                $this->clearUsageCache($payment->business);
             }
 
             return $payment->fresh();

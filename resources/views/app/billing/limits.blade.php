@@ -300,57 +300,226 @@
                     </div>
                 </div>
             </section>
-        @else
-            <!-- Free Plan Upgrade Hero Banner -->
-            <section aria-labelledby="upgrade-plan-heading"
-                class="rounded-[20px] p-6 sm:p-7 border border-emerald-200 dark:border-emerald-500/30 bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/50 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-950 shadow-xs relative overflow-hidden backdrop-blur-xl">
-                <div class="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"
-                    aria-hidden="true"></div>
-
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 relative z-10">
-                    <div class="space-y-3 max-w-2xl">
-                        <div
-                            class="inline-flex items-center gap-2 rounded-[10px] px-2.5 py-1 text-xs font-bold uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 shadow-2xs">
-                            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"
-                                aria-hidden="true"></i>
-                            <span>PROGRAM PATUNGAN SAAS COOCA</span>
-                        </div>
-
-                        <h2 id="upgrade-plan-heading"
-                            class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                            Buka Seluruh Potensi Bisnis Anda <span class="text-emerald-600 dark:text-emerald-400">Tanpa
-                                Batas</span>
-                        </h2>
-
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                            Tingkatkan dari Paket Free ke Cooca mulai dari <strong
-                                class="text-slate-900 dark:text-white font-mono tabular-nums">Rp
-                                {{ number_format($monthlyPrice, 0, ',', '.') }}/bulan</strong>. Dapatkan produk &amp; resep
-                            unlimited, multi-gudang, transaksi tanpa batas, serta integrasi ekspor Excel lengkap.
-                        </p>
-                    </div>
-
-                    @if (\App\Support\Context::hasPermission('billing.manage'))
-                        <div
-                            class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
-                            <a href="{{ route('billing.checkout', ['cycle' => 'monthly']) }}"
-                                class="px-5 py-3 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
-                                <i data-lucide="zap" class="w-4 h-4" aria-hidden="true"></i>
-                                <span>Bulanan (Rp {{ number_format($monthlyPrice, 0, ',', '.') }}/bln)</span>
-                            </a>
-
-                            <a href="{{ route('billing.checkout', ['cycle' => 'annual']) }}"
-                                class="px-5 py-3 rounded-[12px] text-xs font-bold text-slate-800 dark:text-teal-300 bg-white dark:bg-slate-800 border border-teal-300 dark:border-teal-500/40 hover:bg-teal-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer shadow-2xs flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
-                                <i data-lucide="sparkles" class="w-4 h-4 text-amber-500 dark:text-amber-300"
-                                    aria-hidden="true"></i>
-                                <span>Tahunan ({{ $annualDiscountBadge }} · Rp
-                                    {{ number_format($annualPrice, 0, ',', '.') }}/thn)</span>
-                            </a>
-                        </div>
-                    @endif
-                </div>
-            </section>
         @endif
+
+        <!-- 3. Official 4-Tier Subscription Plans Showcase -->
+        <section aria-labelledby="pricing-tiers-heading" class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div>
+                    <h2 id="pricing-tiers-heading" class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
+                        <span>Pilihan Paket Langganan Cooca</span>
+                    </h2>
+                    <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Pilih paket sesuai skala operasional bisnis Anda. Bebas berganti paket kapan saja.
+                    </p>
+                </div>
+
+                <!-- Cycle Toggle Segmented Control -->
+                <div class="inline-flex p-1 rounded-[12px] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 self-start sm:self-auto">
+                    <button type="button" @click="pricingCycle = 'monthly'"
+                        :class="pricingCycle === 'monthly' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white font-medium'"
+                        class="px-3 py-1.5 rounded-[9px] text-xs transition-all cursor-pointer">
+                        Tagihan Bulanan
+                    </button>
+                    <button type="button" @click="pricingCycle = 'annual'"
+                        :class="pricingCycle === 'annual' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white font-medium'"
+                        class="px-3 py-1.5 rounded-[9px] text-xs transition-all flex items-center gap-1.5 cursor-pointer">
+                        <span>Tagihan Tahunan</span>
+                        <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-emerald-600 text-white">Hemat 2 Bln</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4 Bento Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- 1. Free Solo -->
+                <div class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $tier === 'free' ? 'border-slate-400 dark:border-slate-600 ring-2 ring-slate-400/20' : 'border-black/[0.06] dark:border-white/[0.08]' }} p-5 shadow-xs flex flex-col justify-between relative">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="rounded-[8px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                Solo Owner
+                            </span>
+                            @if($tier === 'free')
+                                <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">Aktif</span>
+                            @endif
+                        </div>
+                        <div>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white">Free</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Untuk solo rintisan awal tanpa biaya.</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <div class="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">Rp 0</div>
+                            <div class="text-[10px] text-slate-400 font-mono">Gratis selamanya</div>
+                        </div>
+                        <ul class="space-y-1.5 pt-2 text-[11px] text-slate-600 dark:text-slate-300">
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>1 Bisnis</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>10 Produk &amp; 3 Resep</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>30 Kasir POS / bln</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>1 Toko + 1 Gudang</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>1 Staf (Solo Owner)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>10 Notifikasi WA / bln</span></li>
+                        </ul>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        @if($tier === 'free')
+                            <div class="w-full py-2.5 rounded-[12px] text-xs font-bold text-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-mono">
+                                Paket Aktif Saat Ini
+                            </div>
+                        @else
+                            <div class="w-full py-2.5 rounded-[12px] text-xs font-medium text-center text-slate-400 font-mono">
+                                Tingkat Dasar
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- 2. Standard Plan -->
+                <div class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $tier === 'standard' ? 'border-emerald-500 dark:border-emerald-400 ring-2 ring-emerald-500/20' : 'border-black/[0.06] dark:border-white/[0.08]' }} p-5 shadow-xs flex flex-col justify-between relative group hover:border-emerald-500/50 transition-all">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="rounded-[8px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider font-mono bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                UMKM Pemula
+                            </span>
+                            @if($tier === 'standard')
+                                <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">Aktif</span>
+                            @endif
+                        </div>
+                        <div>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white">Standard</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Usaha rintisan dengan kasir POS aktif.</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <div class="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white"
+                                x-text="pricingCycle === 'annual' ? 'Rp 290.000' : 'Rp 29.000'"></div>
+                            <div class="text-[10px] text-slate-500 font-mono"
+                                x-text="pricingCycle === 'annual' ? 'per tahun (≈ Rp 24.167/bln)' : 'per bulan (fleksibel)'"></div>
+                        </div>
+                        <ul class="space-y-1.5 pt-2 text-[11px] text-slate-600 dark:text-slate-300">
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>1 Bisnis Cooca</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>100 Produk &amp; 20 Resep</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>1.000 Kasir POS / bln</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>2 Lokasi (Toko/Gudang)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>3 Karyawan / Staf</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>5 Meja Kasir POS (Dine-In)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>Ekspor / Impor Excel</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>50 Notifikasi WA / bln</span></li>
+                        </ul>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        @if($tier === 'standard')
+                            <div class="w-full py-2.5 rounded-[12px] text-xs font-bold text-center bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 font-mono">
+                                Paket Aktif
+                            </div>
+                        @else
+                            <a :href="'{{ route('billing.checkout', ['tier' => 'standard']) }}&cycle=' + pricingCycle"
+                                class="w-full py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5">
+                                <span>Pilih Standard</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- 3. Premium Plan (Highlighted / Populer) -->
+                <div class="bg-white dark:bg-slate-900 rounded-[20px] border-2 {{ $tier === 'premium' ? 'border-indigo-500 ring-2 ring-indigo-500/30' : 'border-indigo-500 dark:border-indigo-500' }} p-5 shadow-md flex flex-col justify-between relative group hover:border-indigo-600 transition-all">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-wider rounded-full shadow-xs">
+                        Paling Populer
+                    </div>
+                    <div class="space-y-3 mt-1">
+                        <div class="flex items-center justify-between">
+                            <span class="rounded-[8px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider font-mono bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                                Scale-Up UMKM
+                            </span>
+                            @if($tier === 'premium')
+                                <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 font-mono">Aktif</span>
+                            @endif
+                        </div>
+                        <div>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white">Premium</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Multi-cabang, KDS dapur, komisi kasir.</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <div class="text-2xl font-black font-mono tabular-nums text-indigo-600 dark:text-indigo-400"
+                                x-text="pricingCycle === 'annual' ? 'Rp 890.000' : 'Rp 89.000'"></div>
+                            <div class="text-[10px] text-slate-500 font-mono"
+                                x-text="pricingCycle === 'annual' ? 'per tahun (≈ Rp 74.167/bln)' : 'per bulan (fleksibel)'"></div>
+                        </div>
+                        <ul class="space-y-1.5 pt-2 text-[11px] text-slate-600 dark:text-slate-300">
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span><strong>3 Bisnis</strong> (Kelola 3 Brand)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Produk &amp; Resep <strong>Unlimited</strong></span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Transaksi Kasir <strong>Unlimited</strong></span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>5 Lokasi &amp; Meja <strong>Unlimited</strong></span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>10 Karyawan / Staf</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>KDS Dapur &amp; Transfer Cabang</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Multi-Pricing per Cabang</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Komisi Staf, Kasbon, BPJS/THR</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>200 Notifikasi WA / bln</span></li>
+                        </ul>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        @if($tier === 'premium')
+                            <div class="w-full py-2.5 rounded-[12px] text-xs font-bold text-center bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-700 font-mono">
+                                Paket Aktif
+                            </div>
+                        @else
+                            <a :href="'{{ route('billing.checkout', ['tier' => 'premium']) }}&cycle=' + pricingCycle"
+                                class="w-full py-2.5 rounded-[12px] text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-sm shadow-indigo-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5">
+                                <span>Pilih Premium</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- 4. Prestige Plan -->
+                <div class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $tier === 'prestige' ? 'border-purple-500 ring-2 ring-purple-500/30' : 'border-purple-200 dark:border-purple-900/60' }} p-5 shadow-xs flex flex-col justify-between relative group hover:border-purple-500 transition-all">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="rounded-[8px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider font-mono bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+                                Enterprise UMKM
+                            </span>
+                            @if($tier === 'prestige')
+                                <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400 font-mono">Aktif</span>
+                            @endif
+                        </div>
+                        <div>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white">Prestige</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Kapasitas unlimited &amp; pajak PPh 21 TER.</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <div class="text-2xl font-black font-mono tabular-nums text-purple-600 dark:text-purple-400"
+                                x-text="pricingCycle === 'annual' ? 'Rp 1.990.000' : 'Rp 199.000'"></div>
+                            <div class="text-[10px] text-slate-500 font-mono"
+                                x-text="pricingCycle === 'annual' ? 'per tahun (≈ Rp 165.833/bln)' : 'per bulan (fleksibel)'"></div>
+                        </div>
+                        <ul class="space-y-1.5 pt-2 text-[11px] text-slate-600 dark:text-slate-300">
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span><strong>Bisnis Unlimited</strong> (Multi-Company)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Lokasi &amp; Gudang <strong>Unlimited</strong></span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Karyawan / Staf <strong>Unlimited</strong></span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Tax PPh 21 TER (PP 58/2023)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Auto Kirim Slip Gaji via WhatsApp</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>1.000 Notifikasi WA / bln</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Prioritas Dukungan Teknis 24/7</span></li>
+                        </ul>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        @if($tier === 'prestige')
+                            <div class="w-full py-2.5 rounded-[12px] text-xs font-bold text-center bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-700 font-mono">
+                                Paket Aktif
+                            </div>
+                        @else
+                            <a :href="'{{ route('billing.checkout', ['tier' => 'prestige']) }}&cycle=' + pricingCycle"
+                                class="w-full py-2.5 rounded-[12px] text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 shadow-sm shadow-purple-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5">
+                                <span>Pilih Prestige</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </section>
+
 
         <!-- 4. SECTION 1: Special Infrastructure Hub (Storage Cloud & AI Engine) -->
         <section aria-labelledby="infra-hub-heading" class="space-y-4">
@@ -1494,6 +1663,45 @@
                             <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">1.000 Pesan</td>
                         </tr>
                     </tbody>
+                    <tfoot class="bg-slate-50/70 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800">
+                        <tr>
+                            <td class="py-3 px-4 font-bold text-slate-700 dark:text-slate-300">Pilih Paket Bisnis</td>
+                            <td class="py-3 px-3 text-center">
+                                @if($tier === 'free')
+                                    <span class="px-2.5 py-1 rounded-[8px] bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-[11px] font-mono">Aktif</span>
+                                @else
+                                    <span class="text-slate-400 text-xs font-mono">-</span>
+                                @endif
+                            </td>
+                            <td class="py-3 px-3 text-center">
+                                @if($tier === 'standard')
+                                    <span class="px-2.5 py-1 rounded-[8px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-semibold text-[11px] font-mono">Paket Aktif</span>
+                                @else
+                                    <a :href="'{{ route('billing.checkout', ['tier' => 'standard']) }}&cycle=' + pricingCycle" class="px-3 py-1.5 rounded-[10px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-2xs inline-flex items-center gap-1">
+                                        <span>Pilih Standard</span>
+                                    </a>
+                                @endif
+                            </td>
+                            <td class="py-3 px-3 text-center bg-indigo-50/40 dark:bg-indigo-950/30">
+                                @if($tier === 'premium')
+                                    <span class="px-2.5 py-1 rounded-[8px] bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 font-semibold text-[11px] font-mono">Paket Aktif</span>
+                                @else
+                                    <a :href="'{{ route('billing.checkout', ['tier' => 'premium']) }}&cycle=' + pricingCycle" class="px-3 py-1.5 rounded-[10px] text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-2xs inline-flex items-center gap-1">
+                                        <span>Pilih Premium</span>
+                                    </a>
+                                @endif
+                            </td>
+                            <td class="py-3 px-3 text-center bg-purple-50/40 dark:bg-purple-950/30">
+                                @if($tier === 'prestige')
+                                    <span class="px-2.5 py-1 rounded-[8px] bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 font-semibold text-[11px] font-mono">Paket Aktif</span>
+                                @else
+                                    <a :href="'{{ route('billing.checkout', ['tier' => 'prestige']) }}&cycle=' + pricingCycle" class="px-3 py-1.5 rounded-[10px] text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 shadow-2xs inline-flex items-center gap-1">
+                                        <span>Pilih Prestige</span>
+                                    </a>
+                                @endif
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </section>
@@ -1682,6 +1890,7 @@
     <script>
     function storageLimitsManager() {
         return {
+            pricingCycle: 'monthly',
             openFileManager: false,
             loadingFiles: false,
             files: [],

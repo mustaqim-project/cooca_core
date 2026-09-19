@@ -35,6 +35,7 @@ final class BillingAndLimitWebController extends Controller
         $monthlyPrice         = $this->entitlementService->getMonthlyPrice();
         $annualPrice          = $this->entitlementService->getAnnualPrice();
         $annualDiscountBadge  = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
+        $tierPrices           = EntitlementService::TIER_PRICES;
 
         return view('app.billing.limits', compact(
             'business',
@@ -42,7 +43,8 @@ final class BillingAndLimitWebController extends Controller
             'storageDetails',
             'monthlyPrice',
             'annualPrice',
-            'annualDiscountBadge'
+            'annualDiscountBadge',
+            'tierPrices'
         ));
     }
 

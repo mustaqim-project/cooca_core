@@ -313,6 +313,11 @@ class SubscriptionPayment extends Model
         return $this->status === self::STATUS_REJECTED;
     }
 
+    public function getGatewayAttribute(): ?string
+    {
+        return $this->payment_gateway;
+    }
+
     public function getTripayChannelCode(): string
     {
         return match ($this->payment_method) {
@@ -330,19 +335,26 @@ class SubscriptionPayment extends Model
 
     public function getPaymentMethodDetails(): array
     {
-        if ($this->payment_gateway === self::GATEWAY_TRIPAY) {
-            $base = self::PAYMENT_METHODS[$this->payment_method] ?? [
-                'code' => $this->payment_method,
-                'name' => strtoupper($this->payment_method),
-                'type' => 'gateway',
-                'bank_name' => 'TriPay Gateway',
-                'account_number' => $this->gateway_pay_code ?: '-',
-                'account_name' => 'COOCA INDONESIA',
-                'icon' => 'credit-card',
-                'color' => 'blue',
-                'instructions' => 'Selesaikan pembayaran sebelum batas waktu.',
-                'qr_image_url' => $this->gateway_qr_url,
-            ];
+        $normMethod = strtolower(str_replace(['tripay_', 'va'], ['', '_va'], $this->payment_method ?? ''));
+        $normRaw = strtolower(str_replace('tripay_', '', $this->payment_method ?? ''));
+
+        if ($this->payment_gateway === self::GATEWAY_TRIPAY || str_starts_with($this->payment_method ?? '', 'tripay_')) {
+            $base = self::PAYMENT_METHODS[$normRaw] 
+                ?? self::PAYMENT_METHODS[$normMethod] 
+                ?? self::PAYMENT_METHODS[$this->payment_method] 
+                ?? [
+                    'code' => $this->payment_method,
+                    'name' => strtoupper($normRaw),
+                    'type' => 'gateway',
+                    'bank_name' => 'TriPay Gateway',
+                    'account_number' => $this->gateway_pay_code ?: '-',
+                    'account_name' => 'COOCA INDONESIA',
+                    'icon' => 'credit-card',
+                    'color' => 'blue',
+                    'instructions' => 'Selesaikan pembayaran via TriPay sebelum batas waktu.',
+                    'qr_image_url' => $this->gateway_qr_url,
+                ];
+
             if ($this->gateway_pay_code) {
                 $base['account_number'] = $this->gateway_pay_code;
             }

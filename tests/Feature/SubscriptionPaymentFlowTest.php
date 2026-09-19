@@ -181,13 +181,14 @@ class SubscriptionPaymentFlowTest extends TestCase
         $this->assertEquals($this->admin->id, $payment->approved_by);
         $this->assertNotNull($payment->approved_at);
 
-        // Verify business subscription is automatically Core with 0 free tokens (top-up only)!
+        // Verify business subscription is automatically Standard with 0 free tokens (top-up only)!
         $sub = BusinessSubscription::where('business_id', $this->business->id)->first();
         $this->assertNotNull($sub);
-        $this->assertEquals(BusinessSubscription::PLAN_CORE_MONTHLY, $sub->plan_code);
+        $this->assertEquals(BusinessSubscription::PLAN_STANDARD_MONTHLY, $sub->plan_code);
         $this->assertEquals('active', $sub->status);
         $this->assertEquals(0, $sub->ai_tokens_monthly_allowance);
         $this->assertTrue($sub->isCorePlan());
+        $this->assertEquals('standard', $sub->getTier());
     }
 
     public function test_admin_can_reject_payment_with_reason(): void
@@ -283,5 +284,70 @@ class SubscriptionPaymentFlowTest extends TestCase
         $response->assertOk();
         $response->assertSee($payment->order_number);
         $response->assertSee('Nomor Rekening Tujuan');
+    }
+
+    public function test_tenant_can_check_payment_status_via_json_endpoint(): void
+    {
+        $service = new EntitlementService();
+        $payment = $service->createPaymentOrder($this->business, $this->user, 'monthly', 'qris');
+
+        $response = $this->actingAs($this->user)->getJson(route('billing.payment.status', $payment));
+
+        $response->assertOk();
+        $response->assertJson([
+            'status' => 'pending',
+            'is_paid' => false,
+            'is_rejected' => false,
+        ]);
+
+        // When approved, status returns is_paid = true
+        $payment->update(['status' => 'approved']);
+
+        $responseAfter = $this->actingAs($this->user)->getJson(route('billing.payment.status', $payment));
+        $responseAfter->assertOk();
+        $responseAfter->assertJson([
+            'status' => 'approved',
+            'is_paid' => true,
+        ]);
+    }
+
+    public function test_tripay_payment_order_has_zero_unique_code_and_tripay_gateway(): void
+    {
+        $service = new EntitlementService();
+        $payment = $service->createPaymentOrder(
+            business: $this->business,
+            user: $this->user,
+            cycle: 'monthly',
+            paymentMethod: 'qris',
+            tier: 'premium'
+        );
+
+        $this->assertSame(0, $payment->unique_code);
+        $this->assertSame('tripay', $payment->gateway);
+        $this->assertSame('premium_monthly', $payment->plan_code);
+        $this->assertEquals(89000, $payment->amount);
+        $this->assertEquals(89000, $payment->total_payable);
+    }
+
+    public function test_approving_premium_payment_activates_premium_tier_and_limits(): void
+    {
+        $service = new EntitlementService();
+        $payment = $service->createPaymentOrder(
+            business: $this->business,
+            user: $this->user,
+            cycle: 'monthly',
+            paymentMethod: 'bca_va',
+            tier: 'premium'
+        );
+
+        $service->approvePayment($payment, $this->admin);
+
+        $sub = BusinessSubscription::where('business_id', $this->business->id)->first();
+        $this->assertNotNull($sub);
+        $this->assertSame(BusinessSubscription::PLAN_PREMIUM_MONTHLY, $sub->plan_code);
+        $this->assertSame('premium', $sub->getTier());
+        $this->assertTrue($sub->hasTier('premium'));
+        $this->assertTrue($sub->hasTier('standard'));
+        $this->assertFalse($sub->hasTier('prestige'));
     }
 }

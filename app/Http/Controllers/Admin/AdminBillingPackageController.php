@@ -21,11 +21,18 @@ final class AdminBillingPackageController extends Controller
         $packages = BillingPackage::where('type', $type)->orderBy('sort_order')->orderBy('name')->get();
         $counts = BillingPackage::select('type', DB::raw('COUNT(*) as total'))->groupBy('type')->pluck('total', 'type');
 
-        // Default Core pricing shown on the subscription catalog
-        $subscriptionPriceMonthly = SystemSetting::get('subscription_price_monthly', '129000');
-        $subscriptionPriceAnnual = SystemSetting::get('subscription_price_annual', '1290000');
+        // Default 4-Tier pricing shown on the subscription catalog
+        $subscriptionPriceMonthly = SystemSetting::get('subscription_price_monthly', '29000');
+        $subscriptionPriceAnnual = SystemSetting::get('subscription_price_annual', '290000');
         $subscriptionAiTokensMonthly = SystemSetting::get('subscription_ai_tokens_monthly', '10000000');
         $subscriptionAnnualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
+
+        $priceStandardMonthly = '29000';
+        $priceStandardAnnual = '290000';
+        $pricePremiumMonthly = '89000';
+        $pricePremiumAnnual = '890000';
+        $pricePrestigeMonthly = '199000';
+        $pricePrestigeAnnual = '1990000';
 
         // Default top-up pricing for token & storage catalogs
         $aiTokenTopupPrice = SystemSetting::get('ai_token_topup_price', '50000');
@@ -42,6 +49,12 @@ final class AdminBillingPackageController extends Controller
             'subscriptionPriceAnnual',
             'subscriptionAiTokensMonthly',
             'subscriptionAnnualDiscountBadge',
+            'priceStandardMonthly',
+            'priceStandardAnnual',
+            'pricePremiumMonthly',
+            'pricePremiumAnnual',
+            'pricePrestigeMonthly',
+            'pricePrestigeAnnual',
             'aiTokenTopupPrice',
             'aiTokenTopupAmount',
             'ownerStorageLimitGb',

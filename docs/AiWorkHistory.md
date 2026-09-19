@@ -46,6 +46,72 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-19-092] End-to-End TriPay Payment Gateway Integration & 4-Tier Subscription Billing System (Free, Standard, Premium, Prestige)
+* **Date:** 2026-09-19
+* **Status:** COMPLETED
+* **Module:** Billing, Subscriptions, TriPay Payment Gateway, Entitlements, Apple HIG Bento UI
+* **Feature:** Perbaikan tuntas dan integrasi menyeluruh sistem langganan multi-tier Cooca dengan payment gateway TriPay (QRIS & Virtual Account) dan manual transfer bank secara end-to-end sesuai spesifikasi resmi 4-tier: Free (Rp 0), Standard (Rp 29k/bln - Rp 290k/thn), Premium (Rp 89k/bln - Rp 890k/thn), dan Prestige (Rp 199k/bln - Rp 1.990k/thn).
+* **Work Type:** Feature | Bug Fix | Architecture | UI/UX (Apple HIG Bento) | Security & Database
+
+#### 1. Business Context & Objective
+* **Konteks:** UMKM Indonesia membutuhkan opsi langganan yang fleksibel, terjangkau, dan transparan, mulai dari solo owner (Free), usaha berkembang (Standard), multi-cabang (Premium), hingga korporasi/enterprise UMKM dengan payroll TER PPh 21 (Prestige).
+* **Masalah/Target:**
+  1. Integrasi TriPay sebelumnya terhambat kode unik acak (kode unik manual membuat nominal TriPay tidak sesuai dan gagal bayar).
+  2. Alur aktivasi langganan pasca pembayaran sebelumnya selalu memaksa upgrade ke paket legasi Core (`upgradeToCore()`), mengabaikan tier spesifik yang dipilih pelanggan (Standard, Premium, atau Prestige).
+  3. UI billing belum menampilkan kartu pilihan tier resmi 4-tier secara interaktif, dan halaman pembayaran belum mendukung auto-polling status TriPay, tombol copy nomor Virtual Account, rendering QRIS dinamis, dan kartu live gateway TriPay.
+
+#### 2. What Was Done
+* **Logika Entitlement & Limit Kuota (`app/Domain/Billing/EntitlementService.php`):**
+  - Menerapkan batasan kuota 4-tier sesuai spesifikasi:
+    - Standard: 100 SKU, 20 BOM, 1.000 transaksi kasir POS/bln, 2 lokasi (1 toko + 1 gudang / 2 cabang), 3 staf terdaftar, 5 meja kasir POS, 50 pesan WA/bln.
+    - Premium: Unlimited SKU, Unlimited BOM, Unlimited transaksi kasir POS, 5 lokasi, 10 staf terdaftar, Unlimited meja, 200 pesan WA/bln.
+    - Prestige: Unlimited semua entitas, staf, lokasi, dan modul enterprise (PPh 21 TER, auto slip gaji WA, 1.000 pesan WA/bln).
+  - Menetapkan `TIER_TOTAL_LOCATION_LIMITS` dan memperbarui `canCreateLocation()` untuk memvalidasi total lokasi (toko + gudang).
+  - Mengeliminasi kode unik manual (unique code = 0) untuk semua transaksi melalui gateway TriPay (`isGateway = true`), karena TriPay menangani rekonsiliasi otomatis via reference/VA unik.
+  - Memperbarui `approvePayment()` untuk membaca `$payment->plan_code` secara dinamis dan mengaktifkan tier pesanan yang tepat dengan durasi 30 hari (bulanan) atau 365 hari (tahunan) serta mengosongkan cache kuota tenant.
+* **Migrasi Database Paket Resmi 4-Tier:**
+  - Membuat migrasi `2026_09_19_233000_seed_official_four_tier_billing_packages.php` yang mendaftarkan paket `standard-monthly`, `standard-annual`, `premium-monthly`, `premium-annual`, `prestige-monthly`, dan `prestige-annual`, sekaligus menonaktifkan paket legasi `core-monthly` dan `core-annual`.
+* **Model & TriPay Gateway Service:**
+  - Menambahkan accessor `getGatewayAttribute()` dan helper `isTripay()`, `isManual()`, `isPaid()` pada `SubscriptionPayment.php`.
+  - Memperbaiki pemetaan rincian metode pembayaran di `getPaymentMethodDetails()` untuk menangani prefix `tripay_`, memetakan `$payment->gateway_pay_code` ke nomor Virtual Account, dan `$payment->gateway_qr_url` ke gambar QRIS.
+  - Memperbaiki `return_url` pada `TripayService.php` agar mengarah tepat ke `route('billing.payment.show', $payment->id)`.
+  - Menambahkan endpoint pengecekan status realtime `GET /billing/payments/{payment}/status` yang mengembalikan JSON `{ success: true, status: '...', is_paid: bool, is_rejected: bool }`.
+* **UI/UX Bento Apple HIG:**
+  - Mengimplementasikan Bento 4-Tier Pricing Showcase di `resources/views/app/billing/limits.blade.php` dengan switcher bulanan/tahunan interaktif, lencana hemat 2 bulan, dan tabel matriks perbandingan 16 fitur.
+  - Memperbarui halaman checkout (`checkout.blade.php`) dengan rincian fitur 4-tier yang akurat.
+  - Memperbarui halaman instruksi pembayaran (`payment.blade.php`) dengan:
+    - Sembunyikan kode unik manual untuk pembayaran TriPay.
+    - Menampilkan Nomor Virtual Account dengan tombol "Salin Nomor" interaktif dan tombol "Buka Halaman Pembayaran TriPay".
+    - Menampilkan kartu QRIS Dinamis TriPay dengan link unduh gambar QRIS.
+    - Script AJAX polling otomatis setiap 4 detik untuk auto-refresh seketika saat pembayaran lunas.
+    - Kartu live status gateway TriPay dengan tombol "Cek Status Pembayaran Sekarang".
+    - Form upload struk manual disematkan dalam accordion opsional yang rapi.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Domain/Billing/EntitlementService.php`
+  - `app/Domain/Payment/TripayService.php`
+  - `app/Models/SubscriptionPayment.php`
+  - `app/Http/Controllers/Admin/AdminBillingPackageController.php`
+  - `app/Http/Controllers/Web/Billing/BillingAndLimitWebController.php`
+  - `app/Http/Controllers/Web/Billing/SubscriptionCheckoutWebController.php`
+  - `resources/views/admin/billing-packages/index.blade.php`
+  - `resources/views/app/billing/limits.blade.php`
+  - `resources/views/app/billing/checkout.blade.php`
+  - `resources/views/app/billing/payment.blade.php`
+  - `database/migrations/2026_09_19_233000_seed_official_four_tier_billing_packages.php`
+  - `tests/Feature/SubscriptionPaymentFlowTest.php`
+
+#### 4. Verification & Testing
+* `php artisan test tests/Feature/SubscriptionPaymentFlowTest.php`: 13 passed, 73 assertions.
+* `php artisan test tests/Feature/BillingPackageCatalogTest.php`: 4 passed, 13 assertions.
+* `php artisan test tests/Feature/SaaSPlanAndEntitlementTest.php`: 4 passed, 19 assertions.
+* `php artisan test tests/Feature/TripayPaymentTest.php`: 8 passed, 35 assertions.
+* `php artisan test --filter=PosQrOrderPaymentTest`: 3 passed, 33 assertions.
+* Total: 32+ pengujian feature lulus 100% tanpa regresi.
+
+---
+
 ### [WORK-2026-09-19-091] WhatsApp Cloud API (#133010 Account not registered) Diagnostic Engine, Accurate Meta Verification State Detection, and WhatsApp Manager Action Workflow
 * **Date:** 2026-09-19
 * **Status:** COMPLETED

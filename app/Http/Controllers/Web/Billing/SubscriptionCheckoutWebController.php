@@ -215,9 +215,10 @@ final class SubscriptionCheckoutWebController extends Controller
         abort_unless($payment->business_id === $business->id, 403);
 
         return response()->json([
-            'success' => true,
-            'status'  => $payment->status,
-            'is_paid' => $payment->isPaid(),
+            'success'     => true,
+            'status'      => $payment->status,
+            'is_paid'     => $payment->isPaid(),
+            'is_rejected' => $payment->isRejected(),
         ]);
     }
 

@@ -460,7 +460,7 @@ final class TripayService
                     'quantity' => 1,
                 ],
             ],
-            'return_url' => url('/app/billing/payment/' . $payment->id),
+            'return_url' => route('billing.payment.show', $payment->id),
             'expired_time' => time() + 86400, // 24 hours
             'signature' => $signature,
         ];
