@@ -28,11 +28,9 @@ final class BillingAndLimitWebController extends Controller
         $business = Context::requireBusiness();
         $usage    = $this->entitlementService->getUsageSummary($business);
 
-        // Get owner for storage details
-        $owner          = $business->users()->wherePivot('role', 'owner')->first();
-        $storageDetails = $owner
-            ? $this->storageTrackingService->getStorageDetails($owner)
-            : null;
+        // Get storage details strictly isolated to current active business
+        $owner          = $business->users()->wherePivot('role', 'owner')->first() ?? auth()->user();
+        $storageDetails = $this->storageTrackingService->getStorageDetails($business, $owner);
 
         $monthlyPrice         = $this->entitlementService->getMonthlyPrice();
         $annualPrice          = $this->entitlementService->getAnnualPrice();
@@ -69,35 +67,38 @@ final class BillingAndLimitWebController extends Controller
     }
 
     /**
-     * Reconcile physical disk storage against storage_files table for the current owner.
+     * Reconcile physical disk storage against storage_files table strictly for the active business.
      * Triggered by the "Recalculate Storage" button on the billing limits page.
      */
     public function recalculateStorage(): RedirectResponse
     {
         $business = Context::requireBusiness();
-        $owner    = $business->users()->wherePivot('role', 'owner')->first();
+        $owner    = $business->users()->wherePivot('role', 'owner')->first() ?? auth()->user();
 
         if (! $owner) {
             return redirect()->route('billing.limits')
                 ->with('error', 'Owner akun tidak ditemukan. Tidak dapat menghitung ulang storage.');
         }
 
-        $result = $this->storageTrackingService->recalculate($owner);
+        // Strictly recalculate storage for this active business
+        $result = $this->storageTrackingService->recalculate($owner, $business);
 
         // Also bust the entitlement usage summary cache so the page reflects new data immediately
         $this->entitlementService->clearUsageCache($business);
 
-        $message = "Kalkulasi storage selesai. "
+        $bizMb = $result['business_used_mb'] ?? $result['total_used_mb'];
+        $message = "Kalkulasi storage bisnis '{$business->name}' selesai. "
             . "File dipindai: {$result['scanned_files']} | "
             . "Baru ditambah: {$result['untracked_added']} | "
             . "Orphan dibersihkan: {$result['orphaned_cleaned']} | "
-            . "Total digunakan: {$result['total_used_mb']} MB / {$result['limit_gb']} GB.";
+            . "Digunakan bisnis ini: {$bizMb} MB / {$result['limit_gb']} GB.";
 
         return redirect()->route('billing.limits')->with('success', $message);
     }
 
     /**
      * Delete an uploaded storage file by the business owner to reclaim cloud quota.
+     * Strictly isolated by business_id to prevent any cross-tenant IDOR access.
      */
     public function destroyStorageFile(Request $request, \App\Models\StorageFile $storageFile): RedirectResponse|\Illuminate\Http\JsonResponse
     {
@@ -107,21 +108,23 @@ final class BillingAndLimitWebController extends Controller
 
         abort_unless($isOwner || $hasBillingPerm, 403, 'Hanya Owner atau pengelola billing yang dapat menghapus berkas penyimpanan.');
 
-        // IDOR Tenant Guard: Must belong to current owner or current business
-        $owner = $business->users()->wherePivot('role', 'owner')->first() ?? auth()->user();
-        $isAuthorized = ($storageFile->business_id === $business->id) || ($storageFile->owner_id === $owner->id);
-        abort_unless($isAuthorized, 403, 'Akses ditolak. Anda tidak memiliki izin atas berkas ini.');
+        // Strict Multi-Tenant Guard: Storage file MUST strictly belong to this active business_id
+        abort_unless($storageFile->business_id === $business->id, 403, 'Akses ditolak. Berkas ini bukan milik bisnis yang sedang aktif.');
 
         $fileName = $storageFile->file_name;
         $fileSizeMb = round($storageFile->file_size / 1048576, 2);
 
-        // Delete physical file, clean references, and soft-delete DB record
-        $this->storageTrackingService->deleteFile($storageFile->file_path, $storageFile->disk);
+        // Delete physical file, clean references scoped strictly to this business, and soft-delete DB record
+        $this->storageTrackingService->deleteFile(
+            filePath: $storageFile->file_path,
+            disk: $storageFile->disk,
+            businessId: $business->id
+        );
 
         // Clear quota and entitlement cache
         $this->entitlementService->clearUsageCache($business);
 
-        $successMessage = "Berkas '{$fileName}' ({$fileSizeMb} MB) berhasil dihapus. Kapasitas penyimpanan Anda telah diperbarui.";
+        $successMessage = "Berkas '{$fileName}' ({$fileSizeMb} MB) berhasil dihapus. Kapasitas penyimpanan bisnis Anda telah diperbarui.";
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -136,25 +139,22 @@ final class BillingAndLimitWebController extends Controller
     }
 
     /**
-     * List all tracked files for the owner/business for the Storage File Manager modal.
+     * List all tracked files strictly isolated for the active business_id for the Storage File Manager modal.
      */
     public function listFiles(Request $request): \Illuminate\Http\JsonResponse
     {
         $business = Context::requireBusiness();
-        $owner = $business->users()->wherePivot('role', 'owner')->first() ?? auth()->user();
 
         $search = trim((string) $request->query('q', ''));
         $category = (string) $request->query('category', 'all');
 
+        // Strict Tenant Isolation: Query strictly filtered by business_id
         $query = \App\Models\StorageFile::with(['business'])
+            ->where('business_id', $business->id)
             ->where('status', \App\Models\StorageFile::STATUS_ACTIVE)
             ->where('is_temporary', false)
             ->where('category', '!=', \App\Models\StorageFile::CATEGORY_SOCIAL_MEDIA)
             ->where('module', '!=', 'social_media')
-            ->where(function ($q) use ($owner, $business) {
-                $q->where('owner_id', $owner->id)
-                  ->orWhere('business_id', $business->id);
-            })
             ->orderByDesc('file_size');
 
         if ($search !== '') {
@@ -167,14 +167,14 @@ final class BillingAndLimitWebController extends Controller
 
         $paginator = $query->paginate(15);
 
-        $items = collect($paginator->items())->map(function (\App\Models\StorageFile $file) {
+        $items = collect($paginator->items())->map(function (\App\Models\StorageFile $file) use ($business) {
             return [
                 'id' => $file->id,
                 'file_name' => $file->file_name,
                 'file_path' => $file->file_path,
                 'category' => $file->category,
                 'category_label' => $file->category_label,
-                'business_name' => $file->business?->name ?? 'Akun Owner',
+                'business_name' => $file->business?->name ?? $business->name,
                 'file_size' => (int) $file->file_size,
                 'formatted_size' => $file->formatted_size,
                 'uploaded_at' => $file->uploaded_at?->format('d M Y H:i') ?? $file->created_at?->format('d M Y H:i'),

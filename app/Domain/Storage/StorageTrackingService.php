@@ -89,12 +89,18 @@ class StorageTrackingService
 
     /**
      * Mark a file as deleted when deleted from storage disk.
+     * Enforces strict multi-tenant isolation by business_id when provided.
      */
-    public function recordDeletion(string $filePath, string $disk = 'public'): ?StorageFile
+    public function recordDeletion(string $filePath, string $disk = 'public', ?string $businessId = null): ?StorageFile
     {
-        $storageFile = StorageFile::where('disk', $disk)
-            ->where('file_path', $filePath)
-            ->first();
+        $query = StorageFile::where('disk', $disk)
+            ->where('file_path', $filePath);
+
+        if ($businessId !== null) {
+            $query->where('business_id', $businessId);
+        }
+
+        $storageFile = $query->first();
 
         if ($storageFile) {
             $storageFile->update([
@@ -112,16 +118,17 @@ class StorageTrackingService
 
     /**
      * Physically delete file from disk and mark as deleted in database.
+     * Enforces strict multi-tenant isolation by business_id when provided.
      */
-    public function deleteFile(string $filePath, string $disk = 'public'): bool
+    public function deleteFile(string $filePath, string $disk = 'public', ?string $businessId = null): bool
     {
         if (Storage::disk($disk)->exists($filePath)) {
             Storage::disk($disk)->delete($filePath);
         }
 
-        $storageFile = $this->recordDeletion($filePath, $disk);
+        $storageFile = $this->recordDeletion($filePath, $disk, $businessId);
         if ($storageFile) {
-            $this->cleanReferencingModels($filePath, (string) $storageFile->category);
+            $this->cleanReferencingModels($filePath, (string) $storageFile->category, $storageFile->business_id ?? $businessId);
         }
 
         return true;
@@ -129,38 +136,74 @@ class StorageTrackingService
 
     /**
      * Clean up any model foreign keys / file references when a file is deleted.
+     * Enforces strict multi-tenant isolation by business_id.
      */
-    public function cleanReferencingModels(string $filePath, string $category): void
+    public function cleanReferencingModels(string $filePath, string $category, ?string $businessId = null): void
     {
         switch ($category) {
             case StorageFile::CATEGORY_PRODUCT_IMAGE:
-                \App\Models\Product::where('image_path', $filePath)->update(['image_path' => null]);
+                $query = \App\Models\Product::where('image_path', $filePath);
+                if ($businessId !== null) {
+                    $query->where('business_id', $businessId);
+                }
+                $query->update(['image_path' => null]);
                 break;
+
             case StorageFile::CATEGORY_BUSINESS_LOGO:
-                \App\Models\Business::where('logo_path', $filePath)->update(['logo_path' => null]);
+                $query = \App\Models\Business::where('logo_path', $filePath);
+                if ($businessId !== null) {
+                    $query->where('id', $businessId);
+                }
+                $query->update(['logo_path' => null]);
                 break;
+
             case StorageFile::CATEGORY_QRIS:
-                \App\Models\CommercePaymentMethod::where('qris_image_path', $filePath)->update(['qris_image_path' => null]);
+                $query = \App\Models\CommercePaymentMethod::where('qris_image_path', $filePath);
+                if ($businessId !== null) {
+                    $query->where('business_id', $businessId);
+                }
+                $query->update(['qris_image_path' => null]);
                 break;
+
             case StorageFile::CATEGORY_EXPENSE_RECEIPT:
-                \App\Models\Expense::where('receipt_image_path', $filePath)->update(['receipt_image_path' => null]);
+                $query = \App\Models\Expense::where('receipt_image_path', $filePath);
+                if ($businessId !== null) {
+                    $query->where('business_id', $businessId);
+                }
+                $query->update(['receipt_image_path' => null]);
                 break;
+
             case StorageFile::CATEGORY_COMMUNITY_IMAGE:
-                \App\Models\CommunityPost::where('image_path', $filePath)->update(['image_path' => null]);
+                $query = \App\Models\CommunityPost::where('image_path', $filePath);
+                if ($businessId !== null) {
+                    $query->where('business_id', $businessId);
+                }
+                $query->update(['image_path' => null]);
                 break;
+
             case StorageFile::CATEGORY_FEEDBACK_ATTACHMENT:
-                \App\Models\BugReport::where('attachment_path', $filePath)->update(['attachment_path' => null]);
+                $query = \App\Models\BugReport::where('attachment_path', $filePath);
+                if ($businessId !== null) {
+                    $query->where('business_id', $businessId);
+                }
+                $query->update(['attachment_path' => null]);
                 break;
+
             case StorageFile::CATEGORY_OWNER_AVATAR:
                 \App\Models\User::where('avatar', $filePath)->update(['avatar' => null]);
                 break;
+
             case StorageFile::CATEGORY_LANDING_PAGE_IMAGE:
-                $pages = \App\Models\BusinessLandingPage::where(function ($q) use ($filePath) {
+                $landingQuery = \App\Models\BusinessLandingPage::where(function ($q) use ($filePath) {
                     $q->where('logo_image', 'like', "%{$filePath}%")
                       ->orWhere('hero_image', 'like', "%{$filePath}%")
                       ->orWhere('about_image', 'like', "%{$filePath}%")
                       ->orWhere('og_image', 'like', "%{$filePath}%");
-                })->get();
+                });
+                if ($businessId !== null) {
+                    $landingQuery->where('business_id', $businessId);
+                }
+                $pages = $landingQuery->get();
 
                 foreach ($pages as $page) {
                     $updates = [];
@@ -206,11 +249,12 @@ class StorageTrackingService
      * 1. Detect untracked physical files and create DB records with actual file sizes.
      * 2. Detect orphaned DB records (physical file missing) and mark them deleted.
      * 3. Sync byte count differences.
+     * When $targetBusiness is provided, scans and reconciles strictly for that business.
      */
-    public function recalculate(User $owner): array
+    public function recalculate(User $owner, ?Business $targetBusiness = null): array
     {
         $owner->loadMissing('businesses');
-        $businesses = $owner->businesses;
+        $businesses = $targetBusiness ? collect([$targetBusiness]) : $owner->businesses;
         $trackedCount = 0;
         $untrackedAdded = 0;
         $orphanedCleaned = 0;
@@ -309,8 +353,8 @@ class StorageTrackingService
             }
         }
 
-        // Check user avatar
-        if ($owner->avatar && ! str_starts_with($owner->avatar, 'http') && Storage::disk('public')->exists($owner->avatar)) {
+        // Check user avatar only if full owner recalculation (not scoped to single business)
+        if (! $targetBusiness && $owner->avatar && ! str_starts_with($owner->avatar, 'http') && Storage::disk('public')->exists($owner->avatar)) {
             $activePathsOnDisk[] = $owner->avatar;
             $size = (int) Storage::disk('public')->size($owner->avatar);
             $this->recordUpload(
@@ -324,11 +368,16 @@ class StorageTrackingService
             $trackedCount++;
         }
 
-        // Detect orphaned records for this owner (files in DB that don't exist physically)
-        $ownerFiles = StorageFile::where('owner_id', $owner->id)
+        // Detect orphaned records for this owner / business (files in DB that don't exist physically)
+        $ownerFilesQuery = StorageFile::where('owner_id', $owner->id)
             ->where('status', StorageFile::STATUS_ACTIVE)
-            ->whereNull('deleted_at')
-            ->get();
+            ->whereNull('deleted_at');
+
+        if ($targetBusiness) {
+            $ownerFilesQuery->where('business_id', $targetBusiness->id);
+        }
+
+        $ownerFiles = $ownerFilesQuery->get();
 
         foreach ($ownerFiles as $file) {
             if (! Storage::disk($file->disk)->exists($file->file_path)) {
@@ -343,14 +392,26 @@ class StorageTrackingService
         $this->ownerQuotaService->clearSummaryCache($owner);
         $summary = $this->ownerQuotaService->getSummary($owner, true);
 
+        $businessUsedBytes = $targetBusiness
+            ? (int) StorageFile::where('business_id', $targetBusiness->id)
+                ->where('status', StorageFile::STATUS_ACTIVE)
+                ->where('is_temporary', false)
+                ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+                ->where('module', '!=', 'social_media')
+                ->sum('file_size')
+            : (int) $summary['used_bytes'];
+
         return [
             'owner_id' => $owner->id,
             'owner_name' => $owner->name,
+            'target_business_id' => $targetBusiness?->id,
             'scanned_files' => count($activePathsOnDisk),
             'untracked_added' => $untrackedAdded,
             'orphaned_cleaned' => $orphanedCleaned,
             'total_used_bytes' => $summary['used_bytes'],
             'total_used_mb' => $summary['used_mb'],
+            'business_used_bytes' => $businessUsedBytes,
+            'business_used_mb' => round($businessUsedBytes / 1048576, 2),
             'limit_gb' => $summary['limit_gb'],
             'percentage' => $summary['percentage'],
         ];
@@ -397,112 +458,104 @@ class StorageTrackingService
     }
 
     /**
-     * Get detailed breakdown of owner storage for UI presentation.
+     * Get detailed breakdown of storage for UI presentation.
+     * Enforces strict multi-tenant isolation by business_id when business is provided.
      */
-    public function getStorageDetails(User $owner): array
+    public function getStorageDetails(Business|User $subject, Business|User|null $secondary = null): array
     {
-        $summary = $this->ownerQuotaService->getSummary($owner);
+        if ($subject instanceof Business) {
+            $business = $subject;
+            $owner = ($secondary instanceof User)
+                ? $secondary
+                : ($business->users()->wherePivot('role', 'owner')->first() ?? $business->owner ?? auth()->user());
+        } else {
+            $owner = $subject;
+            $business = ($secondary instanceof Business) ? $secondary : null;
+        }
+
+        $summary = $owner ? $this->ownerQuotaService->getSummary($owner) : [
+            'limit_bytes' => OwnerStorageQuotaService::DEFAULT_LIMIT_BYTES,
+            'limit_gb' => 3,
+            'used_bytes' => 0,
+            'used_mb' => 0,
+            'percentage' => 0,
+            'is_over_limit' => false,
+        ];
+
         $limitBytes = (int) $summary['limit_bytes'];
-        $usedBytes = (int) $summary['used_bytes'];
-        $remainingBytes = max(0, $limitBytes - $usedBytes);
+        $businessId = $business?->id;
 
-        // 1. Breakdown by Business
-        $businessStats = [];
-        $owner->loadMissing('businesses');
-        foreach ($owner->businesses as $business) {
-            $bBytes = (int) StorageFile::where('business_id', $business->id)
-                ->where('status', StorageFile::STATUS_ACTIVE)
-                ->where('is_temporary', false)
-                ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
-                ->where('module', '!=', 'social_media')
-                ->sum('file_size');
+        // 1. Calculate usage strictly for this active business
+        $businessFilesQuery = StorageFile::where('status', StorageFile::STATUS_ACTIVE)
+            ->where('is_temporary', false)
+            ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+            ->where('module', '!=', 'social_media');
 
-            $bCount = (int) StorageFile::where('business_id', $business->id)
-                ->where('status', StorageFile::STATUS_ACTIVE)
-                ->where('is_temporary', false)
-                ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
-                ->where('module', '!=', 'social_media')
-                ->count();
-
-            $businessStats[] = [
-                'id' => $business->id,
-                'name' => $business->name,
-                'used_bytes' => $bBytes,
-                'used_mb' => round($bBytes / 1048576, 2),
-                'files_count' => $bCount,
-                'percentage' => $limitBytes > 0 ? round(($bBytes / $limitBytes) * 100, 1) : 0,
-            ];
+        if ($businessId) {
+            $businessFilesQuery->where('business_id', $businessId);
+        } elseif ($owner) {
+            $businessFilesQuery->where('owner_id', $owner->id);
         }
 
-        // Also check files without business (owner-level e.g. avatar, profile)
-        $ownerDirectBytes = (int) StorageFile::where('owner_id', $owner->id)
-            ->whereNull('business_id')
-            ->where('status', StorageFile::STATUS_ACTIVE)
+        $businessUsedBytes = (int) (clone $businessFilesQuery)->sum('file_size');
+        $businessFilesCount = (int) (clone $businessFilesQuery)->count();
+
+        // 2. Breakdown by Category strictly isolated to this active business
+        $categoryQuery = StorageFile::where('status', StorageFile::STATUS_ACTIVE)
             ->where('is_temporary', false)
             ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
-            ->where('module', '!=', 'social_media')
-            ->sum('file_size');
+            ->where('module', '!=', 'social_media');
 
-        $ownerDirectCount = (int) StorageFile::where('owner_id', $owner->id)
-            ->whereNull('business_id')
-            ->where('status', StorageFile::STATUS_ACTIVE)
-            ->where('is_temporary', false)
-            ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
-            ->where('module', '!=', 'social_media')
-            ->count();
-
-        if ($ownerDirectCount > 0) {
-            $businessStats[] = [
-                'id' => null,
-                'name' => 'Akun Owner / Profil',
-                'used_bytes' => $ownerDirectBytes,
-                'used_mb' => round($ownerDirectBytes / 1048576, 2),
-                'files_count' => $ownerDirectCount,
-                'percentage' => $limitBytes > 0 ? round(($ownerDirectBytes / $limitBytes) * 100, 1) : 0,
-            ];
+        if ($businessId) {
+            $categoryQuery->where('business_id', $businessId);
+        } elseif ($owner) {
+            $categoryQuery->where('owner_id', $owner->id);
         }
 
-        // 2. Breakdown by Category
-        $categories = StorageFile::where('owner_id', $owner->id)
-            ->where('status', StorageFile::STATUS_ACTIVE)
-            ->where('is_temporary', false)
-            ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
-            ->where('module', '!=', 'social_media')
+        $categories = $categoryQuery
             ->select('category', DB::raw('SUM(file_size) as total_bytes'), DB::raw('COUNT(*) as count'))
             ->groupBy('category')
             ->get()
-            ->map(function ($row) use ($limitBytes) {
+            ->map(function ($row) use ($limitBytes, $businessUsedBytes) {
                 $cBytes = (int) $row->total_bytes;
+                $pct = $businessUsedBytes > 0 ? round(($cBytes / $businessUsedBytes) * 100, 1) : 0;
                 return [
                     'category' => $row->category,
                     'label' => StorageFile::CATEGORIES[$row->category] ?? ucfirst(str_replace('_', ' ', (string) $row->category)),
                     'used_bytes' => $cBytes,
                     'used_mb' => round($cBytes / 1048576, 2),
                     'files_count' => (int) $row->count,
-                    'percentage' => $limitBytes > 0 ? round(($cBytes / $limitBytes) * 100, 1) : 0,
+                    'percentage' => $pct,
                 ];
             })
             ->values()
             ->all();
 
-        // 3. Top Largest Files (max 10)
-        $largestFiles = StorageFile::with(['business'])
-            ->where('owner_id', $owner->id)
+        // 3. Top Largest Files (max 10) strictly isolated to this active business_id
+        $largestFilesQuery = StorageFile::with(['business'])
             ->where('status', StorageFile::STATUS_ACTIVE)
             ->where('is_temporary', false)
             ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
-            ->where('module', '!=', 'social_media')
+            ->where('module', '!=', 'social_media');
+
+        if ($businessId) {
+            $largestFilesQuery->where('business_id', $businessId);
+        } elseif ($owner) {
+            $largestFilesQuery->where('owner_id', $owner->id);
+        }
+
+        $largestFiles = $largestFilesQuery
             ->orderByDesc('file_size')
             ->limit(10)
             ->get()
-            ->map(function (StorageFile $file) {
+            ->map(function (StorageFile $file) use ($business) {
                 return [
                     'id' => $file->id,
                     'file_name' => $file->file_name,
                     'file_path' => $file->file_path,
                     'category' => $file->category,
                     'category_label' => $file->category_label,
-                    'business_name' => $file->business?->name ?? 'Akun Owner',
+                    'business_name' => $file->business?->name ?? $business?->name ?? 'Bisnis Ini',
                     'file_size' => (int) $file->file_size,
                     'formatted_size' => $file->formatted_size,
                     'uploaded_at' => $file->uploaded_at?->format('d M Y H:i') ?? $file->created_at?->format('d M Y H:i'),
@@ -510,26 +563,60 @@ class StorageTrackingService
             })
             ->all();
 
+        // 4. Breakdown by Business (for multi-tenant owner overview)
+        $businessStats = [];
+        if ($owner) {
+            $owner->loadMissing('businesses');
+            foreach ($owner->businesses as $b) {
+                $bBytes = (int) StorageFile::where('business_id', $b->id)
+                    ->where('status', StorageFile::STATUS_ACTIVE)
+                    ->where('is_temporary', false)
+                    ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+                    ->where('module', '!=', 'social_media')
+                    ->sum('file_size');
+
+                $bCount = (int) StorageFile::where('business_id', $b->id)
+                    ->where('status', StorageFile::STATUS_ACTIVE)
+                    ->where('is_temporary', false)
+                    ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+                    ->where('module', '!=', 'social_media')
+                    ->count();
+
+                $businessStats[] = [
+                    'id' => $b->id,
+                    'name' => $b->name,
+                    'is_current' => $businessId && $b->id === $businessId,
+                    'used_bytes' => $bBytes,
+                    'used_mb' => round($bBytes / 1048576, 2),
+                    'files_count' => $bCount,
+                    'percentage' => $limitBytes > 0 ? round(($bBytes / $limitBytes) * 100, 1) : 0,
+                ];
+            }
+        }
+
+        $overallUsedBytes = (int) ($summary['used_bytes'] ?? $businessUsedBytes);
+        $remainingBytes = max(0, $limitBytes - $overallUsedBytes);
+
         return [
             'limit_bytes' => $limitBytes,
             'limit_gb' => $summary['limit_gb'],
-            'used_bytes' => $usedBytes,
+            'used_bytes' => $overallUsedBytes,
             'used_mb' => $summary['used_mb'],
-            'used_gb' => round($usedBytes / 1073741824, 2),
+            'used_gb' => round($overallUsedBytes / 1073741824, 2),
+            'business_used_bytes' => $businessUsedBytes,
+            'business_used_mb' => round($businessUsedBytes / 1048576, 2),
             'remaining_bytes' => $remainingBytes,
             'remaining_mb' => round($remainingBytes / 1048576, 2),
             'remaining_gb' => round($remainingBytes / 1073741824, 2),
-            'percentage' => $summary['percentage'],
-            'is_over_limit' => $summary['is_over_limit'],
-            'total_files_count' => (int) StorageFile::where('owner_id', $owner->id)
-                ->where('status', StorageFile::STATUS_ACTIVE)
-                ->where('is_temporary', false)
-                ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
-                ->where('module', '!=', 'social_media')
-                ->count(),
+            'percentage' => $summary['percentage'] ?? ($limitBytes > 0 ? round(($overallUsedBytes / $limitBytes) * 100, 1) : 0),
+            'is_over_limit' => $summary['is_over_limit'] ?? ($overallUsedBytes > $limitBytes),
+            'total_files_count' => $businessFilesCount,
+            'overall_files_count' => $owner ? (int) StorageFile::where('owner_id', $owner->id)->where('status', StorageFile::STATUS_ACTIVE)->where('is_temporary', false)->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)->where('module', '!=', 'social_media')->count() : $businessFilesCount,
             'business_breakdown' => $businessStats,
             'category_breakdown' => $categories,
             'largest_files' => $largestFiles,
+            'active_business_id' => $businessId,
+            'active_business_name' => $business?->name,
         ];
     }
 

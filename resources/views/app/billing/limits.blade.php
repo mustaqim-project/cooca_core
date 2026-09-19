@@ -491,8 +491,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
-                            {{ $storageDetails['total_files_count'] }} file aktif · {{ $storageDetails['used_mb'] }} MB /
-                            {{ $storageDetails['limit_gb'] }} GB
+                            {{ $storageDetails['total_files_count'] }} file aktif ({{ $storageDetails['business_used_mb'] ?? $storageDetails['used_mb'] }} MB) · Kuota: {{ $storageDetails['limit_gb'] }} GB
                         </span>
                         <!-- Kelola Semua Berkas Modal Trigger -->
                         <button type="button" @click="openModal()"
@@ -505,7 +504,7 @@
                             <form method="POST" action="{{ route('billing.storage.recalculate') }}" class="inline">
                                 @csrf
                                 <button type="submit"
-                                    onclick="return confirm('Recalculate akan memindai ulang seluruh file di disk dan menyinkronkan database. Lanjutkan?')"
+                                    onclick="return confirm('Recalculate akan memindai ulang seluruh file di disk dan menyinkronkan database untuk bisnis ini. Lanjutkan?')"
                                     class="px-2.5 py-1.5 rounded-[8px] text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:ring-2 focus-visible:ring-cyan-500">
                                     <i data-lucide="refresh-cw" class="w-3 h-3 text-cyan-600 dark:text-cyan-400"
                                         aria-hidden="true"></i>
@@ -538,10 +537,17 @@
                                     @endphp
                                     <div class="space-y-1">
                                         <div class="flex items-center justify-between text-xs">
-                                            <span
-                                                class="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
-                                                {{ $biz['name'] }}
-                                            </span>
+                                            <div class="flex items-center gap-1.5 min-w-0">
+                                                <span
+                                                    class="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[160px]">
+                                                    {{ $biz['name'] }}
+                                                </span>
+                                                @if (!empty($biz['is_current']))
+                                                    <span class="px-1.5 py-0.2 rounded-[6px] text-[9px] font-bold bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200/80 dark:border-cyan-800/80 shrink-0 font-mono">
+                                                        Bisnis Aktif
+                                                    </span>
+                                                @endif
+                                            </div>
                                             <span
                                                 class="font-mono text-slate-500 dark:text-slate-400 text-[11px] shrink-0 ml-2 tabular-nums">
                                                 {{ $biz['used_mb'] }} MB ({{ $bizPct }}%) ·
@@ -551,7 +557,7 @@
                                         <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-200 dark:border-slate-800"
                                             role="progressbar" aria-valuenow="{{ $bizPct }}" aria-valuemin="0"
                                             aria-valuemax="100">
-                                            <div class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-teal-400 transition-all duration-500"
+                                            <div class="h-full rounded-full {{ !empty($biz['is_current']) ? 'bg-gradient-to-r from-cyan-500 to-teal-400' : 'bg-slate-400 dark:bg-slate-600' }} transition-all duration-500"
                                                 style="width: {{ $bizPct }}%"></div>
                                         </div>
                                     </div>
@@ -600,7 +606,7 @@
                             class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                             <i data-lucide="file-search" class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400"
                                 aria-hidden="true"></i>
-                            <span>10 File Terbesar</span>
+                            <span>10 Berkas Terbesar Bisnis Ini</span>
                         </div>
 
                         <!-- Desktop Table View -->
@@ -1460,10 +1466,10 @@
                         </div>
                         <div>
                             <h3 id="file-manager-title" class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight">
-                                Manajemen Berkas Penyimpanan
+                                Manajemen Berkas Penyimpanan ({{ $business->name }})
                             </h3>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                                Hapus berkas yang tidak diperlukan untuk mengembalikan kapasitas kuota penyimpanan cloud ERP Anda.
+                                Kelola dan hapus berkas milik bisnis ini untuk mengurangi pemakaian storage cloud.
                             </p>
                         </div>
                     </div>

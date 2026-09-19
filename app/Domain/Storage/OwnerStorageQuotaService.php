@@ -56,6 +56,20 @@ final class OwnerStorageQuotaService
         return $total;
     }
 
+    /**
+     * Get storage usage in bytes strictly isolated to a specific business.
+     */
+    public function getBusinessUsageBytes(Business $business): int
+    {
+        return (int) StorageFile::where('business_id', $business->id)
+            ->where('status', StorageFile::STATUS_ACTIVE)
+            ->where('is_temporary', false)
+            ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+            ->where('module', '!=', 'social_media')
+            ->whereNull('deleted_at')
+            ->sum('file_size');
+    }
+
     public function getLimitBytes(User $owner): int
     {
         return $this->getBaseLimitBytes() + (int) OwnerStorageTopup::where('owner_id', $owner->id)
