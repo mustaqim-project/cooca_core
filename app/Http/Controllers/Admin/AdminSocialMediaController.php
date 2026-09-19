@@ -133,8 +133,11 @@ class AdminSocialMediaController extends Controller
                 ->with('success', 'Postingan platform berhasil dipublikasikan ulang!');
         }
 
+        $targetErr = $post->targets()->whereNotNull('error_message')->value('error_message');
+        $errMsg = $targetErr ?: ($post->error_message ?? 'Periksa kredensial.');
+
         return redirect()->route('admin.social-media.index', ['tab' => 'posts'])
-            ->with('error', 'Gagal mempublikasikan ulang postingan: ' . ($post->error_message ?? 'Periksa kredensial.'));
+            ->with('error', 'Gagal mempublikasikan ulang postingan: ' . $errMsg);
     }
 
     /**
