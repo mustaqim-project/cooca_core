@@ -220,7 +220,7 @@ final class AdminStorage
         }
 
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
+            return preg_replace('#^(https?://[^/]+)/public/#i', '$1/', $path);
         }
 
         $clean = ltrim($path, '/');
@@ -228,24 +228,13 @@ final class AdminStorage
             $clean = substr($clean, 7);
         }
 
-        if (str_starts_with($clean, 'storage/')) {
-            return asset($clean);
+        $url = asset($clean);
+
+        // Guarantee /public/ is never injected into canonical asset URLs
+        if (str_contains($url, '/public/')) {
+            $url = (string) preg_replace('#^(https?://[^/]+)/public/#i', '$1/', $url);
         }
 
-        // If file exists directly in public_path(clean)
-        if (file_exists(public_path($clean))) {
-            return asset($clean);
-        }
-
-        // If path already starts with admin/
-        if (str_starts_with($clean, 'admin/')) {
-            if (file_exists(public_path($clean))) {
-                return asset($clean);
-            }
-
-            return asset('storage/' . $clean);
-        }
-
-        return asset('storage/' . $clean);
+        return $url;
     }
 }

@@ -262,10 +262,10 @@ class MetaSocialMediaClient
             throw new \RuntimeException('Creation ID Instagram tidak ditemukan.');
         }
 
-        // For video / reels, wait until container status is FINISHED
-        if ($normalizedType === 'REELS' || $normalizedType === 'VIDEO') {
-            $this->waitForMediaContainerReady($creationId, $pageToken);
-        }
+        // Wait until container status is FINISHED before publishing.
+        // Instagram asynchronously downloads media from external URLs.
+        // Calling media_publish prematurely triggers (#9007) "Media ID is not available".
+        $this->waitForMediaContainerReady($creationId, $pageToken);
 
         // Step 2: Publish media container
         $publishResponse = Http::asForm()->post($this->endpoint("{$igUserId}/media_publish", $pageToken), [

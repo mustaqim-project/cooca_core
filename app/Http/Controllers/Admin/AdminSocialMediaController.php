@@ -107,8 +107,11 @@ class AdminSocialMediaController extends Controller
             return redirect()->route('admin.social-media.index', ['tab' => 'posts'])
                 ->with('success', $schedNotice);
         } else {
+            $targetErr = $post->targets()->whereNotNull('error_message')->value('error_message');
+            $errMsg = $targetErr ?: ($post->error_message ?? 'Periksa log atau kredensial akun.');
+
             return redirect()->route('admin.social-media.index', ['tab' => 'posts'])
-                ->with('error', 'Gagal mempublikasikan postingan: ' . ($post->error_message ?? 'Periksa log atau kredensial akun.'));
+                ->with('error', 'Gagal mempublikasikan postingan: ' . $errMsg);
         }
     }
 
