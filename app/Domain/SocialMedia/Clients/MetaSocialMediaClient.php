@@ -319,9 +319,7 @@ class MetaSocialMediaClient
             }
 
             $childId = (string) $res->json('id');
-            if ($isVideo) {
-                $this->waitForMediaContainerReady($childId, $pageToken);
-            }
+            $this->waitForMediaContainerReady($childId, $pageToken);
             $childContainerIds[] = $childId;
         }
 
@@ -339,6 +337,7 @@ class MetaSocialMediaClient
         }
 
         $carouselCreationId = (string) $carouselRes->json('id');
+        $this->waitForMediaContainerReady($carouselCreationId, $pageToken);
 
         // 3. Publish parent carousel container
         $publishRes = Http::asForm()->post($this->endpoint("{$igUserId}/media_publish", $pageToken), [
