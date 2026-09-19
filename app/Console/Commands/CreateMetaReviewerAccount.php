@@ -29,6 +29,12 @@ class CreateMetaReviewerAccount extends Command
             $user->update([
                 'password'          => Hash::make($password),
                 'email_verified_at' => now(),
+                'phone'             => '628123456789',
+                'phone_verified_at' => now(),
+                'onboarding_completed'    => true,
+                'onboarding_completed_at' => now(),
+                'onboarding_current_step' => 99,
+                'onboarding_version'      => 1,
             ]);
             $this->info("User '{$email}' already exists — password reset successfully.");
         } else {
@@ -38,6 +44,8 @@ class CreateMetaReviewerAccount extends Command
                 'email'             => $email,
                 'password'          => Hash::make($password),
                 'email_verified_at' => now(),
+                'phone'             => '628123456789',
+                'phone_verified_at' => now(),
                 'onboarding_completed'    => true,
                 'onboarding_completed_at' => now(),
                 'onboarding_current_step' => 99,

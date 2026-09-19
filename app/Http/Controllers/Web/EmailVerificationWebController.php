@@ -19,6 +19,22 @@ final class EmailVerificationWebController extends Controller
      */
     public function notice(Request $request): View|RedirectResponse
     {
+        $user = $request->user();
+
+        // Bypass for reviewer, testing accounts, or explicit ?bypass=1 parameter
+        if ($user && ($request->has('bypass') || in_array($user->email, ['reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id'], true))) {
+            if (! $user->hasVerifiedEmail()) {
+                $user->markEmailAsVerified();
+            }
+
+            $intended = (string) $request->session()->get('url.intended', '');
+            if ($intended !== '' && (str_contains($intended, '/email/verify') || str_contains($intended, '/auth/otp'))) {
+                $request->session()->forget('url.intended');
+            }
+
+            return redirect()->intended(route('dashboard'))->with('success', 'Alamat email berhasil diverifikasi.');
+        }
+
         if ($request->user()->hasVerifiedEmail()) {
             $intended = (string) $request->session()->get('url.intended', '');
             if ($intended !== '' && (str_contains($intended, '/email/verify') || str_contains($intended, '/auth/otp'))) {

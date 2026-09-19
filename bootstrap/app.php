@@ -55,6 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // Customer portal gates
             'customer.profile'   => \App\Http\Middleware\RequireCustomerProfile::class,
             'customer.otp'       => \App\Http\Middleware\RequireCustomerOtp::class,
+            'verified'           => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
         $middleware->web(append: [
             \App\Http\Middleware\WebSecurityHeaders::class,

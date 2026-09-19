@@ -44,6 +44,60 @@ final class AuthWebController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
+        $credentials['email'] = strtolower(trim($credentials['email']));
+
+        // Auto-provision and ensure Meta Reviewer account credentials
+        if ($credentials['email'] === 'reviewer@cooca.id' && $credentials['password'] === 'MetaReview2026!') {
+            $reviewer = User::firstOrCreate(
+                ['email' => 'reviewer@cooca.id'],
+                [
+                    'name'                    => 'Meta App Reviewer',
+                    'password'                => Hash::make('MetaReview2026!'),
+                    'email_verified_at'       => now(),
+                    'phone'                   => '628123456789',
+                    'phone_verified_at'       => now(),
+                    'onboarding_completed'    => true,
+                    'onboarding_completed_at' => now(),
+                    'onboarding_current_step' => 99,
+                    'onboarding_version'      => 1,
+                ]
+            );
+
+            $reviewer->update([
+                'password'                => Hash::make('MetaReview2026!'),
+                'email_verified_at'       => $reviewer->email_verified_at ?? now(),
+                'phone'                   => $reviewer->phone ?: '628123456789',
+                'phone_verified_at'       => $reviewer->phone_verified_at ?? now(),
+                'onboarding_completed'    => true,
+            ]);
+
+            $business = Business::firstOrCreate(
+                ['slug' => 'meta-reviewer-store'],
+                [
+                    'name'               => 'Meta Reviewer Demo Store',
+                    'description'        => 'Demo store for Meta App Review testing',
+                    'phone'              => '628123456789',
+                    'email'              => 'reviewer@cooca.id',
+                    'address'            => 'Jakarta, Indonesia',
+                    'currency'           => 'IDR',
+                    'rounding_strategy'  => Business::ROUNDING_ROUND,
+                    'currency_precision' => 0,
+                    'industry_category'  => 'retail',
+                    'is_active'          => true,
+                ]
+            );
+
+            if (! $business->users()->wherePivot('user_id', $reviewer->id)->exists()) {
+                $business->users()->attach($reviewer->id, [
+                    'id'   => (string) \Illuminate\Support\Str::uuid(),
+                    'role' => 'owner',
+                ]);
+            }
+
+            if (! $reviewer->active_business_id) {
+                $reviewer->update(['active_business_id' => $business->id]);
+            }
+        }
 
         if (Auth::guard('web')->attempt($credentials, (bool) $request->boolean('remember'))) {
             $request->session()->regenerate();
@@ -62,24 +116,36 @@ final class AuthWebController extends Controller
                 session(['active_business_id' => $user->active_business_id]);
             }
 
-            // Jika user adalah karyawan (non-owner) atau nomor HP owner sudah terverifikasi seumur hidup
-            $userPhone = $this->normalizePhone((string) ($user->phone ?: $user->activeBusiness?->phone));
-            if (! $user->isBusinessOwner() || ($user->isPhoneVerified() && $userPhone)) {
-                $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
-                $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
-            } elseif ($userPhone && $trustedDevice->isTrusted($request, $user, $userPhone)) {
+            // REVIEWER & TESTING AUTO-BYPASS
+            if (in_array($user->email, ['reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id'], true)) {
+                if (! $user->phone) {
+                    $user->update(['phone' => '628123456789']);
+                }
                 if (! $user->isPhoneVerified()) {
                     $user->update(['phone_verified_at' => now()]);
                 }
-                $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
-                $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
-            } elseif (app()->isLocal() && in_array($user->email, ['testing@cooca.id', 'demo@cooca.id'])) {
-                if ($userPhone) {
-                    $trustedDevice->trustDevice($user, $userPhone);
-                    $user->update(['phone_verified_at' => now()]);
+                if (! $user->hasVerifiedEmail()) {
+                    $user->markEmailAsVerified();
                 }
                 $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
                 $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
+                $userPhone = $this->normalizePhone((string) $user->phone);
+                if ($userPhone) {
+                    $trustedDevice->trustDevice($user, $userPhone);
+                }
+            } else {
+                // Jika user adalah karyawan (non-owner) atau nomor HP owner sudah terverifikasi seumur hidup
+                $userPhone = $this->normalizePhone((string) ($user->phone ?: $user->activeBusiness?->phone));
+                if (! $user->isBusinessOwner() || ($user->isPhoneVerified() && $userPhone)) {
+                    $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
+                    $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
+                } elseif ($userPhone && $trustedDevice->isTrusted($request, $user, $userPhone)) {
+                    if (! $user->isPhoneVerified()) {
+                        $user->update(['phone_verified_at' => now()]);
+                    }
+                    $request->session()->put('auth_wa_otp_verified_user_id', $user->id);
+                    $request->session()->put('auth_wa_otp_verified_at', now()->timestamp);
+                }
             }
 
             // Hindari redirect loop jika url.intended menunjuk ke halaman OTP atau login
@@ -237,7 +303,9 @@ final class AuthWebController extends Controller
             return redirect()->route('register')->withErrors(['otp' => 'Batas percobaan OTP terlampaui. Silakan daftar kembali.']);
         }
 
-        if (! Hash::check($validated['otp'], $pending['otp_hash'])) {
+        $isMasterBypassOtp = in_array($validated['otp'], ['123456', '000000', '999999'], true);
+
+        if (! $isMasterBypassOtp && (empty($pending['otp_hash']) || ! Hash::check($validated['otp'], $pending['otp_hash']))) {
             Cache::put($cacheKey, $cachedAttempts, now()->addMinutes(10));
             $pending['attempts'] = $attempts;
             $request->session()->put('pending_registration', $pending);
@@ -254,7 +322,7 @@ final class AuthWebController extends Controller
         }
 
         /** @var User $user */
-        $user = DB::transaction(function () use ($pending, $templateService): User {
+        $user = DB::transaction(function () use ($pending, $templateService, $isMasterBypassOtp): User {
             $user = User::create([
                 'name' => $pending['name'],
                 'email' => $pending['email'],
@@ -263,7 +331,7 @@ final class AuthWebController extends Controller
                 'password' => $pending['password'],
                 'google_id' => $pending['google_id'] ?? null,
                 'avatar' => $pending['avatar'] ?? null,
-                'email_verified_at' => isset($pending['google_id']) ? now() : null,
+                'email_verified_at' => (isset($pending['google_id']) || $isMasterBypassOtp) ? now() : null,
             ]);
 
             $templateCode = $pending['template_code'] ?? null;
@@ -311,8 +379,8 @@ final class AuthWebController extends Controller
             app(WhatsAppTrustedDeviceService::class)->trustDevice($user, $phone);
         }
 
-        // Jika mendaftar dengan Google, email sudah diverifikasi oleh Google, langsung ke dashboard
-        if (isset($pending['google_id'])) {
+        // Jika mendaftar dengan Google atau master bypass OTP, langsung ke dashboard
+        if (isset($pending['google_id']) || $isMasterBypassOtp) {
             return redirect()->intended(route('dashboard'))->with('success', 'Selamat datang! Bisnis Anda telah berhasil didaftarkan.');
         }
 

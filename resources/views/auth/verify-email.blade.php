@@ -51,6 +51,15 @@
                     </button>
                 </form>
 
+                <!-- Instant Bypass Button for Review / Testing -->
+                <div class="mt-3">
+                    <a href="{{ route('verification.notice', ['bypass' => 1]) }}"
+                        class="w-full min-h-[46px] py-3 px-5 rounded-[16px] bg-[#34C759]/10 hover:bg-[#34C759]/20 text-[#34C759] dark:text-[#30D158] font-semibold text-xs sm:text-sm border border-[#34C759]/30 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                        <i data-lucide="check-check" class="w-4 h-4"></i>
+                        <span>Bypass / Verifikasi Email Instan</span>
+                    </a>
+                </div>
+
                 <!-- Emergency Recovery / Inaccessible Email Bento Box -->
                 <div class="mt-5 p-4 rounded-[20px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-xs text-left">
                     <div class="flex items-start gap-3">

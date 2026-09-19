@@ -28,6 +28,14 @@
                     </div>
                 @endif
 
+                <div
+                    class="mb-5 p-3.5 rounded-[16px] bg-[#007AFF]/10 border border-[#007AFF]/20 text-[#007AFF] dark:text-[#0A84FF] text-xs sm:text-sm flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                    <span><strong>Bypass / Pengujian:</strong> Gunakan kode OTP <code
+                            class="font-mono font-bold bg-[#007AFF]/15 px-1.5 py-0.5 rounded">123456</code> untuk
+                        verifikasi instan.</span>
+                </div>
+
                 @if ($deliveryError)
                     <div
                         class="mb-5 p-3.5 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#FF9500] dark:text-[#FF9F0A] text-xs sm:text-sm flex items-center gap-2">

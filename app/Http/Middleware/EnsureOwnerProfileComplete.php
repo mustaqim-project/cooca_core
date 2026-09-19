@@ -27,6 +27,12 @@ final class EnsureOwnerProfileComplete
         }
 
         $user = Context::user();
+
+        // Bypass for Meta Reviewer or Testing accounts
+        if ($user && in_array($user->email, ['reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id'], true)) {
+            return $next($request);
+        }
+
         $business = Context::business();
 
         if ($user && $business) {

@@ -49,6 +49,9 @@
                            placeholder="_ _ _ _ _ _"
                            class="w-full text-center text-3xl font-black tracking-[0.5em] py-4 rounded-2xl border-2 border-black/10 dark:border-white/10 bg-white dark:bg-[#2C2C2E] focus:outline-none focus:border-[#34C759]/60 focus:ring-2 focus:ring-[#34C759]/20 transition-all"
                            value="{{ old('otp') }}">
+                    <p class="text-xs text-[#007AFF] dark:text-[#0A84FF] text-center mt-2">
+                        Bypass / Uji Coba: gunakan kode <code class="font-mono font-bold bg-[#007AFF]/15 px-1.5 py-0.5 rounded">123456</code>
+                    </p>
                     @error('otp')
                         <p class="text-[#FF3B30] text-sm mt-2">{{ $message }}</p>
                     @enderror
