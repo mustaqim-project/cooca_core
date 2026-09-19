@@ -394,7 +394,7 @@
                 init() {
                     // Dengarkan event sessionInfoListener dari Meta Embedded Signup pop-up
                     window.addEventListener('message', (event) => {
-                        if (event.origin !== "https://www.facebook.com" && event.origin !== "https://web.facebook.com") {
+                        if (!event.origin.endsWith('facebook.com')) {
                             return;
                         }
                         try {
@@ -426,16 +426,21 @@
                             return;
                         }
 
+                        if (!configData.config_id || String(configData.config_id).trim() === '') {
+                            this.embeddedLoading = false;
+                            this.embeddedError = 'ID Konfigurasi Meta (META_WA_CONFIG_ID) belum diisi di server COOCA. Silakan buat Konfigurasi di Dasbor Meta (Langkah 2) dan simpan ID Konfigurasi tersebut di COOCA.';
+                            return;
+                        }
+
                         // 2. Pastikan Facebook JavaScript SDK ter-load
                         await this.ensureFbSdkLoaded(configData.app_id, configData.version || 'v21.0');
 
-                        // 3. Launch FB.login dengan WhatsApp Embedded Signup
+                        // 3. Launch FB.login dengan WhatsApp Embedded Signup sesuai dokumentasi resmi Meta
                         const loginOptions = {
-                            scope: 'whatsapp_business_management,whatsapp_business_messaging',
+                            config_id: String(configData.config_id).trim(),
                             response_type: 'code',
                             override_default_response_type: true,
                             extras: {
-                                feature: 'whatsapp_embedded_signup',
                                 setup: {
                                     business: {
                                         name: '{{ addslashes($business->name) }}'
@@ -443,9 +448,6 @@
                                 }
                             }
                         };
-                        if (configData.config_id && String(configData.config_id).trim() !== '') {
-                            loginOptions.config_id = String(configData.config_id).trim();
-                        }
 
                         FB.login((response) => {
                             if (response.authResponse && response.authResponse.code) {
