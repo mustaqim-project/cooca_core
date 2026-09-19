@@ -136,8 +136,28 @@ final class PosFinanceWebController extends Controller
 
         $receiptPath = null;
         if ($request->hasFile('receipt_image')) {
+            $file = $request->file('receipt_image');
+            $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
+            $owner = app(\App\Domain\Storage\OwnerStorageQuotaService::class)->ownerForBusiness($business);
+            if ($owner) {
+                $trackingService->assertCanUpload($owner, (int) $file->getSize(), 'receipt_image');
+            }
+
             $dir = TenantStorage::privateDir($business, TenantStorage::FOLDER_EXPENSES);
-            $receiptPath = $request->file('receipt_image')->store($dir, 'local');
+            $receiptPath = $file->store($dir, 'local');
+
+            if ($owner) {
+                $trackingService->recordUpload(
+                    file: $file,
+                    filePath: $receiptPath,
+                    category: \App\Models\StorageFile::CATEGORY_EXPENSE_RECEIPT,
+                    module: 'finance',
+                    owner: $owner,
+                    business: $business,
+                    uploader: $user,
+                    disk: 'local'
+                );
+            }
         }
 
         try {

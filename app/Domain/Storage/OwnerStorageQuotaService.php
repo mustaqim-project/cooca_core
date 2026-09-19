@@ -30,6 +30,8 @@ final class OwnerStorageQuotaService
             return (int) StorageFile::where('owner_id', $owner->id)
                 ->where('status', StorageFile::STATUS_ACTIVE)
                 ->where('is_temporary', false)
+                ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+                ->where('module', '!=', 'social_media')
                 ->whereNull('deleted_at')
                 ->sum('file_size');
         }
@@ -41,6 +43,9 @@ final class OwnerStorageQuotaService
             $path = "businesses/{$business->id}";
             if (Storage::disk('public')->exists($path)) {
                 foreach (Storage::disk('public')->allFiles($path) as $file) {
+                    if (str_contains($file, 'social-media')) {
+                        continue;
+                    }
                     $total += (int) Storage::disk('public')->size($file);
                 }
             }

@@ -340,10 +340,6 @@ class SocialMediaWebController extends Controller
 
         if ($request->hasFile('media_files')) {
             $files = $request->file('media_files');
-            $totalBytes = array_reduce($files, fn(int $carry, $f) => $carry + (int) $f->getSize(), 0);
-            if ($owner) {
-                $trackingService->assertCanUpload($owner, $totalBytes, 'media_files');
-            }
 
             foreach ($files as $idx => $file) {
                 $mime = (string) $file->getMimeType();
@@ -355,11 +351,12 @@ class SocialMediaWebController extends Controller
                     $trackingService->recordUpload(
                         file: $file,
                         filePath: $storedPath,
-                        category: StorageFile::CATEGORY_OTHER,
+                        category: StorageFile::CATEGORY_SOCIAL_MEDIA,
                         module: 'social_media',
                         owner: $owner,
                         business: $business,
-                        uploader: $request->user()
+                        uploader: $request->user(),
+                        isTemporary: true
                     );
                 }
 
@@ -373,9 +370,6 @@ class SocialMediaWebController extends Controller
             }
         } elseif ($request->hasFile('media_file')) {
             $file = $request->file('media_file');
-            if ($owner) {
-                $trackingService->assertCanUpload($owner, (int) $file->getSize(), 'media_file');
-            }
 
             $mime = (string) $file->getMimeType();
             $ext = $file->getClientOriginalExtension() ?: 'bin';
@@ -386,11 +380,12 @@ class SocialMediaWebController extends Controller
                 $trackingService->recordUpload(
                     file: $file,
                     filePath: $storedPath,
-                    category: StorageFile::CATEGORY_OTHER,
+                    category: StorageFile::CATEGORY_SOCIAL_MEDIA,
                     module: 'social_media',
                     owner: $owner,
                     business: $business,
-                    uploader: $request->user()
+                    uploader: $request->user(),
+                    isTemporary: true
                 );
             }
 

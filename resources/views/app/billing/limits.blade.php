@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 pb-28 lg:pb-10">
+    <div class="space-y-6 pb-28 lg:pb-10" x-data="storageLimitsManager()">
 
         <!-- 0. Standard Breadcrumb Bar -->
         <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
@@ -494,6 +494,12 @@
                             {{ $storageDetails['total_files_count'] }} file aktif · {{ $storageDetails['used_mb'] }} MB /
                             {{ $storageDetails['limit_gb'] }} GB
                         </span>
+                        <!-- Kelola Semua Berkas Modal Trigger -->
+                        <button type="button" @click="openModal()"
+                            class="px-2.5 py-1.5 rounded-[8px] text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:ring-2 focus-visible:ring-cyan-500">
+                            <i data-lucide="folder" class="w-3 h-3 text-cyan-600 dark:text-cyan-400" aria-hidden="true"></i>
+                            <span>Kelola Semua Berkas</span>
+                        </button>
                         <!-- Recalculate Button -->
                         @if (\App\Support\Context::hasPermission('billing.manage'))
                             <form method="POST" action="{{ route('billing.storage.recalculate') }}" class="inline">
@@ -608,6 +614,7 @@
                                         <th scope="col" class="py-2.5 text-left font-semibold">Kategori</th>
                                         <th scope="col" class="py-2.5 text-right font-semibold">Ukuran</th>
                                         <th scope="col" class="py-2.5 text-right font-semibold">Diunggah</th>
+                                        <th scope="col" class="py-2.5 text-center font-semibold w-16">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -631,6 +638,19 @@
                                                 {{ $lf['formatted_size'] }}</td>
                                             <td class="py-2.5 text-right text-slate-500 dark:text-slate-400 font-mono tabular-nums">
                                                 {{ $lf['uploaded_at'] }}</td>
+                                            <td class="py-2.5 text-center">
+                                                @if (\App\Support\Context::hasPermission('billing.manage'))
+                                                    <form method="POST" action="{{ route('billing.storage.files.destroy', $lf['id']) }}" class="inline"
+                                                        onsubmit="return confirm('Hapus berkas \'{{ addslashes($lf['file_name']) }}\' secara permanen dari server untuk mengurangi kuota storage?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" title="Hapus Berkas & Kurangi Storage"
+                                                            class="p-1 rounded-[6px] text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer">
+                                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -658,6 +678,17 @@
                                                 {{ $lf['category_label'] }}
                                             </span>
                                             <span class="font-mono tabular-nums">{{ $lf['uploaded_at'] }}</span>
+                                            @if (\App\Support\Context::hasPermission('billing.manage'))
+                                                <form method="POST" action="{{ route('billing.storage.files.destroy', $lf['id']) }}" class="inline"
+                                                    onsubmit="return confirm('Hapus berkas \'{{ addslashes($lf['file_name']) }}\' secara permanen dari server untuk mengurangi kuota storage?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Hapus Berkas & Kurangi Storage"
+                                                        class="text-slate-400 hover:text-rose-600 transition cursor-pointer p-0.5">
+                                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -1403,5 +1434,243 @@
             </div>
         </section>
 
+        <!-- 9. BENTO MODAL: Storage File Manager (Kelola Semua Berkas) -->
+        <div x-show="openFileManager" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5"
+            role="dialog" aria-modal="true" aria-labelledby="file-manager-title">
+            <!-- Backdrop -->
+            <div x-show="openFileManager" x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0" @click="openFileManager = false"
+                class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+
+            <!-- Modal Content (Squircle Bento Card) -->
+            <div x-show="openFileManager" x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-95"
+                class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-[24px] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl flex flex-col overflow-hidden z-10">
+
+                <!-- Modal Header -->
+                <div class="px-5 py-4 sm:px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-[12px] bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200/80 dark:border-cyan-800/80 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0">
+                            <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h3 id="file-manager-title" class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight">
+                                Manajemen Berkas Penyimpanan
+                            </h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                                Hapus berkas yang tidak diperlukan untuk mengembalikan kapasitas kuota penyimpanan cloud ERP Anda.
+                            </p>
+                        </div>
+                    </div>
+                    <button type="button" @click="openFileManager = false"
+                        class="p-2 rounded-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Filters & Search Bar -->
+                <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 flex flex-col sm:flex-row items-center gap-3">
+                    <div class="relative flex-1 w-full">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" x-model="searchQuery" @input.debounce.300ms="fetchFiles(1)"
+                            placeholder="Cari nama berkas..."
+                            class="w-full pl-9 pr-4 py-2 text-xs rounded-[12px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div class="w-full sm:w-56">
+                        <select x-model="selectedCategory" @change="fetchFiles(1)"
+                            class="w-full px-3 py-2 text-xs rounded-[12px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            <option value="all">Semua Kategori</option>
+                            <option value="product_image">Foto Produk</option>
+                            <option value="business_logo">Logo Bisnis</option>
+                            <option value="landing_page_image">Landing Page</option>
+                            <option value="qris_image">QRIS Toko</option>
+                            <option value="expense_receipt">Bukti Pengeluaran</option>
+                            <option value="community_image">Foto Komunitas</option>
+                            <option value="owner_avatar">Foto Profil</option>
+                            <option value="feedback_attachment">Lampiran Masukan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- File List Body -->
+                <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-[260px]">
+                    <!-- Loading State -->
+                    <div x-show="loadingFiles" class="py-12 text-center text-xs text-slate-500">
+                        <i data-lucide="loader" class="w-6 h-6 animate-spin mx-auto text-cyan-600 mb-2"></i>
+                        <span>Memuat daftar berkas...</span>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div x-show="!loadingFiles && files.length === 0" class="py-12 text-center text-xs text-slate-500">
+                        <i data-lucide="file-x" class="w-8 h-8 mx-auto text-slate-400 mb-2"></i>
+                        <span class="font-semibold text-slate-700 dark:text-slate-300">Tidak ada berkas yang ditemukan.</span>
+                    </div>
+
+                    <!-- Files Table (Desktop) -->
+                    <div x-show="!loadingFiles && files.length > 0" class="hidden md:block overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                                    <th class="py-2.5 text-left font-semibold">Nama File</th>
+                                    <th class="py-2.5 text-left font-semibold">Bisnis</th>
+                                    <th class="py-2.5 text-left font-semibold">Kategori</th>
+                                    <th class="py-2.5 text-right font-semibold">Ukuran</th>
+                                    <th class="py-2.5 text-right font-semibold">Diunggah</th>
+                                    <th class="py-2.5 text-center font-semibold w-20">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                                <template x-for="f in files" :key="f.id">
+                                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                                        <td class="py-2.5 pr-3 font-medium text-slate-800 dark:text-slate-200 truncate max-w-[220px]" :title="f.file_name" x-text="f.file_name"></td>
+                                        <td class="py-2.5 pr-3 text-slate-600 dark:text-slate-400 truncate max-w-[140px]" x-text="f.business_name"></td>
+                                        <td class="py-2.5 pr-3">
+                                            <span class="rounded-[6px] px-2 py-0.5 text-[9px] font-bold bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/60 font-mono" x-text="f.category_label"></span>
+                                        </td>
+                                        <td class="py-2.5 text-right font-mono font-bold text-slate-800 dark:text-slate-200 tabular-nums" x-text="f.formatted_size"></td>
+                                        <td class="py-2.5 text-right text-slate-500 dark:text-slate-400 font-mono tabular-nums" x-text="f.uploaded_at"></td>
+                                        <td class="py-2.5 text-center">
+                                            <button type="button" @click="deleteFile(f)" title="Hapus Berkas & Reclaim Kuota"
+                                                class="px-2 py-1 rounded-[8px] text-[10px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer flex items-center justify-center gap-1 mx-auto">
+                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                <span>Hapus</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Files Card List (Mobile) -->
+                    <div x-show="!loadingFiles && files.length > 0" class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/80">
+                        <template x-for="f in files" :key="f.id">
+                            <div class="py-3 space-y-2">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="font-semibold text-xs text-slate-900 dark:text-white truncate" x-text="f.file_name"></div>
+                                    <span class="font-mono font-bold text-xs text-slate-900 dark:text-white shrink-0 tabular-nums" x-text="f.formatted_size"></span>
+                                </div>
+                                <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                                    <span class="truncate" x-text="f.business_name"></span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="rounded-[6px] px-1.5 py-0.2 text-[9px] font-bold bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/60 font-mono" x-text="f.category_label"></span>
+                                        <span class="font-mono tabular-nums text-[10px]" x-text="f.uploaded_at"></span>
+                                    </div>
+                                </div>
+                                <div class="pt-1 flex justify-end">
+                                    <button type="button" @click="deleteFile(f)"
+                                        class="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        <span>Hapus Berkas</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Modal Footer with Pagination -->
+                <div class="px-5 py-3 sm:px-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 dark:text-slate-400 font-mono tabular-nums">
+                        Menampilkan <strong class="text-slate-800 dark:text-slate-200" x-text="files.length"></strong> dari <strong class="text-slate-800 dark:text-slate-200" x-text="totalFiles"></strong> berkas
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <button type="button" :disabled="currentPage <= 1" @click="fetchFiles(currentPage - 1)"
+                            class="px-2.5 py-1 rounded-[8px] text-[11px] font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">
+                            Sebelumnya
+                        </button>
+                        <span class="font-mono text-[11px] text-slate-500 tabular-nums" x-text="currentPage + ' / ' + lastPage"></span>
+                        <button type="button" :disabled="currentPage >= lastPage" @click="fetchFiles(currentPage + 1)"
+                            class="px-2.5 py-1 rounded-[8px] text-[11px] font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">
+                            Berikutnya
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    <script>
+    function storageLimitsManager() {
+        return {
+            openFileManager: false,
+            loadingFiles: false,
+            files: [],
+            searchQuery: '',
+            selectedCategory: 'all',
+            currentPage: 1,
+            lastPage: 1,
+            totalFiles: 0,
+
+            openModal() {
+                this.openFileManager = true;
+                this.fetchFiles(1);
+            },
+
+            async fetchFiles(page = 1) {
+                this.loadingFiles = true;
+                this.currentPage = page;
+                try {
+                    const params = new URLSearchParams({
+                        page: page,
+                        q: this.searchQuery,
+                        category: this.selectedCategory
+                    });
+                    const res = await fetch(`{{ route('billing.storage.files') }}?${params.toString()}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        this.files = data.data || [];
+                        this.currentPage = data.current_page || 1;
+                        this.lastPage = data.last_page || 1;
+                        this.totalFiles = data.total || 0;
+                        this.$nextTick(() => {
+                            if (window.lucide) { window.lucide.createIcons(); }
+                        });
+                    }
+                } catch (err) {
+                    console.error('Gagal memuat berkas storage:', err);
+                } finally {
+                    this.loadingFiles = false;
+                }
+            },
+
+            async deleteFile(file) {
+                if (!confirm(`Hapus berkas '${file.file_name}' secara permanen dari server untuk mengurangi kapasitas storage?`)) {
+                    return;
+                }
+                try {
+                    const res = await fetch(file.delete_url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ _method: 'DELETE' })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        this.files = this.files.filter(f => f.id !== file.id);
+                        this.totalFiles = Math.max(0, this.totalFiles - 1);
+                        alert(data.message || 'Berkas berhasil dihapus.');
+                        window.location.reload();
+                    } else {
+                        alert('Gagal menghapus berkas. Pastikan Anda memiliki izin.');
+                    }
+                } catch (err) {
+                    console.error('Error saat menghapus berkas:', err);
+                    alert('Terjadi kesalahan jaringan.');
+                }
+            }
+        };
+    }
+    </script>
 @endsection

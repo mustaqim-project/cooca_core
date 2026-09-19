@@ -351,6 +351,8 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/billing/payments/{payment}/proof', [SubscriptionCheckoutWebController::class, 'viewProof'])->name('billing.payment.proof');
         Route::get('/billing/history', [SubscriptionCheckoutWebController::class, 'history'])->name('billing.history');
         Route::post('/billing/storage/recalculate', [BillingAndLimitWebController::class, 'recalculateStorage'])->name('billing.storage.recalculate');
+        Route::get('/billing/storage/files', [BillingAndLimitWebController::class, 'listFiles'])->middleware('require.permission:billing.view')->name('billing.storage.files');
+        Route::delete('/billing/storage/files/{storageFile}', [BillingAndLimitWebController::class, 'destroyStorageFile'])->middleware('require.permission:billing.manage')->name('billing.storage.files.destroy');
 
         // POS (Point of Sale) & Cashier Terminal
         Route::get('/pos', [PosTerminalWebController::class, 'index'])->middleware('require.permission:pos.terminal')->name('pos.terminal');

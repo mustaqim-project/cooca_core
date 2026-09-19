@@ -208,8 +208,8 @@ final class MerchantStoreSettingController extends Controller
                 $trackingService->recordUpload(
                     file: $file,
                     filePath: $qrisPath,
-                    category: StorageFile::CATEGORY_OTHER,
-                    module: 'storefront',
+                    category: StorageFile::CATEGORY_QRIS,
+                    module: 'commerce',
                     owner: $owner,
                     business: $business,
                     uploader: $request->user()

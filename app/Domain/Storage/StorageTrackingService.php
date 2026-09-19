@@ -119,9 +119,61 @@ class StorageTrackingService
             Storage::disk($disk)->delete($filePath);
         }
 
-        $this->recordDeletion($filePath, $disk);
+        $storageFile = $this->recordDeletion($filePath, $disk);
+        if ($storageFile) {
+            $this->cleanReferencingModels($filePath, (string) $storageFile->category);
+        }
 
         return true;
+    }
+
+    /**
+     * Clean up any model foreign keys / file references when a file is deleted.
+     */
+    public function cleanReferencingModels(string $filePath, string $category): void
+    {
+        switch ($category) {
+            case StorageFile::CATEGORY_PRODUCT_IMAGE:
+                \App\Models\Product::where('image_path', $filePath)->update(['image_path' => null]);
+                break;
+            case StorageFile::CATEGORY_BUSINESS_LOGO:
+                \App\Models\Business::where('logo_path', $filePath)->update(['logo_path' => null]);
+                break;
+            case StorageFile::CATEGORY_QRIS:
+                \App\Models\CommercePaymentMethod::where('qris_image_path', $filePath)->update(['qris_image_path' => null]);
+                break;
+            case StorageFile::CATEGORY_EXPENSE_RECEIPT:
+                \App\Models\Expense::where('receipt_image_path', $filePath)->update(['receipt_image_path' => null]);
+                break;
+            case StorageFile::CATEGORY_COMMUNITY_IMAGE:
+                \App\Models\CommunityPost::where('image_path', $filePath)->update(['image_path' => null]);
+                break;
+            case StorageFile::CATEGORY_FEEDBACK_ATTACHMENT:
+                \App\Models\BugReport::where('attachment_path', $filePath)->update(['attachment_path' => null]);
+                break;
+            case StorageFile::CATEGORY_OWNER_AVATAR:
+                \App\Models\User::where('avatar', $filePath)->update(['avatar' => null]);
+                break;
+            case StorageFile::CATEGORY_LANDING_PAGE_IMAGE:
+                $pages = \App\Models\BusinessLandingPage::where(function ($q) use ($filePath) {
+                    $q->where('logo_image', 'like', "%{$filePath}%")
+                      ->orWhere('hero_image', 'like', "%{$filePath}%")
+                      ->orWhere('about_image', 'like', "%{$filePath}%")
+                      ->orWhere('og_image', 'like', "%{$filePath}%");
+                })->get();
+
+                foreach ($pages as $page) {
+                    $updates = [];
+                    if (str_contains((string) $page->logo_image, $filePath)) $updates['logo_image'] = null;
+                    if (str_contains((string) $page->hero_image, $filePath)) $updates['hero_image'] = null;
+                    if (str_contains((string) $page->about_image, $filePath)) $updates['about_image'] = null;
+                    if (str_contains((string) $page->og_image, $filePath)) $updates['og_image'] = null;
+                    if (! empty($updates)) {
+                        $page->update($updates);
+                    }
+                }
+                break;
+        }
     }
 
     /**
@@ -171,13 +223,15 @@ class StorageTrackingService
                 "businesses/{$business->id}",
                 $slug ? "bisnis/{$slug}" : null,
                 "qris/{$business->id}",
-                "social-media/temp/{$business->id}",
             ]);
 
             foreach ($dirsToScan as $dir) {
                 if (Storage::disk('public')->exists($dir)) {
                     $files = Storage::disk('public')->allFiles($dir);
                     foreach ($files as $file) {
+                        if (str_contains($file, 'social-media')) {
+                            continue;
+                        }
                         $activePathsOnDisk[] = $file;
                         $size = (int) Storage::disk('public')->size($file);
                         $category = $this->detectCategoryFromPath($file);
@@ -359,11 +413,15 @@ class StorageTrackingService
             $bBytes = (int) StorageFile::where('business_id', $business->id)
                 ->where('status', StorageFile::STATUS_ACTIVE)
                 ->where('is_temporary', false)
+                ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+                ->where('module', '!=', 'social_media')
                 ->sum('file_size');
 
             $bCount = (int) StorageFile::where('business_id', $business->id)
                 ->where('status', StorageFile::STATUS_ACTIVE)
                 ->where('is_temporary', false)
+                ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+                ->where('module', '!=', 'social_media')
                 ->count();
 
             $businessStats[] = [
@@ -381,12 +439,16 @@ class StorageTrackingService
             ->whereNull('business_id')
             ->where('status', StorageFile::STATUS_ACTIVE)
             ->where('is_temporary', false)
+            ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+            ->where('module', '!=', 'social_media')
             ->sum('file_size');
 
         $ownerDirectCount = (int) StorageFile::where('owner_id', $owner->id)
             ->whereNull('business_id')
             ->where('status', StorageFile::STATUS_ACTIVE)
             ->where('is_temporary', false)
+            ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+            ->where('module', '!=', 'social_media')
             ->count();
 
         if ($ownerDirectCount > 0) {
@@ -404,6 +466,8 @@ class StorageTrackingService
         $categories = StorageFile::where('owner_id', $owner->id)
             ->where('status', StorageFile::STATUS_ACTIVE)
             ->where('is_temporary', false)
+            ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+            ->where('module', '!=', 'social_media')
             ->select('category', DB::raw('SUM(file_size) as total_bytes'), DB::raw('COUNT(*) as count'))
             ->groupBy('category')
             ->get()
@@ -426,6 +490,8 @@ class StorageTrackingService
             ->where('owner_id', $owner->id)
             ->where('status', StorageFile::STATUS_ACTIVE)
             ->where('is_temporary', false)
+            ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+            ->where('module', '!=', 'social_media')
             ->orderByDesc('file_size')
             ->limit(10)
             ->get()
@@ -458,6 +524,8 @@ class StorageTrackingService
             'total_files_count' => (int) StorageFile::where('owner_id', $owner->id)
                 ->where('status', StorageFile::STATUS_ACTIVE)
                 ->where('is_temporary', false)
+                ->where('category', '!=', StorageFile::CATEGORY_SOCIAL_MEDIA)
+                ->where('module', '!=', 'social_media')
                 ->count(),
             'business_breakdown' => $businessStats,
             'category_breakdown' => $categories,

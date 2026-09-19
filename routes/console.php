@@ -32,5 +32,11 @@ Schedule::command('social-media:publish-scheduled')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/social-media.log'));
 
+// 5. Purge published social media posts, media files, and inactive credentials after 1 day (Setiap pukul 02:00)
+Schedule::command('social-media:purge-published')
+    ->dailyAt('02:00')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/social-media-purge.log'));
+
 
 

@@ -33,7 +33,7 @@
                     Publikasi Konten &amp; Jadwal Otomatis
                 </h1>
                 <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Tulis materi promosi sekali dan sebarkan langsung ke Facebook Page, feed Instagram, atau Threads pelanggan toko Anda.
+                    Tulis materi promosi sekali dan sebarkan langsung ke Facebook Page, feed Instagram, Threads, atau TikTok pelanggan toko Anda. Berkas lokal dan postingan yang terpublikasi akan otomatis dibersihkan dari server setelah 1x24 jam untuk menjaga kapasitas storage server.
                 </p>
             </div>
 
