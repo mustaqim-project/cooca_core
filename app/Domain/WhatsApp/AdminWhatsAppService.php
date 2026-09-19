@@ -59,12 +59,13 @@ class AdminWhatsAppService
         try {
             $verified = $this->metaDriver->verifyCredentials($token, $phoneId);
             if ($verified['success'] ?? false) {
+                $data = $verified['data'] ?? [];
                 return [
                     'status'               => 'connected',
-                    'phone'                => $verified['display_phone_number'] ?? null,
-                    'verified_name'        => $verified['verified_name'] ?? 'COOCA Official Platform',
-                    'quality_rating'       => $verified['quality_rating'] ?? 'GREEN',
-                    'messaging_limit_tier' => $verified['messaging_limit_tier'] ?? 'TIER_1K',
+                    'phone'                => $data['display_phone_number'] ?? $verified['display_phone_number'] ?? null,
+                    'verified_name'        => $data['verified_name'] ?? $verified['verified_name'] ?? 'COOCA Official Platform',
+                    'quality_rating'       => $data['quality_rating'] ?? $verified['quality_rating'] ?? 'GREEN',
+                    'messaging_limit_tier' => $data['messaging_limit_tier'] ?? $verified['messaging_limit_tier'] ?? 'TIER_1K',
                     'waba_id'              => $creds['waba_id'],
                     'phone_number_id'      => $phoneId,
                 ];
