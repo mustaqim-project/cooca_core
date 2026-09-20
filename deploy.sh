@@ -8,6 +8,9 @@ if [ ! -x "$PHP_BIN" ]; then
 fi
 
 echo "Deploying update: $(date)"
-$PHP_BIN -r "require 'vendor/autoload.php'; \$app = require_once 'bootstrap/app.php'; \$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); App\Models\PaymentAccount::truncate(); echo 'Payment accounts purged.\n';"
+$PHP_BIN artisan migrate --force
+$PHP_BIN artisan db:seed --class=RbacSeeder --force
+$PHP_BIN artisan db:seed --class=BusinessTemplateSeeder --force
 $PHP_BIN artisan optimize:clear
+$PHP_BIN artisan view:cache
 echo "Deploy complete: $(date)"

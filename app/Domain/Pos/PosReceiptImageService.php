@@ -118,6 +118,8 @@ class PosReceiptImageService
             'points_earned' => (int) ($order->points_earned ?? 0),
             'customer_points' => $order->customer?->points_balance ?? null,
             'footer_note' => $business?->pos_receipt_footer_note ?? 'Terima Kasih Atas Kunjungan Anda!',
+            'reprint_notice' => ((int) ($order->print_count ?? 0) > 1) ? '*** SALINAN (CETAKAN KE-' . $order->print_count . ') ***' : null,
+            'print_count' => (int) ($order->print_count ?? 0),
         ];
     }
 
@@ -179,7 +181,16 @@ class PosReceiptImageService
 
         $y += 8;
         $this->drawDashedLine($im, $padding, $y, $this->width - $padding, $y, $lineColor);
-        $y += 22;
+        $y += 18;
+
+        // Reprint Watermark Notice (Only when reprinted / print_count > 1)
+        if (!empty($data['reprint_notice'])) {
+            $alertRed = imagecolorallocate($im, 218, 54, 51);
+            $this->drawText($im, $data['reprint_notice'], $this->width / 2, $y, $alertRed, 11, true, 'center', $fontFile);
+            $y += 18;
+            $this->drawDashedLine($im, $padding, $y, $this->width - $padding, $y, $lineColor);
+            $y += 18;
+        }
 
         // 2. Order Metadata
         $this->drawRow($im, 'No. Transaksi', $data['order_number'], $padding, $contentWidth, $y, $textMuted, $textDark, 10, true, $fontFile);

@@ -26,6 +26,7 @@ final class UserPanelAndAuthWebTest extends TestCase
     {
         parent::setUp();
         Context::flush();
+        $this->seed(\Database\Seeders\RbacSeeder::class);
         $this->seed(DefaultUnitSeeder::class);
         $this->seed(DefaultCostCategorySeeder::class);
         $this->seed(BusinessTemplateSeeder::class);
@@ -45,13 +46,22 @@ final class UserPanelAndAuthWebTest extends TestCase
 
     public function test_user_registration_creates_user_and_business_with_template(): void
     {
-        $response = $this->post('/register', [
-            'name' => 'Owner Resto',
-            'email' => 'owner_resto@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-            'business_name' => 'Restoran Nusantara',
-            'template_code' => 'fnb_resto',
+        $response = $this->withSession([
+            'pending_registration' => [
+                'name' => 'Owner Resto',
+                'email' => 'owner_resto@example.com',
+                'phone' => '6281234567890',
+                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+                'business_name' => 'Restoran Nusantara',
+                'template_code' => 'fnb_resto',
+                'business_scale' => Business::SCALE_UMKM,
+                'otp_hash' => \Illuminate\Support\Facades\Hash::make('123456'),
+                'expires_at' => now()->addMinutes(10)->timestamp,
+                'attempts' => 0,
+                'last_sent_at' => now()->timestamp,
+            ],
+        ])->post(route('register.verify.submit'), [
+            'otp' => '123456',
         ]);
 
         $response->assertRedirect('/dashboard');
@@ -246,8 +256,13 @@ final class UserPanelAndAuthWebTest extends TestCase
     {
         $owner = User::create(['name' => 'Solo Owner', 'email' => 'solo@example.com', 'password' => 'password123']);
         $biz = Business::create(['name' => 'Kedai Solo']);
-        $biz->users()->attach($owner->id, ['id' => (string) Str::uuid(), 'role' => 'owner']);
+        $ownerRole = \App\Models\Role::where('slug', 'owner')->first();
+        $biz->users()->attach($owner->id, ['id' => (string) Str::uuid(), 'role' => 'owner', 'role_id' => $ownerRole?->id]);
         $owner->update(['active_business_id' => $biz->id]);
+
+        // Free plan allows up to 1 member. Attach 1 existing staff to hit the limit.
+        $existingStaff = User::create(['name' => 'Existing Staff', 'email' => 'existing@example.com', 'password' => 'password123']);
+        $biz->users()->attach($existingStaff->id, ['id' => (string) Str::uuid(), 'role' => 'staff']);
 
         $employee = User::create(['name' => 'Staf Kasir', 'email' => 'kasir@example.com', 'password' => 'password123']);
 

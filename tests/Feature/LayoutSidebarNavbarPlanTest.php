@@ -66,23 +66,36 @@ class LayoutSidebarNavbarPlanTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Check 7-pillar consolidated module groups for Owner
-        $response->assertSee('Beranda & Kasir');
-        $response->assertSee('Penjualan & Pelanggan');
+        // Check 8-pillar Bento Apple HIG groups for Owner
+        $response->assertSee('Ringkasan & Dashboard');
+        $response->assertSee('Kasir & Penjualan');
         $response->assertSee('Produk & Persediaan');
         $response->assertSee('Pembelian & Supplier');
-        $response->assertSee('Keuangan & Laporan');
-        $response->assertSee('Saluran & Pemasaran');
+        $response->assertSee('Pelanggan & Pemasaran');
+        $response->assertSee('Keuangan & Biaya');
+        $response->assertSee('Laporan & Analitik');
         $response->assertSee('Pengaturan Usaha');
 
-        // Check key sub-menus
-        $response->assertSee('Retur Penjualan');
-        $response->assertSee('Retur Pembelian');
-        $response->assertSee('Tagihan Supplier');
-        $response->assertSee('Kas & Rekening Bank');
+        // Check Overview list (Image 1 pattern)
+        $response->assertSee('Ringkasan Finansial & Kas');
+        $response->assertSee('Ringkasan Kasir POS');
+        $response->assertSee('Ringkasan Karyawan & Payroll');
+        $response->assertSee('Ringkasan Pelanggan & Member');
+        $response->assertSee('Ringkasan Gudang & Persediaan');
+        $response->assertSee('Ringkasan Pemasaran Digital');
+        $response->assertSee('Asisten Cerdas AI');
+
+        // Check Reports Center list (Image 2 pattern)
+        $response->assertSee('Pusat Laporan');
+        $response->assertSee('Laba Rugi (Profit & Loss)');
+        $response->assertSee('Arus Kas (Cash Flow)');
+        $response->assertSee('Rekening Kas & Bank');
+        $response->assertSee('Buku Besar Akun');
         $response->assertSee('Buku Jurnal Keuangan');
-        $response->assertSee('Daftar Piutang');
-        $response->assertSee('Daftar Utang');
+        $response->assertSee('Laporan Penjualan Kasir');
+        $response->assertSee('Daftar Piutang Usaha');
+        $response->assertSee('Daftar Utang Usaha');
+        $response->assertSee('Valuasi & Perputaran Stok');
 
         // Check key menu routes & tour IDs
         $response->assertSee('id="tour-nav-dashboard"', false);
@@ -95,6 +108,11 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertSee('id="tour-nav-profitability"', false);
         $response->assertSee('id="tour-nav-reports"', false);
         $response->assertSee('id="tour-nav-settings"', false);
+
+        // Check Topbar Spotlight Search (Ctrl+K)
+        $response->assertSee('spotlightOpen');
+        $response->assertSee('Cari menu, modul, transaksi...');
+        $response->assertSee('Ctrl K');
 
         // Check Mobile Bottom Navigation App Bar
         $response->assertSee('Aksi Cepat Instan');
@@ -133,14 +151,16 @@ class LayoutSidebarNavbarPlanTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Cashier sees: Beranda & Kasir, Buka Kasir POS, Transaksi Kasir, Asisten AI
-        $response->assertSee('Beranda & Kasir');
+        // Cashier sees: Ringkasan & Dashboard, Kasir & Penjualan, Buka Kasir POS, Transaksi Kasir, Asisten AI
+        $response->assertSee('Ringkasan & Dashboard');
+        $response->assertSee('Kasir & Penjualan');
         $response->assertSee('Buka Kasir POS');
-        $response->assertSee('Transaksi Kasir');
-        $response->assertSee('Asisten AI');
+        $response->assertSee('Transaksi Kasir & Shift');
+        $response->assertSee('Asisten Cerdas AI');
 
-        // Cashier MUST NOT see: Keuangan, Pembelian, Pengaturan
-        $response->assertDontSee('Keuangan & Laporan');
+        // Cashier MUST NOT see: Keuangan & Biaya, Laporan & Analitik, Pembelian, Pengaturan
+        $response->assertDontSee('Keuangan & Biaya');
+        $response->assertDontSee('Laporan & Analitik');
         $response->assertDontSee('Kas & Rekening Bank');
         $response->assertDontSee('Pembelian & Supplier');
         $response->assertDontSee('Pengaturan Usaha');
@@ -185,10 +205,10 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertSee('Opname Stok Fisik');
         $response->assertSee('Pembelian & Supplier');
 
-        // Warehouse MUST NOT see: Buka Kasir POS, Faktur, Keuangan, Pengaturan
+        // Warehouse MUST NOT see: Buka Kasir POS, Keuangan, Laporan, Pengaturan
         $response->assertDontSee('Buka Kasir POS');
-        $response->assertDontSee('Faktur & Piutang');
-        $response->assertDontSee('Keuangan & Laporan');
+        $response->assertDontSee('Keuangan & Biaya');
+        $response->assertDontSee('Laporan & Analitik');
         $response->assertDontSee('Kas & Rekening Bank');
         $response->assertDontSee('Pengaturan Usaha');
         $response->assertDontSee('Hak Akses & Peran Staf');
@@ -222,15 +242,16 @@ class LayoutSidebarNavbarPlanTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Finance sees: Keuangan (Kas & Bank, Ledger, Beban, Piutang, Hutang, Jurnal), Laporan
-        $response->assertSee('Keuangan & Laporan');
+        // Finance sees: Keuangan, Laporan & Analitik
+        $response->assertSee('Keuangan & Biaya');
+        $response->assertSee('Laporan & Analitik');
         $response->assertSee('Kas & Rekening Bank');
         $response->assertSee('Buku Besar Akun');
         $response->assertSee('Pengeluaran Operasional');
-        $response->assertSee('Daftar Piutang');
-        $response->assertSee('Daftar Utang');
+        $response->assertSee('Daftar Piutang Usaha');
+        $response->assertSee('Daftar Utang Usaha');
         $response->assertSee('Buku Jurnal Keuangan');
-        $response->assertSee('Semua Laporan Bisnis');
+        $response->assertSee('Pusat Laporan');
 
         // Finance MUST NOT see: POS terminal, Stock Opname, Transfer Gudang, Pengaturan Toko
         $response->assertDontSee('Buka Kasir POS');
@@ -291,4 +312,63 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertSee('∞ Unlimited', false);
         $response->assertSee('Token AI (Top-up):');
     }
+
+    public function test_sidebar_modular_auto_hide_when_modules_disabled(): void
+    {
+        $this->seed(\Database\Seeders\RbacSeeder::class);
+
+        // Disable B2B sales and recipe BOM modules on this business
+        $this->business->update([
+            'disabled_modules' => [
+                \App\Domain\Template\ModuleRegistry::MODULE_B2B_SALES,
+                \App\Domain\Template\ModuleRegistry::MODULE_RECIPE_BOM,
+                \App\Domain\Template\ModuleRegistry::MODULE_RESERVATION,
+            ],
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->withSession(['active_business_id' => $this->business->id])
+            ->get(route('dashboard'));
+
+        $response->assertStatus(200);
+
+        // Enabled modules remain visible
+        $response->assertSee('Buka Kasir POS');
+        $response->assertSee('Katalog Produk & Menu');
+        $response->assertSee('Kas & Rekening Bank');
+
+        // Disabled modules auto-hide cleanly
+        $response->assertDontSee('Pesanan Penjualan (Sales Orders)');
+        $response->assertDontSee('Surat Penawaran (Quotations)');
+        $response->assertDontSee('Bahan Baku & Resep (BOM)');
+        $response->assertDontSee('Reservasi Meja');
+    }
+
+    public function test_topbar_spotlight_search_contains_all_categories_and_routes(): void
+    {
+        $this->seed(\Database\Seeders\RbacSeeder::class);
+
+        $response = $this->actingAs($this->user)
+            ->withSession(['active_business_id' => $this->business->id])
+            ->get(route('dashboard'));
+
+        $response->assertStatus(200);
+
+        // Check 8-pillar category chips in spotlight search
+        $response->assertSee("{ id: 'all', label: 'Semua' }", false);
+        $response->assertSee("{ id: 'Dashboard', label: 'Dashboard' }", false);
+        $response->assertSee("{ id: 'Kasir & Penjualan', label: 'Kasir & Penjualan' }", false);
+        $response->assertSee("{ id: 'Produk & Stok', label: 'Produk & Stok' }", false);
+        $response->assertSee("{ id: 'Pembelian & Supplier', label: 'Pembelian & Supplier' }", false);
+        $response->assertSee("{ id: 'Pelanggan & Pemasaran', label: 'Pelanggan & Pemasaran' }", false);
+        $response->assertSee("{ id: 'Keuangan & Biaya', label: 'Keuangan & Biaya' }", false);
+        $response->assertSee("{ id: 'Laporan & Analitik', label: 'Laporan & Analitik' }", false);
+        $response->assertSee("{ id: 'Pengaturan Usaha', label: 'Pengaturan Usaha' }", false);
+
+        // Check newly indexed routes in spotlight
+        $response->assertSee('Desain Halaman Toko (Mini-Site)', false);
+        $response->assertSee('Pengaturan Toko Online & Pembayaran', false);
+        $response->assertSee('Pengaturan Ongkos Kirim', false);
+    }
 }
+

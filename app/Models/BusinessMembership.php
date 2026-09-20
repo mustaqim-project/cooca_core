@@ -14,6 +14,9 @@ class BusinessMembership extends Pivot
 
     protected $table = 'business_users';
 
+    public const ATTENDANCE_MODE_GEOFENCED = 'geofenced';
+    public const ATTENDANCE_MODE_FREE = 'free';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -39,6 +42,7 @@ class BusinessMembership extends Pivot
         'bpjs_tk_enabled',
         'bpjs_kes_enabled',
         'primary_location_id',
+        'attendance_mode',
     ];
 
     /**
@@ -81,6 +85,21 @@ class BusinessMembership extends Pivot
     public function customRole(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function primaryLocation(): BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'primary_location_id');
+    }
+
+    public function isFreeLocation(): bool
+    {
+        return ($this->attendance_mode ?? self::ATTENDANCE_MODE_GEOFENCED) === self::ATTENDANCE_MODE_FREE;
+    }
+
+    public function isGeofenced(): bool
+    {
+        return ! $this->isFreeLocation();
     }
 
     public function hasPermission(string $permission): bool

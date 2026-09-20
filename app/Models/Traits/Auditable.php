@@ -54,7 +54,10 @@ trait Auditable
      */
     protected function recordAuditLog(string $action, ?array $oldValues, ?array $newValues): void
     {
-        $businessId = $this->business_id ?? (Context::hasBusiness() ? Context::business()?->id : null);
+        $businessId = $this->business_id
+            ?? ($this instanceof \App\Models\Business ? $this->id : null)
+            ?? (Context::hasBusiness() ? Context::business()?->id : null)
+            ?? (Auth::user()?->active_business_id ?? null);
 
         if ($businessId === null) {
             return;
@@ -63,18 +66,32 @@ trait Auditable
         $user = Auth::user();
         $userId = ($user instanceof \App\Models\User) ? $user->id : null;
 
-        AuditLog::create([
+        /** @var \App\Domain\Security\AntiFraudService $antiFraud */
+        $antiFraud = app(\App\Domain\Security\AntiFraudService::class);
+        $evaluation = $antiFraud->evaluateRisk($this, $action, $oldValues, $newValues);
+
+        $auditLog = AuditLog::create([
             'business_id' => $businessId,
             'user_id' => $userId,
             'auditable_type' => static::class,
             'auditable_id' => (string) $this->getKey(),
             'action' => $action,
+            'risk_level' => $evaluation['risk_level'] ?? AuditLog::RISK_LOW,
+            'risk_reason' => $evaluation['risk_reason'] ?? null,
+            'notes' => $evaluation['notes'] ?? null,
             'old_values' => $oldValues,
             'new_values' => $newValues,
-            'ip_address' => request()?->ip(),
+            'ip_address' => request()?->ip() ?? '127.0.0.1',
             'user_agent' => request()?->userAgent(),
             'created_at' => now(),
         ]);
+
+        if ($auditLog->isHighRisk()) {
+            $business = \App\Models\Business::find($businessId);
+            if ($business) {
+                $antiFraud->sendFraudWhatsAppAlert($auditLog, $business);
+            }
+        }
     }
 
     /**

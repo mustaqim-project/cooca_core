@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\Auditable;
 use App\Models\Traits\BelongsToBusiness;
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Expense extends Model
 {
-    use BelongsToBusiness, HasFactory, HasUuid;
+    use Auditable, BelongsToBusiness, HasFactory, HasUuid;
 
     protected $fillable = [
         'business_id',
@@ -61,5 +62,11 @@ class Expense extends Model
         }
 
         return route('finance.expenses.receipt', $this->id);
+    }
+
+    public function approvalRequest(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ApprovalRequest::class, 'document_id')
+            ->where('document_type', ApprovalRule::DOC_EXPENSE);
     }
 }

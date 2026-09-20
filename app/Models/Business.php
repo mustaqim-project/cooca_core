@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\Auditable;
 use App\Models\Traits\HasSlug;
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Business extends Model
 {
-    use HasFactory, HasSlug, HasUuid, SoftDeletes;
+    use Auditable, HasFactory, HasSlug, HasUuid, SoftDeletes;
 
     public const ROUNDING_ROUND = 'ROUND';
 
@@ -30,6 +31,10 @@ class Business extends Model
     public const ROUNDING_ROUND_500 = 'ROUND_500';
 
     public const ROUNDING_ROUND_1000 = 'ROUND_1000';
+
+    public const SCALE_UMKM = 'umkm';
+
+    public const SCALE_CORPORATE = 'corporate';
 
     protected $fillable = [
         'name',
@@ -48,6 +53,7 @@ class Business extends Model
         'currency_precision',
         'industry_category',
         'template_code',
+        'business_scale',
         'disabled_modules',
         'allow_negative_stock',
         'is_active',
@@ -386,5 +392,30 @@ class Business extends Model
     public function getStorefrontUrlAttribute(): string
     {
         return $this->public_url;
+    }
+
+    public function isUmkm(): bool
+    {
+        return ($this->business_scale ?? self::SCALE_UMKM) === self::SCALE_UMKM;
+    }
+
+    public function isCorporate(): bool
+    {
+        return ($this->business_scale ?? '') === self::SCALE_CORPORATE;
+    }
+
+    public function approvalRules(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ApprovalRule::class);
+    }
+
+    public function approvalRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ApprovalRequest::class);
+    }
+
+    public function auditLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AuditLog::class);
     }
 }

@@ -55,10 +55,19 @@
         <div class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] gap-1 min-w-max">
             {{-- Tab 1: Website CMS --}}
             <a href="{{ route('landing-page.edit') }}"
-                class="px-3.5 py-1.5 rounded-[10px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 {{ request()->routeIs('landing-page.*') ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]' }}">
-                <i data-lucide="globe" class="w-4 h-4 {{ request()->routeIs('landing-page.*') ? 'text-[#007AFF]' : 'opacity-70' }}"></i>
+                class="px-3.5 py-1.5 rounded-[10px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 {{ request()->routeIs('landing-page.edit') ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]' }}">
+                <i data-lucide="globe" class="w-4 h-4 {{ request()->routeIs('landing-page.edit') ? 'text-[#007AFF]' : 'opacity-70' }}"></i>
                 <span>Website &amp; Profil</span>
             </a>
+
+            {{-- Tab 1.5: Pop Up Promo --}}
+            @if (\App\Support\Context::hasPermission('cms.manage') || \App\Support\Context::hasPermission('storefront.popup.manage') || \App\Support\Context::isOwner())
+                <a href="{{ route('landing-page.popup.edit') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 {{ request()->routeIs('landing-page.popup.*') ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]' }}">
+                    <i data-lucide="megaphone" class="w-4 h-4 {{ request()->routeIs('landing-page.popup.*') ? 'text-[#FF2D55]' : 'opacity-70' }}"></i>
+                    <span>Pop Up Promo</span>
+                </a>
+            @endif
 
             {{-- Tab 2: Orders --}}
             @if (\App\Support\Context::hasPermission('storefront.orders.view') || \App\Support\Context::isOwner())

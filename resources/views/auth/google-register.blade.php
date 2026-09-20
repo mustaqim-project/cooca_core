@@ -19,6 +19,7 @@
             </div>
 
             <div x-data="{
+                businessScale: '{{ old('business_scale', 'umkm') }}',
                 selectedTemplate: '{{ old('template_code', '') }}',
                 templates: {{ Js::from($templateSummaries ?? []) }},
                 get currentTemplate() {
@@ -51,6 +52,50 @@
                             value="{{ old('business_name', 'Usaha ' . ($pending['name'] ?? 'Saya')) }}" required
                             class="w-full px-3.5 py-3 bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 rounded-[14px] text-[16px] sm:text-sm text-black dark:text-white transition-all"
                             placeholder="Contoh: Kedai Kopi Sukses / CV Berkah">
+                    </div>
+
+                    <!-- Segment Selection Bento Cards (Apple HIG) -->
+                    <div class="space-y-2 pt-1">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs sm:text-sm font-semibold text-black/80 dark:text-white/85">
+                                Skala &amp; Model Operasional Bisnis <span class="text-[#007AFF] dark:text-[#0A84FF]">*</span>
+                            </label>
+                            <span class="text-[11px] text-black/45 dark:text-white/45">Bisa disesuaikan</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Kartu UMKM -->
+                            <label class="relative flex flex-col p-4 rounded-[18px] border cursor-pointer transition-all active:scale-[0.99]"
+                                :class="businessScale === 'umkm' ? 'bg-[#007AFF]/5 border-[#007AFF] shadow-sm ring-1 ring-[#007AFF]/30' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20'">
+                                <input type="radio" name="business_scale" value="umkm" x-model="businessScale" class="sr-only">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="w-9 h-9 rounded-[12px] bg-[#34C759]/12 text-[#34C759] dark:text-[#30D158] flex items-center justify-center font-bold">
+                                        <i data-lucide="store" class="w-4.5 h-4.5"></i>
+                                    </div>
+                                    <span x-show="businessScale === 'umkm'" class="text-[11.5px] font-semibold text-[#007AFF] dark:text-[#0A84FF] bg-[#007AFF]/10 dark:bg-[#0A84FF]/15 px-2.5 py-0.5 rounded-full">Terpilih</span>
+                                </div>
+                                <h4 class="text-[14.5px] font-bold text-black dark:text-white">UMKM &amp; Toko Mandiri</h4>
+                                <p class="text-[12.5px] text-black/65 dark:text-white/65 mt-1.5 leading-relaxed">
+                                    Untuk warung, kafe, butik, bengkel, atau toko 1–3 cabang. Tampilan ringkas, siap jualan 5 menit.
+                                </p>
+                            </label>
+
+                            <!-- Kartu Korporasi -->
+                            <label class="relative flex flex-col p-4 rounded-[18px] border cursor-pointer transition-all active:scale-[0.99]"
+                                :class="businessScale === 'corporate' ? 'bg-[#007AFF]/5 border-[#007AFF] shadow-sm ring-1 ring-[#007AFF]/30' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20'">
+                                <input type="radio" name="business_scale" value="corporate" x-model="businessScale" class="sr-only">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="w-9 h-9 rounded-[12px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold">
+                                        <i data-lucide="building-2" class="w-4.5 h-4.5"></i>
+                                    </div>
+                                    <span x-show="businessScale === 'corporate'" class="text-[11.5px] font-semibold text-[#007AFF] dark:text-[#0A84FF] bg-[#007AFF]/10 dark:bg-[#0A84FF]/15 px-2.5 py-0.5 rounded-full">Terpilih</span>
+                                </div>
+                                <h4 class="text-[14.5px] font-bold text-black dark:text-white">Korporasi &amp; Multi-Cabang</h4>
+                                <p class="text-[12.5px] text-black/65 dark:text-white/65 mt-1.5 leading-relaxed">
+                                    Untuk distributor, waralaba, &amp; multi-gudang. Fitur approval bertingkat, multi-ledger, &amp; audit trail.
+                                </p>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Template Selection with Live Preview Card (Apple Inset Style) -->

@@ -89,6 +89,7 @@ class BusinessLandingPageWebController extends Controller
             ->get();
 
         $publicUrl = route('public.business.landing', Str::slug($business->name));
+        $themePresets = app(\App\Domain\Storefront\StorefrontThemeService::class)->getAllThemes();
 
         return view('app.landing_page.edit', compact(
             'business',
@@ -96,7 +97,8 @@ class BusinessLandingPageWebController extends Controller
             'industries',
             'posProducts',
             'serviceProducts',
-            'publicUrl'
+            'publicUrl',
+            'themePresets'
         ));
     }
 
@@ -110,6 +112,11 @@ class BusinessLandingPageWebController extends Controller
 
         $validated = $request->validate([
             'industry_preset'               => 'nullable|string',
+            'theme_preset'                  => 'nullable|string|max:50',
+            'active_pages'                  => 'nullable|array',
+            'active_pages_json'             => 'nullable|string',
+            'custom_labels'                 => 'nullable|array',
+            'custom_labels_json'            => 'nullable|string',
             'theme_color'                   => 'nullable|string|regex:/^#[0-9a-fA-F]{6}$/',
             'headline'                      => 'nullable|string|max:255',
             'subheadline'                   => 'nullable|string|max:2000',
@@ -186,6 +193,7 @@ class BusinessLandingPageWebController extends Controller
         // must never wipe the saved landing page back to null).
         $scalarFields = [
             'industry_preset',
+            'theme_preset',
             'theme_color',
             'headline',
             'subheadline',
@@ -261,6 +269,25 @@ class BusinessLandingPageWebController extends Controller
         }
         if ($request->has('social_links') && is_array($request->input('social_links'))) {
             $landingPage->social_links = $request->input('social_links');
+        }
+
+        if ($request->has('active_pages') && is_array($request->input('active_pages'))) {
+            $active = $request->input('active_pages');
+            $landingPage->active_pages = array_map(fn ($val) => filter_var($val, FILTER_VALIDATE_BOOLEAN), $active);
+        } elseif ($request->filled('active_pages_json')) {
+            $decoded = json_decode((string) $request->input('active_pages_json'), true);
+            if (is_array($decoded)) {
+                $landingPage->active_pages = array_map(fn ($val) => filter_var($val, FILTER_VALIDATE_BOOLEAN), $decoded);
+            }
+        }
+
+        if ($request->has('custom_labels') && is_array($request->input('custom_labels'))) {
+            $landingPage->custom_labels = $request->input('custom_labels');
+        } elseif ($request->filled('custom_labels_json')) {
+            $decoded = json_decode((string) $request->input('custom_labels_json'), true);
+            if (is_array($decoded)) {
+                $landingPage->custom_labels = $decoded;
+            }
         }
 
         foreach (

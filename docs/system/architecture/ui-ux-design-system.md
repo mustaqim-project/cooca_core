@@ -85,7 +85,16 @@ Pada perangkat mobile dan tablet ringkas (`md:hidden`), navigasi bawah disajikan
 ### 7.1 Sidebar Menu (macOS Sonoma Source List & iPadOS Split View)
 * **Struktur & Material**: Bilah samping lebar `w-72` menggunakan material translucent frosted glass (`backdrop-blur-2xl bg-[#F2F2F7]/80 dark:bg-[#1C1C1E]/80 border-r border-black/[0.06] dark:border-white/[0.08]`). Dilarang keras menggunakan sidebar hitam solid (`bg-gray-900`/`bg-slate-800`).
 * **Header Brand**: Dilengkapi logo ber-squircle continuous (`w-9 h-9 rounded-[11px] bg-gradient-to-tr from-[#007AFF] to-[#5856D6] text-white shadow-sm shadow-[#007AFF]/25`) serta badge status semantik (`bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20`).
-* **Grup Inset & Tipografi Sub-menu**: Judul seksi menu menggunakan huruf kapital berukuran 11px tebal (`text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] px-3 pt-4 pb-1`).
+* **8 Pilar Arsitektur Bento Sidebar**:
+  1. **Overview (Ringkasan & Dashboard)**: Tombol prominent utama dengan sub-dashboard akordeon (Finansial, Kasir POS, Karyawan, Pelanggan, Gudang, Pemasaran, B2B Sales, Toko Online, Asisten Cerdas AI).
+  2. **Kasir & Penjualan**: Kasir POS, Riwayat Transaksi, KDS, Meja & QR Resto, Pesanan SO, Penawaran, Faktur, Retur Penjualan.
+  3. **Produk & Persediaan**: Katalog Produk, Jasa Servis, Bahan Baku (BOM), Varian/Modifier, Stok Gudang, Lokasi, Opname, Transfer, Mutasi, Kategori, Satuan Ukur, Impor/Ekspor.
+  4. **Pembelian & Supplier**: Pesanan PO, Tagihan Bills, Supplier, Retur Pembelian.
+  5. **Pelanggan & Pemasaran**: CRM Pelanggan, Member & Poin, Voucher Promo, Toko Online & Etalase, Reservasi Meja, Ongkir & Pengiriman, WhatsApp Toko, Media Sosial.
+  6. **Keuangan & Biaya**: Kas & Rekening Bank, Beban Operasional, Jurnal Umum, Buku Besar (GL), Piutang, Utang, Settlement, Kalkulator ABC/HPP, Simulator Harga, Biaya Mesin/TK, Payroll HRM & Pajak PPh 21 TER.
+  7. **Laporan & Analitik (Reports Center)**: Tombol prominent utama dengan sub-laporan akordeon (Kas/Bank, Buku Besar, Laba Rugi, Arus Kas, Pajak, Jurnal, Penjualan POS, Piutang, Utang, Valuasi Stok, Mutasi, Margin & BEP, Media Sosial).
+  8. **Pengaturan Usaha**: Profil, Bisnis & Cabang, Hak Akses RBAC, Paket Langganan, Bantuan.
+* **Modular Auto-Hide Tenant (`disabled_modules`)**: Modul yang dinonaktifkan oleh pemilik usaha (misal `storefront` atau `sales_channels`) otomatis hilang dari sidebar secara mulus tanpa memicu error routing.
 * **Link Navigasi Squircle Continuous**:
   - **State Aktif**: `bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold rounded-[12px] h-[40px] px-3`. Ikon SVG aktif berwarna putih solid.
   - **State Inaktif**: `text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] rounded-[12px] h-[40px] px-3 font-medium text-[13.5px]`.
@@ -94,6 +103,12 @@ Pada perangkat mobile dan tablet ringkas (`md:hidden`), navigasi bawah disajikan
 
 ### 7.2 Topbar / Page Header (macOS Sonoma Toolbar & iOS 18 Navigation Bar)
 * **Struktur & Material**: Bar melekat mengambang (`sticky top-0 z-30 backdrop-blur-xl bg-[#F2F2F7]/75 dark:bg-[#000000]/75 border-b border-black/[0.06] dark:border-white/[0.08] h-16`). Dilarang keras menggunakan banner raksasa berwarna gelap atau gradasi mencolok yang menyita viewport kerja.
+* **Spotlight Search Command Palette (`Ctrl + K` / `⌘K`)**:
+  - **Trigger Kapsul**: Bilah pencarian instan pada topbar dengan shortcut badge `Ctrl K` (desktop) dan tombol kaca pembesar ergonomis 36–44px (mobile).
+  - **Modal Dialog Apple Sonoma**: Modal mengambang dengan latar `backdrop-blur-2xl bg-white/95 dark:bg-[#1C1C1E]/95`, border hairline, radius 20px, dan bayangan elevasi halus.
+  - **9 Filter Chips Kategori**: Chip kategori instan (`Dashboard`, `Kasir & Penjualan`, `Produk & Stok`, `Pembelian & Supplier`, `Pelanggan & Pemasaran`, `Keuangan & Biaya`, `Laporan & Analitik`, `Pengaturan Usaha`) tersinkronisasi 1:1 dengan 8 Grup Bento.
+  - **Navigasi Keyboard Penuh**: Dukungan panah `↑`/`↓`, `Enter` untuk membuka, dan `Esc` untuk menutup.
+  - **Proteksi RBAC Granular**: Modul dipagari hak akses `Context::hasPermission` sehingga kasir/staf tidak dapat melihat menu rahasia owner.
 * **Hierarki Tipografi (Apple Dynamic Type Scale)**:
   - *Eyebrow context*: `text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]`.
   - *Navigation Title*: `text-[20px] sm:text-[22px] font-bold tracking-tight text-[#1C1C1E] dark:text-[#F2F2F7]`.

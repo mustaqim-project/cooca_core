@@ -25,6 +25,9 @@ class Supplier extends Model
         'email',
         'phone',
         'address',
+        'bank_name',
+        'bank_account_number',
+        'bank_account_holder',
         'notes',
     ];
 

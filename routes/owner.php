@@ -16,9 +16,11 @@ use App\Http\Controllers\Web\Crm\CrmWebController;
 use App\Http\Controllers\Web\CustomerWebController;
 use App\Http\Controllers\Web\DashboardWebController;
 use App\Http\Controllers\Web\FeedbackWebController;
+use App\Http\Controllers\Web\Finance\AccountingWebController;
 use App\Http\Controllers\Web\Finance\CashLedgerWebController;
 use App\Http\Controllers\Web\Finance\PaymentSettlementWebController;
 use App\Http\Controllers\Web\Finance\PosFinanceWebController;
+
 use App\Http\Controllers\Web\Hrm\HrmWebController;
 use App\Http\Controllers\Web\ImportWebController;
 use App\Http\Controllers\Web\Inventory\InventoryWebController;
@@ -222,6 +224,38 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/purchasing/bills/{invoice}/payments', [SupplierInvoiceWebController::class, 'recordPayment'])->name('purchasing.bills.payments.store');
         });
 
+        // PRD-04: Document Approval Workflow (MAR - Maker, Approver, Releaser)
+        Route::middleware('require.permission:approvals.view')->group(function (): void {
+            Route::get('/approvals', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'inbox'])->name('approvals.inbox');
+            Route::get('/approvals/history', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'history'])->name('approvals.history');
+        });
+        Route::middleware('require.permission:approvals.manage')->group(function (): void {
+            Route::post('/approvals/{approvalRequest}/approve', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'approve'])->name('approvals.approve');
+            Route::post('/approvals/{approvalRequest}/reject', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'reject'])->name('approvals.reject');
+            Route::get('/settings/approval-rules', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'rulesIndex'])->name('approval-rules.index');
+            Route::post('/settings/approval-rules', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'rulesStore'])->name('approval-rules.store');
+            Route::put('/settings/approval-rules/{approvalRule}', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'rulesUpdate'])->name('approval-rules.update');
+            Route::delete('/settings/approval-rules/{approvalRule}', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'rulesDestroy'])->name('approval-rules.destroy');
+
+            // Alias for settings.approval-rules.*
+            Route::get('/settings/rules/approvals', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'rulesIndex'])->name('settings.approval-rules.index');
+            Route::post('/settings/rules/approvals', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'rulesStore'])->name('settings.approval-rules.store');
+            Route::put('/settings/rules/approvals/{approvalRule}', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'rulesUpdate'])->name('settings.approval-rules.update');
+            Route::delete('/settings/rules/approvals/{approvalRule}', [\App\Http\Controllers\Web\Approval\ApprovalWebController::class, 'rulesDestroy'])->name('settings.approval-rules.destroy');
+        });
+
+        // PRD-05: Audit Log Explorer & Anti-Fraud Real-Time Alert
+        Route::middleware('require.permission:audit_logs.view')->group(function (): void {
+            Route::get('/settings/audit-logs', [\App\Http\Controllers\Web\Security\AuditLogWebController::class, 'index'])->name('settings.audit-logs.index');
+            Route::get('/settings/audit-logs/export', [\App\Http\Controllers\Web\Security\AuditLogWebController::class, 'exportCsv'])->name('settings.audit-logs.export');
+            Route::get('/settings/audit-logs/{auditLog}', [\App\Http\Controllers\Web\Security\AuditLogWebController::class, 'show'])->name('settings.audit-logs.show');
+
+            // Route aliases
+            Route::get('/audit-logs', [\App\Http\Controllers\Web\Security\AuditLogWebController::class, 'index'])->name('audit-logs.index');
+            Route::get('/audit-logs/export', [\App\Http\Controllers\Web\Security\AuditLogWebController::class, 'exportCsv'])->name('audit-logs.export');
+            Route::get('/audit-logs/{auditLog}', [\App\Http\Controllers\Web\Security\AuditLogWebController::class, 'show'])->name('audit-logs.show');
+        });
+
         // Sales Pipeline: Quotations & Sales Orders
         Route::get('/sales/quotations', [QuotationWebController::class, 'index'])->middleware('require.permission:sales.view')->name('sales.quotations.index');
         Route::get('/sales/quotations/create', [QuotationWebController::class, 'create'])->middleware('require.permission:sales.pipeline')->name('sales.quotations.create');
@@ -331,7 +365,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::delete('/settings/members/{member}', [SettingWebController::class, 'destroyMember'])->middleware(['require.permission:users.manage'])->name('settings.members.destroy');
 
         // Human Resource Management (HRM) & Monthly Payroll Engine
-        Route::prefix('hrm')->name('hrm.')->middleware('require.permission:users.view')->group(function (): void {
+        Route::prefix('hrm')->name('hrm.')->group(function (): void {
             Route::get('/', [HrmWebController::class, 'index'])->name('index');
             Route::post('/employees', [HrmWebController::class, 'storeEmployee'])->middleware('require.permission:users.manage')->name('employees.store');
             Route::put('/employees/{membership}', [HrmWebController::class, 'updateEmployee'])->middleware('require.permission:users.manage')->name('employees.update');
@@ -342,7 +376,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/loans/{loan}/cancel', [HrmWebController::class, 'cancelLoan'])->middleware('require.permission:users.manage')->name('loans.cancel');
 
             // Penggajian Bulanan / Monthly Payroll Runs
-            Route::get('/payrolls', [HrmWebController::class, 'index'])->name('payrolls.index');
+            Route::get('/payrolls', [HrmWebController::class, 'index'])->middleware('require.permission:users.view')->name('payrolls.index');
             Route::get('/payrolls/create', [HrmWebController::class, 'createPayroll'])->middleware('require.permission:users.manage')->name('payrolls.create');
             Route::post('/payrolls', [HrmWebController::class, 'storePayroll'])->middleware('require.permission:users.manage')->name('payrolls.store');
             Route::get('/payrolls/{payroll}', [HrmWebController::class, 'showPayroll'])->name('payrolls.show');
@@ -352,6 +386,13 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
 
             // Digital Payslip View
             Route::get('/payslips/{item}', [HrmWebController::class, 'showPayslip'])->name('payslips.show');
+
+            // Presensi Geofencing & Absensi Harian (PRD-06)
+            Route::post('/attendance/clock-in', [HrmWebController::class, 'clockIn'])->name('attendance.clock-in');
+            Route::post('/attendance/clock-out', [HrmWebController::class, 'clockOut'])->name('attendance.clock-out');
+            Route::post('/attendance/corrections', [HrmWebController::class, 'storeCorrection'])->name('attendance.corrections.store');
+            Route::post('/attendance/corrections/{correction}/approve', [HrmWebController::class, 'approveCorrection'])->middleware('require.permission:users.manage')->name('attendance.corrections.approve');
+            Route::post('/attendance/corrections/{correction}/reject', [HrmWebController::class, 'rejectCorrection'])->middleware('require.permission:users.manage')->name('attendance.corrections.reject');
         });
 
         // Owner Feedback & Community
@@ -397,6 +438,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/pos/held-orders', [PosTerminalWebController::class, 'getHeldOrders'])->name('pos.held-orders');
         Route::post('/pos/resume/{order}', [PosTerminalWebController::class, 'resumeOrder'])->name('pos.resume');
         Route::get('/pos/receipt/{order}', [PosTerminalWebController::class, 'printReceipt'])->name('pos.receipt');
+        Route::post('/pos/receipt/{order}/reprint', [PosTerminalWebController::class, 'reprintReceipt'])->name('pos.receipt.reprint');
         Route::get('/pos/receipt/{order}/image', [PosTerminalWebController::class, 'receiptImage'])->name('pos.receipt.image');
         Route::post('/pos/verify-pin', [PosTerminalWebController::class, 'verifySupervisorPin'])->middleware('throttle:5,1')->name('pos.verify-pin');
 
@@ -521,6 +563,27 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/finance/receivables', [CashLedgerWebController::class, 'receivables'])->middleware('require.permission:finance.receivables')->name('finance.receivables');
         Route::get('/finance/payables', [CashLedgerWebController::class, 'payables'])->middleware('require.permission:finance.payables')->name('finance.payables');
 
+        // Corporate Accounting & Multi-Ledger Evolution
+        Route::middleware('require.permission:accounting.view')->group(function (): void {
+            // Bagan Akun (Chart of Accounts Tree Builder)
+            Route::get('/finance/chart-of-accounts', [AccountingWebController::class, 'coaIndex'])->name('finance.coa.index');
+            Route::post('/finance/chart-of-accounts', [AccountingWebController::class, 'coaStore'])->middleware('require.permission:accounting.manage')->name('finance.coa.store');
+            Route::put('/finance/chart-of-accounts/{account}', [AccountingWebController::class, 'coaUpdate'])->middleware('require.permission:accounting.manage')->name('finance.coa.update');
+            Route::delete('/finance/chart-of-accounts/{account}', [AccountingWebController::class, 'coaDestroy'])->middleware('require.permission:accounting.manage')->name('finance.coa.destroy');
+
+            // Laporan Keuangan SAK EMKM Resmi
+            Route::get('/finance/balance-sheet', [AccountingWebController::class, 'balanceSheet'])->name('finance.balance-sheet');
+            Route::get('/finance/trial-balance', [AccountingWebController::class, 'trialBalance'])->name('finance.trial-balance');
+            Route::get('/finance/general-ledger', [AccountingWebController::class, 'generalLedger'])->name('finance.general-ledger');
+
+            // Rekonsiliasi Bank
+            Route::get('/finance/reconciliations', [AccountingWebController::class, 'reconciliationIndex'])->name('finance.reconciliations.index');
+            Route::post('/finance/reconciliations/upload', [AccountingWebController::class, 'reconciliationUpload'])->middleware('require.permission:accounting.manage')->name('finance.reconciliations.upload');
+            Route::post('/finance/reconciliations/lines/{line}/match', [AccountingWebController::class, 'reconciliationMatch'])->middleware('require.permission:accounting.manage')->name('finance.reconciliations.match');
+            Route::post('/finance/reconciliations/lines/{line}/unmatch', [AccountingWebController::class, 'reconciliationUnmatch'])->middleware('require.permission:accounting.manage')->name('finance.reconciliations.unmatch');
+        });
+
+
         // WhatsApp Gateway Toko
         Route::prefix('whatsapp')->name('whatsapp.')->middleware('require.permission:whatsapp.view')->group(function (): void {
             Route::get('/', [WhatsAppWebController::class, 'index'])->name('index');
@@ -585,11 +648,15 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
 
         // Business Landing Page & Mini Website CMS
-        Route::prefix('landing-page')->name('landing-page.')->middleware('require.permission:cms.manage')->group(function (): void {
+        Route::prefix('landing-page')->name('landing-page.')->middleware('require.permission:cms.manage,storefront.popup.manage')->group(function (): void {
             Route::get('/', [BusinessLandingPageWebController::class, 'edit'])->name('edit');
             Route::put('/', [BusinessLandingPageWebController::class, 'update'])->name('update');
             Route::post('/preset', [BusinessLandingPageWebController::class, 'applyPreset'])->name('preset');
             Route::post('/toggle-publish', [BusinessLandingPageWebController::class, 'togglePublish'])->name('toggle-publish');
+
+            // Promotional Pop-Up Modal CMS
+            Route::get('/popup', [\App\Http\Controllers\Web\Storefront\StorefrontPopupWebController::class, 'edit'])->name('popup.edit');
+            Route::put('/popup', [\App\Http\Controllers\Web\Storefront\StorefrontPopupWebController::class, 'update'])->name('popup.update');
         });
 
         // Omnichannel Storefront & Order Management

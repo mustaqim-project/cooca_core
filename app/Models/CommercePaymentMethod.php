@@ -53,6 +53,11 @@ class CommercePaymentMethod extends Model
         return $this->hasMany(CommerceOrder::class, 'payment_method_id');
     }
 
+    public function getNameAttribute(): string
+    {
+        return (string) ($this->attributes['bank_name'] ?? '');
+    }
+
     public function getQrisImageUrlAttribute(): ?string
     {
         return $this->qris_image_path ? \App\Domain\Storage\TenantStorage::url($this->qris_image_path) : null;

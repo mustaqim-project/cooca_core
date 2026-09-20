@@ -142,4 +142,24 @@ class PurchaseOrder extends Model
             'total_amount' => $totalAmount,
         ]);
     }
+
+    public function approvalRequest(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ApprovalRequest::class, 'document_id')
+            ->where('document_type', ApprovalRule::DOC_PURCHASE_ORDER);
+    }
+
+    public function isPendingApproval(): bool
+    {
+        return $this->approvalRequest?->isPending() ?? false;
+    }
+
+    public function isApproved(): bool
+    {
+        if ($this->approvalRequest) {
+            return $this->approvalRequest->isApproved();
+        }
+
+        return true;
+    }
 }

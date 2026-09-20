@@ -20,6 +20,7 @@ use App\Models\ProductCategory;
 use App\Models\Voucher;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
@@ -398,15 +399,53 @@ final class PosTerminalWebController extends Controller
     /**
      * Display printable receipt (58mm / 80mm thermal receipt) and digital preview.
      */
-    public function printReceipt(PosOrder $order): View
+    public function printReceipt(PosOrder $order, Request $request): View
     {
+        $currentBiz = Context::requireBusiness();
+        abort_unless($order->business_id === $currentBiz->id, 403);
+
         $business = $order->business;
-        $order->load(['items', 'payments', 'customer', 'user', 'location']);
+
+        // Check if explicit reprint requested via query ?reprint=1
+        if ($request->boolean('reprint') || $request->query('reprint') === '1') {
+            $order->recordReprint(auth()->id());
+        } elseif ((int) ($order->print_count ?? 0) === 0) {
+            // First time opening/printing: mark as original print
+            $order->recordPrint(auth()->id());
+        }
+
+        $order->load(['items', 'payments', 'customer', 'user', 'location', 'lastPrintedBy']);
 
         $whatsappUrl = $this->loyaltyService->generateWhatsAppReceiptUrl($order);
 
         return view('app.pos.receipt', compact('order', 'business', 'whatsappUrl'));
     }
+
+    /**
+     * Trigger explicit reprint action (AJAX / POST).
+     */
+    public function reprintReceipt(PosOrder $order, Request $request): JsonResponse|RedirectResponse
+    {
+        $currentBiz = Context::requireBusiness();
+        abort_unless($order->business_id === $currentBiz->id, 403);
+
+        $reason = $request->input('reason');
+        $order->recordReprint(auth()->id(), $reason);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Bill berhasil dicetak ulang sebagai Cetakan ke-{$order->print_count}.",
+                'print_count' => $order->print_count,
+                'reprint_count' => $order->reprint_count,
+                'receipt_url' => route('pos.receipt', $order->id),
+            ]);
+        }
+
+        return redirect()->route('pos.receipt', $order->id)
+            ->with('success', "Cetak ulang berhasil dicatat (Cetakan ke-{$order->print_count}).");
+    }
+
 
     /**
      * Stream high-res thermal receipt image (PNG) for printing or sharing.

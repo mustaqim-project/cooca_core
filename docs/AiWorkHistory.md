@@ -46,6 +46,579 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-21-103] Storefront Toko Online Multi-Page Standalone dengan 20 Tema Industri Otentik & Navigasi Auto-Hide Cerdas (PRD-07)
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront Engine, Multi-Tenant Landing Pages, Merchant CMS Dashboard
+* **Feature:** (1) Arsitektur Toko Online Multi-Page Standalone: Mengeliminasi tumpukan pop-up ("modal hell") dan halaman monolitik 574KB dengan memecah storefront menjadi 8 halaman rute mandiri: Beranda (`/{slug}`), Katalog (`/{slug}/katalog`), Detail Produk / PDP (`/{slug}/produk/{product:slug}`), Standalone 2-Column Checkout (`/{slug}/checkout`), Tentang Kami (`/{slug}/tentang-kami`), Reservasi & Booking (`/{slug}/reservasi`), Kontak & Cabang (`/{slug}/kontak`), serta Artikel & Tips (`/{slug}/artikel` & `/{slug}/artikel/{article_slug}`). (2) Navigasi Auto-Hide Dinamis: Header navbar & footer toko publik hanya merender tautan halaman yang aktif (`active_pages[page] === true`). Akses langsung ke URL halaman yang dinonaktifkan merchant secara cerdas dialihkan (*302 redirect*) kembali ke beranda dengan flash message aman. (3) 20 Template Tema Industri Otentik: Domain service `StorefrontThemeService` memetakan palet warna, tipografi Google Fonts (Playfair Display, DM Serif, Cormorant, Space Grotesk, Chakra Petch, Syne, Bebas Neue, dll), layout bento, dan gaya visual spesifik untuk 20 kategori bisnis (Kafe & Kopi, Resto Nusantara, Fast Food, Bakery, Catering, Butik, Gadget, Minimarket, Bengkel, Apotek, Klinik Kecantikan, Laundry, Toko Bangunan, Percetakan, Toko Buku, Pet Shop, Cuci Mobil, Toko Bunga, Gym, dan Jasa Korporat B2B). (4) Rich OpenGraph & SEO Social Sharing: Meta tags terstruktur pada PDP (`og:title`, `og:image`, `product:price:amount`, `product:price:currency`) untuk preview visual berkelas di WhatsApp, Facebook, dan Telegram. (5) Standalone 2-Column Checkout Tanpa Modal: Alur checkout terpisah dengan validasi delivery/pickup, pemilihan kurir & ongkir dinamis, pilihan metode pembayaran bank transfer/QRIS, serta ringkasan keranjang Alpine.js yang tersinkronisasi. (6) Merchant CMS Dashboard UI: Selector visual 20 tema industri dengan preview kartu warna-warni, sakelar navigasi per halaman, dan kustomisasi label navigasi toko pada menu `/landing-page`. (7) Pengujian Fitur Otomatis `PublicStorefrontMultiPageThemeTest.php` (8 tests, 52 assertions) serta seluruh suite regresi storefront (`PublicStorefrontFieldScenariosTest`, `CanonicalStorefrontSlugRoutingTest`, `TwentyIndustriesShowcaseTest`) lolos 100%.
+* **Work Type:** Feature | Architecture | UI/UX (Bento Apple HIG & Multi-Theme) | Database | Domain Services | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pedagang UMKM dan pemilik bisnis korporat yang menggunakan Cooca Commerce membutuhkan kehadiran online profesional yang setara dengan e-commerce papan atas (seperti Shopify/Apple Store) daripada halaman landing monolitik satu lembar yang memuat semua data sekaligus (574KB) dan membuka pop-up modal berlapis saat melihat detail produk, keranjang, dan formulir checkout. Selain itu, setiap vertikal industri (bengkel, klinik, kafe, butik) memiliki identitas visual dan struktur menu yang sangat berbeda—sebuah bengkel otomotif tidak memerlukan menu "Reservasi Meja Resto", sementara toko buku memerlukan menu "Artikel & Cuplikan Bab".
+* **Target:**
+  1. Memisahkan rute storefront publik menjadi 8 halaman rute terisolasi tanpa pop-up modal.
+  2. Menerapkan kontrol visibilitas menu *Auto-Hide Dynamic Navigation* dari dasbor pedagang.
+  3. Menyediakan 20 preset tema industri otentik dengan token CSS variabel dan tipografi Google Fonts terpilih.
+  4. Menyediakan halaman checkout 2-kolom mandiri dengan integrasi keranjang belanja reaktif via Alpine.js.
+  5. Menjaga kompatibilitas ke belakang (0 broken links) untuk alias `/b/{slug}` dan routing slug kanonikal.
+
+#### 2. What Was Done
+* **Database & Migration:**
+  - Membuat dan mengeksekusi migrasi `2026_09_21_000004_add_multi_page_and_themes_to_business_landing_pages.php` yang menambahkan kolom `theme_preset` (string 50, default `artisan_brew`), `active_pages` (JSON nullable), dan `custom_labels` (JSON nullable) pada tabel `business_landing_pages`.
+* **Model Layer:**
+  - Memperbarui model `BusinessLandingPage` dengan `$fillable`, `$casts` (array untuk `active_pages` dan `custom_labels`), serta helper methods: `getActivePages()`, `isPageActive(string $page)`, `getNavLabel(string $page, string $default)`, dan `getThemePreset()`.
+  - Menambahkan accessor `getNameAttribute()` pada model `CommercePaymentMethod` untuk memastikan ketersediaan atribut nama bank / metode secara konsisten.
+* **Domain Service:**
+  - Membuat `App\Domain\Storefront\StorefrontThemeService` yang merangkum 20 konfigurasi tema industri: `artisan_brew`, `nusantara_feast`, `neon_crunch`, `velvet_patisserie`, `epicurean_box`, `vogue_minimalist`, `nexus_cyber`, `fresh_mart`, `apex_velocity`, `clinical_pure`, `aura_glamour`, `aqua_bubble`, `ironclad_builder`, `pixel_print`, `bibliotheca`, `playful_paws`, `hydro_shield`, `flora_romance`, `titan_kinetic`, dan `sovereign_enterprise`. Setiap preset mendefinisikan nama, industri, font pairing Google Fonts, token CSS (primary, secondary, accent, bg, card, text, border, badge, font-heading, font-sans, border-radius squircle), dan badge tag unik.
+* **Controller Layer:**
+  - Membangun `App\Http\Controllers\Web\Storefront\PublicStorefrontController` dengan method mandiri: `home()`, `catalog()`, `productDetail()`, `checkout()`, `about()`, `reservation()`, `contact()`, `articles()`, dan `articleDetail()`.
+  - Menerapkan proteksi `resolveContext()` dengan *Auto-Hide Navigation Guard* yang secara otomatis mengalihkan (302 redirect) pengunjung jika mengakses URL rute halaman yang dinonaktifkan pedagang.
+* **Routing:**
+  - Memperbarui `routes/public.php` dengan rute kanonikal `{slug}` dan legacy `/b/{slug}` untuk 8 halaman mandiri. Rute kanonikal beranda tetap mempertahankan nama `public.business.landing` demi kompatibilitas seluruh suite pengujian sebelumnya.
+* **Modular Blade Views:**
+  - Merancang direktori `resources/views/public/storefront/` dengan 9 berkas Blade modular:
+    - `layouts/app.blade.php`: Injeksi token tema CSS, Google Fonts dynamically loaded, OpenGraph tags, dynamic navbar auto-hide, keranjang bar melayang, widget live chat WhatsApp, dan global Alpine.js cart store.
+    - `home.blade.php`: Hero dinamis, bento kategori, produk terlaris, highlight servis, teaser cerita brand, bento jam operasional outlet, dan artikel terbaru.
+    - `catalog.blade.php`: Toolbar filter pencarian, filter kategori, sort harga/terbaru, grid kartu produk bertema, dan penomoran halaman (pagination).
+    - `product_detail.blade.php`: Galeri visual, status stok, harga dinamis, stepper kuantitas, tombol Beli Sekarang & Tambah Keranjang, tombol pesan via WhatsApp, serta OpenGraph preview tags.
+    - `checkout.blade.php`: Layout 2 kolom standalone tanpa modal (Pilihan Tipe Pemenuhan, Identitas Pembeli & Alamat Pengiriman, Opsi Kurir & Ongkir, Pilihan Metode Pembayaran QRIS/Transfer, dan Rincian Belanja dengan submit real-time).
+    - `about.blade.php`: Narasi cerita bisnis, pilar komitmen mutu, dan galeri aktivitas.
+    - `reservation.blade.php`: Formulir pemesanan meja dan reservasi layanan dengan kode konfirmasi unik.
+    - `contact.blade.php`: Kanal komunikasi lengkap, jam operasional, dan embed Google Maps.
+    - `articles.blade.php` & `article_detail.blade.php`: Blog edukasi dan tips bisnis terkurasi dengan tombol bagikan ke media sosial.
+* **Merchant Dashboard CMS UI:**
+  - Memperbarui `BusinessLandingPageWebController.php` untuk memvalidasi dan menyimpan konfigurasi `theme_preset`, `active_pages`, dan `custom_labels`.
+  - Memperbarui `resources/views/app/landing_page/edit.blade.php` dengan 20 kartu visual selector tema industri, sakelar toggle navigasi halaman aktif, serta input kustomisasi label menu navigasi.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_21_000004_add_multi_page_and_themes_to_business_landing_pages.php`
+  - `app/Domain/Storefront/StorefrontThemeService.php`
+  - `app/Http/Controllers/Web/Storefront/PublicStorefrontController.php`
+  - `resources/views/public/storefront/layouts/app.blade.php`
+  - `resources/views/public/storefront/home.blade.php`
+  - `resources/views/public/storefront/catalog.blade.php`
+  - `resources/views/public/storefront/product_detail.blade.php`
+  - `resources/views/public/storefront/checkout.blade.php`
+  - `resources/views/public/storefront/about.blade.php`
+  - `resources/views/public/storefront/reservation.blade.php`
+  - `resources/views/public/storefront/contact.blade.php`
+  - `resources/views/public/storefront/articles.blade.php`
+  - `resources/views/public/storefront/article_detail.blade.php`
+  - `tests/Feature/PublicStorefrontMultiPageThemeTest.php`
+* **Files Modified:**
+  - `app/Models/BusinessLandingPage.php`
+  - `app/Models/CommercePaymentMethod.php`
+  - `app/Http/Controllers/Web/BusinessLandingPageWebController.php`
+  - `resources/views/app/landing_page/edit.blade.php`
+  - `routes/public.php`
+
+#### 4. System Impacts
+* **Workflow Impact:** Pelanggan storefront menikmati alur belanja kelas dunia dengan navigasi antar-halaman yang bersih, URL terstruktur yang dapat di-bookmark/dibagikan ke medsos, dan proses checkout 2-kolom mandiri tanpa terkekang dalam modal pop-up.
+* **Business Rule Impact:** Pedagang memegang kendali penuh atas halaman mana saja yang ingin ditampilkan ke publik melalui sistem Auto-Hide Dynamic Navigation. Jika sebuah menu dimatikan, link otomatis tersembunyi dan URL direct otomatis di-redirect ke beranda.
+* **Permission Impact:** Superadmin dan Owner dapat mengubah preset tema industri kapan saja dari dasbor `/landing-page`.
+
+#### 5. Verification & Testing
+* **PHPUnit Feature Tests:**
+  - `php artisan test --filter=PublicStorefrontMultiPageThemeTest`: 8 tests, 52 assertions passed (100%).
+  - `php artisan test --filter=PublicStorefrontFieldScenariosTest`: 7 tests, 39 assertions passed (100%).
+  - `php artisan test --filter=CanonicalStorefrontSlugRoutingTest`: 7 tests, 31 assertions passed (100%).
+  - `php artisan test --filter=TwentyIndustriesShowcaseTest`: 1 test, 455 assertions passed (100%).
+* **Blade Compilation:**
+  - `php artisan view:clear; php artisan view:cache`: Berhasil mengompilasi seluruh template Blade tanpa error sintaksis.
+
+### [WORK-2026-09-21-102] HRM Presensi Geofencing, Mode Bebas Lokasi, Tiket Perbaikan Absensi (PRD-06) & Integrasi Penggajian Otomatis
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** Human Resource Management (HRM), Attendance & Geofencing Engine, Payroll Run Integration
+* **Feature:** (1) Dual Location Policy: Presensi Geofencing (validasi jarak radius meter berbasis rumus Haversine terhadap outlet/kantor utama) & Mode Bebas Lokasi untuk staf lapangan/sales/canvasser/kurir tanpa batasan jarak namun tetap merekam GPS & alamat. (2) Anti-Spoofing & Anti-Tampering: Timestamp server mutlak (`now()`), penolakan akurasi sinyal GPS rendah (> 100m) atau terdeteksi sinyal palsu. (3) Tiket Perbaikan Absensi (`attendance_corrections`): Pengajuan nomor tiket otomatis (`COR-YYYYMM-XXXXX`), form lampiran berkas/bukti, visual diff modal sheet untuk atasan membandingkan data asli sensor vs usulan revisi staf. (4) Sinkronisasi Otomatis & Jejak Audit: Persetujuan tiket memicu pembaruan data kehadiran, penandaan `is_corrected = true`, kalkulasi ulang durasi kerja, dan pencatatan audit trail forensik (`AuditLog`) dengan risk level MEDIUM. (5) Integrasi Penggajian Otomatis: `PayrollRunService` secara otomatis menghitung hari kerja staf harian (`daily_worker`) dan kehadiran staf bulanan berbasis data riil dari tabel `attendances`. (6) Bento Apple HIG UI: Widget jam digital live, radar deteksi sinyal GPS presisi tinggi, tab presensi harian, tab tiket perbaikan absensi dengan filter dan badge status. (7) Pengujian Fitur Otomatis `HrmAttendanceGeofenceTest.php` (10 tests, 53 assertions) lolos 100%.
+* **Work Type:** Feature | Security | Database | UI/UX (Bento Apple HIG) | Domain Services | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Bisnis UMKM dan korporasi berkembang (ritel, bakery, bengkel, distributor, kantor jasa) menghadapi dua tantangan presensi: (a) staf outlet/bengkel sering titip absen atau clock-in dari rumah jika tidak ada geofencing, (b) staf sales lapangan, kurir pengiriman, dan pekerja remote tidak bisa menggunakan mesin fingerprint kantor konvensional. Selain itu, jika terjadi kendala teknis (smartphone mati, GPS lambat mengunci, dinas luar mendadak), staf membutuhkan jalur resmi pengajuan tiket koreksi berjenjang yang transparan tanpa mengubah data secara liar di database.
+* **Target:**
+  1. Menerapkan validasi geofencing presisi tinggi dengan radius fleksibel per outlet toko.
+  2. Menyediakan opsi mode bebas lokasi per karyawan.
+  3. Membangun alur tiket perbaikan absensi dengan perbandingan visual diff sebelum disetujui atasan.
+  4. Menghubungkan kalkulasi penggajian bulanan langsung ke data absensi tervalidasi.
+
+#### 2. What Was Done
+* **Migrasi Database:** Membuat migrasi `2026_09_21_000002_create_hrm_attendances_and_corrections_tables.php` dan `2026_09_21_000003_add_is_geofenced_to_attendances_table.php` yang menambahkan `geofence_radius_meters` pada `locations`, `attendance_mode` pada `business_users`, serta tabel `attendances` dan `attendance_corrections`.
+* **Model Eloquent:** Membuat model `Attendance` dan `AttendanceCorrection`, serta memperluas model `BusinessMembership`, `Location`, dan `User` dengan relasi dan helper pendukung.
+* **Domain Service:** Membuat `AttendanceService` lengkap dengan rumus Haversine jarak bumi, validasi akurasi GPS $\le 100$m, penentuan status keterlambatan terhadap jam 09:00 WIB, kalkulasi lembur (> 480 menit), penanganan selfie presensi, alur approval/rejection tiket dengan database transaction, dan pencatatan `AuditLog`.
+* **Integrasi Payroll:** Memperbarui `PayrollRunService.php` agar secara cerdas menghitung jumlah kehadiran sah (`Attendance::validAttendances()`) untuk pekerja harian dan staf bulanan.
+* **Controller & Web Routes:** Menyesuaikan `HrmWebController.php` dengan method `clockIn()`, `clockOut()`, `storeCorrection()`, `approveCorrection()`, dan `rejectCorrection()`, serta mendaftarkan rute web pada `routes/owner.php`.
+* **Antarmuka Pengguna (Apple HIG Bento UI):** Memperbarui `resources/views/app/hrm/index.blade.php` dengan widget live clock, sensor GPS radar, filter log absensi, daftar tiket koreksi, input mode presensi pada modal tambah/edit karyawan, modal pengajuan tiket koreksi, dan Visual Diff Modal Sheet untuk review tiket.
+* **Automated Testing:** Membuat test suite komprehensif `tests/Feature/HrmAttendanceGeofenceTest.php` (10 tests, 53 assertions lolos 100%) dan memverifikasi bebas regresi dengan `HrmAndMonthlyPayrollTest.php`.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `database/migrations/2026_09_21_000002_create_hrm_attendances_and_corrections_tables.php`
+  - `database/migrations/2026_09_21_000003_add_is_geofenced_to_attendances_table.php`
+  - `app/Models/Attendance.php`
+  - `app/Models/AttendanceCorrection.php`
+  - `app/Models/BusinessMembership.php`
+  - `app/Models/Location.php`
+  - `app/Models/User.php`
+  - `app/Domain/HRM/AttendanceService.php`
+  - `app/Domain/HRM/PayrollRunService.php`
+  - `app/Http/Controllers/Web/Hrm/HrmWebController.php`
+  - `routes/owner.php`
+  - `resources/views/app/hrm/index.blade.php`
+  - `tests/Feature/HrmAttendanceGeofenceTest.php`
+
+#### 4. Verification & Testing
+* `php -l` pada seluruh berkas PHP: Tidak ada error sintaks.
+* `php artisan view:clear` & `php artisan view:cache`: Blade templates berhasil di-cache 100%.
+* `php vendor/bin/phpunit tests/Feature/HrmAttendanceGeofenceTest.php`: 10 passed, 53 assertions.
+* `php vendor/bin/phpunit tests/Feature/HrmAndMonthlyPayrollTest.php`: 7 passed, 65 assertions.
+
+---
+
+### [WORK-2026-09-21-101] Pelacakan Re-Print Bill Kasir POS, Penghitung Cetakan (Print Count), & Anti-Fraud Salinan Struk
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** POS (Point of Sale), Security & Anti-Fraud Audit Trail
+* **Feature:** (1) Penambahan kolom pelacakan cetak pada `pos_orders` (`print_count`, `reprint_count`, `first_printed_at`, `last_printed_at`, `last_printed_by`). (2) Aturan tampilan struk thermal presisi: Cetakan asli (`print_count <= 1`) tampil bersih tanpa penanda cetakan ke berapa; Cetakan ulang (`print_count > 1`) mencantumkan watermark `*** SALINAN (CETAKAN KE-[N]) ***` dan metadata forensik operator/waktu. (3) Generator struk PNG (`PosReceiptImageService`) menyertakan banner salinan jika dicetak ulang. (4) Otomasi pencatatan `AuditLog` anti-fraud setiap kali re-print dilakukan dengan eskalasi risiko ke level HIGH jika dicetak $\ge 3$ kali. (5) Integrasi tombol dan indikator Re-Print pada antarmuka struk (`receipt.blade.php`) dan riwayat pesanan (`orders.blade.php`). (6) Pengujian fitur otomatis `PosBillReprintTrackingTest.php` (7 tests, 47 assertions) lolos 100%.
+* **Work Type:** Feature | Security | Database | UI/UX (Thermal Receipt Apple HIG) | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Dalam operasional ritel & F&B, mencetak ulang bill/struk kasir adalah salah satu celah kecurangan terbesar (kasir mencetak ulang struk lama dan memberikannya ke pelanggan baru untuk mengantongi uang tunai, lalu membatalkan transaksi).
+* **Target:** Mencatat setiap kali bill dicetak, menghitung berapa kali dicetak ulang, mencantumkan penanda salinan tegas hanya pada cetakan ulang, dan mencatat log forensik anti-fraud ke dalam Jejak Audit secara otomatis.
+
+#### 2. What Was Done
+* Membuat migrasi skema `2026_09_21_000001_add_print_tracking_fields_to_pos_orders_table.php`.
+* Memperbarui model `PosOrder` dengan helper methods `isReprint()`, `recordPrint()`, `recordReprint()`, dan relasi `lastPrintedBy()`.
+* Memperbarui `PosTerminalWebController`: `printReceipt()` mendeteksi cetakan pertama vs reprint, dan menambahkan endpoint `reprintReceipt()`.
+* Memperbarui `routes/owner.php` mendaftarkan route `POST /pos/receipt/{order}/reprint`.
+* Menyesuaikan tampilan `receipt.blade.php` dengan tombol Re-Print, status badge, dan banner cetakan ke berapa (hanya jika `print_count > 1`).
+* Menyesuaikan `PosReceiptImageService.php` agar generator gambar PNG menyertakan watermark salinan merah hanya jika `print_count > 1`.
+* Memperbarui `orders.blade.php` dengan badge status cetak dan tombol Re-Print.
+* Menulis automated tests `PosBillReprintTrackingTest.php` (7 skenario uji lulus 100%).
+
+#### 3. Technical Changes
+* **Files Modified:**
+  - `database/migrations/2026_09_21_000001_add_print_tracking_fields_to_pos_orders_table.php` (NEW)
+  - `app/Models/PosOrder.php`
+  - `app/Http/Controllers/Web/Pos/PosTerminalWebController.php`
+  - `routes/owner.php`
+  - `resources/views/app/pos/receipt.blade.php`
+  - `resources/views/app/pos/orders.blade.php`
+  - `app/Domain/Pos/PosReceiptImageService.php`
+  - `tests/Feature/PosBillReprintTrackingTest.php` (NEW)
+
+#### 4. Verification & Testing
+* `php vendor/bin/phpunit tests/Feature/PosBillReprintTrackingTest.php` -> 7 tests, 47 assertions, 0 failures (100% PASS).
+* Full regression test suite: 29 tests, 244 assertions, 0 failures (100% PASS).
+
+---
+
+### [WORK-2026-09-20-100] Implementasi End-to-End PRD-05: Audit Log Explorer & Deteksi Anti-Fraud dengan Notifikasi Real-Time WhatsApp
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** Security, Audit Trail Compliance, Anti-Fraud & Real-Time WhatsApp Alerting
+* **Feature:** (1) Mesin deteksi anti-fraud berbasis aturan risiko (`AntiFraudService`) yang mengevaluasi mutasi data kritis: Pembatalan pesanan kasir (Void/Refund POS), perubahan nomor rekening bank supplier, diskon kasir di atas 20%, perubahan hak akses / role staf, dan penghapusan jurnal akuntansi manual. (2) Peringatan darurat seketika melalui WhatsApp Gateway resmi ke nomor pribadi pemilik usaha (Owner) sesuai format template resmi PRD-05. (3) Perlindungan integritas data `audit_logs` secara mutlak sebagai tabel *Append-Only Immutable Table* yang melarang modifikasi data historis atau penghapusan data. (4) Antarmuka Bento Apple HIG Audit Log Explorer (`/settings/audit-logs`) dengan 3 metrik aktivitas bento, filter pencarian multi-kriteria (tingkat risiko, modul, staf pelaku, rentang tanggal, kata kunci), dan Modal Sheet Visual Diff Viewer komparasi data lama (merah coret) vs data baru (hijau tebal) dengan ergonomi senior presbiopi (usia 40–65 tahun). (5) Integrasi menu sidebar dan rute resmi berizin `audit_logs.view`. (6) Pengujian otomatis penuh `AuditLogAndAntiFraudTest.php` (9 tests, 59 assertions) serta kelulusan suite regresi menyeluruh (39 tests, 257 assertions).
+* **Work Type:** Feature | Security | Architecture | UI/UX (Apple HIG Bento) | Database | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pemilik bisnis UMKM maupun korporasi menghadapi risiko kecurangan internal yang kerap dilakukan secara diam-diam oleh oknum karyawan (seperti pembatalan struk pembayaran kasir/void setelah pelanggan pergi, manipulasi nomor rekening vendor/supplier menjadi rekening pribadi, pemberian diskon kasir berlebihan kepada kerabat, atau penghapusan transaksi jurnal pembukuan).
+* **Masalah/Target:** Mengimplementasikan PRD-05 secara end-to-end: mengevaluasi setiap perubahan data sensitif, mengklasifikasikan tingkat risiko (Tinggi, Sedang, Rendah), mengirimkan peringatan seketika via WhatsApp ke Owner dalam hitungan detik, mengunci tabel `audit_logs` agar tidak bisa dihapus atau dimanipulasi, dan menyediakan antarmuka penjelajah forensik digital (Audit Log Explorer) dengan Visual Diff Viewer yang nyaman dibaca oleh pemilik bisnis berusia 40–65 tahun.
+
+#### 2. What Was Done
+1. **Migrasi Skema Database:** Menambahkan kolom `risk_level`, `risk_reason`, `notes`, `alert_sent_at`, dan `alert_recipient` pada tabel `audit_logs`, serta kolom `bank_name`, `bank_account_number`, dan `bank_account_holder` pada tabel `suppliers` (`2026_09_20_000006_add_risk_and_alert_fields_to_audit_logs_table.php`).
+2. **Model Immutability & Scopes:** Memperbarui `AuditLog.php` dengan penegakan immutabilitas mutlak di `booted()` (`RuntimeException` pada modifikasi data historis atau `delete()`), scopes query (`highRisk`, `mediumRisk`, `lowRisk`, `filter`), dan label modul ramah pengguna.
+3. **Auditable Trait & Observer:** Memperbarui `Auditable.php` agar setiap pencatatan log dievaluasi risikonya melalui `AntiFraudService`, mencatat catatan kontekstual, dan memicu pengiriman alert WhatsApp jika terdeteksi risiko tinggi. Menambahkan trait `Auditable` pada `JournalEntry.php` dan fillable rekening pada `Supplier.php`.
+4. **Mesin Anti-Fraud (`AntiFraudService.php`):** Logika klasifikasi risiko:
+   - *Tinggi:* Void/Refund/Delete `PosOrder`, perubahan rekening bank `Supplier`, diskon POS $> 20\%$, perubahan role pengguna, penghapusan manual `JournalEntry`.
+   - *Sedang:* Perubahan harga jual `Product`, pengeditan data `Customer`.
+   - *Rendah:* Transaksi normal POS, pembuatan PO standar, clock-in absensi.
+   - *WhatsApp Alerting:* Menyusun pesan sesuai format PRD-05 dan mengirimkannya via `AdminWhatsAppService` atau `WhatsAppGatewayService` ke nomor ponsel Owner.
+5. **Controller Web (`AuditLogWebController.php`):** Menyajikan endpoint `index` dengan pagination 20 baris dan filter multi-kriteria, serta endpoint `show` yang mengembalikan payload JSON atau tampilan komparasi Visual Diff dengan isolasi multi-tenant ketat (`abort(404)` pada akses lintas tenant).
+6. **Antarmuka Pengguna Bento Apple HIG & Visual Diff Viewer:**
+   - `resources/views/app/security/audit-logs/index.blade.php`: Header bento, 3 kartu metrik ringkasan, bilah filter chips risiko dan input bertarget sentuh $\ge 44\text{px}$, tabel log dengan badge status risiko berkontras tinggi, dan modal sheet Alpine.js Visual Diff Viewer.
+   - `resources/views/app/security/audit-logs/show.blade.php`: Halaman detail forensik fallback.
+   - `resources/views/layouts/partials/sidebar.blade.php`: Penambahan menu navigasi "Jejak Audit & Anti-Fraud" pada desktop sidebar dan flyout menu.
+7. **RBAC & Rute:** Mendaftarkan permission `audit_logs.view` di `RbacSeeder.php` dan rute `/settings/audit-logs` di `routes/owner.php`.
+8. **Pengujian Otomatis:** Membuat `tests/Feature/AuditLogAndAntiFraudTest.php` (9 test cases lulus 100%, 59 assertions) dan lulus regresi menyeluruh (39 tests, 257 assertions).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `database/migrations/2026_09_20_000006_add_risk_and_alert_fields_to_audit_logs_table.php` (NEW)
+  - `app/Models/AuditLog.php` (MODIFIED)
+  - `app/Models/Traits/Auditable.php` (MODIFIED)
+  - `app/Models/JournalEntry.php` (MODIFIED)
+  - `app/Models/Supplier.php` (MODIFIED)
+  - `app/Domain/Security/AntiFraudService.php` (NEW)
+  - `app/Http/Controllers/Web/Security/AuditLogWebController.php` (NEW)
+  - `resources/views/app/security/audit-logs/index.blade.php` (NEW)
+  - `resources/views/app/security/audit-logs/show.blade.php` (NEW)
+  - `resources/views/layouts/partials/sidebar.blade.php` (MODIFIED)
+  - `routes/owner.php` (MODIFIED)
+  - `database/seeders/RbacSeeder.php` (MODIFIED)
+  - `tests/Feature/AuditLogAndAntiFraudTest.php` (NEW)
+
+#### 4. Verification & Testing
+* `php vendor/bin/phpunit tests/Feature/AuditLogAndAntiFraudTest.php`: 9 tests passed, 59 assertions, 0 failures!
+* Full regression suite: 39 tests passed, 257 assertions, 0 failures across PRD-01, PRD-03, PRD-04, PRD-05, and Location Setup.
+* Zero syntax errors verified via `php -l`.
+
+---
+
+### [WORK-2026-09-20-099] Implementasi End-to-End PRD-04: Tata Kelola Dokumen Maker – Multi Approver – Releaser (MAR) dengan Apple HIG Document Stepper & Bento Cockpit
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** Governance, Document Approval Workflow (MAR), Procurement & Operational Finance
+* **Feature:** (1) Mesin alur otorisasi multi-level dokumen sensitif (`purchase_order`, `expense`, `supplier_invoice`) berbasis ambang batas nominal (`approval_rules`, `approval_requests`, `approval_logs`). (2) Pemisahan skala bisnis adaptif: UMKM (`business_scale == 'umkm'`) menikmati direct release instan tanpa hambatan birokrasi, sedangkan Korporasi (`business_scale == 'corporate'`) mewajibkan otorisasi multi-level (Level 1 Supervisor, Level 2 Manager, Level 3 Director/Owner) dengan memblokir konfirmasi/eksekusi transaksi sebelum disetujui. (3) Penegakan integritas pemisahan tugas (Segregation of Duties): Pembuat dokumen (Maker) dilarang menyetujui tiketnya sendiri kecuali berkedudukan sebagai Owner. (4) Komponen horizontal visual progress tracker bergaya Apple HIG (`<x-document-stepper>`) lengkap dengan status pill, riwayat log audit modal sheet, serta form cepat persetujuan & penolakan beralasan wajib. (5) Bento Cockpit Persetujuan Dokumen (`/approvals` inbox & `/approvals/history`) serta manajemen aturan otorisasi (`/settings/approval-rules`).
+* **Work Type:** Feature | Architecture | Security | UI/UX (Apple HIG Bento) | Database | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Perusahaan berskala menengah dan korporasi memerlukan kontrol internal ketat atas pengeluaran kas dan komitmen pesanan pembelian bernilai tinggi guna mencegah kebocoran dana dan fraud karyawan. Di sisi lain, pemilik usaha mikro/kecil (1-3 staf) membutuhkan kecepatan tanpa terhambat persetujuan berbelit.
+* **Masalah/Target:** Mengimplementasikan PRD-04 secara menyeluruh dengan membedakan alur kerja UMKM (otomatis bypass) dan Korporasi (evaluasi aturan plafon nominal), mengunci tombol konfirmasi PO hingga tiket disetujui, dan memberikan rekam jejak audit (audit trail) tak terhapuskan pada setiap tindakan persetujuan/penolakan.
+
+#### 2. What Was Done
+* **Migrasi Database:** Merilis migrasi `database/migrations/2026_09_20_000005_create_document_approval_tables.php` yang mendirikan tabel `approval_rules`, `approval_requests`, dan `approval_logs` dengan UUID, multi-tenant indexing, dan foreign key constraints.
+* **Domain Models & Relasi:** Mengimplementasikan `App\Models\ApprovalRule`, `App\Models\ApprovalRequest`, dan `App\Models\ApprovalLog` dengan `BelongsToBusiness`, casts, query scopes, dan relasi ke `Business`, `PurchaseOrder`, `Expense`, serta `SupplierInvoice`.
+* **Domain Engine Service:** Membangun `App\Domain\Approval\ApprovalWorkflowService` yang memuat logika: `evaluateAndCreateRequest()` fleksibel polymorphic, `canUserApprove()` dengan blokade self-approval maker, `approve()` transaksional dengan auto-escalation level, `reject()` dengan alasan mandatori, serta `getDocumentStepperData()`.
+* **RBAC & Otorisasi:** Memperbarui `database/seeders/RbacSeeder.php` dengan hak akses `approvals.view` dan `approvals.manage` yang terpasang pada role Manager/Owner.
+* **Controller & Routing:** Mengembangkan `App\Http\Controllers\Web\Approval\ApprovalWebController` (`inbox`, `history`, `approve`, `reject`, `rulesIndex`, `rulesStore`, `rulesUpdate`, `rulesDestroy`) dan menghubungkannya pada `routes/owner.php` dengan middleware tenant dan permission.
+* **Guard Konfirmasi Purchase Order:** Memodifikasi `PurchaseOrderWebController@store` dan `@confirm` agar mengevaluasi tiket persetujuan dan memblokir konfirmasi jika status dokumen masih `pending` atau `rejected`.
+* **Komponen Apple HIG Stepper:** Merancang komponen `resources/views/components/document-stepper.blade.php` dengan visual linear node progress (Maker -> L1 -> L2 -> Releaser), pill status transparan ala Apple, tombol aksi cepat, dan modal sheet konfirmasi.
+* **Bento Cockpit Views:** Membangun tampilan Bento: `resources/views/app/approvals/inbox.blade.php`, `resources/views/app/approvals/history.blade.php`, dan `resources/views/app/approvals/rules.blade.php`.
+* **Navigasi Sidebar:** Mengintegrasikan menu *Persetujuan Dokumen* pada ringkasan dashboard sidebar lengkap dengan badge jumlah pending real-time, serta menu *Aturan Persetujuan (MAR)* pada grup Pengaturan Usaha.
+* **Automated Feature Test:** Menulis `tests/Feature/DocumentApprovalWorkflowTest.php` mencakup 9 skenario lengkap (54 assertions, 100% PASS).
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_20_000005_create_document_approval_tables.php`
+  - `app/Models/ApprovalRule.php`
+  - `app/Models/ApprovalRequest.php`
+  - `app/Models/ApprovalLog.php`
+  - `app/Domain/Approval/ApprovalWorkflowService.php`
+  - `app/Http/Controllers/Web/Approval/ApprovalWebController.php`
+  - `resources/views/components/document-stepper.blade.php`
+  - `resources/views/app/approvals/inbox.blade.php`
+  - `resources/views/app/approvals/history.blade.php`
+  - `resources/views/app/approvals/rules.blade.php`
+  - `tests/Feature/DocumentApprovalWorkflowTest.php`
+* **Files Modified:**
+  - `app/Models/Business.php`
+  - `app/Models/PurchaseOrder.php`
+  - `app/Models/Expense.php`
+  - `app/Models/SupplierInvoice.php`
+  - `app/Http/Controllers/Web/PurchaseOrderWebController.php`
+  - `resources/views/app/purchase-orders/show.blade.php`
+  - `resources/views/layouts/partials/sidebar.blade.php`
+  - `routes/owner.php`
+  - `database/seeders/RbacSeeder.php`
+
+#### 4. System Impacts
+* **Workflow Impact:** Konfirmasi PO di atas plafon nominal kini terkunci hingga para pejabat otorisasi menekan tombol Setuju. Alur audit trail tercatat abadi dan dapat ditinjau kapan pun.
+* **Business Rule Impact:** Bisnis UMKM tetap lincah tanpa hambatan birokrasi, sedangkan Korporasi memiliki governance kepatuhan setara ERP kelas enterprise (SAP/Netsuite).
+* **Permission Impact:** Penambahan hak akses `approvals.view` dan `approvals.manage`.
+
+#### 5. Verification & Testing
+* `tests/Feature/DocumentApprovalWorkflowTest.php`: 9 tests, 54 assertions, 0 failures (Passed).
+* Regression Suite (`DocumentApprovalWorkflowTest`, `BusinessLocationSetupTest`, `CorporateAccountingMultiLedgerTest`): 25 tests, 164 assertions (Passed).
+* `php -l` verifikasi sintaks: Seluruh berkas lulus tanpa kesalahan sintaks.
+
+---
+
+### [WORK-2026-09-20-098] Verifikasi Multi-Cabang & Multi-Gudang serta Onboarding Lokasi Usaha Berbasis API Wilayah Indonesia (Desa/Kode Pos) & Peta Interaktif Leaflet.js
+* **Date:** 2026-09-20
+* **Status:** COMPLETED
+* **Module:** Multi-Branch & Multi-Warehouse Architecture, Geographic Location Services, Owner Onboarding & Profile Setup
+* **Feature:** (1) Audit kesiapan arsitektur multi-cabang & multi-gudang (relasi tabel `locations`, mutasi `inventory_stocks`, transfer stok antargudang `StockTransfer`, penerimaan PO `GoodsReceipt`, pesanan POS per-cabang `pos_orders`, serta omnichannel routing PRD-08). (2) Implementasi mandatori konfirmasi lokasi usaha pada setup bisnis (`/complete-profile`) dengan integrasi API wilayah Indonesia hingga tingkat kelurahan/desa dan pencarian instan via kode pos/nama desa (Biteship Maps Areas API + OpenStreetMap fallback), peta interaktif Leaflet.js dengan pin marker draggable, deteksi GPS perangkat real-time, sinkronisasi titik asal pengiriman toko online (`CommerceStoreSetting`), dan proteksi middleware `EnsureOwnerProfileComplete`.
+* **Work Type:** Feature | Architecture | UI/UX (Bento Apple HIG) | Database | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Setiap bisnis UMKM dan Korporasi membutuhkan kepastian titik fisik operasional untuk pencetakan faktur/struk kasir yang akurat, pemenuhan pesanan omnichannel toko online, dan kalkulasi ongkos kirim logistik instan (JNE, SiCepat, J&T, GoSend, GrabExpress).
+* **Masalah/Target:** Memverifikasi ketersediaan fitur multi-cabang & multi-gudang, serta mewajibkan pemilik usaha mengonfirmasi lokasi cabang utama saat onboarding dengan akurasi hingga tingkat desa/kelurahan serta koordinat lintang-bujur (GPS) menggunakan antarmuka interaktif yang mudah digunakan oleh pemilik usaha berusia 40–65 tahun.
+
+#### 2. What Was Done
+* **Arsitektur Multi-Cabang & Multi-Gudang (Verifikasi & Penguatan):**
+  - Mengonfirmasi bahwa backend COOCA telah sepenuhnya siap multi-cabang dan multi-gudang melalui entitas `Location` (tipe `outlet`, `warehouse`, `central_kitchen`), stok per lokasi di `inventory_stocks`, modul transfer antargudang `StockTransfer`, penerimaan barang vendor per-gudang di `GoodsReceipt`, dan POS terminal binding ke lokasi spesifik.
+* **Database & Schema Upgrade:**
+  - Menambahkan migrasi `2026_09_20_000004_add_detailed_location_fields_to_locations_table.php` menambahkan kolom: `province`, `city`, `district`, `village`, `postal_code`, `latitude`, `longitude`, `biteship_area_id`, `is_online_fulfillment`, `allow_storefront_pickup` pada tabel `locations`.
+  - Memperbarui model `Location.php` dengan `$fillable`, casting boolean & float koordinat, serta accessor `formatted_full_address`.
+* **Domain GeoLocation Service:**
+  - Membuat `app/Domain/Shared/GeoLocationService.php` dengan metode `searchAreas()` (Biteship Maps Areas API + OpenStreetMap Nominatim fallback) dan `reverseGeocode()` untuk menerjemahkan koordinat marker peta menjadi nama jalan, kelurahan, kecamatan, dan kota secara real-time.
+* **Routing & Controller:**
+  - Membuat `app/Http/Controllers/Web/Common/GeoLocationController.php` dengan endpoint `GET /geo/search-areas` dan `GET /geo/reverse-geocode`.
+  - Memperbarui `AuthWebController.php` (`showCompleteProfile` & `updateCompleteProfile`) untuk validasi komprehensif wilayah Indonesia, auto-create/update primary `Location`, dan sinkronisasi `origin_address`, `origin_postal_code`, `origin_location_id` pada `CommerceStoreSetting`.
+  - Memperbarui middleware `EnsureOwnerProfileComplete.php` untuk memblokir akses ke dashboard sebelum lokasi utama dikonfirmasi (dilengkapi bypass di lingkungan testing).
+* **UI/UX Bento Apple HIG (Senior-Friendly 40–65 Tahun):**
+  - Mendesain ulang `resources/views/auth/complete-profile.blade.php`:
+    - Zero-emoji compliance (murni Lucide SVG: `store`, `map-pin`, `crosshair`, `search`, `shield-check`, `arrow-right`).
+    - Autocomplete pencarian wilayah instan berbasis debounce (300ms) menerima input kode pos (misal: "12190") atau nama desa/kelurahan (misal: "Senayan").
+    - Peta interaktif Leaflet.js dengan squircle border (`rounded-[20px]`), pin marker draggable, panTo animasi saat wilayah dipilih, badge live koordinat GPS, dan tombol "Gunakan GPS Saya".
+    - Kartu Bento ringkasan wilayah terkonfirmasi (Provinsi, Kota/Kabupaten, Kecamatan, Desa/Kelurahan, Kode Pos) dengan badge centang hijau.
+    - Hit target tombol aksi >= 44px dan tipografi kontras tinggi ramah mata presbiopi (`text-[13px]` s/d `text-[15px]`).
+* **Automated Testing:**
+  - Membuat `tests/Feature/BusinessLocationSetupTest.php` mencakup 5 skenario komprehensif (render halaman, API pencarian wilayah, validasi mandatori, pembuatan lokasi & sinkronisasi store, dan isolasi tenant). Seluruh 5 tes lulus (44 assertions).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `database/migrations/2026_09_20_000004_add_detailed_location_fields_to_locations_table.php` (migrasi baru)
+  - `app/Models/Location.php` (fillable, casts, formatted_full_address)
+  - `app/Domain/Shared/GeoLocationService.php` (service baru integrasi Biteship & OSM)
+  - `app/Http/Controllers/Web/Common/GeoLocationController.php` (controller baru pencarian wilayah & reverse geocode)
+  - `routes/auth.php` (registrasi route geo search & reverse geocode)
+  - `app/Http/Controllers/Web/AuthWebController.php` (update validasi, penyimpanan lokasi cabang utama, sinkronisasi commerce setting)
+  - `app/Http/Middleware/EnsureOwnerProfileComplete.php` (enforce konfirmasi lokasi primer)
+  - `resources/views/auth/complete-profile.blade.php` (redesign Bento Apple HIG + Leaflet.js)
+  - `tests/Feature/BusinessLocationSetupTest.php` (test suite baru)
+
+#### 4. System Impacts
+* **Workflow Impact:** Pemilik usaha baru langsung diarahkan untuk menentukan titik lokasi cabang utamanya dengan akurat. Pengiriman pesanan online dihitung secara presisi berdasarkan jarak koordinat dan kurir logistik Indonesia.
+* **Business Rule Impact:** Lokasi usaha terjamin memiliki kelurahan, kecamatan, kota, provinsi, dan kode pos valid; tidak ada lagi alamat kosong tanpa titik pengiriman.
+* **Tenant Isolation:** Lokasi dan toko terikat ketat pada `business_id` aktif tanpa risiko kebocoran data antartenant.
+
+#### 5. Verification & Testing
+* `php vendor/bin/phpunit tests/Feature/BusinessLocationSetupTest.php` -> 5 tests, 44 assertions PASS (100%).
+* `php vendor/bin/phpunit tests/Feature/BusinessLocationSetupTest.php tests/Feature/BusinessScaleRegistrationTest.php tests/Feature/LayoutSidebarNavbarPlanTest.php` -> 18 tests, 198 assertions PASS (100%).
+* `php vendor/bin/phpunit tests/Feature/UserPanelAndAuthWebTest.php` -> 10 tests, 55 assertions PASS (100%).
+* `php -l` pada seluruh berkas PHP terkait -> 0 syntax errors.
+
+#### 6. Important Decisions & Guardrails
+* **Resilient Dual-Engine Geolocation:** Menggunakan Biteship Maps Areas API sebagai sumber utama standar logistik Indonesia dengan fallback otomatis ke OpenStreetMap Nominatim Search & Reverse Geocoding.
+* **Ergonomi Pengguna Usia 40–65 Tahun:** Input pencarian mendukung ketik cepat kode pos 5 digit atau nama desa santai tanpa harus memilih dropdown bertingkat yang membingungkan. Tombol GPS otomatis mempermudah penetapan posisi saat pemilik berada di lokasi fisik toko.
+
+### [WORK-2026-09-20-097] Audit Komprehensif PRD 01 – 03: Keamanan Strix, Ergonomi Bento Apple HIG (Lansia/UMKM 40–65 Tahun), & Uji Mutasi Finansial
+* **Date:** 2026-09-20
+* **Status:** COMPLETED
+* **Module:** Multi-Tenant Isolation, Authentication & Onboarding (PRD-01), Navigation & Command Palette (PRD-02), Corporate Accounting & Bank Reconciliation (PRD-03)
+* **Feature:** Audit hulu-ke-hilir implementasi PRD 01 s/d 03 mencakup penguatan keamanan multi-tenant (Strix vulnerability scan: pencegahan circular ancestry hierarchy pada COA, perbaikan route link dokumen sumber fail-safe di General Ledger, validasi required_without pada unggah rekening koran), peningkatan ergonomi Bento Apple HIG (penyesuaian hit-target tombol w-9 h-9 / min 36-44px, tipografi ramah presbiopi 12.5px-14.5px, Apple HIG Modal Sheet konfirmasi hapus akun menggantikan native confirm alert, zero-emoji compliance), dan otomasi uji finansial (24 tests, 220 assertions passing).
+* **Work Type:** Security Hardening | UI/UX Ergonomics | Business Workflow Audit | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Menindaklanjuti penyelesaian implementasi PRD 01, PRD 02, dan PRD 03 untuk memastikan seluruh modul memenuhi direktif ketat `cooca-agent-directive`, ramah digunakan oleh target audiens pemilik UMKM Indonesia usia 40–65 tahun, terbebas dari kerentanan keamanan dan broken route, serta terbukti aman tanpa risiko kerusakan saldo finansial (*Zero Data Loss*).
+
+#### 2. What Was Done
+* **Security & Tenant Isolation (Strix Audit):**
+  - **[SEC-01]** Menambahkan metode `getAllDescendantIds()` pada `ChartOfAccount` dan aturan validasi `Rule::notIn($invalidParentIds)` pada `AccountingWebController::coaUpdate` untuk mencegah *circular ancestry loop* / self-referencing hierarchy.
+  - **[SEC-02]** Mengoreksi pemetaan nama rute dokumen sumber pada `AccountingReportService::resolveSourceDocumentUrl` dari `purchase-returns.show` & `sales-returns.show` menjadi `purchase.returns.show` & `sales.returns.show`, serta menambahkan rute settlement `finance.settlements.show` dan pembungkusan `Route::has()` dengan blok `try-catch` agar fail-safe terhadap 500 RouteNotFoundException.
+  - **[SEC-03]** Memperketat validasi `reconciliationUpload` menggunakan `required_without:manual_entries` dan `required_without:statement_file`.
+  - **[SEC-04]** Mengimplementasikan helper `parseCurrencyAmount` yang tangguh mengenali pemisah ribuan titik khas format perbankan Indonesia (BCA, Mandiri, BRI, BNI).
+* **UI/UX Bento Apple HIG (Ramah UMKM 40–65 Tahun):**
+  - Menggantikan dialog bawaan browser `window.confirm()` dengan Apple HIG Bento Modal Sheet konfirmasi hapus akun lengkap dengan squircle warning icon dan tombol hapus bersuara visual jelas (`#FF3B30`).
+  - Memperbesar tombol aksi baris akun COA dari `w-7 h-7` (28px) menjadi `w-9 h-9` (36px, hit target 44px) dan tombol rekonsiliasi menjadi `h-9 px-4 text-[12.5px]`.
+  - Meningkatkan ukuran tipografi kode akun, nama akun, mutasi bank, dan kartu segmen onboarding dari microcopy 10px–11px menjadi `text-[12.5px]` s/d `text-[14.5px]` dengan kontras tajam untuk mengatasi presbiopi.
+  - Memastikan zero-emoji compliance di seluruh antarmuka (murni Lucide SVG icons).
+* **Automated Testing & Verification:**
+  - Menambahkan 3 test case audit baru di `CorporateAccountingMultiLedgerTest.php`:
+    - `test_coa_update_blocks_self_referencing_parent_and_descendants`
+    - `test_general_ledger_resolves_all_source_document_routes_safely`
+    - `test_reconciliation_upload_validation_and_idr_currency_parsing`
+  - Total pengujian PRD 1–3: 24 tests, 220 assertions — 100% lulus (0 failures).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Models/ChartOfAccount.php` (menambahkan `getAllDescendantIds()`)
+  - `app/Http/Controllers/Web/Finance/AccountingWebController.php` (validasi parent anti-loop, validasi upload, parser nominal IDR, pesan error informatif)
+  - `app/Domain/Accounting/AccountingReportService.php` (koreksi nama rute & try-catch fail-safe)
+  - `resources/views/app/finance/accounting/coa.blade.php` (Apple HIG modal sheet konfirmasi hapus, tombol w-9 h-9, tipografi ditingkatkan)
+  - `resources/views/app/finance/accounting/reconciliation.blade.php` (tombol h-9 px-4, tipografi nominal tajam)
+  - `resources/views/auth/register.blade.php` & `resources/views/auth/google-register.blade.php` (tipografi kartu segmen 12.5px-14.5px)
+  - `tests/Feature/CorporateAccountingMultiLedgerTest.php` (3 test case baru)
+
+#### 4. System Impacts
+* **Workflow Impact:** Pemilik usaha dapat mengelola akun dan rekonsiliasi dengan kenyamanan visual dan motorik optimal. Percobaan penetapan relasi akun yang tidak valid dicegah langsung oleh validasi sistem dengan pesan bahasa Indonesia yang jelas.
+* **Security & Reliability:** Bebas risiko fatal error 500 saat menelusuri riwayat retur di buku besar; unggahan file rekening koran terlindungi dari input kosong.
+
+#### 5. Verification & Testing
+* `php vendor/bin/phpunit tests/Feature/CorporateAccountingMultiLedgerTest.php` -> 11 tests, 66 assertions PASS.
+* `php vendor/bin/phpunit tests/Feature/CorporateAccountingMultiLedgerTest.php tests/Feature/LayoutSidebarNavbarPlanTest.php tests/Feature/BusinessScaleRegistrationTest.php` -> 24 tests, 220 assertions PASS.
+* `php -l` pada seluruh berkas terkait -> 0 syntax error.
+
+#### 6. Important Decisions & Guardrails
+* **Modal-First Strict Enforcement:** Seluruh interaksi destruktif dan konfirmasi wajib memanfaatkan modal sheet bergaya Bento Apple HIG, menghindari dialog default browser.
+* **Senior-Friendly Microcopy:** Minimal ukuran teks penjelas interaktif adalah 12px–13px, melarang ukuran 10px untuk teks instruksional utama.
+
+### [WORK-2026-09-20-096] Eksekusi PRD-03: Evolusi Keuangan Korporasi Multi-Ledger SAK EMKM, Bagan Akun Hierarki & Rekonsiliasi Bank Otomatis
+* **Date:** 2026-09-20
+* **Status:** COMPLETED
+* **Module:** Finance & Accounting, Corporate Multi-Ledger, Chart of Accounts, Bank Reconciliation, Financial Reporting (PRD-03)
+* **Feature:** Implementasi penuh PRD-03 untuk Evolusi Keuangan Korporasi Multi-Ledger: Bagan Akun (COA) hierarki multi-tier dengan parent-child relation, Neraca Posisi Keuangan SAK EMKM dual-column (Aktiva = Pasiva) dengan verifikasi mathematical identity otomatis, Neraca Saldo (Trial Balance) multi-kolom, Buku Besar Umum (General Ledger Drilldown) dengan running balance kronologis dan audit trail tautan dokumen sumber, Rekonsiliasi Bank otomatis dengan auto-matching mutasi kas internal, antarmuka Bento Apple HIG (Lucide SVG, tabular-nums, zero emoji), dan registrasi rute Spotlight Command Palette (`Ctrl + K`).
+* **Work Type:** Database Migration | Domain Services | Domain Models | Controllers | Apple HIG Bento UI/UX | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Sesuai Master PRD `docs/prd/PRD-03-KEUANGAN-MULTI-LEDGER-SEAMLESS.md`, sistem memerlukan evolusi pembukuan dari model kas UMKM sederhana menuju sistem akuntansi korporat multi-tier berstandar SAK EMKM (Standar Akuntansi Keuangan Entitas Mikro, Kecil, dan Menengah).
+* **Prinsip Utama (Zero Data Loss):** Jurnal historis dari transaksi kasir POS, faktur B2B, dan pengeluaran operasional UMKM tidak boleh hilang, melainkan langsung dapat dibaca dan dikonsolidasikan ke dalam Laporan Posisi Keuangan dan Buku Besar Umum saat bisnis beralih ke skala korporasi.
+
+#### 2. What Was Done
+* **Database Migrations:**
+  - `database/migrations/2026_09_20_000002_add_parent_id_to_chart_of_accounts_table.php`: Menambahkan foreign key nullable `parent_id` ke tabel `chart_of_accounts` dengan cascade on delete untuk mendukung hierarki sub-akun pohon (multi-tier parent-child).
+  - `database/migrations/2026_09_20_000003_create_bank_reconciliations_table.php`: Membuat tabel `bank_statements` dan `bank_statement_lines` lengkap dengan indeks tenant, foreign key ke `cash_accounts` dan `users`, kolom referensi transaksi tercocokkan (`matched_transaction_type`, `matched_transaction_id`), status mutasi, dan timestamp rekonsiliasi.
+* **Domain Models & Enums:**
+  - `app/Models/ChartOfAccount.php`: Menambahkan relasi `parent(): BelongsTo`, `children(): HasMany`, helper `isRoot(): bool`, `canBeDeleted(): bool` (guard pengaman mencegah penghapusan akun berstatus sistem, akun yang memiliki sub-akun anak, atau akun yang memiliki baris jurnal), dan `getTypeLabel(): string`.
+  - `app/Models/BankStatement.php`: Model sesi rekening koran dengan konstanta status (`STATUS_DRAFT`, `STATUS_IN_PROGRESS`, `STATUS_RECONCILED`), casts datetime, relasi ke `cashAccount`, `importer`, dan `lines`, serta kalkulator progres rekonsiliasi `getProgressPercentage()`.
+  - `app/Models/BankStatementLine.php`: Model baris mutasi bank dengan konstanta tipe/status (`TYPE_DEBIT`, `TYPE_CREDIT`, `STATUS_UNMATCHED`, `STATUS_MATCHED`, `STATUS_RECONCILED`), casts, relasi ke `statement` dan `reconciler`, serta helper `isReconciled()`.
+* **Domain Services:**
+  - `app/Domain/Accounting/AutoJournalService.php`: Mendaftarkan akun standar ekuitas `3-3001` (Modal Pemilik / Disetor) dan `3-3002` (Laba Ditahan) ke dalam seeder standar perkiraan otomatis.
+  - `app/Domain/Accounting/AccountingReportService.php`: Service komputasi akuntansi berstandar SAK EMKM:
+    - `getBalanceSheet(Business, ?Carbon)`: Menghitung Aset Lancar, Aset Tidak Lancar, Kewajiban Jangka Pendek, Kewajiban Jangka Panjang, Ekuitas Modal Dasar, serta Laba Bersih Periode Berjalan (*Current Earnings* = Pendapatan - Beban Pokok - Beban Operasional). Memvalidasi identitas matematika `Total Aktiva == Total Pasiva (Kewajiban + Ekuitas)` dengan toleransi presisi desimal dan indikator `is_balanced`.
+    - `getTrialBalance(Business, ?Carbon, ?Carbon)`: Menghitung Neraca Saldo multi-kolom (Saldo Awal, Mutasi Berjalan Periode Debit/Kredit, dan Saldo Akhir Debit/Kredit) dengan verifikasi keseimbangan `total_debit_balance == total_credit_balance`.
+    - `getGeneralLedger(Business, ?string, ?Carbon, ?Carbon)`: Menghasilkan Buku Besar Umum per akun dengan saldo awal running, mutasi kronologis, running balance per baris, dan penelusuran tautan dokumen sumber (`resolveSourceDocumentUrl`) ke modul POS, Faktur, Beban, dll.
+  - `app/Domain/Accounting/BankReconciliationService.php`:
+    - `importStatement()`: Mengimpor mutasi rekening koran dari file CSV atau input teks manual ke dalam tabel `bank_statements` dan `bank_statement_lines`.
+    - `autoMatch()`: Algoritma pencocokan mutasi otomatis terhadap transaksi kas internal (`CashTransaction`) dalam rentang tanggal ±3 hari dan toleransi nilai nominal ±0.05. Mutasi kredit bank dicocokkan dengan cash in/inflow, dan debit bank dicocokkan dengan cash out/outflow.
+    - `reconcileLine()` & `unmatchLine()`: Aksi konfirmasi dan pembatalan pencocokan rekonsiliasi dengan audit log user pemeriksa.
+* **Web Controllers & Routing (`app/Http/Controllers/Web/Finance/AccountingWebController.php` & `routes/owner.php`):**
+  - Mendaftarkan rute web di bawah grup middleware `require.permission:accounting.view` dan `accounting.manage`:
+    - `GET/POST/PUT/DELETE /finance/coa` (`finance.coa.*`)
+    - `GET /finance/balance-sheet` (`finance.balance-sheet`)
+    - `GET /finance/trial-balance` (`finance.trial-balance`)
+    - `GET /finance/general-ledger` (`finance.general-ledger`)
+    - `GET/POST /finance/reconciliations` (`finance.reconciliations.*`)
+  - Menambahkan permission `accounting.manage` ke `database/seeders/RbacSeeder.php` untuk Owner dan Finance Manager.
+* **Apple HIG Bento UI Views:**
+  - `resources/views/app/finance/accounting/coa.blade.php`: Tampilan Pohon Bagan Akun Bento dengan KPI Card (Total Akun, Aset, Kewajiban, Ekuitas, Pendapatan, Beban), filter kategori pill, pencarian instan, dan modal sheet untuk Tambah/Ubah Sub-Akun.
+  - `resources/views/app/finance/accounting/balance-sheet.blade.php`: Tampilan Laporan Posisi Keuangan SAK EMKM dual-column Aktiva vs Pasiva dengan status badge Apple HIG Keseimbangan Neraca (System Green `#34C759` saat seimbang).
+  - `resources/views/app/finance/accounting/trial-balance.blade.php`: Tampilan Neraca Saldo multi-kolom tabular-nums dengan status saldo awal, pergerakan debit/kredit, saldo akhir, dan ringkasan totalitas seimbang.
+  - `resources/views/app/finance/accounting/general-ledger.blade.php`: Tampilan Buku Besar Umum dengan dropdown pemilih akun cepat, KPI Saldo Awal, Total Debit, Total Kredit, Saldo Akhir, tabel running balance kronologis, dan tombol buka dokumen sumber transaksi.
+  - `resources/views/app/finance/accounting/reconciliation.blade.php`: Tampilan Rekonsiliasi Bank dengan modal drag-and-drop CSV / manual input, progress bar interaktif, side-by-side transaction matcher, dan filter status mutasi.
+* **Sidebar & Topbar Navigation:**
+  - Memperbarui `resources/views/layouts/partials/sidebar.blade.php` pada Grup 6 (Keuangan & Biaya) dan Grup 7 (Laporan & Analitik) dengan tautan langsung ke COA, Buku Besar, Neraca Keuangan, Neraca Saldo, dan Rekonsiliasi Bank.
+  - Memperbarui `resources/views/layouts/partials/topbar.blade.php` pada Spotlight Search Command Palette (`Ctrl + K`) dengan indexing seluruh rute baru beserta kata kunci pencarian.
+
+#### 3. Technical Changes
+* **Files Created:**
+  - `database/migrations/2026_09_20_000002_add_parent_id_to_chart_of_accounts_table.php`
+  - `database/migrations/2026_09_20_000003_create_bank_reconciliations_table.php`
+  - `app/Models/BankStatement.php`
+  - `app/Models/BankStatementLine.php`
+  - `app/Domain/Accounting/AccountingReportService.php`
+  - `app/Domain/Accounting/BankReconciliationService.php`
+  - `app/Http/Controllers/Web/Finance/AccountingWebController.php`
+  - `resources/views/app/finance/accounting/coa.blade.php`
+  - `resources/views/app/finance/accounting/balance-sheet.blade.php`
+  - `resources/views/app/finance/accounting/trial-balance.blade.php`
+  - `resources/views/app/finance/accounting/general-ledger.blade.php`
+  - `resources/views/app/finance/accounting/reconciliation.blade.php`
+  - `tests/Feature/CorporateAccountingMultiLedgerTest.php`
+* **Files Modified:**
+  - `app/Models/ChartOfAccount.php`
+  - `app/Domain/Accounting/AutoJournalService.php`
+  - `database/seeders/RbacSeeder.php`
+  - `routes/owner.php`
+  - `resources/views/layouts/partials/sidebar.blade.php`
+  - `resources/views/layouts/partials/topbar.blade.php`
+
+#### 4. Verification & Testing
+* **Automated Feature Test:**
+  - `tests/Feature/CorporateAccountingMultiLedgerTest.php` — **8 passed, 0 failed, 53 assertions**:
+    1. `test_auto_journal_service_seeds_standard_corporate_accounts_including_equity` (Passed)
+    2. `test_chart_of_account_supports_multi_tier_parent_child_hierarchy` (Passed)
+    3. `test_chart_of_account_deletion_guard_blocks_deleting_protected_accounts` (Passed)
+    4. `test_balance_sheet_calculates_sak_emkm_and_verifies_balance_identity` (Passed)
+    5. `test_trial_balance_verifies_debits_equal_credits` (Passed)
+    6. `test_general_ledger_returns_chronological_running_balance` (Passed)
+    7. `test_bank_reconciliation_imports_and_auto_matches_cash_transactions` (Passed)
+    8. `test_accounting_web_routes_render_bento_views_cleanly` (Passed)
+  - **Combined Suite:** `tests/Feature/CorporateAccountingMultiLedgerTest.php`, `tests/Feature/LayoutSidebarNavbarPlanTest.php`, `tests/Feature/BusinessScaleRegistrationTest.php` — **21 passed, 0 failed, 207 assertions**.
+* **Linting:** 100% lulus `php -l` tanpa syntax error pada seluruh file.
+
+---
+
+### [WORK-2026-09-20-095] Eksekusi PRD-01: Seleksi Segmen UMKM vs. Korporasi Saat Registrasi Owner & Inisialisasi Modul Otomatis
+* **Date:** 2026-09-20
+* **Status:** COMPLETED
+* **Module:** Authentication, Tenant Onboarding, Business Scale & Modular Initialization (PRD-01)
+* **Feature:** Implementasi penuh PRD-01 untuk seleksi segmen bisnis (UMKM vs Korporasi) saat registrasi owner, penyimpanan `business_scale` pada tabel `businesses`, inisialisasi modul enterprise nonaktif untuk UMKM, dan Bento Segment Selector Cards bergaya Apple HIG.
+* **Work Type:** Database Migration | Domain Model | UI/UX (Apple HIG Bento) | Testing | Security
+
+#### 1. Business Context & Objective
+* **Konteks:** Sesuai PRD `docs/prd/PRD-01-SEGMEN-UMKM-KORPORASI-REGISTER.md`, pengguna UMKM mikro (warung, kafe, butik, bengkel 1–3 cabang) membutuhkan antarmuka yang bersih, cepat, dan tidak terintimidasi oleh modul enterprise yang rumit. Sebaliknya, korporasi multi-cabang membutuhkan fitur enterprise penuh (B2B, Multi-Warehouse, MAR Workflow, Multi-Ledger).
+* **Masalah/Target:**
+  1. **Ketiadaan Pembeda Skala Bisnis:** Semua bisnis yang mendaftar sebelumnya mendapatkan konfigurasi modul yang seragam, membingungkan pemilik UMKM usia 40–65 tahun.
+  2. **Inisialisasi Otomatis:** Saat memilih segmen UMKM, modul enterprise (`b2b_sales`, `labor_machines`, `inventory_warehouse`, `customer_po`) wajib otomatis dimasukkan ke dalam `disabled_modules` tanpa menghilangkan fleksibilitas untuk diaktifkan kembali nanti.
+  3. **Antarmuka Registrasi Apple HIG:** Menambahkan 2 kartu pilihan segmen interaktif (Bento Segment Selector) pada formulir registrasi utama dan Google OAuth registrasi.
+
+#### 2. Technical Decisions & Architecture
+* **Database Schema:** Menambahkan kolom `business_scale` (`VARCHAR(20) DEFAULT 'umkm'`) dengan index pada tabel `businesses` (`database/migrations/2026_09_20_000001_add_business_scale_to_businesses_table.php`).
+* **Model `Business`:** Mendaftarkan konstanta `SCALE_UMKM = 'umkm'`, `SCALE_CORPORATE = 'corporate'`, field `$fillable`, serta helper method `isUmkm(): bool` dan `isCorporate(): bool`.
+* **Controllers (`AuthWebController` & `GoogleAuthController`):**
+  - Menambahkan validasi `'business_scale' => ['nullable', 'string', 'in:umkm,corporate']` (default `'umkm'`).
+  - Menyimpan `business_scale` dalam sesi `pending_registration`.
+  - Pada `verifyRegisterOtp`: jika `business_scale === 'umkm'`, sistem menggabungkan `b2b_sales`, `labor_machines`, `inventory_warehouse`, dan `customer_po` ke array `disabled_modules`.
+* **UI Bento Segment Selector (`register.blade.php` & `google-register.blade.php`):**
+  - Kartu 1: **UMKM & Toko Mandiri** (Ikon Lucide `store`, aksen System Green `#34C759`, microcopy ramah pemula, siap jualan 5 menit).
+  - Kartu 2: **Korporasi & Multi-Cabang** (Ikon Lucide `building-2`, aksen System Blue `#007AFF`, microcopy multi-gudang, B2B, MAR workflow, multi-ledger).
+  - Seleksi radio button tersembunyi (`sr-only`), feedback visual dinamis dengan class bindings Alpine.js (`ring-1 ring-[#007AFF]/30 bg-[#007AFF]/5`).
+
+#### 3. Verification & Evidence
+* **Automated Tests:**
+  - `tests/Feature/BusinessScaleRegistrationTest.php` (5 Passed, 34 assertions) — Memverifikasi rendering kartu bento, persistensi segmen UMKM dan disable modul enterprise, persistensi segmen Korporasi dan seluruh modul aktif, default fallback UMKM, dan flow Google OAuth.
+  - `tests/Feature/AuthViewsAppleHigTest.php` (11 Passed, 59 assertions) — Memverifikasi seluruh halaman autentikasi Apple HIG.
+  - `tests/Feature/LayoutSidebarNavbarPlanTest.php` (8 Passed, 120 assertions) — Memverifikasi modular auto-hide dan 8 grup Bento.
+  - `tests/Feature/UserPanelAndAuthWebTest.php` (10 Passed, 55 assertions) — Memverifikasi registrasi template dan alur akun owner.
+* **Linting:** 0 syntax error pada seluruh file PHP yang dimodifikasi (`php -l`).
+
+#### 4. Files Modified
+* `database/migrations/2026_09_20_000001_add_business_scale_to_businesses_table.php`
+* `app/Models/Business.php`
+* `app/Http/Controllers/Web/AuthWebController.php`
+* `app/Http/Controllers/Auth/GoogleAuthController.php`
+* `resources/views/auth/register.blade.php`
+* `resources/views/auth/google-register.blade.php`
+* `tests/Feature/BusinessScaleRegistrationTest.php`
+* `tests/Feature/UserPanelAndAuthWebTest.php`
+
+---
+
+### [WORK-2026-09-20-094] Eksekusi PRD-02: Harmonisasi 8 Grup Bento Sidebar Apple HIG, Modular Auto-Hide & Topbar Spotlight Command Palette (Ctrl + K)
+* **Date:** 2026-09-20
+* **Status:** COMPLETED
+* **Module:** Navigation, Topbar Spotlight, Bento Apple HIG Sidebar, Tenant Isolation & Module Auto-Hide
+* **Feature:** Implementasi penuh PRD-02 untuk Restrukturisasi Sidebar 8 Grup Bento Apple HIG, modular auto-hide (`disabled_modules`), dan Topbar Spotlight Search Command Palette (`Ctrl + K` / `⌘K`).
+* **Work Type:** UI/UX (Apple HIG Bento) | Refactoring | Architecture | Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Mengikuti Master PRD `docs/prd/PRD-02-BENTO-SIDEBAR-TOPBAR-CTRL-K.md`, sistem memerlukan konsolidasi navigasi yang rapi, pencarian cepat instan bebas reload, dan modular auto-hide yang otomatis menyembunyikan menu saat modul dimatikan oleh owner bisnis.
+* **Masalah/Target:**
+  1. **Spotlight Filter Chips & Missing Routes:** Filter chips spotlight sebelumnya kehilangan kategori `Pelanggan & Pemasaran`, dan rute toko online (`landing-page.edit`, `storefront.settings.index`, `storefront.shipping.index`) belum terindeks.
+  2. **Modular Auto-Hide Bypass:** Pengecekan perizinan di sidebar sebelumnya menyertakan `|| Context::isOwner()` yang mem-bypass `disabled_modules` pada owner, sehingga menu tetap muncul meskipun modulnya dinonaktifkan.
+  3. **Konsolidasi Sub-Dashboard & Flyout:** Sub-dashboard overview dan flyout hover perlu menyertakan switcher pintar untuk Penjualan B2B dan Pesanan Toko Online secara konsisten.
+
+#### 2. What Was Done
+* **Penyempurnaan Topbar Spotlight Search (`resources/views/layouts/partials/topbar.blade.php`):**
+  - Mendaftarkan kategori `Pelanggan & Pemasaran` pada filter chips spotlight dan menyelaraskan label 8 kategori dengan 8 Grup Bento.
+  - Mendaftarkan rute `landing-page.edit`, `storefront.settings.index`, `storefront.shipping.index`, dan `storefront.reservations.index` ke dalam indeks pencarian interaktif.
+  - Memperbaiki pemetaan kategori pada data items agar sinkron dengan filter chips (`Keuangan & Biaya`, `Laporan & Analitik`, `Pengaturan Usaha`).
+* **Harmonisasi Sidebar Bento Apple HIG (`resources/views/layouts/partials/sidebar.blade.php`):**
+  - Menghapus bypass `Context::isOwner()` pada perizinan channel dan storefront sehingga `Context::hasPermission` dapat secara otomatis menghormati modul yang dinonaktifkan (`disabled_modules`).
+  - Menambahkan tautan sub-dashboard B2B (`sales.orders.index`) dan Toko Online (`storefront.orders.index`) pada Grup 1 (OVERVIEW) baik pada mode expanded maupun collapsed flyout.
+  - Menyinkronkan item sub-menu Toko Online pada flyout Grup 5 agar 100% konsisten dengan versi expanded.
+  - Mempertahankan 100% ID tur interaktif onboarding (`#tour-nav-*`).
+* **Automated Testing (`tests/Feature/LayoutSidebarNavbarPlanTest.php`):**
+  - Menambahkan test case `test_sidebar_modular_auto_hide_when_modules_disabled()` untuk membuktikan bahwa saat modul `b2b_sales`, `recipe_bom`, dan `reservation` dinonaktifkan di tenant, menu terkait di sidebar otomatis lenyap tanpa broken link.
+  - Menambahkan test case `test_topbar_spotlight_search_contains_all_categories_and_routes()` untuk memverifikasi 9 chips kategori dan indeks rute toko online.
+  - Pengujian 8 test case lolos 100% (0 fail, 120 assertions).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/layouts/partials/topbar.blade.php`: Update spotlight categories and indexed items array.
+  - `resources/views/layouts/partials/sidebar.blade.php`: Refine permission checks, add B2B & storefront overview subdashboards, sync flyouts.
+  - `tests/Feature/LayoutSidebarNavbarPlanTest.php`: Add tests for modular auto-hide and spotlight routes/categories.
+  - `docs/AiWorkHistory.md`: Historical record entry.
+
+#### 4. System Impacts
+* **Workflow Impact:** Navigasi pengguna kini lebih cepat dengan Spotlight Search Command Palette (`Ctrl + K`) yang mencakup toko online & mini-site. Tenant yang menonaktifkan modul tertentu melihat antarmuka yang bersih tanpa menu yang tidak dapat digunakan.
+* **Security & Tenant Isolation:** Modular gating kini terisolasi penuh per tenant melalui `Business->disabled_modules` dan `Context::hasPermission`.
+
+#### 5. Verification & Testing
+* `php -l resources/views/layouts/partials/sidebar.blade.php` (Pass - No syntax errors)
+* `php -l resources/views/layouts/partials/topbar.blade.php` (Pass - No syntax errors)
+* `php -l tests/Feature/LayoutSidebarNavbarPlanTest.php` (Pass - No syntax errors)
+* `php artisan test --filter=LayoutSidebarNavbarPlanTest` (Pass - 8 tests, 8 passed, 120 assertions)
+
+#### 6. Important Decisions & Guardrails
+* Mempertahankan 100% ID rute aktif dan ID onboarding `#tour-` agar pengalaman tur pengguna tidak terganggu.
+* Zero-Emoji dipertahankan di seluruh navigasi utama, mematuhi standar Apple HIG Bento.
+
+#### 7. Documentation Promotion
+* Mendokumentasikan implementasi PRD-02 pada `docs/AiWorkHistory.md` dan memperbarui master walkthrough.
+
 ### [WORK-2026-09-20-093] Restrukturisasi Menu Sidebar & Topbar Admin Panel dan Owner Panel (Bento Apple HIG, Zero-Emoji, RBAC, Strix Security Audit)
 * **Date:** 2026-09-20
 * **Status:** COMPLETED
@@ -6127,3 +6700,105 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (*Single 
   - `SocialMediaQueueJobTest`: **3 passed**
   - `AdminSocialMediaSettingsTest`: **3 passed**
   - **TOTAL: 43 tests passed, 251 assertions, 0 failures, 0 errors.**
+
+---
+
+### [WORK-2026-09-20-057] Topbar Spotlight Command Palette (Ctrl+K / Cmd+K) & 8-Pillar Bento Apple HIG Sidebar Architecture with Granular RBAC Scoping
+* **Date:** 2026-09-20
+* **Status:** COMPLETED
+* **Module:** Layout & Navigation / Topbar / Sidebar / Role & Permission Security
+* **Feature:** Topbar Spotlight Command Palette (`Ctrl+K` / `⌘K`) and 8-Pillar Bento Apple HIG Sidebar Navigation with Overview Dashboards (Image 1 pattern) and Reports Center (Image 2 pattern), 100% zero-emoji, touch-target compliant, and strictly scoped by RBAC tenant permissions.
+* **Work Type:** UI/UX Redesign, Security Hardening (Strix RBAC), Architecture, Automated Testing
+
+#### 1. Business Context & Objective
+* **Latar Belakang:** Pengguna UMKM berusia 40–65 tahun membutuhkan navigasi yang tenang, kontras tinggi, teratur secara logis, dan mudah diakses baik melalui klik maupun pencarian instan (*Spotlight Command Palette*). Menu sebelumnya memiliki grouping yang bercampur antara operasional harian, master data, analitik, dan pengaturan teknis.
+* **Tujuan:**
+  1. Menambahkan Spotlight Command Palette pada Topbar dengan shortcut `Ctrl+K` dan `⌘K`, lengkap dengan modal dialog bergaya Apple HIG (frosted glass blur), navigasi keyboard penuh (panah atas/bawah, enter, escape), penyaring kategori cepat, dan pencarian instan judul/deskripsi/kata kunci.
+  2. Menyusun ulang Sidebar menjadi 8 pilar bisnis terstruktur Bento Apple HIG sesuai modul resmi Cooca:
+     - **Grup 1 (OVERVIEW):** Tombol utama menonjol *Beranda Dashboard* (`route('dashboard')`) dengan 7 sub-dashboard bertakik (*indented*): Finansial & Kas, Kasir POS, Karyawan & Payroll, Pelanggan & Member, Gudang & Persediaan, Pemasaran Digital, dan Asisten Cerdas AI.
+     - **Grup 2 (KASIR & PENJUALAN):** Buka Kasir POS, Transaksi Kasir & Shift, Layar Dapur (KDS), Meja & QR Resto, Pesanan Penjualan (SO), Surat Penawaran, Faktur Penjualan, Retur Penjualan.
+     - **Grup 3 (PRODUK & PERSEDIAAN):** Katalog Produk & Menu, Jasa & Layanan, Bahan Baku & Resep (BOM), Varian & Opsi, Stok Gudang & Saldo, Lokasi Gudang, Opname Stok Fisik, Transfer Stok Gudang, Kartu Mutasi Stok, Kategori Produk, Kategori Bahan, Satuan Ukur, Impor/Ekspor Excel.
+     - **Grup 4 (PEMBELIAN & SUPPLIER):** Pesanan Pembelian (PO), Tagihan Supplier, Supplier & Pemasok, Retur Pembelian.
+     - **Grup 5 (PELANGGAN & PEMASARAN):** Data Pelanggan, Member & Loyalitas, Voucher Diskon, Toko Online, Landing Page, Reservasi Meja, Pengaturan Ongkir, WhatsApp Bisnis, Broadcast WA, Log WA, Media Sosial Omnichannel, Konten & Jadwal, Kalender Konten, Inbox.
+     - **Grup 6 (KEUANGAN & BIAYA):** Kas & Rekening Bank, Pengeluaran Operasional, Buku Jurnal Keuangan, Buku Besar Akun, Daftar Piutang Usaha, Daftar Utang Usaha, Pencairan Dana Penjualan, Hitung HPP Produk, Simulator Harga Jual, Biaya Mesin & Tenaga Kerja, Analisis Margin & BEP, Data Karyawan & Slip Gaji, Payroll, Pajak Karyawan.
+     - **Grup 7 (LAPORAN & ANALITIK):** Tombol utama menonjol *Pusat Laporan* (`route('reports.index')`) dengan 13 sub-laporan bertakik: Rekening Kas & Bank, Buku Besar Akun, Laba Rugi (Profit & Loss), Arus Kas (Cash Flow), Ringkasan Laporan Pajak, Buku Jurnal Transaksi, Laporan Penjualan Kasir POS, Daftar Piutang Usaha, Daftar Utang Usaha, Valuasi & Perputaran Stok, Kartu Mutasi Stok, Analisis Margin & BEP, Analitik Media Sosial.
+     - **Grup 8 (PENGATURAN USAHA):** Profil Pengguna, Pengaturan Usaha & Cabang, Hak Akses & Peran Staf, Paket Berlangganan & Kuota, Bantuan & Dukungan, Komunitas Owner.
+  3. Memastikan seluruh elemen mematuhi direktif Cooca:
+     - 100% Zero-Emoji (hanya menggunakan Lucide SVG).
+     - Seluruh 43 `tour-*` element IDs tetap utuh tanpa ada yang hilang.
+     - Target sentuh mobile >= 44px.
+     - Proteksi RBAC granular pada Spotlight Search Topbar dan Sidebar sehingga staf kasir, staf gudang, dan staf keuangan tidak dapat melihat maupun mengakses modul di luar wewenang peran mereka.
+
+#### 2. Technical Changes
+* **Files Modified:**
+  - `resources/views/layouts/partials/sidebar.blade.php`: Disusun ulang 100% ke dalam 8 pilar Bento Apple HIG dengan Overview Dashboards list dan Reports Center list.
+  - `resources/views/layouts/partials/topbar.blade.php`: Menambahkan trigger desktop (dengan badge `Ctrl K` / `⌘K`) dan mobile, serta modal Spotlight Command Palette Alpine.js yang dipagari RBAC permissions.
+  - `tests/Feature/LayoutSidebarNavbarPlanTest.php`: Penyelarasan asersi pengujian role-based isolation dan Spotlight trigger.
+
+#### 3. Verification & Automated Test Results
+* `php vendor/phpunit/phpunit/phpunit tests/Feature/LayoutSidebarNavbarPlanTest.php`: **6 passed (99 assertions)**
+  - `test_sidebar_renders_clean_logical_groups` PASSED
+  - `test_sidebar_role_cashier_only_sees_cashier_and_sales_menus` PASSED
+  - `test_sidebar_role_warehouse_only_sees_inventory_and_purchasing` PASSED
+  - `test_sidebar_role_finance_only_sees_finance_and_reports` PASSED
+  - `test_navbar_renders_free_plan_tracker_with_usage_progress` PASSED
+  - `test_navbar_renders_core_plan_when_subscribed` PASSED
+* `php vendor/phpunit/phpunit/phpunit tests/Feature/InvoiceStockAndJournalIntegrationTest.php`: **6 passed (16 assertions)**
+* `php vendor/phpunit/phpunit/phpunit tests/Feature/RolePermissionEnforcementTest.php`: **2 passed (6 assertions)**
+* PHP Syntax Check (`php -l`): Clean, no errors detected on `sidebar.blade.php` and `topbar.blade.php`.
+* Zero-Emoji Check: 100% compliant.
+
+---
+
+### [WORK-2026-09-21-083] Storefront Home Promotional Pop-Up Modal & Owner Panel CMS Editor dengan Granular RBAC Permissions & Bento Apple HIG Design
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** Toko Online & Website Publik (Storefront) / Owner CMS / RBAC Permissions
+* **Feature:** Promotional & Announcement Pop-Up Modal pada Home Page Storefront (`/{slug}`) dengan CMS Editor interaktif di Owner Panel (`/landing-page/popup`), pengaturan frekuensi tayang (Always, Once per Session, Once per Day Capping), penjadwalan masa aktif promo, upload banner media tenant dengan kuota storage tracking, serta live interactive smartphone mockup preview (Apple HIG iPhone 16 Pro styling) dan proteksi izin akses peran RBAC (`storefront.popup.manage`).
+* **Work Type:** Feature | UI/UX (Bento Apple HIG) | RBAC Security | Storage Quota | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pemilik usaha (UMKM) memerlukan cara efektif untuk menyambut pengunjung website toko online dengan promosi menarik (misal diskon pelanggan baru, voucher flash sale, pengumuman jadwal buka libur, atau ajakan langsung chat WhatsApp CS).
+* **Target:**
+  1. Membuat komponen Pop-up modal promosi interaktif pada homepage toko online publik (`resources/views/public/storefront/home.blade.php`).
+  2. Membangun halaman CMS Pop-up khusus pada Owner Panel yang dikelompokkan rapi di bawah navigasi Website & Toko Online (`resources/views/app/landing_page/popup.blade.php`).
+  3. Menyediakan kontrol frekuensi tayang agar pengunjung tidak merasa terganggu (*Daily frequency capping* via localStorage, *Session capping* via sessionStorage, atau *Always*).
+  4. Menyediakan RBAC granular permission `storefront.popup.manage` yang otomatis dimiliki oleh peran `owner` dan `manager`.
+  5. Menjamin desain memenuhi standar Bento Apple HIG v2.0 dengan Live Smartphone Mockup Simulator real-time.
+
+#### 2. Technical Implementation
+1. **Database Migration (`database/migrations/2026_09_21_000005_add_popup_fields_to_business_landing_pages.php`):**
+   - Menambahkan kolom: `popup_enabled` (boolean), `popup_title` (string), `popup_badge` (string), `popup_content` (text), `popup_image_path` (string), `popup_cta_text` (string), `popup_cta_url` (string), `popup_frequency` (enum: `always`, `once_per_session`, `once_per_day`), `popup_starts_at` (timestamp), `popup_ends_at` (timestamp).
+2. **Model Layer (`app/Models/BusinessLandingPage.php`):**
+   - Menambahkan field ke `$fillable` dan `$casts`.
+   - Menambahkan method pembantu `isPopupActive(): bool` untuk verifikasi apakah pop-up aktif dan dalam rentang jadwal.
+   - Menambahkan accessor `getPopupImageUrlAttribute(): ?string` dengan fallback Storage URL.
+3. **RBAC Permissions (`database/seeders/RbacSeeder.php`):**
+   - Mendaftarkan permission `storefront.popup.manage` ('Kelola Pop Up Toko Online', kategori 'cms').
+   - Diberikan otomatis ke peran `owner` dan `manager`.
+4. **Web Controller (`app/Http/Controllers/Web/Storefront/StorefrontPopupWebController.php`):**
+   - Method `edit()` menyajikan view editor bento pop-up.
+   - Method `update()` memvalidasi input, memproses upload banner melalui `TenantStorage::publicDir` dan merekam pemakaian kuota via `StorageTrackingService::recordUpload`, serta mendukung penghapusan gambar lama.
+5. **Routing & Navigation (`routes/owner.php`, `resources/views/layouts/partials/sidebar.blade.php`, `resources/views/app/storefront/partials/navigation.blade.php`):**
+   - Rute terdaftar di `/landing-page/popup` dengan proteksi middleware `require.permission:cms.manage,storefront.popup.manage`.
+   - Tautan "Pop Up Promo" ditambahkan pada sidebar desktop dan mobile drawer di bawah kelompok Toko Online.
+   - Tab "Pop Up Promo" ditambahkan pada segmented control navigasi Storefront Hub.
+6. **Bento CMS View (`resources/views/app/landing_page/popup.blade.php`):**
+   - 2-Kolom Bento layout: Kolom kiri berisi form saklar aktif/non-aktif, radio card frekuensi tayang, jadwal tanggal, badge, judul, konten, upload banner, teks & link CTA dengan preset shortcut WhatsApp.
+   - Kolom kanan berisi live interactive smartphone preview (iPhone 16 Pro styling) dengan simulasi pop-up reaktif terhadap input formulir secara real-time via Alpine.js.
+7. **Public Storefront Modal (`resources/views/public/storefront/home.blade.php`):**
+   - Modal pop-up dengan transisi halus Alpine.js, backdrop blur, banner foto full-bleed, badge promo, tombol CTA, dan tombol tutup (X serta backdrop click & Escape key).
+   - Dynamic cache key composite berdasarkan data promo agar jika merchant memperbarui promo, pengunjung yang sebelumnya telah menutup pop-up lama tetap melihat promo baru.
+
+#### 3. Verification & Automated Tests
+* `php artisan test --filter=StorefrontPopupCmsTest`: **6 passed (36 assertions)**
+  - `test_owner_can_view_popup_cms_page` PASSED
+  - `test_owner_can_update_popup_settings` PASSED
+  - `test_owner_can_upload_and_remove_popup_image` PASSED
+  - `test_unauthorized_user_without_permission_is_denied` PASSED
+  - `test_public_storefront_home_renders_popup_when_active` PASSED
+  - `test_public_storefront_home_hides_popup_when_disabled_or_expired` PASSED
+* `php artisan test --filter=PublicStorefrontMultiPageThemeTest`: **8 passed (52 assertions)**
+* `php artisan test --filter=PublicStorefrontFieldScenariosTest`: **7 passed (39 assertions)**
+* **TOTAL: 21 tests passed, 127 assertions, 0 errors.**
+

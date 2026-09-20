@@ -90,16 +90,25 @@ final class RbacSeeder extends Seeder
 
             // ─── Accounting / Buku Besar ──────────────────────────────
             'accounting.view'             => ['Lihat Buku Besar & Jurnal',              'accounting',  'Melihat bagan akun (COA) dan entri jurnal pembukuan ganda.'],
+            'accounting.manage'           => ['Kelola Bagan Akun & Rekonsiliasi',       'accounting',  'Menambah, mengubah akun COA, dan melakukan rekonsiliasi bank.'],
             'finance.cash_bank'           => ['Kas & Rekening Bank',                    'accounting',  'Melihat saldo kas kecil, mutasi rekening bank, dan buku kas harian.'],
             'finance.receivables'         => ['Piutang Usaha (AR Aging)',               'accounting',  'Memantau dan mengelola umur piutang faktur pelanggan.'],
             'finance.payables'            => ['Hutang Usaha (AP Aging)',                'accounting',  'Memantau jadwal jatuh tempo hutang tagihan ke vendor/supplier.'],
+
+            // ─── Approval Workflow / MAR (PRD-04) ─────────────────────
+            'approvals.view'              => ['Lihat Kotak Masuk Persetujuan',          'approvals',   'Melihat daftar dokumen yang menunggu persetujuan (MAR Inbox).'],
+            'approvals.manage'            => ['Otorisasi & Kelola Aturan Persetujuan',  'approvals',   'Menyetujui, menolak tiket dokumen, dan mengatur aturan plafon approval.'],
+
+            // ─── Security Audit & Anti-Fraud (PRD-05) ──────────────────
+            'audit_logs.view'             => ['Lihat Jejak Audit & Anti-Fraud',         'security',    'Melihat riwayat log perubahan data, visual diff, dan peringatan fraud.'],
 
             // ─── WhatsApp Gateway ─────────────────────────────────────
             'whatsapp.view'               => ['Lihat WhatsApp Gateway',                 'whatsapp',    'Melihat status koneksi QR code dan riwayat log pengiriman pesan struk.'],
             'whatsapp.manage'             => ['Kelola WhatsApp & Broadcast',            'whatsapp',    'Menghubungkan nomor WhatsApp, konfigurasi gateway, dan kirim blast promo.'],
 
-            // ─── Landing Page CMS ─────────────────────────────────────
+            // ─── Landing Page & Storefront CMS ────────────────────────
             'cms.manage'                  => ['Kelola Landing Page CMS',                'cms',         'Mengatur website mini publik bisnis, katalog unggulan, banner, dan kontak.'],
+            'storefront.popup.manage'     => ['Kelola Pop Up Toko Online',              'cms',         'Mengatur promo pop up, banner pengumuman modal, frekuensi tampil, dan tombol aksi di storefront publik.'],
 
             // ─── Reports ─────────────────────────────────────────────
             'reports.view'                => ['Lihat Laporan',                          'reports',     'Akses halaman laporan dan analitik.'],
@@ -210,12 +219,18 @@ final class RbacSeeder extends Seeder
             'expenses.view',
             'expenses.manage',
             'accounting.view',
+            'accounting.manage',
             'finance.cash_bank',
+
             'finance.receivables',
             'finance.payables',
+            'approvals.view',
+            'approvals.manage',
+            'audit_logs.view',
             'whatsapp.view',
             'whatsapp.manage',
             'cms.manage',
+            'storefront.popup.manage',
             'reports.view',
             'reports.financial',
             'reports.export',
@@ -308,7 +323,9 @@ final class RbacSeeder extends Seeder
                     'expenses.view',
                     'expenses.manage',
                     'accounting.view',
+                    'accounting.manage',
                     'finance.cash_bank',
+
                     'finance.receivables',
                     'finance.payables',
                     'reports.view',

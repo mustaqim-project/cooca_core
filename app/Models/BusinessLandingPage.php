@@ -19,6 +19,9 @@ class BusinessLandingPage extends Model
         'business_id',
         'is_published',
         'industry_preset',
+        'theme_preset',
+        'active_pages',
+        'custom_labels',
         'theme_color',
         'font_family',
         'dark_mode',
@@ -67,6 +70,16 @@ class BusinessLandingPage extends Model
         'footer_contact_title',
         'footer_cta_text',
         'footer_copyright',
+        'popup_enabled',
+        'popup_title',
+        'popup_badge',
+        'popup_content',
+        'popup_image_path',
+        'popup_cta_text',
+        'popup_cta_url',
+        'popup_frequency',
+        'popup_starts_at',
+        'popup_ends_at',
     ];
 
     protected $casts = [
@@ -82,7 +95,56 @@ class BusinessLandingPage extends Model
         'stats'              => 'array',
         'social_links'       => 'array',
         'section_visibility' => 'array',
+        'active_pages'       => 'array',
+        'custom_labels'      => 'array',
+        'popup_enabled'      => 'boolean',
+        'popup_starts_at'    => 'datetime',
+        'popup_ends_at'      => 'datetime',
     ];
+
+    /**
+     * Default page visibility states if not explicitly set.
+     */
+    public function getActivePages(): array
+    {
+        $defaults = [
+            'home'           => true,
+            'catalog'        => true,
+            'about'          => true,
+            'reservation'    => false,
+            'contact'        => true,
+            'blog'           => false,
+            'order_tracking' => true,
+        ];
+
+        return array_merge($defaults, (array) ($this->active_pages ?? []));
+    }
+
+    /**
+     * Check if a specific standalone page is currently active.
+     */
+    public function isPageActive(string $page): bool
+    {
+        $activePages = $this->getActivePages();
+        return (bool) ($activePages[$page] ?? false);
+    }
+
+    /**
+     * Retrieve custom navigation label for a page, falling back to default.
+     */
+    public function getNavLabel(string $page, string $default): string
+    {
+        $labels = (array) ($this->custom_labels ?? []);
+        return ! empty($labels[$page]) ? (string) $labels[$page] : $default;
+    }
+
+    /**
+     * Get theme preset string or fallback.
+     */
+    public function getThemePreset(): string
+    {
+        return $this->theme_preset ?: ($this->industry_preset ?: 'artisan_brew');
+    }
 
     public function business(): BelongsTo
     {
@@ -246,5 +308,38 @@ class BusinessLandingPage extends Model
         }
 
         return asset('storage/' . ltrim($url, '/'));
+    }
+
+    /**
+     * Determine whether the promotional pop-up should be displayed.
+     */
+    public function isPopupActive(): bool
+    {
+        if (! $this->popup_enabled || blank($this->popup_title)) {
+            return false;
+        }
+
+        $now = now();
+        if ($this->popup_starts_at && $now->isBefore($this->popup_starts_at)) {
+            return false;
+        }
+
+        if ($this->popup_ends_at && $now->isAfter($this->popup_ends_at)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the public URL for the pop-up banner image.
+     */
+    public function getPopupImageUrlAttribute(): ?string
+    {
+        if (empty($this->popup_image_path)) {
+            return null;
+        }
+
+        return \App\Domain\Storage\TenantStorage::url($this->popup_image_path);
     }
 }

@@ -74,24 +74,61 @@
 
 <body class="p-3 sm:p-6 min-h-screen">
 
+    <!-- Flash Message Notification (Hidden on Print) -->
+    @if (session('success'))
+        <div class="no-print max-w-sm mx-auto mb-3 p-2.5 rounded-[10px] bg-[#34C759]/12 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-[12px] font-sans font-medium text-center flex items-center justify-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
     <!-- Screen Action Bar (macOS Sonoma Floating Toolbar, Hidden on Print) -->
     <div
-        class="no-print max-w-sm mx-auto mb-4 p-2 rounded-[12px] backdrop-blur-md bg-white/80 dark:bg-[#2C2C2E]/80 border border-black/5 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex items-center justify-between gap-2">
-        <a href="{{ route('pos.terminal') }}"
-            class="h-8 px-3 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[12px] font-sans font-medium transition flex items-center gap-1">
-            <span>‹ Terminal POS</span>
-        </a>
+        class="no-print max-w-md mx-auto mb-4 p-2 rounded-[12px] backdrop-blur-md bg-white/80 dark:bg-[#2C2C2E]/80 border border-black/5 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-1.5">
+            <a href="{{ route('pos.terminal') }}"
+                class="h-8 px-2.5 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[12px] font-sans font-medium transition flex items-center gap-1">
+                <span>‹ Terminal</span>
+            </a>
+            @if ($order->print_count > 1)
+                <span class="px-2 py-1 rounded-[6px] text-[11px] font-sans font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/30 shrink-0">
+                    Salinan (Ke-{{ $order->print_count }})
+                </span>
+            @else
+                <span class="px-2 py-1 rounded-[6px] text-[11px] font-sans font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shrink-0">
+                    Cetakan Asli
+                </span>
+            @endif
+        </div>
+
         <div class="flex items-center gap-1.5">
             <button onclick="window.print()"
-                class="h-8 px-3.5 rounded-[8px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                class="h-8 px-3 rounded-[8px] {{ $order->print_count > 1 ? 'bg-[#FF9500] hover:bg-[#E08500]' : 'bg-[#007AFF] hover:bg-[#0071E3]' }} text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M6.72 13.829c-.24-1.049-.37-2.14-.37-3.254 0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.114-.13 2.205-.37 3.254M6.72 13.829A8.966 8.966 0 004 19.5h16a8.966 8.966 0 00-2.72-5.671M6.72 13.829l1.83 1.83m6.9-1.83l-1.83 1.83" />
                 </svg>
-                <span>Cetak Struk</span>
+                <span>{{ $order->print_count > 1 ? 'Cetak Salinan' : 'Cetak Bill' }}</span>
             </button>
+
+            <!-- Re-Print Trigger Action -->
+            <form method="POST" action="{{ route('pos.receipt.reprint', $order->id) }}" class="inline"
+                onsubmit="return confirm('Cetak Ulang (Re-Print) Bill ini?\n\nTindakan ini akan dicatat dalam Jejak Audit & Anti-Fraud sebagai Salinan / Cetakan ke-{{ $order->print_count + 1 }}.');">
+                @csrf
+                <button type="submit"
+                    class="h-8 px-2.5 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black/85 dark:text-white/85 text-[12px] font-sans font-medium active:scale-[0.97] transition flex items-center gap-1"
+                    title="Cetak Salinan Tambahan & Catat Log Forensik">
+                    <svg class="w-3.5 h-3.5 text-[#FF9500]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span>Re-Print</span>
+                </button>
+            </form>
+
             <a href="{{ $whatsappUrl }}" target="_blank"
-                class="h-8 px-2.5 rounded-[8px] bg-[#34C759]/12 hover:bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1">
+                class="h-8 px-2 rounded-[8px] bg-[#34C759]/12 hover:bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1">
                 <span>WA</span>
             </a>
         </div>
@@ -114,8 +151,34 @@
             @endif
         </div>
 
+        {{-- JIKA CETAKAN ASLI (print_count <= 1), TIDAK TERCANTUM CETAKAN KE BERAPA --}}
+        {{-- JIKA RE-PRINT (print_count > 1), TERCANTUM WATERMARK SALINAN & CETAKAN KE-N --}}
+        @if ($order->print_count > 1)
+            <div class="my-2 py-1 px-1.5 border-2 border-dashed border-black dark:border-white text-center font-bold text-[11px] tracking-wider uppercase bg-black/[0.04] dark:bg-white/[0.04]">
+                *** SALINAN (CETAKAN KE-{{ $order->print_count }}) ***
+            </div>
+        @endif
+
         <!-- Meta Info -->
         <div class="py-2 text-[10px] border-b border-dashed border-gray-400 space-y-0.5">
+            @if ($order->print_count > 1)
+                <div class="flex justify-between font-bold text-[#FF3B30] dark:text-[#FF453A]">
+                    <span>Status Dokumen:</span>
+                    <span>SALINAN (CETAKAN KE-{{ $order->print_count }})</span>
+                </div>
+                @if ($order->last_printed_at)
+                    <div class="flex justify-between text-[9px] text-gray-600">
+                        <span>Waktu Re-Print:</span>
+                        <span>{{ $order->last_printed_at->format('d/m/Y H:i') }}</span>
+                    </div>
+                @endif
+                @if ($order->lastPrintedBy)
+                    <div class="flex justify-between text-[9px] text-gray-600">
+                        <span>Operator:</span>
+                        <span>{{ $order->lastPrintedBy->name }}</span>
+                    </div>
+                @endif
+            @endif
             <div class="flex justify-between">
                 <span>No. Order:</span>
                 <span class="font-bold tabular-nums">#{{ $order->order_number }}</span>

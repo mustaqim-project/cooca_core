@@ -44,7 +44,10 @@ final class EnsureOwnerProfileComplete
                 $userNameMissing = empty(trim((string) ($user->name ?? '')));
                 $businessNameMissing = empty(trim((string) ($business->name ?? ''))) || str_starts_with($business->name, 'Usaha Saya') || str_starts_with($business->name, 'Usaha Pengguna');
 
-                if ($userPhoneMissing || $userNameMissing || $businessNameMissing) {
+                $primaryLocation = $business->locations()->where('is_primary', true)->first() ?? $business->locations()->first();
+                $locationMissing = ! $primaryLocation || empty($primaryLocation->address) || empty($primaryLocation->postal_code);
+
+                if ($userPhoneMissing || $userNameMissing || $businessNameMissing || $locationMissing) {
                     return redirect()->route('profile.complete');
                 }
             }

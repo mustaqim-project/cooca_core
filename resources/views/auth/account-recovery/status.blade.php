@@ -22,8 +22,7 @@
                     class="inline-flex items-center justify-center w-14 h-14 rounded-[20px] bg-[#007AFF]/10 text-[#007AFF] dark:bg-[#0A84FF]/15 dark:text-[#0A84FF] shadow-sm mb-2">
                     <i data-lucide="shield-check" class="w-7 h-7"></i>
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white">Status Pemulihan
-                    Akun</h1>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white">Status Pemulihan Akun</h1>
                 <p class="text-xs sm:text-sm text-black/60 dark:text-white/60">Pantau perkembangan verifikasi berkas
                     permohonan pemulihan akses Anda</p>
             </div>

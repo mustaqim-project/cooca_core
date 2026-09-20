@@ -228,6 +228,7 @@ final class AuthWebController extends Controller
             'phone' => ['required', 'string', 'min:10', 'max:20'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'business_name' => ['required', 'string', 'max:255', 'unique:businesses,name'],
+            'business_scale' => ['nullable', 'string', 'in:umkm,corporate'],
             'template_code' => ['nullable', 'string', 'exists:business_type_templates,code'],
         ]);
 
@@ -236,6 +237,10 @@ final class AuthWebController extends Controller
             return back()->withErrors(['phone' => 'Nomor WhatsApp tidak valid. Gunakan format 081234567890 atau 628123456789.'])->withInput();
         }
 
+        $businessScale = ($validated['business_scale'] ?? Business::SCALE_UMKM) === Business::SCALE_CORPORATE
+            ? Business::SCALE_CORPORATE
+            : Business::SCALE_UMKM;
+
         $otp = (string) random_int(100000, 999999);
         $pending = [
             'name' => $validated['name'],
@@ -243,6 +248,7 @@ final class AuthWebController extends Controller
             'phone' => $phone,
             'password' => Hash::make($validated['password']),
             'business_name' => $validated['business_name'],
+            'business_scale' => $businessScale,
             'template_code' => $validated['template_code'] ?? null,
             'otp_hash' => Hash::make($otp),
             'expires_at' => now()->addMinutes(10)->timestamp,
@@ -338,6 +344,21 @@ final class AuthWebController extends Controller
             $tmpl = ! empty($templateCode) ? BusinessTypeTemplate::where('code', $templateCode)->first() : null;
             $disabledModules = $tmpl ? \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($tmpl->code) : [];
 
+            $businessScale = ($pending['business_scale'] ?? Business::SCALE_UMKM) === Business::SCALE_CORPORATE
+                ? Business::SCALE_CORPORATE
+                : Business::SCALE_UMKM;
+
+            // Inisialisasi modul enterprise yang dinonaktifkan jika memilih segmen UMKM
+            if ($businessScale === Business::SCALE_UMKM) {
+                $corporateModules = [
+                    \App\Domain\Template\ModuleRegistry::MODULE_B2B_SALES,
+                    \App\Domain\Template\ModuleRegistry::MODULE_LABOR_MACHINES,
+                    \App\Domain\Template\ModuleRegistry::MODULE_INVENTORY_WAREHOUSE,
+                    \App\Domain\Template\ModuleRegistry::MODULE_CUSTOMER_PO,
+                ];
+                $disabledModules = array_values(array_unique(array_merge($disabledModules, $corporateModules)));
+            }
+
             $business = Business::create([
                 'name' => $pending['business_name'],
                 'phone' => $pending['phone'],
@@ -346,6 +367,7 @@ final class AuthWebController extends Controller
                 'rounding_strategy' => Business::ROUNDING_ROUND_100,
                 'industry_category' => $tmpl?->industry_category,
                 'template_code' => $tmpl?->code,
+                'business_scale' => $businessScale,
                 'disabled_modules' => $disabledModules,
             ]);
 
@@ -509,6 +531,7 @@ final class AuthWebController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:businesses,name'],
+            'business_scale' => ['nullable', 'string', 'in:umkm,corporate'],
             'template_code' => ['nullable', 'string', 'exists:business_type_templates,code'],
             'currency' => ['nullable', 'string', 'max:3'],
         ]);
@@ -526,6 +549,20 @@ final class AuthWebController extends Controller
             $tmpl = ! empty($templateCode) ? BusinessTypeTemplate::where('code', $templateCode)->first() : null;
             $disabledModules = $tmpl ? \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($tmpl->code) : [];
 
+            $businessScale = ($validated['business_scale'] ?? Business::SCALE_UMKM) === Business::SCALE_CORPORATE
+                ? Business::SCALE_CORPORATE
+                : Business::SCALE_UMKM;
+
+            if ($businessScale === Business::SCALE_UMKM) {
+                $corporateModules = [
+                    \App\Domain\Template\ModuleRegistry::MODULE_B2B_SALES,
+                    \App\Domain\Template\ModuleRegistry::MODULE_LABOR_MACHINES,
+                    \App\Domain\Template\ModuleRegistry::MODULE_INVENTORY_WAREHOUSE,
+                    \App\Domain\Template\ModuleRegistry::MODULE_CUSTOMER_PO,
+                ];
+                $disabledModules = array_values(array_unique(array_merge($disabledModules, $corporateModules)));
+            }
+
             $business = Business::create([
                 'name' => $validated['name'],
                 'currency' => $validated['currency'] ?? 'IDR',
@@ -533,6 +570,7 @@ final class AuthWebController extends Controller
                 'rounding_strategy' => Business::ROUNDING_ROUND_100,
                 'industry_category' => $tmpl?->industry_category,
                 'template_code' => $tmpl?->code,
+                'business_scale' => $businessScale,
                 'disabled_modules' => $disabledModules,
             ]);
 
@@ -588,28 +626,48 @@ final class AuthWebController extends Controller
         /** @var User $user */
         $user = Auth::guard('web')->user();
         $business = Context::hasBusiness() ? Context::business() : $user->businesses()->first();
+        $primaryLocation = $business ? ($business->locations()->where('is_primary', true)->first() ?? $business->locations()->first()) : null;
 
-        // Jika data profil & usaha sudah lengkap, cegah akses ulang dan langsung redirect ke dashboard
+        // Jika data profil & usaha & lokasi sudah lengkap, cegah akses ulang dan langsung redirect ke dashboard
         $userPhoneMissing = empty(trim((string) ($user->phone ?? '')));
         $userNameMissing = empty(trim((string) ($user->name ?? '')));
         $businessNameMissing = ! $business || empty(trim((string) ($business->name ?? ''))) || str_starts_with($business->name, 'Usaha Saya') || str_starts_with($business->name, 'Usaha Pengguna');
+        $locationMissing = ! $primaryLocation || empty($primaryLocation->address) || empty($primaryLocation->postal_code);
 
-        if (! $userPhoneMissing && ! $userNameMissing && ! $businessNameMissing) {
+        if (! $userPhoneMissing && ! $userNameMissing && ! $businessNameMissing && ! $locationMissing) {
             return redirect()->route('dashboard');
         }
 
-        return view('auth.complete-profile', compact('user', 'business'));
+        return view('auth.complete-profile', compact('user', 'business', 'primaryLocation'));
     }
 
     /**
-     * Update and save completed profile details (Name, Phone, Business Name).
+     * Update and save completed profile details (Name, Phone, Business Name, and Location).
      */
     public function updateCompleteProfile(Request $request): RedirectResponse
     {
+        $business = Context::hasBusiness() ? Context::business() : Auth::guard('web')->user()->businesses()->first();
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:50'],
-            'business_name' => ['required', 'string', 'max:255', 'unique:businesses,name,' . optional(Context::business())->id],
+            'business_name' => ['required', 'string', 'max:255', 'unique:businesses,name,' . optional($business)->id],
+            'address' => ['required', 'string', 'max:500'],
+            'province' => ['required', 'string', 'max:100'],
+            'city' => ['required', 'string', 'max:100'],
+            'district' => ['required', 'string', 'max:100'],
+            'village' => ['required', 'string', 'max:100'],
+            'postal_code' => ['required', 'string', 'max:10'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'biteship_area_id' => ['nullable', 'string', 'max:100'],
+        ], [
+            'address.required' => 'Detail alamat usaha (nama jalan / nomor toko) wajib diisi.',
+            'province.required' => 'Provinsi wajib dipilih dari hasil pencarian wilayah.',
+            'city.required' => 'Kota/Kabupaten wajib dipilih dari hasil pencarian wilayah.',
+            'district.required' => 'Kecamatan wajib dipilih dari hasil pencarian wilayah.',
+            'village.required' => 'Kelurahan / Desa wajib dipilih dari hasil pencarian wilayah atau kode pos.',
+            'postal_code.required' => 'Kode pos wilayah usaha wajib diisi.',
         ]);
 
         /** @var User $user */
@@ -626,15 +684,57 @@ final class AuthWebController extends Controller
 
         $user->update($userUpdates);
 
-        $business = Context::hasBusiness() ? Context::business() : $user->businesses()->first();
         if ($business) {
             $business->update([
                 'name' => $validated['business_name'],
                 'phone' => $validated['phone'],
             ]);
+
+            // Buat atau perbarui lokasi utama (cabang / outlet pertama)
+            $locationData = [
+                'name' => 'Cabang Utama (' . $validated['business_name'] . ')',
+                'type' => 'outlet',
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'province' => $validated['province'],
+                'city' => $validated['city'],
+                'district' => $validated['district'],
+                'village' => $validated['village'],
+                'postal_code' => $validated['postal_code'],
+                'latitude' => isset($validated['latitude']) ? (float) $validated['latitude'] : null,
+                'longitude' => isset($validated['longitude']) ? (float) $validated['longitude'] : null,
+                'biteship_area_id' => $validated['biteship_area_id'] ?? null,
+                'is_primary' => true,
+                'is_active' => true,
+                'is_online_fulfillment' => true,
+                'allow_storefront_pickup' => true,
+            ];
+
+            $primaryLocation = $business->locations()->where('is_primary', true)->first()
+                ?? $business->locations()->first();
+
+            if ($primaryLocation) {
+                $primaryLocation->update($locationData);
+            } else {
+                $locationData['business_id'] = $business->id;
+                $locationData['slug'] = \Illuminate\Support\Str::slug($business->name . '-cabang-utama');
+                $primaryLocation = \App\Models\Location::create($locationData);
+            }
+
+            // Sinkronkan titik asal pengiriman toko online (CommerceStoreSetting)
+            if ($business->commerceStoreSetting) {
+                $business->commerceStoreSetting->update([
+                    'origin_address' => $validated['address'],
+                    'origin_postal_code' => $validated['postal_code'],
+                    'origin_latitude' => isset($validated['latitude']) ? (float) $validated['latitude'] : null,
+                    'origin_longitude' => isset($validated['longitude']) ? (float) $validated['longitude'] : null,
+                    'origin_area_id' => $validated['biteship_area_id'] ?? null,
+                    'origin_location_id' => $primaryLocation?->id ?? null,
+                ]);
+            }
         }
 
-        return redirect()->route('dashboard')->with('success', 'Profil dan identitas bisnis Anda berhasil diperbarui.');
+        return redirect()->route('dashboard')->with('success', 'Profil dan titik lokasi usaha Anda berhasil dikonfirmasi.');
     }
 
     /**

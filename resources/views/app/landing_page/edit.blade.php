@@ -220,6 +220,9 @@
             <input type="hidden" name="section_visibility_json" :value="JSON.stringify(sectionVisibility)">
             <input type="hidden" name="industry_preset" :value="form.industry_preset">
             <input type="hidden" name="theme_color" :value="form.theme_color">
+            <input type="hidden" name="theme_preset" :value="form.theme_preset">
+            <input type="hidden" name="active_pages_json" :value="JSON.stringify(activePages)">
+            <input type="hidden" name="custom_labels_json" :value="JSON.stringify(customLabels)">
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 items-start">
 
@@ -356,6 +359,186 @@
                                         class="w-11 h-6 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#007AFF]">
                                     </div>
                                 </label>
+                            </div>
+
+                            <!-- ============================================================ -->
+                            <!-- 20 TEMPLATE TEMA INDUSTRI OTENTIK (§PRD-07 §2.C)              -->
+                            <!-- ============================================================ -->
+                            <div class="pt-4 border-t border-black/5 dark:border-white/5 space-y-3">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-[14px] font-semibold text-black dark:text-white">
+                                            20 Template Tema Industri Otentik
+                                        </h3>
+                                        <span class="text-[11px] font-mono text-[#007AFF] bg-[#007AFF]/10 px-2 py-0.5 rounded-full font-bold">
+                                            PRD-07 Berstandar Internasional
+                                        </span>
+                                    </div>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">
+                                        Pilih arsitektur visual yang dirancang khusus untuk sektor industri bisnis Anda. Setiap tema memiliki palet warna, tipografi Google Fonts, dan gaya hero yang otentik.
+                                    </p>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 pt-1">
+                                    @foreach ($themePresets as $tKey => $tPreset)
+                                        <div @click="form.theme_preset = '{{ $tKey }}'; form.theme_color = '{{ $tPreset['primary_color'] }}'"
+                                             :class="form.theme_preset === '{{ $tKey }}' ? 'ring-2 ring-[#007AFF] border-[#007AFF] bg-[#007AFF]/5 dark:bg-[#007AFF]/10' : 'border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.03] hover:border-black/20 dark:hover:border-white/20'"
+                                             class="p-3.5 rounded-[12px] border cursor-pointer transition flex flex-col justify-between gap-3 relative group">
+                                            
+                                            <div>
+                                                <div class="flex items-center justify-between gap-2 mb-1.5">
+                                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                                                          style="background-color: {{ $tPreset['primary_color'] }}20; color: {{ $tPreset['primary_color'] }};">
+                                                        {{ $tPreset['industry'] }}
+                                                    </span>
+                                                    <div x-show="form.theme_preset === '{{ $tKey }}'" x-cloak class="w-4 h-4 rounded-full bg-[#007AFF] text-white flex items-center justify-center text-[10px]">
+                                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+
+                                                <div class="font-bold text-[13px] text-black dark:text-white">
+                                                    {{ $tPreset['name'] }}
+                                                </div>
+                                                <div class="text-[11px] text-black/50 dark:text-white/50 line-clamp-2 mt-1 leading-snug">
+                                                    {{ $tPreset['description'] }}
+                                                </div>
+                                            </div>
+
+                                            <div class="pt-2 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-[10px] text-black/40 dark:text-white/40">
+                                                <div class="flex items-center gap-1.5">
+                                                    <span class="w-3.5 h-3.5 rounded-full border border-black/10" style="background-color: {{ $tPreset['primary_color'] }};"></span>
+                                                    <span class="w-3.5 h-3.5 rounded-full border border-black/10" style="background-color: {{ $tPreset['accent_color'] }};"></span>
+                                                </div>
+                                                <span class="font-medium truncate max-w-[120px]">{{ $tPreset['font_heading'] }}</span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- ============================================================ -->
+                            <!-- AUTO-HIDE DYNAMIC NAVIGATION PANEL (§PRD-07 §2.B)             -->
+                            <!-- ============================================================ -->
+                            <div class="pt-4 border-t border-black/5 dark:border-white/5 space-y-4">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-[14px] font-semibold text-black dark:text-white">
+                                            Pengaturan Halaman &amp; Navigasi Dinamis (Auto-Hide)
+                                        </h3>
+                                        <span class="text-[11px] font-mono text-[#34C759] dark:text-[#30D158] bg-[#34C759]/10 px-2 py-0.5 rounded-full font-bold">
+                                            Auto-Hide Enabled
+                                        </span>
+                                    </div>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">
+                                        Aktifkan atau nonaktifkan halaman toko. Header navbar &amp; footer publik hanya akan menampilkan menu yang aktif. URL halaman yang dinonaktifkan akan secara cerdas dialihkan ke Beranda.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2.5">
+                                    {{-- Home --}}
+                                    <div class="p-3 rounded-[10px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
+                                            <div>
+                                                <span class="text-[13px] font-semibold text-black dark:text-white">Halaman Beranda</span>
+                                                <span class="text-[11px] text-black/40 dark:text-white/40 block">URL: /{business-slug} (Wajib Aktif)</span>
+                                            </div>
+                                        </div>
+                                        <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Selalu Aktif</span>
+                                    </div>
+
+                                    {{-- Catalog --}}
+                                    <div class="p-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-center gap-3">
+                                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                                <input type="checkbox" x-model="activePages.catalog" class="sr-only peer">
+                                                <div class="w-9 h-5 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#007AFF]"></div>
+                                            </label>
+                                            <div>
+                                                <span class="text-[13px] font-semibold text-black dark:text-white">Katalog Toko &amp; Belanja</span>
+                                                <span class="text-[11px] text-black/40 dark:text-white/40 block">URL: /{business-slug}/katalog &amp; PDP</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full sm:w-60">
+                                            <input type="text" x-model="customLabels.catalog" placeholder="Label Menu (Default: Katalog Produk)"
+                                                   class="w-full h-8 px-2.5 rounded-[8px] border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-800 text-[12px] text-black dark:text-white">
+                                        </div>
+                                    </div>
+
+                                    {{-- About --}}
+                                    <div class="p-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-center gap-3">
+                                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                                <input type="checkbox" x-model="activePages.about" class="sr-only peer">
+                                                <div class="w-9 h-5 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#007AFF]"></div>
+                                            </label>
+                                            <div>
+                                                <span class="text-[13px] font-semibold text-black dark:text-white">Halaman Tentang Kami</span>
+                                                <span class="text-[11px] text-black/40 dark:text-white/40 block">URL: /{business-slug}/tentang-kami</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full sm:w-60">
+                                            <input type="text" x-model="customLabels.about" placeholder="Label Menu (Default: Tentang Kami)"
+                                                   class="w-full h-8 px-2.5 rounded-[8px] border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-800 text-[12px] text-black dark:text-white">
+                                        </div>
+                                    </div>
+
+                                    {{-- Reservation --}}
+                                    <div class="p-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-center gap-3">
+                                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                                <input type="checkbox" x-model="activePages.reservation" class="sr-only peer">
+                                                <div class="w-9 h-5 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#007AFF]"></div>
+                                            </label>
+                                            <div>
+                                                <span class="text-[13px] font-semibold text-black dark:text-white">Reservasi &amp; Booking Meja / Janji Temu</span>
+                                                <span class="text-[11px] text-black/40 dark:text-white/40 block">URL: /{business-slug}/reservasi</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full sm:w-60">
+                                            <input type="text" x-model="customLabels.reservation" placeholder="Label Menu (Default: Reservasi)"
+                                                   class="w-full h-8 px-2.5 rounded-[8px] border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-800 text-[12px] text-black dark:text-white">
+                                        </div>
+                                    </div>
+
+                                    {{-- Contact --}}
+                                    <div class="p-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-center gap-3">
+                                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                                <input type="checkbox" x-model="activePages.contact" class="sr-only peer">
+                                                <div class="w-9 h-5 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#007AFF]"></div>
+                                            </label>
+                                            <div>
+                                                <span class="text-[13px] font-semibold text-black dark:text-white">Kontak, Cabang &amp; Jam Buka</span>
+                                                <span class="text-[11px] text-black/40 dark:text-white/40 block">URL: /{business-slug}/kontak</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full sm:w-60">
+                                            <input type="text" x-model="customLabels.contact" placeholder="Label Menu (Default: Kontak &amp; Cabang)"
+                                                   class="w-full h-8 px-2.5 rounded-[8px] border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-800 text-[12px] text-black dark:text-white">
+                                        </div>
+                                    </div>
+
+                                    {{-- Blog --}}
+                                    <div class="p-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-center gap-3">
+                                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                                <input type="checkbox" x-model="activePages.blog" class="sr-only peer">
+                                                <div class="w-9 h-5 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#007AFF]"></div>
+                                            </label>
+                                            <div>
+                                                <span class="text-[13px] font-semibold text-black dark:text-white">Artikel &amp; Edukasi Bisnis (SEO)</span>
+                                                <span class="text-[11px] text-black/40 dark:text-white/40 block">URL: /{business-slug}/artikel</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full sm:w-60">
+                                            <input type="text" x-model="customLabels.blog" placeholder="Label Menu (Default: Artikel)"
+                                                   class="w-full h-8 px-2.5 rounded-[8px] border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-800 text-[12px] text-black dark:text-white">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
@@ -2056,8 +2239,12 @@
 
                 sectionVisibility: @json($sectionVisibilityDefaults),
 
+                activePages: @json($landingPage->getActivePages()),
+                customLabels: @json($landingPage->custom_labels ?? []),
+
                 form: {
                     industry_preset: @json($landingPage->industry_preset ?? 'retail'),
+                    theme_preset: @json($landingPage->getThemePreset()),
                     theme_color: @json($landingPage->theme_color ?? '#007AFF'),
                     dark_mode: @json((bool) ($landingPage->dark_mode ?? false)),
                     announcement_badge: @json($landingPage->announcement_badge ?? ''),
@@ -2507,6 +2694,9 @@
                         // Selaraskan nilai dark_mode dan theme_color dari form state
                         formData.set('dark_mode', this.form.dark_mode ? '1' : '0');
                         formData.set('theme_color', this.form.theme_color);
+                        formData.set('theme_preset', this.form.theme_preset);
+                        formData.set('active_pages_json', JSON.stringify(this.activePages));
+                        formData.set('custom_labels_json', JSON.stringify(this.customLabels));
 
                         // Sinkronkan galleryItems JSON dan unggahan foto baru beserta captionnya
                         formData.set('gallery_images_json', JSON.stringify(this.galleryItems));

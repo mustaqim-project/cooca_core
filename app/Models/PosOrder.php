@@ -112,6 +112,11 @@ class PosOrder extends Model
         'supervisor_approved_by',
         'supervisor_approved_at',
         'notes',
+        'print_count',
+        'reprint_count',
+        'first_printed_at',
+        'last_printed_at',
+        'last_printed_by',
     ];
 
 
@@ -128,6 +133,10 @@ class PosOrder extends Model
             'rejected_at' => 'datetime',
             'supervisor_approved_at' => 'datetime',
             'gateway_expired_at' => 'datetime',
+            'first_printed_at' => 'datetime',
+            'last_printed_at' => 'datetime',
+            'print_count' => 'integer',
+            'reprint_count' => 'integer',
             'gateway_fee' => 'float',
             'subtotal' => 'float',
             'discount_value' => 'float',
@@ -269,6 +278,95 @@ class PosOrder extends Model
     public function rejectedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rejected_by');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function lastPrintedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'last_printed_by');
+    }
+
+    /**
+     * Check if the current order print is a reprint (copy).
+     */
+    public function isReprint(): bool
+    {
+        return (int) ($this->print_count ?? 0) > 1;
+    }
+
+    /**
+     * Record the initial original print of the bill/receipt.
+     */
+    public function recordPrint(?string $userId = null): self
+    {
+        if ((int) ($this->print_count ?? 0) === 0) {
+            $now = now();
+            $this->update([
+                'print_count' => 1,
+                'reprint_count' => 0,
+                'first_printed_at' => $this->first_printed_at ?? $now,
+                'last_printed_at' => $now,
+                'last_printed_by' => $userId ?? auth()->id() ?? $this->user_id,
+            ]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Record a reprint action, incrementing print count and generating an anti-fraud Audit Log.
+     */
+    public function recordReprint(?string $userId = null, ?string $reason = null): self
+    {
+        $oldCount = (int) ($this->print_count ?? 0);
+        $newCount = max(1, $oldCount) + 1;
+        $newReprintCount = $newCount - 1;
+        $now = now();
+        $actorId = $userId ?? auth()->id() ?? $this->user_id;
+
+        $this->update([
+            'print_count' => $newCount,
+            'reprint_count' => $newReprintCount,
+            'first_printed_at' => $this->first_printed_at ?? $now,
+            'last_printed_at' => $now,
+            'last_printed_by' => $actorId,
+        ]);
+
+        // Forensic Audit Log for Anti-Fraud
+        try {
+            $actor = $actorId ? User::find($actorId) : null;
+            $actorName = $actor?->name ?? 'Kasir';
+            $riskLevel = $newCount > 2 ? 'high' : 'medium';
+
+            AuditLog::create([
+                'business_id' => $this->business_id,
+                'user_id' => $actorId,
+                'auditable_type' => self::class,
+                'auditable_id' => $this->id,
+                'action' => 'bill_reprinted',
+                'risk_level' => $riskLevel,
+                'risk_reason' => $newCount > 2 ? 'Cetak ulang bill dilakukan lebih dari 2 kali' : null,
+                'notes' => "Cetak Ulang (Re-Print) Bill Order #{$this->order_number} — Salinan ke-{$newReprintCount} (Cetakan ke-{$newCount}) oleh {$actorName}",
+                'old_values' => [
+                    'print_count' => $oldCount,
+                    'reprint_count' => max(0, $oldCount - 1),
+                ],
+                'new_values' => [
+                    'print_count' => $newCount,
+                    'reprint_count' => $newReprintCount,
+                    'reason' => $reason,
+                ],
+                'ip_address' => request()?->ip(),
+                'user_agent' => request()?->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (\Throwable) {
+            // Silently safeguard if audit log cannot be created
+        }
+
+        return $this;
     }
 }
 

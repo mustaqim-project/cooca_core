@@ -230,13 +230,35 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span> Retur
                                 </span>
                             @endif
+                            <div class="mt-1">
+                                @if(($o->print_count ?? 0) === 0)
+                                    <span class="text-[10px] text-black/40 dark:text-white/40">Belum cetak</span>
+                                @elseif($o->print_count === 1)
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]" title="Cetakan Asli">
+                                        1x Cetak (Asli)
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]" title="Telah dicetak ulang {{ $o->print_count }} kali (Salinan ke-{{ $o->reprint_count }})">
+                                        {{ $o->print_count }}x Cetak
+                                    </span>
+                                @endif
+                            </div>
                         </td>
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-1">
-                                <a href="{{ route('pos.receipt', $o->id) }}" target="_blank" title="Cetak Struk"
-                                    class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center">
-                                    Struk
-                                </a>
+                                @if(($o->print_count ?? 0) > 0)
+                                    <a href="{{ route('pos.receipt', $o->id) }}?reprint=1" target="_blank"
+                                        onclick="return confirm('Cetak Ulang (Re-Print) Bill ini?\n\nTindakan ini akan dicatat dalam Jejak Audit sebagai Salinan / Cetakan ke-{{ $o->print_count + 1 }}.');"
+                                        title="Cetak Ulang (Salinan ke-{{ $o->print_count }})"
+                                        class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF9500] hover:bg-[#FF9500]/10 transition-colors flex items-center">
+                                        Re-Print
+                                    </a>
+                                @else
+                                    <a href="{{ route('pos.receipt', $o->id) }}" target="_blank" title="Cetak Bill Pertama Kali"
+                                        class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center">
+                                        Struk
+                                    </a>
+                                @endif
                                 <button type="button" @click="viewDetail('{{ $o->id }}')" title="Lihat Detail"
                                     class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center">
                                     Detail
@@ -307,10 +329,19 @@
             </div>
 
             <div class="flex items-center justify-end gap-1.5 pt-1">
+                @if(($o->print_count ?? 0) > 0)
+                <a href="{{ route('pos.receipt', $o->id) }}?reprint=1" target="_blank"
+                    onclick="return confirm('Cetak Ulang (Re-Print) Bill ini?\n\nTindakan ini akan dicatat dalam Jejak Audit sebagai Salinan / Cetakan ke-{{ $o->print_count + 1 }}.');"
+                    class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold text-[#B25E00] dark:text-[#FF9F0A] bg-[#FF9500]/15 flex items-center gap-1"
+                    title="Cetak Salinan (Ke-{{ $o->print_count }})">
+                    <span>Re-Print ({{ $o->print_count }}x)</span>
+                </a>
+                @else
                 <a href="{{ route('pos.receipt', $o->id) }}" target="_blank"
                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] flex items-center">
                     Struk
                 </a>
+                @endif
                 <button type="button" @click="viewDetail('{{ $o->id }}')"
                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-[#007AFF] bg-[#007AFF]/10 flex items-center">
                     Detail

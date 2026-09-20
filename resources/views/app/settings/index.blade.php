@@ -118,6 +118,49 @@
             </div>
         @endif
 
+        <!-- Governance & Security Fast Links -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <a href="{{ route('settings.audit-logs.index') }}"
+                class="p-4 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 hover:border-[#FF3B30]/30 transition-all flex items-center justify-between group shadow-sm active:scale-[0.99]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[10px] bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
+                        <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[13px] font-semibold text-black dark:text-white group-hover:text-[#FF3B30] transition-colors">Jejak Audit &amp; Anti-Fraud</p>
+                        <p class="text-[11px] text-black/50 dark:text-white/50">Log forensik mutasi &amp; diff data</p>
+                    </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-black/30 dark:text-white/30 group-hover:translate-x-0.5 transition-transform"></i>
+            </a>
+            <a href="{{ route('approval-rules.index') }}"
+                class="p-4 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 hover:border-[#007AFF]/30 transition-all flex items-center justify-between group shadow-sm active:scale-[0.99]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[13px] font-semibold text-black dark:text-white group-hover:text-[#007AFF] transition-colors">Aturan Persetujuan (MAR)</p>
+                        <p class="text-[11px] text-black/50 dark:text-white/50">Matrix limit approval dokumen</p>
+                    </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-black/30 dark:text-white/30 group-hover:translate-x-0.5 transition-transform"></i>
+            </a>
+            <a href="{{ route('roles.index') }}"
+                class="p-4 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 hover:border-[#34C759]/30 transition-all flex items-center justify-between group shadow-sm active:scale-[0.99]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center shrink-0">
+                        <i data-lucide="shield" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[13px] font-semibold text-black dark:text-white group-hover:text-[#34C759] transition-colors">Hak Akses &amp; Peran</p>
+                        <p class="text-[11px] text-black/50 dark:text-white/50">Izin otorisasi staf &amp; kasir</p>
+                    </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-black/30 dark:text-white/30 group-hover:translate-x-0.5 transition-transform"></i>
+            </a>
+        </div>
+
         <!-- ===================================================== -->
         <!-- TAB 1: PROFIL BISNIS, LOGO, BANK & PEMBULATAN        -->
         <!-- ===================================================== -->

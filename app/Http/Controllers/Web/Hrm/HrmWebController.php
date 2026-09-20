@@ -5,29 +5,36 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\Hrm;
 
 use App\Domain\Billing\EntitlementService;
+use App\Domain\HRM\AttendanceService;
 use App\Domain\HRM\PayrollRunService;
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
+use App\Models\AttendanceCorrection;
 use App\Models\Business;
 use App\Models\BusinessMembership;
 use App\Models\EmployeeCommission;
 use App\Models\EmployeeLoan;
+use App\Models\Location;
 use App\Models\Payroll;
 use App\Models\PayrollItem;
 use App\Models\Role;
 use App\Models\User;
 use App\Support\Context;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 final class HrmWebController extends Controller
 {
     public function __construct(
         private readonly PayrollRunService $payrollRunService,
-        private readonly EntitlementService $entitlementService
+        private readonly EntitlementService $entitlementService,
+        private readonly AttendanceService $attendanceService
     ) {}
 
     /**
@@ -75,12 +82,101 @@ final class HrmWebController extends Controller
             $q->where('business_id', $business->id)->orWhereNull('business_id');
         })->orderBy('name')->get();
 
+        // 4. Attendances log query with filters
+        $today = now()->toDateString();
+        $attDate = $request->query('att_date', $today);
+        $attUserId = $request->query('att_user_id');
+        $attStatus = $request->query('att_status');
+
+        $attendancesQuery = Attendance::where('business_id', $business->id)
+            ->with(['user', 'location', 'correction'])
+            ->orderByDesc('date')
+            ->orderByDesc('created_at');
+
+        if ($attDate) {
+            $attendancesQuery->whereDate('date', $attDate);
+        }
+        if ($attUserId) {
+            $attendancesQuery->where('user_id', $attUserId);
+        }
+        if ($attStatus) {
+            $attendancesQuery->where('status', $attStatus);
+        }
+
+        $attendances = $attendancesQuery->paginate(15, ['*'], 'attendances_page')->withQueryString();
+
+        // 5. Attendance correction tickets query
+        $corStatus = $request->query('cor_status');
+        $correctionsQuery = AttendanceCorrection::where('business_id', $business->id)
+            ->with(['user', 'attendance', 'reviewer'])
+            ->orderByDesc('created_at');
+
+        if ($corStatus) {
+            $correctionsQuery->where('status', $corStatus);
+        }
+
+        $corrections = $correctionsQuery->paginate(15, ['*'], 'corrections_page')->withQueryString();
+
+        // 6. Attendance summary metrics for today
+        $todayPresentCount = Attendance::where('business_id', $business->id)
+            ->whereDate('date', $today)
+            ->whereIn('status', [Attendance::STATUS_PRESENT, Attendance::STATUS_LATE, Attendance::STATUS_HALF_DAY])
+            ->count();
+
+        $todayLateCount = Attendance::where('business_id', $business->id)
+            ->whereDate('date', $today)
+            ->where(function ($q) {
+                $q->where('status', Attendance::STATUS_LATE)
+                    ->orWhere('clock_in_status', Attendance::CLOCK_IN_LATE);
+            })
+            ->count();
+
+        $todayFreeCount = Attendance::where('business_id', $business->id)
+            ->whereDate('date', $today)
+            ->where('clock_in_status', Attendance::CLOCK_IN_FREE_LOCATION)
+            ->count();
+
+        $pendingCorrectionsCount = AttendanceCorrection::where('business_id', $business->id)
+            ->where('status', AttendanceCorrection::STATUS_PENDING)
+            ->count();
+
+        // 7. Current user's attendance status today (for clock widget)
+        $currentUserAttendance = Attendance::where('business_id', $business->id)
+            ->where('user_id', auth()->id())
+            ->whereDate('date', $today)
+            ->first();
+
+        $currentUserMembership = BusinessMembership::where('business_id', $business->id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        // 8. Locations for geofence and office selection
+        $locations = Location::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+        $primaryLocation = $locations->firstWhere('is_primary', true) ?? $locations->first();
+
         return view('app.hrm.index', compact(
             'business',
             'tab',
             'memberships',
             'payrolls',
             'loans',
+            'attendances',
+            'corrections',
+            'todayPresentCount',
+            'todayLateCount',
+            'todayFreeCount',
+            'pendingCorrectionsCount',
+            'currentUserAttendance',
+            'currentUserMembership',
+            'locations',
+            'primaryLocation',
+            'attDate',
+            'attUserId',
+            'attStatus',
+            'corStatus',
             'totalStaff',
             'totalBaseSalary',
             'totalActiveLoans',
@@ -120,6 +216,8 @@ final class HrmWebController extends Controller
             'bank_account_number' => ['nullable', 'string', 'max:50'],
             'bank_account_holder' => ['nullable', 'string', 'max:100'],
             'whatsapp_number' => ['nullable', 'string', 'max:30'],
+            'attendance_mode' => ['nullable', 'string', 'in:geofenced,free'],
+            'primary_location_id' => ['nullable', 'uuid', 'exists:locations,id'],
         ]);
 
         $selectedRole = Role::where('id', $validated['role_id'])
@@ -162,6 +260,8 @@ final class HrmWebController extends Controller
             'bank_account_number' => $validated['bank_account_number'] ?? null,
             'bank_account_holder' => $validated['bank_account_holder'] ?? $validated['name'],
             'whatsapp_number' => $validated['whatsapp_number'] ?? null,
+            'attendance_mode' => $validated['attendance_mode'] ?? 'geofenced',
+            'primary_location_id' => $validated['primary_location_id'] ?? null,
         ]);
 
         return redirect()->route('hrm.index', ['tab' => 'employees'])
@@ -197,6 +297,8 @@ final class HrmWebController extends Controller
             'bank_account_number' => ['nullable', 'string', 'max:50'],
             'bank_account_holder' => ['nullable', 'string', 'max:100'],
             'whatsapp_number' => ['nullable', 'string', 'max:30'],
+            'attendance_mode' => ['nullable', 'string', 'in:geofenced,free'],
+            'primary_location_id' => ['nullable', 'uuid', 'exists:locations,id'],
         ]);
 
         $selectedRole = Role::where('id', $validated['role_id'])
@@ -221,6 +323,8 @@ final class HrmWebController extends Controller
             'bank_account_number' => $validated['bank_account_number'] ?? null,
             'bank_account_holder' => $validated['bank_account_holder'] ?? $validated['name'],
             'whatsapp_number' => $validated['whatsapp_number'] ?? null,
+            'attendance_mode' => $validated['attendance_mode'] ?? $membership->attendance_mode ?? 'geofenced',
+            'primary_location_id' => $validated['primary_location_id'] ?? $membership->primary_location_id,
         ]);
 
         // Update user name and phone if applicable
@@ -503,5 +607,183 @@ final class HrmWebController extends Controller
             'whatsappMessage' => $whatsappMessage,
             'isPublic' => true,
         ]);
+    }
+
+    /**
+     * Handle daily employee clock-in.
+     */
+    public function clockIn(Request $request): RedirectResponse|JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'latitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
+            'accuracy' => ['nullable', 'numeric'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:255'],
+            'photo' => ['nullable'],
+            'location_id' => ['nullable', 'uuid', 'exists:locations,id'],
+        ]);
+
+        try {
+            $attendance = $this->attendanceService->clockIn($business, $user, $validated);
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Presensi masuk (Clock-In) berhasil dicatat pada jam ' . $attendance->clock_in_at?->format('H:i') . ' WIB.',
+                    'attendance' => $attendance,
+                ]);
+            }
+
+            return redirect()->route('hrm.index', ['tab' => 'attendance'])
+                ->with('success', 'Presensi masuk (Clock-In) berhasil dicatat pada jam ' . $attendance->clock_in_at?->format('H:i') . ' WIB.');
+        } catch (ValidationException $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => collect($e->errors())->flatten()->first(),
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+            throw $e;
+        } catch (\Throwable $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 400);
+            }
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle daily employee clock-out.
+     */
+    public function clockOut(Request $request): RedirectResponse|JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'latitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
+            'accuracy' => ['nullable', 'numeric'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:255'],
+            'photo' => ['nullable'],
+        ]);
+
+        try {
+            $attendance = $this->attendanceService->clockOut($business, $user, $validated);
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Presensi pulang (Clock-Out) berhasil dicatat pada jam ' . $attendance->clock_out_at?->format('H:i') . ' WIB. Durasi kerja: ' . $attendance->formatted_work_duration,
+                    'attendance' => $attendance,
+                ]);
+            }
+
+            return redirect()->route('hrm.index', ['tab' => 'attendance'])
+                ->with('success', 'Presensi pulang (Clock-Out) berhasil dicatat pada jam ' . $attendance->clock_out_at?->format('H:i') . ' WIB. Durasi kerja: ' . $attendance->formatted_work_duration);
+        } catch (ValidationException $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => collect($e->errors())->flatten()->first(),
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+            throw $e;
+        } catch (\Throwable $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 400);
+            }
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Store attendance correction ticket.
+     */
+    public function storeCorrection(Request $request): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'target_date' => ['required', 'date', 'before_or_equal:today'],
+            'correction_type' => ['required', 'in:clock_in_only,clock_out_only,full_day,status_only'],
+            'proposed_clock_in' => ['nullable', 'date_format:H:i'],
+            'proposed_clock_out' => ['nullable', 'date_format:H:i'],
+            'proposed_status' => ['nullable', 'in:present,late,half_day,leave,sick'],
+            'reason' => ['required', 'string', 'min:5', 'max:1000'],
+            'attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
+        ]);
+
+        $ticket = $this->attendanceService->createCorrectionTicket($business, $user, $validated);
+
+        return redirect()->route('hrm.index', ['tab' => 'corrections'])
+            ->with('success', "Tiket perbaikan absensi {$ticket->correction_number} berhasil diajukan dan sedang menunggu tinjauan atasan.");
+    }
+
+    /**
+     * Approve attendance correction ticket.
+     */
+    public function approveCorrection(AttendanceCorrection $correction, Request $request): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        $isOwner = auth()->user()->isBusinessOwner();
+        abort_unless(Context::hasPermission('users.manage') || $isOwner, 403, 'Anda tidak memiliki hak otorisasi untuk menyetujui tiket koreksi absensi.');
+
+        if ($correction->business_id !== $business->id) {
+            abort(404);
+        }
+
+        $notes = $request->input('review_notes');
+
+        try {
+            $this->attendanceService->approveCorrection($business, $correction, auth()->user(), $notes);
+
+            return redirect()->route('hrm.index', ['tab' => 'corrections'])
+                ->with('success', "Tiket {$correction->correction_number} berhasil disetujui. Jam kerja dan status absensi telah disinkronkan.");
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal menyetujui tiket: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject attendance correction ticket.
+     */
+    public function rejectCorrection(AttendanceCorrection $correction, Request $request): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        $isOwner = auth()->user()->isBusinessOwner();
+        abort_unless(Context::hasPermission('users.manage') || $isOwner, 403, 'Anda tidak memiliki hak otorisasi untuk menolak tiket koreksi absensi.');
+
+        if ($correction->business_id !== $business->id) {
+            abort(404);
+        }
+
+        $reason = $request->input('reason');
+        if (empty($reason) || strlen(trim((string) $reason)) < 3) {
+            return back()->with('error', 'Alasan penolakan tiket koreksi wajib diisi (minimal 3 karakter).');
+        }
+
+        try {
+            $this->attendanceService->rejectCorrection($business, $correction, auth()->user(), (string) $reason);
+
+            return redirect()->route('hrm.index', ['tab' => 'corrections'])
+                ->with('success', "Tiket {$correction->correction_number} telah ditolak dengan catatan alasan.");
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal menolak tiket: ' . $e->getMessage());
+        }
     }
 }

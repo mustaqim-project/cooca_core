@@ -133,6 +133,7 @@ final class GoogleAuthController extends Controller
 
         $validated = $request->validate([
             'business_name' => ['required', 'string', 'max:255', 'unique:businesses,name'],
+            'business_scale' => ['nullable', 'string', 'in:umkm,corporate'],
             'phone' => ['required', 'string', 'min:10', 'max:20'],
             'template_code' => ['nullable', 'string', 'exists:business_type_templates,code'],
         ]);
@@ -140,6 +141,10 @@ final class GoogleAuthController extends Controller
         if ($phone === null) {
             return back()->withErrors(['phone' => 'Nomor WhatsApp tidak valid. Gunakan format 081234567890 atau 628123456789.'])->withInput();
         }
+
+        $businessScale = ($validated['business_scale'] ?? \App\Models\Business::SCALE_UMKM) === \App\Models\Business::SCALE_CORPORATE
+            ? \App\Models\Business::SCALE_CORPORATE
+            : \App\Models\Business::SCALE_UMKM;
 
         $otp = (string) random_int(100000, 999999);
         $result = $adminWa->sendOtp($phone, $otp);
@@ -151,6 +156,7 @@ final class GoogleAuthController extends Controller
             ...$pendingGoogle,
             'phone' => $phone,
             'business_name' => $validated['business_name'],
+            'business_scale' => $businessScale,
             'template_code' => $validated['template_code'] ?? null,
             'password' => Hash::make(Str::random(32)),
             'otp_hash' => Hash::make($otp),

@@ -148,7 +148,21 @@ final class PurchaseOrderWebController extends Controller
 
         $po = $this->poService->createPurchaseOrder($business, $validated, $validated['items']);
 
-        return redirect()->route('purchase-orders.show', $po->id)->with('success', "Pesanan {$po->po_number} berhasil dibuat.");
+        $user = Context::user();
+        $approvalService = app(\App\Domain\Approval\ApprovalWorkflowService::class);
+        $approvalRequest = $approvalService->evaluateAndCreateRequest(
+            $business,
+            \App\Models\ApprovalRule::DOC_PURCHASE_ORDER,
+            $po->id,
+            (float) $po->total_amount,
+            $user
+        );
+
+        $msg = $approvalRequest
+            ? "Pesanan {$po->po_number} berhasil dibuat dan diajukan ke alur persetujuan ({$approvalRequest->total_levels} Level)."
+            : "Pesanan {$po->po_number} berhasil dibuat.";
+
+        return redirect()->route('purchase-orders.show', $po->id)->with('success', $msg);
     }
 
     /**
@@ -157,9 +171,15 @@ final class PurchaseOrderWebController extends Controller
     public function show(PurchaseOrder $purchaseOrder): View
     {
         $business = Context::requireBusiness();
-        $purchaseOrder->load(['customer', 'supplier', 'items.product', 'items.material', 'items.unit', 'invoices']);
+        $purchaseOrder->load(['customer', 'supplier', 'items.product', 'items.material', 'items.unit', 'invoices', 'approvalRequest.logs.approver', 'approvalRequest.rule']);
 
-        return view('app.purchase-orders.show', compact('business', 'purchaseOrder'));
+        $approvalData = app(\App\Domain\Approval\ApprovalWorkflowService::class)->getDocumentStepperData(
+            \App\Models\ApprovalRule::DOC_PURCHASE_ORDER,
+            $purchaseOrder->id,
+            Context::user()
+        );
+
+        return view('app.purchase-orders.show', compact('business', 'purchaseOrder', 'approvalData'));
     }
 
     /**
@@ -167,6 +187,30 @@ final class PurchaseOrderWebController extends Controller
      */
     public function confirm(PurchaseOrder $purchaseOrder): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        $approvalService = app(\App\Domain\Approval\ApprovalWorkflowService::class);
+
+        $req = $purchaseOrder->approvalRequest;
+
+        // Auto-evaluate rule if corporate mode and request doesn't exist yet
+        if (! $req && $business->isCorporate()) {
+            $req = $approvalService->evaluateAndCreateRequest(
+                $business,
+                \App\Models\ApprovalRule::DOC_PURCHASE_ORDER,
+                $purchaseOrder->id,
+                (float) $purchaseOrder->total_amount,
+                Context::user()
+            );
+        }
+
+        if ($req && $req->isPending()) {
+            return back()->with('error', "Pesanan {$purchaseOrder->po_number} tidak dapat dikonfirmasi karena masih menunggu otorisasi persetujuan (Level {$req->current_level} dari {$req->total_levels}).");
+        }
+
+        if ($req && $req->isRejected()) {
+            return back()->with('error', "Pesanan {$purchaseOrder->po_number} ditolak oleh penyetuju: \"{$req->rejection_reason}\". Konfirmasi dibatalkan.");
+        }
+
         $this->poService->confirm($purchaseOrder);
 
         return back()->with('success', "Pesanan {$purchaseOrder->po_number} telah dikonfirmasi.");

@@ -24,8 +24,19 @@ class Location extends Model
         'code',
         'phone',
         'address',
+        'province',
+        'city',
+        'district',
+        'village',
+        'postal_code',
+        'latitude',
+        'longitude',
+        'geofence_radius_meters',
+        'biteship_area_id',
         'is_primary',
         'is_active',
+        'is_online_fulfillment',
+        'allow_storefront_pickup',
     ];
 
     /**
@@ -36,7 +47,26 @@ class Location extends Model
         return [
             'is_primary' => 'boolean',
             'is_active' => 'boolean',
+            'is_online_fulfillment' => 'boolean',
+            'allow_storefront_pickup' => 'boolean',
+            'latitude' => 'float',
+            'longitude' => 'float',
+            'geofence_radius_meters' => 'integer',
         ];
+    }
+
+    public function getFormattedFullAddressAttribute(): string
+    {
+        $parts = array_filter([
+            $this->address,
+            $this->village,
+            $this->district,
+            $this->city,
+            $this->province,
+            $this->postal_code,
+        ]);
+
+        return implode(', ', $parts);
     }
 
     public function stocks(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -52,5 +82,10 @@ class Location extends Model
     public function posOrders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PosOrder::class);
+    }
+
+    public function attendances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Attendance::class);
     }
 }

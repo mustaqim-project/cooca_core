@@ -108,6 +108,11 @@
         </div>
     </header>
 
+    {{-- Horizontal Visual Stepper Otorisasi Dokumen (PRD-04 MAR) --}}
+    @if (!empty($approvalData) && ($approvalData['has_approval'] ?? false))
+        <x-document-stepper :approvalData="$approvalData" documentType="purchase_order" :documentId="$purchaseOrder->id" />
+    @endif
+
     <!-- ===================================================== -->
     <!-- 2. MAIN DOCUMENT SHEET (Apple HIG Cockpit Container)  -->
     <!-- ===================================================== -->

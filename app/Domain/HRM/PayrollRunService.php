@@ -158,9 +158,20 @@ final class PayrollRunService
                     ? (float) $input['commissions']
                     : $earnedCommissions;
 
+                // Query actual attendance count for this employee in the period
+                $actualAttendanceCount = \App\Models\Attendance::where('business_id', $business->id)
+                    ->where('user_id', $userId)
+                    ->whereMonth('date', $month)
+                    ->whereYear('date', $year)
+                    ->validAttendances()
+                    ->count();
+
                 if ($employmentType === 'daily_worker') {
                     $dailyRate = (float) ($input['daily_rate'] ?? $membership->daily_rate ?? 0.0);
-                    $daysWorked = (int) ($input['days_worked'] ?? 25);
+                    $defaultDaysWorked = $actualAttendanceCount > 0 ? $actualAttendanceCount : 25;
+                    $daysWorked = isset($input['days_worked']) && $input['days_worked'] !== ''
+                        ? (int) $input['days_worked']
+                        : $defaultDaysWorked;
                     $incentives = $commissions;
 
                     $calc = $this->payrollCalculationService->calculateDailyWorkerPayroll(
@@ -189,7 +200,9 @@ final class PayrollRunService
                 } else {
                     $baseSalary = (float) ($input['base_salary'] ?? $membership->base_salary ?? 0.0);
                     $dailyRate = 0.0;
-                    $daysWorked = 0;
+                    $daysWorked = isset($input['days_worked']) && $input['days_worked'] !== ''
+                        ? (int) $input['days_worked']
+                        : $actualAttendanceCount;
                     $fixedAllowances = (float) ($input['fixed_allowances'] ?? $membership->fixed_allowances ?? 0.0);
                     $variableAllowances = (float) ($input['variable_allowances'] ?? $membership->variable_allowances ?? 0.0);
                     $ptkpStatus = (string) ($input['tax_ptkp_status'] ?? $membership->tax_ptkp_status ?? 'TK/0');

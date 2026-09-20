@@ -37,6 +37,8 @@ final class AutoJournalService
             ['code' => '2-2001', 'name' => 'Hutang Usaha', 'type' => ChartOfAccount::TYPE_LIABILITY, 'normal_balance' => 'credit'],
             ['code' => '2-2002', 'name' => 'Hutang PPN Keluaran', 'type' => ChartOfAccount::TYPE_LIABILITY, 'normal_balance' => 'credit'],
             ['code' => '2-2003', 'name' => 'Hutang Service Charge', 'type' => ChartOfAccount::TYPE_LIABILITY, 'normal_balance' => 'credit'],
+            ['code' => '3-3001', 'name' => 'Modal Pemilik / Disetor', 'type' => ChartOfAccount::TYPE_EQUITY, 'normal_balance' => 'credit'],
+            ['code' => '3-3002', 'name' => 'Laba Ditahan', 'type' => ChartOfAccount::TYPE_EQUITY, 'normal_balance' => 'credit'],
             ['code' => '4-4001', 'name' => 'Pendapatan Penjualan POS', 'type' => ChartOfAccount::TYPE_REVENUE, 'normal_balance' => 'credit'],
             ['code' => '4-4002', 'name' => 'Retur Penjualan', 'type' => ChartOfAccount::TYPE_REVENUE, 'normal_balance' => 'debit'],
             ['code' => '5-5001', 'name' => 'Beban Pokok Penjualan (HPP)', 'type' => ChartOfAccount::TYPE_COGS, 'normal_balance' => 'debit'],
@@ -44,6 +46,7 @@ final class AutoJournalService
             ['code' => '6-6002', 'name' => 'Beban Operasional Toko', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
             ['code' => '6-6003', 'name' => 'Beban Administrasi Gateway (MDR)', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
         ];
+
 
         foreach ($standards as $std) {
             ChartOfAccount::firstOrCreate(
