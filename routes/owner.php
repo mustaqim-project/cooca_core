@@ -379,7 +379,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::post('/billing/upgrade', [BillingAndLimitWebController::class, 'upgrade'])->name('billing.upgrade');
         Route::get('/billing/checkout', [SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.checkout');
         Route::post('/billing/order', [SubscriptionCheckoutWebController::class, 'store'])->name('billing.order.store');
-        Route::get('/billing/payments/{payment}', [SubscriptionCheckoutWebController::class, 'payment'])->name('billing.payment.show');
+        Route::match(['GET', 'POST'], '/billing/payments/{payment}', [SubscriptionCheckoutWebController::class, 'payment'])->name('billing.payment.show');
         Route::get('/billing/payments/{payment}/status', [SubscriptionCheckoutWebController::class, 'checkStatus'])->name('billing.payment.status');
         Route::get('/billing/payments/{payment}/invoice', [SubscriptionCheckoutWebController::class, 'invoice'])->name('billing.payment.invoice');
         Route::post('/billing/payments/{payment}/upload-proof', [SubscriptionCheckoutWebController::class, 'uploadProof'])->name('billing.payment.upload');

@@ -210,8 +210,13 @@ final class SubscriptionCheckoutWebController extends Controller
     /**
      * Show payment confirmation and step-by-step transfer guide.
      */
-    public function payment(SubscriptionPayment $payment): View
+    public function payment(Request $request, SubscriptionPayment $payment): View|JsonResponse
     {
+        // Gracefully handle external webhook POSTs accidentally sent to payment page URL
+        if ($request->isMethod('POST')) {
+            return app(\App\Http\Controllers\Api\V1\Payment\TripayCallbackController::class)->handle($request);
+        }
+
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
 

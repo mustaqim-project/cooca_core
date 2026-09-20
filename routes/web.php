@@ -28,6 +28,10 @@ require __DIR__ . '/public.php';
 \Illuminate\Support\Facades\Route::get('/settlements/{settlement}/proof', [\App\Http\Controllers\Common\SettlementProofController::class, 'show'])
     ->name('settlements.proof');
 
+// Direct Webhook Fallbacks (in case configured in TriPay without /api prefix)
+\Illuminate\Support\Facades\Route::match(['GET', 'POST', 'HEAD'], '/payments/tripay/callback', [\App\Http\Controllers\Api\V1\Payment\TripayCallbackController::class, 'handle']);
+\Illuminate\Support\Facades\Route::match(['GET', 'POST', 'HEAD'], '/tripay/callback', [\App\Http\Controllers\Api\V1\Payment\TripayCallbackController::class, 'handle']);
+
 // Catch-all Canonical Redirection: Eliminate any accidental /public prefix
 \Illuminate\Support\Facades\Route::any('/public/{any?}', function (?string $any = null) {
     return redirect('/' . ($any ?? ''), 301);

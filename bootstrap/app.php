@@ -59,6 +59,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->prepend(\App\Http\Middleware\EnsureCleanUrl::class);
 
+        $middleware->validateCsrfTokens(except: [
+            'payments/tripay/callback',
+            'tripay/callback',
+            'billing/payments/*',
+        ]);
+
         $middleware->web(append: [
             \App\Http\Middleware\WebSecurityHeaders::class,
             SetActiveBusinessContext::class,
