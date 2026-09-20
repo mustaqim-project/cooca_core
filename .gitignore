@@ -18,6 +18,10 @@ cloudflared.exe
 config.yml
 *.exe
 
+# --- Python ---
+__pycache__/
+*.pyc
+
 # --- PHP & Composer ---
 /vendor/
 composer.phar

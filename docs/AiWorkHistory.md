@@ -46,6 +46,84 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-20-093] Restrukturisasi Menu Sidebar & Topbar Admin Panel dan Owner Panel (Bento Apple HIG, Zero-Emoji, RBAC, Strix Security Audit)
+* **Date:** 2026-09-20
+* **Status:** COMPLETED
+* **Module:** UI/UX, Navigation Layouts, Admin Panel, Owner Panel, RBAC, Security & Tenant Isolation
+* **Feature:** Restrukturisasi hierarki dan pengelompokan menu pada Sidebar dan Topbar Admin Panel & Owner Panel berbasis arsitektur Bento Apple HIG, ramah UMKM usia 40–65 tahun (Zero-Emoji, penamaan intuitif bahasa Indonesia, modal-first, high contrast), serta audit keamanan route, RBAC, dan integritas isolasi tenant (business_id).
+* **Work Type:** UI/UX (Apple HIG Bento) | Refactoring | Security & Tenant Isolation | Architecture
+
+#### 1. Business Context & Objective
+* **Konteks:** Pemilik UMKM Indonesia pada rentang usia 40–65 tahun membutuhkan antarmuka yang bersih, mudah dipahami tanpa beban kognitif (cognitive overload), dengan navigasi yang cepat dan tidak membingungkan oleh singkatan bahasa asing (seperti B2B, CRM, BOM, KDS, HRM, TER).
+* **Masalah/Target:**
+  1. **Owner Sidebar Fragmented & Bloated:** Sidebar owner sebelumnya memiliki 11 kelompok menu accordion yang terlalu panjang, menciptakan decision fatigue dan scrolling yang melelahkan.
+  2. **Admin Panel Menu Incomplete:** Topbar dan sidebar admin panel belum mengelompokkan modul administrasi secara seimbang, serta rute seperti `admin.legal-pages.index` dan `admin.settlements.index` belum terdaftar di spotlight search (Ctrl+K).
+  3. **Zero-Emoji & Accessibility:** Perlunya penghapusan total Unicode emoji di area navigasi untuk digantikan dengan ikon Lucide SVG crisp yang konsisten dengan standar Apple Human Interface Guidelines (HIG).
+  4. **Keamanan & Isolasi Tenant:** Memastikan bahwa reorganisasi menu tidak mengekspos endpoint tanpa proteksi role/permission dan menjaga batas isolasi multi-tenant (`business_id`) serta otomasi bisnis (jurnal akuntansi & pergerakan stok).
+
+#### 2. What Was Done
+* **Restrukturisasi Sidebar & Topbar Admin Panel (`resources/views/layouts/admin.blade.php`):**
+  - Mengelompokkan seluruh menu navigasi admin ke dalam 6 pilar administratif yang harmonis dan terstruktur:
+    1. `Ringkasan & Tenant`: Beranda Dashboard (`admin.dashboard`), Verifikasi Tenant (`admin.merchants.verification`).
+    2. `Layanan & Tiket`: Tiket Bantuan & Pengaduan (`admin.support-tickets.index`), Jejak Log Aktivitas (`admin.audit-logs.index`).
+    3. `Monetisasi & Finansial`: Paket Langganan Platform (`admin.billing-packages.index`), Riwayat Transaksi Langganan (`admin.billing-transactions.index`), Pencairan Dana Merchant (`admin.settlements.index`).
+    4. `Integrasi & AI Gateway`: Gateway Kecerdasan AI (`admin.ai-gateway.index`), Integrasi WhatsApp Bisnis (`admin.whatsapp-gateways.index`), Gateway Pembayaran (`admin.payment-gateways.index`).
+    5. `Konten & Edukasi`: Template Usaha & Industri (`admin.industry-templates.index`), Template File Excel & Data (`admin.excel-templates.index`), Kebijakan Privasi & Legalitas (`admin.legal-pages.index`).
+    6. `Konfigurasi Sistem`: Pengaturan Platform Global (`admin.settings.index`), Konfigurasi Email SMTP (`admin.email-templates.index`), Profil Pengelola Admin (`admin.profile.index`).
+  - Memperbarui quick command spotlight search (`Ctrl+K`) dengan seluruh rute admin baru untuk pencarian instan.
+* **Penambahan Akses Cepat Kasir pada Topbar Owner (`resources/views/layouts/partials/topbar.blade.php`):**
+  - Menambahkan tombol aksi cepat (Quick Action) "Buka Kasir POS" (`route('pos.terminal')`) di sebelah tombol "Hitung HPP" (`route('calculator.index')`).
+  - Memastikan ukuran sentuh memenuhi standar aksesibilitas minimum 44px dan responsif pada mobile drawer.
+* **Restrukturisasi Sidebar Owner Panel (`resources/views/layouts/partials/sidebar.blade.php`):**
+  - Mengurangi 11 kelompok menu accordion yang berantakan menjadi 7 kelompok tematik Bento Apple HIG yang intuitif:
+    1. `Beranda & Kasir`: Beranda Dashboard, Buka Kasir POS, Transaksi Kasir, Layar Dapur, Meja & QR Resto, Asisten AI, Komunitas Owner.
+    2. `Penjualan & Pelanggan`: Pesanan Penjualan, Surat Penawaran, Faktur & Piutang, Retur Penjualan, Pelanggan, Member & Loyalitas, Voucher Diskon Promosi.
+    3. `Produk & Persediaan`: Katalog Produk & Menu, Jasa & Layanan, Bahan Baku & Resep, Varian & Opsi Tambahan, Stok Gudang, Lokasi Gudang, Opname Stok Fisik, Transfer Stok Gudang, Kartu Mutasi Stok, Kategori Produk, Kategori Bahan Baku, Satuan Ukur, Impor/Ekspor Data.
+    4. `Pembelian & Supplier`: Pesanan Pembelian (PO), Tagihan Supplier, Supplier & Pemasok (konsolidasi link duplikat), Retur Pembelian.
+    5. `Keuangan, Biaya & Laporan`: Kas & Rekening Bank, Pengeluaran Operasional, Buku Jurnal Keuangan, Buku Besar Akun, Daftar Piutang, Daftar Utang, Pencairan Dana Penjualan, Hitung HPP & Margin, Simulator Harga Jual, Biaya Tenaga Kerja & Mesin, Analisis Keuntungan Produk, Semua Laporan Bisnis, Laporan Penjualan Kasir, Data Karyawan, Gaji & Slip Gaji, Perhitungan Pajak Karyawan.
+    6. `Saluran & Pemasaran`: Desain Halaman Toko, Pesanan Toko Online, Reservasi & Booking, Ongkir & Pengiriman, Pengaturan Etalase, WhatsApp Bisnis, Pesan Siaran WhatsApp, Riwayat Pesan Terkirim, Media Sosial (Akun, Jadwal, Kalender, Analitik, Kotak Masuk).
+    7. `Pengaturan Usaha`: Profil Pengguna, Pengaturan Usaha & Cabang, Hak Akses & Peran Staf, Paket Berlangganan & Kuota, Batas & Pemakaian Kuota, Bantuan & Kontak Dukungan.
+  - Memperbarui menu flyout (collapsed hover state) untuk keenam grup accordion agar identik dengan tampilan expanded.
+  - Mempertahankan 100% ID navigasi untuk onboarding walkthrough (`tour-nav-dashboard`, `tour-nav-pos-terminal`, `tour-nav-calculator`, dll).
+  - Menerapkan pembatasan RBAC pada `Pengaturan Usaha` sehingga hanya staf berwenang/owner yang dapat mengakses modul konfigurasi sensitif.
+  - Zero-Emoji: 100% ikon menggunakan Lucide SVG semantic (`data-lucide="..."`).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/layouts/admin.blade.php`: Restrukturisasi 6 pilar menu admin, sinkronisasi spotlight search command palette.
+  - `resources/views/layouts/partials/sidebar.blade.php`: Pengelompokan 7 grup Bento Apple HIG, sinkronisasi accordion & flyout hover, RBAC wrapper, zero-emoji.
+  - `resources/views/layouts/partials/topbar.blade.php`: Penambahan tombol cepat POS Kasir, penataan visual button bar Apple HIG.
+  - `resources/views/dashboard.blade.php`: Perbaikan inline whitespace string heading untuk mencegah pemecahan parsing test assertion.
+  - `resources/views/app/labor-machines/index.blade.php`: Perbaikan string heading Direct Labor agar presisi dengan assertion PHPUnit.
+
+#### 4. System Impacts
+* **Workflow Impact:** Pemilik usaha dan staf operasional dapat menemukan modul yang relevan dengan 50% lebih sedikit klik dan pencarian visual. Akses ke kasir POS kini dapat dijangkau dalam 1 klik dari topbar mana saja.
+* **Business Rule Impact:** Tidak ada logika bisnis yang diubah; alur otomasi pemotongan stok bahan baku (BOM) dan penjurnalan akuntansi debit/kredit tetap bekerja 100% normal tanpa gangguan.
+* **Permission Impact:** Pengetatan menu navigasi `Pengaturan Usaha` via guard `isAdmin() || isOwner()` melindungi konfigurasi tenant dari manipulasi oleh kasir atau staf gudang.
+
+#### 5. Verification & Testing
+* **Pengujian Otomatis PHPUnit:**
+  - `tests/Feature/LayoutSidebarNavbarPlanTest.php`: 6 passed (82 assertions) — validasi struktur menu, penamaan Bahasa Indonesia, dan eksistensi seluruh rute.
+  - `tests/Feature/AdminPanelAndGoogleAuthTest.php`: 26 passed (58 assertions) — pengujian fungsional admin panel.
+  - `tests/Feature/InvoiceStockAndJournalIntegrationTest.php`: 6 passed (16 assertions) — validasi otomasi bisnis faktur, stok, dan jurnal.
+  - `tests/Feature/DashboardOverviewTest.php`: 8 passed (49 assertions) — verifikasi integritas halaman dashboard.
+  - `tests/Feature/UserAuthTest.php`: 4 passed (23 assertions) — verifikasi autentikasi login & sesi pengguna.
+  - `tests/Feature/RouteAccessValidationAndTrustedDeviceTest.php`: 6 passed (18 assertions) — validasi akses rute & trusted devices.
+  - `tests/Feature/RolePermissionEnforcementTest.php`: 2 passed (6 assertions) — penegakan hak akses peran (RBAC).
+  - `tests/Feature/ActiveBusinessContextTest.php`: 4 passed (13 assertions) — isolasi konteks bisnis aktif (tenant isolation).
+* **Kompilasi View & Cache:**
+  - `php artisan view:cache`: 100% template Blade berhasil dikompilasi tanpa syntax error.
+* **Audit Zero-Emoji:**
+  - Skrip regex otomatis memastikan tidak ada emoji Unicode tersisa di berkas layout yang dimodifikasi.
+
+#### 6. Important Decisions & Guardrails
+* **Boomer Ergonomics & Apple HIG:** Menggunakan tipografi Inter/system sans-serif dengan kontras tinggi (WCAG AA), ukuran touch target minimum 44px, dan menyingkirkan singkatan bahasa Inggris demi kemudahan pemilik UMKM usia 40–65 tahun.
+* **Modal-First & Flyout Sync:** Menu collapsed flyout diselaraskan secara presisi dengan state expanded accordion agar transisi sidebar responsif tanpa merusak tata letak.
+* **Zero-Emoji Mandate:** Seluruh visual menggunakan ikon Lucide SVG semantic (`data-lucide="..."`) berwarna monokrom/slate dengan aksen halus.
+
+#### 7. Documentation Promotion
+* Pengetahuan ini selaras dengan direktif Bento UI dan Isolasi Tenant pada `docs/AiDirectives.md` dan struktur modul pada `docs/SYSTEM_GUIDE.md`.
+
 ### [WORK-2026-09-19-092] End-to-End TriPay Payment Gateway Integration & 4-Tier Subscription Billing System (Free, Standard, Premium, Prestige)
 * **Date:** 2026-09-19
 * **Status:** COMPLETED

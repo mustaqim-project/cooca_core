@@ -294,8 +294,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">Tarif Tenaga Kerja
-                            Langsung (Direct Labor)</h2>
+                        <h2 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">Tarif Tenaga Kerja Langsung (Direct Labor)</h2>
                         <p class="text-[12px] text-black/50 dark:text-white/50">Dikonversi otomatis ke jam produktif
                             (Productive Hours Utilization %)</p>
                     </div>

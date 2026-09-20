@@ -66,28 +66,27 @@ class LayoutSidebarNavbarPlanTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Check 10-pillar consolidated module groups for Owner
-        $response->assertSee('Kasir & Penjualan');
-        $response->assertSee('Pembelian & Vendor');
-        $response->assertSee('Produk & Inventori');
-        $response->assertSee('HPP & Produksi');
-        $response->assertSee('Keuangan & Kas');
-        $response->assertSee('Laporan & Analitik');
+        // Check 7-pillar consolidated module groups for Owner
+        $response->assertSee('Beranda & Kasir');
+        $response->assertSee('Penjualan & Pelanggan');
+        $response->assertSee('Produk & Persediaan');
+        $response->assertSee('Pembelian & Supplier');
+        $response->assertSee('Keuangan & Laporan');
+        $response->assertSee('Saluran & Pemasaran');
         $response->assertSee('Pengaturan Usaha');
-        $response->assertSee('Kontrol Akses & Role');
-        $response->assertSee('Paket & Kuota');
 
-        // Check key sub-menus from Phases 1-5
+        // Check key sub-menus
         $response->assertSee('Retur Penjualan');
         $response->assertSee('Retur Pembelian');
-        $response->assertSee('Tagihan & Hutang Supplier');
+        $response->assertSee('Tagihan Supplier');
         $response->assertSee('Kas & Rekening Bank');
-        $response->assertSee('Buku Kas & Ledger');
-        $response->assertSee('Piutang Usaha (AR Aging)');
-        $response->assertSee('Hutang Usaha (AP Aging)');
+        $response->assertSee('Buku Jurnal Keuangan');
+        $response->assertSee('Daftar Piutang');
+        $response->assertSee('Daftar Utang');
 
         // Check key menu routes & tour IDs
         $response->assertSee('id="tour-nav-dashboard"', false);
+        $response->assertSee('id="tour-nav-pos-terminal"', false);
         $response->assertSee('id="tour-nav-calculator"', false);
         $response->assertSee('id="tour-nav-products"', false);
         $response->assertSee('id="tour-nav-materials"', false);
@@ -134,22 +133,18 @@ class LayoutSidebarNavbarPlanTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Cashier sees: POS, Faktur, Pelanggan, AI
-        $response->assertSee('Kasir & Penjualan');
-        $response->assertSee('Faktur & Piutang');
-        $response->assertSee('Pelanggan');
-        $response->assertSee('AI Assistant');
+        // Cashier sees: Beranda & Kasir, Buka Kasir POS, Transaksi Kasir, Asisten AI
+        $response->assertSee('Beranda & Kasir');
+        $response->assertSee('Buka Kasir POS');
+        $response->assertSee('Transaksi Kasir');
+        $response->assertSee('Asisten AI');
 
-        // Cashier MUST NOT see: HPP, Keuangan, Pembelian, Pengaturan
-        $response->assertDontSee('HPP & Produksi');
-        $response->assertDontSee('Kalkulator HPP 3-Pilar');
-        $response->assertDontSee('Keuangan & Kas');
+        // Cashier MUST NOT see: Keuangan, Pembelian, Pengaturan
+        $response->assertDontSee('Keuangan & Laporan');
         $response->assertDontSee('Kas & Rekening Bank');
-        $response->assertDontSee('Buku Kas & Ledger');
-        $response->assertDontSee('Pembelian & Vendor');
+        $response->assertDontSee('Pembelian & Supplier');
         $response->assertDontSee('Pengaturan Usaha');
-        $response->assertDontSee('Kontrol Akses & Role');
-        $response->assertDontSee('Paket & Kuota');
+        $response->assertDontSee('Hak Akses & Peran Staf');
     }
 
     public function test_sidebar_role_warehouse_only_sees_inventory_and_purchasing(): void
@@ -181,26 +176,22 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertStatus(200);
 
         // Warehouse sees: Produk, Bahan, Gudang, Stok, Mutasi, Transfer, Opname, PO, Supplier
-        $response->assertSee('Produk & Inventori');
-        $response->assertSee('Katalog Produk & Resep');
-        $response->assertSee('Bahan Baku & Harga');
-        $response->assertSee('Gudang & Lokasi');
-        $response->assertSee('Stok Real-Time');
+        $response->assertSee('Produk & Persediaan');
+        $response->assertSee('Katalog Produk & Menu');
+        $response->assertSee('Bahan Baku & Resep');
+        $response->assertSee('Lokasi Gudang');
+        $response->assertSee('Stok Gudang');
         $response->assertSee('Transfer Stok Gudang');
-        $response->assertSee('Stock Opname Fisik');
-        $response->assertSee('Pembelian & Vendor');
+        $response->assertSee('Opname Stok Fisik');
+        $response->assertSee('Pembelian & Supplier');
 
-        // Warehouse MUST NOT see: Kasir & Penjualan, Faktur, Keuangan, HPP margin formula, Pengaturan
-        $response->assertDontSee('Kasir & Penjualan');
+        // Warehouse MUST NOT see: Buka Kasir POS, Faktur, Keuangan, Pengaturan
+        $response->assertDontSee('Buka Kasir POS');
         $response->assertDontSee('Faktur & Piutang');
-        $response->assertDontSee('Keuangan & Kas');
+        $response->assertDontSee('Keuangan & Laporan');
         $response->assertDontSee('Kas & Rekening Bank');
-        $response->assertDontSee('Buku Kas & Ledger');
-        $response->assertDontSee('HPP & Produksi');
-        $response->assertDontSee('Kalkulator HPP 3-Pilar');
         $response->assertDontSee('Pengaturan Usaha');
-        $response->assertDontSee('Kontrol Akses & Role');
-        $response->assertDontSee('Paket & Kuota');
+        $response->assertDontSee('Hak Akses & Peran Staf');
     }
 
     public function test_sidebar_role_finance_only_sees_finance_and_reports(): void
@@ -232,23 +223,21 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertStatus(200);
 
         // Finance sees: Keuangan (Kas & Bank, Ledger, Beban, Piutang, Hutang, Jurnal), Laporan
-        $response->assertSee('Keuangan & Kas');
+        $response->assertSee('Keuangan & Laporan');
         $response->assertSee('Kas & Rekening Bank');
-        $response->assertSee('Buku Kas & Ledger');
-        $response->assertSee('Beban Operasional');
-        $response->assertSee('Piutang Usaha (AR Aging)');
-        $response->assertSee('Hutang Usaha (AP Aging)');
-        $response->assertSee('Jurnal Akuntansi Otomatis');
-        $response->assertSee('Laporan & Analitik');
+        $response->assertSee('Buku Besar Akun');
+        $response->assertSee('Pengeluaran Operasional');
+        $response->assertSee('Daftar Piutang');
+        $response->assertSee('Daftar Utang');
+        $response->assertSee('Buku Jurnal Keuangan');
+        $response->assertSee('Semua Laporan Bisnis');
 
         // Finance MUST NOT see: POS terminal, Stock Opname, Transfer Gudang, Pengaturan Toko
-        $response->assertDontSee('Terminal Kasir POS');
-        $response->assertDontSee('Riwayat Transaksi & Shift');
-        $response->assertDontSee('Stock Opname Fisik');
+        $response->assertDontSee('Buka Kasir POS');
+        $response->assertDontSee('Opname Stok Fisik');
         $response->assertDontSee('Transfer Stok Gudang');
         $response->assertDontSee('Pengaturan Usaha');
-        $response->assertDontSee('Kontrol Akses & Role');
-        $response->assertDontSee('Paket & Kuota');
+        $response->assertDontSee('Hak Akses & Peran Staf');
     }
 
     public function test_navbar_renders_free_plan_tracker_with_usage_progress(): void

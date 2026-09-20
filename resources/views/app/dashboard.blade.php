@@ -261,8 +261,7 @@
                         <div class="flex items-center justify-between gap-1">
                             <span class="kpi-label truncate">Estimasi Untung Bersih</span>
                             <span
-                                class="text-[9.5px] sm:text-[10px] font-semibold text-[#30B0C7] dark:text-[#40C8E0] bg-[#30B0C7]/10 px-1.5 sm:px-2 py-0.5 rounded-full shrink-0 truncate max-w-[65px] sm:max-w-none">Estimasi
-                                Laba Bersih (MTD)</span>
+                                class="text-[9.5px] sm:text-[10px] font-semibold text-[#30B0C7] dark:text-[#40C8E0] bg-[#30B0C7]/10 px-1.5 sm:px-2 py-0.5 rounded-full shrink-0 truncate max-w-[65px] sm:max-w-none">Estimasi Laba Bersih (MTD)</span>
                         </div>
                         <div class="kpi-value tabular-nums font-bold {{ $analytics['kpis']['net'] >= 0 ? 'text-[#34C759] dark:text-[#30D158]' : 'text-[#FF3B30] dark:text-[#FF453A]' }} tracking-tight"
                             data-kpi-value data-kpi="net">
@@ -352,8 +351,7 @@
                         <div class="flex items-center justify-between gap-1">
                             <span class="kpi-label">Perhatian Stok</span>
                             <span
-                                class="text-[10px] font-semibold text-[#FF3B30] dark:text-[#FF453A] bg-[#FF3B30]/10 px-2 py-0.5 rounded-full shrink-0">Valuasi
-                                Aset Stok</span>
+                                class="text-[10px] font-semibold text-[#FF3B30] dark:text-[#FF453A] bg-[#FF3B30]/10 px-2 py-0.5 rounded-full shrink-0">Valuasi Aset Stok</span>
                         </div>
                         <div class="kpi-value tabular-nums font-bold text-[#FF3B30] dark:text-[#FF453A] tracking-tight"
                             data-kpi-value data-kpi="low_stock">
@@ -897,10 +895,8 @@
                             <i data-lucide="receipt" class="w-4 h-4"></i>
                         </div>
                         <div>
-                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">Transaksi Kasir
-                                Terbaru</h2>
-                            <p class="text-[12px] text-black/50 dark:text-white/50">Order dan transaksi kasir POS hari ini
-                            </p>
+                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">Transaksi Kasir Terbaru</h2>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">Order dan transaksi kasir POS hari ini</p>
                         </div>
                     </div>
                     @if (\App\Support\Context::hasPermission('pos.orders'))
@@ -978,10 +974,8 @@
                             <i data-lucide="package" class="w-4 h-4"></i>
                         </div>
                         <div>
-                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">Katalog &amp;
-                                Margin Produk</h2>
-                            <p class="text-[12px] text-black/50 dark:text-white/50">HPP dan persentase keuntungan produk
-                            </p>
+                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">Katalog &amp; Margin Produk</h2>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">HPP dan persentase keuntungan produk</p>
                         </div>
                     </div>
                     @if (\App\Support\Context::hasPermission('products.view'))

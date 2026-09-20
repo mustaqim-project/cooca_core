@@ -262,18 +262,20 @@
             { title: 'Dashboard Beranda', desc: 'Ringkasan & metrik finansial platform', url: '{{ route('admin.dashboard') }}', icon: 'layout-dashboard', cat: 'Ringkasan' },
             { title: 'Bisnis (Tenants)', desc: 'Daftar workspace UMKM & status akun', url: '{{ route('admin.businesses.index') }}', icon: 'building-2', cat: 'Ringkasan' },
             { title: 'Basis Pengguna', desc: 'Akun terdaftar, owner & tim kasir', url: '{{ route('admin.users.index') }}', icon: 'users', cat: 'Ringkasan' },
-            { title: 'Pemulihan Akun', desc: 'Verifikasi identitas & persetujuan reset', url: '{{ route('admin.account-recoveries.index') }}', icon: 'shield-alert', cat: 'Operasional' },
-            { title: 'Feedback & Bug', desc: 'Laporan bug & ide fitur dari tenant', url: '{{ route('admin.feedback.bugs.index') }}', icon: 'messages-square', cat: 'Operasional' },
-            { title: 'WhatsApp Gateway', desc: 'Status dual gateway OTP & notifikasi', url: '{{ route('admin.whatsapp.index') }}', icon: 'message-circle', cat: 'Operasional' },
-            { title: 'Media Sosial Platform', desc: 'Konfigurasi Meta App, webhook & merchants', url: '{{ route('admin.social-media.index') }}', icon: 'share-2', cat: 'Operasional' },
-            { title: 'Monitoring Token AI', desc: 'Pantau konsumsi Gemini 2.5 Flash', url: '{{ route('admin.ai-tokens.index') }}', icon: 'sparkles', cat: 'Operasional' },
-            { title: 'Langganan & Billing', desc: 'Approval bukti bayar paket Core', url: '{{ route('admin.subscriptions.index') }}', icon: 'receipt', cat: 'Monetisasi' },
-            { title: 'Paket & Harga', desc: 'Katalog paket Core & kuota token', url: '{{ route('admin.billing-packages.index') }}', icon: 'layers-3', cat: 'Monetisasi' },
+            { title: 'Pemulihan Akun', desc: 'Verifikasi identitas & persetujuan reset', url: '{{ route('admin.account-recoveries.index') }}', icon: 'shield-alert', cat: 'Layanan' },
+            { title: 'Feedback & Bug', desc: 'Laporan bug & ide fitur dari tenant', url: '{{ route('admin.feedback.bugs.index') }}', icon: 'messages-square', cat: 'Layanan' },
+            { title: 'Langganan & Billing', desc: 'Approval bukti bayar paket langganan', url: '{{ route('admin.subscriptions.index') }}', icon: 'receipt', cat: 'Monetisasi' },
+            { title: 'Pencairan Merchant', desc: 'Verifikasi transfer settlement saldo merchant', url: '{{ route('admin.settlements.index') }}', icon: 'arrow-down-to-dot', cat: 'Monetisasi' },
+            { title: 'Paket & Harga', desc: 'Katalog paket 4-tier & kuota token', url: '{{ route('admin.billing-packages.index') }}', icon: 'layers-3', cat: 'Monetisasi' },
             { title: 'Rekening Bank', desc: 'CMS rekening pembayaran resmi Cooca', url: '{{ route('admin.payment-accounts.index') }}', icon: 'credit-card', cat: 'Monetisasi' },
+            { title: 'WhatsApp Gateway', desc: 'Status gateway OTP & notifikasi resmi', url: '{{ route('admin.whatsapp.index') }}', icon: 'message-circle', cat: 'Integrasi' },
+            { title: 'Media Sosial Platform', desc: 'Konfigurasi Meta App, TikTok & merchants', url: '{{ route('admin.social-media.index') }}', icon: 'share-2', cat: 'Integrasi' },
+            { title: 'Monitoring Token AI', desc: 'Pantau konsumsi Gemini AI token', url: '{{ route('admin.ai-tokens.index') }}', icon: 'sparkles', cat: 'Integrasi' },
             { title: 'Database Leads', desc: 'Database prospek & kontak calon tenant', url: '{{ route('admin.leads.index') }}', icon: 'users-round', cat: 'Pemasaran' },
             { title: 'Artikel & Edukasi', desc: 'CMS blog bisnis & artikel UMKM', url: '{{ route('admin.posts.index') }}', icon: 'file-text', cat: 'Pemasaran' },
-            { title: 'Template Excel', desc: 'Unduhan berkas spreadsheet master', url: '{{ route('admin.templates.index') }}', icon: 'file-spreadsheet', cat: 'Pemasaran' },
-            { title: 'Pengaturan Platform & Sistem', desc: 'Google OAuth, TriPay Gateway, WhatsApp API, Instagram, TikTok & SMTP', url: '{{ route('admin.settings.index') }}', icon: 'sliders', cat: 'Konfigurasi' },
+            { title: 'Template Excel', desc: 'Unduhan berkas spreadsheet master UMKM', url: '{{ route('admin.templates.index') }}', icon: 'file-spreadsheet', cat: 'Pemasaran' },
+            { title: 'Kebijakan & Legalitas', desc: 'CMS Kebijakan Privasi & Syarat Ketentuan', url: '{{ route('admin.legal-pages.index') }}', icon: 'scale', cat: 'Pemasaran' },
+            { title: 'Pengaturan Sistem', desc: 'Google OAuth, TriPay Gateway, WhatsApp API & SMTP', url: '{{ route('admin.settings.index') }}', icon: 'sliders', cat: 'Konfigurasi' },
             { title: 'Log Error & Diagnostik', desc: 'Pemantauan runtime exception & file log', url: '{{ route('admin.error-logs.index') }}', icon: 'terminal', cat: 'Konfigurasi' },
             { title: 'Profil Administrator', desc: 'Kelola identitas & ubah kata sandi', url: '{{ route('admin.profile.index') }}', icon: 'key-round', cat: 'Konfigurasi' }
         ],
@@ -333,18 +335,18 @@
                 </button>
             </div>
 
-            <!-- Navigation Links -->
+            <!-- Navigation Links (6-Pillar Bento Apple HIG Architecture) -->
             <nav class="space-y-1 text-[13.5px] font-medium pt-3">
-                <!-- Group 1: Ringkasan Utama -->
+                <!-- Group 1: Ringkasan & Tenant -->
                 <div
                     class="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
-                    Ringkasan Utama
+                    Ringkasan &amp; Tenant
                 </div>
 
                 <a href="{{ route('admin.dashboard') }}"
                     class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
                     <i data-lucide="layout-dashboard" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
-                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Dashboard</span>
+                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Dashboard Platform</span>
                 </a>
 
                 <a href="{{ route('admin.businesses.index') }}"
@@ -359,10 +361,10 @@
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Basis Pengguna</span>
                 </a>
 
-                <!-- Group 2: Operasional & Layanan -->
+                <!-- Group 2: Layanan & Tiket -->
                 <div
                     class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
-                    Operasional &amp; Layanan
+                    Layanan &amp; Tiket
                 </div>
 
                 <a href="{{ route('admin.account-recoveries.index') }}"
@@ -385,36 +387,10 @@
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Feedback &amp; Bug</span>
                 </a>
 
-                <a href="{{ route('admin.whatsapp.index') }}"
-                    class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.whatsapp.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
-                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                        <svg width="18" height="18"
-                            class="w-[18px] h-[18px] text-[#25D366] shrink-0 fill-current" viewBox="0 0 24 24">
-                            <path
-                                d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
-                        </svg>
-                        <span class="whitespace-nowrap truncate min-w-0 flex-1">WhatsApp Gateway</span>
-                    </div>
-                </a>
-
-                <a href="{{ route('admin.social-media.index') }}"
-                    class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.social-media.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
-                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                        <i data-lucide="share-2" class="w-4.5 h-4.5 text-[#1877F2] shrink-0" stroke-width="1.8"></i>
-                        <span class="whitespace-nowrap truncate min-w-0 flex-1">Media Sosial Platform</span>
-                    </div>
-                </a>
-
-                <a href="{{ route('admin.ai-tokens.index') }}"
-                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.ai-tokens.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
-                    <i data-lucide="sparkles" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
-                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Monitoring Token AI</span>
-                </a>
-
-                <!-- Group 3: Monetisasi & Billing -->
+                <!-- Group 3: Monetisasi & Finansial -->
                 <div
                     class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
-                    Monetisasi &amp; Billing
+                    Monetisasi &amp; Finansial
                 </div>
 
                 <a href="{{ route('admin.subscriptions.index') }}"
@@ -457,13 +433,41 @@
                 <a href="{{ route('admin.payment-accounts.index') }}"
                     class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.payment-accounts.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
                     <i data-lucide="credit-card" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
-                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Rekening Bank</span>
+                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Rekening Platform</span>
                 </a>
 
-                <!-- Group 4: Konten & Pemasaran -->
+                <!-- Group 4: Integrasi & AI Gateway -->
                 <div
                     class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
-                    Konten &amp; Pemasaran
+                    Integrasi &amp; AI Gateway
+                </div>
+
+                <a href="{{ route('admin.whatsapp.index') }}"
+                    class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.whatsapp.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <i data-lucide="message-circle" class="w-4.5 h-4.5 text-[#25D366] shrink-0" stroke-width="1.8"></i>
+                        <span class="whitespace-nowrap truncate min-w-0 flex-1">WhatsApp Gateway</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('admin.social-media.index') }}"
+                    class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.social-media.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <i data-lucide="share-2" class="w-4.5 h-4.5 text-[#1877F2] shrink-0" stroke-width="1.8"></i>
+                        <span class="whitespace-nowrap truncate min-w-0 flex-1">Media Sosial Platform</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('admin.ai-tokens.index') }}"
+                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.ai-tokens.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    <i data-lucide="sparkles" class="w-4.5 h-4.5 text-[#AF52DE] shrink-0" stroke-width="1.8"></i>
+                    <span class="whitespace-nowrap truncate min-w-0 flex-1">Monitoring Token AI</span>
+                </a>
+
+                <!-- Group 5: Konten & Edukasi -->
+                <div
+                    class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
+                    Konten &amp; Edukasi
                 </div>
 
                 <a href="{{ route('admin.leads.index') }}"
@@ -490,14 +494,14 @@
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Kebijakan &amp; Legalitas</span>
                 </a>
 
-                <!-- Group 5: Konfigurasi Sistem -->
+                <!-- Group 6: Konfigurasi Sistem -->
                 <div
                     class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D]">
                     Konfigurasi Sistem
                 </div>
 
                 <a href="{{ route('admin.settings.index') }}"
-                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.settings.*') || request()->routeIs('admin.smtp.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.settings.*') || request()->routeIs('admin.smtp.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                     <i data-lucide="sliders" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Pengaturan Sistem</span>
                 </a>
