@@ -33,43 +33,45 @@ final class PublicOrderTrackingController extends Controller
         $business = Business::where('slug', $slug)->where('is_active', true)->firstOrFail();
 
         $validated = $request->validate([
-            'customer_name' => ['required', 'string', 'min:2', 'max:150'],
-            'customer_phone' => ['required', 'string', 'min:8', 'max:30'],
-            'customer_email' => ['nullable', 'email', 'max:150'],
-            'fulfillment_type' => ['required', 'string', 'in:pickup,merchant_delivery'],
-            'shipping_address' => ['nullable', 'string', 'max:500'],
-            'shipping_rule_id' => ['nullable', 'string', 'max:100'],
-            'shipping_fee' => ['nullable', 'numeric', 'min:0'],
+            'customer_name'           => ['required', 'string', 'min:2', 'max:150'],
+            'customer_phone'          => ['required', 'string', 'min:8', 'max:30'],
+            'customer_email'          => ['nullable', 'email', 'max:150'],
+            'fulfillment_type'        => ['required', 'string', 'in:pickup,merchant_delivery,delivery,dine_in,courier_manual'],
+            'pickup_location_id'      => ['nullable', 'uuid', 'exists:locations,id'],
+            'pos_table_id'            => ['nullable', 'uuid'],
+            'shipping_address'        => ['nullable', 'string', 'max:500'],
+            'shipping_rule_id'        => ['nullable', 'string', 'max:100'],
+            'shipping_fee'            => ['nullable', 'numeric', 'min:0'],
             'destination_postal_code' => ['nullable', 'string', 'max:10'],
-            'postal_code' => ['nullable', 'string', 'max:10'],
-            'courier_company' => ['nullable', 'string', 'max:50'],
-            'courier_type' => ['nullable', 'string', 'max:50'],
-            'courier_name' => ['nullable', 'string', 'max:100'],
-            'distance_km' => ['nullable', 'numeric', 'min:0'],
-            'scheduled_date' => ['nullable', 'date'],
-            'scheduled_time_slot' => ['nullable', 'string', 'max:50'],
-            'payment_gateway' => ['nullable', 'string', 'in:manual,tripay'],
-            'payment_channel' => ['nullable', 'string', 'max:64'],
-            'payment_method_id' => ['nullable', 'uuid', 'exists:commerce_payment_methods,id'],
-            'notes' => ['nullable', 'string', 'max:500'],
-            'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'uuid', 'exists:products,id'],
-            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
-            'items.*.notes' => ['nullable', 'string', 'max:255'],
+            'postal_code'             => ['nullable', 'string', 'max:10'],
+            'courier_company'         => ['nullable', 'string', 'max:50'],
+            'courier_type'            => ['nullable', 'string', 'max:50'],
+            'courier_name'            => ['nullable', 'string', 'max:100'],
+            'distance_km'             => ['nullable', 'numeric', 'min:0'],
+            'scheduled_date'          => ['nullable', 'date'],
+            'scheduled_time_slot'     => ['nullable', 'string', 'max:50'],
+            'payment_gateway'         => ['nullable', 'string', 'in:manual,tripay'],
+            'payment_channel'         => ['nullable', 'string', 'max:64'],
+            'payment_method_id'       => ['nullable', 'uuid', 'exists:commerce_payment_methods,id'],
+            'notes'                   => ['nullable', 'string', 'max:500'],
+            'items'                   => ['required', 'array', 'min:1'],
+            'items.*.product_id'      => ['required', 'uuid', 'exists:products,id'],
+            'items.*.quantity'        => ['required', 'numeric', 'gt:0'],
+            'items.*.notes'           => ['nullable', 'string', 'max:255'],
         ], [
-            'items.required' => 'Keranjang belanja tidak boleh kosong.',
-            'items.min' => 'Keranjang belanja minimal harus memiliki 1 item.',
+            'items.required'          => 'Keranjang belanja tidak boleh kosong.',
+            'items.min'               => 'Keranjang belanja minimal harus memiliki 1 item.',
             'items.*.quantity.required' => 'Jumlah pesanan wajib diisi.',
-            'items.*.quantity.gt' => 'Jumlah item pesanan harus lebih dari 0.',
+            'items.*.quantity.gt'     => 'Jumlah item pesanan harus lebih dari 0.',
         ]);
 
         try {
             $customerData = [
-                'name' => $validated['customer_name'],
-                'phone' => $validated['customer_phone'],
-                'email' => $validated['customer_email'] ?? null,
+                'name'    => $validated['customer_name'],
+                'phone'   => $validated['customer_phone'],
+                'email'   => $validated['customer_email'] ?? null,
                 'address' => $validated['shipping_address'] ?? null,
-                'notes' => $validated['notes'] ?? null,
+                'notes'   => $validated['notes'] ?? null,
             ];
 
             $options = [
@@ -81,7 +83,11 @@ final class PublicOrderTrackingController extends Controller
                 'shipping_courier_name'    => $validated['courier_name'] ?? null,
                 'destination_postal_code'  => $validated['destination_postal_code'] ?? ($validated['postal_code'] ?? null),
                 'distance_km'              => $validated['distance_km'] ?? null,
+                'location_id'              => $validated['pickup_location_id'] ?? null,
+                'pos_table_id'             => $validated['pos_table_id'] ?? null,
             ];
+
+            $fulfillmentType = $validated['fulfillment_type'] === 'delivery' ? 'merchant_delivery' : $validated['fulfillment_type'];
 
             $paymentGateway = $validated['payment_gateway'] ?? 'tripay';
             $paymentChannel = $validated['payment_channel'] ?? 'QRIS';
@@ -92,7 +98,7 @@ final class PublicOrderTrackingController extends Controller
                     business: $business,
                     customerData: $customerData,
                     itemsData: $validated['items'],
-                    fulfillmentType: $validated['fulfillment_type'],
+                    fulfillmentType: $fulfillmentType,
                     scheduledDate: (string) $validated['scheduled_date'],
                     scheduledTimeSlot: $validated['scheduled_time_slot'] ?? null,
                     paymentMethodId: $paymentMethodId,
@@ -103,7 +109,7 @@ final class PublicOrderTrackingController extends Controller
                     business: $business,
                     customerData: $customerData,
                     itemsData: $validated['items'],
-                    fulfillmentType: $validated['fulfillment_type'],
+                    fulfillmentType: $fulfillmentType,
                     paymentMethodId: $paymentMethodId,
                     options: $options
                 );

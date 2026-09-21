@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Web\Ai\PosAiWebController;
+use App\Http\Controllers\Web\AnalyticsWebController;
 use App\Http\Controllers\Web\Billing\BillingAndLimitWebController;
 use App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController;
 use App\Http\Controllers\Web\BusinessLandingPageWebController;
@@ -328,6 +329,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
 
         // Reports & Analytics Suite
+        Route::get('/analytics', [AnalyticsWebController::class, 'index'])->middleware('require.permission:reports.view')->name('analytics.index');
         Route::get('/reports', [ReportWebController::class, 'index'])->middleware('require.permission:reports.view')->name('reports.index');
         Route::get('/reports/export-excel', [ReportWebController::class, 'exportExcel'])->middleware(['require.permission:reports.export', 'entitlement:export'])->name('reports.export-excel');
 
@@ -504,9 +506,10 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::delete('/pos/modifiers/options/{option}', [ModifierWebController::class, 'destroyOption'])->name('pos.modifiers.options.destroy');
         });
 
-        // Kitchen & Bar Display (KDS)
+        // Kitchen & Bar Display (KDS) & Daily Batch Prep Sheet
         Route::middleware(['require.permission:pos.kitchen', 'entitlement:kds'])->group(function (): void {
             Route::get('/pos/kitchen', [PosKitchenWebController::class, 'index'])->name('pos.kitchen.index');
+            Route::get('/pos/kitchen/prep-sheet', [PosKitchenWebController::class, 'prepSheet'])->name('pos.kitchen.prep_sheet');
             Route::get('/pos/kitchen/orders', [PosKitchenWebController::class, 'getActiveOrders'])->name('pos.kitchen.orders');
             Route::get('/pos/kitchen/active', [PosKitchenWebController::class, 'getActiveOrders'])->name('pos.kitchen.active');
             Route::post('/pos/kitchen/{order}/status', [PosKitchenWebController::class, 'updateStatus'])->name('pos.kitchen.status');

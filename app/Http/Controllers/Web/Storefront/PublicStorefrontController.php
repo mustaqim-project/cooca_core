@@ -14,6 +14,7 @@ use App\Models\CommercePaymentMethod;
 use App\Models\CommerceShippingRule;
 use App\Models\CommerceStoreSetting;
 use App\Models\CustomerCart;
+use App\Models\Location;
 use App\Models\PosTable;
 use App\Models\Post;
 use App\Models\Product;
@@ -224,10 +225,18 @@ final class PublicStorefrontController extends Controller
             ->orderBy('table_number')
             ->get();
 
+        $pickupLocations = Location::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->where('allow_storefront_pickup', true)
+            ->orderBy('is_primary', 'desc')
+            ->orderBy('name', 'asc')
+            ->get();
+
         return view('public.storefront.checkout', array_merge($context, compact(
             'paymentMethods',
             'shippingRules',
-            'posTables'
+            'posTables',
+            'pickupLocations'
         )));
     }
 

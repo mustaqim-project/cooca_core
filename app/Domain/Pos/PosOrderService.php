@@ -184,6 +184,8 @@ final class PosOrderService
                     'total_price' => $lineTotal,
                     'total_hpp' => $lineHpp,
                     'batch_number' => $row['batch_number'] ?? null,
+                    'expired_date' => $row['expired_date'] ?? null,
+                    'dosage_instructions' => $row['dosage_instructions'] ?? null,
                     'serial_number' => $row['serial_number'] ?? null,
                     'notes' => $row['notes'] ?? null,
                     'modifiers' => $modifierSnapshots,
@@ -285,6 +287,15 @@ final class PosOrderService
                     'total_hpp_cost' => $totalHpp,
                     'total_gross_profit' => max(0.0, ($subtotal - $discountAmount - $voucherDiscount) - $totalHpp),
                     'notes' => $attributes['notes'] ?? $existingOrder->notes,
+                    'vehicle_license_plate' => $attributes['vehicle_license_plate'] ?? $existingOrder->vehicle_license_plate,
+                    'vehicle_model' => $attributes['vehicle_model'] ?? $existingOrder->vehicle_model,
+                    'vehicle_mileage' => isset($attributes['vehicle_mileage']) && is_numeric($attributes['vehicle_mileage']) ? (int) $attributes['vehicle_mileage'] : $existingOrder->vehicle_mileage,
+                    'technician_id' => $attributes['technician_id'] ?? $existingOrder->technician_id,
+                    'service_notes' => $attributes['service_notes'] ?? $existingOrder->service_notes,
+                    'laundry_weight_kg' => isset($attributes['laundry_weight_kg']) && is_numeric($attributes['laundry_weight_kg']) ? (float) $attributes['laundry_weight_kg'] : $existingOrder->laundry_weight_kg,
+                    'rack_location' => $attributes['rack_location'] ?? $existingOrder->rack_location,
+                    'estimated_completion_at' => $attributes['estimated_completion_at'] ?? $existingOrder->estimated_completion_at,
+                    'laundry_status' => $attributes['laundry_status'] ?? $existingOrder->laundry_status,
                 ]);
 
                 $order = $existingOrder;
@@ -322,6 +333,15 @@ final class PosOrderService
                     'total_hpp_cost' => $totalHpp,
                     'total_gross_profit' => max(0.0, ($subtotal - $discountAmount - $voucherDiscount) - $totalHpp),
                     'notes' => $attributes['notes'] ?? null,
+                    'vehicle_license_plate' => $attributes['vehicle_license_plate'] ?? null,
+                    'vehicle_model' => $attributes['vehicle_model'] ?? null,
+                    'vehicle_mileage' => isset($attributes['vehicle_mileage']) && is_numeric($attributes['vehicle_mileage']) ? (int) $attributes['vehicle_mileage'] : null,
+                    'technician_id' => $attributes['technician_id'] ?? null,
+                    'service_notes' => $attributes['service_notes'] ?? null,
+                    'laundry_weight_kg' => isset($attributes['laundry_weight_kg']) && is_numeric($attributes['laundry_weight_kg']) ? (float) $attributes['laundry_weight_kg'] : null,
+                    'rack_location' => $attributes['rack_location'] ?? null,
+                    'estimated_completion_at' => $attributes['estimated_completion_at'] ?? null,
+                    'laundry_status' => $attributes['laundry_status'] ?? null,
                 ]);
             }
 
@@ -340,6 +360,8 @@ final class PosOrderService
                     'total_price' => $itemInfo['total_price'],
                     'total_hpp' => $itemInfo['total_hpp'],
                     'batch_number' => $itemInfo['batch_number'],
+                    'expired_date' => $itemInfo['expired_date'] ?? null,
+                    'dosage_instructions' => $itemInfo['dosage_instructions'] ?? null,
                     'serial_number' => $itemInfo['serial_number'],
                     'notes' => $itemInfo['notes'],
                 ]);

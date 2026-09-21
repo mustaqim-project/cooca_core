@@ -1,13 +1,15 @@
 @extends('layouts.app', [
-    'title' => 'Gudang & Lokasi Penyimpanan',
-    'headerTitle' => 'Gudang & Lokasi Penyimpanan',
-    'headerSubtitle' => 'Kelola fisik penyimpanan multi-lokasi, cabang outlet, dan pergerakan stok barang.'
+    'title' => 'Cabang & Gudang',
+    'headerTitle' => 'Cabang & Gudang',
+    'headerSubtitle' => 'Kelola jaringan cabang toko/outlet, titik penyimpanan gudang logistik, dan absensi geofence.'
 ])
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
     showCreateModal: false,
+    showCreateOutletModal: false,
     showEditModal: false,
+    filterTab: 'all',
     editData: {
         id: null,
         name: '',
@@ -28,6 +30,11 @@
             code: loc.code || '',
             phone: loc.phone || '',
             address: loc.address || '',
+            latitude: loc.latitude ?? '',
+            longitude: loc.longitude ?? '',
+            geofence_radius_meters: loc.geofence_radius_meters ?? 50,
+            is_online_fulfillment: Boolean(loc.is_online_fulfillment !== false && loc.is_online_fulfillment !== 0),
+            allow_storefront_pickup: Boolean(loc.allow_storefront_pickup !== false && loc.allow_storefront_pickup !== 0),
             is_active: Boolean(loc.is_active)
         };
         this.showEditModal = true;
@@ -45,6 +52,12 @@
             const form = document.getElementById('form-delete-location-' + this.deleteTarget.id);
             if (form) form.submit();
         }
+    },
+    matchesFilter(type) {
+        if (this.filterTab === 'all') return true;
+        if (this.filterTab === 'outlet') return type === 'outlet' || type === 'store' || type === 'central_kitchen';
+        if (this.filterTab === 'warehouse') return type === 'warehouse';
+        return true;
     }
 }">
 
@@ -58,7 +71,7 @@
                 <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                 </svg>
-                <span>Gudang &amp; Lokasi</span>
+                <span>Cabang &amp; Gudang</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold bg-[#007AFF]/12 text-[#007AFF]">{{ $locations->count() }}</span>
             </a>
             <a href="{{ route('inventory.stocks') }}"
@@ -110,10 +123,10 @@
                 <span>›</span>
                 <span class="text-black/70 dark:text-white/70 font-medium">Inventori</span>
                 <span>›</span>
-                <span class="text-black dark:text-white font-medium">Gudang &amp; Lokasi</span>
+                <span class="text-black dark:text-white font-medium">Cabang &amp; Gudang</span>
             </nav>
-            <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Gudang &amp; Lokasi Penyimpanan</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50">Kelola pusat penyimpanan fisik, cabang outlet, dan pergerakan stok barang</p>
+            <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Cabang &amp; Gudang</h1>
+            <p class="text-[13px] text-black/50 dark:text-white/50">Kelola jaringan cabang toko/outlet, titik penyimpanan gudang logistik, dan absensi geofence</p>
         </div>
 
         {{-- Toolbar Actions --}}
@@ -136,12 +149,19 @@
             @endif
 
             @if(\App\Support\Context::hasPermission('inventory.manage'))
+            <button type="button" @click="showCreateOutletModal = true"
+                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+                </svg>
+                <span>+ Cabang / Outlet</span>
+            </button>
             <button type="button" @click="showCreateModal = true"
                     class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                 </svg>
-                <span>Tambah Gudang</span>
+                <span>+ Gudang Logistik</span>
             </button>
             @endif
         </div>
@@ -176,7 +196,7 @@
             <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Lokasi</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-[24px] font-bold tabular-nums text-black dark:text-white">{{ $stats['total_locations'] ?? 0 }}</span>
-                <span class="text-[11px] text-black/40 dark:text-white/40">Gudang &amp; Cabang</span>
+                <span class="text-[11px] text-black/40 dark:text-white/40">Cabang &amp; Gudang</span>
             </div>
         </div>
 
@@ -212,19 +232,40 @@
     {{-- 4. LOCATIONS GRID (Apple Squircle Data Cards)         --}}
     {{-- ===================================================== --}}
     <div class="space-y-3">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
-                <h2 class="text-[17px] font-semibold text-black dark:text-white tracking-tight">Daftar Lokasi Fisik</h2>
+                <h2 class="text-[17px] font-semibold text-black dark:text-white tracking-tight">Daftar Lokasi</h2>
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 tabular-nums">
                     {{ $locations->count() }}
                 </span>
             </div>
-            <span class="text-[13px] text-black/45 dark:text-white/45">Multi-lokasi penyimpanan terintegrasi</span>
+            {{-- Tab Filter: Semua | Cabang & Toko | Gudang Logistik --}}
+            <div class="inline-flex p-0.5 rounded-[9px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[12px] font-medium">
+                <button @click="filterTab = 'all'"
+                        :class="filterTab === 'all' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white'"
+                        class="px-3 py-1 rounded-[7px] transition-all flex items-center gap-1">
+                    Semua Lokasi
+                    <span class="px-1.5 rounded-full text-[10px] tabular-nums bg-black/[0.06] dark:bg-white/[0.08]" x-text="{{ $locations->count() }}"></span>
+                </button>
+                <button @click="filterTab = 'outlet'"
+                        :class="filterTab === 'outlet' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white'"
+                        class="px-3 py-1 rounded-[7px] transition-all flex items-center gap-1">
+                    <span class="text-[#34C759]">●</span> Cabang &amp; Toko
+                    <span class="px-1.5 rounded-full text-[10px] tabular-nums bg-black/[0.06] dark:bg-white/[0.08]">{{ $locations->filter(fn($l) => in_array($l->type, ['outlet', 'store', 'central_kitchen']))->count() }}</span>
+                </button>
+                <button @click="filterTab = 'warehouse'"
+                        :class="filterTab === 'warehouse' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white'"
+                        class="px-3 py-1 rounded-[7px] transition-all flex items-center gap-1">
+                    <span class="text-[#007AFF]">●</span> Gudang Logistik
+                    <span class="px-1.5 rounded-full text-[10px] tabular-nums bg-black/[0.06] dark:bg-white/[0.08]">{{ $locations->where('type', 'warehouse')->count() }}</span>
+                </button>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             @forelse($locations as $loc)
-            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all">
+            <div x-show="matchesFilter('{{ $loc->type ?? 'warehouse' }}')" x-transition.opacity.duration.200ms
+                 class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all">
                 {{-- Header Card --}}
                 <div>
                     <div class="flex items-start justify-between gap-3">
@@ -609,8 +650,8 @@
 
             <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3.5">
                 <div>
-                    <h3 class="text-[17px] font-semibold text-black dark:text-white">Tambah Lokasi / Gudang Baru</h3>
-                    <p class="text-[13px] text-black/50 dark:text-white/50">Konfigurasikan fisik penyimpanan atau cabang bisnis</p>
+                    <h3 class="text-[17px] font-semibold text-black dark:text-white">Tambah Gudang Logistik</h3>
+                    <p class="text-[13px] text-black/50 dark:text-white/50">Titik penyimpanan stok fisik dan inventaris</p>
                 </div>
                 <button type="button" @click="showCreateModal = false" class="p-1 rounded-[6px] text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -621,29 +662,20 @@
 
             <form action="{{ route('warehouse.store') }}" method="POST" class="space-y-4 text-[13px]">
                 @csrf
+                <input type="hidden" name="type" value="warehouse">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div class="col-span-1 sm:col-span-2">
                         <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
-                            Nama Gudang / Outlet <span class="text-[#FF3B30]">*</span>
+                            Nama Gudang <span class="text-[#FF3B30]">*</span>
                         </label>
-                        <input type="text" name="name" required placeholder="Contoh: Gudang Utama, Kitchen Jakarta, Outlet Senopati..."
+                        <input type="text" name="name" required placeholder="Contoh: Gudang Utama, Gudang Bahan Baku, Gudang Bandung..."
                                class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                     </div>
                     <div>
                         <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
-                            Tipe Lokasi <span class="text-[#FF3B30]">*</span>
+                            Kode Gudang
                         </label>
-                        <select name="type" class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                            <option value="warehouse">🏢 Gudang (Warehouse)</option>
-                            <option value="outlet">🏪 Outlet / Toko Retail</option>
-                            <option value="central_kitchen">🍳 Dapur Pusat (Central Kitchen)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
-                            Kode Lokasi
-                        </label>
-                        <input type="text" name="code" placeholder="Misal: WH-01, OTL-01..."
+                        <input type="text" name="code" placeholder="Misal: WH-01, GDG-JKT..."
                                class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white font-mono placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                     </div>
                     <div>
@@ -679,6 +711,149 @@
                     <button type="submit"
                             class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                         Simpan Gudang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- ===================================================== --}}
+    {{-- 7b. APPLE SHEET: TAMBAH CABANG / OUTLET               --}}
+    {{-- ===================================================== --}}
+    <div x-show="showCreateOutletModal"
+         x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-[2px] p-4"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+
+        <div class="w-full max-w-lg rounded-[18px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+             @click.outside="showCreateOutletModal = false"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95">
+
+            <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3.5">
+                <div>
+                    <h3 class="text-[17px] font-semibold text-black dark:text-white">Tambah Cabang / Outlet</h3>
+                    <p class="text-[13px] text-black/50 dark:text-white/50">Daftarkan cabang toko, outlet retail, atau dapur produksi</p>
+                </div>
+                <button type="button" @click="showCreateOutletModal = false" class="p-1 rounded-[6px] text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form action="{{ route('warehouse.store') }}" method="POST" class="space-y-4 text-[13px]">
+                @csrf
+                <input type="hidden" name="type" value="outlet">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div class="col-span-1 sm:col-span-2">
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                            Nama Cabang / Outlet <span class="text-[#FF3B30]">*</span>
+                        </label>
+                        <input type="text" name="name" required placeholder="Contoh: Outlet Senopati, Cabang Bandung, Toko Pondok Indah..."
+                               class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition">
+                    </div>
+                    <div>
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                            Kode Cabang
+                        </label>
+                        <input type="text" name="code" placeholder="Misal: OTL-01, CBG-BDG..."
+                               class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white font-mono placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition">
+                    </div>
+                    <div>
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                            Nomor Telepon Cabang
+                        </label>
+                        <input type="text" name="phone" placeholder="08xxxxxxxxxx / +62..."
+                               class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition">
+                    </div>
+                    <div>
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                            Status Awal
+                        </label>
+                        <div class="h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] text-[13px] text-black/70 dark:text-white/70 font-medium flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
+                            <span>Langsung Aktif</span>
+                        </div>
+                    </div>
+                    <div class="col-span-1 sm:col-span-2">
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                            Alamat Lengkap Cabang <span class="text-[#FF3B30]">*</span>
+                        </label>
+                        <textarea name="address" rows="2" required placeholder="Alamat fisik cabang: jalan, nomor, kecamatan, kota..."
+                                  class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] p-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition resize-none"></textarea>
+                    </div>
+                    {{-- Radius Geofence GPS Absensi --}}
+                    <div class="col-span-1 sm:col-span-2 rounded-[12px] bg-[#34C759]/5 border border-[#34C759]/15 p-4 space-y-3">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#34C759]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                            </svg>
+                            <span class="text-[12px] font-semibold text-[#248A3D] dark:text-[#30D158]">Geofence Absensi Karyawan</span>
+                            <span class="text-[10px] font-medium text-[#34C759] bg-[#34C759]/10 px-1.5 py-0.5 rounded-full">Opsional</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Latitude</label>
+                                <input type="text" name="latitude" placeholder="-6.2088"
+                                       class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[12px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#34C759]/50 transition">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Longitude</label>
+                                <input type="text" name="longitude" placeholder="106.8456"
+                                       class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[12px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#34C759]/50 transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Radius Geofence (meter)</label>
+                            <input type="number" name="geofence_radius_meters" placeholder="100" min="10" max="5000" value="100"
+                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[12px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#34C759]/50 transition">
+                            <p class="text-[10px] text-black/40 dark:text-white/40 mt-1">Radius area valid absensi GPS. Default: 100 meter dari titik pusat cabang.</p>
+                        </div>
+                    </div>
+
+                    {{-- Omnichannel Fulfillment (§PRD-08) --}}
+                    <div class="col-span-1 sm:col-span-2 space-y-2 pt-1">
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                            Layanan Toko Online &amp; Fulfillment
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 cursor-pointer hover:bg-black/[0.05] transition">
+                                <input type="checkbox" name="is_online_fulfillment" value="1" checked class="mt-0.5 w-4 h-4 rounded text-[#34C759] focus:ring-[#34C759]">
+                                <div class="text-[12px]">
+                                    <span class="font-medium text-black dark:text-white block">Titik Kirim Kurir Online</span>
+                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Pesanan kurir dapat dikirim dari cabang ini</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 cursor-pointer hover:bg-black/[0.05] transition">
+                                <input type="checkbox" name="allow_storefront_pickup" value="1" checked class="mt-0.5 w-4 h-4 rounded text-[#34C759] focus:ring-[#34C759]">
+                                <div class="text-[12px]">
+                                    <span class="font-medium text-black dark:text-white block">Izinkan Ambil di Toko</span>
+                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Pembeli dapat memilih self-pickup / bebas ongkir</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3.5 border-t border-black/5 dark:border-white/10">
+                    <button type="button" @click="showCreateOutletModal = false"
+                            class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(52,199,89,0.25)]">
+                        Simpan Cabang
                     </button>
                 </div>
             </form>
@@ -753,21 +928,74 @@
                         </label>
                         <input type="text" name="phone" :value="editData.phone"
                                class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                    </div>
-                    <div class="col-span-1 sm:col-span-2">
+                          <div class="col-span-1 sm:col-span-2">
                         <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
                             Alamat Lengkap
                         </label>
                         <textarea name="address" rows="2" :value="editData.address"
                                   class="w-full bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] p-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition resize-none"></textarea>
                     </div>
+
+                    {{-- Geofence & GPS Coordinates --}}
+                    <div class="col-span-1 sm:col-span-2 rounded-[12px] bg-[#007AFF]/5 border border-[#007AFF]/15 p-3.5 space-y-2.5">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                            </svg>
+                            <span class="text-[12px] font-semibold text-[#007AFF]">Koordinat GPS &amp; Geofence Absensi</span>
+                            <span class="text-[10px] text-black/40 dark:text-white/40">(Opsional untuk Cabang &amp; HRM)</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Latitude</label>
+                                <input type="text" name="latitude" :value="editData.latitude" placeholder="-6.2088"
+                                       class="w-full h-8.5 bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[12px] text-black dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-[#007AFF]/50 transition">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Longitude</label>
+                                <input type="text" name="longitude" :value="editData.longitude" placeholder="106.8456"
+                                       class="w-full h-8.5 bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[12px] text-black dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-[#007AFF]/50 transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Radius Geofence (meter)</label>
+                            <input type="number" name="geofence_radius_meters" :value="editData.geofence_radius_meters" placeholder="50" min="10" max="5000"
+                                   class="w-full h-8.5 bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[12px] text-black dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-[#007AFF]/50 transition">
+                        </div>
+                    </div>
+
+                    {{-- Omnichannel Fulfillment (§PRD-08) --}}
+                    <div class="col-span-1 sm:col-span-2 space-y-2 pt-1">
+                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                            Layanan Toko Online &amp; Fulfillment
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 cursor-pointer hover:bg-black/[0.05] transition">
+                                <input type="checkbox" name="is_online_fulfillment" value="1" :checked="editData.is_online_fulfillment" class="mt-0.5 w-4 h-4 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                <div class="text-[12px]">
+                                    <span class="font-medium text-black dark:text-white block">Titik Kirim Kurir Online</span>
+                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Pesanan kurir dapat dikirim dari lokasi ini</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 cursor-pointer hover:bg-black/[0.05] transition">
+                                <input type="checkbox" name="allow_storefront_pickup" value="1" :checked="editData.allow_storefront_pickup" class="mt-0.5 w-4 h-4 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                <div class="text-[12px]">
+                                    <span class="font-medium text-black dark:text-white block">Izinkan Ambil di Toko</span>
+                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Pembeli dapat memilih self-pickup / bebas ongkir</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="col-span-1 sm:col-span-2 flex items-center gap-3 p-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06]">
                         <input type="checkbox" name="is_active" id="edit_is_active" value="1"
-                               :checked="editData.is_active" class="w-4 h-4 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                :checked="editData.is_active" class="w-4 h-4 rounded text-[#007AFF] focus:ring-[#007AFF]">
                         <label for="edit_is_active" class="text-[13px] text-black/80 dark:text-white/80 font-medium cursor-pointer">
                             Gudang beroperasi aktif (dapat menerima PO, transfer stok, dan alokasi produk)
                         </label>
                     </div>
+                </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-3.5 border-t border-black/5 dark:border-white/10">

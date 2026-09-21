@@ -46,6 +46,88 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-21-105] POS Terminal UI Frontend Vertikal Industri (SPK Bengkel, Laundry, Apotek) & Detail Riwayat Pesanan
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** POS (Point of Sale) Front-End, Bento UI, Order Detail
+* **Feature:**
+  1. **Integrasi Modal & Tombol "Layanan Khusus" pada POS Terminal:**
+     - Menambahkan tombol akses cepat "Layanan" di header keranjang belanja POS (`terminal.blade.php`) dengan indikator badge aktif saat data kendaraan/laundry telah diisi kasir.
+     - Membangun Modal Sheet Bento Apple HIG dengan Segmented Tab Switcher ("Bengkel & Kendaraan" dan "Laundry Kiloan").
+     - Formulir Bengkel: Nomor Polisi (Plat), Model Kendaraan, KM Odometer, Dropdown Teknisi/Mekanik, dan Catatan Servis SPK.
+     - Formulir Laundry: Total Berat Timbangan (Kg), Nomor Rak / Loker Cucian, Estimasi Selesai, dan Status Cucian.
+  2. **Detail Item Farmasi & Apotek pada Keranjang Belanja:**
+     - Tombol edit atribut pada setiap baris item keranjang belanja untuk membuka Modal Detail Obat.
+     - Input Nomor Batch, Tanggal Kedaluwarsa (Expired Date), dan Aturan Pakai / Dosis Obat per item obat/resep.
+     - Payload checkout POS terhubung langsung ke backend `PosTerminalWebController@checkout` dan mereset status secara aman setelah transaksi selesai.
+  3. **Visualisasi Vertikal Industri pada Riwayat Transaksi POS (`orders.blade.php`):**
+     - Badge Plat Nomor Kendaraan atau Berat Cucian pada daftar transaksi (tampilan Desktop & Mobile Grouped List).
+     - Kartu SPK Bengkel & Layanan Laundry pada Modal Sheet Detail Transaksi.
+     - Informasi Batch, ED, dan Dosis aturan pakai pada daftar item obat yang terjual.
+* **Work Type:** Feature | UI/UX (Bento Apple HIG) | POS Front-End | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Melengkapi backend dan database industri vertikal (FASE 7) dengan antarmuka front-end kasir POS yang ergonomis, intuitif, dan tidak memperlambat alur transaksi harian.
+* **Target:** Kasir bengkel dapat langsung menginput plat nomor dan memilih montir dalam 2 klik; kasir apotek dapat mencantumkan dosis obat; dan kasir laundry dapat memasukkan berat timbangan dan nomor rak pakaian langsung dari terminal kasir.
+
+#### 2. Verification & Testing
+* `php -l` pada `terminal.blade.php` & `orders.blade.php` (Blade syntax valid).
+* `php artisan test tests/Feature/Pos/IndustryVerticalGapAndPrepSheetTest.php`: 4 passed, 19 assertions.
+* Full test suite: 9 passed, 46 assertions, 0 errors.
+
+---
+
+### [WORK-2026-09-21-104] Omnichannel Multi-Cabang Fulfillment, Gap 4 Industri Kunci (Bengkel, Apotek, Laundry) & Daily Kitchen Batch Prep Sheet
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** Commerce & Storefront, POS Terminal, Warehouse & Locations Hub, Kitchen Display System (KDS), Recipe BOM
+* **Feature:** 
+  1. **Omnichannel Multi-Cabang & Multi-Gudang Online Fulfillment (PRD-08):**
+     - Sakelar status `is_online_fulfillment` dan `allow_storefront_pickup` pada modal tambah & edit Cabang/Outlet di `/warehouse`.
+     - Selector cabang interaktif pada checkout storefront saat pelanggan memilih metode "Ambil di Toko" (Storefront Pickup).
+     - Otomatisasi perutean pesanan antar (delivery) ke cabang online fulfillment terdekat menggunakan kalkulasi jarak Haversine (`Location::distanceTo`).
+     - Alokasi dan reservasi stok produk tepat pada gudang/cabang yang dipilih atau cabang terdekat (`CommerceOrderService::resolveOrderLocation()`).
+  2. **Penutupan Gap Modul Spesifik 4 Industri Kunci (FASE 7):**
+     - Migrasi non-destructive `2026_09_21_000004_add_industry_vertical_fields_to_orders_table.php` menambahkan kolom:
+       - `pos_orders`: `vehicle_license_plate`, `vehicle_model`, `vehicle_mileage`, `technician_id`, `service_notes`, `laundry_weight_kg`, `rack_location`, `estimated_completion_at`, `laundry_status`.
+       - `pos_order_items`: `expired_date`, `dosage_instructions`.
+     - Dukungan Bengkel Otomotif: Data kendaraan (Nomor Polisi, Model, KM Odometer), penugasan Teknisi/Mekanik, dan Catatan Pengerjaan SPK Servis.
+     - Dukungan Apotek & Klinik: Pencatatan nomor batch, tanggal kedaluwarsa (Expired Date), dan aturan pakai/dosis pada level item obat.
+     - Dukungan Laundry Kiloan & Satuan: Pencatatan berat timbangan (kg), lokasi loker/rak penyimpanan pakaian, estimasi selesai, dan status tahapan laundry.
+     - Thermal Receipt Struk POS: Penyesuaian layout cetak struk kasir untuk menampilkan atribut spesifik bengkel, apotek, dan laundry secara otomatis dan proporsional.
+  3. **Daily Kitchen Batch Prep Sheet untuk Katering & Dapur Pusat:**
+     - Endpoint & view: `/pos/kitchen/prep-sheet` (`pos.kitchen.prep_sheet`).
+     - Agregasi seluruh porsi menu pesanan terjadwal (katering online) dan pesanan kasir langsung pada tanggal target.
+     - Kalkulasi otomatis kebutuhan bahan baku mentah dari resep BOM aktif (`CostModel` & `BomHeader`) dengan memperhitungkan faktor toleransi waste.
+     - Perbandingan kebutuhan bahan vs stok fisik gudang/dapur (`InventoryStock`) secara real-time dengan status kesiapan dan indikator defisit/kekurangan bahan.
+     - Antarmuka Bento Apple HIG responsif dilengkapi tata letak ramah cetak clipboard dapur (`window.print()`).
+  4. **Pengujian & Verifikasi:**
+     - `OmnichannelMultiBranchFulfillmentTest` (2 tests, 6 assertions): PASSED.
+     - `IndustryVerticalGapAndPrepSheetTest` (4 tests, 19 assertions): PASSED.
+     - `StorefrontSettingsAndPosReservationTest` (3 tests, 21 assertions): PASSED.
+     - Syntax checks (`php -l`) pada 13 file terkait: 100% Bebas Error.
+* **Work Type:** Feature | Architecture | UI/UX (Bento Apple HIG & Print-Ready) | Database | POS | Commerce | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** UMKM Indonesia dengan berbagai cabang (multi-outlet) membutuhkan fleksibilitas pemenuhan omnichannel: pelanggan toko online dapat memilih cabang tempat mengambil pesanan, atau pesanan pesan-antar otomatis dikirim dari cabang terdekat untuk menekan ongkos kirim dan waktu tempuh. Selain itu, bisnis jasa spesifik (bengkel otomotif, apotek, laundry kiloan, dan katering) memiliki kebutuhan operasional unik yang belum terpenuhi oleh POS ritel standar.
+* **Target:**
+  1. Menghubungkan inventaris multi-cabang ke proses checkout e-commerce secara otomatis.
+  2. Menyediakan modul SPK servis bengkel, batch/ED/dosis apotek, serta berat & loker laundry di kasir POS dan struk transaksi.
+  3. Memberikan lembar persiapan bahan baku (*Prep Sheet*) untuk koki dapur katering agar tahu persis berapa kilogram bahan mentah yang harus diambil dari gudang sebelum memasak.
+
+#### 2. What Was Done
+* **Migrasi Database:** Menambahkan kolom spesifik industri pada `pos_orders` dan `pos_order_items`.
+* **Model Layer:** Menambahkan fillable, casts, konstanta status laundry, relasi `technician()`, serta helper `Location::distanceTo()` berbasis Haversine formula.
+* **Storefront Checkout & Order Service:** Mengintegrasikan pemilih cabang pickup di `checkout.blade.php`, memperluas payload `PublicOrderTrackingController`, dan memodifikasi `CommerceOrderService` agar mereservasi stok di cabang yang tepat.
+* **POS Service & Controller:** Memvalidasi dan menyimpan metadata bengkel/apotek/laundry pada checkout kasir, serta menampilkan informasi tersebut pada struk transaksi.
+* **Kitchen Display System (KDS):** Membangun controller method `prepSheet()` dan tampilan Blade `prep_sheet.blade.php` lengkap dengan integrasi tombol cetak dan navigasi monitor KDS.
+
+#### 3. Verification & Testing
+* `php artisan test --filter="OmnichannelMultiBranchFulfillmentTest|IndustryVerticalGapAndPrepSheetTest|StorefrontSettingsAndPosReservationTest"` -> 9 tests, 46 assertions, 0 failures.
+* `php -l` pada 13 berkas PHP: 0 syntax errors.
+
+---
+
 ### [WORK-2026-09-21-103] Storefront Toko Online Multi-Page Standalone dengan 20 Tema Industri Otentik & Navigasi Auto-Hide Cerdas (PRD-07)
 * **Date:** 2026-09-21
 * **Status:** COMPLETED

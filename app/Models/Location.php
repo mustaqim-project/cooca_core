@@ -88,4 +88,26 @@ class Location extends Model
     {
         return $this->hasMany(Attendance::class);
     }
+
+    /**
+     * Calculate distance in meters to a given coordinate using Haversine formula.
+     */
+    public function distanceTo(float $targetLat, float $targetLon): ?int
+    {
+        if ($this->latitude === null || $this->longitude === null) {
+            return null;
+        }
+
+        $earthRadius = 6371000; // meters
+        $latDelta = deg2rad($targetLat - (float) $this->latitude);
+        $lonDelta = deg2rad($targetLon - (float) $this->longitude);
+
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+            cos(deg2rad((float) $this->latitude)) * cos(deg2rad($targetLat)) *
+            sin($lonDelta / 2) * sin($lonDelta / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return (int) round($earthRadius * $c);
+    }
 }

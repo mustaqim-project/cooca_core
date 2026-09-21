@@ -10,6 +10,7 @@
          shippingAddress: '',
          notes: '',
          selectedTable: '',
+         selectedPickupLocationId: '{{ isset($pickupLocations) ? ($pickupLocations->first()?->id ?? '') : '' }}',
          selectedPaymentMethod: '{{ $paymentMethods->first()?->id ?? '' }}',
          paymentGateway: 'manual',
          paymentChannel: 'QRIS',
@@ -19,6 +20,10 @@
          errorMessage: '',
 
          calculateShipping() {
+             if (this.fulfillmentType !== 'delivery') {
+                 this.shippingCost = 0;
+                 return;
+             }
              const rule = this.shippingRules.find(r => r.id === this.selectedShippingRuleId);
              if (rule) {
                  this.shippingCost = parseFloat(rule.rate || 0);
@@ -52,6 +57,10 @@
                  alert('Alamat pengiriman wajib diisi untuk pesanan antar/delivery.');
                  return;
              }
+             if (this.fulfillmentType === 'pickup' && !this.selectedPickupLocationId && {{ isset($pickupLocations) && $pickupLocations->isNotEmpty() ? 'true' : 'false' }}) {
+                 alert('Silakan pilih cabang / outlet untuk pengambilan pesanan.');
+                 return;
+             }
 
              this.isSubmitting = true;
              this.errorMessage = '';
@@ -63,8 +72,9 @@
                  customer_email: this.customerEmail,
                  shipping_address: this.shippingAddress,
                  notes: this.notes,
-                 fulfillment_type: this.fulfillmentType,
-                 pos_table_id: this.selectedTable || null,
+                 fulfillment_type: this.fulfillmentType === 'delivery' ? 'merchant_delivery' : this.fulfillmentType,
+                 pickup_location_id: this.fulfillmentType === 'pickup' ? this.selectedPickupLocationId : null,
+                 pos_table_id: this.fulfillmentType === 'dine_in' ? (this.selectedTable || null) : null,
                  shipping_rule_id: this.fulfillmentType === 'delivery' ? this.selectedShippingRuleId : null,
                  shipping_fee: this.fulfillmentType === 'delivery' ? this.shippingCost : 0,
                  payment_gateway: this.paymentGateway,
@@ -201,6 +211,41 @@
                             <option value="{{ $tbl->id }}">{{ $tbl->name ?: 'Meja ' . $tbl->table_number }}</option>
                         @endforeach
                     </select>
+                </div>
+
+                {{-- Store Pickup Location Selector --}}
+                <div x-show="fulfillmentType === 'pickup'" x-cloak class="pt-2">
+                    <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                        Pilih Lokasi Outlet / Cabang Pengambilan <span class="text-red-500">*</span>
+                    </label>
+                    @if(isset($pickupLocations) && $pickupLocations->isNotEmpty())
+                        <div class="space-y-2">
+                            @foreach ($pickupLocations as $pLoc)
+                                <label class="flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer text-left"
+                                       :class="selectedPickupLocationId === '{{ $pLoc->id }}' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : 'border-black/10 dark:border-white/10 hover:border-black/20 bg-neutral-50/50 dark:bg-neutral-900/50'">
+                                    <input type="radio" name="pickup_location" value="{{ $pLoc->id }}" x-model="selectedPickupLocationId" class="mt-1 text-theme-primary focus:ring-theme-primary">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-xs text-neutral-900 dark:text-white">{{ $pLoc->name }}</span>
+                                            @if($pLoc->is_primary)
+                                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">Pusat</span>
+                                            @endif
+                                        </div>
+                                        @if($pLoc->address)
+                                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-1">{{ $pLoc->address }}</p>
+                                        @endif
+                                        @if($pLoc->phone)
+                                            <p class="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">Telp/WA: {{ $pLoc->phone }}</p>
+                                        @endif
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="p-3 bg-neutral-100 dark:bg-neutral-900 rounded-xl text-xs text-neutral-600 dark:text-neutral-400">
+                            Pengambilan langsung di toko / outlet utama.
+                        </div>
+                    @endif
                 </div>
             </div>
 

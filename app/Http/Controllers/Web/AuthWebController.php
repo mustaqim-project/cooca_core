@@ -9,6 +9,7 @@ use App\Domain\WhatsApp\AdminWhatsAppService;
 use App\Domain\WhatsApp\WhatsAppTrustedDeviceService;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\BusinessMembership;
 use App\Models\BusinessTypeTemplate;
 use App\Models\User;
 use App\Support\Context;
@@ -154,7 +155,7 @@ final class AuthWebController extends Controller
                 $request->session()->forget('url.intended');
             }
 
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended($this->resolveUserLandingRoute($user));
         }
 
         return back()->withErrors([
@@ -168,7 +169,7 @@ final class AuthWebController extends Controller
     public function showRegister(): View|RedirectResponse
     {
         if (Auth::guard('web')->check()) {
-            return redirect()->route('dashboard');
+            return redirect()->route($this->resolveUserLandingRouteName(Auth::guard('web')->user()));
         }
 
         $templates = BusinessTypeTemplate::all();
@@ -735,6 +736,66 @@ final class AuthWebController extends Controller
         }
 
         return redirect()->route('dashboard')->with('success', 'Profil dan titik lokasi usaha Anda berhasil dikonfirmasi.');
+    }
+
+    /**
+     * Resolve the optimal landing route URL for a user based on their RBAC permissions.
+     *
+     * Priority order:
+     * 1. Kasir (pos.terminal without dashboard.view) → POS Terminal
+     * 2. Kitchen Display (pos.kitchen without dashboard.view) → KDS
+     * 3. Staf Gudang (warehouse.view without dashboard.view) → Warehouse
+     * 4. Staf Keuangan (finance.cash_bank without dashboard.view) → Finance
+     * 5. Default (Owner, Manager, Admin) → Dashboard
+     */
+    private function resolveUserLandingRoute(User $user): string
+    {
+        return route($this->resolveUserLandingRouteName($user));
+    }
+
+    /**
+     * Resolve the optimal landing route name for a user.
+     */
+    private function resolveUserLandingRouteName(User $user): string
+    {
+        // Owner / admin always goes to Dashboard
+        if ($user->isBusinessOwner()) {
+            return 'dashboard';
+        }
+
+        // Fetch the membership for active business to check granular permissions
+        $membership = BusinessMembership::where('user_id', $user->id)
+            ->where('business_id', $user->active_business_id)
+            ->first();
+
+        if (! $membership) {
+            return 'dashboard';
+        }
+
+        // Role-based shortcut for known staff roles
+        $hasDashboard = $membership->hasPermission('dashboard.view');
+
+        // Kasir: has POS access but not dashboard → straight to terminal
+        if (! $hasDashboard && $membership->hasPermission('pos.terminal')) {
+            return 'pos.terminal';
+        }
+
+        // Kitchen Display Staff: has kitchen access but not dashboard
+        if (! $hasDashboard && $membership->hasPermission('pos.kitchen')) {
+            return 'pos.kitchen.index';
+        }
+
+        // Staf Gudang: has warehouse access but not dashboard
+        if (! $hasDashboard && $membership->hasPermission('inventory.view')) {
+            return 'warehouse.index';
+        }
+
+        // Staf Keuangan: has finance access but not dashboard
+        if (! $hasDashboard && $membership->hasPermission('finance.cash_bank')) {
+            return 'finance.cash-bank.index';
+        }
+
+        return 'dashboard';
     }
 
     /**

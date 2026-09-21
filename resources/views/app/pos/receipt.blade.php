@@ -214,6 +214,51 @@
                 <span>Tipe:</span>
                 <span class="uppercase font-semibold">{{ $order->order_type }}</span>
             </div>
+
+            {{-- Bengkel Otomotif Metadata --}}
+            @if ($order->vehicle_license_plate)
+                <div class="flex justify-between font-bold text-[10px] pt-1 border-t border-dotted border-gray-300">
+                    <span>No. Kendaraan:</span>
+                    <span>{{ $order->vehicle_license_plate }} {{ $order->vehicle_model ? '(' . $order->vehicle_model . ')' : '' }}</span>
+                </div>
+            @endif
+            @if ($order->vehicle_mileage)
+                <div class="flex justify-between text-[10px]">
+                    <span>Odometer:</span>
+                    <span class="tabular-nums">{{ number_format($order->vehicle_mileage, 0, ',', '.') }} KM</span>
+                </div>
+            @endif
+            @if ($order->technician)
+                <div class="flex justify-between text-[10px]">
+                    <span>Mekanik / Teknisi:</span>
+                    <span>{{ $order->technician->name }}</span>
+                </div>
+            @endif
+            @if ($order->service_notes)
+                <div class="text-[9px] text-gray-600 italic">
+                    <span>Catatan: {{ $order->service_notes }}</span>
+                </div>
+            @endif
+
+            {{-- Laundry Metadata --}}
+            @if ($order->laundry_weight_kg)
+                <div class="flex justify-between font-bold text-[10px] pt-1 border-t border-dotted border-gray-300">
+                    <span>Berat Timbangan:</span>
+                    <span class="tabular-nums">{{ number_format($order->laundry_weight_kg, 2, ',', '.') }} kg</span>
+                </div>
+            @endif
+            @if ($order->rack_location)
+                <div class="flex justify-between text-[10px]">
+                    <span>Loker / Rak:</span>
+                    <span class="font-bold">{{ $order->rack_location }}</span>
+                </div>
+            @endif
+            @if ($order->estimated_completion_at)
+                <div class="flex justify-between text-[10px]">
+                    <span>Est. Selesai:</span>
+                    <span class="tabular-nums">{{ $order->estimated_completion_at->format('d/m/Y H:i') }}</span>
+                </div>
+            @endif
         </div>
 
         <!-- Item Lines -->
@@ -227,6 +272,23 @@
                         <span
                             class="font-semibold text-black tabular-nums">{{ number_format($item->total_price, 0, ',', '.') }}</span>
                     </div>
+
+                    {{-- Apotek & Klinik: Batch, Expired Date & Aturan Pakai --}}
+                    @if ($item->batch_number || $item->expired_date)
+                        <div class="text-[9px] text-gray-500 flex gap-2">
+                            @if ($item->batch_number)
+                                <span>Batch: {{ $item->batch_number }}</span>
+                            @endif
+                            @if ($item->expired_date)
+                                <span>Exp: {{ $item->expired_date->format('d/m/Y') }}</span>
+                            @endif
+                        </div>
+                    @endif
+                    @if ($item->dosage_instructions)
+                        <div class="text-[9px] font-medium text-blue-900 bg-blue-50 px-1 py-0.5 rounded mt-0.5 inline-block">
+                            Dosis: {{ $item->dosage_instructions }}
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>

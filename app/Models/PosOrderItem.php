@@ -26,6 +26,8 @@ class PosOrderItem extends Model
         'total_price',
         'total_hpp',
         'batch_number',
+        'expired_date',
+        'dosage_instructions',
         'serial_number',
         'notes',
     ];
@@ -43,6 +45,7 @@ class PosOrderItem extends Model
             'discount_amount' => 'float',
             'total_price' => 'float',
             'total_hpp' => 'float',
+            'expired_date' => 'date',
         ];
     }
 

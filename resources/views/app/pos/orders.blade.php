@@ -192,7 +192,18 @@
                     @forelse($orders as $o)
                     <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
                         <td class="px-4 py-3">
-                            <div class="font-semibold text-black dark:text-white tabular-nums">#{{ $o->order_number }}</div>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-semibold text-black dark:text-white tabular-nums">#{{ $o->order_number }}</span>
+                                @if($o->vehicle_license_plate)
+                                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-[#007AFF]/10 text-[#007AFF]">
+                                        {{ $o->vehicle_license_plate }}
+                                    </span>
+                                @elseif($o->laundry_weight_kg)
+                                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">
+                                        {{ $o->laundry_weight_kg }} kg
+                                    </span>
+                                @endif
+                            </div>
                             <div class="text-[11px] text-black/45 dark:text-white/45 uppercase">{{ $o->order_type }} • {{ $o->location->name ?? 'Outlet' }}</div>
                         </td>
                         <td class="px-4 py-3">
@@ -304,8 +315,17 @@
         <div class="p-3.5 space-y-2 active:bg-black/[0.02] dark:active:bg-white/[0.03] transition-colors">
             <div class="flex items-start justify-between gap-2">
                 <div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5 flex-wrap">
                         <span class="text-[14px] font-semibold text-black dark:text-white tabular-nums">#{{ $o->order_number }}</span>
+                        @if($o->vehicle_license_plate)
+                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-[#007AFF]/10 text-[#007AFF]">
+                                {{ $o->vehicle_license_plate }}
+                            </span>
+                        @elseif($o->laundry_weight_kg)
+                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">
+                                {{ $o->laundry_weight_kg }} kg
+                            </span>
+                        @endif
                         @if($o->status === 'completed')
                             <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
                         @elseif($o->status === 'voided')
@@ -393,22 +413,87 @@
                 <button type="button" @click="showDetailModal = false" class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white">✕</button>
             </div>
 
+            <!-- Industry Specific Attributes (Bengkel / Laundry) -->
+            <template x-if="selectedOrder && (selectedOrder.vehicle_license_plate || selectedOrder.laundry_weight_kg)">
+                <div class="space-y-2">
+                    <!-- Bengkel SPK Card -->
+                    <template x-if="selectedOrder.vehicle_license_plate">
+                        <div class="p-3 rounded-[12px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/15 space-y-1.5 text-[12px]">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-[#007AFF] uppercase text-[11px] tracking-wider">Layanan Bengkel &amp; SPK</span>
+                                <span class="px-2 py-0.5 rounded font-mono font-bold bg-[#007AFF] text-white text-[11px]" x-text="selectedOrder.vehicle_license_plate"></span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-black/70 dark:text-white/70">
+                                <div><span class="text-black/45 dark:text-white/45">Model:</span> <span class="font-medium text-black dark:text-white" x-text="selectedOrder.vehicle_model || '-'"></span></div>
+                                <div><span class="text-black/45 dark:text-white/45">KM:</span> <span class="font-medium font-mono text-black dark:text-white" x-text="selectedOrder.vehicle_mileage ? Number(selectedOrder.vehicle_mileage).toLocaleString('id-ID') : '-'"></span></div>
+                                <div class="col-span-2"><span class="text-black/45 dark:text-white/45">Teknisi / Mekanik:</span> <span class="font-medium text-black dark:text-white" x-text="selectedOrder.technician ? selectedOrder.technician.name : '-'"></span></div>
+                                <template x-if="selectedOrder.service_notes">
+                                    <div class="col-span-2 pt-1 border-t border-[#007AFF]/10">
+                                        <span class="text-black/45 dark:text-white/45">Keluhan / Catatan:</span>
+                                        <p class="font-medium text-black dark:text-white mt-0.5" x-text="selectedOrder.service_notes"></p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Laundry Card -->
+                    <template x-if="selectedOrder.laundry_weight_kg">
+                        <div class="p-3 rounded-[12px] bg-[#34C759]/5 dark:bg-[#34C759]/10 border border-[#34C759]/15 space-y-1.5 text-[12px]">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-[#34C759] uppercase text-[11px] tracking-wider">Layanan Laundry Kiloan</span>
+                                <span class="px-2 py-0.5 rounded font-bold bg-[#34C759] text-white text-[11px]" x-text="selectedOrder.laundry_weight_kg + ' Kg'"></span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-black/70 dark:text-white/70">
+                                <div><span class="text-black/45 dark:text-white/45">Rak / Loker:</span> <span class="font-medium text-black dark:text-white" x-text="selectedOrder.rack_location || '-'"></span></div>
+                                <div><span class="text-black/45 dark:text-white/45">Status:</span> <span class="font-semibold uppercase text-[#34C759]" x-text="selectedOrder.laundry_status || 'received'"></span></div>
+                                <template x-if="selectedOrder.estimated_completion_at">
+                                    <div class="col-span-2"><span class="text-black/45 dark:text-white/45">Estimasi Selesai:</span> <span class="font-medium text-black dark:text-white" x-text="selectedOrder.estimated_completion_at"></span></div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
             <!-- Items List -->
             <div class="space-y-2 text-[13px]">
                 <div class="text-[11px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">Item Terjual:</div>
                 <template x-for="it in (selectedOrder ? selectedOrder.items : [])" :key="it.id">
-                    <div class="p-2.5 rounded-[10px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex justify-between items-center">
-                        <div>
-                            <div class="font-medium text-black dark:text-white" x-text="it.product_name"></div>
-                            <div class="text-[11px] text-black/50 dark:text-white/50 tabular-nums"
-                                x-text="it.quantity + ' x Rp ' + Number(it.unit_price).toLocaleString('id-ID')"></div>
+                    <div class="p-2.5 rounded-[10px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="font-medium text-black dark:text-white" x-text="it.product_name"></div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50 tabular-nums"
+                                    x-text="it.quantity + ' x Rp ' + Number(it.unit_price).toLocaleString('id-ID')"></div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-semibold tabular-nums text-black dark:text-white"
+                                    x-text="'Rp ' + Number(it.total_price).toLocaleString('id-ID')"></div>
+                                <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums"
+                                    x-text="'HPP: Rp ' + Number(it.total_hpp).toLocaleString('id-ID')"></div>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <div class="font-semibold tabular-nums text-black dark:text-white"
-                                x-text="'Rp ' + Number(it.total_price).toLocaleString('id-ID')"></div>
-                            <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums"
-                                x-text="'HPP: Rp ' + Number(it.total_hpp).toLocaleString('id-ID')"></div>
-                        </div>
+                        <!-- Pharmacy attributes if present -->
+                        <template x-if="it.batch_number || it.expired_date || it.dosage_instructions">
+                            <div class="pt-1 border-t border-black/5 dark:border-white/5 text-[11px] text-black/60 dark:text-white/60 space-y-0.5">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <template x-if="it.batch_number">
+                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-black/5 dark:bg-white/10 font-mono text-[10px]">
+                                            Batch: <span class="font-bold ml-1" x-text="it.batch_number"></span>
+                                        </span>
+                                    </template>
+                                    <template x-if="it.expired_date">
+                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-red-500/10 text-red-600 dark:text-red-400 font-mono text-[10px]">
+                                            ED: <span class="font-bold ml-1" x-text="it.expired_date"></span>
+                                        </span>
+                                    </template>
+                                </div>
+                                <template x-if="it.dosage_instructions">
+                                    <div class="italic text-[11px] text-[#007AFF]" x-text="'Dosis: ' + it.dosage_instructions"></div>
+                                </template>
+                            </div>
+                        </template>
                     </div>
                 </template>
             </div>

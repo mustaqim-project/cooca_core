@@ -838,6 +838,22 @@
                     <span class="truncate tracking-tight" x-show="!sidebarCollapsed" x-transition.opacity>Dashboard</span>
                 </a>
 
+                {{-- Standalone Top-Level: Asisten Cerdas AI --}}
+                @if (\App\Support\Context::hasPermission('ai.access'))
+                    <a href="{{ route('pos.ai.index') }}" id="tour-nav-ai"
+                        {{ request()->routeIs('pos.ai.*') ? 'aria-current="page"' : '' }}
+                        :title="sidebarCollapsed ? 'Asisten Cerdas AI' : ''"
+                        class="sidebar-item w-full flex items-center gap-2.5 px-3 py-2 mt-1 rounded-[10px] text-[13px] font-semibold transition-all active:scale-[0.98] {{ request()->routeIs('pos.ai.*') ? 'bg-[#AF52DE] text-white shadow-[0_2px_8px_rgba(175,82,222,0.35)]' : 'text-black/80 dark:text-white/80 hover:bg-[#AF52DE]/8 dark:hover:bg-[#AF52DE]/15 hover:text-[#AF52DE] dark:hover:text-[#BF5AF2]' }}">
+                        <span class="w-6 h-6 rounded-[7px] {{ request()->routeIs('pos.ai.*') ? 'bg-white/20 text-white' : 'bg-[#AF52DE]/15 text-[#AF52DE] dark:bg-[#BF5AF2]/20 dark:text-[#BF5AF2]' }} flex items-center justify-center shrink-0">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <div class="flex items-center justify-between flex-1 min-w-0" x-show="!sidebarCollapsed" x-transition.opacity>
+                            <span class="truncate tracking-tight">Asisten Cerdas AI</span>
+                            <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#AF52DE]/15 text-[#AF52DE] dark:text-[#BF5AF2] shrink-0">AI</span>
+                        </div>
+                    </a>
+                @endif
+
                 {{-- Sub-Dashboards List (Directly visible in expanded sidebar) --}}
                 <div x-show="!sidebarCollapsed" class="ml-4 pl-3 py-1 space-y-0.5 border-l border-black/10 dark:border-white/10">
                     @if ($canAccessFinance)
@@ -902,14 +918,6 @@
                             class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-colors {{ request()->routeIs('social-media.index') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold bg-[#007AFF]/8' : 'text-black/65 dark:text-white/65 hover:text-black dark:hover:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
                             <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('social-media.index') ? 'bg-[#007AFF]' : 'bg-black/25 dark:bg-white/30' }} shrink-0"></span>
                             <span class="truncate">Ringkasan Pemasaran Digital</span>
-                        </a>
-                    @endif
-                    @if (\App\Support\Context::hasPermission('ai.access'))
-                        <a href="{{ route('pos.ai.index') }}" id="tour-nav-ai"
-                            {{ request()->routeIs('pos.ai.*') ? 'aria-current="page"' : '' }}
-                            class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-colors {{ request()->routeIs('pos.ai.*') ? 'text-[#AF52DE] dark:text-[#BF5AF2] font-semibold bg-[#AF52DE]/8' : 'text-black/65 dark:text-white/65 hover:text-black dark:hover:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
-                            <span class="w-1.5 h-1.5 rounded-full bg-[#AF52DE] shrink-0"></span>
-                            <span class="truncate">Asisten Cerdas AI</span>
                         </a>
                     @endif
                     @if ($canAccessApprovals)
@@ -2085,6 +2093,24 @@
 
                     {{-- Reports List (Directly visible in expanded sidebar) --}}
                     <div x-show="!sidebarCollapsed" class="ml-4 pl-3 py-1 space-y-0.5 border-l border-black/10 dark:border-white/10">
+                        @if ($canAccessReports)
+                            {{-- Dedicated Business Analytics & Trends Suite --}}
+                            <a href="{{ route('analytics.index') }}" id="tour-nav-analytics"
+                                {{ request()->routeIs('analytics.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-colors {{ request()->routeIs('analytics.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold bg-[#007AFF]/8' : 'text-black/65 dark:text-white/65 hover:text-black dark:hover:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('analytics.*') ? 'bg-[#007AFF]' : 'bg-[#AF52DE]' }} shrink-0"></span>
+                                <span class="truncate">Analitik Bisnis &amp; Tren</span>
+                            </a>
+
+                            {{-- Formal Financial Reports Center --}}
+                            <a href="{{ route('reports.index') }}"
+                                {{ request()->routeIs('reports.index') && !request()->query('tab') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-colors {{ request()->routeIs('reports.index') && !request()->query('tab') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold bg-[#007AFF]/8' : 'text-black/65 dark:text-white/65 hover:text-black dark:hover:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('reports.index') && !request()->query('tab') ? 'bg-[#007AFF]' : 'bg-black/25 dark:bg-white/30' }} shrink-0"></span>
+                                <span class="truncate">Pusat Laporan Finansial</span>
+                            </a>
+                        @endif
+
                         {{-- Account Statement / Rekening Kas & Bank --}}
                         @if ($canAccessFinance)
                             <a href="{{ route('finance.cash-bank.index') }}"
@@ -2228,6 +2254,11 @@
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Laporan &amp; Analitik
                         </div>
+                        <a href="{{ route('analytics.index') }}"
+                            class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                            <i data-lucide="line-chart" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                            <span class="font-medium">Analitik Bisnis &amp; Tren</span>
+                        </a>
                         <a href="{{ route('reports.index') }}"
                             class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                             <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-[#007AFF]"></i>
@@ -2316,6 +2347,27 @@
                         @endif
                     </div>
                 </div>
+            </div>
+        @endif
+
+        {{-- ======================================================== --}}
+        {{-- KOMUNITAS OWNER (EXCLUSIVE TOP-LEVEL PORTAL)             --}}
+        {{-- ======================================================== --}}
+        @if (\App\Support\Context::isOwner())
+            <div class="pt-2 pb-1">
+                <a href="#" id="tour-nav-community"
+                    @click.prevent="openComingSoon({ title: 'Komunitas Owner UMKM', icon: 'users-round', desc: 'Forum diskusi eksklusif bagi para pemilik usaha UMKM di Cooca untuk saling berbagi strategi, networking, dan berkembang bersama.', color: 'amber' })"
+                    {{ request()->routeIs('community.*') ? 'aria-current="page"' : '' }}
+                    :title="sidebarCollapsed ? 'Komunitas Owner UMKM' : ''"
+                    class="sidebar-item w-full flex items-center gap-2.5 px-3 py-2 rounded-[10px] text-[13px] font-semibold transition-all active:scale-[0.98] {{ request()->routeIs('community.*') ? 'bg-[#FF9500] text-white shadow-[0_2px_8px_rgba(255,149,0,0.35)]' : 'text-black/80 dark:text-white/80 hover:bg-[#FF9500]/8 dark:hover:bg-[#FF9500]/15 hover:text-[#FF9500] dark:hover:text-[#FF9F0A]' }}">
+                    <span class="w-6 h-6 rounded-[7px] {{ request()->routeIs('community.*') ? 'bg-white/20 text-white' : 'bg-[#FF9500]/15 text-[#FF9500] dark:bg-[#FF9F0A]/20 dark:text-[#FF9F0A]' }} flex items-center justify-center shrink-0">
+                        <i data-lucide="users-round" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <div class="flex items-center justify-between flex-1 min-w-0" x-show="!sidebarCollapsed" x-transition.opacity>
+                        <span class="truncate tracking-tight">Komunitas Owner</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] shrink-0">Eksklusif</span>
+                    </div>
+                </a>
             </div>
         @endif
 
@@ -2412,17 +2464,6 @@
                             <i data-lucide="life-buoy" class="w-3.5 h-3.5 {{ request()->routeIs('feedback.*') ? 'text-white' : 'text-[#FF9500]' }} shrink-0"></i>
                             <span class="truncate">Bantuan &amp; Dukungan</span>
                         </a>
-
-                        @if (\App\Support\Context::isOwner())
-                            <a href="#" id="tour-nav-community"
-                                @click.prevent="openComingSoon({ title: 'Komunitas Owner UMKM', icon: 'users', desc: 'Forum diskusi eksklusif bagi para pemilik usaha UMKM di Cooca untuk saling berbagi strategi dan berkembang bersama.', color: 'amber' })"
-                                {{ request()->routeIs('community.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('community.*') ? 'bg-[#FF9500] text-white shadow-[0_1px_2px_rgba(255,149,0,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="users" class="w-3.5 h-3.5 {{ request()->routeIs('community.*') ? 'text-white' : 'text-[#FF9500]' }} shrink-0"></i>
-                                <span class="truncate">Komunitas Owner</span>
-                                <span class="ml-auto text-[9px] px-1 py-0.5 rounded-full bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] font-semibold shrink-0">Segera</span>
-                            </a>
-                        @endif
                     </div>
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}

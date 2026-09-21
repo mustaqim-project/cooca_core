@@ -1123,6 +1123,24 @@
                                 <span x-text="redeemPoints ? 'Batalkan Poin' : 'Tukar Poin'"></span>
                             </button>
                         </template>
+                    <!-- Industry Vertical: Service Data Trigger Button (Bengkel / Laundry) -->
+                    <div class="pt-2">
+                        <button type="button" @click="showServiceVerticalModal = true"
+                            class="w-full flex items-center justify-between p-2 rounded-[10px] text-[12px] font-medium transition active:scale-[0.98] border"
+                            :class="(vehicleLicensePlate || laundryWeightKg) ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'bg-black/[0.03] dark:bg-white/[0.05] border-black/[0.05] dark:border-white/10 text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <svg class="w-4 h-4 shrink-0 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.32l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.32 4.486c.049.58.025 1.193-.14 1.743" />
+                                </svg>
+                                <span class="truncate font-medium" x-text="vehicleLicensePlate ? ('Bengkel: ' + vehicleLicensePlate + (vehicleModel ? ' • ' + vehicleModel : '')) : (laundryWeightKg ? ('Laundry: ' + laundryWeightKg + ' kg' + (rackLocation ? ' • ' + rackLocation : '')) : 'Layanan Khusus (Bengkel / Laundry)')"></span>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <span x-show="vehicleLicensePlate || laundryWeightKg" class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#007AFF] text-white">Terisi</span>
+                                <svg class="w-3.5 h-3.5 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </div>
+                        </button>
                     </div>
                 </div>
 
@@ -1141,8 +1159,14 @@
                                     </template>
                                     <template x-if="item.notes">
                                         <div class="inline-block text-[10px] text-[#FF9500] font-medium bg-[#FF9500]/10 border border-[#FF9500]/20 px-1.5 py-0.5 rounded mt-0.5"
-                                            x-text="'📝 ' + item.notes"></div>
+                                            x-text="'Catatan: ' + item.notes"></div>
                                     </template>
+                                    <!-- Pharmacy / Apotek Badges -->
+                                    <div x-show="item.batch_number || item.expired_date || item.dosage_instructions" class="flex flex-wrap gap-1 mt-0.5">
+                                        <span x-show="item.batch_number" class="text-[10px] font-mono bg-[#007AFF]/10 text-[#007AFF] px-1.5 py-0.2 rounded" x-text="'Batch: ' + item.batch_number"></span>
+                                        <span x-show="item.expired_date" class="text-[10px] font-mono bg-[#FF9500]/10 text-[#FF9500] px-1.5 py-0.2 rounded" x-text="'ED: ' + item.expired_date"></span>
+                                        <span x-show="item.dosage_instructions" class="text-[10px] bg-[#AF52DE]/10 text-[#AF52DE] px-1.5 py-0.2 rounded" x-text="'Dosis: ' + item.dosage_instructions"></span>
+                                    </div>
                                     <div class="text-[11px] text-black/50 dark:text-white/50 tabular-nums mt-0.5">
                                         <span x-text="formatRupiah(item.unit_price)"></span>
                                         <template x-if="item.unit_symbol">
@@ -1178,15 +1202,24 @@
                                         class="w-6 h-6 rounded-[6px] bg-white dark:bg-white/[0.08] hover:bg-black/[0.05] dark:hover:bg-white/[0.14] text-black dark:text-white flex items-center justify-center font-bold text-xs shrink-0 active:scale-[0.95]"
                                         title="Tambah 1">+</button>
                                 </div>
-                                <button type="button" @click="removeFromCart(index)"
-                                    class="p-1 rounded-[6px] text-black/30 dark:text-white/30 hover:text-[#FF3B30] transition"
-                                    title="Hapus dari keranjang">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                    </svg>
-                                </button>
+                                <div class="flex items-center gap-1">
+                                    <button type="button" @click="openItemDetailModal(index)"
+                                        class="p-1 rounded-[6px] text-black/40 dark:text-white/40 hover:text-[#007AFF] hover:bg-black/5 dark:hover:bg-white/10 transition"
+                                        title="Catatan, Nomor Batch & Dosis Obat">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                        </svg>
+                                    </button>
+                                    <button type="button" @click="removeFromCart(index)"
+                                        class="p-1 rounded-[6px] text-black/30 dark:text-white/30 hover:text-[#FF3B30] hover:bg-black/5 dark:hover:bg-white/10 transition"
+                                        title="Hapus dari keranjang">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -2253,6 +2286,214 @@
                 </div>
             </template>
         </div>
+
+    <!-- ===================================================== -->
+    <!-- MODAL: DATA LAYANAN INDUSTRI (BENGKEL & LAUNDRY)       -->
+    <!-- ===================================================== -->
+    <div x-show="showServiceVerticalModal" x-cloak
+        class="fixed inset-0 z-[65] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
+        @keydown.escape.window="showServiceVerticalModal = false">
+        <div class="pos-modal-panel w-full max-w-lg bg-white dark:bg-[#2C2C2E] rounded-[20px] border border-black/10 dark:border-white/10 p-5 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-black dark:text-white"
+            @click.outside="showServiceVerticalModal = false">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.32l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.32 4.486c.049.58.025 1.193-.14 1.743" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[15px] text-black dark:text-white leading-tight">Data Layanan Khusus</h3>
+                        <p class="text-[11px] text-black/50 dark:text-white/50">Formulir SPK Bengkel &amp; Data Cucian Laundry</p>
+                    </div>
+                </div>
+                <button type="button" @click="showServiceVerticalModal = false"
+                    class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Segmented Tab Selector (Apple HIG) -->
+            <div class="inline-flex w-full p-0.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] text-[12px] font-medium">
+                <button type="button" @click="serviceVerticalTab = 'workshop'"
+                    :class="serviceVerticalTab === 'workshop' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/60 dark:text-white/60'"
+                    class="flex-1 py-1.5 rounded-[8px] transition-all flex items-center justify-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25V6.75A2.25 2.25 0 0012 4.5H6.75A2.25 2.25 0 004.5 6.75v12" />
+                    </svg>
+                    <span>Bengkel &amp; Kendaraan</span>
+                </button>
+                <button type="button" @click="serviceVerticalTab = 'laundry'"
+                    :class="serviceVerticalTab === 'laundry' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/60 dark:text-white/60'"
+                    class="flex-1 py-1.5 rounded-[8px] transition-all flex items-center justify-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
+                    <span>Laundry Kiloan</span>
+                </button>
+            </div>
+
+            <!-- Tab 1 Content: Bengkel Otomotif -->
+            <div x-show="serviceVerticalTab === 'workshop'" class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Nomor Polisi (Plat)</label>
+                        <input type="text" x-model="vehicleLicensePlate" placeholder="Cth: B 1234 XYZ"
+                            class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 text-[13px] font-mono font-bold uppercase text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Tipe / Model Kendaraan</label>
+                        <input type="text" x-model="vehicleModel" placeholder="Cth: Honda Vario 160"
+                            class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">KM Odometer</label>
+                        <input type="number" x-model="vehicleMileage" placeholder="Cth: 24500"
+                            class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Teknisi / Mekanik</label>
+                        <select x-model="technicianId"
+                            class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-2.5 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] cursor-pointer">
+                            <option value="" class="bg-white dark:bg-[#1C1C1E]">-- Pilih Mekanik --</option>
+                            <template x-for="t in technicians" :key="t.id">
+                                <option :value="t.id" :selected="technicianId === t.id" x-text="t.name" class="bg-white dark:bg-[#1C1C1E]"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan Servis / Keluhan (SPK)</label>
+                    <textarea x-model="serviceNotes" rows="2" placeholder="Cth: Servis berkala, ganti oli mesin, cek bunyi di roda depan..."
+                        class="w-full rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 p-2.5 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]"></textarea>
+                </div>
+            </div>
+
+            <!-- Tab 2 Content: Laundry -->
+            <div x-show="serviceVerticalTab === 'laundry'" class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Total Timbangan (Kg)</label>
+                        <input type="number" step="0.01" min="0" x-model="laundryWeightKg" placeholder="Cth: 4.50"
+                            class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 text-[13px] font-bold font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Nomor Rak / Loker Cucian</label>
+                        <input type="text" x-model="rackLocation" placeholder="Cth: Rak B-02 / Loker 05"
+                            class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Estimasi Selesai</label>
+                        <input type="datetime-local" x-model="estimatedCompletionAt"
+                            class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-2.5 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Status Cucian</label>
+                        <select x-model="laundryStatus"
+                            class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-2.5 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] cursor-pointer">
+                            <option value="received" class="bg-white dark:bg-[#1C1C1E]">Diterima</option>
+                            <option value="washing" class="bg-white dark:bg-[#1C1C1E]">Sedang Dicuci</option>
+                            <option value="drying" class="bg-white dark:bg-[#1C1C1E]">Pengeringan</option>
+                            <option value="ironing" class="bg-white dark:bg-[#1C1C1E]">Penyetrikaan</option>
+                            <option value="ready" class="bg-white dark:bg-[#1C1C1E]">Siap Diambil</option>
+                            <option value="completed" class="bg-white dark:bg-[#1C1C1E]">Selesai / Diambil</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
+                <button type="button" @click="vehicleLicensePlate = ''; vehicleModel = ''; vehicleMileage = null; technicianId = ''; serviceNotes = ''; laundryWeightKg = null; rackLocation = ''; estimatedCompletionAt = ''; laundryStatus = 'received';"
+                    class="h-9 px-3 rounded-[10px] text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition">
+                    Hapus Data Layanan
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="showServiceVerticalModal = false"
+                        class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-black/60 dark:text-white/60 hover:bg-black/[0.05] dark:hover:bg-white/[0.08]">Batal</button>
+                    <button type="button" @click="showServiceVerticalModal = false"
+                        class="h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm">
+                        Simpan Data Layanan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- MODAL: DETAIL ITEM & APOTEK / OBAT (BATCH & DOSIS)    -->
+    <!-- ===================================================== -->
+    <div x-show="showItemDetailModal" x-cloak
+        class="fixed inset-0 z-[65] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
+        @keydown.escape.window="showItemDetailModal = false">
+        <div class="pos-modal-panel w-full max-w-md bg-white dark:bg-[#2C2C2E] rounded-[20px] border border-black/10 dark:border-white/10 p-5 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-black dark:text-white"
+            @click.outside="showItemDetailModal = false">
+            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[15px] text-black dark:text-white leading-tight">Detail &amp; Dosis Obat</h3>
+                        <p class="text-[11px] text-black/50 dark:text-white/50" x-text="editingItemIndex !== null && cart[editingItemIndex] ? cart[editingItemIndex].product_name : ''"></p>
+                    </div>
+                </div>
+                <button type="button" @click="showItemDetailModal = false"
+                    class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div class="space-y-1">
+                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan Khusus Item</label>
+                    <input type="text" x-model="editingItemNotes" placeholder="Cth: Diskon khusus, permintaan khusus..."
+                        class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                </div>
+
+                <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/5 space-y-2.5">
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-[#007AFF]">Atribut Khusus Apotek / Farmasi</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60">Nomor Batch</label>
+                            <input type="text" x-model="editingItemBatchNumber" placeholder="Cth: BATCH-2026A"
+                                class="w-full h-8 rounded-[7px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 px-2.5 text-[12px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60">Tanggal ED (Expired)</label>
+                            <input type="date" x-model="editingItemExpiredDate"
+                                class="w-full h-8 rounded-[7px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 px-2 text-[11px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[11px] font-medium text-black/60 dark:text-white/60">Aturan Pakai / Dosis Obat</label>
+                        <input type="text" x-model="editingItemDosage" placeholder="Cth: 3 x 1 tablet sehari setelah makan"
+                            class="w-full h-8 rounded-[7px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 px-2.5 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
+                <button type="button" @click="showItemDetailModal = false"
+                    class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-black/60 dark:text-white/60 hover:bg-black/[0.05] dark:hover:bg-white/[0.08]">Batal</button>
+                <button type="button" @click="saveItemDetail()"
+                    class="h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- ===================================================== -->
@@ -2789,6 +3030,29 @@
                 modifierItemNotes: '',
                 modifierItemQty: 1,
 
+                // Industry vertical fields (Bengkel / Laundry / Apotek)
+                technicians: @json($technicians ?? []),
+                showServiceVerticalModal: false,
+                serviceVerticalTab: 'workshop',
+                // Bengkel
+                vehicleLicensePlate: '',
+                vehicleModel: '',
+                vehicleMileage: null,
+                technicianId: '',
+                serviceNotes: '',
+                // Laundry
+                laundryWeightKg: null,
+                rackLocation: '',
+                estimatedCompletionAt: '',
+                laundryStatus: 'received',
+                // Item detail modal for Apothecary (batch, ED, dosage, notes)
+                showItemDetailModal: false,
+                editingItemIndex: null,
+                editingItemNotes: '',
+                editingItemBatchNumber: '',
+                editingItemExpiredDate: '',
+                editingItemDosage: '',
+
                 // Table payment modal state
                 showTablePaymentModal: false,
                 activeTableOrder: null,
@@ -3105,7 +3369,10 @@
                             unit_symbol: unitSymbol,
                             quantity: 1,
                             discount_amount: 0,
-                            notes: ''
+                            notes: '',
+                            batch_number: '',
+                            expired_date: '',
+                            dosage_instructions: ''
                         });
                     }
                     this.$nextTick(() => {
@@ -3398,7 +3665,18 @@
                     this.isProcessing = true;
 
                     const payload = {
-                        items: this.cart,
+                        items: this.cart.map(i => ({
+                            product_id: i.product_id,
+                            product_name: i.product_name,
+                            unit_price: i.unit_price,
+                            quantity: i.quantity,
+                            discount_amount: i.discount_amount || 0,
+                            notes: i.notes || null,
+                            batch_number: i.batch_number || null,
+                            expired_date: i.expired_date || null,
+                            dosage_instructions: i.dosage_instructions || null,
+                            selected_modifiers: i.selected_modifiers || []
+                        })),
                         payments: [{
                             payment_method: this.selectedPayMethod,
                             amount: this.currentTenderAmount
@@ -3413,7 +3691,16 @@
                         discount_value: Number(this.discountValue || 0),
                         voucher_code: this.voucherCode || null,
                         points_to_redeem: this.redeemPoints ? Math.round(this.pointsDiscount / 100) : 0,
-                        location_id: this.selectedLocationId
+                        location_id: this.selectedLocationId,
+                        vehicle_license_plate: this.vehicleLicensePlate ? this.vehicleLicensePlate.toUpperCase().trim() : null,
+                        vehicle_model: this.vehicleModel ? this.vehicleModel.trim() : null,
+                        vehicle_mileage: this.vehicleMileage ? parseInt(this.vehicleMileage) : null,
+                        technician_id: this.technicianId || null,
+                        service_notes: this.serviceNotes ? this.serviceNotes.trim() : null,
+                        laundry_weight_kg: this.laundryWeightKg ? parseFloat(this.laundryWeightKg) : null,
+                        rack_location: this.rackLocation ? this.rackLocation.trim() : null,
+                        estimated_completion_at: this.estimatedCompletionAt || null,
+                        laundry_status: this.laundryStatus || 'received'
                     };
 
                     try {
@@ -3453,6 +3740,16 @@
                             this.pointsDiscount = 0;
                             this.redeemPoints = false;
                             this.supervisorApprovedForOrder = false;
+                            // Reset industry vertical fields
+                            this.vehicleLicensePlate = '';
+                            this.vehicleModel = '';
+                            this.vehicleMileage = null;
+                            this.technicianId = '';
+                            this.serviceNotes = '';
+                            this.laundryWeightKg = null;
+                            this.rackLocation = '';
+                            this.estimatedCompletionAt = '';
+                            this.laundryStatus = 'received';
                         } else {
                             AppAlert.error('Gagal: ' + (data.message || 'Terjadi kesalahan.'));
                         }
@@ -3464,6 +3761,27 @@
                             if (typeof lucide !== 'undefined') lucide.createIcons();
                         });
                     }
+                },
+
+                openItemDetailModal(idx) {
+                    this.editingItemIndex = idx;
+                    const item = this.cart[idx];
+                    if (!item) return;
+                    this.editingItemNotes = item.notes || '';
+                    this.editingItemBatchNumber = item.batch_number || '';
+                    this.editingItemExpiredDate = item.expired_date || '';
+                    this.editingItemDosage = item.dosage_instructions || '';
+                    this.showItemDetailModal = true;
+                },
+
+                saveItemDetail() {
+                    if (this.editingItemIndex !== null && this.cart[this.editingItemIndex]) {
+                        this.cart[this.editingItemIndex].notes = this.editingItemNotes.trim();
+                        this.cart[this.editingItemIndex].batch_number = this.editingItemBatchNumber.trim();
+                        this.cart[this.editingItemIndex].expired_date = this.editingItemExpiredDate || null;
+                        this.cart[this.editingItemIndex].dosage_instructions = this.editingItemDosage.trim();
+                    }
+                    this.showItemDetailModal = false;
                 },
 
                 resetForNewOrder() {
@@ -3805,7 +4123,10 @@
                         selected_modifiers: selectedOptionIds,
                         modifiers_summary: summaryParts.join(', '),
                         notes: this.modifierItemNotes.trim(),
-                        discount_amount: 0
+                        discount_amount: 0,
+                        batch_number: '',
+                        expired_date: '',
+                        dosage_instructions: ''
                     });
 
                     this.showModifierModal = false;

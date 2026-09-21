@@ -27,6 +27,7 @@ use App\Models\Unit;
 use App\Support\Context;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -34,9 +35,26 @@ use Illuminate\View\View;
 
 final class DashboardWebController extends Controller
 {
-    public function index(Request $request): View|JsonResponse
+    public function index(Request $request): View|JsonResponse|RedirectResponse
     {
         $business = Context::requireBusiness();
+
+        // Smart redirect: non-dashboard users land on their workstation
+        if (! Context::isOwner() && ! Context::hasPermission('dashboard.view')) {
+            if (Context::hasPermission('pos.terminal')) {
+                return redirect()->route('pos.terminal');
+            }
+            if (Context::hasPermission('pos.kitchen')) {
+                return redirect()->route('pos.kitchen.index');
+            }
+            if (Context::hasPermission('inventory.view')) {
+                return redirect()->route('warehouse.index');
+            }
+            if (Context::hasPermission('finance.cash_bank')) {
+                return redirect()->route('finance.cash-bank.index');
+            }
+        }
+
         $data = $this->getOverviewData($business);
         $analytics = $this->getAnalyticsData($business, $request);
 

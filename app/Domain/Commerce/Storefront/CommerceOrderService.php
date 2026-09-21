@@ -143,13 +143,8 @@ final class CommerceOrderService
             }
         }
 
-        // 3. Resolve Location
-        $locationId = Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
-            ?? Location::where('business_id', $business->id)->value('id');
-
-        if (! $locationId) {
-            throw new DomainException('Lokasi operasional toko belum dikonfigurasi.');
-        }
+        // 3. Resolve Location (support self-pickup branch or nearest fulfillment outlet)
+        $locationId = $this->resolveOrderLocation($business, $fulfillmentType, $options);
 
         // 4. Resolve Payment Method
         $paymentMethod = null;
@@ -605,12 +600,7 @@ final class CommerceOrderService
             }
         }
 
-        $locationId = Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
-            ?? Location::where('business_id', $business->id)->value('id');
-
-        if (! $locationId) {
-            throw new DomainException('Lokasi operasional toko belum dikonfigurasi.');
-        }
+        $locationId = $this->resolveOrderLocation($business, $fulfillmentType, $options);
 
         return DB::transaction(function () use (
             $business,
@@ -883,5 +873,73 @@ final class CommerceOrderService
         }
 
         return $dateStr;
+    }
+
+    /**
+     * Resolve the operational/fulfillment location for an order.
+     * Supports customer pickup branch selection and nearest branch routing for delivery.
+     *
+     * @param Business $business
+     * @param string $fulfillmentType
+     * @param array<string, mixed> $options
+     * @return string Location UUID
+     */
+    protected function resolveOrderLocation(Business $business, string $fulfillmentType, array $options = []): string
+    {
+        // 1. Explicit location requested (e.g. self-pickup branch or explicitly targeted outlet)
+        if (! empty($options['location_id'])) {
+            $explicitLocId = Location::where('business_id', $business->id)
+                ->where('is_active', true)
+                ->where('id', $options['location_id'])
+                ->value('id');
+
+            if ($explicitLocId) {
+                return $explicitLocId;
+            }
+        }
+
+        // 2. Multi-branch nearest branch routing for delivery if coordinates provided
+        if (
+            in_array($fulfillmentType, [CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY, 'delivery', CommerceOrder::FULFILLMENT_COURIER_MANUAL], true)
+            && isset($options['customer_lat'], $options['customer_lng'])
+            && is_numeric($options['customer_lat'])
+            && is_numeric($options['customer_lng'])
+        ) {
+            $custLat = (float) $options['customer_lat'];
+            $custLng = (float) $options['customer_lng'];
+
+            $onlineFulfillmentBranches = Location::where('business_id', $business->id)
+                ->where('is_active', true)
+                ->where('is_online_fulfillment', true)
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->get();
+
+            if ($onlineFulfillmentBranches->isNotEmpty()) {
+                $nearestBranch = $onlineFulfillmentBranches->sortBy(function (Location $branch) use ($custLat, $custLng) {
+                    return $branch->distanceTo($custLat, $custLng) ?? PHP_INT_MAX;
+                })->first();
+
+                if ($nearestBranch) {
+                    return $nearestBranch->id;
+                }
+            }
+        }
+
+        // 3. Fallback: primary online fulfillment location, primary branch, or any active location
+        $locationId = Location::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->where('is_online_fulfillment', true)
+            ->orderBy('is_primary', 'desc')
+            ->value('id')
+            ?? Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
+            ?? Location::where('business_id', $business->id)->where('is_active', true)->value('id')
+            ?? Location::where('business_id', $business->id)->value('id');
+
+        if (! $locationId) {
+            throw new \DomainException('Lokasi operasional toko belum dikonfigurasi.');
+        }
+
+        return $locationId;
     }
 }

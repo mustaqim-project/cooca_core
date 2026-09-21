@@ -83,11 +83,15 @@ final class WarehouseWebController extends Controller
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
-            'name'    => ['required', 'string', 'max:100'],
-            'type'    => ['required', 'string', 'in:outlet,warehouse,central_kitchen'],
-            'code'    => ['nullable', 'string', 'max:50'],
-            'phone'   => ['nullable', 'string', 'max:50'],
-            'address' => ['nullable', 'string', 'max:500'],
+            'name'                   => ['required', 'string', 'max:100'],
+            'type'                   => ['required', 'string', 'in:outlet,warehouse,central_kitchen'],
+            'code'                   => ['nullable', 'string', 'max:50'],
+            'phone'                  => ['nullable', 'string', 'max:50'],
+            'address'                => ['nullable', 'string', 'max:500'],
+            'latitude'               => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude'              => ['nullable', 'numeric', 'between:-180,180'],
+            'geofence_radius'        => ['nullable', 'integer', 'min:10', 'max:10000'],
+            'geofence_radius_meters' => ['nullable', 'integer', 'min:10', 'max:10000'],
         ]);
 
         // Generate unique slug
@@ -98,20 +102,29 @@ final class WarehouseWebController extends Controller
             $slug = $baseSlug . '-' . $counter++;
         }
 
+        $geofenceRadius = $validated['geofence_radius_meters'] ?? $validated['geofence_radius'] ?? 50;
+
         Location::create([
-            'business_id' => $business->id,
-            'name'        => $validated['name'],
-            'slug'        => $slug,
-            'type'        => $validated['type'],
-            'code'        => $validated['code'] ?? null,
-            'phone'       => $validated['phone'] ?? null,
-            'address'     => $validated['address'] ?? null,
-            'is_primary'  => false,
-            'is_active'   => true,
+            'business_id'             => $business->id,
+            'name'                    => $validated['name'],
+            'slug'                    => $slug,
+            'type'                    => $validated['type'],
+            'code'                    => $validated['code'] ?? null,
+            'phone'                   => $validated['phone'] ?? null,
+            'address'                 => $validated['address'] ?? null,
+            'latitude'                => $validated['latitude'] ?? null,
+            'longitude'               => $validated['longitude'] ?? null,
+            'geofence_radius_meters'  => (int) $geofenceRadius,
+            'is_online_fulfillment'   => $request->boolean('is_online_fulfillment', true),
+            'allow_storefront_pickup' => $request->boolean('allow_storefront_pickup', true),
+            'is_primary'              => false,
+            'is_active'               => true,
         ]);
 
+        $label = in_array($validated['type'], ['outlet', 'store']) ? 'Cabang / Outlet' : ($validated['type'] === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
+
         return redirect()->route('warehouse.index')
-            ->with('success', "Gudang \"{$validated['name']}\" berhasil ditambahkan!");
+            ->with('success', "{$label} \"{$validated['name']}\" berhasil ditambahkan!");
     }
 
     /**
@@ -186,25 +199,47 @@ final class WarehouseWebController extends Controller
         abort_unless($location->business_id === $business->id, 403);
 
         $validated = $request->validate([
-            'name'      => ['required', 'string', 'max:100'],
-            'type'      => ['required', 'string', 'in:outlet,warehouse,central_kitchen'],
-            'code'      => ['nullable', 'string', 'max:50'],
-            'phone'     => ['nullable', 'string', 'max:50'],
-            'address'   => ['nullable', 'string', 'max:500'],
-            'is_active' => ['boolean'],
+            'name'                   => ['required', 'string', 'max:100'],
+            'type'                   => ['required', 'string', 'in:outlet,warehouse,central_kitchen'],
+            'code'                   => ['nullable', 'string', 'max:50'],
+            'phone'                  => ['nullable', 'string', 'max:50'],
+            'address'                => ['nullable', 'string', 'max:500'],
+            'latitude'               => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude'              => ['nullable', 'numeric', 'between:-180,180'],
+            'geofence_radius'        => ['nullable', 'integer', 'min:10', 'max:10000'],
+            'geofence_radius_meters' => ['nullable', 'integer', 'min:10', 'max:10000'],
+            'is_active'              => ['boolean'],
         ]);
 
-        $location->update([
-            'name'      => $validated['name'],
-            'type'      => $validated['type'],
-            'code'      => $validated['code'] ?? null,
-            'phone'     => $validated['phone'] ?? null,
-            'address'   => $validated['address'] ?? null,
-            'is_active' => (bool) ($validated['is_active'] ?? $location->is_active),
-        ]);
+        $updateData = [
+            'name'                    => $validated['name'],
+            'type'                    => $validated['type'],
+            'code'                    => $validated['code'] ?? null,
+            'phone'                   => $validated['phone'] ?? null,
+            'address'                 => $validated['address'] ?? null,
+            'is_active'               => (bool) ($validated['is_active'] ?? $location->is_active),
+            'is_online_fulfillment'   => $request->boolean('is_online_fulfillment'),
+            'allow_storefront_pickup' => $request->boolean('allow_storefront_pickup'),
+        ];
+
+        if (array_key_exists('latitude', $validated)) {
+            $updateData['latitude'] = $validated['latitude'];
+        }
+        if (array_key_exists('longitude', $validated)) {
+            $updateData['longitude'] = $validated['longitude'];
+        }
+        if (isset($validated['geofence_radius_meters'])) {
+            $updateData['geofence_radius_meters'] = (int) $validated['geofence_radius_meters'];
+        } elseif (isset($validated['geofence_radius'])) {
+            $updateData['geofence_radius_meters'] = (int) $validated['geofence_radius'];
+        }
+
+        $location->update($updateData);
+
+        $label = in_array($validated['type'], ['outlet', 'store']) ? 'Cabang / Outlet' : ($validated['type'] === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
 
         return redirect()->route('warehouse.index')
-            ->with('success', "Gudang \"{$location->name}\" berhasil diperbarui.");
+            ->with('success', "Data {$label} \"{$location->name}\" berhasil diperbarui.");
     }
 
     /**

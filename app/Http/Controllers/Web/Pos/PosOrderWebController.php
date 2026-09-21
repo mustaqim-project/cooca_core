@@ -29,7 +29,7 @@ final class PosOrderWebController extends Controller
         $business = Context::requireBusiness();
 
         $query = PosOrder::where('business_id', $business->id)
-            ->with(['customer', 'user', 'location', 'payments', 'items'])
+            ->with(['customer', 'user', 'location', 'payments', 'items', 'technician'])
             ->latest('created_at');
 
         if ($request->filled('status')) {
@@ -62,7 +62,7 @@ final class PosOrderWebController extends Controller
      */
     public function show(PosOrder $order): JsonResponse
     {
-        $order->load(['items', 'payments', 'customer', 'user', 'location']);
+        $order->load(['items', 'payments', 'customer', 'user', 'location', 'technician']);
         return response()->json(['success' => true, 'order' => $order]);
     }
 

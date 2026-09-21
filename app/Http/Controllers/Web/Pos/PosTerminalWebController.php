@@ -41,13 +41,21 @@ final class PosTerminalWebController extends Controller
         $business = Context::requireBusiness();
         $user = auth()->user();
 
-        // 1. Locations / Outlets
+        // 1. Locations / Outlets — only show outlet-type locations (not warehouse/logistics)
         $locations = Location::where('business_id', $business->id)
             ->where('is_active', true)
+            ->whereIn('type', ['outlet', 'store', 'central_kitchen'])
             ->get();
+
+        // Auto-bind cashier to their assigned primary location
+        $membership = \App\Models\BusinessMembership::where('user_id', $user->id)
+            ->where('business_id', $business->id)
+            ->first();
+        $primaryLocationId = $membership?->primary_location_id;
 
         $selectedLocationId = $request->query('location_id')
             ?? session('pos_location_id')
+            ?? $primaryLocationId
             ?? $locations->where('is_primary', true)->first()?->id
             ?? $locations->first()?->id;
 
@@ -124,7 +132,10 @@ final class PosTerminalWebController extends Controller
         $operatingMode = $operatingModeService->getOperatingModeProfile($business);
         $canBypassSupervisor = $operatingModeService->canBypassSupervisor($business, $user);
         $hideCostFromCashier = $operatingModeService->shouldHideCostFromCashier($business, $user);
-        $posShowProductImages = (bool) $business->pos_show_product_images;
+        // 10. Staff / Technicians for Service & Workshop SPK Assignment
+        $technicians = User::whereHas('businesses', function ($q) use ($business) {
+            $q->where('businesses.id', $business->id);
+        })->select('users.id', 'users.name')->orderBy('users.name')->get();
 
         return view('app.pos.terminal', compact(
             'business',
@@ -142,7 +153,8 @@ final class PosTerminalWebController extends Controller
             'operatingMode',
             'canBypassSupervisor',
             'hideCostFromCashier',
-            'posShowProductImages'
+            'posShowProductImages',
+            'technicians'
         ));
     }
 
@@ -209,6 +221,9 @@ final class PosTerminalWebController extends Controller
             'items.*.quantity' => ['required', 'numeric', 'min:0.0001'],
             'items.*.discount_amount' => ['nullable', 'numeric', 'min:0'],
             'items.*.notes' => ['nullable', 'string'],
+            'items.*.batch_number' => ['nullable', 'string', 'max:50'],
+            'items.*.expired_date' => ['nullable', 'date'],
+            'items.*.dosage_instructions' => ['nullable', 'string', 'max:255'],
             'items.*.selected_modifiers' => ['nullable', 'array'],
             'payments' => ['required', 'array', 'min:1'],
             'payments.*.payment_method' => ['required', 'string'],
@@ -227,6 +242,16 @@ final class PosTerminalWebController extends Controller
             'notes' => ['nullable', 'string', 'max:500'],
             'points_to_redeem' => ['nullable', 'integer', 'min:0'],
             'location_id' => ['nullable', 'string'],
+            // Industry Specific Fields
+            'vehicle_license_plate' => ['nullable', 'string', 'max:30'],
+            'vehicle_model' => ['nullable', 'string', 'max:100'],
+            'vehicle_mileage' => ['nullable', 'integer', 'min:0'],
+            'technician_id' => ['nullable', 'uuid', 'exists:users,id'],
+            'service_notes' => ['nullable', 'string', 'max:1000'],
+            'laundry_weight_kg' => ['nullable', 'numeric', 'min:0'],
+            'rack_location' => ['nullable', 'string', 'max:50'],
+            'estimated_completion_at' => ['nullable', 'date'],
+            'laundry_status' => ['nullable', 'string', 'max:30'],
         ]);
 
         $activeShift = $this->shiftService->getActiveShift($business, $user, $validated['location_id'] ?? null);
@@ -259,6 +284,15 @@ final class PosTerminalWebController extends Controller
                     'voucher_code' => $validated['voucher_code'] ?? null,
                     'notes' => $validated['notes'] ?? null,
                     'location_id' => $validated['location_id'] ?? null,
+                    'vehicle_license_plate' => $validated['vehicle_license_plate'] ?? null,
+                    'vehicle_model' => $validated['vehicle_model'] ?? null,
+                    'vehicle_mileage' => isset($validated['vehicle_mileage']) ? (int) $validated['vehicle_mileage'] : null,
+                    'technician_id' => $validated['technician_id'] ?? null,
+                    'service_notes' => $validated['service_notes'] ?? null,
+                    'laundry_weight_kg' => isset($validated['laundry_weight_kg']) ? (float) $validated['laundry_weight_kg'] : null,
+                    'rack_location' => $validated['rack_location'] ?? null,
+                    'estimated_completion_at' => $validated['estimated_completion_at'] ?? null,
+                    'laundry_status' => $validated['laundry_status'] ?? null,
                 ],
                 shift: $activeShift
             );

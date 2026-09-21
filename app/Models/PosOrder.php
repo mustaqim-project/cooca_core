@@ -49,6 +49,13 @@ class PosOrder extends Model
     public const GATEWAY_MANUAL = 'manual';
     public const GATEWAY_TRIPAY = 'tripay';
 
+    // Laundry Statuses
+    public const LAUNDRY_STATUS_RECEIVED = 'received';
+    public const LAUNDRY_STATUS_WASHING = 'washing';
+    public const LAUNDRY_STATUS_IRONING = 'ironing';
+    public const LAUNDRY_STATUS_READY = 'ready_for_pickup';
+    public const LAUNDRY_STATUS_COMPLETED = 'completed';
+
     protected $appends = [
         'is_paid',
         'net_revenue',
@@ -112,6 +119,16 @@ class PosOrder extends Model
         'supervisor_approved_by',
         'supervisor_approved_at',
         'notes',
+        // Industry Specific Fields (Bengkel, Laundry, Apotek)
+        'vehicle_license_plate',
+        'vehicle_model',
+        'vehicle_mileage',
+        'technician_id',
+        'service_notes',
+        'laundry_weight_kg',
+        'rack_location',
+        'estimated_completion_at',
+        'laundry_status',
         'print_count',
         'reprint_count',
         'first_printed_at',
@@ -135,8 +152,11 @@ class PosOrder extends Model
             'gateway_expired_at' => 'datetime',
             'first_printed_at' => 'datetime',
             'last_printed_at' => 'datetime',
+            'estimated_completion_at' => 'datetime',
             'print_count' => 'integer',
             'reprint_count' => 'integer',
+            'vehicle_mileage' => 'integer',
+            'laundry_weight_kg' => 'float',
             'gateway_fee' => 'float',
             'subtotal' => 'float',
             'discount_value' => 'float',
@@ -201,6 +221,14 @@ class PosOrder extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function technician(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'technician_id');
     }
 
     /**
