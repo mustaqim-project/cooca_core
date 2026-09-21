@@ -109,10 +109,30 @@ class ProcessSubscriptionLifecycleCommand extends Command
                             Log::error("Gagal mengirim pengingat H-{$daysRemaining} ke {$ownerEmail}: " . $e->getMessage());
                         }
                     }
+
+                    // Blueprint §5.A: Automated WhatsApp notification to Owner with graceful degradation
+                    $ownerPhone = $owner?->phone ?? $sub->business?->phone;
+                    if ($ownerPhone) {
+                        try {
+                            $planName = $sub->plan_name ?? $sub->plan_code;
+                            $expiryDate = $sub->ends_at->translatedFormat('d F Y');
+                            $ownerName = $owner?->name ?? 'Pemilik Usaha';
+                            $bizName = $sub->business?->name ?? 'Usaha Anda';
+                            $waMessage = "Halo {$ownerName},\n\n"
+                                . "Masa aktif paket langganan {$planName} untuk usaha *{$bizName}* akan berakhir dalam *{$daysRemaining} hari* (pada {$expiryDate}).\n\n"
+                                . "Perpanjang sekarang melalui menu Langganan di aplikasi COOCA agar operasional bisnis Anda tetap berjalan lancar tanpa hambatan kuota.\n\n"
+                                . "Terima kasih telah mempercayai COOCA Business OS.";
+
+                            app(\App\Domain\WhatsApp\AdminWhatsAppService::class)->sendMessage($ownerPhone, $waMessage);
+                            Log::info("WhatsApp pengingat H-{$daysRemaining} terkirim ke {$ownerPhone} untuk Bisnis: {$bizName}");
+                        } catch (\Throwable $e) {
+                            Log::warning("Graceful degradation: Gagal mengirim WhatsApp pengingat H-{$daysRemaining} ke {$ownerPhone}: " . $e->getMessage());
+                        }
+                    }
                 }
             }
         }
-        $this->info("Berhasil mengirim {$reminderCount} email pengingat masa langganan (H-7, H-3, H-1).");
+        $this->info("Berhasil mengirim {$reminderCount} email/WA pengingat masa langganan (H-7, H-3, H-1).");
 
         return Command::SUCCESS;
     }

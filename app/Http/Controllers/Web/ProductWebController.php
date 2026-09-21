@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Models\BomHeader;
 use App\Models\BomItem;
 use App\Models\CostModel;
+use App\Models\BranchProductPrice;
+use App\Models\Location;
 use App\Models\Material;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -16,6 +18,7 @@ use App\Models\Unit;
 use App\Support\Context;
 use App\Domain\Storage\OwnerStorageQuotaService;
 use App\Domain\Storage\TenantStorage;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -429,5 +432,109 @@ final class ProductWebController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');
+    }
+
+    /**
+     * Get branch prices for a product (JSON).
+     */
+    public function branchPrices(Product $product): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($product->business_id === $business->id, 404);
+
+        $locations = Location::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'type', 'code']);
+
+        $existingPrices = BranchProductPrice::where('business_id', $business->id)
+            ->where('product_id', $product->id)
+            ->get()
+            ->keyBy('location_id');
+
+        $branchData = $locations->map(function ($loc) use ($existingPrices, $product) {
+            $priceObj = $existingPrices->get($loc->id);
+            return [
+                'location_id' => $loc->id,
+                'location_name' => $loc->name,
+                'location_type' => $loc->type,
+                'location_code' => $loc->code,
+                'price' => $priceObj ? (float) $priceObj->price : (float) $product->selling_price,
+                'cost_price' => $priceObj ? (float) $priceObj->cost_price : (float) $product->base_cost,
+                'is_available' => $priceObj ? (bool) $priceObj->is_available : true,
+                'has_override' => $priceObj !== null,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'code' => $product->code,
+                'base_cost' => (float) $product->base_cost,
+                'selling_price' => (float) $product->selling_price,
+            ],
+            'branches' => $branchData,
+        ]);
+    }
+
+    /**
+     * Update branch-specific prices for a product.
+     */
+    public function updateBranchPrices(Request $request, Product $product)
+    {
+        $business = Context::requireBusiness();
+        abort_unless($product->business_id === $business->id, 404);
+
+        $validated = $request->validate([
+            'prices' => ['required', 'array'],
+            'prices.*.location_id' => [
+                'required',
+                'string',
+                Rule::exists('locations', 'id')->where('business_id', $business->id),
+            ],
+            'prices.*.price' => ['nullable', 'numeric', 'gte:0'],
+            'prices.*.cost_price' => ['nullable', 'numeric', 'gte:0'],
+            'prices.*.is_available' => ['nullable', 'boolean'],
+            'prices.*.reset' => ['nullable', 'boolean'],
+        ]);
+
+        foreach ($validated['prices'] as $item) {
+            $locationId = $item['location_id'];
+            $shouldReset = !empty($item['reset']);
+
+            if ($shouldReset) {
+                BranchProductPrice::where('business_id', $business->id)
+                    ->where('product_id', $product->id)
+                    ->where('location_id', $locationId)
+                    ->delete();
+                continue;
+            }
+
+            if (isset($item['price']) && $item['price'] !== null && $item['price'] !== '') {
+                BranchProductPrice::updateOrCreate(
+                    [
+                        'business_id' => $business->id,
+                        'product_id' => $product->id,
+                        'location_id' => $locationId,
+                    ],
+                    [
+                        'price' => (float) $item['price'],
+                        'cost_price' => isset($item['cost_price']) && $item['cost_price'] !== '' ? (float) $item['cost_price'] : (float) $product->base_cost,
+                        'is_available' => isset($item['is_available']) ? (bool) $item['is_available'] : true,
+                    ]
+                );
+            }
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Harga cabang berhasil disimpan.',
+            ]);
+        }
+
+        return back()->with('success', 'Harga cabang berhasil disimpan.');
     }
 }

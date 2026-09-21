@@ -108,19 +108,19 @@
                                             class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition font-medium">
                                         <option value="">-- Pilih Produk Fisik atau Layanan --</option>
                                         @if(isset($goodsProducts) && $goodsProducts->isNotEmpty())
-                                            <optgroup label="📦 Produk / Barang Fisik">
+                                            <optgroup label="Produk / Barang Fisik">
                                                 @foreach($goodsProducts as $p)
                                                 <option value="{{ $p->id }}" data-price="{{ $p->selling_price }}" data-name="{{ $p->name }}" data-type="goods">
-                                                    📦 {{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})
+                                                    {{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})
                                                 </option>
                                                 @endforeach
                                             </optgroup>
                                         @endif
                                         @if(isset($serviceProducts) && $serviceProducts->isNotEmpty())
-                                            <optgroup label="🛠️ Jasa & Layanan (Bebas Stok)">
+                                            <optgroup label="Jasa & Layanan (Bebas Stok)">
                                                 @foreach($serviceProducts as $p)
                                                 <option value="{{ $p->id }}" data-price="{{ $p->selling_price }}" data-name="{{ $p->name }}" data-type="service">
-                                                    🛠️ {{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})
+                                                    [Jasa] {{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})
                                                 </option>
                                                 @endforeach
                                             </optgroup>
@@ -128,7 +128,7 @@
                                         @if(!isset($goodsProducts) || ($goodsProducts->isEmpty() && (!isset($serviceProducts) || $serviceProducts->isEmpty())))
                                             @foreach($products as $p)
                                             <option value="{{ $p->id }}" data-price="{{ $p->selling_price }}" data-name="{{ $p->name }}" data-type="{{ $p->type ?? 'goods' }}">
-                                                {{ $p->isService() ? '🛠️ ' : '📦 ' }}{{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})
+                                                {{ $p->isService() ? '[Jasa] ' : '' }}{{ $p->name }} (Rp {{ number_format($p->selling_price, 0, ',', '.') }})
                                             </option>
                                             @endforeach
                                         @endif
@@ -136,12 +136,12 @@
                                     <div class="mt-1 flex items-center gap-1.5">
                                         <template x-if="item.is_service">
                                             <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10.5px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
-                                                🛠️ Jasa / Layanan (Bebas Stok)
+                                                Jasa / Layanan (Bebas Stok)
                                             </span>
                                         </template>
                                         <template x-if="item.product_id && !item.is_service">
                                             <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10.5px] font-medium text-black/50 dark:text-white/50">
-                                                📦 Produk Fisik
+                                                Produk Fisik
                                             </span>
                                         </template>
                                     </div>

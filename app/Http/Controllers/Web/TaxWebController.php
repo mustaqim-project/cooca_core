@@ -13,10 +13,12 @@ use App\Domain\Tax\PPhFinalUMKMService;
 use App\Domain\Tax\SalesTaxService;
 use App\Http\Controllers\Controller;
 use App\Support\Context;
+use App\Models\PayrollItem;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class TaxWebController extends Controller
 {
@@ -189,5 +191,163 @@ final class TaxWebController extends Controller
         );
 
         return response()->json(['success' => true, 'data' => $result]);
+    }
+
+    /**
+     * Export DJP e-Bupot 21/26 Format CSV.
+     */
+    public function exportEbupot(Request $request): StreamedResponse
+    {
+        $business = Context::requireBusiness();
+        $year = (int) $request->query('year', date('Y'));
+        $month = (int) $request->query('month', date('n'));
+
+        $payrollItems = PayrollItem::where('business_id', $business->id)
+            ->whereHas('payroll', function ($q) use ($year, $month) {
+                $q->where('period_year', $year)
+                  ->where('period_month', $month);
+            })
+            ->with(['user'])
+            ->get();
+
+        $filename = "ebupot_pph21_{$business->slug}_{$year}_{$month}.csv";
+
+        return response()->streamDownload(function () use ($payrollItems, $business, $year, $month) {
+            $handle = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Microsoft Excel compatibility
+            fputs($handle, "\xEF\xBB\xBF");
+
+            // Standard Header e-Bupot 21/26
+            fputcsv($handle, [
+                'Masa Pajak',
+                'Tahun Pajak',
+                'NPWP/NIK Pemotong',
+                'Nama Pemotong',
+                'NPWP/NIK Penerima',
+                'Nama Penerima Penghasilan',
+                'Kode Objek Pajak',
+                'Jumlah Penghasilan Bruto',
+                'Tarif (%)',
+                'Jumlah PPh Dipotong',
+            ]);
+
+            if ($payrollItems->isEmpty()) {
+                // Example / template row
+                fputcsv($handle, [
+                    $month,
+                    $year,
+                    $business->tax_id ?? '0000000000000000',
+                    $business->name,
+                    '0000000000000000',
+                    'Contoh Karyawan (Belum Ada Data Penggajian)',
+                    '21-100-01',
+                    '0',
+                    '0.00',
+                    '0',
+                ]);
+            } else {
+                foreach ($payrollItems as $item) {
+                    $taxCode = ($item->employment_type === 'daily_worker') ? '21-100-03' : '21-100-01';
+                    $recipientId = $item->user?->nik ?? $item->user?->npwp ?? '0000000000000000';
+                    $ratePercent = number_format(((float) $item->pph21_ter_rate) * 100, 2);
+
+                    fputcsv($handle, [
+                        $month,
+                        $year,
+                        $business->tax_id ?? '0000000000000000',
+                        $business->name,
+                        $recipientId,
+                        $item->employee_name,
+                        $taxCode,
+                        (int) round((float) $item->gross_pay),
+                        $ratePercent,
+                        (int) round((float) $item->pph21_amount),
+                    ]);
+                }
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        ]);
+    }
+
+    /**
+     * Export PPh Final UMKM 0.5% (PP 55/2022) Rekapitulasi Tahunan & Kode Billing.
+     */
+    public function exportPPhFinal(Request $request): StreamedResponse
+    {
+        $business = Context::requireBusiness();
+        $year = (int) $request->query('year', date('Y'));
+        $isIndividual = $request->query('taxpayer_type', 'individual') === 'individual';
+
+        $summary = $this->pphFinalService->getYearlySummary($business, $year, $isIndividual);
+        $filename = "rekap_pph_final_umkm_{$business->slug}_{$year}.csv";
+
+        return response()->streamDownload(function () use ($summary, $business, $year, $isIndividual) {
+            $handle = fopen('php://output', 'w');
+            // UTF-8 BOM
+            fputs($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'Masa Pajak',
+                'Tahun Pajak',
+                'Nama Usaha',
+                'NPWP Usaha',
+                'Jenis Wajib Pajak',
+                'Peredaran Bruto (Omset Bulanan)',
+                'Akumulasi Omset Tahunan',
+                'Status Fasilitas Bebas Pajak (<500 Jt)',
+                'Dasar Pengenaan Pajak (DPP)',
+                'Tarif Pajak',
+                'PPh Final 0.5% Terutang (Rp)',
+                'Kode Akun Pajak (KAP)',
+                'Kode Jenis Setor (KJS)',
+            ]);
+
+            foreach ($summary['monthly_breakdown'] as $m => $item) {
+                fputcsv($handle, [
+                    $m,
+                    $year,
+                    $business->name,
+                    $business->tax_id ?? '0000000000000000',
+                    $isIndividual ? 'Orang Pribadi (PP 55/2022)' : 'Badan Usaha (PT/CV)',
+                    (int) round((float) $item['gross_revenue']),
+                    (int) round((float) $item['cumulative_revenue']),
+                    !empty($item['is_under_threshold']) ? 'Bebas Pajak (Fasilitas s.d 500 Jt)' : 'Dikenakan Pajak',
+                    (int) round((float) $item['taxable_revenue']),
+                    '0.5%',
+                    (int) round((float) $item['tax_amount']),
+                    '411128',
+                    '420',
+                ]);
+            }
+
+            // Total Row
+            $totalRevenueYear = (float) ($summary['total_revenue_year'] ?? 0);
+            $totalTaxYear = (float) ($summary['total_tax_year'] ?? 0);
+
+            fputcsv($handle, [
+                'TOTAL',
+                $year,
+                $business->name,
+                $business->tax_id ?? '0000000000000000',
+                '-',
+                (int) round($totalRevenueYear),
+                (int) round($totalRevenueYear),
+                '-',
+                (int) round($totalRevenueYear),
+                '0.5%',
+                (int) round($totalTaxYear),
+                '411128',
+                '420',
+            ]);
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        ]);
     }
 }

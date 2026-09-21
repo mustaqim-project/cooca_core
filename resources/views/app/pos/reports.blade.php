@@ -137,7 +137,7 @@
             <!-- Card Barang Fisik -->
             <div class="flex-1 md:flex-none min-w-[170px] p-3 rounded-[12px] bg-blue-500/10 border border-blue-500/20">
                 <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
-                    <span>📦 Barang Fisik</span>
+                    <span>Barang Fisik</span>
                     <span class="text-[10.5px] px-1.5 py-0.5 rounded bg-blue-500/20 tabular-nums">{{ number_format($goodsQty, 0, ',', '.') }} unit</span>
                 </div>
                 <div class="mt-1 text-[17px] sm:text-[19px] font-bold tabular-nums text-blue-900 dark:text-blue-200">
@@ -151,7 +151,7 @@
             <!-- Card Jasa / Layanan -->
             <div class="flex-1 md:flex-none min-w-[170px] p-3 rounded-[12px] bg-purple-500/10 border border-purple-500/20">
                 <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-purple-800 dark:text-purple-300 uppercase tracking-wider">
-                    <span>🛠️ Jasa &amp; Layanan</span>
+                    <span>Jasa &amp; Layanan</span>
                     <span class="text-[10.5px] px-1.5 py-0.5 rounded bg-purple-500/20 tabular-nums">{{ number_format($servicesQty, 0, ',', '.') }} order</span>
                 </div>
                 <div class="mt-1 text-[17px] sm:text-[19px] font-bold tabular-nums text-purple-900 dark:text-purple-200">
@@ -225,11 +225,11 @@
                                     <span class="font-medium text-black dark:text-white">{{ $tp->product_name }}</span>
                                     @if(($tp->item_type ?? 'goods') === 'service')
                                         <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
-                                            🛠️ Jasa
+                                            Jasa
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium text-black/50 dark:text-white/50 bg-black/[0.04] dark:bg-white/[0.06]">
-                                            📦 Barang
+                                            Barang
                                         </span>
                                     @endif
                                 </div>
@@ -256,11 +256,11 @@
                             <span class="font-semibold text-[13px] text-black dark:text-white">{{ $tp->product_name }}</span>
                             @if(($tp->item_type ?? 'goods') === 'service')
                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
-                                    🛠️ Jasa
+                                    Jasa
                                 </span>
                             @else
                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium text-black/50 dark:text-white/50 bg-black/[0.04] dark:bg-white/[0.06]">
-                                    📦 Barang
+                                    Barang
                                 </span>
                             @endif
                         </div>

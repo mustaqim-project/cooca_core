@@ -679,20 +679,20 @@
                                     'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold' :
                                     'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                                 class="h-8.5 px-3 rounded-[9px] text-[12px] sm:text-[13px] transition-all flex items-center gap-1.5 active:scale-[0.97]">
-                                <span>📋 Semua Item</span>
+                                <span>Semua Item</span>
                             </button>
                             <button type="button" @click="selectedTypeFilter = 'goods'; filterProducts()"
                                 :class="selectedTypeFilter === 'goods' ?
                                     'bg-white dark:bg-[#2C2C2E] text-[#007AFF] font-bold shadow-xs' :
                                     'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                                 class="h-8.5 px-3 rounded-[9px] text-[12px] sm:text-[13px] transition-all flex items-center gap-1.5 active:scale-[0.97]">
-                                <span>📦 Produk Fisik</span>
+                                <span>Produk Fisik</span>
                             </button>
                             <button type="button" @click="selectedTypeFilter = 'service'; filterProducts()"
                                 :class="selectedTypeFilter === 'service' ? 'bg-[#AF52DE] text-white font-bold shadow-xs' :
                                     'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                                 class="h-8.5 px-3 rounded-[9px] text-[12px] sm:text-[13px] transition-all flex items-center gap-1.5 active:scale-[0.97]">
-                                <span>🛠️ Jasa / Layanan</span>
+                                <span>Jasa / Layanan</span>
                             </button>
                         </div>
                         <span class="text-[11px] text-black/40 dark:text-white/40 hidden sm:inline tabular-nums"
@@ -757,7 +757,7 @@
                                             <template x-if="product.type === 'service'">
                                                 <span
                                                     class="absolute top-1.5 right-1.5 text-[9px] font-bold px-2 py-0.5 rounded-full bg-white/90 dark:bg-black/85 text-[#AF52DE] border border-[#AF52DE]/40 shadow-xs flex items-center gap-1">
-                                                    <span>🛠️ Layanan</span>
+                                                    <span>Layanan</span>
                                                 </span>
                                             </template>
                                             <template x-if="product.type !== 'service'">
@@ -779,7 +779,7 @@
                                             <template x-if="product.type === 'service'">
                                                 <span
                                                     class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#AF52DE]/15 text-[#AF52DE]">
-                                                    🛠️ Bebas Stok
+                                                    Bebas Stok
                                                 </span>
                                             </template>
                                             <template x-if="product.type !== 'service'">
@@ -4579,7 +4579,7 @@
                             const tableNum = order.table_number || order.pos_table?.table_number || order
                                 .table_or_reference || '-';
                             const custName = order.customer_name || order.customer_name_guest || 'Pelanggan';
-                            const title = `🛎️ Pesanan QR Masuk - Meja ${tableNum}` + (totalNewCount > 1 ?
+                            const title = `Pesanan QR Masuk - Meja ${tableNum}` + (totalNewCount > 1 ?
                                 ` (+${totalNewCount - 1} pesanan)` : '');
                             const body =
                                 `${custName} memesan ${order.items?.length || 0} item • Total: ${this.formatRupiah(order.total_amount)}. Klik untuk buka di kasir.`;

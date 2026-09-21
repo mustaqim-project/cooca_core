@@ -46,6 +46,45 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-21-106] Implementasi End-to-End Blueprint Tier Pricing & Limitasi COOCA v2.3, Tax Compliance DJP, Multi-Pricing Cabang & Zero-Emoji Bento Apple HIG
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** Blueprint Tier & Quota, Multi-Branch Pricing, Tax Compliance DJP, Security (Strix), UI/UX (Bento Apple HIG)
+* **Feature:**
+  1. **Penguatan Keamanan & Rate Limiting (Strix):**
+     - Memasang middleware `throttle:5,1` pada route pembatalan dan refund pesanan kasir (`pos.orders.void` dan `pos.orders.refund`) di `routes/owner.php` untuk memitigasi serangan brute-force terhadap PIN supervisor.
+     - Memperketat otorisasi akun kas pada mutasi manual di `CashLedgerWebController.php` dengan `findOrFail` yang terisolasi ke `$business->id`, mencegah kerentanan IDOR/BOLA.
+     - Memastikan keamanan berkas bukti pencairan perbankan (`AdminStorage::storePrivateFile`) tersimpan di disk lokal privat, mencegah akses pihak ketiga yang tidak berwenang.
+  2. **Fitur Multi-Pricing Cabang (Bento Modal-First):**
+     - Menambahkan endpoint `branchPrices()` dan `updateBranchPrices()` pada `ProductWebController.php` dengan pengecekan ketat tenant isolation (`$product->business_id === $business->id`) dan kuota paket tier (`canSetBranchPrices`).
+     - Membangun antarmuka modal Bento Apple HIG dengan Frosted Glass backdrop, input 16px, dan auto-thousand formatting pada `products/index.blade.php`.
+     - Menambahkan relasi `branchPrices()` pada model `Product.php`.
+  3. **Tax Compliance Engine DJP Export:**
+     - Menambahkan method `exportEbupot()` pada `TaxWebController.php` yang mengekspor file CSV e-Bupot 21/26 resmi siap impor ke portal DJP.
+     - Menambahkan method `exportPPhFinal()` pada `TaxWebController.php` yang merekapitulasi omzet bruto, ambang batas Rp 500 juta, dan rincian kode setoran pajak (KAP 411128, KJS 420).
+     - Menambahkan kartu panduan kode billing pajak dan tombol unduh di `tax/index.blade.php`.
+  4. **Graceful Degradation WA Reminder & 100% Eksklusif TriPay:**
+     - Menambahkan pengiriman notifikasi pengingat jatuh tempo langganan (H-7, H-3, H-1) via WhatsApp resmi ke Owner melalui `AdminWhatsAppService` dengan fallback graceful jika gateway offline pada `ProcessSubscriptionLifecycleCommand.php`.
+     - Mengeliminasi jalur transfer bank manual SaaS dengan upload bukti bayar di `SubscriptionCheckoutWebController.php`, memastikan 100% transaksi SaaS menggunakan TriPay otomatis (QRIS, VA, Minimarket) sesuai Blueprint §4.
+  5. **Standardisasi Zero-Emoji Bento Apple HIG:**
+     - Mengeliminasi seluruh Unicode emoji di seluruh modul aplikasi (`terminal.blade.php`, `pos/reports.blade.php`, `sales-orders/create.blade.php`, `quotations/create.blade.php`, `invoices/create.blade.php`, `customers/index.blade.php`, `crm/members.blade.php`, `crm/vouchers.blade.php`, `finance/cash-bank/index.blade.php`, `pos/kitchen.blade.php`, `warehouse/`, customer onboarding/OTP, dan dokumen PDF cetak) dan menggantinya dengan ikon semantik Lucide SVG.
+     - Menstandarisasi breadcrumb dan navigasi visual di seluruh view modul Keuangan (`finance/cash-bank`, `receivables`, `payables`, `settlements`, `journals`, `expenses`, `coa`, `trial-balance`, `balance-sheet`, `general-ledger`, `reconciliation`) menggunakan `<i data-lucide="chevron-right">`.
+* **Work Type:** Feature | Security | UI/UX (Bento Apple HIG) | Tax Compliance | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Menutup seluruh celah arsitektur dan sistem berdasarkan audit Blueprint Tier Pricing & Limitasi COOCA v2.3 serta kepatuhan direktif `cooca-agent-directive`.
+* **Target:** Arsitektur multi-pricing cabang yang aman dan mudah dioperasikan UMKM, kepatuhan pajak DJP yang siap impor, isolasi tenant tanpa celah IDOR/BOLA, dan antarmuka bisnis modern profesional bebas emoji.
+
+#### 2. Verification & Testing
+* Automated Tests Batch 1 (Pricing, Tax, Quota, TriPay, Lifecycle): 27 passed, 160 assertions.
+* Automated Tests Batch 2 (Multi-Ledger, Approval, Anti-Fraud, Geofence, Storefront): 49 passed, 290 assertions.
+* Automated Tests Batch 3 (Payment Gateway Remediation & Admin Settlement Payout Hub): 14 passed, 73 assertions.
+* Total: **90 tests passed, 523 assertions, 0 errors, 0 failures (100% Green)**.
+* Syntax check `php -l`: 100% valid tanpa error pada seluruh 33 file yang dimodifikasi.
+* Views and routes cache cleared successfully.
+
+---
+
 ### [WORK-2026-09-21-105] POS Terminal UI Frontend Vertikal Industri (SPK Bengkel, Laundry, Apotek) & Detail Riwayat Pesanan
 * **Date:** 2026-09-21
 * **Status:** COMPLETED

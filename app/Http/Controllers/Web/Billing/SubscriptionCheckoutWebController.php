@@ -65,24 +65,19 @@ final class SubscriptionCheckoutWebController extends Controller
             'storage_bytes' => $package->storage_bytes,
         ])->values()->all();
 
-        // If admin has configured custom active payment accounts, use them; otherwise default exclusively to TriPay QRIS
-        $dbAccounts = PaymentAccount::active()->ordered()->get();
-        if ($dbAccounts->isNotEmpty()) {
-            $paymentAccounts = $dbAccounts;
-        } else {
-            $paymentAccounts = collect([
-                (object) [
-                    'bank_code' => SubscriptionPayment::METHOD_QRIS,
-                    'bank_name' => 'QRIS Dinamis (TriPay Gateway)',
-                    'type' => PaymentAccount::TYPE_QRIS,
-                    'account_number' => 'Scan QRIS TriPay',
-                    'account_name' => 'COOCA INDONESIA',
-                    'icon' => 'qr-code',
-                    'color' => 'emerald',
-                    'instructions' => 'Pembayaran instan seketika via QRIS (BCA Mobile, Livin Mandiri, BRImo, BNI, GoPay, OVO, ShopeePay, Dana).',
-                ],
-            ]);
-        }
+        // 100% Exclusive TriPay Automatic Payment Gateway Channels (§Blueprint v2.3 §5.D)
+        $paymentAccounts = collect(SubscriptionPayment::PAYMENT_METHODS)->map(function ($method) {
+            return (object) [
+                'bank_code' => $method['code'],
+                'bank_name' => $method['name'],
+                'type' => $method['type'],
+                'account_number' => $method['account_number'],
+                'account_name' => $method['account_name'],
+                'icon' => $method['icon'] ?? 'credit-card',
+                'color' => $method['color'] ?? 'blue',
+                'instructions' => $method['instructions'],
+            ];
+        });
 
         $annualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
         $currentUsage = $this->entitlementService->getUsageSummary($business);
@@ -123,9 +118,11 @@ final class SubscriptionCheckoutWebController extends Controller
 
         $isFreePackage = $package && (float) $package->price <= 0.0;
 
-        // Allowed bank codes: custom PaymentAccount codes (if configured) + TriPay channels + Free Promo
-        $dbCodes = PaymentAccount::active()->pluck('bank_code')->all();
-        $validCodes = array_values(array_unique(array_merge($dbCodes, array_keys(SubscriptionPayment::TRIPAY_CHANNELS), [SubscriptionPayment::METHOD_FREE_PROMO])));
+        // Allowed payment codes: 100% TriPay Channels + Free Promo (§Blueprint v2.3 §5.D)
+        $validCodes = array_values(array_unique(array_merge(
+            array_keys(SubscriptionPayment::TRIPAY_CHANNELS),
+            [SubscriptionPayment::METHOD_FREE_PROMO]
+        )));
 
         $validated = $request->validate([
             'order_type' => ['nullable', 'string', 'in:subscription,ai_token,storage'],

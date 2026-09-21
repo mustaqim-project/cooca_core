@@ -6,8 +6,8 @@
 
         {{-- Header --}}
         <div class="text-center space-y-3">
-            <div class="w-16 h-16 rounded-3xl bg-[#FF9500]/10 border border-[#FF9500]/20 mx-auto flex items-center justify-center text-3xl">
-                👤
+            <div class="w-16 h-16 rounded-3xl bg-[#FF9500]/10 border border-[#FF9500]/20 mx-auto flex items-center justify-center text-[#FF9500]">
+                <i data-lucide="user" class="w-8 h-8"></i>
             </div>
             <h1 class="text-2xl font-extrabold text-black dark:text-white">Lengkapi Profil</h1>
             <p class="text-sm text-black/50 dark:text-white/50 leading-relaxed">
@@ -30,7 +30,7 @@
             @if($customer->avatar_url)
                 <img src="{{ $customer->avatar_url }}" class="w-12 h-12 rounded-2xl object-cover" alt="{{ $customer->name }}">
             @else
-                <div class="w-12 h-12 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center text-xl">👤</div>
+                <div class="w-12 h-12 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center text-[#007AFF]"><i data-lucide="user" class="w-6 h-6"></i></div>
             @endif
             <div>
                 <p class="font-bold text-[14px] text-black dark:text-white">{{ $customer->name }}</p>

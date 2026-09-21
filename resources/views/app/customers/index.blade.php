@@ -198,7 +198,7 @@
             <!-- No-Panic Microcopy Banner -->
             <div class="mt-5 pt-4 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center gap-2 text-[12px] text-black/55 dark:text-white/55">
                 <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                <span>💡 <strong>Tenang:</strong> Seluruh riwayat transaksi, saldo poin, dan catatan piutang pelanggan Anda selalu aman dan terenkripsi otomatis di sistem.</span>
+                <span><strong>Keamanan Data:</strong> Seluruh riwayat transaksi, saldo poin, dan catatan piutang pelanggan Anda selalu aman dan terenkripsi otomatis di sistem.</span>
             </div>
         </div>
 
@@ -879,7 +879,7 @@
                         <div class="pt-3">
                             <button type="submit"
                                 class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[14px] font-bold shadow-[0_2px_8px_rgba(0,122,255,0.3)] active:scale-[0.98] transition cursor-pointer">
-                                💾 Simpan Pelanggan Baru
+                                Simpan Pelanggan Baru
                             </button>
                         </div>
                     </form>
@@ -945,7 +945,7 @@
                     <div class="pt-2">
                         <button type="submit"
                             class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[14px] font-bold transition cursor-pointer">
-                            💾 Simpan Perubahan
+                            Simpan Perubahan
                         </button>
                     </div>
                 </form>
@@ -1087,7 +1087,7 @@
                             <div class="pt-2">
                                 <button type="submit" :disabled="creditRawAmount <= 0"
                                     class="w-full h-12 rounded-[14px] bg-[#34C759] hover:bg-[#2DB04D] disabled:opacity-50 text-white font-bold text-[14px] shadow-[0_2px_8px_rgba(52,199,89,0.3)] transition cursor-pointer">
-                                    💵 Catat Pelunasan Piutang
+                                    Catat Pelunasan Piutang
                                 </button>
                             </div>
                         </form>
@@ -1239,7 +1239,7 @@
                         <div class="pt-2">
                             <button type="submit"
                                 class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[14px] shadow-[0_2px_8px_rgba(0,122,255,0.3)] transition cursor-pointer">
-                                🎟️ Terbitkan Voucher Promo
+                                Terbitkan Voucher Promo
                             </button>
                         </div>
                     </form>

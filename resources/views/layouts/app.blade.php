@@ -1649,7 +1649,7 @@
                             'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30': comingSoonFeature
                                 .color === 'emerald'
                         }">
-                        🚀 Segera Hadir
+                        <i data-lucide="sparkles" class="w-3 h-3 inline-block mr-1"></i>Segera Hadir
                     </span>
 
                     <h2 class="text-xl font-black text-slate-900 dark:text-white" x-text="comingSoonFeature.title">

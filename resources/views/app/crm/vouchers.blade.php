@@ -354,7 +354,7 @@
                         <div class="pt-2">
                             <button type="submit"
                                 class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[14px] shadow-[0_2px_8px_rgba(0,122,255,0.3)] transition cursor-pointer">
-                                🎟️ Terbitkan Voucher Promo
+                                Terbitkan Voucher Promo
                             </button>
                         </div>
                     </form>

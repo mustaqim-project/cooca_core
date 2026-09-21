@@ -1091,12 +1091,9 @@
                             </label>
                             <select name="type"
                                 class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                                <option value="warehouse" {{ $location->type === 'warehouse' ? 'selected' : '' }}>🏢
-                                    Gudang (Warehouse)</option>
-                                <option value="outlet" {{ $location->type === 'outlet' ? 'selected' : '' }}>🏪 Outlet /
-                                    Toko</option>
-                                <option value="central_kitchen"
-                                    {{ $location->type === 'central_kitchen' ? 'selected' : '' }}>🍳 Dapur Pusat</option>
+                                <option value="warehouse" {{ $location->type === 'warehouse' ? 'selected' : '' }}>Gudang (Warehouse)</option>
+                                <option value="outlet" {{ $location->type === 'outlet' ? 'selected' : '' }}>Outlet / Toko</option>
+                                <option value="central_kitchen" {{ $location->type === 'central_kitchen' ? 'selected' : '' }}>Dapur Pusat (Central Kitchen)</option>
                             </select>
                         </div>
                         <div>
@@ -1119,9 +1116,9 @@
                             </label>
                             <select name="is_active"
                                 class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                                <option value="1" {{ $location->is_active ? 'selected' : '' }}>✅ Aktif Beroperasi
+                                <option value="1" {{ $location->is_active ? 'selected' : '' }}>Aktif Beroperasi
                                 </option>
-                                <option value="0" {{ !$location->is_active ? 'selected' : '' }}>❌ Nonaktif</option>
+                                <option value="0" {{ !$location->is_active ? 'selected' : '' }}>Nonaktif</option>
                             </select>
                         </div>
                         <div class="col-span-1 sm:col-span-2">

@@ -173,7 +173,7 @@
     <div class="no-print" style="max-width: 800px; margin: 0 auto 16px auto; text-align: right;">
         <button onclick="window.print()"
             style="background: #0891b2; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;">
-            🖨️ Cetak Penawaran
+            Cetak Penawaran
         </button>
     </div>
 

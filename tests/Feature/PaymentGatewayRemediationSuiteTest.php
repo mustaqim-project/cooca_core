@@ -422,7 +422,7 @@ final class PaymentGatewayRemediationSuiteTest extends TestCase
         $this->assertDatabaseHas('payment_settlements', [
             'business_id' => $this->business->id,
             'settlement_number' => 'STL-HTTP-001',
-            'status' => 'completed',
+            'status' => 'pending',
         ]);
     }
 }

@@ -443,10 +443,10 @@
                         </button>
                     </div>
 
-                    <!-- Microcopy Penenang Jiwa -->
+                    <!-- Microcopy Keamanan Data -->
                     <div class="p-3 rounded-[12px] bg-[#007AFF]/5 border border-[#007AFF]/15 text-[12px] text-[#007AFF] flex items-start gap-2">
                         <i data-lucide="shield-check" class="w-4 h-4 shrink-0 mt-0.5"></i>
-                        <span>💡 Tenang: Riwayat nota penjualan dan pembukuan masa lalu Anda tetap aman tersimpan.</span>
+                        <span>Keamanan Data: Riwayat nota penjualan dan pembukuan masa lalu Anda tetap aman tersimpan.</span>
                     </div>
 
                     <form method="POST" :action="'/crm/customers/' + (selectedCustomer ? selectedCustomer.id : '') + '/credit-payment'" class="space-y-4">
@@ -487,7 +487,7 @@
                             </button>
                             <button type="submit"
                                 class="flex-1 h-12 rounded-[12px] bg-[#34C759] hover:bg-[#2FB350] text-white font-bold text-[14px] shadow-[0_2px_8px_rgba(52,199,89,0.3)] transition cursor-pointer">
-                                💳 Simpan Pembayaran
+                                Simpan Pembayaran
                             </button>
                         </div>
                     </form>

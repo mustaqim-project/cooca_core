@@ -332,13 +332,13 @@
                                                 class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                             <option value="">-- Pilih Produk Fisik atau Layanan --</option>
                                             <template x-for="prod in products" :key="prod.id">
-                                                <option :value="prod.id" x-text="(prod.type === 'service' ? '🛠️ [Jasa] ' : '📦 ') + prod.name + (prod.selling_price > 0 ? ' (Rp ' + new Intl.NumberFormat('id-ID').format(prod.selling_price) + ')' : '')"></option>
+                                                <option :value="prod.id" x-text="(prod.type === 'service' ? '[Jasa] ' : '') + prod.name + (prod.selling_price > 0 ? ' (Rp ' + new Intl.NumberFormat('id-ID').format(prod.selling_price) + ')' : '')"></option>
                                             </template>
                                         </select>
                                         <div class="mt-0.5 flex items-center gap-1" x-show="item.product_id">
                                             <template x-if="products.find(p => p.id === item.product_id)?.type === 'service'">
                                                 <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
-                                                    🛠️ Jasa / Layanan (Bebas Stok)
+                                                    Jasa / Layanan (Bebas Stok)
                                                 </span>
                                             </template>
                                         </div>

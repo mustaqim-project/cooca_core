@@ -10,7 +10,7 @@
         <div>
             <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                 <a href="{{ route('finance.settlements.index') }}" class="hover:text-black dark:hover:text-white transition">Rekonsiliasi Gateway</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium">Detail Settlement</span>
             </nav>
             <h1 class="text-[20px] font-bold text-black dark:text-white tracking-tight flex items-center gap-2.5">

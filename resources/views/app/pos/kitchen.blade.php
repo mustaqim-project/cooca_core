@@ -86,7 +86,7 @@
 
                         <!-- General Order Note -->
                         <div x-show="order.notes" class="p-2 rounded-[10px] bg-[#FF9500]/10 border border-[#FF9500]/30 text-[11px] text-[#FF9500] font-medium flex items-start gap-1.5">
-                            <span class="font-bold">💬 Pesan:</span>
+                            <span class="font-bold">Catatan:</span>
                             <span x-text="order.notes"></span>
                         </div>
 
@@ -163,7 +163,7 @@
 
                         <!-- General Order Note -->
                         <div x-show="order.notes" class="p-2 rounded-[10px] bg-[#FF9500]/10 border border-[#FF9500]/30 text-[11px] text-[#FF9500] font-medium flex items-start gap-1.5">
-                            <span class="font-bold">💬 Pesan:</span>
+                            <span class="font-bold">Catatan:</span>
                             <span x-text="order.notes"></span>
                         </div>
 

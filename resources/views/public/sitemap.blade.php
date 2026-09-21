@@ -50,22 +50,22 @@
                             <h2 class="font-bold text-base text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-2">
                                 @if (str_contains(strtolower($category), 'kalkulator'))
                                     <span
-                                        class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center text-sm">🧮</span>
+                                        class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center text-sm"><i data-lucide="calculator" class="w-4 h-4"></i></span>
                                 @elseif(str_contains(strtolower($category), 'solusi'))
                                     <span
-                                        class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-sm">🎯</span>
+                                        class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-sm"><i data-lucide="target" class="w-4 h-4"></i></span>
                                 @elseif(str_contains(strtolower($category), 'template'))
                                     <span
-                                        class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center text-sm">📑</span>
+                                        class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center text-sm"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i></span>
                                 @elseif(str_contains(strtolower($category), 'artikel') || str_contains(strtolower($category), 'edukasi'))
                                     <span
-                                        class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-sm">📚</span>
+                                        class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-sm"><i data-lucide="book-open" class="w-4 h-4"></i></span>
                                 @elseif(str_contains(strtolower($category), 'bisnis'))
                                     <span
-                                        class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center text-sm">🏪</span>
+                                        class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center text-sm"><i data-lucide="store" class="w-4 h-4"></i></span>
                                 @else
                                     <span
-                                        class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] text-[#6E6E73] flex items-center justify-center text-sm">🔗</span>
+                                        class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] text-[#6E6E73] flex items-center justify-center text-sm"><i data-lucide="link" class="w-4 h-4"></i></span>
                                 @endif
                                 <span>{{ $category }}</span>
                             </h2>

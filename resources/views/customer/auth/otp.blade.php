@@ -6,8 +6,8 @@
 
         {{-- Icon + Header --}}
         <div class="text-center space-y-3">
-            <div class="w-16 h-16 rounded-3xl bg-[#34C759]/10 border border-[#34C759]/20 mx-auto flex items-center justify-center text-3xl">
-                📲
+            <div class="w-16 h-16 rounded-3xl bg-[#34C759]/10 border border-[#34C759]/20 mx-auto flex items-center justify-center text-[#34C759]">
+                <i data-lucide="smartphone" class="w-8 h-8"></i>
             </div>
             <h1 class="text-2xl font-extrabold text-black dark:text-white">Verifikasi WhatsApp</h1>
             <p class="text-sm text-black/50 dark:text-white/50 leading-relaxed">

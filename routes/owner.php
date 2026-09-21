@@ -148,7 +148,9 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::middleware('require.permission:products.view')->group(function (): void {
             Route::get('/products', [ProductWebController::class, 'index'])->name('products.index');
             Route::get('/products/{product}/bom', [ProductWebController::class, 'bom'])->name('products.bom');
+            Route::get('/products/{product}/branch-prices', [ProductWebController::class, 'branchPrices'])->middleware('entitlement:branch_pricing')->name('products.branch_prices.index');
         });
+        Route::post('/products/{product}/branch-prices', [ProductWebController::class, 'updateBranchPrices'])->middleware(['require.permission:products.edit', 'entitlement:branch_pricing'])->name('products.branch_prices.update');
         Route::post('/products', [ProductWebController::class, 'store'])->middleware(['require.permission:products.create', 'entitlement:product'])->name('products.store');
         Route::post('/products/toggle-pos-images', [ProductWebController::class, 'togglePosImageVisibility'])->middleware('require.permission:products.edit')->name('products.toggle-pos-images');
         Route::post('/products/{product}/toggle-setting', [ProductWebController::class, 'toggleSetting'])->middleware('require.permission:products.edit')->name('products.toggle-setting');
@@ -340,6 +342,8 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/tax/simulate-umkm', [TaxWebController::class, 'simulateUmkm'])->name('tax.simulate.umkm');
             Route::post('/tax/simulate-sales', [TaxWebController::class, 'simulateSales'])->name('tax.simulate.sales');
             Route::post('/tax/simulate-payroll', [TaxWebController::class, 'simulatePayroll'])->name('tax.simulate.payroll');
+            Route::get('/tax/export-ebupot', [TaxWebController::class, 'exportEbupot'])->middleware('entitlement:export')->name('tax.export.ebupot');
+            Route::get('/tax/export-pph-final', [TaxWebController::class, 'exportPPhFinal'])->middleware('entitlement:export')->name('tax.export.pph_final');
         });
 
         // Business Settings (Profil Usaha, POS & Template Industri)
@@ -459,8 +463,8 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/pos/orders/{order}', [PosOrderWebController::class, 'show'])->name('pos.orders.show');
             Route::post('/pos/orders/{order}/sync-gateway', [PosOrderWebController::class, 'syncGatewayStatus'])->name('pos.orders.sync_gateway');
         });
-        Route::post('/pos/orders/{order}/void', [PosOrderWebController::class, 'void'])->middleware('require.permission:pos.supervisor_pin,pos.orders')->name('pos.orders.void');
-        Route::post('/pos/orders/{order}/refund', [PosOrderWebController::class, 'refund'])->middleware('require.permission:pos.supervisor_pin,pos.orders,sales.returns')->name('pos.orders.refund');
+        Route::post('/pos/orders/{order}/void', [PosOrderWebController::class, 'void'])->middleware(['require.permission:pos.supervisor_pin,pos.orders', 'throttle:5,1'])->name('pos.orders.void');
+        Route::post('/pos/orders/{order}/refund', [PosOrderWebController::class, 'refund'])->middleware(['require.permission:pos.supervisor_pin,pos.orders,sales.returns', 'throttle:5,1'])->name('pos.orders.refund');
 
         // POS Reports
         Route::middleware('require.permission:pos.reports')->group(function (): void {

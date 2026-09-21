@@ -276,7 +276,7 @@ final class CashLedgerWebController extends Controller
 
         $account = null;
         if (! empty($validated['account_id'])) {
-            $account = CashAccount::where('business_id', $business->id)->find($validated['account_id']);
+            $account = CashAccount::where('business_id', $business->id)->findOrFail($validated['account_id']);
         }
 
         $method = $validated['account_method'] ?? ($account?->type === CashAccount::TYPE_CASH ? 'cash' : 'bank_transfer');

@@ -10,7 +10,7 @@
         <div>
             <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                 <span>Keuangan &amp; Kas</span>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium">Rekonsiliasi Gateway</span>
             </nav>
             <h1 class="text-[22px] font-bold text-black dark:text-white tracking-tight">Rekonsiliasi &amp; Settlement Gateway</h1>

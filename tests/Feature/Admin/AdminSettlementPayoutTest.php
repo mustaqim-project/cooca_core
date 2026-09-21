@@ -145,6 +145,7 @@ final class AdminSettlementPayoutTest extends TestCase
 
     public function test_admin_can_approve_settlement_with_proof_image_upload(): void
     {
+        Storage::fake('local');
         Storage::fake('public');
 
         $settlement = $this->createPendingSettlement(100000.0, 2500.0);
@@ -169,8 +170,8 @@ final class AdminSettlementPayoutTest extends TestCase
         $this->assertSame($this->admin->id, $settlement->admin_id);
         $this->assertSame('Transfer via KlikBCA Bisnis Reff #987654321', $settlement->admin_notes);
 
-        // Verify file is stored in public disk
-        Storage::disk('public')->assertExists($settlement->proof_image_path);
+        // Verify file is stored in private disk
+        Storage::disk('local')->assertExists($settlement->proof_image_path);
 
         // Verify journal entry is created and balanced
         $journal = JournalEntry::where('business_id', $this->business->id)

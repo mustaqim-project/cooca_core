@@ -11,9 +11,9 @@
             <div>
                 <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                     <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3 h-3 opacity-40"></i>
                     <span class="text-black/70 dark:text-white/70 font-medium">Keuangan</span>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3 h-3 opacity-40"></i>
                     <span class="text-black dark:text-white font-medium">Kas & Bank</span>
                 </nav>
                 <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Kas & Rekening Bank</h1>
@@ -146,7 +146,7 @@
                         </div>
                         <a href="{{ route('finance.cash-bank.ledger', ['account_id' => $account->id]) }}"
                             class="text-[13px] font-medium text-[#007AFF] hover:underline flex items-center gap-0.5">
-                            Mutasi <span>›</span>
+                            Mutasi <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                         </a>
                     </div>
                 </div>
@@ -233,7 +233,7 @@
                                 class="text-[11px] font-bold text-[#248A3D] dark:text-[#30D158] uppercase tracking-wider">Tunai
                                 (Cash)</span>
                             <span
-                                class="w-6 h-6 rounded-full bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center text-[10px] font-bold">💵</span>
+                                class="w-6 h-6 rounded-full bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center text-[10px] font-bold"><i data-lucide="banknote" class="w-3.5 h-3.5"></i></span>
                         </div>
                         <div class="text-[18px] font-bold tabular-nums text-black dark:text-white mt-2">
                             Rp {{ number_format($cashAmount, 0, ',', '.') }}
@@ -243,8 +243,8 @@
                         class="mt-2.5 pt-2 border-t border-[#34C759]/15 flex items-center justify-between text-[11px] text-black/50 dark:text-white/50">
                         <span>{{ $cashCount }} Transaksi</span>
                         <span
-                            class="text-[#248A3D] dark:text-[#30D158] group-hover:translate-x-0.5 transition-transform font-medium">Buku
-                            Kas ›</span>
+                            class="text-[#248A3D] dark:text-[#30D158] group-hover:translate-x-0.5 transition-transform font-medium flex items-center gap-0.5">Buku
+                            Kas <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span>
                     </div>
                 </a>
 
@@ -257,7 +257,7 @@
                                 class="text-[11px] font-bold text-[#8944AB] dark:text-[#BF5AF2] uppercase tracking-wider">QRIS
                                 / E-Wallet</span>
                             <span
-                                class="w-6 h-6 rounded-full bg-[#BF5AF2]/20 text-[#8944AB] dark:text-[#BF5AF2] flex items-center justify-center text-[10px] font-bold">📱</span>
+                                class="w-6 h-6 rounded-full bg-[#BF5AF2]/20 text-[#8944AB] dark:text-[#BF5AF2] flex items-center justify-center text-[10px] font-bold"><i data-lucide="qr-code" class="w-3.5 h-3.5"></i></span>
                         </div>
                         <div class="text-[18px] font-bold tabular-nums text-black dark:text-white mt-2">
                             Rp {{ number_format($qrisAmount, 0, ',', '.') }}
@@ -267,8 +267,8 @@
                         class="mt-2.5 pt-2 border-t border-[#BF5AF2]/15 flex items-center justify-between text-[11px] text-black/50 dark:text-white/50">
                         <span>{{ $qrisCount }} Transaksi</span>
                         <span
-                            class="text-[#8944AB] dark:text-[#BF5AF2] group-hover:translate-x-0.5 transition-transform font-medium">Ledger
-                            ›</span>
+                            class="text-[#8944AB] dark:text-[#BF5AF2] group-hover:translate-x-0.5 transition-transform font-medium flex items-center gap-0.5">Ledger
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span>
                     </div>
                 </a>
 
@@ -281,7 +281,7 @@
                                 class="text-[11px] font-bold text-[#007AFF] dark:text-[#0A84FF] uppercase tracking-wider">Transfer
                                 Bank</span>
                             <span
-                                class="w-6 h-6 rounded-full bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center text-[10px] font-bold">🏦</span>
+                                class="w-6 h-6 rounded-full bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center text-[10px] font-bold"><i data-lucide="landmark" class="w-3.5 h-3.5"></i></span>
                         </div>
                         <div class="text-[18px] font-bold tabular-nums text-black dark:text-white mt-2">
                             Rp {{ number_format($trfAmount, 0, ',', '.') }}
@@ -290,8 +290,8 @@
                     <div
                         class="mt-2.5 pt-2 border-t border-[#007AFF]/15 flex items-center justify-between text-[11px] text-black/50 dark:text-white/50">
                         <span>{{ $trfCount }} Transaksi</span>
-                        <span class="text-[#007AFF] group-hover:translate-x-0.5 transition-transform font-medium">Ledger
-                            ›</span>
+                        <span class="text-[#007AFF] group-hover:translate-x-0.5 transition-transform font-medium flex items-center gap-0.5">Ledger
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span>
                     </div>
                 </a>
 
@@ -304,7 +304,7 @@
                                 class="text-[11px] font-bold text-[#B25E00] dark:text-[#FF9F0A] uppercase tracking-wider">Mesin
                                 EDC</span>
                             <span
-                                class="w-6 h-6 rounded-full bg-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] flex items-center justify-center text-[10px] font-bold">💳</span>
+                                class="w-6 h-6 rounded-full bg-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] flex items-center justify-center text-[10px] font-bold"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i></span>
                         </div>
                         <div class="text-[18px] font-bold tabular-nums text-black dark:text-white mt-2">
                             Rp {{ number_format($edcAmount, 0, ',', '.') }}
@@ -314,8 +314,8 @@
                         class="mt-2.5 pt-2 border-t border-[#FF9500]/15 flex items-center justify-between text-[11px] text-black/50 dark:text-white/50">
                         <span>{{ $edcCount }} Transaksi</span>
                         <span
-                            class="text-[#B25E00] dark:text-[#FF9F0A] group-hover:translate-x-0.5 transition-transform font-medium">Ledger
-                            ›</span>
+                            class="text-[#B25E00] dark:text-[#FF9F0A] group-hover:translate-x-0.5 transition-transform font-medium flex items-center gap-0.5">Ledger
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span>
                     </div>
                 </a>
 
@@ -328,7 +328,7 @@
                                 class="text-[11px] font-bold text-[#C41E17] dark:text-[#FF453A] uppercase tracking-wider">Kasbon
                                 (Credit)</span>
                             <span
-                                class="w-6 h-6 rounded-full bg-[#FF3B30]/20 text-[#C41E17] dark:text-[#FF453A] flex items-center justify-center text-[10px] font-bold">📋</span>
+                                class="w-6 h-6 rounded-full bg-[#FF3B30]/20 text-[#C41E17] dark:text-[#FF453A] flex items-center justify-center text-[10px] font-bold"><i data-lucide="file-text" class="w-3.5 h-3.5"></i></span>
                         </div>
                         <div class="text-[18px] font-bold tabular-nums text-black dark:text-white mt-2">
                             Rp {{ number_format($creditAmount, 0, ',', '.') }}
@@ -338,8 +338,8 @@
                         class="mt-2.5 pt-2 border-t border-[#FF3B30]/15 flex items-center justify-between text-[11px] text-black/50 dark:text-white/50">
                         <span>{{ $creditCount }} Piutang</span>
                         <span
-                            class="text-[#C41E17] dark:text-[#FF453A] group-hover:translate-x-0.5 transition-transform font-medium">Piutang
-                            ›</span>
+                            class="text-[#C41E17] dark:text-[#FF453A] group-hover:translate-x-0.5 transition-transform font-medium flex items-center gap-0.5">Piutang
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span>
                     </div>
                 </a>
             </div>
@@ -379,7 +379,7 @@
                 @if (\App\Support\Context::hasPermission('accounting.view') || \App\Support\Context::hasPermission('finance.cash_bank'))
                     <a href="{{ route('finance.cash-bank.ledger') }}"
                         class="text-[13px] font-medium text-[#007AFF] hover:underline flex items-center gap-0.5">
-                        Lihat Seluruh Buku Kas <span>›</span>
+                        Lihat Seluruh Buku Kas <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                     </a>
                 @endif
             </div>

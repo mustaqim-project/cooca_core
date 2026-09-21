@@ -305,23 +305,28 @@
                 <div class="flex items-center gap-2 flex-wrap">
                     <button type="button" @click="applyPreset(15, 0, 0, 0, null)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5">
-                        <span>🌾 Inflasi Bahan Baku (+15%)</span>
+                        <i data-lucide="wheat" class="w-3.5 h-3.5 text-amber-600"></i>
+                        <span>Inflasi Bahan Baku (+15%)</span>
                     </button>
                     <button type="button" @click="applyPreset(0, 10, 0, 0, null)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5">
-                        <span>👥 Kenaikan UMR (+10%)</span>
+                        <i data-lucide="users" class="w-3.5 h-3.5 text-blue-600"></i>
+                        <span>Kenaikan UMR (+10%)</span>
                     </button>
                     <button type="button" @click="applyPreset(0, 0, 20, 0, null)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5">
-                        <span>⚡ Lonjakan Listrik (+20%)</span>
+                        <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i>
+                        <span>Lonjakan Listrik (+20%)</span>
                     </button>
                     <button type="button" @click="applyPreset(0, 0, 0, 15, null)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5">
-                        <span>📦 Kenaikan Overhead (+15%)</span>
+                        <i data-lucide="package" class="w-3.5 h-3.5 text-purple-600"></i>
+                        <span>Kenaikan Overhead (+15%)</span>
                     </button>
                     <button type="button" @click="applyPreset(20, 10, 15, 10, null)"
                         class="h-8 px-3 rounded-[8px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A] active:scale-[0.97] text-[12px] font-semibold transition-all flex items-center gap-1.5">
-                        <span>🔥 Krisis Pasokan (+20% Bahan, +10% UMR, +15% Mesin)</span>
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
+                        <span>Krisis Pasokan (+20% Bahan, +10% UMR, +15% Mesin)</span>
                     </button>
                     <button type="button" @click="applyPreset(0, 0, 0, 0, 40)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-black/60 dark:text-white/60 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5 ml-auto">

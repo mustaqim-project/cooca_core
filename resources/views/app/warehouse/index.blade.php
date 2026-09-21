@@ -910,9 +910,9 @@
                             Tipe Lokasi
                         </label>
                         <select name="type" class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                            <option value="warehouse" :selected="editData.type === 'warehouse'">🏢 Gudang (Warehouse)</option>
-                            <option value="outlet" :selected="editData.type === 'outlet'">🏪 Outlet / Toko</option>
-                            <option value="central_kitchen" :selected="editData.type === 'central_kitchen'">🍳 Dapur Pusat</option>
+                            <option value="warehouse" :selected="editData.type === 'warehouse'">Gudang (Warehouse)</option>
+                            <option value="outlet" :selected="editData.type === 'outlet'">Outlet / Toko</option>
+                            <option value="central_kitchen" :selected="editData.type === 'central_kitchen'">Dapur Pusat (Central Kitchen)</option>
                         </select>
                     </div>
                     <div>

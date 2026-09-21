@@ -156,18 +156,34 @@
             </div>
         </div>
 
-        <form method="GET" action="{{ route('tax.index') }}" class="flex flex-wrap items-center gap-2 text-xs">
-            <select name="taxpayer_type" onchange="this.form.submit()" class="px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                <option value="individual" {{ $isIndividual ? 'selected' : '' }}>Orang Pribadi (Bebas Pajak s/d Rp 500 Juta)</option>
-                <option value="corporate" {{ ! $isIndividual ? 'selected' : '' }}>Badan Usaha PT/CV (Tarif 0.5% dari Rupiah Pertama)</option>
-            </select>
+        <div class="flex flex-wrap items-center gap-2">
+            <form method="GET" action="{{ route('tax.index') }}" class="flex flex-wrap items-center gap-2 text-xs">
+                <select name="taxpayer_type" onchange="this.form.submit()" class="px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    <option value="individual" {{ $isIndividual ? 'selected' : '' }}>Orang Pribadi (Bebas Pajak s/d Rp 500 Juta)</option>
+                    <option value="corporate" {{ ! $isIndividual ? 'selected' : '' }}>Badan Usaha PT/CV (Tarif 0.5% dari Rupiah Pertama)</option>
+                </select>
 
-            <select name="year" onchange="this.form.submit()" class="px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                @for ($y = date('Y') - 1; $y <= date('Y') + 1; $y++)
-                    <option value="{{ $y }}" {{ $currentYear == $y ? 'selected' : '' }}>Tahun {{ $y }}</option>
-                @endfor
-            </select>
-        </form>
+                <select name="year" onchange="this.form.submit()" class="px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    @for ($y = date('Y') - 1; $y <= date('Y') + 1; $y++)
+                        <option value="{{ $y }}" {{ $currentYear == $y ? 'selected' : '' }}>Tahun {{ $y }}</option>
+                    @endfor
+                </select>
+            </form>
+
+            <a href="{{ route('tax.export.pph_final', ['year' => $currentYear, 'taxpayer_type' => $isIndividual ? 'individual' : 'corporate']) }}"
+               class="px-3 py-1.5 rounded-xl text-xs font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-colors flex items-center gap-1.5 shrink-0"
+               title="Export CSV Rekapitulasi PPh Final UMKM 0.5%">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Export PPh Final (CSV)</span>
+            </a>
+
+            <a href="{{ route('tax.export.ebupot', ['year' => $currentYear, 'month' => date('n')]) }}"
+               class="px-3 py-1.5 rounded-xl text-xs font-semibold text-[#5856D6] bg-[#5856D6]/10 hover:bg-[#5856D6]/15 transition-colors flex items-center gap-1.5 shrink-0"
+               title="Export CSV DJP e-Bupot 21/26">
+                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                <span>Export e-Bupot 21/26</span>
+            </a>
+        </div>
     </div>
 
     {{-- Bento Grid 1: Threshold & KPI Cards --}}
@@ -250,10 +266,16 @@
 
     {{-- Bento Grid 2: Tabel Rekapitulasi 12 Bulan PPh Final UMKM --}}
     <div class="p-5 rounded-2xl bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
             <div>
                 <h3 class="text-sm font-semibold text-black dark:text-white">Rekapitulasi Bulanan PPh Final UMKM (PP 55/2022)</h3>
                 <p class="text-xs text-black/60 dark:text-white/60">Pantauan omzet dan kewajiban setor per masa pajak</p>
+            </div>
+
+            {{-- DJP Billing Quick Info Badge --}}
+            <div class="flex items-center gap-2 p-2 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] text-[11px] text-black/70 dark:text-white/70">
+                <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                <span>Kode Billing DJP: <strong class="text-black dark:text-white">KAP 411128</strong> &bull; <strong class="text-black dark:text-white">KJS 420</strong> &bull; Jatuh tempo tgl 15</span>
             </div>
         </div>
 

@@ -49,7 +49,91 @@
     newIsPreorder: false,
     newPreorderMode: 'customer_schedule',
     newPreorderLeadDays: 1,
-    newShowPriceOnWeb: true,
+    showBranchPricesModal: false,
+    branchPricesLoading: false,
+    branchPricesSaving: false,
+    branchProduct: { id: '', name: '', code: '', base_cost: 0, selling_price: 0 },
+    branchList: [],
+    async openBranchPricesModal(productId) {
+        this.showBranchPricesModal = true;
+        this.branchPricesLoading = true;
+        this.branchList = [];
+        try {
+            const res = await fetch('/products/' + productId + '/branch-prices', {
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Gagal memuat harga cabang');
+            this.branchProduct = data.product;
+            this.branchList = (data.branches || []).map(b => ({
+                ...b,
+                custom_price: b.has_override ? b.price : '',
+                custom_cost: b.has_override ? b.cost_price : '',
+                is_available: b.is_available,
+                use_custom: b.has_override
+            }));
+        } catch (e) {
+            this.showBranchPricesModal = false;
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Dibatasi',
+                    text: e.message || 'Fitur Multi-Harga per Cabang memerlukan Paket Premium.',
+                    confirmButtonColor: '#007AFF'
+                });
+            }
+        } finally {
+            this.branchPricesLoading = false;
+        }
+    },
+    async saveBranchPrices() {
+        if (this.branchPricesSaving) return;
+        this.branchPricesSaving = true;
+        try {
+            const payload = {
+                prices: this.branchList.map(b => ({
+                    location_id: b.location_id,
+                    price: b.use_custom && b.custom_price !== '' ? Number(b.custom_price) : null,
+                    cost_price: b.use_custom && b.custom_cost !== '' ? Number(b.custom_cost) : null,
+                    is_available: b.is_available,
+                    reset: !b.use_custom
+                }))
+            };
+            const res = await fetch('/products/' + this.branchProduct.id + '/branch-prices', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Gagal menyimpan harga cabang.');
+            this.showBranchPricesModal = false;
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: data.message,
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+        } catch (e) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Menyimpan',
+                    text: e.message,
+                    confirmButtonColor: '#FF3B30'
+                });
+            }
+        } finally {
+            this.branchPricesSaving = false;
+        }
+    },
 
     deleteModalOpen: false,
     deleteTarget: { id: '', name: '' },
@@ -776,6 +860,15 @@
                                 @endif
 
                                 @if(\App\Support\Context::hasPermission('products.edit') || \App\Support\Context::hasPermission('products.manage'))
+                                <button type="button" @click="openBranchPricesModal('{{ $prod->id }}')"
+                                        class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-colors flex items-center gap-1"
+                                        title="Atur Harga Khusus per Cabang">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.25a.75.75 0 01-.75-.75V3.75a.75.75 0 01.75-.75h19.5a.75.75 0 01.75.75v16.5a.75.75 0 01-.75.75h-7.5zM3.75 6.75h16.5M3.75 10.5h16.5M3.75 14.25h6" /></svg>
+                                    <span>Cabang</span>
+                                </button>
+                                @endif
+
+                                @if(\App\Support\Context::hasPermission('products.edit') || \App\Support\Context::hasPermission('products.manage'))
                                 <button type="button" @click="openEditModal({
                                     id: '{{ $prod->id }}',
                                     slug: '{{ $prod->slug }}',
@@ -870,6 +963,11 @@
                     <a href="{{ route('products.bom', $prod->slug) }}" class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 flex items-center">
                         BOM
                     </a>
+                    @endif
+                    @if(\App\Support\Context::hasPermission('products.edit') || \App\Support\Context::hasPermission('products.manage'))
+                    <button type="button" @click="openBranchPricesModal('{{ $prod->id }}')" class="h-8 px-2 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 flex items-center">
+                        Cabang
+                    </button>
                     @endif
                     @if(\App\Support\Context::hasPermission('products.edit') || \App\Support\Context::hasPermission('products.manage'))
                     <button type="button" @click="openEditModal({
@@ -1582,6 +1680,134 @@
             <div x-show="productScannerError" class="p-3 rounded-[10px] bg-[#FF3B30]/10 text-[12px] text-[#FF3B30]" x-text="productScannerError"></div>
             <div class="flex justify-end pt-1">
                 <button type="button" @click="closeProductScanner()" class="h-9 px-4 rounded-[10px] text-[13px] bg-black/[0.06] dark:bg-white/[0.08] text-black/80 dark:text-white/80 font-medium">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- 11. BENTO APPLE HIG MODAL: HARGA PER CABANG           -->
+    <!-- ===================================================== -->
+    <div x-show="showBranchPricesModal" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/30 backdrop-blur-md"
+         @keydown.escape.window="showBranchPricesModal = false">
+        <div class="w-full max-w-full sm:max-w-2xl rounded-t-[28px] sm:rounded-[24px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.3)] max-h-[92vh] flex flex-col overflow-hidden"
+             @click.outside="showBranchPricesModal = false">
+
+            <!-- Mobile Grab Bar -->
+            <div class="w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5 sm:hidden shrink-0"></div>
+
+            <!-- Sticky Top Header -->
+            <div class="sticky top-0 z-20 backdrop-blur-xl bg-white/95 dark:bg-[#1C1C1E]/95 border-b border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-7 py-4 flex items-center justify-between gap-4 shrink-0">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.25a.75.75 0 01-.75-.75V3.75a.75.75 0 01.75-.75h19.5a.75.75 0 01.75.75v16.5a.75.75 0 01-.75.75h-7.5zM3.75 6.75h16.5M3.75 10.5h16.5M3.75 14.25h6" /></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 class="text-[17px] sm:text-[19px] font-bold text-black dark:text-white tracking-tight leading-snug truncate">
+                            Atur Harga Cabang
+                        </h2>
+                        <p class="text-[12px] sm:text-[13px] text-black/60 dark:text-white/60 truncate">
+                            <span x-text="branchProduct.name" class="font-semibold text-[#007AFF]"></span>
+                            <span class="mx-1">·</span>
+                            <span>Master: Rp <span x-text="Number(branchProduct.selling_price || 0).toLocaleString('id-ID')"></span></span>
+                        </p>
+                    </div>
+                </div>
+                <button type="button" @click="showBranchPricesModal = false"
+                        class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.1] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] text-black/60 dark:text-white/60 flex items-center justify-center active:scale-95 transition-all shrink-0"
+                        title="Tutup">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+
+            <!-- Modal Body (Scrollable Bento List) -->
+            <div class="flex-1 overflow-y-auto p-5 sm:p-7 space-y-4 sidebar-scroll">
+                <!-- Loading State -->
+                <div x-show="branchPricesLoading" class="py-12 text-center text-black/50 dark:text-white/50">
+                    <svg class="w-8 h-8 mx-auto animate-spin text-[#007AFF] mb-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <p class="text-[14px]">Memuat data cabang & outlet...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div x-show="!branchPricesLoading && branchList.length === 0" class="py-10 text-center text-black/50 dark:text-white/50">
+                    <p class="text-[14px]">Belum ada lokasi cabang/outlet yang terdaftar pada sistem.</p>
+                </div>
+
+                <!-- List of Branches -->
+                <template x-for="(branch, index) in branchList" :key="branch.location_id">
+                    <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] transition-all space-y-3.5"
+                         :class="branch.use_custom ? 'ring-2 ring-[#007AFF]/30 bg-[#007AFF]/[0.02]' : ''">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-[15px] font-bold text-black dark:text-white truncate" x-text="branch.location_name"></h3>
+                                    <span class="px-2 py-0.5 rounded-[6px] text-[11px] font-semibold uppercase tracking-wider"
+                                          :class="branch.location_type === 'outlet' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-[#FF9500]/10 text-[#FF9500]'"
+                                          x-text="branch.location_type === 'outlet' ? 'Outlet' : 'Gudang'"></span>
+                                </div>
+                                <p class="text-[12px] text-black/50 dark:text-white/50" x-text="'Kode: ' + (branch.location_code || '-')"></p>
+                            </div>
+
+                            <!-- Custom Price Toggle -->
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <span class="text-[12px] font-medium text-black/60 dark:text-white/60">Harga Khusus</span>
+                                <input type="checkbox" x-model="branch.use_custom" class="w-4 h-4 rounded text-[#007AFF] border-black/20 focus:ring-[#007AFF]">
+                            </label>
+                        </div>
+
+                        <!-- If Custom Active -->
+                        <div x-show="branch.use_custom" x-cloak class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                        Harga Jual Cabang (Rp) <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-black/40 dark:text-white/40">Rp</span>
+                                        <input type="number" step="any" min="0" x-model="branch.custom_price"
+                                               placeholder="0"
+                                               class="w-full h-11 pl-10 pr-3.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white text-[16px] font-semibold tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-[#007AFF] transition-all">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                        HPP Khusus (Rp, Opsional)
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-black/40 dark:text-white/40">Rp</span>
+                                        <input type="number" step="any" min="0" x-model="branch.custom_cost"
+                                               placeholder="0"
+                                               class="w-full h-11 pl-10 pr-3.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white text-[16px] font-semibold tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-[#007AFF] transition-all">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <label class="flex items-center gap-2 cursor-pointer pt-1">
+                                <input type="checkbox" x-model="branch.is_available" class="w-4 h-4 rounded text-[#34C759] border-black/20 focus:ring-[#34C759]">
+                                <span class="text-[12px] text-black/70 dark:text-white/70">Produk ini tersedia untuk dijual di cabang ini</span>
+                            </label>
+                        </div>
+
+                        <!-- If Master Default -->
+                        <div x-show="!branch.use_custom" class="text-[12px] text-black/50 dark:text-white/50 bg-black/[0.02] dark:bg-white/[0.02] p-2.5 rounded-[10px] flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                            <span>Mengikuti harga master katalog pusat: <strong class="text-black/80 dark:text-white/80 tabular-nums">Rp <span x-text="Number(branchProduct.selling_price || 0).toLocaleString('id-ID')"></span></strong></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Sticky Bottom Footer Actions -->
+            <div class="sticky bottom-0 z-20 backdrop-blur-xl bg-white/95 dark:bg-[#1C1C1E]/95 border-t border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex items-center justify-end gap-3 shrink-0">
+                <button type="button" @click="showBranchPricesModal = false"
+                        class="h-11 px-5 rounded-[12px] text-[14px] font-medium text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition-colors">
+                    Batal
+                </button>
+                <button type="button" @click="saveBranchPrices()" :disabled="branchPricesSaving || branchPricesLoading"
+                        class="h-11 px-6 rounded-[12px] text-[14px] font-bold text-white bg-[#007AFF] hover:bg-[#007AFF]/90 active:scale-95 disabled:opacity-50 transition-all flex items-center gap-2 shadow-[0_4px_12px_rgba(0,122,255,0.25)]">
+                    <svg x-show="branchPricesSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span x-text="branchPricesSaving ? 'Menyimpan...' : 'Simpan Harga Cabang'"></span>
+                </button>
             </div>
         </div>
     </div>

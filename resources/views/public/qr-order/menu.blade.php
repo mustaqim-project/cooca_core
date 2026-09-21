@@ -309,7 +309,9 @@
                         x-text="formatRupiah(activeProduct ? activeProduct.selling_price : 0)"></div>
                 </div>
                 <button type="button" @click="showCustomizationModal = false"
-                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/60 hover:text-black dark:hover:text-white transition">✕</button>
+                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/60 hover:text-black dark:hover:text-white transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
             </div>
 
             <!-- Scrollable Modifier Groups -->
@@ -415,7 +417,9 @@
                         x-text="'Meja ' + '{{ $table->table_number }}' + ' • ' + (customerName || 'Tamu')"></div>
                 </div>
                 <button type="button" @click="showCartModal = false"
-                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/60 hover:text-black dark:hover:text-white transition">✕</button>
+                    class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/60 hover:text-black dark:hover:text-white transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
             </div>
 
             <!-- Cart Items List -->
@@ -436,8 +440,8 @@
 
                         <div class="flex items-center gap-2">
                             <button type="button" @click="removeFromCart(idx)"
-                                class="w-7 h-7 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center text-xs font-bold active:scale-90 transition">
-                                ✕
+                                class="w-7 h-7 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center active:scale-90 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
                     </div>
