@@ -38,5 +38,11 @@ Schedule::command('social-media:purge-published')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/social-media-purge.log'));
 
+// 6. Sync WhatsApp message templates from Meta Cloud API (Setiap jam)
+Schedule::command('whatsapp:sync-templates')
+    ->hourly()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/cron-wa.log'));
+
 
 

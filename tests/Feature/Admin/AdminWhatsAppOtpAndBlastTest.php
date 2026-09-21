@@ -54,7 +54,7 @@ class AdminWhatsAppOtpAndBlastTest extends TestCase
         SystemSetting::set('meta_wa_otp_template', 'cooca_otp', 'whatsapp');
 
         Http::fake([
-            'https://graph.facebook.com/v21.0/10987654321/messages' => Http::response([
+            'https://graph.facebook.com/v26.0/10987654321/messages' => Http::response([
                 'messages' => [['id' => 'wamid.HBgLMTIzNDU2Nzg5MA==']],
             ], 200),
         ]);
@@ -82,7 +82,7 @@ class AdminWhatsAppOtpAndBlastTest extends TestCase
         SystemSetting::set('meta_wa_phone_number_id', '10987654321', 'whatsapp');
 
         Http::fake([
-            'https://graph.facebook.com/v21.0/10987654321/messages' => Http::response([
+            'https://graph.facebook.com/v26.0/10987654321/messages' => Http::response([
                 'messages' => [['id' => 'wamid.HBgLMTIzNDU2Nzg5MA==']],
             ], 200),
         ]);
@@ -145,7 +145,7 @@ class AdminWhatsAppOtpAndBlastTest extends TestCase
         SystemSetting::set('meta_wa_phone_number_id', '10987654321', 'whatsapp');
 
         Http::fake([
-            'https://graph.facebook.com/v21.0/10987654321/messages' => Http::response([
+            'https://graph.facebook.com/v26.0/10987654321/messages' => Http::response([
                 'messages' => [['id' => 'wamid.blast123']],
             ], 200),
         ]);

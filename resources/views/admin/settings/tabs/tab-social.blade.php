@@ -64,7 +64,7 @@
                                 </div>
                                 <div>
                                     <h3 class="text-[16px] font-bold text-black dark:text-white">Meta Platform (Facebook, Instagram &amp; Threads)</h3>
-                                    <p class="text-[12px] text-black/50 dark:text-white/50">Graph API v21.0 - Otorisasi Terpadu 1-Klik</p>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Graph API v26.0 - Otorisasi Terpadu 1-Klik</p>
                                 </div>
                             </div>
                             @if(!empty($metaSocialAppId))
@@ -115,8 +115,8 @@
                                 <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
                                     Meta Graph API Version
                                 </label>
-                                <input type="text" name="social_media_graph_version" value="{{ old('social_media_graph_version', $metaSocialGraphVersion ?? 'v21.0') }}"
-                                    placeholder="v21.0"
+                                <input type="text" name="social_media_graph_version" value="{{ old('social_media_graph_version', $metaSocialGraphVersion ?? 'v26.0') }}"
+                                    placeholder="v26.0"
                                     class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#1877F2]/50 transition">
                             </div>
 

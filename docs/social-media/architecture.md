@@ -35,7 +35,7 @@ Sebelumnya, COOCA memiliki integrasi Meta (Facebook Page, Instagram, Threads). A
 
 ### B. Client Layer (`app/Domain/SocialMedia/Clients/`)
 - Komunikasi HTTP murni ke API resmi platform dengan cURL / Guzzle:
-  - `MetaSocialMediaClient` -> Meta Graph API v21.0.
+  - `MetaSocialMediaClient` -> Meta Graph API v26.0.
   - `TikTokClient` -> TikTok Open API v2.
 
 ### C. Validation Layer (`app/Domain/SocialMedia/Validation/`)

@@ -102,7 +102,7 @@ class WhatsAppAdminMultiSessionTest extends TestCase
         SystemSetting::set('wa_otp_active', '1');
 
         Http::fake([
-            'https://graph.facebook.com/v21.0/998877665544332/messages' => Http::response([
+            'https://graph.facebook.com/v26.0/998877665544332/messages' => Http::response([
                 'messaging_product' => 'whatsapp',
                 'contacts'          => [['input' => '6281299998888', 'wa_id' => '6281299998888']],
                 'messages'          => [['id' => 'wamid.HBgLTESTDIRECTOTP==']],
@@ -123,7 +123,7 @@ class WhatsAppAdminMultiSessionTest extends TestCase
         SystemSetting::set('wa_blast_active', '1');
 
         Http::fake([
-            'https://graph.facebook.com/v21.0/998877665544332/messages' => Http::response([
+            'https://graph.facebook.com/v26.0/998877665544332/messages' => Http::response([
                 'messaging_product' => 'whatsapp',
                 'contacts'          => [['input' => '6281299998888', 'wa_id' => '6281299998888']],
                 'messages'          => [['id' => 'wamid.HBgLTESTBLAST==']],

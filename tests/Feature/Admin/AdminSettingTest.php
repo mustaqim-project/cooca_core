@@ -90,22 +90,22 @@ class AdminSettingTest extends TestCase
             'active_tab'                   => 'whatsapp',
             'meta_wa_app_id'               => '1454871749894754',
             'meta_wa_app_secret'           => 'secret_meta_wa_123',
-            'meta_wa_phone_number_id'      => '1311095538754578',
-            'meta_wa_waba_id'              => '4663536093891174',
+            'meta_wa_phone_number_id'      => '1344185355444409',
+            'meta_wa_waba_id'              => '1546059137323420',
             'meta_wa_token'                => 'EAAUrMrnYomIBSt0WqjV9S853dQj5ZB8bLg86ynZBMQiMlsB...',
             'meta_wa_webhook_verify_token' => 'cooca_meta_wa_webhook_secret',
-            'meta_wa_graph_version'        => 'v25.0',
+            'meta_wa_graph_version'        => 'v26.0',
             'meta_wa_graph_url'            => 'https://graph.facebook.com',
         ]);
 
         $response->assertRedirect(route('admin.settings.index', ['tab' => 'whatsapp']));
         $this->assertSame('1454871749894754', SystemSetting::get('meta_wa_app_id'));
         $this->assertSame('secret_meta_wa_123', SystemSetting::get('meta_wa_app_secret'));
-        $this->assertSame('1311095538754578', SystemSetting::get('meta_wa_phone_number_id'));
-        $this->assertSame('4663536093891174', SystemSetting::get('meta_wa_waba_id'));
+        $this->assertSame('1344185355444409', SystemSetting::get('meta_wa_phone_number_id'));
+        $this->assertSame('1546059137323420', SystemSetting::get('meta_wa_waba_id'));
         $this->assertSame('EAAUrMrnYomIBSt0WqjV9S853dQj5ZB8bLg86ynZBMQiMlsB...', SystemSetting::get('meta_wa_token'));
         $this->assertSame('cooca_meta_wa_webhook_secret', SystemSetting::get('meta_wa_webhook_verify_token'));
-        $this->assertSame('v25.0', SystemSetting::get('meta_wa_graph_version'));
+        $this->assertSame('v26.0', SystemSetting::get('meta_wa_graph_version'));
     }
 
     public function test_tripay_test_connection_endpoint_success(): void
@@ -140,12 +140,12 @@ class AdminSettingTest extends TestCase
     {
         $admin = $this->makeAdmin();
         SystemSetting::set('meta_wa_token', 'EAAG_VALID_TOKEN_123');
-        SystemSetting::set('meta_wa_phone_number_id', '1311095538754578');
-        SystemSetting::set('meta_wa_graph_version', 'v25.0');
+        SystemSetting::set('meta_wa_phone_number_id', '1344185355444409');
+        SystemSetting::set('meta_wa_graph_version', 'v26.0');
 
         Http::fake([
-            'https://graph.facebook.com/v25.0/1311095538754578*' => Http::response([
-                'id'                   => '1311095538754578',
+            'https://graph.facebook.com/v26.0/1344185355444409*' => Http::response([
+                'id'                   => '1344185355444409',
                 'verified_name'        => 'Test Number',
                 'display_phone_number' => '+1 555-184-6167',
                 'quality_rating'       => 'GREEN',
@@ -158,7 +158,7 @@ class AdminSettingTest extends TestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'id' => '1311095538754578',
+                'id' => '1344185355444409',
                 'verified_name' => 'Test Number',
                 'quality_rating' => 'GREEN',
             ],
@@ -194,7 +194,7 @@ class AdminSettingTest extends TestCase
         SystemSetting::set('instagram_access_token', 'IGAA_VALID_TOKEN_123');
 
         Http::fake([
-            'https://graph.instagram.com/v21.0/me*' => Http::response([
+            'https://graph.instagram.com/v26.0/me*' => Http::response([
                 'id'                  => '28475871372070145',
                 'username'            => 'cooca.indonesia',
                 'account_type'        => 'MEDIA_CREATOR',
@@ -223,7 +223,7 @@ class AdminSettingTest extends TestCase
         SystemSetting::set('instagram_access_token', 'IGAA_VALID_TOKEN_123');
 
         Http::fake([
-            'https://graph.instagram.com/v21.0/me*' => Http::response([
+            'https://graph.instagram.com/v26.0/me*' => Http::response([
                 'id'           => '28475871372070145',
                 'username'     => 'cooca.indonesia',
                 'account_type' => 'MEDIA_CREATOR',
@@ -311,7 +311,7 @@ class AdminSettingTest extends TestCase
         $response = $this->actingAs($admin, 'admin')->post(route('admin.settings.update'), [
             'active_tab'                 => 'social',
             'social_media_app_id'        => '1813131243044390',
-            'social_media_graph_version' => 'v21.0',
+            'social_media_graph_version' => 'v26.0',
             'social_media_graph_url'     => 'https://graph.facebook.com',
             'tiktok_client_key'          => 'aw60pmxxtvrmhk0p',
             'tiktok_api_url'             => 'https://open.tiktokapis.com/v2/',

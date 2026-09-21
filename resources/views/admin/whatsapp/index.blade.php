@@ -287,7 +287,7 @@
                                 </template>
                             </div>
                             <p class="text-[12.5px] text-black/60 dark:text-white/60 leading-relaxed max-w-2xl">
-                                Kanal resmi Meta WhatsApp Cloud API (Graph API v21.0) tingkat induk (Parent). Digunakan untuk pengiriman OTP otentikasi login, reset PIN, verifikasi akun, dan pengingat tagihan langganan SaaS.
+                                Kanal resmi Meta WhatsApp Cloud API (Graph API v26.0) tingkat induk (Parent). Digunakan untuk pengiriman OTP otentikasi login, reset PIN, verifikasi akun, dan pengingat tagihan langganan SaaS.
                             </p>
                         </div>
                     </div>
@@ -449,7 +449,7 @@
                     <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
                         <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Graph API Version (META_WA_GRAPH_VERSION)</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
-                            {{ $platformApp['graph_version'] ?: 'v21.0' }}
+                            {{ $platformApp['graph_version'] ?: 'v26.0' }}
                         </div>
                     </div>
 
@@ -1156,6 +1156,413 @@
         <div x-show="activeTab === 'templates'" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
             class="space-y-6 w-full min-w-0">
+
+            {{-- ----------------------------------------------------------------- --}}
+            {{-- SUBSEKSI 1: TEMPLATE PESAN RESMI META CLOUD API (v26.0)           --}}
+            {{-- ----------------------------------------------------------------- --}}
+            <div
+                class="rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm p-4 sm:p-7 space-y-6 w-full min-w-0">
+                
+                {{-- Header Subseksi --}}
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08] min-w-0">
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF] animate-pulse"></span>
+                                Meta Graph API v26.0
+                            </span>
+                            <span class="text-[12px] font-medium text-black/40 dark:text-white/40">WABA: {{ $metaCreds['waba_id'] ?: '37944837988498077' }}</span>
+                        </div>
+                        <h2 class="text-[17px] font-bold text-black dark:text-white">Katalog Template WhatsApp Business</h2>
+                        <p class="text-[12px] sm:text-[13px] text-black/50 dark:text-white/50 mt-0.5">Template pesan terdaftar dan terkurasi Meta untuk broadcast, OTP, dan pengingat langganan pelanggan</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button type="button" @click="syncMetaTemplates()" :disabled="templateSyncing"
+                            class="min-h-[42px] px-4 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 dark:hover:bg-white/12 text-black dark:text-white text-[13px] font-semibold inline-flex items-center gap-2 transition-all disabled:opacity-50">
+                            <i data-lucide="refresh-cw" class="w-4 h-4" :class="{ 'animate-spin': templateSyncing }"></i>
+                            <span x-text="templateSyncing ? 'Menyinkronkan...' : 'Sinkronkan dari Meta'">Sinkronkan dari Meta</span>
+                        </button>
+                        <button type="button" @click="openCreateTemplateModal()"
+                            class="min-h-[42px] px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold inline-flex items-center gap-2 shadow-sm active:scale-[0.98] transition-all">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Buat Template</span>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Bento Stats Grid --}}
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    {{-- Total --}}
+                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] font-semibold text-black/45 dark:text-white/45">Total Template</div>
+                            <div class="text-[22px] font-bold text-black dark:text-white font-mono mt-0.5" x-text="(metaTemplates || []).length">
+                                {{ count($metaTemplates) }}
+                            </div>
+                        </div>
+                        <div class="w-9 h-9 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+
+                    {{-- Approved --}}
+                    <div class="p-4 rounded-[16px] bg-[#34C759]/[0.05] border border-[#34C759]/20 flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] font-semibold text-[#34C759]">Disetujui (Approved)</div>
+                            <div class="text-[22px] font-bold text-[#34C759] font-mono mt-0.5" x-text="(metaTemplates || []).filter(t => (t.status || '').toUpperCase() === 'APPROVED').length">
+                                {{ $metaTemplates->filter(fn($t) => strtoupper($t->status) === 'APPROVED')->count() }}
+                            </div>
+                        </div>
+                        <div class="w-9 h-9 rounded-[10px] bg-[#34C759]/15 flex items-center justify-center text-[#34C759]">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+
+                    {{-- Pending --}}
+                    <div class="p-4 rounded-[16px] bg-[#FF9500]/[0.05] border border-[#FF9500]/20 flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] font-semibold text-[#FF9500]">Menunggu (Pending)</div>
+                            <div class="text-[22px] font-bold text-[#FF9500] font-mono mt-0.5" x-text="(metaTemplates || []).filter(t => (t.status || '').toUpperCase() === 'PENDING').length">
+                                {{ $metaTemplates->filter(fn($t) => strtoupper($t->status) === 'PENDING')->count() }}
+                            </div>
+                        </div>
+                        <div class="w-9 h-9 rounded-[10px] bg-[#FF9500]/15 flex items-center justify-center text-[#FF9500]">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+
+                    {{-- Rejected / Other --}}
+                    <div class="p-4 rounded-[16px] bg-[#FF3B30]/[0.05] border border-[#FF3B30]/20 flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] font-semibold text-[#FF3B30]">Ditolak / Masalah</div>
+                            <div class="text-[22px] font-bold text-[#FF3B30] font-mono mt-0.5" x-text="(metaTemplates || []).filter(t => ['REJECTED', 'PAUSED', 'DISABLED'].includes((t.status || '').toUpperCase())).length">
+                                {{ $metaTemplates->filter(fn($t) => in_array(strtoupper($t->status), ['REJECTED', 'PAUSED', 'DISABLED']))->count() }}
+                            </div>
+                        </div>
+                        <div class="w-9 h-9 rounded-[10px] bg-[#FF3B30]/15 flex items-center justify-center text-[#FF3B30]">
+                            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Template Card Grid --}}
+                <div x-show="(metaTemplates || []).length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                    <template x-for="tpl in metaTemplates" :key="tpl.id">
+                        <div
+                            class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-black/15 dark:hover:border-white/20 transition-all">
+                            
+                            {{-- Top Header info --}}
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between gap-2">
+                                    {{-- Category Badge --}}
+                                    <span
+                                        :class="{
+                                            'bg-[#007AFF]/15 text-[#007AFF]': (tpl.category || '').toUpperCase() === 'UTILITY',
+                                            'bg-[#34C759]/15 text-[#34C759]': (tpl.category || '').toUpperCase() === 'MARKETING',
+                                            'bg-[#AF52DE]/15 text-[#AF52DE]': (tpl.category || '').toUpperCase() === 'AUTHENTICATION',
+                                            'bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70': !['UTILITY', 'MARKETING', 'AUTHENTICATION'].includes((tpl.category || '').toUpperCase())
+                                        }"
+                                        class="px-2.5 py-0.5 rounded-[6px] text-[10px] font-bold tracking-wide uppercase"
+                                        x-text="tpl.category || 'UTILITY'">
+                                    </span>
+
+                                    {{-- Status Badge --}}
+                                    <span
+                                        :class="{
+                                            'bg-[#34C759]/15 text-[#34C759] border-[#34C759]/30': (tpl.status || '').toUpperCase() === 'APPROVED',
+                                            'bg-[#FF9500]/15 text-[#FF9500] border-[#FF9500]/30': (tpl.status || '').toUpperCase() === 'PENDING',
+                                            'bg-[#FF3B30]/15 text-[#FF3B30] border-[#FF3B30]/30': ['REJECTED', 'PAUSED', 'DISABLED'].includes((tpl.status || '').toUpperCase()),
+                                            'bg-black/10 text-black/60 border-black/20': !['APPROVED', 'PENDING', 'REJECTED', 'PAUSED', 'DISABLED'].includes((tpl.status || '').toUpperCase())
+                                        }"
+                                        class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border">
+                                        <span class="w-1.5 h-1.5 rounded-full"
+                                            :class="{
+                                                'bg-[#34C759]': (tpl.status || '').toUpperCase() === 'APPROVED',
+                                                'bg-[#FF9500]': (tpl.status || '').toUpperCase() === 'PENDING',
+                                                'bg-[#FF3B30]': ['REJECTED', 'PAUSED', 'DISABLED'].includes((tpl.status || '').toUpperCase()),
+                                                'bg-black/40': !['APPROVED', 'PENDING', 'REJECTED', 'PAUSED', 'DISABLED'].includes((tpl.status || '').toUpperCase())
+                                            }"></span>
+                                        <span x-text="tpl.status"></span>
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-[14px] font-bold text-black dark:text-white font-mono truncate" :title="tpl.name" x-text="tpl.name"></h3>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <span class="text-[11px] text-black/45 dark:text-white/45 font-mono">Bahasa: <span class="uppercase font-semibold text-black/70 dark:text-white/70" x-text="tpl.language"></span></span>
+                                        <span x-show="tpl.quality_score" class="text-[11px] text-black/45 dark:text-white/45 font-mono">• Kualitas: <span class="font-semibold text-[#34C759]" x-text="tpl.quality_score"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- WhatsApp Chat Bubble Preview (iOS WhatsApp Style) --}}
+                            <div class="rounded-[16px] bg-[#EFEAE2] dark:bg-[#0B141A] p-3 sm:p-3.5 border border-black/[0.04] dark:border-white/[0.04]">
+                                <div class="rounded-[14px] rounded-tl-none bg-white dark:bg-[#1F2C34] p-3 space-y-1.5 shadow-sm border border-black/[0.04] dark:border-white/[0.06] text-[12px]">
+                                    {{-- Header Preview --}}
+                                    <div x-show="getTemplateHeader(tpl)" class="font-bold text-[12px] text-black dark:text-white border-b border-black/[0.06] dark:border-white/[0.06] pb-1"
+                                        x-text="getTemplateHeader(tpl)">
+                                    </div>
+
+                                    {{-- Body Preview --}}
+                                    <div class="text-black/85 dark:text-white/90 leading-relaxed font-sans whitespace-pre-line text-[12px]"
+                                        x-html="formatBodyPreview(getTemplateBody(tpl))">
+                                    </div>
+
+                                    {{-- Footer Preview --}}
+                                    <div x-show="getTemplateFooter(tpl)" class="text-[10px] text-black/45 dark:text-white/45 pt-1 border-t border-black/[0.04] dark:border-white/[0.04]"
+                                        x-text="getTemplateFooter(tpl)">
+                                    </div>
+                                </div>
+
+                                {{-- Buttons Preview --}}
+                                <div x-show="getTemplateButtons(tpl).length > 0" class="mt-1.5 space-y-1">
+                                    <template x-for="btn in getTemplateButtons(tpl)" :key="btn.text">
+                                        <div class="w-full py-1.5 px-3 rounded-[10px] bg-white dark:bg-[#1F2C34] text-center text-[11px] font-semibold text-[#007AFF] dark:text-[#3897F0] shadow-sm flex items-center justify-center gap-1.5">
+                                            <i data-lucide="corner-up-right" class="w-3 h-3"></i>
+                                            <span x-text="btn.text"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            {{-- Rejection alert if any --}}
+                            <div x-show="tpl.rejected_reason" class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[11px] text-[#FF3B30] flex items-start gap-2">
+                                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i>
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-bold">Alasan Penolakan Meta:</div>
+                                    <div class="text-black/70 dark:text-white/70" x-text="tpl.rejected_reason"></div>
+                                </div>
+                            </div>
+
+                            {{-- Bottom actions --}}
+                            <div class="flex items-center justify-between pt-2 border-t border-black/[0.06] dark:border-white/[0.08] text-[11px]">
+                                <span class="font-mono text-black/40 dark:text-white/40 truncate max-w-[140px]" :title="'ID Meta: ' + (tpl.meta_template_id || tpl.id)" x-text="'ID: ' + (tpl.meta_template_id ? tpl.meta_template_id.substring(0, 10) + '...' : '-')"></span>
+                                <button type="button" @click="deleteMetaTemplate(tpl)"
+                                    class="inline-flex items-center gap-1 text-[#FF3B30] hover:text-[#D70015] font-semibold p-1 rounded hover:bg-[#FF3B30]/10 transition-colors">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- Empty State --}}
+                <div x-show="(metaTemplates || []).length === 0"
+                    class="p-8 sm:p-12 text-center rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-dashed border-black/10 dark:border-white/10 space-y-4">
+                    <div class="w-12 h-12 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
+                        <i data-lucide="file-text" class="w-6 h-6"></i>
+                    </div>
+                    <div class="max-w-md mx-auto space-y-1">
+                        <h4 class="text-[15px] font-bold text-black dark:text-white">Belum Ada Template Tersinkronkan</h4>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">Sinkronkan katalog template resmi dari Meta Business Manager atau buat template baru yang akan diajukan ke Meta Cloud API v26.0.</p>
+                    </div>
+                    <div class="flex items-center justify-center gap-3 pt-2">
+                        <button type="button" @click="syncMetaTemplates()" :disabled="templateSyncing"
+                            class="min-h-[40px] px-5 rounded-[12px] bg-black/[0.06] dark:bg-white/[0.1] hover:bg-black/10 text-black dark:text-white text-[13px] font-bold inline-flex items-center gap-2 transition-all">
+                            <i data-lucide="refresh-cw" class="w-4 h-4" :class="{ 'animate-spin': templateSyncing }"></i>
+                            <span>Sinkronkan Sekarang</span>
+                        </button>
+                        <button type="button" @click="openCreateTemplateModal()"
+                            class="min-h-[40px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold inline-flex items-center gap-2 transition-all">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Buat Template Baru</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- ----------------------------------------------------------------- --}}
+            {{-- MODAL SHEET: BUAT TEMPLATE BARU (BENTO APPLE HIG)                 --}}
+            {{-- ----------------------------------------------------------------- --}}
+            <div x-show="showCreateTemplateModal" x-cloak
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0">
+
+                <div @click.away="closeCreateTemplateModal()"
+                    class="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95">
+
+                    {{-- Modal Header --}}
+                    <div class="px-6 py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0">
+                        <div>
+                            <h3 class="text-[17px] font-bold text-black dark:text-white">Buat Template Pesan Meta</h3>
+                            <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">Template akan langsung diajukan ke Meta Cloud API v26.0 untuk proses review otomatis</p>
+                        </div>
+                        <button type="button" @click="closeCreateTemplateModal()"
+                            class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center text-black/60 dark:text-white/60 transition-colors">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    {{-- Modal Body (2 Columns) --}}
+                    <div class="p-6 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        {{-- Form Inputs (Col 7) --}}
+                        <div class="lg:col-span-7 space-y-4">
+                            {{-- Nama Template --}}
+                            <div class="space-y-1.5">
+                                <label class="text-[12px] font-bold text-black dark:text-white flex items-center justify-between">
+                                    <span>Nama Template <span class="text-[#FF3B30]">*</span></span>
+                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40">Huruf kecil & _ saja</span>
+                                </label>
+                                <input type="text" x-model="newTemplate.name" required
+                                    placeholder="contoh: notifikasi_pesanan_selesai"
+                                    class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 py-2.5 text-[13px] font-mono text-black dark:text-white placeholder-black/30 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                <p class="text-[11px] text-black/45 dark:text-white/45">Hanya gunakan huruf kecil (a-z), angka (0-9), dan garis bawah (_). Tidak boleh ada spasi.</p>
+                            </div>
+
+                            {{-- Kategori & Bahasa --}}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="space-y-1.5">
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Kategori <span class="text-[#FF3B30]">*</span></label>
+                                    <select x-model="newTemplate.category"
+                                        class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 py-2.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                        <option value="UTILITY">UTILITY (Transaksi & Pengingat)</option>
+                                        <option value="MARKETING">MARKETING (Promosi & Diskon)</option>
+                                        <option value="AUTHENTICATION">AUTHENTICATION (Kode OTP)</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Bahasa <span class="text-[#FF3B30]">*</span></label>
+                                    <select x-model="newTemplate.language"
+                                        class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 py-2.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                        <option value="id">Bahasa Indonesia (id)</option>
+                                        <option value="en_US">English - US (en_US)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Header Teks --}}
+                            <div class="space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Teks Header (Opsional)</label>
+                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40" x-text="(newTemplate.header_text || '').length + '/60'"></span>
+                                </div>
+                                <input type="text" x-model="newTemplate.header_text" maxlength="60"
+                                    placeholder="contoh: Halo pelanggan setia"
+                                    class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 py-2.5 text-[13px] text-black dark:text-white placeholder-black/30 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                            </div>
+
+                            {{-- Body Teks --}}
+                            <div class="space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Teks Pesan (Body) <span class="text-[#FF3B30]">*</span></label>
+                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40" x-text="(newTemplate.body_text || '').length + '/1024'"></span>
+                                </div>
+                                <textarea x-model="newTemplate.body_text" rows="5" maxlength="1024" required
+                                    placeholder="Halo @{{1}}, tagihan langganan @{{2}} sebesar Rp @{{3}} akan jatuh tempo pada @{{4}}..."
+                                    class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] p-3 text-[13px] text-black dark:text-white placeholder-black/30 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 leading-relaxed resize-y"></textarea>
+                                
+                                {{-- Quick Insert Placeholder Variables --}}
+                                <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                                    <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Sisipkan variabel:</span>
+                                    <button type="button" @click="insertVariableToNewTemplate('@{{1}}')"
+                                        class="px-2 py-0.5 rounded-[6px] text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors">
+                                        + @{{1}}
+                                    </button>
+                                    <button type="button" @click="insertVariableToNewTemplate('@{{2}}')"
+                                        class="px-2 py-0.5 rounded-[6px] text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors">
+                                        + @{{2}}
+                                    </button>
+                                    <button type="button" @click="insertVariableToNewTemplate('@{{3}}')"
+                                        class="px-2 py-0.5 rounded-[6px] text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors">
+                                        + @{{3}}
+                                    </button>
+                                    <button type="button" @click="insertVariableToNewTemplate('@{{4}}')"
+                                        class="px-2 py-0.5 rounded-[6px] text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors">
+                                        + @{{4}}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Footer Teks --}}
+                            <div class="space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Teks Footer (Opsional)</label>
+                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40" x-text="(newTemplate.footer_text || '').length + '/60'"></span>
+                                </div>
+                                <input type="text" x-model="newTemplate.footer_text" maxlength="60"
+                                    placeholder="contoh: Balas STOP untuk berhenti berlangganan"
+                                    class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 py-2.5 text-[13px] text-black dark:text-white placeholder-black/30 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                            </div>
+                        </div>
+
+                        {{-- Live Preview (Col 5) --}}
+                        <div class="lg:col-span-5 flex flex-col">
+                            <label class="text-[12px] font-bold text-black dark:text-white mb-2 flex items-center gap-1.5">
+                                <i data-lucide="smartphone" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Live Chat Preview</span>
+                            </label>
+
+                            <div class="rounded-[20px] bg-[#EFEAE2] dark:bg-[#0B141A] p-4 border border-black/[0.08] dark:border-white/[0.08] flex-1 flex flex-col justify-between space-y-4">
+                                {{-- Phone Topbar Sim --}}
+                                <div class="flex items-center gap-2.5 pb-3 border-b border-black/[0.06] dark:border-white/[0.06]">
+                                    <div class="w-8 h-8 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-[12px]">
+                                        C
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[12px] font-bold text-black dark:text-white flex items-center gap-1">
+                                            <span>Cooca Official</span>
+                                            <i data-lucide="check-circle-2" class="w-3 h-3 text-[#34C759]"></i>
+                                        </div>
+                                        <div class="text-[10px] text-black/50 dark:text-white/50">Akun Bisnis Resmi</div>
+                                    </div>
+                                </div>
+
+                                {{-- WhatsApp Bubble Mock --}}
+                                <div class="rounded-[14px] rounded-tl-none bg-white dark:bg-[#1F2C34] p-3.5 space-y-2 shadow-sm border border-black/[0.04] dark:border-white/[0.06] text-[12px]">
+                                    {{-- Live Header --}}
+                                    <div x-show="newTemplate.header_text" class="font-bold text-[12px] text-black dark:text-white border-b border-black/[0.06] dark:border-white/[0.06] pb-1"
+                                        x-text="newTemplate.header_text"></div>
+
+                                    {{-- Live Body --}}
+                                    <div class="text-black/85 dark:text-white/90 leading-relaxed font-sans whitespace-pre-line text-[12px]"
+                                        x-html="formatBodyPreview(newTemplate.body_text)"></div>
+
+                                    {{-- Live Footer --}}
+                                    <div x-show="newTemplate.footer_text" class="text-[10px] text-black/45 dark:text-white/45 pt-1 border-t border-black/[0.04] dark:border-white/[0.04]"
+                                        x-text="newTemplate.footer_text"></div>
+                                </div>
+
+                                <div class="text-[11px] text-black/40 dark:text-white/40 text-center italic">
+                                    Simulasi visual balon pesan WhatsApp pelanggan diperbarui secara langsung.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Modal Footer --}}
+                    <div class="px-6 py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0">
+                        <button type="button" @click="closeCreateTemplateModal()"
+                            class="min-h-[42px] px-5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 text-black dark:text-white text-[13px] font-semibold transition-colors">
+                            Batal
+                        </button>
+                        <button type="button" @click="createMetaTemplate()" :disabled="templateCreating"
+                            class="min-h-[42px] px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold inline-flex items-center gap-2 shadow-sm disabled:opacity-50 transition-all">
+                            <i data-lucide="send" class="w-4 h-4" :class="{ 'animate-pulse': templateCreating }"></i>
+                            <span x-text="templateCreating ? 'Mengirim ke Meta...' : 'Kirim ke Meta'">Kirim ke Meta</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- ----------------------------------------------------------------- --}}
+            {{-- SUBSEKSI 2: TEMPLATE PESAN PENGINGAT OTOMATIS                     --}}
+            {{-- ----------------------------------------------------------------- --}}
             <div
                 class="rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm p-4 sm:p-7 space-y-6 w-full min-w-0">
                 <div
@@ -1387,7 +1794,7 @@
                     metaStatus: @json($waStatus['meta_status'] ?? 'DISCONNECTED'),
                     platformType: @json($waStatus['platform_type'] ?? 'ON_PREMISE'),
                     statusDetail: @json($waStatus['status_detail'] ?? ''),
-                    managerUrl: @json($waStatus['manager_url'] ?? 'https://business.facebook.com/wa/manage/phone-numbers/?waba_id=1546059137323420'),
+                    managerUrl: @json($waStatus['manager_url'] ?? 'https://business.facebook.com/wa/manage/phone-numbers/?waba_id=37944837988498077'),
                     isLoading: false,
                     blastMessage: '',
 
@@ -1451,7 +1858,7 @@
                     metaAppSecret: @json($platformApp['app_secret'] ?? ''),
                     metaConfigId: @json($platformApp['config_id'] ?? ''),
                     metaWebhookVerifyToken: @json($platformApp['webhook_verify_token'] ?? ''),
-                    metaGraphVersion: @json($platformApp['graph_version'] ?? 'v21.0'),
+                    metaGraphVersion: @json($platformApp['graph_version'] ?? 'v26.0'),
                     metaGraphUrl: @json($platformApp['graph_url'] ?? 'https://graph.facebook.com'),
                     showMetaToken: false,
                     showMetaAppSecret: false,
@@ -1635,6 +2042,194 @@
                             window.location.reload();
                         } catch (error) {
                             alert('Gagal mengirim pengingat: Kesalahan jaringan.');
+                        }
+                    },
+
+                    metaTemplates: @json($metaTemplates ?? []),
+                    templateSyncing: false,
+                    templateCreating: false,
+                    showCreateTemplateModal: false,
+                    newTemplate: {
+                        name: '',
+                        category: 'UTILITY',
+                        language: 'id',
+                        header_text: '',
+                        body_text: '',
+                        footer_text: ''
+                    },
+
+                    getTemplateBody(tpl) {
+                        if (!tpl) return '';
+                        let comps = tpl.components;
+                        if (typeof comps === 'string') {
+                            try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+                        }
+                        if (!Array.isArray(comps)) comps = [];
+                        const b = comps.find(c => String(c.type || '').toUpperCase() === 'BODY');
+                        return b ? (b.text || '') : (tpl.body_text || '');
+                    },
+
+                    getTemplateHeader(tpl) {
+                        if (!tpl) return null;
+                        let comps = tpl.components;
+                        if (typeof comps === 'string') {
+                            try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+                        }
+                        if (!Array.isArray(comps)) comps = [];
+                        const h = comps.find(c => String(c.type || '').toUpperCase() === 'HEADER');
+                        return h ? (h.text || null) : (tpl.header_text || null);
+                    },
+
+                    getTemplateFooter(tpl) {
+                        if (!tpl) return null;
+                        let comps = tpl.components;
+                        if (typeof comps === 'string') {
+                            try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+                        }
+                        if (!Array.isArray(comps)) comps = [];
+                        const f = comps.find(c => String(c.type || '').toUpperCase() === 'FOOTER');
+                        return f ? (f.text || null) : (tpl.footer_text || null);
+                    },
+
+                    getTemplateButtons(tpl) {
+                        if (!tpl) return [];
+                        let comps = tpl.components;
+                        if (typeof comps === 'string') {
+                            try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+                        }
+                        if (!Array.isArray(comps)) comps = [];
+                        const btnComp = comps.find(c => String(c.type || '').toUpperCase() === 'BUTTONS');
+                        return btnComp && Array.isArray(btnComp.buttons) ? btnComp.buttons : [];
+                    },
+
+                    formatBodyPreview(text) {
+                        if (!text) return '<span class="text-black/35 dark:text-white/35 italic">Ketik isi teks pesan untuk melihat preview...</span>';
+                        const escaped = String(text)
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;');
+                        return escaped.replace(/(\{\{\d+\}\})/g, '<span class="px-1.5 py-0.5 rounded-[4px] bg-[#007AFF]/15 text-[#007AFF] font-mono text-[11px] font-semibold">$1</span>');
+                    },
+
+                    insertVariableToNewTemplate(v) {
+                        this.newTemplate.body_text = (this.newTemplate.body_text || '') + (this.newTemplate.body_text ? ' ' : '') + v;
+                    },
+
+                    openCreateTemplateModal() {
+                        this.newTemplate = {
+                            name: '',
+                            category: 'UTILITY',
+                            language: 'id',
+                            header_text: '',
+                            body_text: '',
+                            footer_text: ''
+                        };
+                        this.showCreateTemplateModal = true;
+                        this.refreshIcons();
+                    },
+
+                    closeCreateTemplateModal() {
+                        this.showCreateTemplateModal = false;
+                    },
+
+                    async syncMetaTemplates() {
+                        this.templateSyncing = true;
+                        try {
+                            const response = await fetch('{{ route('admin.whatsapp.meta-templates.sync') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                                }
+                            });
+                            const data = await response.json();
+                            if (response.ok && data.success) {
+                                if (data.templates) {
+                                    this.metaTemplates = data.templates;
+                                }
+                                this.copyToastMessage = data.message || 'Template berhasil disinkronkan dari Meta!';
+                                this.copyToast = true;
+                                setTimeout(() => { this.copyToast = false; }, 3500);
+                            } else {
+                                alert(data.message || 'Gagal menyinkronkan template dari Meta.');
+                            }
+                        } catch (err) {
+                            alert('Terjadi kesalahan jaringan saat sinkronisasi template.');
+                        } finally {
+                            this.templateSyncing = false;
+                            this.refreshIcons();
+                        }
+                    },
+
+                    async createMetaTemplate() {
+                        if (!this.newTemplate.name.trim() || !this.newTemplate.body_text.trim()) {
+                            alert('Nama template dan teks pesan (body) wajib diisi.');
+                            return;
+                        }
+                        this.newTemplate.name = this.newTemplate.name.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+                        this.templateCreating = true;
+                        try {
+                            const response = await fetch('{{ route('admin.whatsapp.meta-templates.create') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                                },
+                                body: JSON.stringify(this.newTemplate)
+                            });
+                            const data = await response.json();
+                            if (response.ok && data.success) {
+                                if (data.templates) {
+                                    this.metaTemplates = data.templates;
+                                }
+                                this.showCreateTemplateModal = false;
+                                this.copyToastMessage = data.message || 'Template berhasil diajukan ke Meta!';
+                                this.copyToast = true;
+                                setTimeout(() => { this.copyToast = false; }, 3500);
+                            } else {
+                                const errMsg = data.message || (data.errors ? Object.values(data.errors).flat().join('\n') : 'Gagal membuat template di Meta.');
+                                alert(errMsg);
+                            }
+                        } catch (err) {
+                            alert('Terjadi kesalahan jaringan saat mengajukan template ke Meta.');
+                        } finally {
+                            this.templateCreating = false;
+                            this.refreshIcons();
+                        }
+                    },
+
+                    async deleteMetaTemplate(tpl) {
+                        if (!confirm(`Hapus template '${tpl.name}' dari Meta Cloud API dan database lokal? Tindakan ini tidak dapat dibatalkan.`)) {
+                            return;
+                        }
+                        try {
+                            const response = await fetch(`/admin/whatsapp/meta-templates/${tpl.id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                                }
+                            });
+                            const data = await response.json();
+                            if (response.ok && data.success) {
+                                if (data.templates) {
+                                    this.metaTemplates = data.templates;
+                                } else {
+                                    this.metaTemplates = this.metaTemplates.filter(t => t.id !== tpl.id);
+                                }
+                                this.copyToastMessage = data.message || 'Template berhasil dihapus.';
+                                this.copyToast = true;
+                                setTimeout(() => { this.copyToast = false; }, 3000);
+                            } else {
+                                alert(data.message || 'Gagal menghapus template pesan.');
+                            }
+                        } catch (err) {
+                            alert('Terjadi kesalahan jaringan saat menghapus template.');
+                        } finally {
+                            this.refreshIcons();
                         }
                     }
                 };

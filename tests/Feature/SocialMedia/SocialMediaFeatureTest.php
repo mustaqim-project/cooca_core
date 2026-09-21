@@ -104,7 +104,7 @@ class SocialMediaFeatureTest extends TestCase
             'app_id'               => '112233445566778',
             'app_secret'           => 'super_secret_app_key_meta',
             'webhook_verify_token' => 'custom_token_webhook_123',
-            'graph_version'        => 'v21.0',
+            'graph_version'        => 'v26.0',
             'graph_url'            => 'https://graph.facebook.com',
         ];
 

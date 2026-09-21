@@ -192,6 +192,11 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::get('/blasts/{blast}', [AdminWhatsAppController::class, 'showBlast'])->name('blasts.show');
             Route::post('/config', [AdminWhatsAppController::class, 'updateGatewayConfig'])->name('config');
 
+            // Message Template Management (Meta Cloud API)
+            Route::post('/meta-templates/sync', [AdminWhatsAppController::class, 'syncMetaTemplates'])->name('meta-templates.sync');
+            Route::post('/meta-templates/create', [AdminWhatsAppController::class, 'createMetaTemplate'])->name('meta-templates.create');
+            Route::delete('/meta-templates/{template}', [AdminWhatsAppController::class, 'deleteMetaTemplate'])->name('meta-templates.delete');
+
             // Legacy stubs for graceful fallback
             Route::get('/qr', [AdminWhatsAppController::class, 'getQr'])->name('qr');
             Route::get('/sessions', [AdminWhatsAppController::class, 'getSessions'])->name('sessions.index');

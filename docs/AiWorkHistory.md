@@ -6923,3 +6923,51 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (*Single 
 * `php artisan test --filter=PublicStorefrontFieldScenariosTest`: **7 passed (39 assertions)**
 * **TOTAL: 21 tests passed, 127 assertions, 0 errors.**
 
+### [WORK-2026-09-21-060] Meta Graph API v26.0 Upgrade & WhatsApp Cloud API Template Management (Bento Apple HIG)
+* **Date:** 2026-09-21
+* **Status:** COMPLETED
+* **Module:** Admin Settings, WhatsApp Cloud API, Social Media (Meta / Instagram), Console Scheduler
+* **Feature:** Upgrade Meta Graph API from v21.0 to v26.0, WhatsApp Message Template Database Sync & Management, Bento Apple HIG UI, Artisan Command & Console Schedule
+* **Work Type:** Version Upgrade | Architecture Hardening | Feature | Bento Apple HIG UI | Automated Testing | Production Deployment
+
+#### 1. Business Context & Objective
+* **Konteks:** Platform COOCA menggunakan Meta Graph API untuk pengiriman pesan WhatsApp Cloud API (OTP, notifikasi transaksi, pengingat langganan, dan blast pesan) serta integrasi media sosial Meta (Facebook & Instagram). Versi API sebelumnya tertahan di v21.0, sedangkan versi stabil terkini Meta telah mencapai v26.0. Selain itu, manajemen template WhatsApp sebelumnya belum memiliki sinkronisasi database lokal dan antarmuka manajemen visual di Admin Panel.
+* **Tujuan:**
+  1. Upgrade penuh seluruh layer sistem dari Meta Graph API `v21.0` ke `v26.0` secara konsisten dan tanpa regresi.
+  2. Implementasi sinkronisasi template pesan WhatsApp Cloud API (WABA) ke database lokal `whatsapp_message_templates`.
+  3. Menyediakan UI Bento Apple HIG yang intuitif di Admin Panel untuk melihat, menyinkronkan, mencari, memfilter, dan mengelola template pesan WhatsApp.
+  4. Menyediakan Artisan command `whatsapp:sync-templates` dan mendaftarkannya pada scheduler harian.
+
+#### 2. What Was Done
+1. **Meta Graph API v26.0 Upgrade Across All Layers:**
+   - Mengubah default config `config/services.php`: `services.meta_social.graph_version` & `services.whatsapp.meta.graph_version` dari `v21.0` ke `v26.0`.
+   - Memperbarui service, controller, dan client Meta: `WhatsAppClient`, `MetaWhatsAppCloudDriver`, `AdminWhatsAppService`, `MetaSocialMediaClient`, `AdminSocialMediaService`, `AdminSettingController`, `AdminWhatsAppController`, `MetaWhatsAppOnboardingController`.
+   - Memperbarui dokumentasi teknis: `docs/SYSTEM_GUIDE.md`, `docs/social-media/meta.md`, `docs/social-media/architecture.md`, `docs/system/modules/whatsapp.md`, `docs/system/modules/social-media.md`, `docs/system/modules/settings.md`.
+2. **WhatsApp Template Migration & Eloquent Model:**
+   - Membuat migrasi `database/migrations/2026_09_21_000006_create_whatsapp_message_templates_table.php` dengan kolom: `meta_template_id`, `name`, `language`, `category`, `status`, `components` (JSON), `body_text`, `header_format`, `buttons` (JSON), `rejection_reason`, `synced_at`.
+   - Membuat model `App\Models\WhatsAppMessageTemplate` dengan casting enum/array, helper methods (`getPreviewText()`, `getStatusBadgeClass()`, `getCategoryBadgeClass()`, `isUsable()`).
+3. **Template Sync & CRUD in AdminWhatsAppService & WhatsAppClient:**
+   - Menambahkan method `getTemplates()`, `createTemplate()`, `deleteTemplate()` di `WhatsAppClient` via endpoint Graph API `v26.0/{waba_id}/message_templates`.
+   - Menambahkan method `syncTemplatesFromMeta()`, `getTemplates()`, `createTemplate()`, `deleteTemplate()` di `AdminWhatsAppService` dengan fallback penanganan database cross-platform (SQLite & MySQL).
+4. **Artisan Command & Schedule:**
+   - Membuat command `app/Console/Commands/SyncWhatsAppTemplatesCommand.php` (`php artisan whatsapp:sync-templates`).
+   - Mendaftarkan command di `routes/console.php` untuk dieksekusi secara terjadwal setiap hari pada pukul 03:00 WIB.
+5. **Bento Apple HIG UI on Admin Panel (`resources/views/admin/whatsapp/index.blade.php`):**
+   - Menambahkan tab "Template WhatsApp" pada segmen navigasi Admin WhatsApp.
+   - Menyajikan kartu KPI template (Total Template, Disetujui, Menunggu Review, Ditolak).
+   - Menyajikan tombol aksi cepat: "Sinkronisasi dari Meta" dan "Buat Template Baru" dengan modal sheet Alpine.js.
+   - Tabel responsif dan daftar kartu mobile dengan preview teks, badge status semantik Apple, dan aksi hapus/salin nama template.
+6. **Asynchronous OTP Job (`app/Jobs/WhatsApp/SendWhatsAppOtpJob.php`):**
+   - Menambahkan Job untuk pengiriman OTP WhatsApp asinkron via antrean dengan retry & backoff eksponensial.
+7. **Comprehensive Test Suite Update & Expansion:**
+   - Membuat `tests/Feature/WhatsApp/WhatsAppTemplateSyncTest.php` (5 test case lulus 100%).
+   - Memperbarui URL mock dari `v21.0` ke `v26.0` di seluruh test suite: `MetaWhatsAppCloudApiTest`, `AdminWhatsAppFeatureTest`, `SocialMediaFeatureTest`, `AdminSettingTest`, `AdminSocialMediaPlatformContentTest`, dll. Seluruh 66 test lulus 100% (328 assertions, 0 failure).
+
+#### 3. Verification & Testing
+* `WhatsAppTemplateSyncTest`: **5 passed (19 assertions)**
+* `MetaWhatsAppCloudApiTest`: **13 passed (44 assertions)**
+* `AdminWhatsAppFeatureTest`: **10 passed (64 assertions)**
+* `SocialMediaFeatureTest`: **11 passed (43 assertions)**
+* `AdminSettingTest`: **15 passed (89 assertions)**
+* **Syntax checks (`php -l`): 100% Clean, No errors.**
+

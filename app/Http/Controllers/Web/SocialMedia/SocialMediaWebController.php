@@ -541,6 +541,11 @@ class SocialMediaWebController extends Controller
                 ->with('success', 'Postingan berhasil dijadwalkan ke ' . $accounts->count() . ' saluran! Eksekusi otomatis akan dilakukan oleh cron scheduler.');
         }
 
+        if ($accounts->count() === 1 && $post->status === 'failed') {
+            return redirect()->route('social-media.posts.index')
+                ->with('error', 'Gagal mempublikasikan postingan: ' . ($post->error_message ?? 'Terjadi kesalahan saat memproses konten.'));
+        }
+
         if ($accounts->count() === 1 && $post->status === 'published') {
             return redirect()->route('social-media.posts.index')
                 ->with('success', "Postingan ({$primaryMediaType}) berhasil dipublikasikan ke {$firstAccount->platform}!");

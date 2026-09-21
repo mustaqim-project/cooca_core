@@ -202,7 +202,7 @@ class AdminWhatsAppFeatureTest extends TestCase
             'meta_app_secret'           => 'secret_xyz_1234567890abcdef',
             'meta_webhook_verify_token' => 'custom_webhook_secret_token_99',
             'meta_config_id'            => '876543210987654',
-            'meta_graph_version'        => 'v21.0',
+            'meta_graph_version'        => 'v26.0',
             'meta_graph_url'            => 'https://graph.facebook.com',
             'meta_token'                => 'EAAG_dummy_test_platform_token_123',
             'meta_phone_number_id'      => '104523984712398',
@@ -222,7 +222,7 @@ class AdminWhatsAppFeatureTest extends TestCase
         $this->assertEquals('secret_xyz_1234567890abcdef', \App\Models\SystemSetting::get('meta_wa_app_secret'));
         $this->assertEquals('custom_webhook_secret_token_99', \App\Models\SystemSetting::get('meta_wa_webhook_verify_token'));
         $this->assertEquals('876543210987654', \App\Models\SystemSetting::get('meta_wa_config_id'));
-        $this->assertEquals('v21.0', \App\Models\SystemSetting::get('meta_wa_graph_version'));
+        $this->assertEquals('v26.0', \App\Models\SystemSetting::get('meta_wa_graph_version'));
         $this->assertEquals('https://graph.facebook.com', \App\Models\SystemSetting::get('meta_wa_graph_url'));
         $this->assertEquals('EAAG_dummy_test_platform_token_123', \App\Models\SystemSetting::get('meta_wa_token'));
         $this->assertEquals('104523984712398', \App\Models\SystemSetting::get('meta_wa_phone_number_id'));

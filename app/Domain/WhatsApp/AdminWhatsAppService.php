@@ -239,7 +239,7 @@ class AdminWhatsAppService
             'app_secret'           => (string) SystemSetting::get('meta_wa_app_secret', config('services.meta_whatsapp.app_secret', '')),
             'webhook_verify_token' => (string) SystemSetting::get('meta_wa_webhook_verify_token', config('services.meta_whatsapp.webhook_verify_token', 'cooca_meta_wa_webhook_secret')),
             'config_id'            => (string) SystemSetting::get('meta_wa_config_id', config('services.meta_whatsapp.config_id', '')),
-            'graph_version'        => (string) SystemSetting::get('meta_wa_graph_version', config('services.meta_whatsapp.version', 'v21.0')),
+            'graph_version'        => (string) SystemSetting::get('meta_wa_graph_version', config('services.meta_whatsapp.version', 'v26.0')),
             'graph_url'            => (string) SystemSetting::get('meta_wa_graph_url', config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com')),
             'webhook_url'          => url('/api/v1/wa/meta/webhook'),
         ];
@@ -333,6 +333,19 @@ class AdminWhatsAppService
     }
 
     /**
+     * Dispatch Authentication OTP asynchronously to Laravel Queue ('whatsapp' queue).
+     */
+    public function queueOtp(string $phone, string $otpCode, ?string $templateName = null): void
+    {
+        if (!$this->isOtpActive()) {
+            Log::info("[AdminWA] OTP channel is disabled. OTP queue dispatch for {$phone} skipped.");
+            return;
+        }
+
+        \App\Jobs\WhatsApp\SendWhatsAppOtpJob::dispatch($phone, $otpCode, $templateName);
+    }
+
+    /**
      * Send message using the official Admin Platform WhatsApp session (Meta Cloud API).
      */
     public function sendMessage(string $phone, string $message, array $options = []): array
@@ -358,6 +371,281 @@ class AdminWhatsAppService
             'success' => false,
             'error'   => 'Kredensial Meta WhatsApp Cloud API Platform belum lengkap.',
         ];
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    //  META MESSAGE TEMPLATE MANAGEMENT (Sync, Create, Delete)
+    // ────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Sinkronisasi seluruh message templates dari Meta Cloud API ke database lokal.
+     *
+     * @param string|null $wabaId  Override WABA ID (default dari SystemSetting)
+     * @return array{success: bool, synced: int, created: int, updated: int, error?: string}
+     */
+    public function syncTemplatesFromMeta(?string $wabaId = null): array
+    {
+        $creds = $this->getMetaCredentials();
+        $waba = $wabaId ?: $creds['waba_id'] ?: (string) SystemSetting::get('meta_wa_waba_id', '');
+
+        if (empty($waba)) {
+            return ['success' => false, 'error' => 'WABA ID belum dikonfigurasi.', 'synced' => 0, 'created' => 0, 'updated' => 0];
+        }
+
+        $client = \App\Domain\WhatsApp\CloudApi\WhatsAppClient::forPlatform();
+        if (!$client) {
+            return ['success' => false, 'error' => 'Kredensial Meta Platform belum dikonfigurasi.', 'synced' => 0, 'created' => 0, 'updated' => 0];
+        }
+
+        $result = $client->getMessageTemplates($waba);
+
+        if (!($result['success'] ?? false)) {
+            return [
+                'success' => false,
+                'error'   => $result['error'] ?? 'Gagal mengambil template dari Meta.',
+                'synced'  => 0,
+                'created' => 0,
+                'updated' => 0,
+            ];
+        }
+
+        $templates = $result['templates'] ?? [];
+        $created = 0;
+        $updated = 0;
+
+        foreach ($templates as $tpl) {
+            $name     = $tpl['name'] ?? '';
+            $language = $tpl['language'] ?? 'id';
+
+            if (empty($name)) {
+                continue;
+            }
+
+            $existing = \App\Models\WhatsAppMessageTemplate::where('waba_id', $waba)
+                ->where('name', $name)
+                ->where('language', $language)
+                ->first();
+
+            $attributes = [
+                'waba_id'          => $waba,
+                'meta_template_id' => $tpl['id'] ?? null,
+                'name'             => $name,
+                'category'         => $tpl['category'] ?? 'UTILITY',
+                'language'         => $language,
+                'status'           => $tpl['status'] ?? 'PENDING',
+                'components'       => $tpl['components'] ?? [],
+                'rejected_reason'  => $tpl['rejected_reason'] ?? null,
+                'quality_score'    => is_array($tpl['quality_score'] ?? null) ? ($tpl['quality_score']['score'] ?? null) : ($tpl['quality_score'] ?? null),
+                'synced_at'        => now(),
+            ];
+
+            if ($existing) {
+                $existing->update($attributes);
+                $updated++;
+            } else {
+                \App\Models\WhatsAppMessageTemplate::create($attributes);
+                $created++;
+            }
+        }
+
+        Log::info("[AdminWA] Template sync completed: {$created} created, {$updated} updated from WABA {$waba}");
+
+        return [
+            'success'      => true,
+            'count'        => $created + $updated,
+            'synced_count' => $created + $updated,
+            'synced'       => $created + $updated,
+            'created'      => $created,
+            'updated'      => $updated,
+            'total'        => count($templates),
+        ];
+    }
+
+    /**
+     * Buat template pesan baru di Meta dan simpan ke database lokal.
+     *
+     * @param array $input {
+     *   name: string,
+     *   category: 'MARKETING'|'UTILITY',
+     *   language: string (default: 'id'),
+     *   header_text: ?string,
+     *   body_text: string,
+     *   footer_text: ?string,
+     *   buttons: ?array,
+     * }
+     * @return array{success: bool, template?: WhatsAppMessageTemplate, error?: string}
+     */
+    public function createTemplate(array $input): array
+    {
+        $creds = $this->getMetaCredentials();
+        $waba = $creds['waba_id'] ?: (string) SystemSetting::get('meta_wa_waba_id', '');
+
+        if (empty($waba)) {
+            return ['success' => false, 'error' => 'WABA ID belum dikonfigurasi.'];
+        }
+
+        $client = \App\Domain\WhatsApp\CloudApi\WhatsAppClient::forPlatform();
+        if (!$client) {
+            return ['success' => false, 'error' => 'Kredensial Meta Platform belum dikonfigurasi.'];
+        }
+
+        // Build components array sesuai format Meta
+        $components = [];
+
+        if (!empty($input['header_text'])) {
+            $components[] = [
+                'type'   => 'HEADER',
+                'format' => 'TEXT',
+                'text'   => $input['header_text'],
+            ];
+        }
+
+        $bodyText = $input['body_text'] ?? '';
+        if (empty($bodyText)) {
+            return ['success' => false, 'error' => 'Teks body pesan tidak boleh kosong.'];
+        }
+
+        // Deteksi variabel {{1}}, {{2}}, dst. untuk example
+        $bodyComponent = [
+            'type' => 'BODY',
+            'text' => $bodyText,
+        ];
+
+        // Hitung variabel dinamis dan buat contoh
+        preg_match_all('/\{\{(\d+)\}\}/', $bodyText, $matches);
+        if (!empty($matches[1])) {
+            $examples = array_map(fn($idx) => "contoh_{$idx}", $matches[1]);
+            $bodyComponent['example'] = [
+                'body_text' => [$examples],
+            ];
+        }
+
+        $components[] = $bodyComponent;
+
+        if (!empty($input['footer_text'])) {
+            $components[] = [
+                'type' => 'FOOTER',
+                'text' => $input['footer_text'],
+            ];
+        }
+
+        if (!empty($input['buttons']) && is_array($input['buttons'])) {
+            $buttons = [];
+            foreach ($input['buttons'] as $btn) {
+                if (!empty($btn['type']) && !empty($btn['text'])) {
+                    $button = [
+                        'type' => strtoupper($btn['type']),
+                        'text' => $btn['text'],
+                    ];
+                    if (strtoupper($btn['type']) === 'URL' && !empty($btn['url'])) {
+                        $button['url'] = $btn['url'];
+                    }
+                    if (strtoupper($btn['type']) === 'PHONE_NUMBER' && !empty($btn['phone_number'])) {
+                        $button['phone_number'] = $btn['phone_number'];
+                    }
+                    $buttons[] = $button;
+                }
+            }
+            if (!empty($buttons)) {
+                $components[] = [
+                    'type'    => 'BUTTONS',
+                    'buttons' => $buttons,
+                ];
+            }
+        }
+
+        $name     = strtolower(preg_replace('/[^a-z0-9_]/', '_', strtolower($input['name'] ?? 'untitled')));
+        $category = strtoupper($input['category'] ?? 'MARKETING');
+        $language = $input['language'] ?? 'id';
+
+        $payload = [
+            'name'                  => $name,
+            'category'              => $category,
+            'language'              => $language,
+            'components'            => $components,
+            'allow_category_change' => true,
+        ];
+
+        $result = $client->createMessageTemplate($waba, $payload);
+
+        if (!($result['success'] ?? false)) {
+            return [
+                'success' => false,
+                'error'   => $result['error'] ?? 'Gagal membuat template di Meta.',
+                'details' => $result['details'] ?? null,
+            ];
+        }
+
+        // Simpan ke database lokal
+        $template = \App\Models\WhatsAppMessageTemplate::create([
+            'waba_id'          => $waba,
+            'meta_template_id' => $result['data']['id'] ?? ($result['message_id'] ?? null),
+            'name'             => $name,
+            'category'         => $category,
+            'language'         => $language,
+            'status'           => $result['data']['status'] ?? 'PENDING',
+            'components'       => $components,
+            'synced_at'        => now(),
+        ]);
+
+        Log::info("[AdminWA] Template '{$name}' created and submitted to Meta for review.");
+
+        return [
+            'success'  => true,
+            'template' => $template,
+        ];
+    }
+
+    /**
+     * Hapus template pesan dari Meta dan database lokal.
+     *
+     * @param string $templateId  UUID dari whatsapp_message_templates
+     * @return array{success: bool, error?: string}
+     */
+    public function deleteTemplate(string $templateId): array
+    {
+        $template = \App\Models\WhatsAppMessageTemplate::find($templateId);
+
+        if (!$template) {
+            return ['success' => false, 'error' => 'Template tidak ditemukan.'];
+        }
+
+        $client = \App\Domain\WhatsApp\CloudApi\WhatsAppClient::forPlatform();
+        if ($client && !empty($template->waba_id) && !empty($template->name)) {
+            $result = $client->deleteMessageTemplate($template->waba_id, $template->name);
+
+            if (!($result['success'] ?? false)) {
+                // Log but still delete locally
+                Log::warning("[AdminWA] Failed to delete template '{$template->name}' from Meta: " . ($result['error'] ?? 'Unknown'));
+            }
+        }
+
+        $name = $template->name;
+        $template->delete();
+
+        Log::info("[AdminWA] Template '{$name}' deleted from local database.");
+
+        return ['success' => true];
+    }
+
+    /**
+     * Ambil semua template dari database lokal untuk WABA platform.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getLocalTemplates(): \Illuminate\Database\Eloquent\Collection
+    {
+        $creds = $this->getMetaCredentials();
+        $waba = $creds['waba_id'] ?: (string) SystemSetting::get('meta_wa_waba_id', '');
+
+        if (empty($waba)) {
+            return \App\Models\WhatsAppMessageTemplate::query()->where('id', 'impossible')->get();
+        }
+
+        return \App\Models\WhatsAppMessageTemplate::where('waba_id', $waba)
+            ->orderByRaw("CASE status WHEN 'APPROVED' THEN 1 WHEN 'PENDING' THEN 2 WHEN 'REJECTED' THEN 3 WHEN 'PAUSED' THEN 4 WHEN 'DISABLED' THEN 5 ELSE 6 END")
+            ->orderBy('name')
+            ->get();
     }
 
     /**

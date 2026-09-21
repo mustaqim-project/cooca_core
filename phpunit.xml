@@ -32,6 +32,7 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
-        <env name="META_WA_GRAPH_VERSION" value="v21.0"/>
+        <env name="META_WA_GRAPH_VERSION" value="v26.0"/>
+        <env name="META_SOCIAL_GRAPH_VERSION" value="v26.0"/>
     </php>
 </phpunit>

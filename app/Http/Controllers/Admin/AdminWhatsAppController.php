@@ -74,6 +74,7 @@ final class AdminWhatsAppController extends Controller
 
         $otpDriver   = 'meta_cloud';
         $blastDriver = 'meta_cloud';
+        $metaTemplates = $this->adminWa->getLocalTemplates();
 
         return view('admin.whatsapp.index', compact(
             'tab',
@@ -90,7 +91,8 @@ final class AdminWhatsAppController extends Controller
             'merchantSummary',
             'platformApp',
             'otpDriver',
-            'blastDriver'
+            'blastDriver',
+            'metaTemplates'
         ));
     }
 
@@ -339,7 +341,7 @@ final class AdminWhatsAppController extends Controller
             'meta_app_secret'            => isset($validated['meta_app_secret']) ? trim((string) $validated['meta_app_secret']) : null,
             'meta_webhook_verify_token'  => isset($validated['meta_webhook_verify_token']) ? trim((string) $validated['meta_webhook_verify_token']) : null,
             'meta_config_id'             => isset($validated['meta_config_id']) ? trim((string) $validated['meta_config_id']) : null,
-            'meta_graph_version'         => isset($validated['meta_graph_version']) ? trim((string) $validated['meta_graph_version']) : 'v21.0',
+            'meta_graph_version'         => isset($validated['meta_graph_version']) ? trim((string) $validated['meta_graph_version']) : 'v26.0',
             'meta_graph_url'             => isset($validated['meta_graph_url']) ? trim((string) $validated['meta_graph_url']) : 'https://graph.facebook.com',
             'meta_token'                 => isset($validated['meta_token']) ? trim((string) $validated['meta_token']) : null,
             'meta_phone_number_id'       => isset($validated['meta_phone_number_id']) ? trim((string) $validated['meta_phone_number_id']) : null,
@@ -359,5 +361,89 @@ final class AdminWhatsAppController extends Controller
         }
 
         return back()->with('success', 'Konfigurasi Meta WhatsApp Cloud API Platform berhasil disimpan.');
+    }
+
+    /**
+     * AJAX: Sync message templates from Meta Graph API v26.0 into local database.
+     */
+    public function syncMetaTemplates(Request $request): JsonResponse
+    {
+        $wabaId = $request->input('waba_id');
+        $result = $this->adminWa->syncTemplatesFromMeta($wabaId ? (string) $wabaId : null);
+
+        if ($result['success']) {
+            $count = $result['count'] ?? ($result['synced_count'] ?? ($result['synced'] ?? 0));
+            return response()->json([
+                'success'      => true,
+                'count'        => $count,
+                'synced_count' => $count,
+                'message'      => "Sinkronisasi template dari Meta v26.0 berhasil ({$count} template disinkronkan).",
+                'data'         => $result,
+                'templates'    => $this->adminWa->getLocalTemplates(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $result['error'] ?? 'Gagal melakukan sinkronisasi template dari Meta.',
+        ], 422);
+    }
+
+    /**
+     * AJAX: Create a new message template on Meta Graph API v26.0.
+     */
+    public function createMetaTemplate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name'         => ['required', 'string', 'max:512', 'regex:/^[a-z0-9_]+$/'],
+            'category'     => ['required', 'string', 'in:AUTHENTICATION,MARKETING,UTILITY'],
+            'language'     => ['required', 'string', 'max:15'],
+            'body_text'    => ['required', 'string'],
+            'header_type'  => ['nullable', 'string', 'in:TEXT'],
+            'header_text'  => ['nullable', 'string', 'max:60'],
+            'footer_text'  => ['nullable', 'string', 'max:60'],
+            'buttons'      => ['nullable', 'array'],
+        ], [
+            'name.regex'         => 'Nama template hanya boleh huruf kecil (a-z), angka (0-9), dan garis bawah (_).',
+            'category.in'        => 'Kategori template harus berupa UTILITY, MARKETING, atau AUTHENTICATION.',
+            'body_text.required' => 'Isi teks pesan (body) wajib diisi.',
+        ]);
+
+        $result = $this->adminWa->createTemplate($validated);
+
+        if ($result['success']) {
+            return response()->json([
+                'success'   => true,
+                'message'   => "Template '{$validated['name']}' berhasil diajukan ke Meta (Status: " . ($result['template']['status'] ?? 'PENDING') . ').',
+                'data'      => $result,
+                'templates' => $this->adminWa->getLocalTemplates(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $result['error'] ?? 'Gagal membuat template di Meta.',
+        ], 422);
+    }
+
+    /**
+     * AJAX: Delete a message template from Meta Graph API and local database.
+     */
+    public function deleteMetaTemplate(string $template): JsonResponse
+    {
+        $result = $this->adminWa->deleteTemplate($template);
+
+        if ($result['success']) {
+            return response()->json([
+                'success'   => true,
+                'message'   => 'Template pesan berhasil dihapus dari Meta dan database lokal.',
+                'templates' => $this->adminWa->getLocalTemplates(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $result['error'] ?? 'Gagal menghapus template pesan.',
+        ], 422);
     }
 }

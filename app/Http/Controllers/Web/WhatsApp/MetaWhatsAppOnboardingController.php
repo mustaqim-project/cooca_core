@@ -33,7 +33,7 @@ class MetaWhatsAppOnboardingController extends Controller
     public function __construct()
     {
         $this->graphApiBaseUrl = (string) (\App\Models\SystemSetting::get('meta_wa_graph_url') ?: config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com'));
-        $this->apiVersion = (string) (\App\Models\SystemSetting::get('meta_wa_graph_version') ?: config('services.meta_whatsapp.version', 'v21.0'));
+        $this->apiVersion = (string) (\App\Models\SystemSetting::get('meta_wa_graph_version') ?: config('services.meta_whatsapp.version', 'v26.0'));
     }
 
     /**

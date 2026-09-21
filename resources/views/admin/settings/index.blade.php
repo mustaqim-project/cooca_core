@@ -314,7 +314,7 @@
                 <span>WhatsApp Cloud API</span>
                 @if(!empty($metaWaPhoneNumberId))
                     <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
-                        {{ $metaWaGraphVersion ?? 'v25.0' }}
+                        {{ $metaWaGraphVersion ?? 'v26.0' }}
                     </span>
                     <i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759] shrink-0" title="WhatsApp Terkonfigurasi"></i>
                 @else

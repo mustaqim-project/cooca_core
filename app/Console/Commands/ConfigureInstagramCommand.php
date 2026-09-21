@@ -17,6 +17,7 @@ class ConfigureInstagramCommand extends Command
     {
         SystemSetting::set('social_media_app_id', '1454871749894754', 'social_media');
         SystemSetting::set('social_media_app_secret', '73b4d4fcdb8e5178c27ed47eeedd83d8', 'social_media', isSecret: true);
+        SystemSetting::set('social_media_graph_version', 'v26.0', 'social_media');
         SystemSetting::set('instagram_app_secret', '73b4d4fcdb8e5178c27ed47eeedd83d8', 'social_media', isSecret: true);
         SystemSetting::set('meta_wa_app_id', '1454871749894754', 'whatsapp');
         SystemSetting::set('meta_wa_app_secret', '73b4d4fcdb8e5178c27ed47eeedd83d8', 'whatsapp', isSecret: true);

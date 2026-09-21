@@ -37,7 +37,7 @@ class MetaWhatsAppCloudApiTest extends TestCase
         Config::set('services.meta_whatsapp.app_id', '123456789012345');
         Config::set('services.meta_whatsapp.app_secret', 'test_meta_app_secret_12345');
         Config::set('services.meta_whatsapp.webhook_verify_token', 'test_verify_token_secure');
-        Config::set('services.meta_whatsapp.version', 'v21.0');
+        Config::set('services.meta_whatsapp.version', 'v26.0');
     }
 
     private function createMerchant(): array
@@ -299,12 +299,12 @@ class MetaWhatsAppCloudApiTest extends TestCase
 
         // Mock Graph API Meta
         Http::fake([
-            'https://graph.facebook.com/v21.0/oauth/access_token' => Http::response([
+            'https://graph.facebook.com/v26.0/oauth/access_token' => Http::response([
                 'access_token' => 'EAABwzLixnjYBA_permanent_user_token_mock',
                 'token_type'   => 'Bearer',
                 'expires_in'   => 5184000,
             ], 200),
-            'https://graph.facebook.com/v21.0/109876543210/phone_numbers*' => Http::response([
+            'https://graph.facebook.com/v26.0/109876543210/phone_numbers*' => Http::response([
                 'data' => [
                     [
                         'id'                       => '100098765432',
@@ -316,7 +316,7 @@ class MetaWhatsAppCloudApiTest extends TestCase
                     ],
                 ],
             ], 200),
-            'https://graph.facebook.com/v21.0/109876543210/subscribed_apps' => Http::response([
+            'https://graph.facebook.com/v26.0/109876543210/subscribed_apps' => Http::response([
                 'success' => true,
             ], 200),
         ]);
@@ -379,7 +379,7 @@ class MetaWhatsAppCloudApiTest extends TestCase
         ]);
 
         Http::fake([
-            'https://graph.facebook.com/v21.0/100012345678/messages' => Http::response([
+            'https://graph.facebook.com/v26.0/100012345678/messages' => Http::response([
                 'messaging_product' => 'whatsapp',
                 'contacts'          => [['input' => '6281299887766', 'wa_id' => '6281299887766']],
                 'messages'          => [['id' => 'wamid.HBgMUmVjZWlwdE1vY2s=']],
@@ -421,7 +421,7 @@ class MetaWhatsAppCloudApiTest extends TestCase
         ]);
 
         Http::fake([
-            'https://graph.facebook.com/v21.0/100012345678/messages' => Http::response([
+            'https://graph.facebook.com/v26.0/100012345678/messages' => Http::response([
                 'messaging_product' => 'whatsapp',
                 'contacts'          => [['input' => '6281311223344', 'wa_id' => '6281311223344']],
                 'messages'          => [['id' => 'wamid.HBgMSW52b2ljZU1vY2s=']],
@@ -451,5 +451,85 @@ class MetaWhatsAppCloudApiTest extends TestCase
         $this->assertNotNull($log);
         $this->assertEquals('6281311223344', $log->recipient_phone);
         $this->assertEquals('sent', $log->status);
+    }
+
+    public function test_send_whatsapp_otp_job_is_pushed_to_whatsapp_queue(): void
+    {
+        Queue::fake();
+
+        \App\Jobs\WhatsApp\SendWhatsAppOtpJob::dispatch('08123456789', '654321');
+
+        Queue::assertPushed(\App\Jobs\WhatsApp\SendWhatsAppOtpJob::class, function ($job) {
+            return $job->phone === '08123456789'
+                && $job->otpCode === '654321'
+                && $job->queue === 'whatsapp'
+                && $job->tries === 2;
+        });
+    }
+
+    public function test_admin_whatsapp_service_queue_otp_dispatches_job(): void
+    {
+        Queue::fake();
+
+        \App\Models\SystemSetting::set('wa_otp_active', '1');
+        $adminWa = app(\App\Domain\WhatsApp\AdminWhatsAppService::class);
+        $adminWa->queueOtp('08123456789', '123456');
+
+        Queue::assertPushed(\App\Jobs\WhatsApp\SendWhatsAppOtpJob::class, function ($job) {
+            return $job->phone === '08123456789' && $job->otpCode === '123456';
+        });
+    }
+
+    public function test_send_whatsapp_otp_job_executes_successfully(): void
+    {
+        \App\Models\SystemSetting::set('wa_otp_active', '1');
+        \App\Models\SystemSetting::set('meta_wa_token', 'mock_token');
+        \App\Models\SystemSetting::set('meta_wa_phone_number_id', '1344185355444409');
+        \App\Models\SystemSetting::set('meta_wa_graph_version', 'v26.0');
+
+        Http::fake([
+            'https://graph.facebook.com/v26.0/1344185355444409/messages' => Http::response([
+                'messaging_product' => 'whatsapp',
+                'contacts'          => [['input' => '628123456789', 'wa_id' => '628123456789']],
+                'messages'          => [['id' => 'wamid.HBgMT3RwTW9jaw==']],
+            ], 200),
+        ]);
+
+        $job = new \App\Jobs\WhatsApp\SendWhatsAppOtpJob('08123456789', '888999');
+        $adminWa = app(\App\Domain\WhatsApp\AdminWhatsAppService::class);
+
+        // Should execute without exception
+        $job->handle($adminWa);
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '1344185355444409/messages')
+                && $request['messaging_product'] === 'whatsapp'
+                && $request['to'] === '628123456789';
+        });
+    }
+
+    public function test_send_whatsapp_otp_job_throws_exception_on_api_error(): void
+    {
+        \App\Models\SystemSetting::set('wa_otp_active', '1');
+        \App\Models\SystemSetting::set('meta_wa_token', 'mock_token');
+        \App\Models\SystemSetting::set('meta_wa_phone_number_id', '1344185355444409');
+        \App\Models\SystemSetting::set('meta_wa_graph_version', 'v26.0');
+
+        Http::fake([
+            'https://graph.facebook.com/v26.0/1344185355444409/messages' => Http::response([
+                'error' => [
+                    'message' => 'Rate limit hit',
+                    'code' => 80007,
+                ],
+            ], 400),
+        ]);
+
+        $job = new \App\Jobs\WhatsApp\SendWhatsAppOtpJob('08123456789', '888999');
+        $adminWa = app(\App\Domain\WhatsApp\AdminWhatsAppService::class);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('WhatsApp OTP gagal dikirim');
+
+        $job->handle($adminWa);
     }
 }

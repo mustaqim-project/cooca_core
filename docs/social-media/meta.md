@@ -1,7 +1,7 @@
 # Integrasi Meta Platform (Facebook, Instagram, Threads)
 
 ## 1. Ikhtisar Integrasi
-Integrasi Meta di COOCA memanfaatkan **Meta Graph API v21.0** resmi dengan model otorisasi tunggal (*Single Authorization Flow*). Sekali otorisasi dari akun Facebook merchant, sistem secara otomatis menemukan dan menghubungkan:
+Integrasi Meta di COOCA memanfaatkan **Meta Graph API v26.0** resmi dengan model otorisasi tunggal (*Single Authorization Flow*). Sekali otorisasi dari akun Facebook merchant, sistem secara otomatis menemukan dan menghubungkan:
 1. **Facebook Pages** yang dikelola.
 2. **Instagram Business Accounts** yang terhubung ke Facebook Page.
 3. **Threads Profiles** yang terhubung.

@@ -32,7 +32,7 @@ class WhatsAppClient
         ?string $version = null,
         ?string $baseUrl = null
     ) {
-        $this->version = $version ?? (string) (\App\Models\SystemSetting::get('meta_wa_graph_version') ?: config('services.meta_whatsapp.version', 'v21.0'));
+        $this->version = $version ?? (string) (\App\Models\SystemSetting::get('meta_wa_graph_version') ?: config('services.meta_whatsapp.version', 'v26.0'));
         $this->baseUrl = $baseUrl ?? (string) (\App\Models\SystemSetting::get('meta_wa_graph_url') ?: config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com'));
     }
 
@@ -282,6 +282,104 @@ class WhatsAppClient
         return $this->post("/{$wabaId}/subscribed_apps", []);
     }
 
+    // ────────────────────────────────────────────────────────────────────────────
+    //  MESSAGE TEMPLATE MANAGEMENT (Meta Graph API)
+    // ────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Ambil daftar seluruh message template dari WABA.
+     *
+     * GET /{version}/{WABA_ID}/message_templates?limit={limit}&fields=...
+     *
+     * Mendukung auto-paging: jika Meta mengembalikan `paging.next`,
+     * method ini akan mengikuti cursor hingga semua halaman terkumpul.
+     *
+     * @param string|null $wabaId  Override WABA ID (default: $this->wabaId)
+     * @param int         $limit   Jumlah per halaman (maks 100)
+     * @return array{success: bool, data: array, templates: array}
+     */
+    public function getMessageTemplates(?string $wabaId = null, int $limit = 100): array
+    {
+        $waba = $wabaId ?: $this->wabaId;
+
+        if (empty($waba)) {
+            return ['success' => false, 'error' => 'WABA ID tidak tersedia.', 'templates' => []];
+        }
+
+        $fields = 'id,name,category,language,status,components,quality_score,rejected_reason';
+        $allTemplates = [];
+        $result = $this->get("/{$waba}/message_templates", [
+            'limit'  => min($limit, 100),
+            'fields' => $fields,
+        ]);
+
+        if (!($result['success'] ?? false)) {
+            return array_merge($result, ['templates' => []]);
+        }
+
+        $data = $result['data'] ?? [];
+        $allTemplates = array_merge($allTemplates, $data['data'] ?? []);
+
+        // Auto-paging via cursor
+        $nextUrl = $data['paging']['next'] ?? null;
+        $maxPages = 10; // Safety limit
+        $page = 0;
+
+        while ($nextUrl && $page < $maxPages) {
+            $page++;
+            try {
+                $pageResponse = $this->request()->get($nextUrl);
+                if (!$pageResponse->successful()) {
+                    break;
+                }
+                $pageData = $pageResponse->json() ?? [];
+                $allTemplates = array_merge($allTemplates, $pageData['data'] ?? []);
+                $nextUrl = $pageData['paging']['next'] ?? null;
+            } catch (\Throwable $e) {
+                Log::warning("[Meta WA Client] Paging error: {$e->getMessage()}");
+                break;
+            }
+        }
+
+        return [
+            'success'   => true,
+            'templates' => $allTemplates,
+            'total'     => count($allTemplates),
+            'data'      => $data,
+        ];
+    }
+
+    /**
+     * Buat message template baru di WABA.
+     *
+     * POST /{version}/{WABA_ID}/message_templates
+     *
+     * @param string $wabaId   WABA ID target
+     * @param array  $payload  Payload template sesuai spesifikasi Meta
+     *                         (name, category, language, components, allow_category_change)
+     * @return array
+     */
+    public function createMessageTemplate(string $wabaId, array $payload): array
+    {
+        return $this->post("/{$wabaId}/message_templates", $payload);
+    }
+
+    /**
+     * Hapus message template dari WABA berdasarkan nama.
+     *
+     * DELETE /{version}/{WABA_ID}/message_templates?name={name}
+     *
+     * @param string $wabaId        WABA ID target
+     * @param string $templateName  Nama template yang akan dihapus
+     * @return array
+     */
+    public function deleteMessageTemplate(string $wabaId, string $templateName): array
+    {
+        return $this->delete("/{$wabaId}/message_templates", [
+            'name' => $templateName,
+        ]);
+    }
+
     /**
      * Normalisasi nomor telepon ke format internasional tanpa tanda plus (misal: 6281234567890).
      */
@@ -364,6 +462,29 @@ class WhatsAppClient
             return $this->handleResponse($response, 'GET', $endpoint, $query, $durationMs);
         } catch (\Throwable $e) {
             $this->logError('GET', $endpoint, $e->getMessage(), ['query' => $query]);
+
+            return [
+                'success' => false,
+                'error'   => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Eksekusi HTTP DELETE ke Graph API Meta.
+     */
+    protected function delete(string $endpoint, array $query = []): array
+    {
+        $url = "{$this->baseUrl}/{$this->version}" . (str_starts_with($endpoint, '/') ? $endpoint : "/{$endpoint}");
+        $startTime = microtime(true);
+
+        try {
+            $response = $this->request()->delete($url . '?' . http_build_query($query));
+            $durationMs = round((microtime(true) - $startTime) * 1000, 2);
+
+            return $this->handleResponse($response, 'DELETE', $endpoint, $query, $durationMs);
+        } catch (\Throwable $e) {
+            $this->logError('DELETE', $endpoint, $e->getMessage(), ['query' => $query]);
 
             return [
                 'success' => false,

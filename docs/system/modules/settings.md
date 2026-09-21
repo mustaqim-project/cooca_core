@@ -58,7 +58,7 @@ Antarmuka Pengaturan dirancang dengan panduan desain **Bento Apple HIG v2.0** ya
   - `meta_wa_waba_id`
   - `meta_wa_token` (Permanent System User Token)
   - `meta_wa_webhook_verify_token`
-  - `meta_wa_graph_version` (Default: `v25.0`)
+  - `meta_wa_graph_version` (Default: `v26.0`)
   - `meta_wa_graph_url` (`https://graph.facebook.com`)
 * **Webhook Callback:** `/api/v1/wa/meta/webhook`
 * **Live Connectivity Tester:** Rute `POST /admin/settings/test-whatsapp` memvalidasi status nomor, tier limit, dan rating kualitas nomor.
@@ -67,7 +67,7 @@ Antarmuka Pengaturan dirancang dengan panduan desain **Bento Apple HIG v2.0** ya
 * **Fungsi:** Otomasi posting konten promosi, penjadwalan konten omnichannel, dan integrasi social commerce.
 * **Platform Meta (Facebook Pages & Instagram API):**
   - `social_media_app_id`, `social_media_app_secret`, `social_media_webhook_verify_token`
-  - `social_media_graph_version` (`v21.0`), `social_media_graph_url` (`https://graph.facebook.com`)
+  - `social_media_graph_version` (`v26.0`), `social_media_graph_url` (`https://graph.facebook.com`)
   - Kredensial khusus Instagram: `instagram_app_id`, `instagram_app_secret`, `instagram_account_id`, `instagram_access_token`
 * **Platform TikTok Developer:**
   - `tiktok_client_key`, `tiktok_client_secret`

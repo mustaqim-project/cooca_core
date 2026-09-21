@@ -72,7 +72,7 @@ class LegalPagesSeeder extends Seeder
         <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
             <div class="font-bold text-black dark:text-white flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
-                Meta WhatsApp Cloud API v25.0
+                Meta WhatsApp Cloud API v26.0
             </div>
             <p class="text-black/60 dark:text-white/60 leading-relaxed">
                 Pengiriman pesan transaksional berkecepatan tinggi: kode OTP login, kuitansi digital transaksi kasir POS, dan pengingat billing tagihan resmi dengan enkripsi end-to-end.

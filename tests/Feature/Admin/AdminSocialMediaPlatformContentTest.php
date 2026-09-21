@@ -52,10 +52,14 @@ class AdminSocialMediaPlatformContentTest extends TestCase
         SystemSetting::set('instagram_access_token', 'IGAA_mock_token_secret', 'social_media', true);
 
         Http::fake([
-            'https://graph.instagram.com/v21.0/17841400000000000/media' => Http::response([
+            'https://graph.instagram.com/v26.0/17841400000000000/media' => Http::response([
                 'id' => 'container_creation_id_123',
             ], 200),
-            'https://graph.instagram.com/v21.0/17841400000000000/media_publish' => Http::response([
+            // waitForMediaContainerReady checks container status before publish
+            'https://graph.instagram.com/v26.0/container_creation_id_123*' => Http::response([
+                'status_code' => 'FINISHED',
+            ], 200),
+            'https://graph.instagram.com/v26.0/17841400000000000/media_publish' => Http::response([
                 'id' => 'published_post_id_99999',
             ], 200),
         ]);
@@ -90,10 +94,13 @@ class AdminSocialMediaPlatformContentTest extends TestCase
         SystemSetting::set('instagram_access_token', 'IGAA_mock_token_secret', 'social_media', true);
 
         Http::fake([
-            'https://graph.instagram.com/v21.0/17841400000000000/media' => Http::response([
+            'https://graph.instagram.com/v26.0/17841400000000000/media' => Http::response([
                 'id' => 'container_creation_id_456',
             ], 200),
-            'https://graph.instagram.com/v21.0/17841400000000000/media_publish' => Http::response([
+            'https://graph.instagram.com/v26.0/container_creation_id_456*' => Http::response([
+                'status_code' => 'FINISHED',
+            ], 200),
+            'https://graph.instagram.com/v26.0/17841400000000000/media_publish' => Http::response([
                 'id' => 'published_post_id_88888',
             ], 200),
         ]);
@@ -139,10 +146,13 @@ class AdminSocialMediaPlatformContentTest extends TestCase
         SystemSetting::set('instagram_access_token', 'IGAA_mock_token_secret', 'social_media', true);
 
         Http::fake([
-            'https://graph.instagram.com/v21.0/17841400000000000/media' => Http::response([
+            'https://graph.instagram.com/v26.0/17841400000000000/media' => Http::response([
                 'id' => 'container_creation_id_retry',
             ], 200),
-            'https://graph.instagram.com/v21.0/17841400000000000/media_publish' => Http::response([
+            'https://graph.instagram.com/v26.0/container_creation_id_retry*' => Http::response([
+                'status_code' => 'FINISHED',
+            ], 200),
+            'https://graph.instagram.com/v26.0/17841400000000000/media_publish' => Http::response([
                 'id' => 'published_post_id_retry_success',
             ], 200),
         ]);
@@ -208,7 +218,7 @@ class AdminSocialMediaPlatformContentTest extends TestCase
         SystemSetting::set('instagram_access_token', 'IGAA_mock_token_secret', 'social_media', true);
 
         Http::fake([
-            'https://graph.instagram.com/v21.0/ig_comment_12345/replies' => Http::response([
+            'https://graph.instagram.com/v26.0/ig_comment_12345/replies' => Http::response([
                 'id' => 'ig_reply_id_77777',
             ], 200),
         ]);

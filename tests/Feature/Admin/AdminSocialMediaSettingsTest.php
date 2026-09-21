@@ -64,7 +64,7 @@ class AdminSocialMediaSettingsTest extends TestCase
             'social_media_app_id'               => '998877665544332',
             'social_media_app_secret'           => 'meta_app_secret_db_123',
             'social_media_webhook_verify_token' => 'meta_webhook_token_db_456',
-            'social_media_graph_version'        => 'v21.0',
+            'social_media_graph_version'        => 'v26.0',
             'tiktok_client_key'                 => 'tiktok_key_db_777',
             'tiktok_client_secret'              => 'tiktok_secret_db_888',
         ]);
@@ -76,7 +76,7 @@ class AdminSocialMediaSettingsTest extends TestCase
         $this->assertSame('998877665544332', SystemSetting::get('social_media_app_id'));
         $this->assertSame('meta_app_secret_db_123', SystemSetting::get('social_media_app_secret'));
         $this->assertSame('meta_webhook_token_db_456', SystemSetting::get('social_media_webhook_verify_token'));
-        $this->assertSame('v21.0', SystemSetting::get('social_media_graph_version'));
+        $this->assertSame('v26.0', SystemSetting::get('social_media_graph_version'));
 
         $this->assertSame('tiktok_key_db_777', SystemSetting::get('tiktok_client_key'));
         $this->assertSame('tiktok_secret_db_888', SystemSetting::get('tiktok_client_secret'));
@@ -89,7 +89,7 @@ class AdminSocialMediaSettingsTest extends TestCase
         $metaClient = new MetaSocialMediaClient();
         $this->assertSame('998877665544332', $metaClient->getAppId());
         $this->assertSame('meta_app_secret_db_123', $metaClient->getAppSecret());
-        $this->assertSame('v21.0', $metaClient->getGraphVersion());
+        $this->assertSame('v26.0', $metaClient->getGraphVersion());
 
         $tiktokClient = new TikTokClient();
         $this->assertSame('tiktok_key_db_777', $tiktokClient->getClientKey());

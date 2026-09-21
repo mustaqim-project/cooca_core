@@ -23,7 +23,7 @@ class MetaSocialMediaClient
     ) {
         $this->appId = $appId ?? (string) (SystemSetting::get('social_media_app_id') ?: config('services.meta_social.app_id', ''));
         $this->appSecret = $appSecret ?? (string) (SystemSetting::get('social_media_app_secret') ?: config('services.meta_social.app_secret', ''));
-        $this->graphVersion = $graphVersion ?? (string) (SystemSetting::get('social_media_graph_version') ?: config('services.meta_social.graph_version', 'v21.0'));
+        $this->graphVersion = $graphVersion ?? (string) (SystemSetting::get('social_media_graph_version') ?: config('services.meta_social.graph_version', 'v26.0'));
         $this->graphUrl = rtrim($graphUrl ?? (string) (SystemSetting::get('social_media_graph_url') ?: config('services.meta_social.graph_url', 'https://graph.facebook.com')), '/');
     }
 

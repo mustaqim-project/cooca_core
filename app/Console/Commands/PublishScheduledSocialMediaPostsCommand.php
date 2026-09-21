@@ -75,10 +75,35 @@ class PublishScheduledSocialMediaPostsCommand extends Command
             $this->info("Found {$scheduledPosts->count()} scheduled post(s) ready to publish.");
             foreach ($scheduledPosts as $post) {
                 // If post has targets that were not yet scheduled individually
-                if ($post->targets->isNotEmpty()) {
+                if ($post->targets->count() === 1 && ! $post->is_platform && $post->business) {
+                    $target = $post->targets->first();
+                    if ($target->status !== 'published') {
+                        $target->update(['status' => 'publishing']);
+                        $post->update(['status' => 'publishing']);
+                        try {
+                            $socialMediaService->publishPost($post->business, $post);
+                            $target->update([
+                                'status'           => $post->status,
+                                'platform_post_id' => $post->platform_post_id,
+                                'published_at'     => $post->published_at,
+                                'error_message'    => $post->error_message,
+                            ]);
+                            $dispatchedCount++;
+                        } catch (\Throwable $e) {
+                            $target->update([
+                                'status'        => 'failed',
+                                'error_message' => $e->getMessage(),
+                            ]);
+                            $post->update([
+                                'status'        => 'failed',
+                                'error_message' => $e->getMessage(),
+                            ]);
+                        }
+                    }
+                } elseif ($post->targets->isNotEmpty()) {
                     foreach ($post->targets as $target) {
                         if ($target->status !== 'published') {
-                            if ($target->scheduled_at === null || $target->scheduled_at->isPast()) {
+                            if ($target->scheduled_at === null || $target->scheduled_at->isPast() || ($post->scheduled_at && $post->scheduled_at->isPast())) {
                                 if ($post->is_platform) {
                                     $adminSocialMediaService->executePlatformPublishTarget($target);
                                 } else {

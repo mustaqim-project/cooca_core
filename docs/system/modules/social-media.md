@@ -15,7 +15,7 @@ Modul Media Sosial melayani dua domain utama:
 
 ## 2. Format Konten yang Didukung
 
-Sistem mendukung tiga format utama penerbitan konten ke Meta Graph API v21.0:
+Sistem mendukung tiga format utama penerbitan konten ke Meta Graph API v26.0:
 1. **Postingan Feed (`IMAGE` / `CAROUSEL` / `TEXT`)**:
    - Foto tunggal atau album carousel (2 hingga 10 berkas).
    - Teks caption lengkap (hingga 2.200 karakter) dan tagar.

@@ -20,7 +20,7 @@ class MetaWhatsAppCloudDriver
         $this->defaultToken = $defaultToken ?? (string) (\App\Models\SystemSetting::get('meta_wa_token') ?: config('services.meta_whatsapp.token', ''));
         $this->defaultPhoneNumberId = $defaultPhoneNumberId ?? (string) (\App\Models\SystemSetting::get('meta_wa_phone_number_id') ?: config('services.meta_whatsapp.phone_number_id', ''));
         $this->defaultWabaId = $defaultWabaId ?? (string) (\App\Models\SystemSetting::get('meta_wa_waba_id') ?: config('services.meta_whatsapp.waba_id', ''));
-        $this->version = $version ?? (string) (\App\Models\SystemSetting::get('meta_wa_graph_version') ?: config('services.meta_whatsapp.version', 'v21.0'));
+        $this->version = $version ?? (string) (\App\Models\SystemSetting::get('meta_wa_graph_version') ?: config('services.meta_whatsapp.version', 'v26.0'));
         $this->baseUrl = (string) (\App\Models\SystemSetting::get('meta_wa_graph_url') ?: config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com'));
     }
 
@@ -48,7 +48,7 @@ class MetaWhatsAppCloudDriver
     ): array {
         $authToken = $token ?: $this->defaultToken;
         $phoneId = $phoneNumberId ?: $this->defaultPhoneNumberId;
-        $template = $templateName ?: config('services.meta_whatsapp.otp_template', 'cooca_otp');
+        $template = $templateName ?: (string) (\App\Models\SystemSetting::get('meta_wa_otp_template') ?: config('services.meta_whatsapp.otp_template', 'cooca_otp'));
         $cleanPhone = $this->normalizePhone($phone);
 
         if (!$authToken || !$phoneId) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\SocialMedia;
 
+use App\Domain\SocialMedia\Clients\MetaSocialMediaClient;
 use App\Models\Business;
 use App\Models\SocialMediaAccount;
 use App\Models\SocialMediaComment;
@@ -13,6 +14,12 @@ use App\Models\SystemSetting;
 
 class AdminSocialMediaService
 {
+    public function __construct(
+        protected ?MetaSocialMediaClient $metaClient = null
+    ) {
+        $this->metaClient = $metaClient ?? app(MetaSocialMediaClient::class);
+    }
+
     /**
      * Get platform-wide Meta Social Media configuration settings.
      */
@@ -22,7 +29,7 @@ class AdminSocialMediaService
             'app_id'               => (string) SystemSetting::get('social_media_app_id', ''),
             'app_secret'           => (string) SystemSetting::get('social_media_app_secret', ''),
             'webhook_verify_token' => (string) SystemSetting::get('social_media_webhook_verify_token', 'cooca_meta_social_webhook_token'),
-            'graph_version'        => (string) SystemSetting::get('social_media_graph_version', 'v21.0'),
+            'graph_version'        => (string) SystemSetting::get('social_media_graph_version', 'v26.0'),
             'graph_url'            => (string) SystemSetting::get('social_media_graph_url', 'https://graph.facebook.com'),
             'webhook_url'          => url('/api/v1/social-media/meta/webhook'),
 
@@ -119,8 +126,10 @@ class AdminSocialMediaService
             ];
         }
 
+        $graphVersion = (string) SystemSetting::get('social_media_graph_version', 'v26.0');
+
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(8)->get('https://graph.instagram.com/v21.0/me', [
+            $response = \Illuminate\Support\Facades\Http::timeout(8)->get("https://graph.instagram.com/{$graphVersion}/me", [
                 'fields'       => 'id,username,account_type,media_count,profile_picture_url',
                 'access_token' => $token,
             ]);
@@ -177,11 +186,7 @@ class AdminSocialMediaService
         ];
     }
 
-    public function __construct(
-        protected ?\App\Domain\SocialMedia\Clients\MetaSocialMediaClient $metaClient = null
-    ) {
-        $this->metaClient = $metaClient ?? app(\App\Domain\SocialMedia\Clients\MetaSocialMediaClient::class);
-    }
+
 
     /**
      * Get paginated merchants with their social media connection statuses.

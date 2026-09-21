@@ -142,7 +142,7 @@ final class AdminSettingController extends Controller
             'metaSocialAppId'        => SystemSetting::get('social_media_app_id', ''),
             'metaSocialAppSecret'    => SystemSetting::get('social_media_app_secret', ''),
             'metaSocialWebhookToken' => SystemSetting::get('social_media_webhook_verify_token', 'cooca_meta_social_webhook_token'),
-            'metaSocialGraphVersion' => SystemSetting::get('social_media_graph_version', 'v21.0'),
+            'metaSocialGraphVersion' => SystemSetting::get('social_media_graph_version', 'v26.0'),
             'metaSocialGraphUrl'     => SystemSetting::get('social_media_graph_url', 'https://graph.facebook.com'),
             'metaSocialWebhookUrl'   => (string) (SystemSetting::get('social_media_webhook_url') ?: $canonicalUrl('/api/v1/social-media/meta/webhook')),
 
@@ -204,7 +204,7 @@ final class AdminSettingController extends Controller
             'waOtpActive'            => filter_var(SystemSetting::get('wa_otp_active', '1'), FILTER_VALIDATE_BOOLEAN),
             'waBlastActive'          => filter_var(SystemSetting::get('wa_blast_active', '1'), FILTER_VALIDATE_BOOLEAN),
             'waBotStatus'            => app(\App\Domain\WhatsApp\AdminWhatsAppService::class)->getStatus(),
-            'metaWaGraphVersion'     => SystemSetting::get('meta_wa_graph_version') ?? config('services.meta_whatsapp.version', 'v25.0'),
+            'metaWaGraphVersion'     => SystemSetting::get('meta_wa_graph_version') ?? config('services.meta_whatsapp.version', 'v26.0'),
             'metaWaGraphUrl'         => SystemSetting::get('meta_wa_graph_url') ?? config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com'),
             'metaWaWebhookUrl'       => (string) (SystemSetting::get('meta_wa_webhook_url') ?: $canonicalUrl('/api/v1/wa/meta/webhook')),
 
@@ -736,7 +736,7 @@ final class AdminSettingController extends Controller
     {
         $metaAppId = (string) SystemSetting::get('social_media_app_id', '');
         $metaAppSecret = (string) SystemSetting::get('social_media_app_secret', '');
-        $metaVersion = (string) SystemSetting::get('social_media_graph_version', 'v21.0');
+        $metaVersion = (string) SystemSetting::get('social_media_graph_version', 'v26.0');
         $metaGraphUrl = rtrim((string) SystemSetting::get('social_media_graph_url', 'https://graph.facebook.com'), '/');
 
         $tiktokKey = (string) SystemSetting::get('tiktok_client_key', '');

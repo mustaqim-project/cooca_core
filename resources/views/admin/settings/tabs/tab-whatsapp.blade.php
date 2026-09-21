@@ -16,7 +16,7 @@
                             @if(!empty($metaWaPhoneNumberId))
                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                     <i data-lucide="check-circle-2" class="w-3 h-3" stroke-width="2"></i>
-                                    <span>Cloud API {{ $metaWaGraphVersion ?? 'v25.0' }} Aktif</span>
+                                    <span>Cloud API {{ $metaWaGraphVersion ?? 'v26.0' }} Aktif</span>
                                 </span>
                             @else
                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/25">
@@ -72,7 +72,7 @@
                         </div>
                     </div>
                     <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 self-start sm:self-auto">
-                        Meta Cloud API v25.0
+                        Meta Cloud API v26.0
                     </span>
                 </div>
 
@@ -231,7 +231,7 @@
                                     Phone Number ID <span class="text-[#FF3B30]">*</span>
                                 </label>
                                 <input type="text" name="meta_wa_phone_number_id" value="{{ old('meta_wa_phone_number_id', $metaWaPhoneNumberId ?? '') }}"
-                                    placeholder="Contoh: 1311095538754578" required
+                                    placeholder="Contoh: 1337255202804569" required
                                     class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 transition">
                             </div>
 
@@ -241,7 +241,7 @@
                                     WhatsApp Business Account ID (WABA ID) <span class="text-[#FF3B30]">*</span>
                                 </label>
                                 <input type="text" name="meta_wa_waba_id" value="{{ old('meta_wa_waba_id', $metaWaWabaId ?? '') }}"
-                                    placeholder="Contoh: 4663536093891174" required
+                                    placeholder="Contoh: 37944837988498077" required
                                     class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 transition">
                             </div>
 
@@ -299,8 +299,8 @@
                                 <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
                                     Graph API Version
                                 </label>
-                                <input type="text" name="meta_wa_graph_version" value="{{ old('meta_wa_graph_version', $metaWaGraphVersion ?? 'v25.0') }}"
-                                    placeholder="v25.0"
+                                <input type="text" name="meta_wa_graph_version" value="{{ old('meta_wa_graph_version', $metaWaGraphVersion ?? 'v26.0') }}"
+                                    placeholder="v26.0"
                                     class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 transition">
                             </div>
 
@@ -547,7 +547,7 @@
                         <h4 class="text-[14px] font-bold text-black dark:text-white">Official Tech Provider</h4>
                     </div>
                     <p class="text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
-                        Menggunakan Meta WhatsApp Business Platform resmi (Cloud API v25.0) dengan rating kualitas terproteksi. 100% bebas dari risiko banned nomor seperti yang kerap terjadi pada emulator tidak resmi.
+                        Menggunakan Meta WhatsApp Business Platform resmi (Cloud API v26.0) dengan rating kualitas terproteksi. 100% bebas dari risiko banned nomor seperti yang kerap terjadi pada emulator tidak resmi.
                     </p>
                     <div class="pt-2 border-t border-black/[0.04] dark:border-white/[0.06] text-[11.5px] text-black/60 dark:text-white/60 space-y-1.5">
                         <div class="flex items-center gap-1.5 text-[#34C759]">

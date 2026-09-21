@@ -773,7 +773,7 @@
                     <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
                         <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Versi Graph API</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
-                            {{ $platform['graph_version'] ?: 'v21.0' }}
+                            {{ $platform['graph_version'] ?: 'v26.0' }}
                         </div>
                     </div>
                 </div>

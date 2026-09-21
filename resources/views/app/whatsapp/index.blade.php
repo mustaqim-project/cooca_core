@@ -433,7 +433,7 @@
                         }
 
                         // 2. Pastikan Facebook JavaScript SDK ter-load
-                        await this.ensureFbSdkLoaded(configData.app_id, configData.version || 'v21.0');
+                        await this.ensureFbSdkLoaded(configData.app_id, configData.version || 'v26.0');
 
                         // 3. Launch FB.login dengan WhatsApp Embedded Signup sesuai dokumentasi resmi Meta
                         const loginOptions = {

@@ -190,7 +190,7 @@ final class PosReceiptImageTest extends TestCase
         ]);
 
         Http::fake([
-            'https://graph.facebook.com/v21.0/*/messages' => Http::response([
+            'https://graph.facebook.com/v26.0/*/messages' => Http::response([
                 'messaging_product' => 'whatsapp',
                 'contacts'          => [['input' => '081987654321', 'wa_id' => '6281987654321']],
                 'messages'          => [['id' => 'wamid.HBgLTESTRECEIPT==']],

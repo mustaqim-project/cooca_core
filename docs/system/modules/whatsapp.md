@@ -11,7 +11,7 @@
 
 Modul WhatsApp Gateway & Admin Center berfungsi sebagai pusat komunikasi otomatis tingkat platform (*Platform-Level Communication Hub*) dan tingkat bisnis operasional (*Store-Level Automation Hub*). Modul ini mengintegrasikan dua penyedia gateway berbeda secara bersamaan:
 
-1. **Meta WhatsApp Cloud API (Graph API v20.0 - Resmi Facebook):**  
+1. **Meta WhatsApp Cloud API (Graph API v26.0 - Resmi Facebook):**  
    Solusi resmi berbasis cloud serverless dari Meta khusus untuk pesan verifikasi keamanan tingkat tinggi (OTP pendaftaran, login, perubahan nomor telepon) dan notifikasi transaksional tanpa risiko diblokir/banned.
 2. **Baileys WA Server (Lokal Scan QR - Multi-Device Client):**  
    Solusi mandiri berbasis web client yang menghubungkan nomor WhatsApp pribadi atau operasional toko via pemindaian kode QR tanpa kartu kredit untuk pesan berkala dan promosi.

@@ -103,7 +103,7 @@ class WhatsAppDualGatewayTest extends TestCase
         SystemSetting::set('meta_wa_otp_template', 'my_otp_template');
 
         \Illuminate\Support\Facades\Http::fake([
-            'https://graph.facebook.com/v21.0/10987654321/messages' => \Illuminate\Support\Facades\Http::response([
+            'https://graph.facebook.com/v26.0/10987654321/messages' => \Illuminate\Support\Facades\Http::response([
                 'messaging_product' => 'whatsapp',
                 'contacts'          => [['input' => '081234567890', 'wa_id' => '6281234567890']],
                 'messages'          => [['id' => 'wamid.HBgLM...==']],

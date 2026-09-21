@@ -159,7 +159,7 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
         $response->assertJson([
             'app_id'    => '123456789012345',
             'config_id' => 'test_embedded_config_id_99',
-            'version'   => 'v21.0',
+            'version'   => 'v26.0',
         ]);
     }
 
