@@ -1,4 +1,4 @@
-@extends('layouts.customer', ['title' => 'Masuk Akun Pelanggan'])
+@extends('layouts.public_marketing', ['title' => 'Masuk Akun Pelanggan'])
 
 @section('content')
     <div class="max-w-md mx-auto py-6 sm:py-16">

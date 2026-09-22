@@ -1154,7 +1154,7 @@
                                     class="text-xs font-semibold tracking-tight mt-0.5 {{ $isHomeActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">Beranda</span>
                                 @if ($isHomeActive)
                                     <span
-                                        class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 animate-pulse"></span>
+                                        class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
@@ -1182,7 +1182,7 @@
                                     class="text-xs font-semibold tracking-tight mt-0.5 {{ $isCalcActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">Kalkulator</span>
                                 @if ($isCalcActive)
                                     <span
-                                        class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 animate-pulse"></span>
+                                        class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
@@ -1205,7 +1205,7 @@
                                 POS</span>
                             @if ($isSolusiActive)
                                 <span
-                                    class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 animate-pulse"></span>
+                                    class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 opacity-60"></span>
                             @else
                                 <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                             @endif
@@ -1230,7 +1230,7 @@
                                     class="text-xs font-semibold tracking-tight mt-0.5 {{ $isTemplateActive ? 'text-[#34C759] dark:text-[#30D158]' : '' }}">Template</span>
                                 @if ($isTemplateActive)
                                     <span
-                                        class="w-1 h-1 rounded-full bg-[#34C759] dark:bg-[#30D158] mt-0.5 animate-pulse"></span>
+                                        class="w-1 h-1 rounded-full bg-[#34C759] dark:bg-[#30D158] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
@@ -1267,7 +1267,7 @@
                                     class="text-xs font-semibold tracking-tight mt-0.5 {{ $isAccountActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">{{ $tabLabel }}</span>
                                 @if ($isAccountActive)
                                     <span
-                                        class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 animate-pulse"></span>
+                                        class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
