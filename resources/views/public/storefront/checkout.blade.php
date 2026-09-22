@@ -132,7 +132,7 @@
     {{-- Error Notice --}}
     <div x-show="errorMessage" 
          x-cloak 
-         class="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm flex items-center gap-3">
+         class="mb-6 p-4 rounded-[12px] bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm flex items-center gap-3">
         <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
         <span x-text="errorMessage"></span>
     </div>
@@ -196,9 +196,9 @@
         <div class="lg:col-span-7 space-y-6">
             
             {{-- Step 1: Tipe Pesanan / Pemenuhan --}}
-            <div class="p-6 rounded-theme bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+            <div class="p-6 rounded-[20px] bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
                 <div class="flex items-center gap-2 font-heading font-bold text-base text-neutral-900 dark:text-white">
-                    <span class="w-6 h-6 rounded-full bg-theme-primary text-white text-xs flex items-center justify-center">1</span>
+                    <span class="w-6 h-6 rounded-[8px] bg-theme-primary text-white text-xs flex items-center justify-center">1</span>
                     <span>Metode Penerimaan Pesanan</span>
                 </div>
 
@@ -207,7 +207,7 @@
                         <button type="button" 
                                 @click="fulfillmentType = 'delivery'; calculateShipping()"
                                 :class="fulfillmentType === 'delivery' ? 'border-theme-primary bg-theme-primary/5 text-theme-primary font-bold' : 'border-black/10 dark:border-white/10 text-neutral-600 dark:text-neutral-300'"
-                                class="p-3.5 rounded-xl border text-center text-xs flex flex-col items-center gap-1.5 transition">
+                                class="p-3.5 rounded-[12px] border text-center text-xs flex flex-col items-center gap-1.5 transition min-h-[64px]">
                             <i data-lucide="truck" class="w-5 h-5"></i>
                             <span>Kirim ke Alamat</span>
                         </button>
@@ -217,7 +217,7 @@
                         <button type="button" 
                                 @click="fulfillmentType = 'pickup'; calculateShipping()"
                                 :class="fulfillmentType === 'pickup' ? 'border-theme-primary bg-theme-primary/5 text-theme-primary font-bold' : 'border-black/10 dark:border-white/10 text-neutral-600 dark:text-neutral-300'"
-                                class="p-3.5 rounded-xl border text-center text-xs flex flex-col items-center gap-1.5 transition">
+                                class="p-3.5 rounded-[12px] border text-center text-xs flex flex-col items-center gap-1.5 transition min-h-[64px]">
                             <i data-lucide="store" class="w-5 h-5"></i>
                             <span>Ambil di Toko</span>
                         </button>
@@ -227,7 +227,7 @@
                         <button type="button" 
                                 @click="fulfillmentType = 'dine_in'; calculateShipping()"
                                 :class="fulfillmentType === 'dine_in' ? 'border-theme-primary bg-theme-primary/5 text-theme-primary font-bold' : 'border-black/10 dark:border-white/10 text-neutral-600 dark:text-neutral-300'"
-                                class="p-3.5 rounded-xl border text-center text-xs flex flex-col items-center gap-1.5 transition">
+                                class="p-3.5 rounded-[12px] border text-center text-xs flex flex-col items-center gap-1.5 transition min-h-[64px]">
                             <i data-lucide="utensils" class="w-5 h-5"></i>
                             <span>Makan di Tempat</span>
                         </button>
@@ -237,7 +237,7 @@
                 {{-- Dine-in Table Selector --}}
                 <div x-show="fulfillmentType === 'dine_in'" x-cloak class="pt-2">
                     <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Nomor Meja</label>
-                    <select x-model="selectedTable" class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm">
+                    <select x-model="selectedTable" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm">
                         <option value="">-- Pilih Meja Anda --</option>
                         @foreach ($posTables as $tbl)
                             <option value="{{ $tbl->id }}">{{ $tbl->name ?: 'Meja ' . $tbl->table_number }}</option>
@@ -253,7 +253,7 @@
                     @if(isset($pickupLocations) && $pickupLocations->isNotEmpty())
                         <div class="space-y-2">
                             @foreach ($pickupLocations as $pLoc)
-                                <label class="flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer text-left"
+                                <label class="flex items-start gap-3 p-3 rounded-[12px] border transition-all cursor-pointer text-left"
                                        :class="selectedPickupLocationId === '{{ $pLoc->id }}' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : 'border-black/10 dark:border-white/10 hover:border-black/20 bg-neutral-50/50 dark:bg-neutral-900/50'">
                                     <input type="radio" name="pickup_location" value="{{ $pLoc->id }}" x-model="selectedPickupLocationId" class="mt-1 text-theme-primary focus:ring-theme-primary">
                                     <div class="flex-1 min-w-0">
@@ -274,7 +274,7 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="p-3 bg-neutral-100 dark:bg-neutral-900 rounded-xl text-xs text-neutral-600 dark:text-neutral-400">
+                        <div class="p-3 bg-neutral-100 dark:bg-neutral-900 rounded-[12px] text-xs text-neutral-600 dark:text-neutral-400">
                             Pengambilan langsung di toko / outlet utama.
                         </div>
                     @endif
@@ -282,9 +282,9 @@
             </div>
 
             {{-- Step 2: Customer Identity & Shipping Address --}}
-            <div class="p-6 rounded-theme bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+            <div class="p-6 rounded-[20px] bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
                 <div class="flex items-center gap-2 font-heading font-bold text-base text-neutral-900 dark:text-white">
-                    <span class="w-6 h-6 rounded-full bg-theme-primary text-white text-xs flex items-center justify-center">2</span>
+                    <span class="w-6 h-6 rounded-[8px] bg-theme-primary text-white text-xs flex items-center justify-center">2</span>
                     <span>Informasi Pembeli &amp; Pengiriman</span>
                 </div>
 
@@ -297,7 +297,7 @@
                                x-model="customerName" 
                                required
                                placeholder="Contoh: Budi Santoso"
-                               class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-theme-primary">
+                               class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm focus:ring-2 focus:ring-theme-primary">
                     </div>
 
                     <div>
@@ -308,7 +308,7 @@
                                x-model="customerPhone" 
                                required
                                placeholder="081234567890"
-                               class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-theme-primary">
+                               class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm focus:ring-2 focus:ring-theme-primary">
                     </div>
 
                     <div class="sm:col-span-2">
@@ -318,7 +318,7 @@
                         <input type="email" 
                                x-model="customerEmail" 
                                placeholder="nama@email.com"
-                               class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-theme-primary">
+                               class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm focus:ring-2 focus:ring-theme-primary">
                     </div>
 
                     {{-- Address (Only if Delivery) --}}
@@ -329,7 +329,7 @@
                         <textarea x-model="shippingAddress" 
                                   rows="3"
                                   placeholder="Jalan, nomor rumah, RT/RW, kelurahan, kecamatan, kota/kabupaten..."
-                                  class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-theme-primary"></textarea>
+                                  class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm focus:ring-2 focus:ring-theme-primary"></textarea>
                     </div>
 
                     {{-- Shipping Rule Option --}}
@@ -337,7 +337,7 @@
                         <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1">Pilihan Kurir &amp; Ongkos Kirim</label>
                         <select x-model="selectedShippingRuleId" 
                                 @change="calculateShipping()"
-                                class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm">
+                                class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm">
                             <template x-for="r in shippingRules" :key="r.id">
                                 <option :value="r.id" x-text="r.name + ' (Rp ' + parseFloat(r.rate).toLocaleString('id-ID') + ')'"></option>
                             </template>
@@ -349,21 +349,21 @@
                         <input type="text" 
                                x-model="notes" 
                                placeholder="Contoh: Jangan terlalu pedas, titipkan di pos satpam..."
-                               class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-theme-primary">
+                               class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm focus:ring-2 focus:ring-theme-primary">
                     </div>
                 </div>
             </div>
 
             {{-- Step 3: Payment Method Selection --}}
-            <div class="p-6 rounded-theme bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+            <div class="p-6 rounded-[20px] bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
                 <div class="flex items-center gap-2 font-heading font-bold text-base text-neutral-900 dark:text-white">
-                    <span class="w-6 h-6 rounded-full bg-theme-primary text-white text-xs flex items-center justify-center">3</span>
+                    <span class="w-6 h-6 rounded-[8px] bg-theme-primary text-white text-xs flex items-center justify-center">3</span>
                     <span>Pilihan Metode Pembayaran</span>
                 </div>
 
                 <div class="space-y-3">
                     @forelse ($paymentMethods as $pm)
-                        <label class="flex items-center justify-between p-3.5 rounded-xl border border-black/10 dark:border-white/10 hover:border-theme-primary cursor-pointer transition"
+                        <label class="flex items-center justify-between p-3.5 rounded-[12px] border border-black/10 dark:border-white/10 hover:border-theme-primary cursor-pointer transition"
                                :class="selectedPaymentMethod === '{{ $pm->id }}' ? 'border-theme-primary bg-theme-primary/5' : ''">
                             <div class="flex items-center gap-3">
                                 <input type="radio" 
@@ -377,13 +377,13 @@
                                 </div>
                             </div>
                             @if ($pm->type === 'qris')
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">QRIS Instan</span>
+                                <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-emerald-100 text-emerald-700">QRIS Instan</span>
                             @elseif ($pm->type === 'bank_transfer')
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700">Transfer</span>
+                                <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-blue-100 text-blue-700">Transfer</span>
                             @endif
                         </label>
                     @empty
-                        <div class="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 text-xs text-neutral-500 text-center">
+                        <div class="p-4 rounded-[12px] bg-neutral-50 dark:bg-neutral-900 text-xs text-neutral-500 text-center">
                             Pembayaran akan dikonfirmasi manual melalui CS WhatsApp setelah pesanan dibuat.
                         </div>
                     @endforelse
@@ -397,17 +397,17 @@
         {{-- ================================================================= --}}
         <div class="lg:col-span-5 space-y-6 sticky top-24">
             
-            <div class="p-6 rounded-theme bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-lg space-y-6">
+            <div class="p-6 rounded-[20px] bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-lg space-y-6">
                 <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-4">
                     <h2 class="font-heading font-bold text-lg text-neutral-900 dark:text-white">Rincian Belanja</h2>
-                    <span class="text-xs font-semibold px-2 py-1 rounded-full theme-badge" x-text="$store.cart.count() + ' Item'"></span>
+                    <span class="text-xs font-semibold px-2 py-1 rounded-[8px] theme-badge" x-text="$store.cart.count() + ' Item'"></span>
                 </div>
 
                 {{-- Items List --}}
                 <div class="space-y-3 max-h-80 overflow-y-auto pr-1">
                     <template x-for="item in $store.cart.items" :key="item.id">
-                        <div class="flex items-center gap-3 p-2 rounded-xl bg-neutral-50 dark:bg-neutral-900/50">
-                            <div class="w-12 h-12 rounded-lg bg-neutral-200 dark:bg-neutral-800 shrink-0 overflow-hidden">
+                        <div class="flex items-center gap-3 p-2 rounded-[12px] bg-neutral-50 dark:bg-neutral-900/50">
+                            <div class="w-12 h-12 rounded-[8px] bg-neutral-200 dark:bg-neutral-800 shrink-0 overflow-hidden">
                                 <template x-if="item.image_url">
                                     <img :src="item.image_url" :alt="item.name" class="w-full h-full object-cover">
                                 </template>
@@ -420,7 +420,7 @@
 
                             <div class="flex-1 min-w-0">
                                 <div class="text-xs font-bold text-neutral-900 dark:text-white truncate" x-text="item.name"></div>
-                                <div class="text-[11px] text-neutral-500 font-mono" x-text="'Rp ' + item.price.toLocaleString('id-ID')"></div>
+                                <div class="text-[11px] text-neutral-500" style="font-variant-numeric: tabular-nums;" x-text="'Rp ' + item.price.toLocaleString('id-ID')"></div>
                             </div>
 
                             {{-- Quantity Buttons --}}
@@ -430,7 +430,7 @@
                                         class="w-6 h-6 rounded-md bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 flex items-center justify-center text-xs font-bold hover:bg-neutral-300">
                                     -
                                 </button>
-                                <span class="w-6 text-center text-xs font-bold font-mono" x-text="item.quantity"></span>
+                                <span class="w-6 text-center text-xs font-bold" style="font-variant-numeric: tabular-nums;" x-text="item.quantity"></span>
                                 <button type="button" 
                                         @click="$store.cart.updateQty(item.id, item.quantity + 1)"
                                         class="w-6 h-6 rounded-md bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 flex items-center justify-center text-xs font-bold hover:bg-neutral-300">
@@ -445,17 +445,17 @@
                 <div class="space-y-2 border-t border-black/5 dark:border-white/10 pt-4 text-xs">
                     <div class="flex justify-between text-neutral-600 dark:text-neutral-400">
                         <span>Subtotal Produk</span>
-                        <span class="font-mono font-semibold" x-text="'Rp ' + $store.cart.subtotal().toLocaleString('id-ID')"></span>
+                        <span style="font-variant-numeric: tabular-nums;" class="font-semibold" x-text="'Rp ' + $store.cart.subtotal().toLocaleString('id-ID')"></span>
                     </div>
 
                     <div class="flex justify-between text-neutral-600 dark:text-neutral-400" x-show="fulfillmentType === 'delivery'">
                         <span>Ongkos Kirim</span>
-                        <span class="font-mono font-semibold" x-text="'Rp ' + shippingCost.toLocaleString('id-ID')"></span>
+                        <span style="font-variant-numeric: tabular-nums;" class="font-semibold" x-text="'Rp ' + shippingCost.toLocaleString('id-ID')"></span>
                     </div>
 
                     <div class="flex justify-between text-neutral-900 dark:text-white font-bold text-base pt-3 border-t border-black/5 dark:border-white/10">
                         <span>Total Bayar</span>
-                        <span class="font-mono text-theme-primary" x-text="'Rp ' + grandTotal().toLocaleString('id-ID')"></span>
+                        <span class="text-theme-primary" style="font-variant-numeric: tabular-nums;" x-text="'Rp ' + grandTotal().toLocaleString('id-ID')"></span>
                     </div>
                 </div>
 
@@ -463,7 +463,7 @@
                 <button type="button" 
                         @click="submitOrder()" 
                         :disabled="isSubmitting"
-                        class="w-full py-4 rounded-theme theme-btn-primary font-bold text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
+                        class="w-full py-4 rounded-[12px] theme-btn-primary font-bold text-sm shadow-xl flex items-center justify-center gap-2 active:scale-[0.97] disabled:opacity-50 min-h-[52px]">
                     <span x-show="!isSubmitting">Konfirmasi &amp; Pesan Sekarang</span>
                     <span x-show="isSubmitting" x-cloak class="flex items-center gap-2">
                         <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
