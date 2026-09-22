@@ -157,6 +157,10 @@ class MetaWhatsAppOnboardingController extends Controller
             $qualityRating            = $phoneDetails['quality_rating'] ?? 'UNKNOWN';
             $codeVerificationStatus   = $phoneDetails['code_verification_status'] ?? null;
             $messagingLimitTier       = $phoneDetails['messaging_limit_tier'] ?? 'TIER_50';
+            $hasMetaStatus             = array_key_exists('status', $phoneDetails);
+            $metaStatus                = strtoupper((string) ($phoneDetails['status'] ?? 'UNKNOWN'));
+            $isConnected               = (!$hasMetaStatus || $metaStatus === 'CONNECTED')
+                && strtoupper((string) $codeVerificationStatus) === 'VERIFIED';
             $normalizedPhone          = preg_replace('/[^0-9]/', '', (string) ($displayPhoneNumber ?? '')) ?? '';
 
             // 4. Daftarkan (subscribe) aplikasi COOCA ke Webhook WABA merchant
@@ -167,6 +171,17 @@ class MetaWhatsAppOnboardingController extends Controller
                 'business_id' => $business->id,
                 'result'      => $subResponse,
             ]);
+
+            if (! ($subResponse['success'] ?? false)) {
+                return response()->json([
+                    'success' => false,
+                    'error'   => 'Aplikasi berhasil membaca WABA, tetapi gagal berlangganan webhook WABA: ' . ($subResponse['error'] ?? 'izin Meta belum lengkap.'),
+                    'details' => [
+                        'meta_status'            => $metaStatus,
+                        'code_verification_status' => $codeVerificationStatus,
+                    ],
+                ], 422);
+            }
 
             // 5. Simpan / Perbarui WhatsAppAccount untuk merchant ini
             $account = WhatsAppAccount::updateOrCreate(
@@ -183,8 +198,8 @@ class MetaWhatsAppOnboardingController extends Controller
                     'access_token'             => $accessToken, // Otomatis terenkripsi oleh model cast
                     'token_type'               => $tokenType,
                     'token_expires_at'         => $expiresAt,
-                    'status'                   => 'active',
-                    'webhook_verified_at'      => now(),
+                    'status'                   => $isConnected ? 'active' : 'disconnected',
+                    'webhook_verified_at'      => ($subResponse['success'] ?? false) ? now() : null,
                     'metadata'                 => [
                         'token_info'    => $tokenData,
                         'phone_details' => $phoneDetails,
@@ -198,11 +213,11 @@ class MetaWhatsAppOnboardingController extends Controller
                 [
                     'session_id'            => 'biz_' . str_replace('-', '', substr($business->id, 0, 8)),
                     'provider'              => 'meta_cloud',
-                    'status'                => 'connected',
+                    'status'                => $isConnected ? 'connected' : 'disconnected',
                     'meta_phone_number_id'  => $resolvedPhoneId,
                     'meta_waba_id'          => $wabaId,
                     'phone_number'          => $normalizedPhone,
-                    'last_connected_at'     => now(),
+                    'last_connected_at'     => $isConnected ? now() : null,
                     'is_active'             => true,
                 ]
             );
@@ -217,6 +232,8 @@ class MetaWhatsAppOnboardingController extends Controller
                     'quality_rating'       => $account->quality_rating,
                     'messaging_limit_tier' => $account->messaging_limit_tier,
                     'status'               => $account->status,
+                    'meta_status'          => $metaStatus,
+                    'is_connected'         => $isConnected,
                 ],
             ]);
         } catch (\Throwable $e) {
@@ -249,32 +266,39 @@ class MetaWhatsAppOnboardingController extends Controller
             ]);
         }
 
-        // Ambil pembaruan status live langsung dari Graph API Meta jika aktif
+        // Ambil status live langsung dari Graph API Meta agar status lokal tidak stale.
         $liveDetails = null;
-        if ($account->isActive()) {
-            try {
-                $client = WhatsAppClient::forAccount($account);
-                $liveResult = $client->getPhoneNumberDetails();
+        try {
+            $client = WhatsAppClient::forAccount($account);
+            $liveResult = $client->getPhoneNumberDetails();
 
-                if ($liveResult['success'] ?? false) {
-                    $liveData = $liveResult['data'] ?? [];
-                    $account->update([
-                        'verified_name'            => $liveData['verified_name'] ?? $account->verified_name,
-                        'display_phone_number'     => $liveData['display_phone_number'] ?? $account->display_phone_number,
-                        'quality_rating'           => $liveData['quality_rating'] ?? $account->quality_rating,
-                        'code_verification_status' => $liveData['code_verification_status'] ?? $account->code_verification_status,
-                        'messaging_limit_tier'     => $liveData['messaging_limit_tier'] ?? $account->messaging_limit_tier,
-                    ]);
-                    $liveDetails = $liveData;
-                }
-            } catch (\Throwable $e) {
-                Log::channel('daily')->warning("[Meta Onboarding] Gagal membaca status live dari Meta: {$e->getMessage()}");
+            if ($liveResult['success'] ?? false) {
+                $liveData = $liveResult['data'] ?? [];
+                $hasMetaStatus = array_key_exists('status', $liveData);
+                $isConnected = (!$hasMetaStatus || strtoupper((string) $liveData['status']) === 'CONNECTED')
+                    && strtoupper((string) ($liveData['code_verification_status'] ?? '')) === 'VERIFIED';
+                $account->update([
+                    'verified_name'            => $liveData['verified_name'] ?? $account->verified_name,
+                    'display_phone_number'     => $liveData['display_phone_number'] ?? $account->display_phone_number,
+                    'quality_rating'           => $liveData['quality_rating'] ?? $account->quality_rating,
+                    'code_verification_status' => $liveData['code_verification_status'] ?? $account->code_verification_status,
+                    'messaging_limit_tier'     => $liveData['messaging_limit_tier'] ?? $account->messaging_limit_tier,
+                    'status'                   => $isConnected ? 'active' : 'disconnected',
+                ]);
+                $liveDetails = $liveData;
             }
+        } catch (\Throwable $e) {
+            Log::channel('daily')->warning("[Meta Onboarding] Gagal membaca status live dari Meta: {$e->getMessage()}");
         }
+
+        $hasMetaStatus = is_array($liveDetails) && array_key_exists('status', $liveDetails);
+        $isConnected = $account->isActive()
+            && (!$hasMetaStatus || strtoupper((string) $liveDetails['status']) === 'CONNECTED')
+            && strtoupper((string) ($liveDetails['code_verification_status'] ?? $account->code_verification_status)) === 'VERIFIED';
 
         return response()->json([
             'success'   => true,
-            'connected' => $account->isActive(),
+            'connected' => $isConnected,
             'account'   => [
                 'id'                   => $account->id,
                 'waba_id'              => $account->waba_id,
@@ -284,6 +308,9 @@ class MetaWhatsAppOnboardingController extends Controller
                 'quality_rating'       => $account->quality_rating,
                 'messaging_limit_tier' => $account->messaging_limit_tier,
                 'status'               => $account->status,
+                'meta_status'          => $liveDetails['status'] ?? 'UNKNOWN',
+                'code_verification_status' => $liveDetails['code_verification_status'] ?? $account->code_verification_status,
+                'is_connected'         => $isConnected,
                 'token_expired'        => $account->isTokenExpired(),
                 'webhook_verified_at'  => $account->webhook_verified_at?->toIso8601String(),
                 'live_details'         => $liveDetails,

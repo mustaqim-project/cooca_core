@@ -32,7 +32,7 @@ class WhatsAppClient
         ?string $version = null,
         ?string $baseUrl = null
     ) {
-        $this->version = $version ?? (string) (\App\Models\SystemSetting::get('meta_wa_graph_version') ?: config('services.meta_whatsapp.version', 'v26.0'));
+        $this->version = $version ?? (string) (\App\Models\SystemSetting::get('meta_wa_graph_version') ?: config('services.meta_whatsapp.version', 'v21.0'));
         $this->baseUrl = $baseUrl ?? (string) (\App\Models\SystemSetting::get('meta_wa_graph_url') ?: config('services.meta_whatsapp.graph_url', 'https://graph.facebook.com'));
     }
 
@@ -270,7 +270,7 @@ class WhatsAppClient
     public function getPhoneNumberDetails(): array
     {
         return $this->get("/{$this->phoneNumberId}", [
-            'fields' => 'id,verified_name,display_phone_number,quality_rating,code_verification_status,messaging_limit_tier',
+            'fields' => 'id,verified_name,display_phone_number,quality_rating,code_verification_status,messaging_limit_tier,status,platform_type',
         ]);
     }
 

@@ -293,6 +293,17 @@ class WhatsAppGatewayService
             return false;
         }
 
+        $metaAccount = WhatsAppAccount::where('business_id', $business->id)
+            ->where('status', 'active')
+            ->first();
+
+        if ($metaAccount && $metaAccount->isActive()) {
+            $result = app(\App\Domain\WhatsApp\CloudApi\WhatsAppTemplateService::class)
+                ->sendPosReceipt($order, $phone, $force);
+
+            return (bool) ($result['success'] ?? false);
+        }
+
         $session = WhatsAppSession::where('business_id', $business->id)->first();
         if (! $session || ! $session->is_active) {
             return false;

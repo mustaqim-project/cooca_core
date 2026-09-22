@@ -392,6 +392,8 @@
                 metaAccount: @json($metaAccountData),
 
                 init() {
+                    this.refreshMetaStatus();
+
                     // Dengarkan event sessionInfoListener dari Meta Embedded Signup pop-up
                     window.addEventListener('message', (event) => {
                         if (!event.origin.endsWith('facebook.com')) {
@@ -407,6 +409,29 @@
                             }
                         } catch (e) {}
                     });
+                },
+
+                async refreshMetaStatus() {
+                    try {
+                        const response = await fetch('{{ route('whatsapp.meta.status') }}', {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        const data = await response.json();
+                        if (!response.ok || !data.success || !data.account) {
+                            return;
+                        }
+
+                        const account = data.account;
+                        this.metaAccount = {
+                            ...this.metaAccount,
+                            ...account,
+                            is_active: Boolean(data.connected && account.is_connected !== false)
+                        };
+                        this.isActive = this.metaAccount.is_active;
+                        this.isMetaConfigured = true;
+                        this.status = this.metaAccount.is_active ? 'connected' : 'disconnected';
+                        this.phone = account.display_phone_number || this.phone;
+                    } catch (e) {}
                 },
 
                 async launchEmbeddedSignup() {

@@ -44,7 +44,7 @@ return [
         'app_secret'           => env('META_WA_APP_SECRET', env('META_APP_SECRET', '')),
         'webhook_verify_token' => env('META_WA_WEBHOOK_VERIFY_TOKEN', 'cooca_meta_wa_webhook_secret'),
         'config_id'            => env('META_WA_CONFIG_ID', env('META_WA_EMBEDDED_CONFIG_ID', '')),
-        'version'              => env('META_WA_GRAPH_VERSION', env('META_WA_API_VERSION', 'v26.0')),
+        'version'              => env('META_WA_GRAPH_VERSION', env('META_WA_API_VERSION', 'v21.0')),
         'graph_url'            => env('META_WA_GRAPH_URL', 'https://graph.facebook.com'),
         'token'                => env('META_WA_TOKEN', ''),
         'phone_number_id'      => env('META_WA_PHONE_NUMBER_ID', ''),
@@ -56,7 +56,7 @@ return [
         'app_id'               => env('META_SOCIAL_APP_ID', ''),
         'app_secret'           => env('META_SOCIAL_APP_SECRET', ''),
         'webhook_verify_token' => env('META_SOCIAL_WEBHOOK_VERIFY_TOKEN', 'cooca_meta_social_webhook_token'),
-        'graph_version'        => env('META_SOCIAL_GRAPH_VERSION', 'v26.0'),
+        'graph_version'        => env('META_SOCIAL_GRAPH_VERSION', 'v21.0'),
         'graph_url'            => env('META_SOCIAL_GRAPH_URL', 'https://graph.facebook.com'),
     ],
 
