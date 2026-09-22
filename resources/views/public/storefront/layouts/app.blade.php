@@ -266,33 +266,94 @@
                 @endif
             </nav>
 
-            {{-- Action Tools: Cart Shortcut, Checkout Button & Mobile Menu Toggle --}}
+
+            {{-- Action Tools: Customer Auth, Cart, Checkout & Mobile Menu --}}
             <div class="flex items-center gap-2 sm:gap-3">
-                
+
+                {{-- Customer Auth State --}}
+                @if (auth('customer')->check())
+                    {{-- Logged-in Customer Avatar + Dropdown --}}
+                    <div x-data="{ profileOpen: false }" class="relative">
+                        <button @click="profileOpen = !profileOpen"
+                                @click.away="profileOpen = false"
+                                class="flex items-center gap-2 p-1.5 pr-3 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+                                aria-label="Akun Saya">
+                            @if (auth('customer')->user()->avatar_url)
+                                <img src="{{ auth('customer')->user()->avatar_url }}" alt="" class="w-7 h-7 rounded-full object-cover">
+                            @else
+                                <div class="w-7 h-7 rounded-full bg-theme-primary text-white flex items-center justify-center text-xs font-bold">
+                                    {{ strtoupper(substr(auth('customer')->user()->name ?? 'C', 0, 1)) }}
+                                </div>
+                            @endif
+                            <span class="hidden sm:inline text-xs font-medium text-neutral-700 dark:text-neutral-300 max-w-[80px] truncate">
+                                {{ auth('customer')->user()->name }}
+                            </span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 text-neutral-400"></i>
+                        </button>
+
+                        {{-- Dropdown --}}
+                        <div x-show="profileOpen" x-cloak
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-52 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl rounded-[14px] border border-black/[0.06] dark:border-white/[0.08] shadow-xl py-1.5 z-50">
+                            <a href="{{ route('customer.dashboard') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition">
+                                <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                            </a>
+                            <a href="{{ route('customer.orders') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition">
+                                <i data-lucide="package" class="w-4 h-4"></i> Pesanan Saya
+                            </a>
+                            <a href="{{ route('customer.cart') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition">
+                                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Keranjang
+                            </a>
+                            <a href="{{ route('customer.profile') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition">
+                                <i data-lucide="user" class="w-4 h-4"></i> Profil
+                            </a>
+                            <div class="border-t border-black/[0.06] dark:border-white/[0.08] my-1"></div>
+                            <form method="POST" action="{{ route('customer.logout') }}">
+                                @csrf
+                                <button type="submit" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition w-full text-left">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    {{-- Guest: Login Button --}}
+                    <a href="{{ route('customer.login', ['store' => $business->slug, 'redirect' => url()->current()]) }}"
+                       class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[12px] text-xs font-semibold text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition min-h-[40px]">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        <span>Masuk</span>
+                    </a>
+                @endif
+
                 {{-- Cart Trigger with Live Counter --}}
-                <a href="{{ url('/' . $business->slug . '/checkout') }}" 
-                   class="relative p-2.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition flex items-center justify-center text-neutral-800 dark:text-neutral-200"
+                <a href="{{ url('/' . $business->slug . '/checkout') }}"
+                   class="relative p-2.5 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition flex items-center justify-center text-neutral-800 dark:text-neutral-200"
                    aria-label="Keranjang Belanja">
                     <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                    <span x-show="$store.cart.count() > 0" 
+                    <span x-show="$store.cart.count() > 0"
                           x-cloak
                           x-text="$store.cart.count()"
-                          class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-theme-primary text-white text-[11px] font-bold flex items-center justify-center shadow-sm animate-scale">
+                          class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-theme-primary text-white text-[11px] font-bold flex items-center justify-center shadow-sm">
                     </span>
                 </a>
 
                 {{-- Direct Checkout Button (Desktop) --}}
-                <a href="{{ url('/' . $business->slug . '/checkout') }}" 
-                   class="hidden lg:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-white shadow-sm transition hover:opacity-95 active:scale-95"
+                <a href="{{ url('/' . $business->slug . '/checkout') }}"
+                   class="hidden lg:inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] font-medium text-sm text-white shadow-sm transition hover:opacity-95 active:scale-[0.98] min-h-[44px]"
                    style="background-color: var(--theme-primary);">
                     <i data-lucide="credit-card" class="w-4 h-4"></i>
                     <span>Checkout</span>
                 </a>
 
                 {{-- Mobile Hamburger Trigger --}}
-                <button type="button" 
-                        @click="mobileMenuOpen = !mobileMenuOpen" 
-                        class="md:hidden p-2.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+                <button type="button"
+                        @click="mobileMenuOpen = !mobileMenuOpen"
+                        class="md:hidden p-2.5 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
                         aria-label="Menu Navigasi">
                     <i data-lucide="menu" class="w-5 h-5" x-show="!mobileMenuOpen"></i>
                     <i data-lucide="x" class="w-5 h-5" x-show="mobileMenuOpen" x-cloak></i>
@@ -357,7 +418,28 @@
                 </a>
             @endif
 
-            <div class="pt-2 border-t border-black/5 dark:border-white/10">
+            <div class="pt-2 border-t border-black/5 dark:border-white/10 space-y-1.5">
+                {{-- Customer Auth in Mobile --}}
+                @if (auth('customer')->check())
+                    <a href="{{ route('customer.dashboard') }}"
+                       @click="mobileMenuOpen = false"
+                       class="flex items-center gap-2.5 px-3 py-2.5 rounded-[12px] text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Saya
+                    </a>
+                    <a href="{{ route('customer.orders') }}"
+                       @click="mobileMenuOpen = false"
+                       class="flex items-center gap-2.5 px-3 py-2.5 rounded-[12px] text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                        <i data-lucide="package" class="w-4 h-4"></i> Pesanan Saya
+                    </a>
+                @else
+                    <a href="{{ route('customer.login', ['store' => $business->slug, 'redirect' => url()->current()]) }}"
+                       @click="mobileMenuOpen = false"
+                       class="flex items-center justify-center gap-2 w-full py-3 rounded-[12px] font-semibold text-sm bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        <span>Masuk / Daftar Akun</span>
+                    </a>
+                @endif
+
                 <a href="{{ url('/' . $business->slug . '/checkout') }}" 
                    class="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm text-white shadow-sm"
                    style="background-color: var(--theme-primary);">

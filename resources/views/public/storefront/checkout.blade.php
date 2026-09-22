@@ -148,14 +148,46 @@
         <p class="text-sm text-neutral-500 max-w-sm mx-auto">
             Silakan pilih produk favorit Anda dari katalog untuk melanjutkan ke proses pembayaran.
         </p>
-        <a href="{{ url('/' . $business->slug . '/katalog') }}" 
-           class="inline-flex items-center gap-2 px-6 py-3 rounded-theme theme-btn-primary font-semibold text-sm shadow-md">
+        <a href="{{ url('/' . $business->slug . '/katalog') }}"
+           class="inline-flex items-center gap-2 px-6 py-3 rounded-[12px] theme-btn-primary font-semibold text-sm shadow-md min-h-[44px]">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             <span>Mulai Belanja</span>
         </a>
     </div>
 
-    {{-- Dedicated 2-Column Standalone Checkout (Zero Nested Modal!) --}}
+    {{-- Customer Login Gate (Marketplace Scheme — wajib login untuk checkout) --}}
+    @if (auth('customer')->guest())
+        <div x-show="$store.cart.count() > 0" class="py-12 text-center space-y-5 max-w-md mx-auto">
+            <div class="w-16 h-16 rounded-full bg-[#007AFF]/10 text-[#007AFF] mx-auto flex items-center justify-center">
+                <i data-lucide="user-check" class="w-8 h-8"></i>
+            </div>
+            <h2 class="font-heading font-bold text-xl text-neutral-800 dark:text-neutral-200">
+                Masuk untuk Melanjutkan Checkout
+            </h2>
+            <p class="text-sm text-neutral-500 max-w-sm mx-auto leading-relaxed">
+                Untuk memproses pesanan, Anda perlu masuk atau membuat akun terlebih dahulu. Data pesanan di keranjang Anda tetap tersimpan.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <a href="{{ route('customer.login', ['store' => $business->slug, 'redirect' => url('/' . $business->slug . '/checkout')]) }}"
+                   class="inline-flex items-center gap-2 px-6 py-3.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0066CC] text-white font-semibold text-sm shadow-md active:scale-[0.98] transition min-h-[48px] w-full sm:w-auto justify-center">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    <span>Masuk Akun</span>
+                </a>
+                <a href="{{ route('customer.register', ['store' => $business->slug, 'redirect' => url('/' . $business->slug . '/checkout')]) }}"
+                   class="inline-flex items-center gap-2 px-6 py-3.5 rounded-[12px] bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-black/10 dark:border-white/10 font-semibold text-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 active:scale-[0.98] transition min-h-[48px] w-full sm:w-auto justify-center">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <span>Daftar Baru</span>
+                </a>
+            </div>
+            <p class="text-xs text-neutral-400 pt-2">
+                <i data-lucide="info" class="w-3.5 h-3.5 inline-block mr-1"></i>
+                Tenang, keranjang belanja Anda tetap tersimpan setelah masuk.
+            </p>
+        </div>
+    @endif
+
+    {{-- Dedicated 2-Column Standalone Checkout (Only shown for authenticated customers) --}}
+    @if (auth('customer')->check())
     <div x-show="$store.cart.count() > 0" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         
         {{-- ================================================================= --}}
@@ -448,6 +480,7 @@
         </div>
 
     </div>
+    @endif
 
 </div>
 @endsection

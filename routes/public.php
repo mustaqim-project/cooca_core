@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\PublicDiscoveryController;
 use App\Http\Controllers\Web\PublicSolutionController;
 use App\Http\Controllers\Web\PublicTemplateController;
 use App\Http\Controllers\Web\SitemapController;
+use App\Http\Controllers\Web\PublicMarketplaceController;
 use App\Http\Controllers\Web\Storefront\PublicStorefrontController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('landing');
 })->name('landing');
+
+// Marketplace (SaaS + Toko Online Directory)
+Route::get('/marketplace', [PublicMarketplaceController::class, 'index'])->name('marketplace.index');
+Route::get('/marketplace/cari', [PublicMarketplaceController::class, 'search'])->name('marketplace.search');
 
 // 1. Business Calculators
 Route::prefix('kalkulator')->name('kalkulator.')->group(function (): void {
@@ -105,26 +110,26 @@ Route::prefix('{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->group(fu
     Route::get('/table/{qrToken}/order/{order}/status', [PublicQrOrderWebController::class, 'checkStatus'])->name('public.qr.order.status.slug');
 });
 
-// 8. Legacy /b/{slug} aliases for backward compatibility (0 broken links)
-Route::get('/b/{slug}', [PublicStorefrontController::class, 'home'])->name('public.business.landing.legacy');
-Route::prefix('b/{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->group(function (): void {
-    Route::get('/katalog', [PublicStorefrontController::class, 'catalog']);
-    Route::get('/produk/{product}', [PublicStorefrontController::class, 'productDetail']);
-    Route::get('/checkout', [PublicStorefrontController::class, 'checkout']);
-    Route::get('/tentang-kami', [PublicStorefrontController::class, 'about']);
-    Route::get('/reservasi', [PublicStorefrontController::class, 'reservation']);
-    Route::get('/kontak', [PublicStorefrontController::class, 'contact']);
-    Route::get('/artikel', [PublicStorefrontController::class, 'articles']);
-    Route::get('/artikel/{article_slug}', [PublicStorefrontController::class, 'articleDetail']);
-    Route::post('/order/{token}/proof', [PublicOrderTrackingController::class, 'uploadProof'])->middleware('throttle:10,60');
-    Route::post('/shipping/calculate', [PublicOrderTrackingController::class, 'calculateShippingQuote'])->middleware('throttle:30,1');
-    Route::get('/order/{token}', [PublicOrderTrackingController::class, 'show']);
-    Route::get('/order/{token}/status', [PublicOrderTrackingController::class, 'checkStatus']);
-    Route::get('/reservasi/check', [PublicReservationController::class, 'checkAvailability']);
-    Route::get('/table/{qrToken}', [PublicQrOrderWebController::class, 'showMenu']);
-    Route::post('/table/{qrToken}/order', [PublicQrOrderWebController::class, 'submitOrder'])->middleware('throttle:20,1');
-    Route::get('/table/{qrToken}/order/{order}/status', [PublicQrOrderWebController::class, 'checkStatus']);
-});
+// // 8. Legacy /b/{slug} aliases for backward compatibility (0 broken links)
+// Route::get('/b/{slug}', [PublicStorefrontController::class, 'home'])->name('public.business.landing.legacy');
+// Route::prefix('b/{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->group(function (): void {
+//     Route::get('/katalog', [PublicStorefrontController::class, 'catalog']);
+//     Route::get('/produk/{product}', [PublicStorefrontController::class, 'productDetail']);
+//     Route::get('/checkout', [PublicStorefrontController::class, 'checkout']);
+//     Route::get('/tentang-kami', [PublicStorefrontController::class, 'about']);
+//     Route::get('/reservasi', [PublicStorefrontController::class, 'reservation']);
+//     Route::get('/kontak', [PublicStorefrontController::class, 'contact']);
+//     Route::get('/artikel', [PublicStorefrontController::class, 'articles']);
+//     Route::get('/artikel/{article_slug}', [PublicStorefrontController::class, 'articleDetail']);
+//     Route::post('/order/{token}/proof', [PublicOrderTrackingController::class, 'uploadProof'])->middleware('throttle:10,60');
+//     Route::post('/shipping/calculate', [PublicOrderTrackingController::class, 'calculateShippingQuote'])->middleware('throttle:30,1');
+//     Route::get('/order/{token}', [PublicOrderTrackingController::class, 'show']);
+//     Route::get('/order/{token}/status', [PublicOrderTrackingController::class, 'checkStatus']);
+//     Route::get('/reservasi/check', [PublicReservationController::class, 'checkAvailability']);
+//     Route::get('/table/{qrToken}', [PublicQrOrderWebController::class, 'showMenu']);
+//     Route::post('/table/{qrToken}/order', [PublicQrOrderWebController::class, 'submitOrder'])->middleware('throttle:20,1');
+//     Route::get('/table/{qrToken}/order/{order}/status', [PublicQrOrderWebController::class, 'checkStatus']);
+// });
 
 // 9. Short QR Table Ordering Direct Route
 Route::get('/t/{qrToken}', [PublicQrOrderWebController::class, 'showMenu'])->name('public.qr.menu');
