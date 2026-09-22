@@ -109,9 +109,10 @@ final class PublicStorefrontController extends Controller
             ->with('category');
 
         if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+            $escapedSearch = str_replace(['%', '_'], ['\%', '\_'], $search);
+            $query->where(function ($q) use ($escapedSearch) {
+                $q->where('name', 'like', "%{$escapedSearch}%")
+                    ->orWhere('description', 'like', "%{$escapedSearch}%");
             });
         }
 
@@ -305,7 +306,9 @@ final class PublicStorefrontController extends Controller
             return $context;
         }
 
-        $articles = Post::where('is_published', true)
+        $business = $context['business'];
+        $articles = Post::where('business_id', $business->id)
+            ->where('is_published', true)
             ->latest('published_at')
             ->paginate(9)
             ->withQueryString();
@@ -323,13 +326,16 @@ final class PublicStorefrontController extends Controller
             return $context;
         }
 
-        $article = Post::where('slug', $articleSlug)
+        $business = $context['business'];
+        $article = Post::where('business_id', $business->id)
+            ->where('slug', $articleSlug)
             ->where('is_published', true)
             ->firstOrFail();
 
         $article->increment('views_count');
 
-        $relatedArticles = Post::where('id', '!=', $article->id)
+        $relatedArticles = Post::where('business_id', $business->id)
+            ->where('id', '!=', $article->id)
             ->where('is_published', true)
             ->latest('published_at')
             ->take(3)
