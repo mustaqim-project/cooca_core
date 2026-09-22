@@ -24,7 +24,7 @@
             <!-- Header -->
             <div class="text-center max-w-2xl mx-auto space-y-3">
                 <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-bold text-xs">
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                     <i data-lucide="layers" class="w-3.5 h-3.5"></i>
                     <span>Metode 3-Pilar Standar Finansial</span>
                 </div>
@@ -79,19 +79,19 @@
                             Margin atau Markup.</p>
                     </div>
                     <div
-                        class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-full border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold shrink-0">
+                        class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[12px] border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold shrink-0">
                         <button type="button" @click="calcMode = 'margin'"
                             :class="calcMode === 'margin' ?
                                 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-4 py-1.5 rounded-full transition-all">
+                            class="px-4 py-1.5 rounded-[8px] transition-all">
                             Target Margin (%)
                         </button>
                         <button type="button" @click="calcMode = 'markup'"
                             :class="calcMode === 'markup' ?
                                 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-4 py-1.5 rounded-full transition-all">
+                            class="px-4 py-1.5 rounded-[8px] transition-all">
                             Target Markup (%)
                         </button>
                     </div>

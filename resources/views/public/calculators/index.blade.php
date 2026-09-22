@@ -13,7 +13,7 @@
             <!-- Header -->
             <div class="text-center max-w-3xl mx-auto space-y-3">
                 <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-bold text-xs">
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                     <i data-lucide="calculator" class="w-4 h-4"></i>
                     <span>Interactive Business Tools</span>
                 </div>
@@ -40,7 +40,7 @@
                                 <i data-lucide="layers" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                             </div>
                             <span
-                                class="px-2.5 sm:px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] inline-flex items-center gap-1.5">
                                 <i data-lucide="star" class="w-3 h-3"></i>
                                 <span>Paling Populer • 3-Pilar</span>
                             </span>
@@ -81,7 +81,7 @@
                                 <i data-lucide="scale" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] px-2 py-0.5 rounded-full bg-[#34C759]/10">Titik
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">Titik
                                 Impas</span>
                         </div>
                         <div>
@@ -113,7 +113,7 @@
                                 <i data-lucide="tag" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] px-2 py-0.5 rounded-full bg-[#FF9500]/10">Margin</span>
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A]">Margin</span>
                         </div>
                         <div>
                             <h2
@@ -144,7 +144,7 @@
                                 <i data-lucide="pie-chart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                             </div>
                             <span
-                                class="px-2.5 sm:px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">>
                                 Waterfall Finansial
                             </span>
                         </div>
@@ -185,7 +185,7 @@
                                 <i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">Payroll</span>
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Payroll</span>
                         </div>
                         <div>
                             <h2
@@ -216,7 +216,7 @@
                                 <i data-lucide="receipt" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF3B30] dark:text-[#FF453A] px-2 py-0.5 rounded-full bg-[#FF3B30]/10">PP
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF3B30] dark:text-[#FF453A]">PP
                                 55</span>
                         </div>
                         <div>
@@ -248,7 +248,7 @@
                                 <i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">Target</span>
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Target</span>
                         </div>
                         <div>
                             <h2
@@ -280,7 +280,7 @@
                                 <i data-lucide="sparkles" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">AI
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">AI
                                 Tool</span>
                         </div>
                         <div>
@@ -310,7 +310,7 @@
                 class="p-8 sm:p-12 rounded-[28px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex flex-col lg:flex-row items-center justify-between gap-8 shadow-sm">
                 <div class="space-y-3 max-w-xl text-center lg:text-left">
                     <div
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] text-xs font-bold uppercase tracking-wider">
+                        class="text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                         <i data-lucide="zap" class="w-3.5 h-3.5"></i>
                         <span>Otomasi Tanpa Ribet</span>
                     </div>

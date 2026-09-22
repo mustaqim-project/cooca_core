@@ -24,7 +24,7 @@
             <!-- Header -->
             <div class="text-center max-w-2xl mx-auto space-y-3">
                 <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF9500]/10 text-[#FF9500] dark:text-[#FF9F0A] font-bold text-xs">
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                     <i data-lucide="tag" class="w-3.5 h-3.5"></i>
                     <span>Pricing Strategy</span>
                 </div>
@@ -120,7 +120,7 @@
                         <div
                             class="p-5 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] relative shadow-sm">
                             <div
-                                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] font-bold text-xs uppercase mb-2">
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] inline-flex items-center gap-1.5 mb-2">
                                 <i data-lucide="check" class="w-3 h-3"></i>
                                 <span>Metode Margin (Direkomendasikan)</span>
                             </div>

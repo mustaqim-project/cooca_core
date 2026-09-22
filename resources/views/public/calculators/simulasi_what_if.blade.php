@@ -24,7 +24,7 @@
             <!-- Header -->
             <div class="text-center max-w-2xl mx-auto space-y-3">
                 <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-bold text-xs">
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                     <span>Decision Simulator</span>
                 </div>
@@ -115,7 +115,7 @@
                                     class="text-xs font-bold text-[#FF9500] dark:text-[#FF9F0A] uppercase tracking-wide">Skenario
                                     Kenaikan Harga Bahan Baku</label>
                                 <span
-                                    class="font-mono text-sm font-bold text-[#FF9500] dark:text-[#FF9F0A] bg-[#FF9500]/10 px-2.5 py-1 rounded-full">+<span
+                                    class="font-mono text-xs font-bold text-[#FF9500] dark:text-[#FF9F0A]">+<span
                                         x-text="deltaMaterialPct"></span>%</span>
                             </div>
                             <input type="range" x-model.number="deltaMaterialPct" min="0" max="50"
@@ -132,7 +132,7 @@
                                     class="text-xs font-bold text-[#007AFF] dark:text-[#0A84FF] uppercase tracking-wide">Skenario
                                     Diskon Promo Penjualan</label>
                                 <span
-                                    class="font-mono text-sm font-bold text-[#007AFF] dark:text-[#0A84FF] bg-[#007AFF]/10 px-2.5 py-1 rounded-full"><span
+                                    class="font-mono text-xs font-bold text-[#007AFF] dark:text-[#0A84FF]"><span
                                         x-text="discountPct"></span>% Diskon</span>
                             </div>
                             <input type="range" x-model.number="discountPct" min="0" max="40" step="5"
@@ -149,7 +149,7 @@
                                     class="text-xs font-bold text-[#34C759] dark:text-[#30D158] uppercase tracking-wide">Estimasi
                                     Lonjakan Volume Pembeli</label>
                                 <span
-                                    class="font-mono text-sm font-bold text-[#34C759] dark:text-[#30D158] bg-[#34C759]/10 px-2.5 py-1 rounded-full">+<span
+                                    class="font-mono text-xs font-bold text-[#34C759] dark:text-[#30D158]">+<span
                                         x-text="salesVolumeBoostPct"></span>% Volume</span>
                             </div>
                             <input type="range" x-model.number="salesVolumeBoostPct" min="0" max="100"
@@ -169,7 +169,7 @@
                                     class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Hasil
                                     Simulasi Laba</span>
                                 <span
-                                    class="text-xs font-bold px-2 py-0.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#6E6E73] dark:text-[#86868B]">Proyeksi</span>
+                                    class="text-xs font-bold text-[#6E6E73] dark:text-[#86868B]">Proyeksi</span>
                             </div>
 
                             <!-- Perbandingan Laba -->

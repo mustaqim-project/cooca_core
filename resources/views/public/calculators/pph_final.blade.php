@@ -24,7 +24,7 @@
             <!-- Header -->
             <div class="text-center max-w-2xl mx-auto space-y-3">
                 <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#FF453A] font-bold text-xs">
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                     <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
                     <span>Aturan Resmi PP 55/2022</span>
                 </div>
@@ -76,19 +76,19 @@
                                 class="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7] uppercase tracking-wide block">Bentuk
                                 Usaha / Wajib Pajak</label>
                             <div
-                                class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-full border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold w-full">
+                                class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[12px] border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold w-full">
                                 <button type="button" @click="taxpayerType = 'individual'"
                                     :class="taxpayerType === 'individual' ?
                                         'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                         'text-[#6E6E73] dark:text-[#86868B]'"
-                                    class="w-1/2 py-2 rounded-full transition-all">
+                                    class="w-1/2 py-2 rounded-[10px] transition-all">
                                     Orang Pribadi (Bebas s.d 500 Juta)
                                 </button>
                                 <button type="button" @click="taxpayerType = 'corporate'"
                                     :class="taxpayerType === 'corporate' ?
                                         'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                         'text-[#6E6E73] dark:text-[#86868B]'"
-                                    class="w-1/2 py-2 rounded-full transition-all">
+                                    class="w-1/2 py-2 rounded-[10px] transition-all">
                                     Badan (CV / PT - Tarif 0.5%)
                                 </button>
                             </div>

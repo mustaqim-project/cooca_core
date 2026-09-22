@@ -24,7 +24,7 @@
             <!-- Header -->
             <div class="text-center max-w-2xl mx-auto space-y-3">
                 <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-bold text-xs">
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                     <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>
                     <span>Profitability Simulator</span>
                 </div>
