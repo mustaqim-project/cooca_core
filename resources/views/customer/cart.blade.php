@@ -8,7 +8,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
                         <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                     </div>
                     <h1 class="text-2xl font-extrabold text-black dark:text-white tracking-tight">Keranjang Belanja</h1>
@@ -111,7 +111,7 @@
                     </div>
 
                     {{-- Qty control --}}
-                    <div class="flex items-center gap-1.5 shrink-0 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+                    <div class="flex items-center gap-1.5 shrink-0 bg-black/5 dark:bg-white/5 p-1 rounded-[12px]">
                         <button onclick="updateQty('{{ $cart->business->slug }}', '{{ $item->id }}', {{ $item->quantity - 1 }})"
                                 class="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold hover:bg-[#FF3B30]/15 hover:text-[#FF3B30] transition-colors"
                                 title="Kurangi">
@@ -155,7 +155,7 @@
                 <form method="POST" action="{{ route('customer.cart.checkout', $cart->business->slug) }}">
                     @csrf
                     <button type="submit"
-                            class="w-full sm:w-auto px-5 py-2.5 bg-[#007AFF] text-white rounded-xl font-bold text-xs hover:bg-[#0062CC] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-xs">
+                            class="w-full sm:w-auto px-5 py-2.5 bg-[#007AFF] text-white rounded-[12px] font-bold text-xs hover:bg-[#0062CC] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-xs min-h-[44px]">
                         <span>Lanjut Checkout</span>
                         <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                     </button>

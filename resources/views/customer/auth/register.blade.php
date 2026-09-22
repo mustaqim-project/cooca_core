@@ -124,7 +124,7 @@
             </div>
 
             <button type="submit"
-                    class="w-full h-11 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm active:scale-[0.98]">
+                    class="w-full h-11 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm active:scale-[0.97] min-h-[48px]">
                 <span>Daftar &amp; Masuk Otomatis</span>
                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </button>

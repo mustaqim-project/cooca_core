@@ -6,7 +6,7 @@
 
         {{-- Icon + Header --}}
         <div class="text-center space-y-3">
-            <div class="w-16 h-16 rounded-3xl bg-[#34C759]/10 border border-[#34C759]/20 mx-auto flex items-center justify-center text-[#34C759]">
+            <div class="w-16 h-16 rounded-[20px] bg-[#34C759]/10 border border-[#34C759]/20 mx-auto flex items-center justify-center text-[#34C759]">
                 <i data-lucide="smartphone" class="w-8 h-8"></i>
             </div>
             <h1 class="text-2xl font-extrabold text-black dark:text-white">Verifikasi WhatsApp</h1>
@@ -19,12 +19,12 @@
 
         {{-- Alerts --}}
         @if($errors->any())
-            <div class="p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-2xl text-sm text-[#FF3B30]">
+            <div class="p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-[16px] text-sm text-[#FF3B30]">
                 @foreach($errors->all() as $err)<p>{{ $err }}</p>@endforeach
             </div>
         @endif
         @if(session('status'))
-            <div class="p-4 bg-[#34C759]/10 border border-[#34C759]/20 rounded-2xl text-sm text-[#34C759]">{{ session('status') }}</div>
+            <div class="p-4 bg-[#34C759]/10 border border-[#34C759]/20 rounded-[16px] text-sm text-[#34C759]">{{ session('status') }}</div>
         @endif
 
         @if(!$already_sent)
@@ -32,7 +32,7 @@
             <form method="POST" action="{{ route('customer.otp.send') }}">
                 @csrf
                 <button type="submit"
-                        class="w-full py-4 bg-[#34C759] text-white text-[15px] font-bold rounded-2xl hover:bg-[#28A745] active:scale-[0.98] transition-all shadow-lg shadow-[#34C759]/30">
+                        class="w-full py-4 bg-[#34C759] text-white text-[15px] font-bold rounded-[14px] hover:bg-[#28A745] active:scale-[0.97] transition-all shadow-lg shadow-[#34C759]/30 min-h-[52px]">
                     Kirim Kode ke WhatsApp
                 </button>
             </form>
@@ -47,10 +47,10 @@
                     <input type="text" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
                            autofocus autocomplete="one-time-code"
                            placeholder="_ _ _ _ _ _"
-                           class="w-full text-center text-3xl font-black tracking-[0.5em] py-4 rounded-2xl border-2 border-black/10 dark:border-white/10 bg-white dark:bg-[#2C2C2E] focus:outline-none focus:border-[#34C759]/60 focus:ring-2 focus:ring-[#34C759]/20 transition-all"
+                           class="w-full text-center text-3xl font-black tracking-[0.5em] py-4 rounded-[16px] border-2 border-black/10 dark:border-white/10 bg-white dark:bg-[#2C2C2E] focus:outline-none focus:border-[#34C759]/60 focus:ring-2 focus:ring-[#34C759]/20 transition-all"
                            value="{{ old('otp') }}">
                     <p class="text-xs text-[#007AFF] dark:text-[#0A84FF] text-center mt-2">
-                        Bypass / Uji Coba: gunakan kode <code class="font-mono font-bold bg-[#007AFF]/15 px-1.5 py-0.5 rounded">123456</code>
+                        Bypass / Uji Coba: gunakan kode <code class="font-bold bg-[#007AFF]/15 px-1.5 py-0.5 rounded-[6px]" style="font-variant-numeric: tabular-nums;">123456</code>
                     </p>
                     @error('otp')
                         <p class="text-[#FF3B30] text-sm mt-2">{{ $message }}</p>
@@ -58,7 +58,7 @@
                 </div>
 
                 <button type="submit"
-                        class="w-full py-4 bg-[#007AFF] text-white text-[15px] font-bold rounded-2xl hover:bg-[#0062CC] active:scale-[0.98] transition-all shadow-lg shadow-[#007AFF]/30">
+                        class="w-full py-4 bg-[#007AFF] text-white text-[15px] font-bold rounded-[14px] hover:bg-[#0062CC] active:scale-[0.97] transition-all shadow-lg shadow-[#007AFF]/30 min-h-[52px]">
                     Verifikasi Sekarang
                 </button>
             </form>

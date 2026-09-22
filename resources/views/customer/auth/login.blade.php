@@ -7,7 +7,7 @@
             {{-- Logo / Branding --}}
             <div class="text-center space-y-3">
                 <div
-                    class="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#007AFF] to-[#5AC8FA] mx-auto flex items-center justify-center shadow-lg shadow-[#007AFF]/30">
+                    class="w-16 h-16 rounded-[20px] bg-gradient-to-br from-[#007AFF] to-[#5AC8FA] mx-auto flex items-center justify-center shadow-lg shadow-[#007AFF]/30">
                     <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                             d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -27,7 +27,7 @@
 
             {{-- Errors --}}
             @if ($errors->any())
-                <div class="p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-2xl text-sm text-[#FF3B30] space-y-1">
+                <div class="p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-[16px] text-sm text-[#FF3B30] space-y-1">
                     @foreach ($errors->all() as $error)
                         <p>{{ $error }}</p>
                     @endforeach
@@ -35,7 +35,7 @@
             @endif
 
             @if (session('info'))
-                <div class="p-4 bg-[#007AFF]/10 border border-[#007AFF]/20 rounded-2xl text-sm text-[#007AFF]">
+                <div class="p-4 bg-[#007AFF]/10 border border-[#007AFF]/20 rounded-[16px] text-sm text-[#007AFF]">
                     {{ session('info') }}
                 </div>
             @endif
@@ -58,7 +58,7 @@
                     </label>
                     <input type="text" name="login" x-model="loginValue" required autofocus
                         placeholder="Contoh: mandiri@cooca.id atau 081234567890"
-                        class="w-full px-4 py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl text-[15px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:border-[#007AFF] transition">
+                        class="w-full px-4 py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-[14px] text-[16px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:border-[#007AFF] transition">
                 </div>
 
                 <div>
@@ -69,7 +69,7 @@
                     </div>
                     <input type="password" name="password" x-model="passwordValue" required
                         placeholder="Masukkan kata sandi akun"
-                        class="w-full px-4 py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl text-[15px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:border-[#007AFF] transition">
+                        class="w-full px-4 py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-[14px] text-[16px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:border-[#007AFF] transition">
                 </div>
 
                 <div class="flex items-center justify-between text-xs pt-1">
@@ -80,7 +80,7 @@
                 </div>
 
                 <button type="submit"
-                    class="w-full py-3.5 bg-[#007AFF] hover:bg-[#007AFF]/90 active:scale-[0.98] text-white font-bold text-[14.5px] rounded-2xl transition shadow-md shadow-[#007AFF]/20 flex items-center justify-center gap-2 cursor-pointer">
+                    class="w-full py-3.5 bg-[#007AFF] hover:bg-[#007AFF]/90 active:scale-[0.97] text-white font-bold text-[14.5px] rounded-[14px] transition shadow-md shadow-[#007AFF]/20 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]">
                     <span>Masuk Akun Pelanggan</span>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -88,20 +88,20 @@
                 </button>
 
                 {{-- Demo Accounts Quick-Fill Box (Bento HIG) --}}
-                <div class="pt-2 p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2">
+                <div class="pt-2 p-3.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2">
                     <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">
                         Akun Seeder Demo (Klik untuk Isi Cepat):
                     </span>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <button type="button" @click="fillDemo('mandiri@cooca.id', 'password')"
-                            class="p-2.5 rounded-xl bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-left transition active:scale-95 group cursor-pointer shadow-2xs">
+                            class="p-2.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-left transition active:scale-[0.97] group cursor-pointer shadow-2xs">
                             <span class="text-[12px] font-bold text-black dark:text-white block group-hover:text-[#007AFF]">Ahmad (Mandiri)</span>
-                            <span class="text-[10.5px] text-black/50 dark:text-white/50 font-mono">mandiri@cooca.id</span>
+                            <span class="text-[10.5px] text-black/50 dark:text-white/50" style="font-variant-numeric: tabular-nums;">mandiri@cooca.id</span>
                         </button>
                         <button type="button" @click="fillDemo('bca@cooca.id', 'password')"
-                            class="p-2.5 rounded-xl bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-left transition active:scale-95 group cursor-pointer shadow-2xs">
+                            class="p-2.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-left transition active:scale-[0.97] group cursor-pointer shadow-2xs">
                             <span class="text-[12px] font-bold text-black dark:text-white block group-hover:text-[#007AFF]">Budi (BCA)</span>
-                            <span class="text-[10.5px] text-black/50 dark:text-white/50 font-mono">bca@cooca.id</span>
+                            <span class="text-[10.5px] text-black/50 dark:text-white/50" style="font-variant-numeric: tabular-nums;">bca@cooca.id</span>
                         </button>
                     </div>
                 </div>
@@ -118,7 +118,7 @@
             {{-- Google Sign-In Button --}}
             <div class="space-y-3">
                 <a href="{{ route('customer.auth.google') }}{{ $redirectTo ? '?redirect=' . urlencode($redirectTo) : '' }}"
-                    class="flex items-center justify-center gap-3 w-full px-6 py-3.5 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-2xl text-[14px] font-bold text-black dark:text-white hover:border-[#007AFF]/40 hover:shadow-md active:scale-[0.98] transition-all duration-200 group">
+                    class="flex items-center justify-center gap-3 w-full px-6 py-3.5 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[14px] text-[14px] font-bold text-black dark:text-white hover:border-[#007AFF]/40 hover:shadow-md active:scale-[0.97] transition-all duration-200 group min-h-[48px]">
                     <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                         <path fill="#4285F4"
                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

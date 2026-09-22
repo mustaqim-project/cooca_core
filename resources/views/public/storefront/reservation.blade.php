@@ -65,7 +65,7 @@
 
     {{-- Breadcrumb & Title --}}
     <div class="text-center max-w-2xl mx-auto space-y-3">
-        <div class="inline-block px-3 py-1 rounded-full text-xs font-semibold theme-badge">Booking & Reservasi</div>
+        <div class="inline-block px-3 py-1 rounded-[8px] text-xs font-semibold theme-badge">Booking & Reservasi</div>
         <h1 class="font-heading font-extrabold text-3xl sm:text-4xl text-neutral-900 dark:text-white">
             Reservasi Meja & Janji Temu
         </h1>
@@ -75,29 +75,29 @@
     </div>
 
     {{-- Error Alert --}}
-    <div x-show="errorMessage" x-cloak class="p-4 rounded-xl bg-red-50 dark:bg-red-950 border border-red-200 text-red-700 dark:text-red-300 text-sm">
+    <div x-show="errorMessage" x-cloak class="p-4 rounded-[12px] bg-red-50 dark:bg-red-950 border border-red-200 text-red-700 dark:text-red-300 text-sm">
         <span x-text="errorMessage"></span>
     </div>
 
     {{-- Success Confirmation Screen --}}
-    <div x-show="successData" x-cloak class="p-8 rounded-theme bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/10 shadow-xl text-center space-y-6">
+    <div x-show="successData" x-cloak class="p-8 rounded-[20px] bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/10 shadow-xl text-center space-y-6">
         <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
             <i data-lucide="check" class="w-8 h-8"></i>
         </div>
         <div>
             <h2 class="font-heading font-bold text-2xl text-neutral-900 dark:text-white">Reservasi Berhasil Diajukan!</h2>
             <p class="text-sm text-neutral-500 mt-1">Kode Reservasi Anda:</p>
-            <div class="text-2xl font-mono font-extrabold text-theme-primary mt-1" x-text="successData?.code"></div>
+            <div class="text-2xl font-extrabold text-theme-primary mt-1" style="font-variant-numeric: tabular-nums;" x-text="successData?.code"></div>
         </div>
         <p class="text-sm text-neutral-600 dark:text-neutral-300 max-w-md mx-auto leading-relaxed">
             Permintaan reservasi Anda telah kami terima. Tim kami akan segera mengonfirmasi jadwal Anda melalui nomor WhatsApp yang telah Anda cantumkan.
         </p>
         <div class="pt-4 flex justify-center gap-3">
-            <a href="{{ url('/' . $business->slug) }}" class="px-5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-sm font-medium">
+            <a href="{{ url('/' . $business->slug) }}" class="px-5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 text-sm font-medium min-h-[44px] inline-flex items-center">
                 Kembali ke Beranda
             </a>
             @if ($hasWhatsapp)
-                <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank" class="px-5 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold flex items-center gap-1.5">
+                <a href="{{ $landingPage->getWhatsAppUrl() }}" target="_blank" class="px-5 py-2.5 rounded-[12px] bg-emerald-500 text-white text-sm font-semibold flex items-center gap-1.5 min-h-[44px]">
                     <i data-lucide="message-circle" class="w-4 h-4"></i>
                     <span>Konfirmasi via WhatsApp</span>
                 </a>
@@ -106,7 +106,7 @@
     </div>
 
     {{-- Reservation Booking Form --}}
-    <div x-show="!successData" class="p-6 sm:p-10 rounded-theme bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-lg space-y-6">
+    <div x-show="!successData" class="p-6 sm:p-10 rounded-[20px] bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-lg space-y-6">
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {{-- Guest Count --}}
@@ -119,7 +119,7 @@
                            x-model="guestCount" 
                            min="1" 
                            max="50" 
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm text-neutral-900 dark:text-white">
+                           class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm text-neutral-900 dark:text-white">
                 </div>
             </div>
 
@@ -131,7 +131,7 @@
                 <input type="date" 
                        x-model="reservationDate" 
                        min="{{ date('Y-m-d') }}"
-                       class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm text-neutral-900 dark:text-white">
+                       class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm text-neutral-900 dark:text-white">
             </div>
 
             {{-- Time Slot --}}
@@ -139,7 +139,7 @@
                 <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
                     Waktu / Jam Kedatangan <span class="text-red-500">*</span>
                 </label>
-                <select x-model="timeSlot" class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm">
+                <select x-model="timeSlot" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm">
                     @foreach (['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'] as $slot)
                         <option value="{{ $slot }}">{{ $slot }} WIB</option>
                     @endforeach
@@ -152,7 +152,7 @@
                     <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
                         Pilihan Meja (Opsional)
                     </label>
-                    <select x-model="posTableId" class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm">
+                    <select x-model="posTableId" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm">
                         <option value="">-- Bebas / Ditentukan Petugas --</option>
                         @foreach ($posTables as $tbl)
                             <option value="{{ $tbl->id }}">{{ $tbl->name ?: 'Meja ' . $tbl->table_number }}</option>
@@ -167,7 +167,7 @@
                     <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
                         Layanan Spesifik (Opsional)
                     </label>
-                    <select x-model="productId" class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm">
+                    <select x-model="productId" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm">
                         <option value="">-- Pilih Layanan --</option>
                         @foreach ($services as $srv)
                             <option value="{{ $srv->id }}">{{ $srv->name }} (Rp {{ number_format((float) $srv->selling_price, 0, ',', '.') }})</option>
@@ -185,7 +185,7 @@
                        x-model="customerName" 
                        placeholder="Nama lengkap pemesan"
                        required
-                       class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm">
+                       class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm">
             </div>
 
             {{-- Customer Phone / WhatsApp --}}
@@ -197,7 +197,7 @@
                        x-model="customerPhone" 
                        placeholder="081234567890"
                        required
-                       class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm">
+                       class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm">
             </div>
 
             {{-- Customer Email --}}
@@ -208,7 +208,7 @@
                 <input type="email" 
                        x-model="customerEmail" 
                        placeholder="email@domain.com"
-                       class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm">
+                       class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm">
             </div>
 
             {{-- Notes --}}
@@ -219,7 +219,7 @@
                 <textarea x-model="notes" 
                           rows="3" 
                           placeholder="Contoh: Meja dekat jendela, perayaan ulang tahun, kursi bayi..."
-                          class="w-full px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-sm"></textarea>
+                          class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 text-[16px] sm:text-sm"></textarea>
             </div>
         </div>
 
@@ -227,7 +227,7 @@
             <button type="button" 
                     @click="submitReservation()" 
                     :disabled="isSubmitting"
-                    class="w-full sm:w-auto px-8 py-3.5 rounded-theme theme-btn-primary font-bold text-sm shadow-md flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
+                    class="w-full sm:w-auto px-8 py-3.5 rounded-[12px] theme-btn-primary font-bold text-sm shadow-md flex items-center justify-center gap-2 active:scale-[0.97] disabled:opacity-50 min-h-[48px]">
                 <span x-show="!isSubmitting">Kirim Permintaan Reservasi</span>
                 <span x-show="isSubmitting" x-cloak>Mengirim Permintaan...</span>
                 <i data-lucide="arrow-right" class="w-4 h-4" x-show="!isSubmitting"></i>

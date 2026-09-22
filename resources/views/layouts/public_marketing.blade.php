@@ -454,7 +454,7 @@
                                 <span class="text-[11px] text-black/45 dark:text-white/45">Ongkos jasa servis + stok sparepart</span>
                             </a>
                             <div class="border-t border-black/5 dark:border-white/10 mt-1 pt-1">
-                                <a href="{{ route('solusi.index') }}"
+                                <a href="{{ url('/solusi') }}"
                                     class="block px-3 py-2 rounded-[12px] text-[#007AFF] dark:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 text-xs font-semibold transition">
                                     Lihat Semua Solusi Industri →
                                 </a>

@@ -8,7 +8,7 @@
         <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div class="space-y-2">
                 <div class="flex items-center gap-2.5">
-                    <span class="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
+                    <span class="px-3 py-1 rounded-[8px] text-[11px] font-extrabold uppercase tracking-wider bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
                         Tier {{ $stats['membership_tier'] }} Member
                     </span>
                     <span class="text-[12px] text-black/50 dark:text-white/50">COOCA Loyalty ID: #{{ substr($customer->id, 0, 8) }}</span>
@@ -42,7 +42,7 @@
            class="bento-card bento-card-interactive p-5 flex flex-col justify-between group">
             <div class="flex items-center justify-between">
                 <span class="text-[12px] font-bold text-black/55 dark:text-white/55">Menunggu Bayar</span>
-                <div class="w-8 h-8 rounded-full bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center">
+                <div class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center">
                     <i data-lucide="clock" class="w-4 h-4"></i>
                 </div>
             </div>
@@ -57,7 +57,7 @@
            class="bento-card bento-card-interactive p-5 flex flex-col justify-between group">
             <div class="flex items-center justify-between">
                 <span class="text-[12px] font-bold text-black/55 dark:text-white/55">Sedang Diproses</span>
-                <div class="w-8 h-8 rounded-full bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
                     <i data-lucide="package" class="w-4 h-4"></i>
                 </div>
             </div>
@@ -72,7 +72,7 @@
            class="bento-card bento-card-interactive p-5 flex flex-col justify-between group">
             <div class="flex items-center justify-between">
                 <span class="text-[12px] font-bold text-black/55 dark:text-white/55">Pesanan Selesai</span>
-                <div class="w-8 h-8 rounded-full bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
                     <i data-lucide="check-circle" class="w-4 h-4"></i>
                 </div>
             </div>
@@ -87,7 +87,7 @@
            class="bento-card bento-card-interactive p-5 flex flex-col justify-between group">
             <div class="flex items-center justify-between">
                 <span class="text-[12px] font-bold text-black/55 dark:text-white/55">Keranjang Saya</span>
-                <div class="w-8 h-8 rounded-full bg-[#5856D6]/10 text-[#5856D6] flex items-center justify-center">
+                <div class="w-8 h-8 rounded-[10px] bg-[#5856D6]/10 text-[#5856D6] flex items-center justify-center">
                     <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                 </div>
             </div>
@@ -135,9 +135,9 @@
                         {{-- Order Overview --}}
                         <div class="space-y-1.5 min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span class="font-mono font-bold text-[14px] text-black dark:text-white">{{ $order->order_number }}</span>
+                                <span class="font-bold text-[14px] text-black dark:text-white" style="font-variant-numeric: tabular-nums;">{{ $order->order_number }}</span>
                                 @if($order->groupOrder)
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#5856D6]/10 text-[#5856D6] border border-[#5856D6]/20">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-[#5856D6]/10 text-[#5856D6] border border-[#5856D6]/20">
                                         <i data-lucide="users" class="w-2.5 h-2.5"></i>
                                         <span>Pesan Bareng</span>
                                     </span>
@@ -194,14 +194,14 @@
                             <div class="flex items-center gap-2">
                                 @if($order->status === 'pending_payment')
                                     <a href="{{ route('customer.orders.detail', $order->id) }}#upload-proof"
-                                       class="h-8 px-3 rounded-full bg-[#FF9500] text-white text-[12px] font-semibold hover:opacity-90 transition active:scale-95 flex items-center gap-1 shadow-xs">
+                                       class="h-8 px-3 rounded-[8px] bg-[#FF9500] text-white text-[12px] font-semibold hover:opacity-90 transition active:scale-[0.97] flex items-center gap-1 shadow-xs min-h-[36px]">
                                         <i data-lucide="upload" class="w-3 h-3"></i>
                                         <span>Upload Bukti</span>
                                     </a>
                                 @endif
 
                                 <a href="{{ route('customer.orders.detail', $order->id) }}"
-                                   class="h-8 px-3 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 text-[12px] font-semibold transition active:scale-95 flex items-center gap-1">
+                                   class="h-8 px-3 rounded-[8px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 text-[12px] font-semibold transition active:scale-[0.97] flex items-center gap-1 min-h-[36px]">
                                     <span>Detail</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3"></i>
                                 </a>
