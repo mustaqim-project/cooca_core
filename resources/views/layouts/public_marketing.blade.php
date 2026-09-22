@@ -310,6 +310,9 @@
                     <a href="{{ route('landing') }}"
                         class="hover:text-black dark:hover:text-white transition-colors {{ request()->routeIs('landing') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Beranda</a>
 
+                    <a href="{{ route('marketplace.index') }}"
+                        class="hover:text-black dark:hover:text-white transition-colors {{ request()->routeIs('marketplace.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Marketplace</a>
+
                     <!-- Dropdown Kalkulator -->
                     <div class="relative" @click.outside="calcDropdown = false">
                         <button @click="calcDropdown = !calcDropdown"
@@ -557,12 +560,19 @@
             <div x-show="mobileMenu" x-cloak x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 class="lg:hidden p-4 sm:p-5 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border-b border-black/5 dark:border-white/10 space-y-3.5 text-sm font-medium max-h-[85vh] overflow-y-auto">
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-3 gap-2">
                     <a href="{{ route('landing') }}" @click="mobileMenu = false"
                         class="block py-2.5 px-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                         <span class="flex items-center gap-2 text-xs">
                             <i data-lucide="home" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"></i>
                             <span>Beranda</span>
+                        </span>
+                    </a>
+                    <a href="{{ route('marketplace.index') }}" @click="mobileMenu = false"
+                        class="block py-2.5 px-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                        <span class="flex items-center gap-2 text-xs">
+                            <i data-lucide="shopping-bag" class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A]"></i>
+                            <span>Marketplace</span>
                         </span>
                     </a>
                     <a href="{{ route('public.discovery.index') }}" @click="mobileMenu = false"

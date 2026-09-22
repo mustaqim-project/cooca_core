@@ -40,16 +40,17 @@ final class PublicDiscoveryController extends Controller
 
         // 1. Fulltext / partial search by name, description, address, or product names
         if ($search !== '') {
-            $query->where(function ($q) use ($search): void {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%")
-                  ->orWhereHas('landingPage', function ($lq) use ($search): void {
-                      $lq->where('headline', 'like', "%{$search}%")
-                         ->orWhere('subheadline', 'like', "%{$search}%");
+            $escapedSearch = str_replace(['%', '_'], ['\%', '\_'], $search);
+            $query->where(function ($q) use ($escapedSearch): void {
+                $q->where('name', 'like', "%{$escapedSearch}%")
+                  ->orWhere('description', 'like', "%{$escapedSearch}%")
+                  ->orWhere('address', 'like', "%{$escapedSearch}%")
+                  ->orWhereHas('landingPage', function ($lq) use ($escapedSearch): void {
+                      $lq->where('headline', 'like', "%{$escapedSearch}%")
+                         ->orWhere('subheadline', 'like', "%{$escapedSearch}%");
                   })
-                  ->orWhereHas('products', function ($pq) use ($search): void {
-                      $pq->where('name', 'like', "%{$search}%")
+                  ->orWhereHas('products', function ($pq) use ($escapedSearch): void {
+                      $pq->where('name', 'like', "%{$escapedSearch}%")
                          ->where('is_active', true);
                   });
             });
@@ -65,9 +66,10 @@ final class PublicDiscoveryController extends Controller
 
         // 3. Location filter
         if ($location !== '') {
-            $query->where(function ($q) use ($location): void {
-                $q->where('address', 'like', "%{$location}%")
-                  ->orWhereHas('locations', fn ($lq) => $lq->where('name', 'like', "%{$location}%"));
+            $escapedLocation = str_replace(['%', '_'], ['\%', '\_'], $location);
+            $query->where(function ($q) use ($escapedLocation): void {
+                $q->where('address', 'like', "%{$escapedLocation}%")
+                  ->orWhereHas('locations', fn ($lq) => $lq->where('name', 'like', "%{$escapedLocation}%"));
             });
         }
 
