@@ -1174,7 +1174,7 @@
                                         class="w-[19px] h-[19px] sm:w-5 sm:h-5 transition-transform group-active:scale-90 {{ $isCalcActive ? 'stroke-[2.2]' : 'stroke-[1.75]' }}"></i>
                                     <!-- Badge 8 Tools -->
                                     <span
-                                        class="absolute -top-1 -right-1 px-1.5 py-0.2 bg-gradient-to-r from-[#007AFF] to-[#5856D6] text-white text-xs font-extrabold rounded-full shadow-sm leading-tight border border-white dark:border-[#1C1C1E]">
+                                        class="absolute -top-1 -right-1 px-1.5 py-0.5 bg-gradient-to-r from-[#007AFF] to-[#5856D6] text-white text-xs font-extrabold rounded-[5px] leading-tight border border-white dark:border-[#1C1C1E]">
                                         8
                                     </span>
                                 </div>

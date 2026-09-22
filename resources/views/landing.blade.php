@@ -282,7 +282,7 @@
                                     <i data-lucide="shopping-cart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                                 </div>
                                 <span
-                                    class="px-2.5 sm:px-3 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+                                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">
                                     Kasir Kilat &amp; POS
                                 </span>
                             </div>
@@ -302,8 +302,7 @@
                                         <i data-lucide="printer" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i> <span
                                             class="truncate">Struk Thermal</span>
                                     </div>
-                                    <div
-                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
+                                    <div class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
                                         Bluetooth 58/80mm</div>
                                 </div>
                                 <div
@@ -313,8 +312,7 @@
                                         <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i> <span
                                             class="truncate">QRIS Dinamis</span>
                                     </div>
-                                    <div
-                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
+                                    <div class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
                                         Scan cepat no fee</div>
                                 </div>
                                 <div
@@ -324,8 +322,7 @@
                                         <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#FF9500] shrink-0"></i> <span
                                             class="truncate">Bon WhatsApp</span>
                                     </div>
-                                    <div
-                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
+                                    <div class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
                                         Kirim nota 1-klik</div>
                                 </div>
                             </div>
@@ -386,8 +383,7 @@
                                 <div
                                     class="text-base sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">
                                     Rp 18.4Jt</div>
-                                <div
-                                    class="text-[11px] sm:text-xs text-[#34C759] dark:text-[#30D158] font-medium mt-0.5">
+                                <div class="text-[11px] sm:text-xs text-[#34C759] dark:text-[#30D158] font-medium mt-0.5">
                                     +18.2% bulan ini</div>
                             </div>
                         </div>
@@ -462,8 +458,8 @@
                                     <i data-lucide="bot" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                                 </div>
                                 <span
-                                    class="px-2.5 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-xs font-bold uppercase flex items-center gap-1">
-                                    <i data-lucide="sparkles" class="w-3 h-3"></i>
+                                    class="text-xs font-bold uppercase text-[#007AFF] dark:text-[#0A84FF] inline-flex items-center gap-1">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                                     <span>AI Assistant</span>
                                 </span>
                             </div>
@@ -526,11 +522,11 @@
             }">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
                 <div class="text-center space-y-3 max-w-2xl mx-auto">
-                    <div
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-xs">
+                    <span
+                        class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                         <i data-lucide="store" class="w-3.5 h-3.5"></i>
-                        <span>Solusi 20+ Vertikal Industri</span>
-                    </div>
+                        <span>Solusi 20+ Industri</span>
+                    </span>
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                         Disesuaikan untuk Setiap Usaha</h2>
                     <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Setiap industri memiliki alur
@@ -540,27 +536,27 @@
                 <!-- Apple Segmented Filter Chips -->
                 <div class="flex items-center justify-center">
                     <div
-                        class="inline-flex p-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold overflow-x-auto max-w-full">
+                        class="inline-flex p-1 rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold overflow-x-auto max-w-full">
                         <button type="button" @click="activeTab = 'all'"
                             :class="activeTab === 'all' ?
                                 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-3 sm:px-4 py-1.5 rounded-full transition-all duration-150 whitespace-nowrap">Semua</button>
+                            class="px-3 sm:px-4 py-1.5 rounded-[10px] transition-all duration-150 whitespace-nowrap">Semua</button>
                         <button type="button" @click="activeTab = 'fnb'"
                             :class="activeTab === 'fnb' ?
                                 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-3 sm:px-4 py-1.5 rounded-full transition-all duration-150 whitespace-nowrap">F&amp;B</button>
+                            class="px-3 sm:px-4 py-1.5 rounded-[10px] transition-all duration-150 whitespace-nowrap">F&amp;B</button>
                         <button type="button" @click="activeTab = 'service'"
                             :class="activeTab === 'service' ?
                                 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-3 sm:px-4 py-1.5 rounded-full transition-all duration-150 whitespace-nowrap">Jasa</button>
+                            class="px-3 sm:px-4 py-1.5 rounded-[10px] transition-all duration-150 whitespace-nowrap">Jasa</button>
                         <button type="button" @click="activeTab = 'retail'"
                             :class="activeTab === 'retail' ?
                                 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                 'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-3 sm:px-4 py-1.5 rounded-full transition-all duration-150 whitespace-nowrap">Retail</button>
+                            class="px-3 sm:px-4 py-1.5 rounded-[10px] transition-all duration-150 whitespace-nowrap">Retail</button>
                     </div>
                 </div>
 
@@ -576,7 +572,7 @@
                                         <i :data-lucide="ind.icon" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                                     </div>
                                     <span
-                                        class="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[11px] sm:text-xs font-bold truncate max-w-[100px]"
+                                        class="text-[11px] sm:text-xs font-bold text-[#007AFF] dark:text-[#0A84FF] truncate max-w-[100px]"
                                         x-text="ind.badge"></span>
                                 </div>
 
@@ -604,11 +600,11 @@
             class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-[#121214]/40">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
                 <div class="text-center space-y-3 max-w-2xl mx-auto">
-                    <div
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] font-semibold text-xs">
+                    <span
+                        class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                         <i data-lucide="devices" class="w-3.5 h-3.5"></i>
                         <span>Akses Fleksibel Tanpa Install</span>
-                    </div>
+                    </span>
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Satu
                         Akun di Semua Perangkat</h2>
                     <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Tanpa install aplikasi. Buka browser
@@ -627,7 +623,7 @@
                                 <i data-lucide="monitor" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                             </div>
                             <span
-                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2.5 py-0.5 rounded-full bg-[#007AFF]/10">PC
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">PC
                                 &amp; Mac</span>
                         </div>
                         <h3 class="text-base sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Executive Workstation
@@ -707,11 +703,11 @@
         <section id="kalkulator-live" class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08]">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
                 <div class="text-center space-y-3 max-w-2xl mx-auto">
-                    <div
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-xs">
+                    <span
+                        class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                         <i data-lucide="play" class="w-3.5 h-3.5"></i>
                         <span>Interactive Playground</span>
-                    </div>
+                    </span>
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Coba
                         Langsung di Browser Anda</h2>
                     <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Geser nilai biaya di bawah ini dan
@@ -753,17 +749,17 @@
 
                             <!-- Segmented Switcher -->
                             <div
-                                class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-full border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold shrink-0">
+                                class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[12px] border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold shrink-0">
                                 <button type="button" @click="isMargin = true"
                                     :class="isMargin ?
                                         'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                         'text-[#6E6E73] dark:text-[#86868B]'"
-                                    class="px-4 py-1 rounded-full transition-all">Margin</button>
+                                    class="px-4 py-1 rounded-[8px] transition-all">Margin</button>
                                 <button type="button" @click="isMargin = false"
                                     :class="!isMargin ?
                                         'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
                                         'text-[#6E6E73] dark:text-[#86868B]'"
-                                    class="px-4 py-1 rounded-full transition-all">Markup</button>
+                                    class="px-4 py-1 rounded-[8px] transition-all">Markup</button>
                             </div>
                         </div>
 
@@ -793,8 +789,7 @@
                                 </div>
                                 <input type="range" x-model.number="labCost" min="1000" max="30000"
                                     step="500" class="w-full accent-[#007AFF] cursor-pointer">
-                                <span
-                                    class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Upah
+                                <span class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Upah
                                     per unit</span>
                             </div>
                             <div
@@ -807,8 +802,7 @@
                                 </div>
                                 <input type="range" x-model.number="ovhCost" min="1000" max="25000"
                                     step="500" class="w-full accent-[#007AFF] cursor-pointer">
-                                <span
-                                    class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Gas,
+                                <span class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Gas,
                                     listrik, operasional</span>
                             </div>
                         </div>
@@ -937,11 +931,11 @@
             class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-[#121214]/40">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
                 <div class="text-center space-y-3 max-w-2xl mx-auto">
-                    <div
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-xs">
+                    <span
+                        class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                         <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
                         <span>Tanya Jawab &amp; Layanan Dukungan</span>
-                    </div>
+                    </span>
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                         Frequently Asked Questions</h2>
                     <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Jawaban transparan seputar komitmen
@@ -1046,8 +1040,9 @@
                                         class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm">{{ \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176') }}</span>
                                 </div>
                                 <span
-                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#34C759] text-white text-xs font-bold">
-                                    &lt; 5 Menit
+                                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#34C759] dark:text-[#30D158]">
+                                    <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                    Respon &lt; 5 Menit
                                 </span>
                             </div>
 
