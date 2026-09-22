@@ -39,7 +39,7 @@ final class PublicMarketplaceController extends Controller
 
         // Popular products across all discoverable stores
         $popularProducts = Product::where('is_active', true)
-            ->where('show_in_storefront', true)
+            ->where('show_in_website', true)
             ->whereHas('business', function ($q): void {
                 $q->where('is_active', true)
                   ->whereHas('storeSetting', function ($sq): void {
@@ -61,7 +61,7 @@ final class PublicMarketplaceController extends Controller
             ->count();
 
         $totalProducts = Product::where('is_active', true)
-            ->where('show_in_storefront', true)
+            ->where('show_in_website', true)
             ->whereHas('business', function ($q): void {
                 $q->where('is_active', true)
                   ->whereHas('storeSetting', fn ($sq) => $sq->where('is_storefront_enabled', true)->where('is_discoverable', true));
@@ -88,7 +88,7 @@ final class PublicMarketplaceController extends Controller
         $sort = trim((string) $request->query('urut', 'terbaru'));
 
         $query = Product::where('is_active', true)
-            ->where('show_in_storefront', true)
+            ->where('show_in_website', true)
             ->whereHas('business', function ($q): void {
                 $q->where('is_active', true)
                   ->whereHas('storeSetting', function ($sq): void {
