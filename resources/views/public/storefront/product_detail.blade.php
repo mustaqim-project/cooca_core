@@ -74,12 +74,12 @@
             {{-- Category & Badge --}}
             <div class="flex items-center gap-2">
                 @if ($product->category)
-                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold theme-badge">
+                    <span class="px-2.5 py-1 rounded-[8px] text-xs font-semibold theme-badge">
                         {{ $product->category->name }}
                     </span>
                 @endif
                 @if ($product->code)
-                    <span class="text-xs font-mono text-neutral-400">SKU: {{ $product->code }}</span>
+                    <span class="text-xs text-neutral-400" style="font-variant-numeric: tabular-nums;">SKU: {{ $product->code }}</span>
                 @endif
             </div>
 
@@ -89,10 +89,10 @@
             </h1>
 
             {{-- Price Display --}}
-            <div class="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-black/5 dark:border-white/10 flex items-center justify-between">
+            <div class="p-5 rounded-[20px] bg-neutral-50 dark:bg-neutral-800/60 border border-black/5 dark:border-white/10 flex items-center justify-between">
                 <div>
                     <div class="text-xs text-neutral-500 font-medium mb-0.5">Harga Resmi</div>
-                    <div class="font-heading font-bold text-2xl sm:text-3xl text-theme-primary font-mono tracking-tight">
+                    <div class="font-heading font-bold text-2xl sm:text-3xl text-theme-primary tracking-tight" style="font-variant-numeric: tabular-nums;">
                         @if (($product->show_price_on_web ?? true) && $product->selling_price > 0)
                             Rp {{ number_format((float) $product->selling_price, 0, ',', '.') }}
                         @else
@@ -104,15 +104,15 @@
                 {{-- Stock Status Indicator --}}
                 <div>
                     @if ($product->type === 'service')
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                        <span class="px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
                             Layanan Jasa
                         </span>
                     @elseif ($product->is_preorder)
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                        <span class="px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
                             Buka Pre-Order
                         </span>
                     @else
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 flex items-center gap-1.5">
+                        <span class="px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 flex items-center gap-1.5">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                             <span>Tersedia / Siap Kirim</span>
                         </span>
@@ -125,10 +125,10 @@
                 <div class="space-y-4 pt-2">
                     <div class="flex items-center gap-4">
                         <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Jumlah Pesanan:</span>
-                        <div class="flex items-center border border-black/10 dark:border-white/10 rounded-xl bg-neutral-50 dark:bg-neutral-900 overflow-hidden">
+                        <div class="flex items-center border border-black/10 dark:border-white/10 rounded-[12px] bg-neutral-50 dark:bg-neutral-900 overflow-hidden">
                             <button type="button" 
                                     @click="if (quantity > 1) quantity--" 
-                                    class="p-2.5 hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition">
+                                    class="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition">
                                 <i data-lucide="minus" class="w-4 h-4"></i>
                             </button>
                             <input type="number" 
@@ -137,7 +137,7 @@
                                    class="w-14 text-center font-bold text-sm bg-transparent border-0 focus:outline-none text-neutral-900 dark:text-white">
                             <button type="button" 
                                     @click="quantity++" 
-                                    class="p-2.5 hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition">
+                                    class="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition">
                                 <i data-lucide="plus" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -147,14 +147,14 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                         <button type="button" 
                                 @click="addToCart(false)" 
-                                class="py-3.5 px-4 rounded-theme bg-white dark:bg-neutral-800 border-2 border-theme-primary text-theme-primary font-bold text-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                                class="py-3.5 px-4 rounded-[12px] bg-white dark:bg-neutral-800 border-2 border-theme-primary text-theme-primary font-bold text-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 shadow-sm active:scale-[0.97] min-h-[48px]">
                             <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                             <span>Tambah ke Keranjang</span>
                         </button>
 
                         <button type="button" 
                                 @click="addToCart(true)" 
-                                class="py-3.5 px-4 rounded-theme theme-btn-primary font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-95">
+                                class="py-3.5 px-4 rounded-[12px] theme-btn-primary font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.97] min-h-[48px]">
                             <i data-lucide="credit-card" class="w-4 h-4"></i>
                             <span>Beli Sekarang</span>
                         </button>
@@ -164,7 +164,7 @@
                     <div x-show="addedNotice" 
                          x-cloak 
                          x-transition 
-                         class="p-3 rounded-xl bg-emerald-500 text-white text-xs font-semibold flex items-center justify-between shadow-lg">
+                         class="p-3 rounded-[12px] bg-emerald-500 text-white text-xs font-semibold flex items-center justify-between shadow-lg">
                         <div class="flex items-center gap-2">
                             <i data-lucide="check-circle" class="w-4 h-4"></i>
                             <span>Produk berhasil ditambahkan ke keranjang!</span>
@@ -184,7 +184,7 @@
                 @endphp
                 <div class="pt-2">
                     <a href="{{ $waLink }}" target="_blank" rel="noopener" 
-                       class="w-full py-3 px-4 rounded-theme bg-[#25D366] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm hover:opacity-95 transition">
+                       class="w-full py-3 px-4 rounded-[12px] bg-[#25D366] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm hover:opacity-95 transition min-h-[48px]">
                         <i data-lucide="message-circle" class="w-4 h-4"></i>
                         <span>Tanya Ketersediaan via WhatsApp</span>
                     </a>
@@ -240,7 +240,7 @@
                     @php
                         $relUrl = url('/' . $business->slug . '/produk/' . ($rel->slug ?: $rel->id));
                     @endphp
-                    <div class="group flex flex-col rounded-theme overflow-hidden bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-sm hover:shadow-lg transition">
+                    <div class="group flex flex-col rounded-[20px] overflow-hidden bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-sm hover:shadow-lg transition">
                         <a href="{{ $relUrl }}" class="aspect-square bg-neutral-100 dark:bg-neutral-900 block overflow-hidden">
                             @if ($rel->image_url)
                                 <img src="{{ $rel->image_url }}" alt="{{ $rel->name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
@@ -254,7 +254,7 @@
                             <a href="{{ $relUrl }}" class="font-heading font-bold text-xs sm:text-sm text-neutral-900 dark:text-white group-hover:text-theme-primary transition line-clamp-2 mb-1">
                                 {{ $rel->name }}
                             </a>
-                            <span class="text-xs font-bold text-neutral-700 dark:text-neutral-300 font-mono mt-auto">
+                            <span class="text-xs font-bold text-neutral-700 dark:text-neutral-300 mt-auto" style="font-variant-numeric: tabular-nums;">
                                 Rp {{ number_format((float) $rel->selling_price, 0, ',', '.') }}
                             </span>
                         </div>

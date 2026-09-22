@@ -306,208 +306,217 @@
 
                 <!-- Desktop Nav Menu (Apple HIG Navigation Bar Style) -->
                 <nav
-                    class="hidden lg:flex items-center gap-5 xl:gap-7 text-[13px] font-medium text-black/70 dark:text-white/70">
+                    class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[13px] font-medium text-black/70 dark:text-white/70">
+
+                    <!-- Beranda -->
                     <a href="{{ route('landing') }}"
-                        class="hover:text-black dark:hover:text-white transition-colors {{ request()->routeIs('landing') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Beranda</a>
+                        class="px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all {{ request()->routeIs('landing') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Beranda</a>
 
-                    <a href="{{ route('marketplace.index') }}"
-                        class="hover:text-black dark:hover:text-white transition-colors {{ request()->routeIs('marketplace.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Marketplace</a>
+                    <!-- Marketplace (Mega Dropdown with hover) -->
+                    <div class="relative" @mouseenter="calcDropdown = false; solutionDropdown = false; templateDropdown = false; marketplaceDropdown = true" @mouseleave="marketplaceDropdown = false" x-data="{ marketplaceDropdown: false }">
+                        <a href="{{ route('marketplace.index') }}"
+                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all {{ request()->routeIs('marketplace.*') || request()->routeIs('public.discovery.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
+                            <span>Marketplace</span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
+                                :class="marketplaceDropdown ? 'rotate-180' : ''"></i>
+                        </a>
+                        <div x-show="marketplaceDropdown" x-cloak
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="absolute top-full left-0 mt-1 w-64 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
+                            <a href="{{ route('marketplace.index') }}"
+                                class="flex items-center gap-3 px-3 py-2.5 rounded-[12px] hover:bg-black/5 dark:hover:bg-white/10 transition group">
+                                <div class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4 text-[#FF9500]"></i>
+                                </div>
+                                <div>
+                                    <span class="font-semibold block text-[12px] text-black dark:text-white">Belanja Produk</span>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Cari produk dari semua toko</span>
+                                </div>
+                            </a>
+                            <a href="{{ route('public.discovery.index') }}"
+                                class="flex items-center gap-3 px-3 py-2.5 rounded-[12px] hover:bg-black/5 dark:hover:bg-white/10 transition group">
+                                <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="compass" class="w-4 h-4 text-[#34C759]"></i>
+                                </div>
+                                <div>
+                                    <span class="font-semibold block text-[12px] text-black dark:text-white">Jelajah Toko</span>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Direktori semua UMKM terdaftar</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
 
-                    <!-- Dropdown Kalkulator -->
-                    <div class="relative" @click.outside="calcDropdown = false">
-                        <button @click="calcDropdown = !calcDropdown"
-                            class="flex items-center gap-1.5 hover:text-black dark:hover:text-white transition-colors py-2 focus:outline-none">
+                    <!-- Dropdown Kalkulator (hover) -->
+                    <div class="relative" @mouseenter="marketplaceDropdown = false; solutionDropdown = false; templateDropdown = false; calcDropdown = true" @mouseleave="calcDropdown = false">
+                        <button
+                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('kalkulator.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
                             <span>Kalkulator</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform"
+                            <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="calcDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="calcDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 translate-y-1 scale-98"
-                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="absolute top-full left-0 w-72 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[20px] shadow-2xl backdrop-blur-2xl space-y-1 z-50">
+                        <div x-show="calcDropdown" x-cloak
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="absolute top-full left-0 mt-1 w-72 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
                             <a href="{{ route('kalkulator.hpp') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Kalkulator HPP</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Hitung biaya modal & harga
-                                    pokok</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Hitung biaya modal & harga pokok</span>
                             </a>
                             <a href="{{ route('kalkulator.bep') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Kalkulator BEP</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Titik impas rupiah & unit
-                                    produk</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Titik impas rupiah & unit produk</span>
                             </a>
                             <a href="{{ route('kalkulator.harga-jual') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kalkulator Harga
-                                    Jual</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Simulasi markup vs margin
-                                    laba</span>
+                                <span class="font-semibold block text-black dark:text-white">Kalkulator Harga Jual</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Simulasi markup vs margin laba</span>
                             </a>
                             <a href="{{ route('kalkulator.laba-bersih') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kalkulator Laba
-                                    Bersih</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Proyeksi net profit bersih
-                                    usaha</span>
+                                <span class="font-semibold block text-black dark:text-white">Kalkulator Laba Bersih</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Proyeksi net profit bersih usaha</span>
                             </a>
                             <a href="{{ route('kalkulator.gaji-karyawan') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kalkulator Gaji
-                                    Karyawan</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Take home pay, tunjangan &
-                                    lembur</span>
+                                <span class="font-semibold block text-black dark:text-white">Kalkulator Gaji Karyawan</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Take home pay, tunjangan & lembur</span>
                             </a>
                             <a href="{{ route('kalkulator.pph-final') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kalkulator PPh Final
-                                    0.5%</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Pajak UMKM resmi PP
-                                    55/2022</span>
+                                <span class="font-semibold block text-black dark:text-white">Kalkulator PPh Final 0.5%</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Pajak UMKM resmi PP 55/2022</span>
                             </a>
-                            <a href="{{ route('kalkulator.omzet-harian') }}"
-                                class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kalkulator Omzet
-                                    Harian</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Target sales harian &
-                                    rata-rata struk</span>
-                            </a>
-                            <a href="{{ route('kalkulator.simulasi-what-if') }}"
-                                class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs border-t border-black/5 dark:border-white/10 mt-1 transition">
-                                <span class="font-semibold block text-[#007AFF] dark:text-[#0A84FF]">Simulasi
-                                    What-If</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Uji ketahanan kenaikan biaya
-                                    bahan</span>
-                            </a>
+                            <div class="border-t border-black/5 dark:border-white/10 mt-1 pt-1">
+                                <a href="{{ route('kalkulator.omzet-harian') }}"
+                                    class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
+                                    <span class="font-semibold block text-black dark:text-white">Kalkulator Omzet Harian</span>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Target sales harian & rata-rata struk</span>
+                                </a>
+                                <a href="{{ route('kalkulator.simulasi-what-if') }}"
+                                    class="block px-3 py-2 rounded-[12px] text-[#007AFF] dark:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
+                                    <span class="font-semibold block">Simulasi What-If</span>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Uji ketahanan kenaikan biaya bahan</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Dropdown Solusi Niche -->
-                    <div class="relative" @click.outside="solutionDropdown = false">
-                        <button @click="solutionDropdown = !solutionDropdown"
-                            class="flex items-center gap-1.5 hover:text-black dark:hover:text-white transition-colors py-2 focus:outline-none">
-                            <span>Solusi Industri</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform"
+                    <!-- Dropdown Solusi Industri (hover) -->
+                    <div class="relative" @mouseenter="marketplaceDropdown = false; calcDropdown = false; templateDropdown = false; solutionDropdown = true" @mouseleave="solutionDropdown = false">
+                        <button
+                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('solusi.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
+                            <span>Solusi</span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="solutionDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="solutionDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 translate-y-1 scale-98"
-                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="absolute top-full left-0 w-72 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[20px] shadow-2xl backdrop-blur-2xl space-y-1 z-50">
+                        <div x-show="solutionDropdown" x-cloak
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="absolute top-full left-0 mt-1 w-72 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
                             <a href="{{ route('solusi.show', 'kasir-warung') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Warung & Sembako</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Grosir, eceran & catatan
-                                    kasbon hutang</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Grosir, eceran & catatan kasbon hutang</span>
                             </a>
                             <a href="{{ route('solusi.show', 'kasir-cafe-kecil') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Kafe & Kedai Kopi</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Resep cup, split bill & QRIS
-                                    statis</span>
-                            </a>
-                            <a href="{{ route('solusi.show', 'kasir-kios') }}"
-                                class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kios & Konter HP</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Aksesoris & kasir kilat
-                                    barcode</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Resep cup, split bill & QRIS statis</span>
                             </a>
                             <a href="{{ route('solusi.show', 'kasir-laundry') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Laundry Kiloan</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Nota otomatis WA & status
-                                    cucian</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Nota otomatis WA & status cucian</span>
                             </a>
                             <a href="{{ route('solusi.show', 'kasir-salon') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Salon Kecantikan</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Treatment, paket & komisi
-                                    kapster</span>
-                            </a>
-                            <a href="{{ route('solusi.show', 'kasir-barbershop') }}"
-                                class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Barbershop</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Antrean pangkas & komisi
-                                    barber</span>
+                                <span class="font-semibold block text-black dark:text-white">Salon & Barbershop</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Treatment, antrean & komisi kapster</span>
                             </a>
                             <a href="{{ route('solusi.show', 'kasir-bengkel-kecil') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Bengkel Motor Kecil</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Ongkos jasa servis + stok
-                                    sparepart</span>
+                                <span class="font-semibold block text-black dark:text-white">Bengkel Motor</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Ongkos jasa servis + stok sparepart</span>
                             </a>
-                            <a href="{{ route('solusi.show', 'kasir-irt') }}"
-                                class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Industri Rumah Tangga
-                                    (IRT)</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Produksi snack, resep &
-                                    katering</span>
-                            </a>
+                            <div class="border-t border-black/5 dark:border-white/10 mt-1 pt-1">
+                                <a href="{{ route('solusi.index') }}"
+                                    class="block px-3 py-2 rounded-[12px] text-[#007AFF] dark:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 text-xs font-semibold transition">
+                                    Lihat Semua Solusi Industri →
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Dropdown Template Gratis -->
-                    <div class="relative" @click.outside="templateDropdown = false">
-                        <button @click="templateDropdown = !templateDropdown"
-                            class="flex items-center gap-1.5 hover:text-black dark:hover:text-white transition-colors py-2 focus:outline-none">
-                            <span>Template Gratis</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform"
+                    <!-- Dropdown Template Gratis (hover) -->
+                    <div class="relative" @mouseenter="marketplaceDropdown = false; calcDropdown = false; solutionDropdown = false; templateDropdown = true" @mouseleave="templateDropdown = false">
+                        <button
+                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('template.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
+                            <span>Template</span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="templateDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="templateDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 translate-y-1 scale-98"
-                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="absolute top-full left-0 w-72 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[20px] shadow-2xl backdrop-blur-2xl space-y-1 z-50">
+                        <div x-show="templateDropdown" x-cloak
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="absolute top-full right-0 mt-1 w-72 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
                             <a href="{{ route('template.index') }}"
                                 class="block px-3 py-2 rounded-[12px] text-[#007AFF] dark:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 text-xs font-semibold transition">
                                 Semua Template Gratis →
                             </a>
                             <a href="{{ route('template.show', 'pembukuan-warung-excel') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Buku Kas Warung
-                                    (Excel)</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Arus kas harian
-                                    warung</span>
+                                <span class="font-semibold block text-black dark:text-white">Buku Kas Warung (Excel)</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Arus kas harian warung</span>
                             </a>
                             <a href="{{ route('template.show', 'laporan-keuangan-sederhana') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Laporan Keuangan
-                                    Sederhana</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Laba rugi & neraca mini
-                                    toko</span>
+                                <span class="font-semibold block text-black dark:text-white">Laporan Keuangan Sederhana</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Laba rugi & neraca mini toko</span>
                             </a>
                             <a href="{{ route('template.show', 'stok-opname-excel') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Template Stok
-                                    Opname</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Cek fisik selisih barang
-                                    gudang</span>
+                                <span class="font-semibold block text-black dark:text-white">Template Stok Opname</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Cek fisik selisih barang gudang</span>
                             </a>
                             <a href="{{ route('template.show', 'invoice-sederhana') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Pembuat Invoice
-                                    Instan</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Format nota penjualan &
-                                    tagihan</span>
+                                <span class="font-semibold block text-black dark:text-white">Pembuat Invoice Instan</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Format nota penjualan & tagihan</span>
                             </a>
                         </div>
                     </div>
 
-                    <a href="{{ route('public.discovery.index') }}"
-                        class="hover:text-black dark:hover:text-white transition-colors {{ request()->routeIs('public.discovery.*') || request()->routeIs('public.directory.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Jelajah
-                        Toko</a>
+                    <!-- Blog & Kontak (direct links) -->
                     <a href="{{ route('blog.index') }}"
-                        class="hover:text-black dark:hover:text-white transition-colors {{ request()->routeIs('blog.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Blog
-                        & Edukasi</a>
+                        class="px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all {{ request()->routeIs('blog.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Blog</a>
                     <a href="{{ route('contact') }}"
-                        class="hover:text-black dark:hover:text-white transition-colors {{ request()->routeIs('contact') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Kontak</a>
+                        class="px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all {{ request()->routeIs('contact') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Kontak</a>
                 </nav>
 
                 <!-- Action Controls & Theme Toggle -->
-                <div class="flex items-center gap-2.5">
+                <div class="flex items-center gap-2">
                     <!-- Apple Theme Switcher Button -->
                     <button type="button" @click="toggleTheme()"
-                        class="w-9 h-9 rounded-full flex items-center justify-center text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all"
+                        class="w-9 h-9 rounded-full flex items-center justify-center text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.95] transition-all"
                         title="Ganti Mode Terang/Gelap" aria-label="Toggle Theme">
                         <!-- Sun Icon for Dark Mode (Switch to Light) -->
                         <svg x-show="isDark" x-cloak class="w-4 h-4 text-[#FFD60A]" fill="none"
@@ -526,21 +535,21 @@
                     <div class="hidden sm:flex items-center gap-2">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}"
-                                class="glow-btn px-4 py-2 rounded-[10px] text-white font-semibold text-xs flex items-center gap-2">
+                                class="glow-btn px-4 py-2 rounded-[12px] text-white font-semibold text-xs flex items-center gap-2 min-h-[36px]">
                                 <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
                                 <span>Dashboard Admin</span>
                             </a>
                         @elseif (auth('web')->check())
                             <a href="{{ route('dashboard') }}"
-                                class="glow-btn px-4 py-2 rounded-[10px] text-white font-semibold text-xs flex items-center gap-2">
+                                class="glow-btn px-4 py-2 rounded-[12px] text-white font-semibold text-xs flex items-center gap-2 min-h-[36px]">
                                 <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
                                 <span>Ke Dashboard</span>
                             </a>
                         @else
                             <a href="{{ route('login') }}"
-                                class="px-3.5 py-2 text-xs font-semibold text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-[10px] transition-all">Masuk</a>
+                                class="px-3.5 py-2 text-xs font-semibold text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-[12px] transition-all min-h-[36px] flex items-center">Masuk</a>
                             <a href="{{ route('register') }}"
-                                class="glow-btn px-4 py-2 rounded-[10px] text-white font-semibold text-xs flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                                class="glow-btn px-4 py-2 rounded-[12px] text-white font-semibold text-xs flex items-center gap-1.5 min-h-[36px]">
                                 <span>Mulai Gratis</span>
                                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                             </a>
@@ -549,7 +558,7 @@
 
                     <!-- Mobile Hamburger Button -->
                     <button @click="mobileMenu = !mobileMenu"
-                        class="lg:hidden p-2 rounded-[10px] bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors"
+                        class="lg:hidden p-2 rounded-[12px] bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
                         aria-label="Open Mobile Navigation">
                         <i :data-lucide="mobileMenu ? 'x' : 'menu'" class="w-5 h-5"></i>
                     </button>

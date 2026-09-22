@@ -1,7 +1,7 @@
 @extends('layouts.public_marketing')
 
-    @push('seo')
-        <script type="application/ld+json">
+@push('seo')
+    <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "SoftwareApplication",
@@ -23,7 +23,7 @@
         }
     }
     </script>
-    @endpush
+@endpush
 
 @section('content')
     <div class="relative overflow-hidden">
@@ -1042,7 +1042,8 @@
                                     <span
                                         class="text-[10px] font-bold uppercase text-[#34C759] dark:text-[#30D158] block">WhatsApp
                                         Resmi</span>
-                                    <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm">{{ \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176') }}</span>
+                                    <span
+                                        class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm">{{ \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176') }}</span>
                                 </div>
                                 <span
                                     class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#34C759] text-white text-[10px] font-bold">
@@ -1074,44 +1075,6 @@
             </div>
         </section>
 
-        <!-- ═══ 7. ENTERPRISE BANNER (Apple Dark Slate Minimalist) ═══ -->
-        <section class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08]">
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div
-                    class="rounded-[32px] bg-[#161618] border border-white/10 p-8 sm:p-14 text-center space-y-6 shadow-2xl text-white relative overflow-hidden">
-                    <div class="relative z-10 space-y-4">
-                        <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 text-white/90 text-xs font-semibold">
-                            <i data-lucide="building" class="w-3.5 h-3.5 text-[#0A84FF]"></i>
-                            <span>Kebutuhan Korporasi Multi-Cabang</span>
-                        </div>
-
-                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
-                            Tingkatkan ke <span class="text-[#0A84FF]">COOCA.ID Enterprise</span>
-                        </h2>
-
-                        <p class="text-sm sm:text-base text-white/65 max-w-2xl mx-auto leading-relaxed font-normal">
-                            Kelola jaringan puluhan cabang gerai, konsolidasi inventori gudang pusat, integrasi ERP klinik
-                            apotek, dan laporan pajak holding terpusat.
-                        </p>
-
-                        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-md mx-auto">
-                            <a href="https://cooca.id" target="_blank" rel="noopener noreferrer"
-                                class="w-full sm:w-auto px-8 py-3.5 rounded-[16px] bg-[#0A84FF] hover:bg-[#0077ED] text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-all">
-                                <span>Kunjungi Portal Enterprise</span>
-                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                            </a>
-                            <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20COOCA%20Enterprise%20Multi-Cabang"
-                                target="_blank" rel="noopener"
-                                class="w-full sm:w-auto px-6 py-3.5 rounded-[16px] bg-white/10 hover:bg-white/15 border border-white/10 text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
-                                <i data-lucide="message-circle" class="w-4 h-4 text-[#30D158]"></i>
-                                <span>Hubungi Sales Corporate</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
     </div>
 @endsection
