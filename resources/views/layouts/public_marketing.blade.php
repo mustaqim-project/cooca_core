@@ -20,36 +20,56 @@
     </script>
     @php
         $siteLogoLightSetting = \App\Models\SystemSetting::get('site_logo_light');
-        $siteLogoDarkSetting  = \App\Models\SystemSetting::get('site_logo_dark');
-        $siteFaviconSetting   = \App\Models\SystemSetting::get('site_favicon');
-        $seoOgImageSetting    = \App\Models\SystemSetting::get('seo_og_image');
+        $siteLogoDarkSetting = \App\Models\SystemSetting::get('site_logo_dark');
+        $siteFaviconSetting = \App\Models\SystemSetting::get('site_favicon');
+        $seoOgImageSetting = \App\Models\SystemSetting::get('seo_og_image');
 
-        $siteLogoLightUrl = \App\Domain\Storage\AdminStorage::publicUrl($siteLogoLightSetting) ?? asset('assets/image/1785229034_logo_dark.png');
-        $siteLogoDarkUrl  = \App\Domain\Storage\AdminStorage::publicUrl($siteLogoDarkSetting) ?? asset('assets/image/1785229034_logo_dark.png');
-        $siteFaviconUrl   = \App\Domain\Storage\AdminStorage::publicUrl($siteFaviconSetting) ?? asset('assets/image/1785229034_favicon.png');
-        $seoOgImageUrl    = \App\Domain\Storage\AdminStorage::publicUrl($seoOgImageSetting) ?? asset('assets/image/cooca.png');
+        $siteLogoLightUrl =
+            \App\Domain\Storage\AdminStorage::publicUrl($siteLogoLightSetting) ??
+            asset('assets/image/1785229034_logo_dark.png');
+        $siteLogoDarkUrl =
+            \App\Domain\Storage\AdminStorage::publicUrl($siteLogoDarkSetting) ??
+            asset('assets/image/1785229034_logo_dark.png');
+        $siteFaviconUrl =
+            \App\Domain\Storage\AdminStorage::publicUrl($siteFaviconSetting) ??
+            asset('assets/image/1785229034_favicon.png');
+        $seoOgImageUrl =
+            \App\Domain\Storage\AdminStorage::publicUrl($seoOgImageSetting) ?? asset('assets/image/cooca.png');
 
-        $siteAppName           = \App\Models\SystemSetting::get('app_name', 'Cooca UMKM');
-        $siteTagline           = \App\Models\SystemSetting::get('site_tagline', 'Business Operating System & Omnichannel ERP');
-        $seoMetaTitle          = \App\Models\SystemSetting::get('seo_meta_title', 'Cooca UMKM - Business Operating System & Omnichannel ERP');
-        $seoMetaDesc           = \App\Models\SystemSetting::get('seo_meta_description', 'Cooca UMKM: Software kasir POS, pembukuan otomatis, kalkulator bisnis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.');
-        $seoKeywords           = \App\Models\SystemSetting::get('seo_meta_keywords', 'Cooca UMKM, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, cooca.id');
-        $seoAuthor             = \App\Models\SystemSetting::get('seo_author', 'Cooca Indonesia');
-        $seoRobots             = \App\Models\SystemSetting::get('seo_robots', 'index, follow');
-        $seoCanonical          = \App\Models\SystemSetting::get('seo_canonical_url') ?: url()->current();
-        $seoOgTitle            = \App\Models\SystemSetting::get('seo_og_title') ?: $seoMetaTitle;
-        $seoOgDesc             = \App\Models\SystemSetting::get('seo_og_description') ?: $seoMetaDesc;
-        $seoTwitterCard        = \App\Models\SystemSetting::get('seo_twitter_card', 'summary_large_image');
-        $seoTwitterSite        = \App\Models\SystemSetting::get('seo_twitter_site', '@cooca_id');
+        $siteAppName = \App\Models\SystemSetting::get('app_name', 'Cooca UMKM');
+        $siteTagline = \App\Models\SystemSetting::get('site_tagline', 'Business Operating System & Omnichannel ERP');
+        $seoMetaTitle = \App\Models\SystemSetting::get(
+            'seo_meta_title',
+            'Cooca UMKM - Business Operating System & Omnichannel ERP',
+        );
+        $seoMetaDesc = \App\Models\SystemSetting::get(
+            'seo_meta_description',
+            'Cooca UMKM: Software kasir POS, pembukuan otomatis, kalkulator bisnis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.',
+        );
+        $seoKeywords = \App\Models\SystemSetting::get(
+            'seo_meta_keywords',
+            'Cooca UMKM, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, cooca.id',
+        );
+        $seoAuthor = \App\Models\SystemSetting::get('seo_author', 'Cooca Indonesia');
+        $seoRobots = \App\Models\SystemSetting::get('seo_robots', 'index, follow');
+        $seoCanonical = \App\Models\SystemSetting::get('seo_canonical_url') ?: url()->current();
+        $seoOgTitle = \App\Models\SystemSetting::get('seo_og_title') ?: $seoMetaTitle;
+        $seoOgDesc = \App\Models\SystemSetting::get('seo_og_description') ?: $seoMetaDesc;
+        $seoTwitterCard = \App\Models\SystemSetting::get('seo_twitter_card', 'summary_large_image');
+        $seoTwitterSite = \App\Models\SystemSetting::get('seo_twitter_site', '@cooca_id');
         $seoGoogleVerification = \App\Models\SystemSetting::get('seo_google_verification');
-        $seoBingVerification   = \App\Models\SystemSetting::get('seo_bing_verification');
-        $seoGaId               = \App\Models\SystemSetting::get('seo_google_analytics_id');
-        $seoCustomHeadScripts  = \App\Models\SystemSetting::get('seo_custom_head_scripts');
+        $seoBingVerification = \App\Models\SystemSetting::get('seo_bing_verification');
+        $seoGaId = \App\Models\SystemSetting::get('seo_google_analytics_id');
+        $seoCustomHeadScripts = \App\Models\SystemSetting::get('seo_custom_head_scripts');
     @endphp
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@hasSection('title')@yield('title')@else{{ $title ?? $seoMetaTitle }}@endif</title>
+    <title>
+        @hasSection('title')
+            @yield('title')@else{{ $title ?? $seoMetaTitle }}
+        @endif
+    </title>
     <meta name="description" content="@yield('description', $seoMetaDesc)">
     <meta name="keywords" content="@yield('keywords', $seoKeywords)">
     <meta name="author" content="{{ $seoAuthor }}">
@@ -59,7 +79,8 @@
     <meta property="og:site_name" content="{{ $siteAppName }}">
     <meta property="og:locale" content="id_ID">
     <meta property="og:url" content="{{ $seoCanonical }}">
-    <meta property="og:title" content="{{ $seoOgTitle ?: ($title ?? (View::hasSection('title') ? View::yieldContent('title') : $seoMetaTitle)) }}">
+    <meta property="og:title"
+        content="{{ $seoOgTitle ?: $title ?? (View::hasSection('title') ? View::yieldContent('title') : $seoMetaTitle) }}">
     <meta property="og:description" content="@yield('description', $seoOgDesc ?: $seoMetaDesc)">
     <meta property="og:image" content="@yield('og_image', $seoOgImageUrl)">
     <meta property="og:image:width" content="1200">
@@ -68,16 +89,17 @@
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="{{ $seoTwitterCard }}">
     <meta name="twitter:site" content="{{ $seoTwitterSite }}">
-    <meta name="twitter:title" content="{{ $seoOgTitle ?: ($title ?? (View::hasSection('title') ? View::yieldContent('title') : $seoMetaTitle)) }}">
+    <meta name="twitter:title"
+        content="{{ $seoOgTitle ?: $title ?? (View::hasSection('title') ? View::yieldContent('title') : $seoMetaTitle) }}">
     <meta name="twitter:description" content="@yield('description', $seoOgDesc ?: $seoMetaDesc)">
     <meta name="twitter:image" content="@yield('og_image', $seoOgImageUrl)">
 
     <!-- Webmaster Verification -->
-    @if(!empty($seoGoogleVerification))
-    <meta name="google-site-verification" content="{{ $seoGoogleVerification }}">
+    @if (!empty($seoGoogleVerification))
+        <meta name="google-site-verification" content="{{ $seoGoogleVerification }}">
     @endif
-    @if(!empty($seoBingVerification))
-    <meta name="msvalidate.01" content="{{ $seoBingVerification }}">
+    @if (!empty($seoBingVerification))
+        <meta name="msvalidate.01" content="{{ $seoBingVerification }}">
     @endif
 
     <!-- Favicon -->
@@ -94,19 +116,22 @@
     @stack('seo')
 
     <!-- Google Analytics (GA4) -->
-    @if(!empty($seoGaId))
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $seoGaId }}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '{{ $seoGaId }}');
-    </script>
+    @if (!empty($seoGaId))
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $seoGaId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', '{{ $seoGaId }}');
+        </script>
     @endif
 
     <!-- Custom Head Scripts -->
-    @if(!empty($seoCustomHeadScripts))
-    {!! $seoCustomHeadScripts !!}
+    @if (!empty($seoCustomHeadScripts))
+        {!! $seoCustomHeadScripts !!}
     @endif
 
     <!-- Fonts (SF Pro Fallback: Inter & JetBrains Mono) -->
@@ -313,145 +338,169 @@
                         class="px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all {{ request()->routeIs('landing') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Beranda</a>
 
                     <!-- Marketplace (Mega Dropdown with hover) -->
-                    <div class="relative" @mouseenter="calcDropdown = false; solutionDropdown = false; templateDropdown = false; marketplaceDropdown = true" @mouseleave="marketplaceDropdown = false" x-data="{ marketplaceDropdown: false }">
+                    <div class="relative"
+                        @mouseenter="calcDropdown = false; solutionDropdown = false; templateDropdown = false; marketplaceDropdown = true"
+                        @mouseleave="marketplaceDropdown = false" x-data="{ marketplaceDropdown: false }">
                         <a href="{{ route('marketplace.index') }}"
                             class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all {{ request()->routeIs('marketplace.*') || request()->routeIs('public.discovery.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
                             <span>Marketplace</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="marketplaceDropdown ? 'rotate-180' : ''"></i>
                         </a>
-                        <div x-show="marketplaceDropdown" x-cloak
-                            x-transition:enter="transition ease-out duration-150"
+                        <div x-show="marketplaceDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
                             x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100"
+                            x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
                             x-transition:leave-end="opacity-0"
                             class="absolute top-full left-0 mt-1 w-64 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
                             <a href="{{ route('marketplace.index') }}"
                                 class="flex items-center gap-3 px-3 py-2.5 rounded-[12px] hover:bg-black/5 dark:hover:bg-white/10 transition group">
-                                <div class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 flex items-center justify-center shrink-0">
+                                <div
+                                    class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 flex items-center justify-center shrink-0">
                                     <i data-lucide="shopping-bag" class="w-4 h-4 text-[#FF9500]"></i>
                                 </div>
                                 <div>
-                                    <span class="font-semibold block text-[12px] text-black dark:text-white">Belanja Produk</span>
-                                    <span class="text-[11px] text-black/45 dark:text-white/45">Cari produk dari semua toko</span>
+                                    <span class="font-semibold block text-[12px] text-black dark:text-white">Belanja
+                                        Produk</span>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Cari produk dari semua
+                                        toko</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.discovery.index') }}"
                                 class="flex items-center gap-3 px-3 py-2.5 rounded-[12px] hover:bg-black/5 dark:hover:bg-white/10 transition group">
-                                <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 flex items-center justify-center shrink-0">
+                                <div
+                                    class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 flex items-center justify-center shrink-0">
                                     <i data-lucide="compass" class="w-4 h-4 text-[#34C759]"></i>
                                 </div>
                                 <div>
-                                    <span class="font-semibold block text-[12px] text-black dark:text-white">Jelajah Toko</span>
-                                    <span class="text-[11px] text-black/45 dark:text-white/45">Direktori semua UMKM terdaftar</span>
+                                    <span class="font-semibold block text-[12px] text-black dark:text-white">Jelajah
+                                        Toko</span>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Direktori semua UMKM
+                                        terdaftar</span>
                                 </div>
                             </a>
                         </div>
                     </div>
 
                     <!-- Dropdown Kalkulator (hover) -->
-                    <div class="relative" @mouseenter="marketplaceDropdown = false; solutionDropdown = false; templateDropdown = false; calcDropdown = true" @mouseleave="calcDropdown = false">
+                    <div class="relative"
+                        @mouseenter="marketplaceDropdown = false; solutionDropdown = false; templateDropdown = false; calcDropdown = true"
+                        @mouseleave="calcDropdown = false">
                         <button
                             class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('kalkulator.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
                             <span>Kalkulator</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="calcDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="calcDropdown" x-cloak
-                            x-transition:enter="transition ease-out duration-150"
+                        <div x-show="calcDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
                             x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                             class="absolute top-full left-0 mt-1 w-72 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
                             <a href="{{ route('kalkulator.hpp') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Kalkulator HPP</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Hitung biaya modal & harga pokok</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Hitung biaya modal & harga
+                                    pokok</span>
                             </a>
                             <a href="{{ route('kalkulator.bep') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Kalkulator BEP</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Titik impas rupiah & unit produk</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Titik impas rupiah & unit
+                                    produk</span>
                             </a>
                             <a href="{{ route('kalkulator.harga-jual') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kalkulator Harga Jual</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Simulasi markup vs margin laba</span>
+                                <span class="font-semibold block text-black dark:text-white">Kalkulator Harga
+                                    Jual</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Simulasi markup vs margin
+                                    laba</span>
                             </a>
                             <a href="{{ route('kalkulator.laba-bersih') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kalkulator Laba Bersih</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Proyeksi net profit bersih usaha</span>
+                                <span class="font-semibold block text-black dark:text-white">Kalkulator Laba
+                                    Bersih</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Proyeksi net profit bersih
+                                    usaha</span>
                             </a>
                             <a href="{{ route('kalkulator.gaji-karyawan') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kalkulator Gaji Karyawan</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Take home pay, tunjangan & lembur</span>
+                                <span class="font-semibold block text-black dark:text-white">Kalkulator Gaji
+                                    Karyawan</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Take home pay, tunjangan &
+                                    lembur</span>
                             </a>
                             <a href="{{ route('kalkulator.pph-final') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Kalkulator PPh Final 0.5%</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Pajak UMKM resmi PP 55/2022</span>
+                                <span class="font-semibold block text-black dark:text-white">Kalkulator PPh Final
+                                    0.5%</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Pajak UMKM resmi PP
+                                    55/2022</span>
                             </a>
                             <div class="border-t border-black/5 dark:border-white/10 mt-1 pt-1">
                                 <a href="{{ route('kalkulator.omzet-harian') }}"
                                     class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                    <span class="font-semibold block text-black dark:text-white">Kalkulator Omzet Harian</span>
-                                    <span class="text-[11px] text-black/45 dark:text-white/45">Target sales harian & rata-rata struk</span>
+                                    <span class="font-semibold block text-black dark:text-white">Kalkulator Omzet
+                                        Harian</span>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Target sales harian &
+                                        rata-rata struk</span>
                                 </a>
                                 <a href="{{ route('kalkulator.simulasi-what-if') }}"
                                     class="block px-3 py-2 rounded-[12px] text-[#007AFF] dark:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                     <span class="font-semibold block">Simulasi What-If</span>
-                                    <span class="text-[11px] text-black/45 dark:text-white/45">Uji ketahanan kenaikan biaya bahan</span>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Uji ketahanan kenaikan
+                                        biaya bahan</span>
                                 </a>
                             </div>
                         </div>
                     </div>
 
                     <!-- Dropdown Solusi Industri (hover) -->
-                    <div class="relative" @mouseenter="marketplaceDropdown = false; calcDropdown = false; templateDropdown = false; solutionDropdown = true" @mouseleave="solutionDropdown = false">
+                    <div class="relative"
+                        @mouseenter="marketplaceDropdown = false; calcDropdown = false; templateDropdown = false; solutionDropdown = true"
+                        @mouseleave="solutionDropdown = false">
                         <button
                             class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('solusi.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
                             <span>Solusi</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="solutionDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="solutionDropdown" x-cloak
-                            x-transition:enter="transition ease-out duration-150"
+                        <div x-show="solutionDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
                             x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                             class="absolute top-full left-0 mt-1 w-72 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
                             <a href="{{ route('solusi.show', 'kasir-warung') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Warung & Sembako</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Grosir, eceran & catatan kasbon hutang</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Grosir, eceran & catatan
+                                    kasbon hutang</span>
                             </a>
                             <a href="{{ route('solusi.show', 'kasir-cafe-kecil') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Kafe & Kedai Kopi</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Resep cup, split bill & QRIS statis</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Resep cup, split bill & QRIS
+                                    statis</span>
                             </a>
                             <a href="{{ route('solusi.show', 'kasir-laundry') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Laundry Kiloan</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Nota otomatis WA & status cucian</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Nota otomatis WA & status
+                                    cucian</span>
                             </a>
                             <a href="{{ route('solusi.show', 'kasir-salon') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Salon & Barbershop</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Treatment, antrean & komisi kapster</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Treatment, antrean & komisi
+                                    kapster</span>
                             </a>
                             <a href="{{ route('solusi.show', 'kasir-bengkel-kecil') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
                                 <span class="font-semibold block text-black dark:text-white">Bengkel Motor</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Ongkos jasa servis + stok sparepart</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Ongkos jasa servis + stok
+                                    sparepart</span>
                             </a>
                             <div class="border-t border-black/5 dark:border-white/10 mt-1 pt-1">
                                 <a href="{{ url('/solusi') }}"
@@ -463,20 +512,20 @@
                     </div>
 
                     <!-- Dropdown Template Gratis (hover) -->
-                    <div class="relative" @mouseenter="marketplaceDropdown = false; calcDropdown = false; solutionDropdown = false; templateDropdown = true" @mouseleave="templateDropdown = false">
+                    <div class="relative"
+                        @mouseenter="marketplaceDropdown = false; calcDropdown = false; solutionDropdown = false; templateDropdown = true"
+                        @mouseleave="templateDropdown = false">
                         <button
                             class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('template.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
                             <span>Template</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="templateDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="templateDropdown" x-cloak
-                            x-transition:enter="transition ease-out duration-150"
+                        <div x-show="templateDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
                             x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                             class="absolute top-full right-0 mt-1 w-72 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
                             <a href="{{ route('template.index') }}"
                                 class="block px-3 py-2 rounded-[12px] text-[#007AFF] dark:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 text-xs font-semibold transition">
@@ -484,23 +533,31 @@
                             </a>
                             <a href="{{ route('template.show', 'pembukuan-warung-excel') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Buku Kas Warung (Excel)</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Arus kas harian warung</span>
+                                <span class="font-semibold block text-black dark:text-white">Buku Kas Warung
+                                    (Excel)</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Arus kas harian
+                                    warung</span>
                             </a>
                             <a href="{{ route('template.show', 'laporan-keuangan-sederhana') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Laporan Keuangan Sederhana</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Laba rugi & neraca mini toko</span>
+                                <span class="font-semibold block text-black dark:text-white">Laporan Keuangan
+                                    Sederhana</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Laba rugi & neraca mini
+                                    toko</span>
                             </a>
                             <a href="{{ route('template.show', 'stok-opname-excel') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Template Stok Opname</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Cek fisik selisih barang gudang</span>
+                                <span class="font-semibold block text-black dark:text-white">Template Stok
+                                    Opname</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Cek fisik selisih barang
+                                    gudang</span>
                             </a>
                             <a href="{{ route('template.show', 'invoice-sederhana') }}"
                                 class="block px-3 py-2 rounded-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 text-xs transition">
-                                <span class="font-semibold block text-black dark:text-white">Pembuat Invoice Instan</span>
-                                <span class="text-[11px] text-black/45 dark:text-white/45">Format nota penjualan & tagihan</span>
+                                <span class="font-semibold block text-black dark:text-white">Pembuat Invoice
+                                    Instan</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">Format nota penjualan &
+                                    tagihan</span>
                             </a>
                         </div>
                     </div>
@@ -767,7 +824,10 @@
 
                         <!-- Contact Widgets -->
                         @php
-                            $footerWaUrl = \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176');
+                            $footerWaUrl = \App\Models\SystemSetting::get(
+                                'social_whatsapp_url',
+                                'https://wa.me/6285287864176',
+                            );
                             $footerWaNum = \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176');
                         @endphp
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm pt-1">
@@ -805,85 +865,145 @@
                         @php
                             $footerSocialChannels = [
                                 'instagram' => [
-                                    'active' => filter_var(\App\Models\SystemSetting::get('social_instagram_active', '1'), FILTER_VALIDATE_BOOLEAN),
-                                    'url'    => \App\Models\SystemSetting::get('social_instagram_url', 'https://instagram.com/cooca.indonesia'),
-                                    'name'   => 'Instagram',
-                                    'handle' => \App\Models\SystemSetting::get('social_instagram_handle', '@cooca.indonesia'),
-                                    'svg'    => '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>',
-                                    'hover'  => 'hover:bg-[#DD2A7B]/15 hover:text-[#DD2A7B] dark:hover:text-[#DD2A7B]',
+                                    'active' => filter_var(
+                                        \App\Models\SystemSetting::get('social_instagram_active', '1'),
+                                        FILTER_VALIDATE_BOOLEAN,
+                                    ),
+                                    'url' => \App\Models\SystemSetting::get(
+                                        'social_instagram_url',
+                                        'https://instagram.com/cooca.indonesia',
+                                    ),
+                                    'name' => 'Instagram',
+                                    'handle' => \App\Models\SystemSetting::get(
+                                        'social_instagram_handle',
+                                        '@cooca.indonesia',
+                                    ),
+                                    'svg' =>
+                                        '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>',
+                                    'hover' => 'hover:bg-[#DD2A7B]/15 hover:text-[#DD2A7B] dark:hover:text-[#DD2A7B]',
                                 ],
                                 'facebook' => [
-                                    'active' => filter_var(\App\Models\SystemSetting::get('social_facebook_active', '1'), FILTER_VALIDATE_BOOLEAN),
-                                    'url'    => \App\Models\SystemSetting::get('social_facebook_url', 'https://facebook.com/cooca.id'),
-                                    'name'   => 'Facebook',
-                                    'handle' => \App\Models\SystemSetting::get('social_facebook_name', 'Cooca Indonesia'),
-                                    'svg'    => '<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>',
-                                    'hover'  => 'hover:bg-[#1877F2]/15 hover:text-[#1877F2] dark:hover:text-[#1877F2]',
+                                    'active' => filter_var(
+                                        \App\Models\SystemSetting::get('social_facebook_active', '1'),
+                                        FILTER_VALIDATE_BOOLEAN,
+                                    ),
+                                    'url' => \App\Models\SystemSetting::get(
+                                        'social_facebook_url',
+                                        'https://facebook.com/cooca.id',
+                                    ),
+                                    'name' => 'Facebook',
+                                    'handle' => \App\Models\SystemSetting::get(
+                                        'social_facebook_name',
+                                        'Cooca Indonesia',
+                                    ),
+                                    'svg' =>
+                                        '<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>',
+                                    'hover' => 'hover:bg-[#1877F2]/15 hover:text-[#1877F2] dark:hover:text-[#1877F2]',
                                 ],
                                 'tiktok' => [
-                                    'active' => filter_var(\App\Models\SystemSetting::get('social_tiktok_active', '1'), FILTER_VALIDATE_BOOLEAN),
-                                    'url'    => \App\Models\SystemSetting::get('social_tiktok_url', 'https://tiktok.com/@cooca.id'),
-                                    'name'   => 'TikTok',
+                                    'active' => filter_var(
+                                        \App\Models\SystemSetting::get('social_tiktok_active', '1'),
+                                        FILTER_VALIDATE_BOOLEAN,
+                                    ),
+                                    'url' => \App\Models\SystemSetting::get(
+                                        'social_tiktok_url',
+                                        'https://tiktok.com/@cooca.id',
+                                    ),
+                                    'name' => 'TikTok',
                                     'handle' => \App\Models\SystemSetting::get('social_tiktok_handle', '@cooca.id'),
-                                    'svg'    => '<path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>',
-                                    'hover'  => 'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
+                                    'svg' =>
+                                        '<path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>',
+                                    'hover' =>
+                                        'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
                                 ],
                                 'youtube' => [
-                                    'active' => filter_var(\App\Models\SystemSetting::get('social_youtube_active', '1'), FILTER_VALIDATE_BOOLEAN),
-                                    'url'    => \App\Models\SystemSetting::get('social_youtube_url', 'https://youtube.com/@cooca_id'),
-                                    'name'   => 'YouTube',
-                                    'handle' => \App\Models\SystemSetting::get('social_youtube_name', 'Cooca UMKM Official'),
-                                    'svg'    => '<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>',
-                                    'hover'  => 'hover:bg-[#FF0000]/15 hover:text-[#FF0000] dark:hover:text-[#FF0000]',
+                                    'active' => filter_var(
+                                        \App\Models\SystemSetting::get('social_youtube_active', '1'),
+                                        FILTER_VALIDATE_BOOLEAN,
+                                    ),
+                                    'url' => \App\Models\SystemSetting::get(
+                                        'social_youtube_url',
+                                        'https://youtube.com/@cooca_id',
+                                    ),
+                                    'name' => 'YouTube',
+                                    'handle' => \App\Models\SystemSetting::get(
+                                        'social_youtube_name',
+                                        'Cooca UMKM Official',
+                                    ),
+                                    'svg' =>
+                                        '<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>',
+                                    'hover' => 'hover:bg-[#FF0000]/15 hover:text-[#FF0000] dark:hover:text-[#FF0000]',
                                 ],
                                 'twitter' => [
-                                    'active' => filter_var(\App\Models\SystemSetting::get('social_twitter_active', '1'), FILTER_VALIDATE_BOOLEAN),
-                                    'url'    => \App\Models\SystemSetting::get('social_twitter_url', 'https://x.com/cooca_id'),
-                                    'name'   => 'X (Twitter)',
+                                    'active' => filter_var(
+                                        \App\Models\SystemSetting::get('social_twitter_active', '1'),
+                                        FILTER_VALIDATE_BOOLEAN,
+                                    ),
+                                    'url' => \App\Models\SystemSetting::get(
+                                        'social_twitter_url',
+                                        'https://x.com/cooca_id',
+                                    ),
+                                    'name' => 'X (Twitter)',
                                     'handle' => \App\Models\SystemSetting::get('social_twitter_handle', '@cooca_id'),
-                                    'svg'    => '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>',
-                                    'hover'  => 'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
+                                    'svg' =>
+                                        '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>',
+                                    'hover' =>
+                                        'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
                                 ],
                                 'linkedin' => [
-                                    'active' => filter_var(\App\Models\SystemSetting::get('social_linkedin_active', '1'), FILTER_VALIDATE_BOOLEAN),
-                                    'url'    => \App\Models\SystemSetting::get('social_linkedin_url', 'https://linkedin.com/company/cooca'),
-                                    'name'   => 'LinkedIn',
-                                    'handle' => \App\Models\SystemSetting::get('social_linkedin_name', 'Cooca Indonesia'),
-                                    'svg'    => '<path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>',
-                                    'hover'  => 'hover:bg-[#0A66C2]/15 hover:text-[#0A66C2] dark:hover:text-[#0A66C2]',
+                                    'active' => filter_var(
+                                        \App\Models\SystemSetting::get('social_linkedin_active', '1'),
+                                        FILTER_VALIDATE_BOOLEAN,
+                                    ),
+                                    'url' => \App\Models\SystemSetting::get(
+                                        'social_linkedin_url',
+                                        'https://linkedin.com/company/cooca',
+                                    ),
+                                    'name' => 'LinkedIn',
+                                    'handle' => \App\Models\SystemSetting::get(
+                                        'social_linkedin_name',
+                                        'Cooca Indonesia',
+                                    ),
+                                    'svg' =>
+                                        '<path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>',
+                                    'hover' => 'hover:bg-[#0A66C2]/15 hover:text-[#0A66C2] dark:hover:text-[#0A66C2]',
                                 ],
                                 'telegram' => [
-                                    'active' => filter_var(\App\Models\SystemSetting::get('social_telegram_active', '0'), FILTER_VALIDATE_BOOLEAN),
-                                    'url'    => \App\Models\SystemSetting::get('social_telegram_url', 'https://t.me/cooca_id'),
-                                    'name'   => 'Telegram',
-                                    'handle' => \App\Models\SystemSetting::get('social_telegram_name', 'Komunitas Cooca UMKM'),
-                                    'svg'    => '<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.536-.196 1.006.128.832.942z"/>',
-                                    'hover'  => 'hover:bg-[#229ED9]/15 hover:text-[#229ED9] dark:hover:text-[#229ED9]',
+                                    'active' => filter_var(
+                                        \App\Models\SystemSetting::get('social_telegram_active', '0'),
+                                        FILTER_VALIDATE_BOOLEAN,
+                                    ),
+                                    'url' => \App\Models\SystemSetting::get(
+                                        'social_telegram_url',
+                                        'https://t.me/cooca_id',
+                                    ),
+                                    'name' => 'Telegram',
+                                    'handle' => \App\Models\SystemSetting::get(
+                                        'social_telegram_name',
+                                        'Komunitas Cooca UMKM',
+                                    ),
+                                    'svg' =>
+                                        '<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.536-.196 1.006.128.832.942z"/>',
+                                    'hover' => 'hover:bg-[#229ED9]/15 hover:text-[#229ED9] dark:hover:text-[#229ED9]',
                                 ],
                             ];
                         @endphp
                         <div class="pt-2">
-                            <span class="text-[11px] font-bold text-black/40 dark:text-white/40 uppercase tracking-wider block mb-2">Ikuti Kanal Resmi Cooca:</span>
+                            <span
+                                class="text-[11px] font-bold text-black/40 dark:text-white/40 uppercase tracking-wider block mb-2">Ikuti
+                                Kanal Resmi Cooca:</span>
                             <div class="flex flex-wrap items-center gap-2">
-                                @foreach($footerSocialChannels as $key => $soc)
-                                    @if($soc['active'] && !empty($soc['url']))
-                                    <a href="{{ $soc['url'] }}" target="_blank" rel="noopener noreferrer"
-                                        title="{{ $soc['name'] }}: {{ $soc['handle'] }}"
-                                        class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.06] text-black/70 dark:text-white/70 flex items-center justify-center {{ $soc['hover'] }} active:scale-95 transition-all">
-                                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                            {!! $soc['svg'] !!}
-                                        </svg>
-                                    </a>
+                                @foreach ($footerSocialChannels as $key => $soc)
+                                    @if ($soc['active'] && !empty($soc['url']))
+                                        <a href="{{ $soc['url'] }}" target="_blank" rel="noopener noreferrer"
+                                            title="{{ $soc['name'] }}: {{ $soc['handle'] }}"
+                                            class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.06] text-black/70 dark:text-white/70 flex items-center justify-center {{ $soc['hover'] }} active:scale-95 transition-all">
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                {!! $soc['svg'] !!}
+                                            </svg>
+                                        </a>
                                     @endif
                                 @endforeach
-                            </div>
-                        </div>
-
-                        <div class="pt-1">
-                            <div
-                                class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] text-[11px] font-medium border border-[#34C759]/20">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse"></span>
-                                <span>Semua Sistem Operasional Normal</span>
                             </div>
                         </div>
                     </div>
@@ -970,11 +1090,14 @@
                                     <span class="truncate">Kalkulator HPP &amp; BEP</span>
                                 </a>
                                 <a href="{{ route('solusi.show', 'kasir-warung') }}"
-                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">POS Kasir &amp; Toko</a>
+                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">POS
+                                    Kasir &amp; Toko</a>
                                 <a href="{{ route('template.index') }}"
-                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">Template Excel UMKM</a>
+                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">Template
+                                    Excel UMKM</a>
                                 <a href="{{ route('blog.index') }}"
-                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">Blog Edukasi Bisnis</a>
+                                    class="hover:text-black dark:hover:text-white transition-colors py-0.5 truncate">Blog
+                                    Edukasi Bisnis</a>
                                 <a href="{{ route('contact') }}"
                                     class="col-span-2 sm:col-span-1 text-[#007AFF] dark:text-[#0A84FF] hover:underline font-medium py-0.5 truncate">Konsultasi
                                     Gratis →</a>
