@@ -54,7 +54,7 @@
                 class="p-5 sm:p-8 rounded-[24px] sm:rounded-[28px] bg-[#FF3B30]/[0.03] dark:bg-[#FF453A]/[0.06] border border-[#FF3B30]/15 space-y-4 sm:space-y-6">
                 <div class="max-w-2xl">
                     <span
-                        class="text-[10px] uppercase tracking-wider font-bold text-[#FF3B30] dark:text-[#FF453A] block">Tantangan
+                        class="text-xs uppercase tracking-wider font-bold text-[#FF3B30] dark:text-[#FF453A] block">Tantangan
                         Sehari-hari</span>
                     <h2 class="text-lg sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-1">Sering Mengalami
                         Masalah Ini di Usaha Anda?</h2>
@@ -79,7 +79,7 @@
             <div class="space-y-6 sm:space-y-8">
                 <div class="text-center max-w-2xl mx-auto space-y-2">
                     <span
-                        class="text-[10px] uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#0A84FF] block">Fitur
+                        class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#0A84FF] block">Fitur
                         Unggulan</span>
                     <h2 class="text-xl sm:text-3xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                         Bagaimana Cooca Membantu Bisnis Anda</h2>
@@ -131,7 +131,7 @@
                         <a href="{{ route('solusi.show', $os['slug']) }}"
                             class="bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 rounded-[20px] group hover:border-[#007AFF]/30 hover:shadow-sm hover:-translate-y-0.5 transition-all">
                             <span
-                                class="text-[10px] uppercase font-bold text-[#007AFF] dark:text-[#0A84FF]">{{ $os['badge'] }}</span>
+                                class="text-xs uppercase font-bold text-[#007AFF] dark:text-[#0A84FF]">{{ $os['badge'] }}</span>
                             <h4
                                 class="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-1 group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
                                 {{ $os['title'] }}</h4>

@@ -111,7 +111,7 @@
                                         x-text="Number(matCost).toLocaleString('id-ID')"></span></span>
                             </div>
                             <input type="number" x-model.number="matCost"
-                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
+                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
                             <input type="range" x-model.number="matCost" min="1000" max="150000" step="500"
                                 class="w-full accent-[#007AFF] cursor-pointer">
                             <p class="text-[11px] text-[#6E6E73] dark:text-[#86868B]">Bahan mentah + bumbu + kemasan
@@ -129,7 +129,7 @@
                                         x-text="Number(labCost).toLocaleString('id-ID')"></span></span>
                             </div>
                             <input type="number" x-model.number="labCost"
-                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
+                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
                             <input type="range" x-model.number="labCost" min="0" max="50000" step="500"
                                 class="w-full accent-[#007AFF] cursor-pointer">
                             <p class="text-[11px] text-[#6E6E73] dark:text-[#86868B]">Upah memasak/produksi dibagi estimasi
@@ -176,7 +176,7 @@
                             <div class="space-y-4">
                                 <div>
                                     <span
-                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B]">Total
+                                        class="text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B]">Total
                                         HPP Modal per Unit</span>
                                     <div
                                         class="text-2xl sm:text-3xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-1">
@@ -186,7 +186,7 @@
 
                                 <div class="p-4 rounded-[18px] bg-[#34C759]/10 border border-[#34C759]/20">
                                     <span
-                                        class="text-[10px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">Rekomendasi
+                                        class="text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">Rekomendasi
                                         Harga Jual</span>
                                     <div
                                         class="text-3xl sm:text-4xl font-black text-[#34C759] dark:text-[#30D158] font-mono mt-1">
@@ -205,7 +205,7 @@
                                     <div
                                         class="p-3.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
                                         <span
-                                            class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-bold block">Gross
+                                            class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-bold block">Gross
                                             Margin</span>
                                         <span class="text-base font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono"
                                             x-text="marginPercent + '%'"></span>
@@ -213,7 +213,7 @@
                                     <div
                                         class="p-3.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
                                         <span
-                                            class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-bold block">Markup
+                                            class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-bold block">Markup
                                             Rate</span>
                                         <span class="text-base font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono"
                                             x-text="markupPercent + '%'"></span>

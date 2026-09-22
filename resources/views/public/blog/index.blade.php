@@ -57,7 +57,7 @@
                     <div class="relative">
                         <input type="text" name="q" value="{{ $search }}"
                             placeholder="Cari artikel / panduan..."
-                            class="w-full h-10 pl-9 pr-4 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs placeholder-[#6E6E73]/60 focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
+                            class="w-full h-10 pl-9 pr-4 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm placeholder-[#6E6E73]/60 focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
                         <i data-lucide="search" class="w-4 h-4 text-[#6E6E73] absolute left-3 top-3"></i>
                     </div>
                 </form>
@@ -71,7 +71,7 @@
                         <div class="lg:col-span-7 space-y-4">
                             <div class="flex items-center gap-3">
                                 <span
-                                    class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $featuredPost->cluster === 'tutorial' ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' : 'bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]' }}">
+                                    class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider {{ $featuredPost->cluster === 'tutorial' ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' : 'bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]' }}">
                                     {{ $featuredPost->category }}
                                 </span>
                                 <span
@@ -125,14 +125,14 @@
                                         alt="{{ $post->title }}"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                     <span
-                                        class="absolute top-2 left-2 sm:top-3 sm:left-3 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-[8px] sm:rounded-[10px] text-[8px] sm:text-[10px] font-bold uppercase tracking-wider backdrop-blur-md {{ $post->cluster === 'tutorial' ? 'bg-[#34C759]/90 text-white shadow-sm' : 'bg-[#007AFF]/90 text-white shadow-sm' }}">
+                                        class="absolute top-2 left-2 sm:top-3 sm:left-3 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-[8px] sm:rounded-[10px] text-xs sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md {{ $post->cluster === 'tutorial' ? 'bg-[#34C759]/90 text-white shadow-sm' : 'bg-[#007AFF]/90 text-white shadow-sm' }}">
                                         {{ $post->category }}
                                     </span>
                                 </div>
 
                                 <div class="p-3 sm:p-6 space-y-1.5 sm:space-y-3">
                                     <div
-                                        class="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[11px] text-[#6E6E73] dark:text-[#86868B] font-mono">
+                                        class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-[11px] text-[#6E6E73] dark:text-[#86868B] font-mono">
                                         <span>{{ $post->published_at ? $post->published_at->format('d M') : '' }}</span>
                                         <span>•</span>
                                         <span>{{ $post->read_time }}m</span>
@@ -155,7 +155,7 @@
                             <div
                                 class="p-3 sm:p-6 pt-0 sm:pt-0 border-t border-black/[0.04] dark:border-white/[0.06] mt-2 sm:mt-4 flex items-center justify-between text-[11px] sm:text-xs">
                                 <span
-                                    class="text-[#6E6E73] dark:text-[#86868B] text-[10px] sm:text-[11px] font-medium truncate max-w-[80px] sm:max-w-none">{{ $post->author_name }}</span>
+                                    class="text-[#6E6E73] dark:text-[#86868B] text-[11px] sm:text-xs font-medium truncate max-w-[80px] sm:max-w-none">{{ $post->author_name }}</span>
                                 <a href="{{ route('blog.show', $post->slug) }}"
                                     class="font-bold text-[#007AFF] dark:text-[#0A84FF] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                                     <span>Baca</span>

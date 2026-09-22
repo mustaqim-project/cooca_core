@@ -106,7 +106,7 @@
                             </div>
                             <input type="range" x-model.number="cumulativePriorRevenue" min="0" max="600000000"
                                 step="5000000" class="w-full accent-[#007AFF] cursor-pointer">
-                            <div class="flex justify-between text-[10px] text-[#6E6E73] dark:text-[#86868B] pt-1">
+                            <div class="flex justify-between text-xs text-[#6E6E73] dark:text-[#86868B] pt-1">
                                 <span>Rp 0</span>
                                 <span class="text-[#34C759] dark:text-[#30D158] font-bold">Batas Bebas: Rp 500 Juta</span>
                                 <span>Rp 600 Juta+</span>
@@ -137,7 +137,7 @@
                                 Setor PPh Final Bulan Ini</span>
 
                             <div class="p-4 rounded-[18px] bg-[#FF3B30]/10 border border-[#FF3B30]/20">
-                                <span class="text-[10px] font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Total
+                                <span class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Total
                                     Pajak Terutang (0.5%)</span>
                                 <div class="text-3xl font-black text-[#FF3B30] dark:text-[#FF453A] font-mono mt-1">
                                     Rp <span x-text="taxDue.toLocaleString('id-ID')"></span>

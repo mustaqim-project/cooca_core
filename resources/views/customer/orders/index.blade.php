@@ -17,7 +17,7 @@
             @endif
             <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40 dark:text-white/40"></i>
             <input type="search" name="q" value="{{ $search }}" placeholder="Cari nomor pesanan / item..."
-                   class="w-full h-10 pl-9 pr-3 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                   class="w-full h-10 pl-9 pr-3 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
         </form>
     </div>
 
@@ -36,9 +36,9 @@
 
         @foreach($tabs as $key => $tab)
             <a href="{{ route('customer.orders', array_merge(request()->query(), ['status' => $key, 'page' => 1])) }}"
-               class="px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold transition whitespace-nowrap active:scale-95 flex items-center gap-1.5 {{ $status === $key ? 'bg-[#007AFF] text-white shadow-xs font-bold' : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 text-black/70 dark:text-white/70' }}">
+               class="px-3.5 py-1.5 rounded-[8px] text-[12.5px] font-semibold transition whitespace-nowrap active:scale-[0.97] flex items-center gap-1.5 min-h-[36px] {{ $status === $key ? 'bg-[#007AFF] text-white shadow-xs font-bold' : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 text-black/70 dark:text-white/70' }}">
                 <span>{{ $tab['label'] }}</span>
-                <span class="px-1.5 py-0.2 rounded-full text-[10.5px] tabular-nums {{ $status === $key ? 'bg-white/20 text-white' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60' }}">
+                <span class="px-1.5 py-0.2 rounded-[6px] text-[10.5px] tabular-nums {{ $status === $key ? 'bg-white/20 text-white' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60' }}">
                     {{ $tab['count'] }}
                 </span>
             </a>
@@ -78,11 +78,11 @@
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <span class="font-mono text-[12.5px] text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 px-2.5 py-1 rounded-full font-bold">
+                            <span class="text-[12.5px] text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 px-2.5 py-1 rounded-[8px] font-bold" style="font-variant-numeric: tabular-nums;">
                                 {{ $order->order_number }}
                             </span>
                             @if($order->groupOrder)
-                                <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#AF52DE]/10 text-[#AF52DE] border border-[#AF52DE]/20 flex items-center gap-1">
+                                <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-bold bg-[#AF52DE]/10 text-[#AF52DE] border border-[#AF52DE]/20 flex items-center gap-1">
                                     <i data-lucide="users" class="w-3 h-3"></i>
                                     <span>Pesan Bareng</span>
                                 </span>
@@ -90,27 +90,27 @@
 
                             {{-- Status Badges --}}
                             @if($order->status === 'pending_payment')
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20 flex items-center gap-1">
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20 flex items-center gap-1">
                                     <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500] animate-pulse"></span>
                                     <span>Menunggu Pembayaran</span>
                                 </span>
                             @elseif($order->status === 'proof_submitted')
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 flex items-center gap-1">
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 flex items-center gap-1">
                                     <i data-lucide="file-check" class="w-3 h-3"></i>
                                     <span>Verifikasi Bukti</span>
                                 </span>
                             @elseif(in_array($order->status, ['paid', 'processing', 'ready']))
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 flex items-center gap-1">
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 flex items-center gap-1">
                                     <i data-lucide="package" class="w-3 h-3"></i>
                                     <span>Sedang Diproses</span>
                                 </span>
                             @elseif($order->status === 'completed')
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 flex items-center gap-1">
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 flex items-center gap-1">
                                     <i data-lucide="check" class="w-3 h-3"></i>
                                     <span>Selesai</span>
                                 </span>
                             @else
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20">
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20">
                                     Dibatalkan
                                 </span>
                             @endif
@@ -165,14 +165,14 @@
                             <div class="flex items-center gap-2">
                                 @if($order->status === 'pending_payment')
                                     <a href="{{ route('customer.orders.detail', $order->id) }}#upload-proof"
-                                       class="h-9 px-3.5 rounded-full bg-[#FF9500] text-white text-[12.5px] font-semibold hover:opacity-90 transition active:scale-95 flex items-center gap-1.5 shadow-xs">
+                                       class="h-9 px-3.5 rounded-[10px] bg-[#FF9500] text-white text-[12.5px] font-semibold hover:opacity-90 transition active:scale-[0.97] flex items-center gap-1.5 shadow-xs min-h-[44px]">
                                         <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                                         <span>Upload Bukti Bayar</span>
                                     </a>
                                 @endif
 
                                 <a href="{{ route('customer.orders.detail', $order->id) }}"
-                                   class="h-9 px-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white text-[12.5px] font-semibold transition active:scale-95 flex items-center gap-1">
+                                   class="h-9 px-4 rounded-[10px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white text-[12.5px] font-semibold transition active:scale-[0.97] flex items-center gap-1 min-h-[44px]">
                                     <span>Lihat Rincian</span>
                                     <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                                 </a>

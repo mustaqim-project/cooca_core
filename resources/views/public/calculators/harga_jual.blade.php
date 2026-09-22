@@ -120,7 +120,7 @@
                         <div
                             class="p-5 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] relative shadow-sm">
                             <div
-                                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] font-bold text-[10px] uppercase mb-2">
+                                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] font-bold text-xs uppercase mb-2">
                                 <i data-lucide="check" class="w-3 h-3"></i>
                                 <span>Metode Margin (Direkomendasikan)</span>
                             </div>
@@ -142,7 +142,7 @@
                         <div
                             class="p-5 rounded-[22px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
                             <div
-                                class="text-[10px] font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] mb-1">
+                                class="text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] mb-1">
                                 Metode Markup Konvensional</div>
                             <div class="text-xs text-[#6E6E73] dark:text-[#86868B]">Harga Jual:</div>
                             <div class="text-xl sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">
@@ -162,7 +162,7 @@
                             class="p-4 rounded-[18px] bg-[#FF9500]/10 border border-[#FF9500]/20 flex items-center justify-between">
                             <div>
                                 <span
-                                    class="text-[10px] font-bold text-[#FF9500] dark:text-[#FF9F0A] uppercase tracking-wider block">Harga
+                                    class="text-xs font-bold text-[#FF9500] dark:text-[#FF9F0A] uppercase tracking-wider block">Harga
                                     Psikologis (Charm Price)</span>
                                 <span class="text-xs text-[#6E6E73] dark:text-[#86868B]">Akhiran 900 terbukti meningkatkan
                                     konversi penjualan</span>

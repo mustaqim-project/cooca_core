@@ -83,34 +83,17 @@
                     class="w-full py-3.5 bg-[#007AFF] hover:bg-[#007AFF]/90 active:scale-[0.97] text-white font-bold text-[14.5px] rounded-[14px] transition shadow-md shadow-[#007AFF]/20 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]">
                     <span>Masuk Akun Pelanggan</span>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                 </button>
-
-                {{-- Demo Accounts Quick-Fill Box (Bento HIG) --}}
-                <div class="pt-2 p-3.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">
-                        Akun Seeder Demo (Klik untuk Isi Cepat):
-                    </span>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <button type="button" @click="fillDemo('mandiri@cooca.id', 'password')"
-                            class="p-2.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-left transition active:scale-[0.97] group cursor-pointer shadow-2xs">
-                            <span class="text-[12px] font-bold text-black dark:text-white block group-hover:text-[#007AFF]">Ahmad (Mandiri)</span>
-                            <span class="text-[10.5px] text-black/50 dark:text-white/50" style="font-variant-numeric: tabular-nums;">mandiri@cooca.id</span>
-                        </button>
-                        <button type="button" @click="fillDemo('bca@cooca.id', 'password')"
-                            class="p-2.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-left transition active:scale-[0.97] group cursor-pointer shadow-2xs">
-                            <span class="text-[12px] font-bold text-black dark:text-white block group-hover:text-[#007AFF]">Budi (BCA)</span>
-                            <span class="text-[10.5px] text-black/50 dark:text-white/50" style="font-variant-numeric: tabular-nums;">bca@cooca.id</span>
-                        </button>
-                    </div>
-                </div>
             </form>
 
             {{-- Divider --}}
             <div class="relative flex items-center justify-center">
                 <div class="border-t border-black/10 dark:border-white/10 w-full"></div>
-                <span class="bg-white dark:bg-[#1C1C1E] px-3 text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 absolute">
+                <span
+                    class="bg-white dark:bg-[#1C1C1E] px-3 text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 absolute">
                     Atau Masuk dengan Google
                 </span>
             </div>

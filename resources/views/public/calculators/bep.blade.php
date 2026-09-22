@@ -80,7 +80,7 @@
                                         x-text="Number(fixedCost).toLocaleString('id-ID')"></span></span>
                             </div>
                             <input type="number" x-model.number="fixedCost"
-                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
+                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
                             <input type="range" x-model.number="fixedCost" min="500000" max="30000000" step="250000"
                                 class="w-full accent-[#34C759] cursor-pointer">
                             <p class="text-[11px] text-[#6E6E73] dark:text-[#86868B]">Sewa tempat, gaji pokok staf,
@@ -98,7 +98,7 @@
                                         x-text="Number(pricePerUnit).toLocaleString('id-ID')"></span></span>
                             </div>
                             <input type="number" x-model.number="pricePerUnit"
-                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
+                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
                             <input type="range" x-model.number="pricePerUnit" min="1000" max="250000" step="1000"
                                 class="w-full accent-[#007AFF] cursor-pointer">
                             <p class="text-[11px] text-[#6E6E73] dark:text-[#86868B]">Harga jual rata-rata produk atau menu
@@ -116,7 +116,7 @@
                                         x-text="Number(varCostPerUnit).toLocaleString('id-ID')"></span></span>
                             </div>
                             <input type="number" x-model.number="varCostPerUnit"
-                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
+                                class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
                             <input type="range" x-model.number="varCostPerUnit" min="500" max="150000"
                                 step="500" class="w-full accent-[#FF9500] cursor-pointer">
                             <p class="text-[11px] text-[#6E6E73] dark:text-[#86868B]">Modal bahan baku yang keluar hanya
@@ -131,7 +131,7 @@
                             <div class="space-y-4">
                                 <div>
                                     <span
-                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B]">Target
+                                        class="text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B]">Target
                                         BEP Penjualan Bulanan</span>
                                     <div
                                         class="text-3xl sm:text-4xl font-black text-[#34C759] dark:text-[#30D158] font-mono mt-1">
@@ -148,7 +148,7 @@
                                 <!-- Target Harian -->
                                 <div class="p-4 rounded-[18px] bg-[#34C759]/10 border border-[#34C759]/20 space-y-2">
                                     <span
-                                        class="text-[10px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">Target
+                                        class="text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">Target
                                         Minimal Harian (30 Hari)</span>
                                     <div class="flex justify-between items-center text-xs">
                                         <span class="text-[#6E6E73] dark:text-[#86868B]">Omzet Harian:</span>

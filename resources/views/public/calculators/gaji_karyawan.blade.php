@@ -121,7 +121,7 @@
                                     class="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7] uppercase tracking-wide block">Tunjangan
                                     Makan &amp; Transport</label>
                                 <input type="number" x-model.number="allowance"
-                                    class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
+                                    class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
                             </div>
                             <div
                                 class="p-4 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-2">
@@ -129,7 +129,7 @@
                                     class="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7] uppercase tracking-wide block">Potongan
                                     Kasbon / Absen</label>
                                 <input type="number" x-model.number="deductions"
-                                    class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
+                                    class="w-full h-11 px-3.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all">
                             </div>
                         </div>
 
@@ -183,7 +183,7 @@
 
                             <!-- Take Home Pay -->
                             <div class="p-4 rounded-[18px] bg-[#34C759]/10 border border-[#34C759]/20">
-                                <span class="text-[10px] font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Total
+                                <span class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Total
                                     Diterima Karyawan (Take Home Pay)</span>
                                 <div class="text-3xl font-black text-[#34C759] dark:text-[#30D158] font-mono mt-1">
                                     Rp <span x-text="netSalary.toLocaleString('id-ID')"></span>

@@ -83,7 +83,7 @@
                                 <div
                                     class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
                                     <span
-                                        class="text-[#6E6E73] dark:text-[#86868B] block text-[10px] uppercase font-bold">Omzet
+                                        class="text-[#6E6E73] dark:text-[#86868B] block text-xs uppercase font-bold">Omzet
                                         Bulanan</span>
                                     <span class="font-mono font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm">Rp <span
                                             x-text="Number(baseRevenue).toLocaleString('id-ID')"></span></span>
@@ -91,7 +91,7 @@
                                 <div
                                     class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
                                     <span
-                                        class="text-[#6E6E73] dark:text-[#86868B] block text-[10px] uppercase font-bold">Biaya
+                                        class="text-[#6E6E73] dark:text-[#86868B] block text-xs uppercase font-bold">Biaya
                                         Bahan</span>
                                     <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A] text-sm">Rp <span
                                             x-text="Number(baseMaterial).toLocaleString('id-ID')"></span></span>
@@ -99,7 +99,7 @@
                                 <div
                                     class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
                                     <span
-                                        class="text-[#6E6E73] dark:text-[#86868B] block text-[10px] uppercase font-bold">Laba
+                                        class="text-[#6E6E73] dark:text-[#86868B] block text-xs uppercase font-bold">Laba
                                         Normal</span>
                                     <span class="font-mono font-bold text-[#34C759] dark:text-[#30D158] text-sm">Rp <span
                                             x-text="baseProfit.toLocaleString('id-ID')"></span></span>
@@ -169,14 +169,14 @@
                                     class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Hasil
                                     Simulasi Laba</span>
                                 <span
-                                    class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#6E6E73] dark:text-[#86868B]">Proyeksi</span>
+                                    class="text-xs font-bold px-2 py-0.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#6E6E73] dark:text-[#86868B]">Proyeksi</span>
                             </div>
 
                             <!-- Perbandingan Laba -->
                             <div class="p-4 rounded-[18px] border shadow-sm transition-all"
                                 :class="simProfit >= baseProfit ? 'bg-[#34C759]/10 border-[#34C759]/20' :
                                     'bg-[#FF3B30]/10 border-[#FF3B30]/20'">
-                                <span class="text-[10px] font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Laba
+                                <span class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Laba
                                     Bersih Setelah Skenario</span>
                                 <div class="text-2xl sm:text-3xl font-extrabold font-mono mt-1"
                                     :class="simProfit >= 0 ? 'text-[#34C759] dark:text-[#30D158]' :

@@ -26,7 +26,7 @@
                 <div class="lg:col-span-7 space-y-6">
                     <div class="space-y-3">
                         <div
-                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]">
+                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]">
                             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                             <span>{{ $template['category'] }} • 100% Gratis</span>
                         </div>
@@ -151,28 +151,28 @@
                                 <label class="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] mb-1.5">Nama
                                     Lengkap *</label>
                                 <input type="text" x-model="form.name" required placeholder="Contoh: Budi Santoso"
-                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
+                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] mb-1.5">Nomor
                                     WhatsApp / HP *</label>
                                 <input type="tel" x-model="form.phone" required placeholder="Contoh: 081234567890"
-                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
+                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] mb-1.5">Nama
                                     Usaha / Toko</label>
                                 <input type="text" x-model="form.business_name" placeholder="Contoh: Toko Sembako Berkah"
-                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
+                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] mb-1.5">Email
                                     (Opsional)</label>
                                 <input type="email" x-model="form.email" placeholder="email@domain.com"
-                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
+                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
                             </div>
 
                             <button type="submit" :disabled="loading"
@@ -182,7 +182,7 @@
                             </button>
                         </form>
 
-                        <p class="text-[10px] text-[#6E6E73] dark:text-[#86868B] text-center mt-4">
+                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] text-center mt-4">
                             Data Anda aman bersama kami. Bebas spam 100%.
                         </p>
                     </div>
@@ -241,7 +241,7 @@
                             class="bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-5 rounded-[22px] group flex flex-col justify-between shadow-sm hover:shadow-md hover:border-[#007AFF]/30 hover:-translate-y-0.5 transition-all">
                             <div class="space-y-2">
                                 <span
-                                    class="text-[10px] uppercase font-bold text-[#007AFF] dark:text-[#0A84FF]">{{ $ot['category'] }}</span>
+                                    class="text-xs uppercase font-bold text-[#007AFF] dark:text-[#0A84FF]">{{ $ot['category'] }}</span>
                                 <h4
                                     class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
                                     {{ $ot['name'] }}</h4>

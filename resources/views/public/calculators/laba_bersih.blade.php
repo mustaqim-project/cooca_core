@@ -185,7 +185,7 @@
                             <div class="p-4 rounded-[18px] border transition-all"
                                 :class="netProfit >= 0 ? 'bg-[#34C759]/10 border-[#34C759]/20' :
                                     'bg-[#FF3B30]/10 border-[#FF3B30]/20'">
-                                <span class="text-[10px] font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Laba
+                                <span class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Laba
                                     Bersih Akhir (Net Profit)</span>
                                 <div class="text-2xl sm:text-3xl font-black font-mono mt-1"
                                     :class="netProfit >= 0 ? 'text-[#34C759] dark:text-[#30D158]' :

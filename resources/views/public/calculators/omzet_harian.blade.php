@@ -107,7 +107,7 @@
 
                             <div class="p-4 rounded-[18px] bg-[#007AFF]/10 border border-[#007AFF]/20">
                                 <span
-                                    class="text-[10px] font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Target
+                                    class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Target
                                     Omzet per Hari Buka</span>
                                 <div class="text-3xl font-black text-[#007AFF] dark:text-[#0A84FF] font-mono mt-1">
                                     Rp <span x-text="dailyRevenueTarget.toLocaleString('id-ID')"></span>

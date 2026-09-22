@@ -39,7 +39,7 @@
                             </div>
                             <div>
                                 <span
-                                    class="text-[10px] uppercase tracking-wider font-bold text-[#34C759] dark:text-[#30D158] block">WhatsApp
+                                    class="text-xs uppercase tracking-wider font-bold text-[#34C759] dark:text-[#30D158] block">WhatsApp
                                     Resmi</span>
                                 <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">
                                     {{ $officialWhatsapp }}</h3>
@@ -67,7 +67,7 @@
                             </div>
                             <div>
                                 <span
-                                    class="text-[10px] uppercase tracking-wider font-bold text-[#6E6E73] dark:text-[#86868B] block">Email
+                                    class="text-xs uppercase tracking-wider font-bold text-[#6E6E73] dark:text-[#86868B] block">Email
                                     Support</span>
                                 <a href="mailto:{{ $officialEmail }}"
                                     class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">{{ $officialEmail }}</a>
@@ -88,7 +88,7 @@
                             </div>
                             <div>
                                 <span
-                                    class="text-[10px] uppercase tracking-wider font-bold text-[#6E6E73] dark:text-[#86868B] block">Kantor
+                                    class="text-xs uppercase tracking-wider font-bold text-[#6E6E73] dark:text-[#86868B] block">Kantor
                                     Operasional</span>
                                 <span
                                     class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] block">{{ $officeLocation }}</span>
@@ -123,7 +123,7 @@
                                     Lengkap *</label>
                                 <input type="text" name="name" required placeholder="Contoh: Budi Santoso"
                                     value="{{ old('name') }}"
-                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
+                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
                                 @error('name')
                                     <span class="text-[11px] text-[#FF3B30] mt-1 block">{{ $message }}</span>
                                 @enderror
@@ -133,7 +133,7 @@
                                     *</label>
                                 <input type="email" name="email" required placeholder="email@domain.com"
                                     value="{{ old('email') }}"
-                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
+                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
                                 @error('email')
                                     <span class="text-[11px] text-[#FF3B30] mt-1 block">{{ $message }}</span>
                                 @enderror
@@ -145,14 +145,14 @@
                                 <label class="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] mb-1.5">Nomor
                                     WhatsApp</label>
                                 <input type="tel" name="phone" placeholder="081234567890" value="{{ old('phone') }}"
-                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
+                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] mb-1.5">Subjek
                                     Pertanyaan *</label>
                                 <input type="text" name="subject" required
                                     placeholder="Contoh: Bantuan setting printer struk" value="{{ old('subject') }}"
-                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
+                                    class="w-full h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">
                                 @error('subject')
                                     <span class="text-[11px] text-[#FF3B30] mt-1 block">{{ $message }}</span>
                                 @enderror
@@ -164,7 +164,7 @@
                                 Kendala Anda *</label>
                             <textarea name="message" rows="5" required
                                 placeholder="Tuliskan pertanyaan atau kendala yang Anda alami secara detail..."
-                                class="w-full p-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">{{ old('message') }}</textarea>
+                                class="w-full p-3.5 bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.1] rounded-[14px] text-[#1D1D1F] dark:text-[#F5F5F7] text-[16px] sm:text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition-all placeholder-[#6E6E73]/50">{{ old('message') }}</textarea>
                             @error('message')
                                 <span class="text-[11px] text-[#FF3B30] mt-1 block">{{ $message }}</span>
                             @enderror

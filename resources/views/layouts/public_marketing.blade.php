@@ -300,7 +300,7 @@
                         <span
                             class="font-extrabold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
                         <span
-                            class="text-[9px] sm:text-[10px] uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-[0.15em]">{{ $siteTagline }}</span>
+                            class="text-[11px] sm:text-xs uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-[0.15em]">{{ $siteTagline }}</span>
                     </div>
                 </a>
 
@@ -757,7 +757,7 @@
                                 <span
                                     class="font-bold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
                                 <span
-                                    class="text-[9px] uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-wider">{{ $siteTagline }}</span>
+                                    class="text-xs uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-wider">{{ $siteTagline }}</span>
                             </div>
                         </div>
                         <p class="text-xs text-black/50 dark:text-white/50 leading-relaxed max-w-sm">
@@ -779,7 +779,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <span
-                                        class="text-[9px] uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">WhatsApp
+                                        class="text-xs uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">WhatsApp
                                         CS</span>
                                     <span
                                         class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block font-mono">{{ $footerWaNum }}</span>
@@ -793,7 +793,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <span
-                                        class="text-[9px] uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">Email
+                                        class="text-xs uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">Email
                                         Bantuan</span>
                                     <span
                                         class="font-medium text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block">support@cooca.id</span>
@@ -1028,7 +1028,7 @@
                                         class="w-[19px] h-[19px] sm:w-5 sm:h-5 transition-transform group-active:scale-90 {{ $isHomeActive ? 'stroke-[2.2]' : 'stroke-[1.75]' }}"></i>
                                 </div>
                                 <span
-                                    class="text-[10.5px] sm:text-xs font-semibold tracking-tight mt-0.5 {{ $isHomeActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">Beranda</span>
+                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isHomeActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">Beranda</span>
                                 @if ($isHomeActive)
                                     <span
                                         class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 animate-pulse"></span>
@@ -1051,12 +1051,12 @@
                                         class="w-[19px] h-[19px] sm:w-5 sm:h-5 transition-transform group-active:scale-90 {{ $isCalcActive ? 'stroke-[2.2]' : 'stroke-[1.75]' }}"></i>
                                     <!-- Badge 8 Tools -->
                                     <span
-                                        class="absolute -top-1 -right-1 px-1.5 py-0.2 bg-gradient-to-r from-[#007AFF] to-[#5856D6] text-white text-[8.5px] font-extrabold rounded-full shadow-sm leading-tight border border-white dark:border-[#1C1C1E]">
+                                        class="absolute -top-1 -right-1 px-1.5 py-0.2 bg-gradient-to-r from-[#007AFF] to-[#5856D6] text-white text-xs font-extrabold rounded-full shadow-sm leading-tight border border-white dark:border-[#1C1C1E]">
                                         8
                                     </span>
                                 </div>
                                 <span
-                                    class="text-[10.5px] sm:text-xs font-semibold tracking-tight mt-0.5 {{ $isCalcActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">Kalkulator</span>
+                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isCalcActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">Kalkulator</span>
                                 @if ($isCalcActive)
                                     <span
                                         class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 animate-pulse"></span>
@@ -1078,7 +1078,7 @@
                                     class="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white transition-transform group-hover:scale-110 group-active:scale-90 stroke-[2.2]"></i>
                             </a>
                             <span
-                                class="text-[10.5px] sm:text-xs font-bold tracking-tight mt-1.5 {{ $isSolusiActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : 'text-[#1D1D1F] dark:text-[#F5F5F7]' }}">Solusi
+                                class="text-xs font-bold tracking-tight mt-1.5 {{ $isSolusiActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : 'text-[#1D1D1F] dark:text-[#F5F5F7]' }}">Solusi
                                 POS</span>
                             @if ($isSolusiActive)
                                 <span
@@ -1104,7 +1104,7 @@
                                         class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#34C759] dark:bg-[#30D158] border border-white dark:border-[#1C1C1E]"></span>
                                 </div>
                                 <span
-                                    class="text-[10.5px] sm:text-xs font-semibold tracking-tight mt-0.5 {{ $isTemplateActive ? 'text-[#34C759] dark:text-[#30D158]' : '' }}">Template</span>
+                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isTemplateActive ? 'text-[#34C759] dark:text-[#30D158]' : '' }}">Template</span>
                                 @if ($isTemplateActive)
                                     <span
                                         class="w-1 h-1 rounded-full bg-[#34C759] dark:bg-[#30D158] mt-0.5 animate-pulse"></span>
@@ -1141,7 +1141,7 @@
                                         class="w-[19px] h-[19px] sm:w-5 sm:h-5 transition-transform group-active:scale-90 {{ $isAccountActive ? 'stroke-[2.2]' : 'stroke-[1.75]' }}"></i>
                                 </div>
                                 <span
-                                    class="text-[10.5px] sm:text-xs font-semibold tracking-tight mt-0.5 {{ $isAccountActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">{{ $tabLabel }}</span>
+                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isAccountActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">{{ $tabLabel }}</span>
                                 @if ($isAccountActive)
                                     <span
                                         class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 animate-pulse"></span>

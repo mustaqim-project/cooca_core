@@ -49,7 +49,7 @@
             <header class="space-y-4">
                 <div class="flex items-center gap-3">
                     <span
-                        class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $post->cluster === 'tutorial' ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' : 'bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]' }}">
+                        class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider {{ $post->cluster === 'tutorial' ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' : 'bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]' }}">
                         {{ $post->category }}
                     </span>
                     <span class="text-xs text-[#6E6E73] dark:text-[#86868B] font-mono">{{ $post->read_time }} menit
@@ -72,7 +72,7 @@
                     </div>
                     <div>
                         <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] block">{{ $post->author_name }}</span>
-                        <span class="text-[10px] text-[#6E6E73] dark:text-[#86868B]">Diverifikasi Tim Finansial COOCA</span>
+                        <span class="text-xs text-[#6E6E73] dark:text-[#86868B]">Diverifikasi Tim Finansial COOCA</span>
                     </div>
                 </div>
             </header>
@@ -95,7 +95,7 @@
             <div
                 class="p-6 sm:p-8 rounded-[24px] bg-[#161618] border border-white/[0.08] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
                 <div class="space-y-1.5 text-center sm:text-left">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-[#0A84FF]">100% Gratis Selamanya</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-[#0A84FF]">100% Gratis Selamanya</span>
                     <h4 class="text-lg sm:text-xl font-bold text-white tracking-tight">Mulai Praktikkan di Usaha Anda dengan
                         Cooca</h4>
                     <p class="text-xs text-[#86868B] max-w-md">Software kasir, pembukuan kas otomatis, kalkulator HPP, dan
@@ -117,7 +117,7 @@
                                 class="bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-5 rounded-[22px] group flex flex-col justify-between shadow-sm hover:shadow-md hover:border-[#007AFF]/30 hover:-translate-y-0.5 transition-all">
                                 <div class="space-y-2">
                                     <span
-                                        class="text-[10px] font-bold text-[#007AFF] dark:text-[#0A84FF] uppercase">{{ $rel->category }}</span>
+                                        class="text-xs font-bold text-[#007AFF] dark:text-[#0A84FF] uppercase">{{ $rel->category }}</span>
                                     <h4
                                         class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
                                         {{ $rel->title }}</h4>

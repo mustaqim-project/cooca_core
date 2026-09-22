@@ -166,46 +166,46 @@
                                 <div class="grid grid-cols-2 gap-3 mb-4">
                                     <div
                                         class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                        <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
+                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
                                             Omzet Hari Ini</div>
                                         <div
                                             class="text-base sm:text-lg font-bold text-[#34C759] dark:text-[#30D158] font-mono mt-0.5">
                                             Rp 4.250.000</div>
                                         <div
-                                            class="text-[10px] text-[#34C759] dark:text-[#30D158] font-medium flex items-center gap-0.5 mt-0.5">
+                                            class="text-xs text-[#34C759] dark:text-[#30D158] font-medium flex items-center gap-0.5 mt-0.5">
                                             <i data-lucide="trending-up" class="w-3 h-3"></i> +14.8% vs kemarin
                                         </div>
                                     </div>
                                     <div
                                         class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                        <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
+                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
                                             Margin Laba Bersih</div>
                                         <div
                                             class="text-base sm:text-lg font-bold text-[#007AFF] dark:text-[#0A84FF] font-mono mt-0.5">
                                             32.4%</div>
-                                        <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] mt-0.5">Net Profit Rp
+                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5">Net Profit Rp
                                             1.377.000</div>
                                     </div>
                                     <div
                                         class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                        <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
+                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
                                             Stok Kritis Gudang</div>
                                         <div
                                             class="text-base sm:text-lg font-bold text-[#FF9500] dark:text-[#FF9F0A] font-mono mt-0.5">
                                             3 Bahan</div>
                                         <div
-                                            class="text-[10px] text-[#FF9500] dark:text-[#FF9F0A] flex items-center gap-0.5 mt-0.5">
+                                            class="text-xs text-[#FF9500] dark:text-[#FF9F0A] flex items-center gap-0.5 mt-0.5">
                                             <i data-lucide="alert-circle" class="w-3 h-3"></i> Segera restock
                                         </div>
                                     </div>
                                     <div
                                         class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                        <div class="text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
+                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
                                             Transaksi POS</div>
                                         <div
                                             class="text-base sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">
                                             142 Struk</div>
-                                        <div class="text-[10px] text-[#34C759] dark:text-[#30D158] mt-0.5">AOV Rp 29.900
+                                        <div class="text-xs text-[#34C759] dark:text-[#30D158] mt-0.5">AOV Rp 29.900
                                         </div>
                                     </div>
                                 </div>
@@ -282,7 +282,7 @@
                                     <i data-lucide="shopping-cart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                                 </div>
                                 <span
-                                    class="px-2.5 sm:px-3 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                                    class="px-2.5 sm:px-3 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] text-[11px] sm:text-xs font-bold uppercase tracking-wider">
                                     Kasir Kilat &amp; POS
                                 </span>
                             </div>
@@ -298,34 +298,34 @@
                                 <div
                                     class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
                                     <div
-                                        class="text-[10px] sm:text-[11px] font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
+                                        class="text-[11px] sm:text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
                                         <i data-lucide="printer" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i> <span
                                             class="truncate">Struk Thermal</span>
                                     </div>
                                     <div
-                                        class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
+                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
                                         Bluetooth 58/80mm</div>
                                 </div>
                                 <div
                                     class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
                                     <div
-                                        class="text-[10px] sm:text-[11px] font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
+                                        class="text-[11px] sm:text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
                                         <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i> <span
                                             class="truncate">QRIS Dinamis</span>
                                     </div>
                                     <div
-                                        class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
+                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
                                         Scan cepat no fee</div>
                                 </div>
                                 <div
                                     class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
                                     <div
-                                        class="text-[10px] sm:text-[11px] font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
+                                        class="text-[11px] sm:text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
                                         <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#FF9500] shrink-0"></i> <span
                                             class="truncate">Bon WhatsApp</span>
                                     </div>
                                     <div
-                                        class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
+                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
                                         Kirim nota 1-klik</div>
                                 </div>
                             </div>
@@ -367,7 +367,7 @@
                             </div>
                             <div>
                                 <span
-                                    class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] block">Otomasi
+                                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] block">Otomasi
                                     Akuntansi</span>
                                 <h3
                                     class="text-sm sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5 leading-snug">
@@ -381,13 +381,13 @@
                             <div
                                 class="p-3 sm:p-4 rounded-[16px] sm:rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
                                 <div
-                                    class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
+                                    class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
                                     Net Profit Akurat</div>
                                 <div
                                     class="text-base sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">
                                     Rp 18.4Jt</div>
                                 <div
-                                    class="text-[9px] sm:text-[10px] text-[#34C759] dark:text-[#30D158] font-medium mt-0.5">
+                                    class="text-[11px] sm:text-xs text-[#34C759] dark:text-[#30D158] font-medium mt-0.5">
                                     +18.2% bulan ini</div>
                             </div>
                         </div>
@@ -411,7 +411,7 @@
                             </div>
                             <div>
                                 <span
-                                    class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] block">Gudang
+                                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] block">Gudang
                                     &amp; Stok</span>
                                 <h3
                                     class="text-sm sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5 leading-snug">
@@ -426,7 +426,7 @@
                                 <div
                                     class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
                                     <span
-                                        class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Stok
+                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Stok
                                         SKU</span>
                                     <div
                                         class="text-sm sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">
@@ -435,7 +435,7 @@
                                 <div
                                     class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
                                     <span
-                                        class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Menipis</span>
+                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Menipis</span>
                                     <div
                                         class="text-sm sm:text-lg font-bold text-[#FF9500] dark:text-[#FF9F0A] font-mono mt-0.5">
                                         3 SKU</div>
@@ -462,7 +462,7 @@
                                     <i data-lucide="bot" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                                 </div>
                                 <span
-                                    class="px-2.5 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[10px] font-bold uppercase flex items-center gap-1">
+                                    class="px-2.5 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-xs font-bold uppercase flex items-center gap-1">
                                     <i data-lucide="sparkles" class="w-3 h-3"></i>
                                     <span>AI Assistant</span>
                                 </span>
@@ -576,7 +576,7 @@
                                         <i :data-lucide="ind.icon" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                                     </div>
                                     <span
-                                        class="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[9px] sm:text-[10px] font-bold truncate max-w-[100px]"
+                                        class="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[11px] sm:text-xs font-bold truncate max-w-[100px]"
                                         x-text="ind.badge"></span>
                                 </div>
 
@@ -627,7 +627,7 @@
                                 <i data-lucide="monitor" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                             </div>
                             <span
-                                class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2.5 py-0.5 rounded-full bg-[#007AFF]/10">PC
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2.5 py-0.5 rounded-full bg-[#007AFF]/10">PC
                                 &amp; Mac</span>
                         </div>
                         <h3 class="text-base sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Executive Workstation
@@ -655,7 +655,7 @@
                             <i data-lucide="tablet" class="w-4 h-4 sm:w-6 sm:h-6"></i>
                         </div>
                         <span
-                            class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] block truncate">iPad
+                            class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] block truncate">iPad
                             &amp; Tablet</span>
                         <h3 class="text-sm sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug">Kasir Meja
                         </h3>
@@ -663,7 +663,7 @@
                             class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
                             Layar sentuh elegan untuk kafe, resto, dan salon. Grid foto menu sentuh cepat.
                         </p>
-                        <div class="pt-1 text-[10px] sm:text-xs space-y-1 font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
+                        <div class="pt-1 text-[11px] sm:text-xs space-y-1 font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
                             <div class="flex items-center gap-1"><i data-lucide="check"
                                     class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Split bill &amp;
                                     meja</span></div>
@@ -681,7 +681,7 @@
                             <i data-lucide="smartphone" class="w-4 h-4 sm:w-6 sm:h-6"></i>
                         </div>
                         <span
-                            class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] block truncate">iPhone
+                            class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] block truncate">iPhone
                             &amp; Android</span>
                         <h3 class="text-sm sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug">Pantau
                             Mobile</h3>
@@ -689,7 +689,7 @@
                             class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
                             Cek omzet toko live dari mana saja. Kamera HP langsung berfungsi sebagai scanner barcode.
                         </p>
-                        <div class="pt-1 text-[10px] sm:text-xs space-y-1 font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
+                        <div class="pt-1 text-[11px] sm:text-xs space-y-1 font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
                             <div class="flex items-center gap-1"><i data-lucide="check"
                                     class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Scan kamera
                                     HP</span></div>
@@ -745,7 +745,7 @@
                             class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/[0.06] dark:border-white/[0.08] pb-4">
                             <div>
                                 <span
-                                    class="text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Simulasi
+                                    class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Simulasi
                                     HPP 3-Pilar</span>
                                 <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5">Komponen Modal
                                     Langsung</h3>
@@ -780,7 +780,7 @@
                                 <input type="range" x-model.number="matCost" min="5000" max="60000"
                                     step="1000" class="w-full accent-[#007AFF] cursor-pointer">
                                 <span
-                                    class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] block truncate">Bahan
+                                    class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Bahan
                                     per porsi</span>
                             </div>
                             <div
@@ -794,7 +794,7 @@
                                 <input type="range" x-model.number="labCost" min="1000" max="30000"
                                     step="500" class="w-full accent-[#007AFF] cursor-pointer">
                                 <span
-                                    class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] block truncate">Upah
+                                    class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Upah
                                     per unit</span>
                             </div>
                             <div
@@ -808,7 +808,7 @@
                                 <input type="range" x-model.number="ovhCost" min="1000" max="25000"
                                     step="500" class="w-full accent-[#007AFF] cursor-pointer">
                                 <span
-                                    class="text-[9px] sm:text-[10px] text-[#6E6E73] dark:text-[#86868B] block truncate">Gas,
+                                    class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Gas,
                                     listrik, operasional</span>
                             </div>
                         </div>
@@ -829,14 +829,14 @@
                             <div
                                 class="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-black/[0.06] dark:border-white/[0.08]">
                                 <div>
-                                    <div class="text-[10px] font-bold uppercase text-[#6E6E73] dark:text-[#86868B]">Total
+                                    <div class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B]">Total
                                         HPP Modal</div>
                                     <div
                                         class="text-base sm:text-lg font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">
                                         Rp <span x-text="hpp.toLocaleString('id-ID')"></span></div>
                                 </div>
                                 <div>
-                                    <div class="text-[10px] font-bold uppercase text-[#34C759] dark:text-[#30D158]">Harga
+                                    <div class="text-xs font-bold uppercase text-[#34C759] dark:text-[#30D158]">Harga
                                         Jual Saran</div>
                                     <div
                                         class="text-xl sm:text-2xl font-extrabold text-[#34C759] dark:text-[#30D158] font-mono">
@@ -864,7 +864,7 @@
                         <div class="space-y-4">
                             <div class="flex items-center justify-between">
                                 <span
-                                    class="text-[10px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">Rekomendasi
+                                    class="text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">Rekomendasi
                                     Real-Time</span>
                                 <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
                             </div>
@@ -1040,13 +1040,13 @@
                                 class="p-4 rounded-[18px] bg-[#34C759]/10 border border-[#34C759]/20 flex items-center justify-between">
                                 <div>
                                     <span
-                                        class="text-[10px] font-bold uppercase text-[#34C759] dark:text-[#30D158] block">WhatsApp
+                                        class="text-xs font-bold uppercase text-[#34C759] dark:text-[#30D158] block">WhatsApp
                                         Resmi</span>
                                     <span
                                         class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm">{{ \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176') }}</span>
                                 </div>
                                 <span
-                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#34C759] text-white text-[10px] font-bold">
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#34C759] text-white text-xs font-bold">
                                     &lt; 5 Menit
                                 </span>
                             </div>
@@ -1055,7 +1055,7 @@
                                 class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between">
                                 <div>
                                     <span
-                                        class="text-[10px] font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Email
+                                        class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Email
                                         Bantuan</span>
                                     <span class="font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">support@cooca.id</span>
                                 </div>

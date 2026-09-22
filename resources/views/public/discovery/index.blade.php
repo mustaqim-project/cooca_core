@@ -144,7 +144,7 @@
                                         </div>
 
                                         <div
-                                            class="flex items-center gap-2 text-[11.5px] text-black/50 dark:text-white/50 mt-0.5">
+                                            class="flex items-center gap-2 text-xs text-black/50 dark:text-white/50 mt-0.5">
                                             @if ($store->industry_category || $store->template_code)
                                                 <span class="font-medium text-[#007AFF] dark:text-[#0A84FF] capitalize">
                                                     {{ str_replace('_', ' ', $store->template_code ?: $store->industry_category) }}
@@ -167,42 +167,42 @@
                                 <div class="flex flex-wrap items-center gap-1.5 pt-1">
                                     @if ($setting?->allow_delivery)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">
                                             <i data-lucide="bike" class="w-2.5 h-2.5"></i>
                                             <span>Kurir Toko</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_pickup)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">
                                             <i data-lucide="store" class="w-2.5 h-2.5"></i>
                                             <span>Ambil di Toko</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_scheduled_order)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]">
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]">
                                             <i data-lucide="calendar-clock" class="w-2.5 h-2.5"></i>
                                             <span>Pre-Order</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_request_order)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400">
                                             <i data-lucide="file-question" class="w-2.5 h-2.5"></i>
                                             <span>Custom Order</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_reservation)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#5856D6]/10 text-[#5856D6]">
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#5856D6]/10 text-[#5856D6]">
                                             <i data-lucide="calendar-check" class="w-2.5 h-2.5"></i>
                                             <span>Reservasi Meja</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_customer_po)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/10 text-purple-600">
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-600">
                                             <i data-lucide="truck" class="w-2.5 h-2.5"></i>
                                             <span>PO Batch B2B</span>
                                         </span>
@@ -213,7 +213,7 @@
                             <!-- Card Footer: Stats & CTA -->
                             <div
                                 class="pt-5 mt-5 border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
-                                <div class="text-[11.5px] text-black/50 dark:text-white/50">
+                                <div class="text-xs text-black/50 dark:text-white/50">
                                     <span class="font-bold text-black dark:text-white">{{ $store->products_count }}</span>
                                     Produk Aktif
                                 </div>

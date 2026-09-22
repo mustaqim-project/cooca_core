@@ -40,7 +40,7 @@
                                 <i data-lucide="layers" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                             </div>
                             <span
-                                class="px-2.5 sm:px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1">
+                                class="px-2.5 sm:px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1">
                                 <i data-lucide="star" class="w-3 h-3"></i>
                                 <span>Paling Populer • 3-Pilar</span>
                             </span>
@@ -58,7 +58,7 @@
 
                         <!-- Apple Inset Formula Pill -->
                         <div
-                            class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs font-mono text-[#6E6E73] dark:text-[#86868B]">
+                            class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-mono text-[#6E6E73] dark:text-[#86868B]">
                             <span>[Bahan] + [Tenaga Kerja] + [Overhead]</span>
                             <span class="font-bold text-[#007AFF] dark:text-[#0A84FF]">= HPP Murni</span>
                         </div>
@@ -81,18 +81,18 @@
                                 <i data-lucide="scale" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] px-2 py-0.5 rounded-full bg-[#34C759]/10">Titik
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] px-2 py-0.5 rounded-full bg-[#34C759]/10">Titik
                                 Impas</span>
                         </div>
                         <div>
                             <h2
                                 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#34C759] dark:group-hover:text-[#30D158] transition-colors leading-snug">
                                 Kalkulator BEP</h2>
-                            <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
+                            <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
                                 Target unit &amp; omzet impas anti-rugi.</p>
                         </div>
                         <div
-                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#34C759] dark:text-[#30D158] font-semibold text-center truncate">
+                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-xs font-mono text-[#34C759] dark:text-[#30D158] font-semibold text-center truncate">
                             Unit &amp; Rupiah
                         </div>
                     </div>
@@ -113,17 +113,17 @@
                                 <i data-lucide="tag" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] px-2 py-0.5 rounded-full bg-[#FF9500]/10">Margin</span>
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] px-2 py-0.5 rounded-full bg-[#FF9500]/10">Margin</span>
                         </div>
                         <div>
                             <h2
                                 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#FF9500] dark:group-hover:text-[#FF9F0A] transition-colors leading-snug">
                                 Harga Jual</h2>
-                            <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
+                            <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
                                 Perbandingan markup vs margin kotor.</p>
                         </div>
                         <div
-                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#FF9500] dark:text-[#FF9F0A] font-semibold text-center truncate">
+                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-xs font-mono text-[#FF9500] dark:text-[#FF9F0A] font-semibold text-center truncate">
                             Markup vs Margin
                         </div>
                     </div>
@@ -144,7 +144,7 @@
                                 <i data-lucide="pie-chart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                             </div>
                             <span
-                                class="px-2.5 sm:px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                                class="px-2.5 sm:px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-[11px] sm:text-xs font-bold uppercase tracking-wider">
                                 Waterfall Finansial
                             </span>
                         </div>
@@ -162,7 +162,7 @@
 
                         <!-- Apple Inset Waterfall Pill -->
                         <div
-                            class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs font-mono text-[#6E6E73] dark:text-[#86868B]">
+                            class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-mono text-[#6E6E73] dark:text-[#86868B]">
                             <span>Omzet - HPP - Operasional - Pajak</span>
                             <span class="font-bold text-[#34C759] dark:text-[#30D158]">= Net Profit</span>
                         </div>
@@ -185,17 +185,17 @@
                                 <i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">Payroll</span>
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">Payroll</span>
                         </div>
                         <div>
                             <h2
                                 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
                                 Gaji Karyawan</h2>
-                            <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">Upah
+                            <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">Upah
                                 harian, bulanan &amp; tunjangan.</p>
                         </div>
                         <div
-                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#007AFF] dark:text-[#0A84FF] font-semibold text-center truncate">
+                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-xs font-mono text-[#007AFF] dark:text-[#0A84FF] font-semibold text-center truncate">
                             Lembur &amp; Bonus
                         </div>
                     </div>
@@ -216,18 +216,18 @@
                                 <i data-lucide="receipt" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FF3B30] dark:text-[#FF453A] px-2 py-0.5 rounded-full bg-[#FF3B30]/10">PP
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF3B30] dark:text-[#FF453A] px-2 py-0.5 rounded-full bg-[#FF3B30]/10">PP
                                 55</span>
                         </div>
                         <div>
                             <h2
                                 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#FF3B30] dark:group-hover:text-[#FF453A] transition-colors leading-snug">
                                 PPh Final 0.5%</h2>
-                            <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
+                            <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
                                 Pajak UMKM dengan batas 500 juta.</p>
                         </div>
                         <div
-                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#FF3B30] dark:text-[#FF453A] font-semibold text-center truncate">
+                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-xs font-mono text-[#FF3B30] dark:text-[#FF453A] font-semibold text-center truncate">
                             Bebas &lt; 500Jt
                         </div>
                     </div>
@@ -248,17 +248,17 @@
                                 <i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">Target</span>
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">Target</span>
                         </div>
                         <div>
                             <h2
                                 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
                                 Omzet Harian</h2>
-                            <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
+                            <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
                                 Target transaksi harian &amp; struk kasir.</p>
                         </div>
                         <div
-                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#007AFF] dark:text-[#0A84FF] font-semibold text-center truncate">
+                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-xs font-mono text-[#007AFF] dark:text-[#0A84FF] font-semibold text-center truncate">
                             AOV &amp; Struk
                         </div>
                     </div>
@@ -280,18 +280,18 @@
                                 <i data-lucide="sparkles" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             </div>
                             <span
-                                class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">AI
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2 py-0.5 rounded-full bg-[#007AFF]/10">AI
                                 Tool</span>
                         </div>
                         <div>
                             <h2
                                 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
                                 Simulasi What-If</h2>
-                            <p class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
+                            <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 hidden sm:block">
                                 Dampak kenaikan bahan baku terhadap laba.</p>
                         </div>
                         <div
-                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-[10px] font-mono text-[#007AFF] dark:text-[#0A84FF] font-semibold text-center truncate">
+                            class="p-2 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.04] text-xs font-mono text-[#007AFF] dark:text-[#0A84FF] font-semibold text-center truncate">
                             Sensitivitas Biaya
                         </div>
                     </div>

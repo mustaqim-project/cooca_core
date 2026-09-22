@@ -42,12 +42,12 @@
                                             <i data-lucide="file-spreadsheet" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                                         </div>
                                         <span
-                                            class="px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]">
+                                            class="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]">
                                             {{ $tpl['category'] }} • Rekomendasi Utama
                                         </span>
                                     </div>
                                     <span
-                                        class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] font-mono px-2.5 py-1 rounded-full bg-black/[0.03] dark:bg-white/[0.05]">{{ $tpl['format'] }}</span>
+                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] font-mono px-2.5 py-1 rounded-full bg-black/[0.03] dark:bg-white/[0.05]">{{ $tpl['format'] }}</span>
                                 </div>
 
                                 <div>
@@ -95,11 +95,11 @@
                             <div class="space-y-2.5 sm:space-y-4">
                                 <div class="flex items-center justify-between">
                                     <span
-                                        class="px-2 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] truncate max-w-[100px] sm:max-w-none">
+                                        class="px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] truncate max-w-[100px] sm:max-w-none">
                                         {{ $tpl['category'] }}
                                     </span>
                                     <span
-                                        class="text-[10px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] font-mono px-2 py-0.5 rounded-full bg-black/[0.03] dark:bg-white/[0.05]">{{ $tpl['format'] }}</span>
+                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] font-mono px-2 py-0.5 rounded-full bg-black/[0.03] dark:bg-white/[0.05]">{{ $tpl['format'] }}</span>
                                 </div>
 
                                 <div>
@@ -130,7 +130,7 @@
                             <div
                                 class="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between">
                                 <span
-                                    class="text-[10px] sm:text-xs font-bold text-[#34C759] dark:text-[#30D158] hidden sm:inline">Gratis</span>
+                                    class="text-[11px] sm:text-xs font-bold text-[#34C759] dark:text-[#30D158] hidden sm:inline">Gratis</span>
                                 <a href="{{ route('template.show', $tpl['slug']) }}"
                                     class="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-[11px] sm:text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
                                     <span>Download</span>
