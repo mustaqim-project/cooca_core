@@ -144,7 +144,7 @@
                                 <i data-lucide="pie-chart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                             </div>
                             <span
-                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">>
+                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
                                 Waterfall Finansial
                             </span>
                         </div>

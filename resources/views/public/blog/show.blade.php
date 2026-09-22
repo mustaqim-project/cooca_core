@@ -49,7 +49,7 @@
             <header class="space-y-4">
                 <div class="flex items-center gap-3">
                     <span
-                        class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider {{ $post->cluster === 'tutorial' ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' : 'bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]' }}">
+                        class="text-xs font-bold uppercase tracking-wider {{ $post->cluster === 'tutorial' ? 'text-[#34C759] dark:text-[#30D158]' : 'text-[#007AFF] dark:text-[#0A84FF]' }}">
                         {{ $post->category }}
                     </span>
                     <span class="text-xs text-[#6E6E73] dark:text-[#86868B] font-mono">{{ $post->read_time }} menit

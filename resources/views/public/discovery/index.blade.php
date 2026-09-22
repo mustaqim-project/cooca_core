@@ -13,7 +13,7 @@
             <!-- ═══ HERO & SEARCH SECTION ═══ -->
             <div class="text-center max-w-3xl mx-auto space-y-4">
                 <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-bold text-xs">
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                     <i data-lucide="compass" class="w-4 h-4"></i>
                     <span>Direktori Terverifikasi Cooca</span>
                 </div>
@@ -35,13 +35,13 @@
                         <input type="hidden" name="fitur" value="{{ $capability }}">
                     @endif
                     <div
-                        class="relative flex items-center bg-white dark:bg-[#1C1C1E] rounded-full shadow-lg border border-black/10 dark:border-white/15 p-1.5 focus-within:ring-2 focus-within:ring-[#007AFF] transition">
+                        class="relative flex items-center bg-white dark:bg-[#1C1C1E] rounded-[16px] shadow-lg border border-black/10 dark:border-white/15 p-1.5 focus-within:ring-2 focus-within:ring-[#007AFF] transition">
                         <i data-lucide="search" class="w-5 h-5 ml-3.5 text-black/40 dark:text-white/40 shrink-0"></i>
                         <input type="text" name="q" value="{{ $search }}"
                             placeholder="Cari nama toko, menu makanan, busana, atau kota..."
-                            class="w-full bg-transparent border-0 px-3 py-2 text-sm text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none">
+                            class="w-full bg-transparent border-0 px-3 py-2 text-[16px] sm:text-sm text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none">
                         <button type="submit"
-                            class="shrink-0 px-5 py-2.5 rounded-full bg-[#007AFF] hover:bg-[#0066CC] text-white text-xs font-semibold shadow-md active:scale-95 transition">
+                            class="shrink-0 px-5 py-2.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0066CC] text-white text-xs font-semibold shadow-md active:scale-95 transition">
                             Cari Toko
                         </button>
                     </div>
@@ -53,12 +53,12 @@
                 <!-- Category Pills -->
                 <div class="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
                     <a href="{{ route('public.discovery.index', array_filter(['q' => $search, 'fitur' => $capability])) }}"
-                        class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition {{ empty($category) || $category === 'all' ? 'bg-[#1D1D1F] dark:bg-white text-white dark:text-black shadow-sm' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10' }}">
+                        class="px-4 py-2 rounded-[10px] text-xs font-semibold whitespace-nowrap transition {{ empty($category) || $category === 'all' ? 'bg-[#1D1D1F] dark:bg-white text-white dark:text-black shadow-sm' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10' }}">
                         Semua Toko ({{ $totalStores }})
                     </a>
                     @foreach ($categories as $key => $cat)
                         <a href="{{ route('public.discovery.index', array_filter(['kategori' => $key, 'q' => $search, 'fitur' => $capability])) }}"
-                            class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 {{ $category === $key ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10' }}">
+                            class="px-4 py-2 rounded-[10px] text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 {{ $category === $key ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10' }}">
                             <i data-lucide="{{ $cat['icon'] }}" class="w-3.5 h-3.5"></i>
                             <span>{{ $cat['label'] }} ({{ $cat['count'] }})</span>
                         </a>
@@ -80,7 +80,7 @@
                     @endphp
                     @foreach ($capabilities as $capKey => $cap)
                         <a href="{{ route('public.discovery.index', array_filter(['fitur' => $capability === $capKey ? null : $capKey, 'kategori' => $category, 'q' => $search])) }}"
-                            class="px-2.5 py-1 rounded-full border transition flex items-center gap-1 whitespace-nowrap {{ $capability === $capKey ? 'bg-[#34C759]/15 border-[#34C759] text-[#248A3D] dark:text-[#30D158] font-bold' : 'border-black/10 dark:border-white/10 text-black/60 dark:text-white/60 hover:border-black/20' }}">
+                            class="px-2.5 py-1 rounded-[10px] border transition flex items-center gap-1 whitespace-nowrap {{ $capability === $capKey ? 'bg-[#34C759]/15 border-[#34C759] text-[#248A3D] dark:text-[#30D158] font-bold' : 'border-black/10 dark:border-white/10 text-black/60 dark:text-white/60 hover:border-black/20' }}">
                             <i data-lucide="{{ $cap['icon'] }}" class="w-3 h-3"></i>
                             <span>{{ $cap['label'] }}</span>
                         </a>
@@ -103,7 +103,7 @@
                     </p>
                     <div class="pt-2">
                         <a href="{{ route('public.discovery.index') }}"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] text-white text-xs font-semibold hover:bg-[#0066CC] transition">
+                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-[12px] bg-[#007AFF] text-white text-xs font-semibold hover:bg-[#0066CC] transition">
                             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                             <span>Reset Semua Filter</span>
                         </a>
@@ -167,42 +167,42 @@
                                 <div class="flex flex-wrap items-center gap-1.5 pt-1">
                                     @if ($setting?->allow_delivery)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">
+                                            class="inline-flex items-center gap-1 text-xs font-semibold text-[#248A3D] dark:text-[#30D158]">
                                             <i data-lucide="bike" class="w-2.5 h-2.5"></i>
                                             <span>Kurir Toko</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_pickup)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">
+                                            class="inline-flex items-center gap-1 text-xs font-semibold text-black/60 dark:text-white/60">
                                             <i data-lucide="store" class="w-2.5 h-2.5"></i>
                                             <span>Ambil di Toko</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_scheduled_order)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]">
+                                            class="inline-flex items-center gap-1 text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
                                             <i data-lucide="calendar-clock" class="w-2.5 h-2.5"></i>
                                             <span>Pre-Order</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_request_order)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                            class="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
                                             <i data-lucide="file-question" class="w-2.5 h-2.5"></i>
                                             <span>Custom Order</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_reservation)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#5856D6]/10 text-[#5856D6]">
+                                            class="inline-flex items-center gap-1 text-xs font-semibold text-[#5856D6]">
                                             <i data-lucide="calendar-check" class="w-2.5 h-2.5"></i>
                                             <span>Reservasi Meja</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_customer_po)
                                         <span
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-600">
+                                            class="inline-flex items-center gap-1 text-xs font-semibold text-purple-600">
                                             <i data-lucide="truck" class="w-2.5 h-2.5"></i>
                                             <span>PO Batch B2B</span>
                                         </span>
@@ -219,7 +219,7 @@
                                 </div>
 
                                 <a href="{{ $storeUrl }}"
-                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] group-hover:bg-[#0066CC] text-white text-xs font-semibold shadow-sm transition active:scale-95">
+                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-[12px] bg-[#007AFF] group-hover:bg-[#0066CC] text-white text-xs font-semibold shadow-sm transition active:scale-95">
                                     <span>Kunjungi Toko</span>
                                     <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                                 </a>
@@ -247,7 +247,7 @@
                     </p>
                 </div>
                 <a href="{{ route('register') }}"
-                    class="px-6 py-3 rounded-full bg-[#007AFF] hover:bg-[#0066CC] text-white text-xs sm:text-sm font-semibold shadow-lg shrink-0 transition active:scale-95">
+                    class="px-6 py-3 rounded-[14px] bg-[#007AFF] hover:bg-[#0066CC] text-white text-xs sm:text-sm font-semibold shadow-lg shrink-0 transition active:scale-95">
                     Buka Toko Gratis Sekarang
                 </a>
             </div>

@@ -26,7 +26,7 @@
                 <div class="lg:col-span-7 space-y-6">
                     <div class="space-y-3">
                         <div
-                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]">
+                            class="text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] inline-flex items-center gap-1.5">
                             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                             <span>{{ $template['category'] }} • 100% Gratis</span>
                         </div>

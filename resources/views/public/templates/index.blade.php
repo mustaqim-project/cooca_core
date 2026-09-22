@@ -12,11 +12,11 @@
 
             <!-- Header -->
             <div class="text-center max-w-3xl mx-auto space-y-3">
-                <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] font-bold text-xs">
-                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                <span
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
+                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
                     <span>Free Downloadable Resources</span>
-                </div>
+                </span>
                 <h1
                     class="text-3xl sm:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-tight">
                     Template &amp; Format Excel <span class="text-[#007AFF] dark:text-[#0A84FF]">Gratis untuk UMKM</span>
@@ -42,12 +42,12 @@
                                             <i data-lucide="file-spreadsheet" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                                         </div>
                                         <span
-                                            class="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]">
+                                            class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">
                                             {{ $tpl['category'] }} • Rekomendasi Utama
                                         </span>
                                     </div>
                                     <span
-                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] font-mono px-2.5 py-1 rounded-full bg-black/[0.03] dark:bg-white/[0.05]">{{ $tpl['format'] }}</span>
+                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] font-mono">{{ $tpl['format'] }}</span>
                                 </div>
 
                                 <div>
@@ -95,11 +95,11 @@
                             <div class="space-y-2.5 sm:space-y-4">
                                 <div class="flex items-center justify-between">
                                     <span
-                                        class="px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] truncate max-w-[100px] sm:max-w-none">
+                                        class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] truncate max-w-[100px] sm:max-w-none">
                                         {{ $tpl['category'] }}
                                     </span>
                                     <span
-                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] font-mono px-2 py-0.5 rounded-full bg-black/[0.03] dark:bg-white/[0.05]">{{ $tpl['format'] }}</span>
+                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] font-mono">{{ $tpl['format'] }}</span>
                                 </div>
 
                                 <div>
@@ -146,11 +146,11 @@
             <div
                 class="p-8 sm:p-12 rounded-[28px] bg-[#161618] border border-white/[0.08] text-white flex flex-col lg:flex-row items-center justify-between gap-8 shadow-sm">
                 <div class="space-y-3 max-w-xl text-center lg:text-left">
-                    <div
-                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.08] text-[#0A84FF] text-xs font-semibold">
+                    <span
+                        class="text-xs font-semibold uppercase tracking-wider text-[#86868B] inline-flex items-center gap-1.5">
                         <i data-lucide="zap" class="w-3.5 h-3.5"></i>
                         <span>Solusi Otomatisasi Cloud</span>
-                    </div>
+                    </span>
                     <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Ingin Pencatatan Tanpa Input
                         Manual di Excel?</h3>
                     <p class="text-xs sm:text-sm text-[#86868B] leading-relaxed">

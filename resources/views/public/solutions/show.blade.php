@@ -22,7 +22,7 @@
             <!-- Hero Section -->
             <div class="max-w-3xl space-y-4">
                 <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-bold text-xs">
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
                     <i data-lucide="store" class="w-4 h-4"></i>
                     <span>{{ $solution['badge'] }}</span>
                 </div>
@@ -144,7 +144,7 @@
             <div
                 class="p-8 sm:p-12 rounded-[28px] bg-[#161618] border border-white/[0.08] text-white text-center space-y-5 shadow-sm">
                 <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.08] text-[#0A84FF] text-xs font-semibold mx-auto">
+                    class="text-xs font-semibold uppercase tracking-wider text-[#86868B] inline-flex items-center gap-1.5 mx-auto">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                     <span>Semua Fitur Tersedia 100% Gratis</span>
                 </div>

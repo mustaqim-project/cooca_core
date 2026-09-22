@@ -14,11 +14,11 @@
 
             <!-- Header -->
             <div class="text-center max-w-3xl mx-auto space-y-3">
-                <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-bold text-xs">
-                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span
+                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
                     <span>Knowledge Base &amp; Tutorials</span>
-                </div>
+                </span>
                 <h1
                     class="text-3xl sm:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-tight">
                     Pusat Edukasi &amp; <span class="text-[#007AFF] dark:text-[#0A84FF]">Panduan Bisnis UMKM</span>
@@ -71,7 +71,7 @@
                         <div class="lg:col-span-7 space-y-4">
                             <div class="flex items-center gap-3">
                                 <span
-                                    class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider {{ $featuredPost->cluster === 'tutorial' ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' : 'bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]' }}">
+                                    class="text-xs font-bold uppercase tracking-wider {{ $featuredPost->cluster === 'tutorial' ? 'text-[#34C759] dark:text-[#30D158]' : 'text-[#007AFF] dark:text-[#0A84FF]' }}">
                                     {{ $featuredPost->category }}
                                 </span>
                                 <span
