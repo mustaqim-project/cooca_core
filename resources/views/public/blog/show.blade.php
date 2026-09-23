@@ -36,9 +36,11 @@
 
             <!-- Breadcrumbs (Apple HIG Inset Style) -->
             <nav class="flex items-center gap-2 text-xs text-[#6E6E73] dark:text-[#86868B]">
-                <a href="{{ route('landing') }}" class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Beranda</a>
+                <a href="{{ route('landing') }}"
+                    class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Beranda</a>
                 <span>/</span>
-                <a href="{{ route('blog.index') }}" class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Blog & Panduan</a>
+                <a href="{{ route('blog.index') }}"
+                    class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Blog & Panduan</a>
                 <span>/</span>
                 <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold">{{ $post->category }}</span>
             </nav>
@@ -46,47 +48,60 @@
             <!-- Article Header -->
             <header class="space-y-5">
                 <div class="flex items-center gap-3">
-                    <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md {{ $post->cluster === 'tutorial' ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#007AFF]/10 text-[#007AFF]' }}">
+                    <span
+                        class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md {{ $post->cluster === 'tutorial' ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#007AFF]/10 text-[#007AFF]' }}">
                         {{ $post->category }}
                     </span>
-                    <span class="text-xs text-[#6E6E73] dark:text-[#86868B] font-mono">{{ $post->read_time }} menit baca</span>
+                    <span class="text-xs text-[#6E6E73] dark:text-[#86868B] font-mono">{{ $post->read_time }} menit
+                        baca</span>
                     <span class="text-xs text-[#6E6E73] dark:text-[#86868B]">•</span>
-                    <span class="text-xs text-[#6E6E73] dark:text-[#86868B] font-mono">{{ $post->published_at ? $post->published_at->format('d M Y') : '' }}</span>
+                    <span
+                        class="text-xs text-[#6E6E73] dark:text-[#86868B] font-mono">{{ $post->published_at ? $post->published_at->format('d M Y') : '' }}</span>
                 </div>
 
-                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] leading-tight tracking-tight">
+                <h1
+                    class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] leading-tight tracking-tight">
                     {{ $post->title }}
                 </h1>
 
-                <div class="flex items-center gap-3 pt-4 text-xs text-[#6E6E73] dark:text-[#86868B] border-t border-black/[0.06] dark:border-white/[0.08]">
-                    <div class="w-9 h-9 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold text-sm">
+                <div
+                    class="flex items-center gap-3 pt-4 text-xs text-[#6E6E73] dark:text-[#86868B] border-t border-black/[0.06] dark:border-white/[0.08]">
+                    <div
+                        class="w-9 h-9 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold text-sm">
                         {{ substr($post->author_name, 0, 1) }}
                     </div>
                     <div>
-                        <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm block">{{ $post->author_name }}</span>
-                        <span class="text-xs text-[#6E6E73] dark:text-[#86868B]">Diverifikasi Tim Spesialis Finansial COOCA</span>
+                        <span
+                            class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm block">{{ $post->author_name }}</span>
+                        <span class="text-xs text-[#6E6E73] dark:text-[#86868B]">Diverifikasi Tim Spesialis Finansial
+                            COOCA</span>
                     </div>
                 </div>
             </header>
 
             <!-- Featured Image -->
             @if ($post->cover_image)
-                <div class="rounded-[24px] overflow-hidden max-h-[420px] w-full relative border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
+                <div
+                    class="rounded-[24px] overflow-hidden max-h-[420px] w-full relative border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
                     <img src="{{ $post->cover_image }}" alt="{{ $post->title }}" class="w-full h-full object-cover">
                 </div>
             @endif
 
             <!-- Article Body with comfortable reading typography for 40-65 -->
-            <div class="bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/[0.08] dark:border-white/[0.1] p-6 sm:p-10 shadow-sm">
-                <div class="prose max-w-none text-[#1D1D1F] dark:text-[#F5F5F7] dark:prose-invert prose-headings:font-bold prose-headings:text-[#1D1D1F] dark:prose-headings:text-[#F5F5F7] prose-a:text-[#007AFF] dark:prose-a:text-[#0A84FF] text-base sm:text-lg leading-relaxed space-y-6">
+            <div
+                class="bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/[0.08] dark:border-white/[0.1] p-6 sm:p-10 shadow-sm">
+                <div
+                    class="prose max-w-none text-[#1D1D1F] dark:text-[#F5F5F7] dark:prose-invert prose-headings:font-bold prose-headings:text-[#1D1D1F] dark:prose-headings:text-[#F5F5F7] prose-a:text-[#007AFF] dark:prose-a:text-[#0A84FF] text-base sm:text-lg leading-relaxed space-y-6">
                     {!! $post->content !!}
                 </div>
             </div>
 
             <!-- Share & Conversion Banner (Apple Inset Enterprise Card) -->
-            <section class="p-8 sm:p-10 rounded-[24px] bg-[#161618] border border-white/[0.08] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+            <section
+                class="p-8 sm:p-10 rounded-[24px] bg-[#161618] border border-white/[0.08] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
                 <div class="space-y-2 text-center sm:text-left">
-                    <div class="text-xs font-semibold uppercase tracking-wider text-[#34C759] flex items-center gap-1.5 justify-center sm:justify-start">
+                    <div
+                        class="text-xs font-semibold uppercase tracking-wider text-[#34C759] flex items-center gap-1.5 justify-center sm:justify-start">
                         <i data-lucide="shield-check" class="w-4 h-4"></i>
                         <span>100% Gratis Selamanya Tanpa Biaya</span>
                     </div>
@@ -94,7 +109,8 @@
                         Mulai Otomatiskan Pembukuan Usaha Anda
                     </h3>
                     <p class="text-sm text-[#86868B] max-w-md leading-relaxed">
-                        Nikmati software kasir, pencatatan otomatis transaksi, kalkulator HPP akurat, dan cetak struk dari HP tanpa biaya langganan bulanan.
+                        Nikmati software kasir, pencatatan otomatis transaksi, kalkulator HPP akurat, dan cetak struk dari
+                        HP tanpa biaya langganan bulanan.
                     </p>
                 </div>
                 <a href="{{ route('register') }}"
@@ -113,14 +129,18 @@
                             <a href="{{ route('blog.show', $rel->slug) }}"
                                 class="bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-6 rounded-[20px] group flex flex-col justify-between shadow-sm hover:border-[#007AFF]/30 transition-all">
                                 <div class="space-y-2">
-                                    <span class="text-xs font-bold text-[#007AFF] dark:text-[#0A84FF] uppercase">{{ $rel->category }}</span>
-                                    <h4 class="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] transition-colors leading-snug">
+                                    <span
+                                        class="text-xs font-bold text-[#007AFF] dark:text-[#0A84FF] uppercase">{{ $rel->category }}</span>
+                                    <h4
+                                        class="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] transition-colors leading-snug">
                                         {{ $rel->title }}
                                     </h4>
                                 </div>
-                                <span class="text-xs text-[#007AFF] dark:text-[#0A84FF] font-semibold mt-4 flex items-center gap-1.5">
+                                <span
+                                    class="text-xs text-[#007AFF] dark:text-[#0A84FF] font-semibold mt-4 flex items-center gap-1.5">
                                     <span>Baca Panduan</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"></i>
+                                    <i data-lucide="arrow-right"
+                                        class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"></i>
                                 </span>
                             </a>
                         @endforeach
@@ -131,4 +151,3 @@
         </div>
     </div>
 @endsection
-

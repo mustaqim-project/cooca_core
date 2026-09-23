@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Kalkulator Gaji Karyawan UMKM & Upah Harian Online | Cooca')
-@section('description', 'Kalkulator penghitungan gaji staf dan karyawan UMKM online. Hitung gaji pokok harian/bulanan,
+@section('description',
+    'Kalkulator penghitungan gaji staf dan karyawan UMKM online. Hitung gaji pokok harian/bulanan,
     tunjangan makan, uang lembur, dan potongan kasbon secara transparan.')
-@section('keywords', 'kalkulator gaji karyawan, hitung upah harian umkm, rumus lembur karyawan toko, payroll sederhana
+@section('keywords',
+    'kalkulator gaji karyawan, hitung upah harian umkm, rumus lembur karyawan toko, payroll sederhana
     excel, slip gaji online')
 
 @section('content')
@@ -21,100 +23,112 @@
                 <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold">Kalkulator Gaji Karyawan</span>
             </nav>
 
-        <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
-            <!-- KIRI: Headline & Penjelasan (7 Cols) -->
-            <div class="lg:col-span-7 space-y-5 text-left">
-                <div class="space-y-2">
-                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                        Payroll &amp; Upah Staf UMKM
+            <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+
+                <!-- KIRI: Headline & Penjelasan (7 Cols) -->
+                <div class="lg:col-span-7 space-y-5 text-left">
+                    <div class="space-y-2">
+                        <p
+                            class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            Payroll &amp; Upah Staf UMKM
+                        </p>
+                        <h1
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            Kalkulator Gaji &amp; <span class="text-[#007AFF] dark:text-[#0A84FF]">Upah Karyawan</span>
+                        </h1>
+                    </div>
+
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                        Hitung rincian gaji bersih (take-home pay) staf toko, barista kafe, kasir, atau montir bengkel Anda
+                        secara adil, rapi, dan bebas sengketa.
                     </p>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
-                        Kalkulator Gaji &amp; <span class="text-[#007AFF] dark:text-[#0A84FF]">Upah Karyawan</span>
-                    </h1>
+
+                    <!-- Reassurance Points for UMKM 40-65 -->
+                    <div
+                        class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Gaji Pokok Harian / Bulanan</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Hitung Lembur &amp; Tunjangan Kehadiran</span>
+                        </div>
+                    </div>
                 </div>
 
-                <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
-                    Hitung rincian gaji bersih (take-home pay) staf toko, barista kafe, kasir, atau montir bengkel Anda secara adil, rapi, dan bebas sengketa.
-                </p>
+                <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
+                <div class="lg:col-span-5">
+                    <div
+                        class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
+                        <div
+                            class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                            </div>
+                            <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Komponen
+                                Penggajian</span>
+                            <div class="w-6"></div>
+                        </div>
 
-                <!-- Reassurance Points for UMKM 40-65 -->
-                <div class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Gaji Pokok Harian / Bulanan</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Hitung Lembur &amp; Tunjangan Kehadiran</span>
+                        <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Gaji Pokok Dasar</span>
+                                <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Upah Tetap</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Tunjangan Makan &amp; Transport</span>
+                                <span class="font-mono font-bold text-[#34C759] dark:text-[#30D158]">+ Tunjangan</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Uang Lembur &amp; Bonus Target</span>
+                                <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A]">+ Lembur</span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
+                            <span class="text-[#6E6E73] dark:text-[#86868B]">Total Diterima:</span>
+                            <span class="font-bold text-[#34C759] dark:text-[#30D158]">= Take Home Pay</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
-            <div class="lg:col-span-5">
-                <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
-                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
-                        </div>
-                        <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Komponen Penggajian</span>
-                        <div class="w-6"></div>
-                    </div>
+            </section>
 
-                    <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Gaji Pokok Dasar</span>
-                            <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Upah Tetap</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Tunjangan Makan &amp; Transport</span>
-                            <span class="font-mono font-bold text-[#34C759] dark:text-[#30D158]">+ Tunjangan</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Uang Lembur &amp; Bonus Target</span>
-                            <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A]">+ Lembur</span>
-                        </div>
-                    </div>
-
-                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
-                        <span class="text-[#6E6E73] dark:text-[#86868B]">Total Diterima:</span>
-                        <span class="font-bold text-[#34C759] dark:text-[#30D158]">= Take Home Pay</span>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
-        <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]" x-data="{
-                wageType: 'monthly',
-                baseWage: 2500000,
-                workingDays: 26,
-                allowance: 300000,
-                overtimeHours: 8,
-                overtimeRate: 20000,
-                deductions: 100000,
-            
-                get totalBase() {
-                    if (this.wageType === 'daily') {
-                        return (parseFloat(this.baseWage) || 0) * (parseInt(this.workingDays) || 0);
+            <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
+            <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]"
+                x-data="{
+                    wageType: 'monthly',
+                    baseWage: 2500000,
+                    workingDays: 26,
+                    allowance: 300000,
+                    overtimeHours: 8,
+                    overtimeRate: 20000,
+                    deductions: 100000,
+                
+                    get totalBase() {
+                        if (this.wageType === 'daily') {
+                            return (parseFloat(this.baseWage) || 0) * (parseInt(this.workingDays) || 0);
+                        }
+                        return parseFloat(this.baseWage) || 0;
+                    },
+                    get totalOvertime() {
+                        return (parseFloat(this.overtimeHours) || 0) * (parseFloat(this.overtimeRate) || 0);
+                    },
+                    get grossSalary() {
+                        return this.totalBase + (parseFloat(this.allowance) || 0) + this.totalOvertime;
+                    },
+                    get netSalary() {
+                        return Math.max(0, this.grossSalary - (parseFloat(this.deductions) || 0));
                     }
-                    return parseFloat(this.baseWage) || 0;
-                },
-                get totalOvertime() {
-                    return (parseFloat(this.overtimeHours) || 0) * (parseFloat(this.overtimeRate) || 0);
-                },
-                get grossSalary() {
-                    return this.totalBase + (parseFloat(this.allowance) || 0) + this.totalOvertime;
-                },
-                get netSalary() {
-                    return Math.max(0, this.grossSalary - (parseFloat(this.deductions) || 0));
-                }
-            }">
+                }">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <!-- Left: Apple Inset Input Controls (7 Kolom) -->
                     <div class="lg:col-span-7 space-y-4">

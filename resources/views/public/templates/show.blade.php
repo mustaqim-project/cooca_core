@@ -2,7 +2,8 @@
 
 @section('title', 'Download Gratis: ' . $template['name'] . ' | Cooca')
 @section('description', 'Download gratis ' . $template['name'] . '. ' . $template['description'])
-@section('keywords', strtolower($template['name']) . ', download excel umkm, template gratis pembukuan toko, format laporan usaha excel')
+@section('keywords', strtolower($template['name']) . ', download excel umkm, template gratis pembukuan toko, format
+    laporan usaha excel')
 
 @section('content')
     <div class="pt-6 sm:pt-10 pb-24 bg-[#F5F5F7] dark:bg-[#000000] min-h-screen">
@@ -10,9 +11,11 @@
 
             <!-- Breadcrumbs (Apple HIG Inset Style) -->
             <nav class="flex items-center gap-2 text-xs text-[#6E6E73] dark:text-[#86868B]">
-                <a href="{{ route('landing') }}" class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Beranda</a>
+                <a href="{{ route('landing') }}"
+                    class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Beranda</a>
                 <span>/</span>
-                <a href="{{ route('template.index') }}" class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Template Gratis</a>
+                <a href="{{ route('template.index') }}"
+                    class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Template Gratis</a>
                 <span>/</span>
                 <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold">{{ $template['name'] }}</span>
             </nav>
@@ -23,11 +26,13 @@
                 <!-- Left: Description & Highlights (7 Cols) -->
                 <div class="lg:col-span-7 space-y-6">
                     <div class="space-y-4">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.1] text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.1] text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
                             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
                             <span>{{ $template['category'] }} • 100% Bebas Biaya</span>
                         </div>
-                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] leading-tight tracking-tight">
+                        <h1
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] leading-tight tracking-tight">
                             {{ $template['name'] }}
                         </h1>
                         <p class="text-base sm:text-lg text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
@@ -37,7 +42,8 @@
 
                     <!-- Feature List (Apple Inset Box) -->
                     @if (!empty($template['highlights']))
-                        <div class="p-6 sm:p-7 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] space-y-4 shadow-sm">
+                        <div
+                            class="p-6 sm:p-7 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] space-y-4 shadow-sm">
                             <h2 class="text-xs font-bold uppercase tracking-wider text-[#1D1D1F] dark:text-[#F5F5F7]">
                                 Keunggulan Formula Dalam Template Ini:
                             </h2>
@@ -53,13 +59,17 @@
                     @endif
 
                     <!-- Trust Signal Inset Box -->
-                    <div class="p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-xs text-[#6E6E73] dark:text-[#86868B] flex items-center gap-3.5 shadow-sm">
-                        <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
+                    <div
+                        class="p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-xs text-[#6E6E73] dark:text-[#86868B] flex items-center gap-3.5 shadow-sm">
+                        <div
+                            class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
                             <i data-lucide="shield-check" class="w-5 h-5"></i>
                         </div>
                         <div class="space-y-0.5">
-                            <span class="font-bold text-sm text-[#1D1D1F] dark:text-[#F5F5F7] block">Aman &amp; Kompatibel Penuh</span>
-                            <span class="text-xs">Kompatibel dengan Microsoft Excel 2013+, Google Sheets, dan WPS Office tanpa macro VBA berbahaya.</span>
+                            <span class="font-bold text-sm text-[#1D1D1F] dark:text-[#F5F5F7] block">Aman &amp; Kompatibel
+                                Penuh</span>
+                            <span class="text-xs">Kompatibel dengan Microsoft Excel 2013+, Google Sheets, dan WPS Office
+                                tanpa macro VBA berbahaya.</span>
                         </div>
                     </div>
                 </div>
@@ -123,7 +133,8 @@
                     <!-- State 1: Form Input -->
                     <div x-show="!submitted">
                         <div class="text-center mb-6 space-y-2">
-                            <div class="w-12 h-12 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center mx-auto mb-2">
+                            <div
+                                class="w-12 h-12 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center mx-auto mb-2">
                                 <i data-lucide="download" class="w-6 h-6"></i>
                             </div>
                             <h3 class="text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Unduh Spreadsheet Gratis</h3>
@@ -183,7 +194,8 @@
 
                     <!-- State 2: Download Ready! -->
                     <div x-show="submitted" x-cloak class="text-center py-6 space-y-5">
-                        <div class="w-14 h-14 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center mx-auto">
+                        <div
+                            class="w-14 h-14 rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center mx-auto">
                             <i data-lucide="check-circle" class="w-7 h-7"></i>
                         </div>
                         <h3 class="text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">File Template Siap Diunduh</h3>
@@ -191,7 +203,8 @@
                             Unduhan sedang berjalan. Jika unduhan tidak otomatis dimulai, klik tombol di bawah ini:
                         </p>
 
-                        <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] text-left space-y-2">
+                        <div
+                            class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] text-left space-y-2">
                             <div class="flex items-center gap-2 text-xs font-mono text-[#34C759] dark:text-[#30D158]">
                                 <i data-lucide="file-spreadsheet" class="w-4 h-4 shrink-0"></i>
                                 <span class="truncate font-semibold" x-text="fileName"></span>
@@ -211,7 +224,8 @@
                         </div>
 
                         <div class="pt-6 border-t border-black/[0.06] dark:border-white/[0.08] mt-4">
-                            <p class="text-xs text-[#6E6E73] dark:text-[#86868B] mb-2">Ingin coba aplikasi kasir &amp; pembukuan otomatis?</p>
+                            <p class="text-xs text-[#6E6E73] dark:text-[#86868B] mb-2">Ingin coba aplikasi kasir &amp;
+                                pembukuan otomatis?</p>
                             <a href="{{ route('register') }}"
                                 class="text-sm font-bold text-[#007AFF] dark:text-[#0A84FF] hover:underline inline-flex items-center gap-1.5">
                                 <span>Daftar COOCA Gratis Selamanya</span>
@@ -231,14 +245,18 @@
                         <a href="{{ route('template.show', $ot['slug']) }}"
                             class="bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-6 rounded-[20px] group flex flex-col justify-between shadow-sm hover:border-[#007AFF]/30 transition-all">
                             <div class="space-y-2">
-                                <span class="text-xs uppercase font-bold text-[#007AFF] dark:text-[#0A84FF]">{{ $ot['category'] }}</span>
-                                <h4 class="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
+                                <span
+                                    class="text-xs uppercase font-bold text-[#007AFF] dark:text-[#0A84FF]">{{ $ot['category'] }}</span>
+                                <h4
+                                    class="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug">
                                     {{ $ot['name'] }}
                                 </h4>
                             </div>
-                            <span class="text-xs text-[#007AFF] dark:text-[#0A84FF] font-semibold mt-4 flex items-center gap-1.5">
+                            <span
+                                class="text-xs text-[#007AFF] dark:text-[#0A84FF] font-semibold mt-4 flex items-center gap-1.5">
                                 <span>Download Gratis</span>
-                                <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"></i>
+                                <i data-lucide="arrow-right"
+                                    class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"></i>
                             </span>
                         </a>
                     @endforeach
@@ -248,4 +266,3 @@
         </div>
     </div>
 @endsection
-

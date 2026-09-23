@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Kalkulator Target Omzet Harian & Jumlah Transaksi Online | Cooca')
-@section('description', 'Kalkulator target omzet harian online untuk toko dan kafe. Pecah target omzet bulanan menjadi
+@section('description',
+    'Kalkulator target omzet harian online untuk toko dan kafe. Pecah target omzet bulanan menjadi
     target omzet harian, jumlah transaksi pembeli, dan nilai keranjang belanja rata-rata.')
-@section('keywords', 'kalkulator omzet harian, hitung target penjualan bulanan, average order value kasir, target
+@section('keywords',
+    'kalkulator omzet harian, hitung target penjualan bulanan, average order value kasir, target
     transaksi toko, sales target breakdown')
 
 @section('content')
@@ -21,88 +23,99 @@
                 <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold">Kalkulator Target Omzet</span>
             </nav>
 
-        <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
-            <!-- KIRI: Headline & Penjelasan (7 Cols) -->
-            <div class="lg:col-span-7 space-y-5 text-left">
-                <div class="space-y-2">
-                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                        Pemecahan Target Penjualan Harian
+            <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+
+                <!-- KIRI: Headline & Penjelasan (7 Cols) -->
+                <div class="lg:col-span-7 space-y-5 text-left">
+                    <div class="space-y-2">
+                        <p
+                            class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            Pemecahan Target Penjualan Harian
+                        </p>
+                        <h1
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            Kalkulator Target <span class="text-[#007AFF] dark:text-[#0A84FF]">Omzet Harian</span>
+                        </h1>
+                    </div>
+
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                        Jangan biarkan target bulanan terasa mustahil dicapai. Pecah menjadi target transaksi riil per hari
+                        dan jumlah struk kasir yang perlu Anda layani setiap shift.
                     </p>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
-                        Kalkulator Target <span class="text-[#007AFF] dark:text-[#0A84FF]">Omzet Harian</span>
-                    </h1>
-                </div>
 
-                <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
-                    Jangan biarkan target bulanan terasa mustahil dicapai. Pecah menjadi target transaksi riil per hari dan jumlah struk kasir yang perlu Anda layani setiap shift.
-                </p>
-
-                <!-- Reassurance Points for UMKM 40-65 -->
-                <div class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Hitung Target Omzet per Hari Buka</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Ketahui Jumlah Struk Kasir (AOV)</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
-            <div class="lg:col-span-5">
-                <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
-                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                    <!-- Reassurance Points for UMKM 40-65 -->
+                    <div
+                        class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Hitung Target Omzet per Hari Buka</span>
                         </div>
-                        <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Logika Pemecahan Target</span>
-                        <div class="w-6"></div>
-                    </div>
-
-                    <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Target Omzet Bulanan</span>
-                            <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Goal Besar</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Hari Aktif Toko Buka</span>
-                            <span class="font-mono font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Jumlah Hari</span>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Ketahui Jumlah Struk Kasir (AOV)</span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
-                        <span class="text-[#6E6E73] dark:text-[#86868B]">Target Harian:</span>
-                        <span class="font-bold text-[#34C759] dark:text-[#30D158]">Omzet Bulan / Hari Buka</span>
+                <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
+                <div class="lg:col-span-5">
+                    <div
+                        class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
+                        <div
+                            class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                            </div>
+                            <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Logika Pemecahan
+                                Target</span>
+                            <div class="w-6"></div>
+                        </div>
+
+                        <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Target Omzet Bulanan</span>
+                                <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Goal Besar</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Hari Aktif Toko Buka</span>
+                                <span class="font-mono font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Jumlah Hari</span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
+                            <span class="text-[#6E6E73] dark:text-[#86868B]">Target Harian:</span>
+                            <span class="font-bold text-[#34C759] dark:text-[#30D158]">Omzet Bulan / Hari Buka</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </section>
+            </section>
 
-        <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
-        <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]" x-data="{
-                monthlyTarget: 45000000,
-                openDays: 26,
-                averageTicket: 35000,
-            
-                get dailyRevenueTarget() {
-                    if (this.openDays <= 0) return 0;
-                    return Math.round(this.monthlyTarget / this.openDays);
-                },
-                get dailyTransactionsNeeded() {
-                    if (this.averageTicket <= 0) return 0;
-                    return Math.ceil(this.dailyRevenueTarget / this.averageTicket);
-                },
-                get hourlyTransactionsNeeded() {
-                    return Math.ceil(this.dailyTransactionsNeeded / 10);
-                }
-            }">
+            <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
+            <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]"
+                x-data="{
+                    monthlyTarget: 45000000,
+                    openDays: 26,
+                    averageTicket: 35000,
+                
+                    get dailyRevenueTarget() {
+                        if (this.openDays <= 0) return 0;
+                        return Math.round(this.monthlyTarget / this.openDays);
+                    },
+                    get dailyTransactionsNeeded() {
+                        if (this.averageTicket <= 0) return 0;
+                        return Math.ceil(this.dailyRevenueTarget / this.averageTicket);
+                    },
+                    get hourlyTransactionsNeeded() {
+                        return Math.ceil(this.dailyTransactionsNeeded / 10);
+                    }
+                }">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <!-- Left: Apple Inset Inputs (7 Kolom) -->
                     <div class="lg:col-span-7 space-y-4">
@@ -155,8 +168,7 @@
                                 Penjualan Harian</span>
 
                             <div class="p-4 rounded-[18px] bg-[#007AFF]/10 border border-[#007AFF]/20">
-                                <span
-                                    class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Target
+                                <span class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Target
                                     Omzet per Hari Buka</span>
                                 <div class="text-3xl font-black text-[#007AFF] dark:text-[#0A84FF] font-mono mt-1">
                                     Rp <span x-text="dailyRevenueTarget.toLocaleString('id-ID')"></span>

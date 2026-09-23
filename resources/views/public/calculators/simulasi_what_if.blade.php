@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Simulasi Bisnis What-If (Sensitivitas Biaya & Diskon) Online Gratis | Cooca')
-@section('description', 'Alat simulasi What-If bisnis UMKM online. Uji skenario kenaikan harga bahan baku, kenaikan upah
+@section('description',
+    'Alat simulasi What-If bisnis UMKM online. Uji skenario kenaikan harga bahan baku, kenaikan upah
     tenaga kerja, atau dampak pemberian diskon promo terhadap sisa keuntungan bersih.')
-@section('keywords', 'simulasi bisnis what-if, kalkulator sensitivitas biaya, dampak diskon terhadap laba, skenario
+@section('keywords',
+    'simulasi bisnis what-if, kalkulator sensitivitas biaya, dampak diskon terhadap laba, skenario
     kenaikan bahan baku, simulator bisnis umkm online')
 
 @section('content')
@@ -21,104 +23,115 @@
                 <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold">Simulasi What-If</span>
             </nav>
 
-        <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
-            <!-- KIRI: Headline & Penjelasan (7 Cols) -->
-            <div class="lg:col-span-7 space-y-5 text-left">
-                <div class="space-y-2">
-                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                        Simulasi Pengambilan Keputusan Bisnis
+            <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+
+                <!-- KIRI: Headline & Penjelasan (7 Cols) -->
+                <div class="lg:col-span-7 space-y-5 text-left">
+                    <div class="space-y-2">
+                        <p
+                            class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            Simulasi Pengambilan Keputusan Bisnis
+                        </p>
+                        <h1
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            Simulasi Skenario <span class="text-[#007AFF] dark:text-[#0A84FF]">What-If UMKM</span>
+                        </h1>
+                    </div>
+
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                        Apa yang terjadi pada keuntungan Anda jika harga bahan baku naik 15%? Atau jika Anda memberi diskon
+                        promo 20%? Uji dampaknya secara langsung sebelum mengambil risiko di dunia nyata.
                     </p>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
-                        Simulasi Skenario <span class="text-[#007AFF] dark:text-[#0A84FF]">What-If UMKM</span>
-                    </h1>
-                </div>
 
-                <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
-                    Apa yang terjadi pada keuntungan Anda jika harga bahan baku naik 15%? Atau jika Anda memberi diskon promo 20%? Uji dampaknya secara langsung sebelum mengambil risiko di dunia nyata.
-                </p>
-
-                <!-- Reassurance Points for UMKM 40-65 -->
-                <div class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Uji Dampak Kenaikan Harga Bahan</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Simulasi Efek Promo Diskon Kasir</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
-            <div class="lg:col-span-5">
-                <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
-                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                    <!-- Reassurance Points for UMKM 40-65 -->
+                    <div
+                        class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Uji Dampak Kenaikan Harga Bahan</span>
                         </div>
-                        <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Uji Ketahanan Modal</span>
-                        <div class="w-6"></div>
-                    </div>
-
-                    <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Kondisi Normal Saat Ini</span>
-                            <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Baseline Data</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Perubahan Biaya / Diskon</span>
-                            <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A]">Variabel Uji</span>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Simulasi Efek Promo Diskon Kasir</span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
-                        <span class="text-[#6E6E73] dark:text-[#86868B]">Tujuan:</span>
-                        <span class="font-bold text-[#34C759] dark:text-[#30D158]">Cegah Keputusan Rugi</span>
+                <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
+                <div class="lg:col-span-5">
+                    <div
+                        class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
+                        <div
+                            class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                            </div>
+                            <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Uji Ketahanan
+                                Modal</span>
+                            <div class="w-6"></div>
+                        </div>
+
+                        <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Kondisi Normal Saat Ini</span>
+                                <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Baseline Data</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Perubahan Biaya / Diskon</span>
+                                <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A]">Variabel Uji</span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
+                            <span class="text-[#6E6E73] dark:text-[#86868B]">Tujuan:</span>
+                            <span class="font-bold text-[#34C759] dark:text-[#30D158]">Cegah Keputusan Rugi</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </section>
+            </section>
 
-        <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
-        <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]" x-data="{
-                baseRevenue: 40000000, // Omzet normal
-                baseMaterial: 18000000, // Biaya bahan baku normal
-                baseFixedCost: 10000000, // Biaya operasional & gaji normal
-            
-                // Skenario Perubahan (Slider delta)
-                deltaMaterialPct: 10, // Kenaikan bahan baku (%)
-                discountPct: 0, // Diskon promo (%)
-                salesVolumeBoostPct: 0, // Pertambahan volume pembeli akibat promo (%)
-            
-                // Keuntungan Baseline
-                get baseProfit() {
-                    return this.baseRevenue - this.baseMaterial - this.baseFixedCost;
-                },
-            
-                // Keuntungan Simulasi Baru
-                get simRevenue() {
-                    const effectivePriceRatio = 1 - (this.discountPct / 100);
-                    const volumeMultiplier = 1 + (this.salesVolumeBoostPct / 100);
-                    return Math.round(this.baseRevenue * effectivePriceRatio * volumeMultiplier);
-                },
-                get simMaterial() {
-                    const materialPriceMultiplier = 1 + (this.deltaMaterialPct / 100);
-                    const volumeMultiplier = 1 + (this.salesVolumeBoostPct / 100);
-                    return Math.round(this.baseMaterial * materialPriceMultiplier * volumeMultiplier);
-                },
-                get simProfit() {
-                    return this.simRevenue - this.simMaterial - this.baseFixedCost;
-                },
-                get deltaProfit() {
-                    return this.simProfit - this.baseProfit;
-                }
-            }">
+            <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
+            <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]"
+                x-data="{
+                    baseRevenue: 40000000, // Omzet normal
+                    baseMaterial: 18000000, // Biaya bahan baku normal
+                    baseFixedCost: 10000000, // Biaya operasional & gaji normal
+                
+                    // Skenario Perubahan (Slider delta)
+                    deltaMaterialPct: 10, // Kenaikan bahan baku (%)
+                    discountPct: 0, // Diskon promo (%)
+                    salesVolumeBoostPct: 0, // Pertambahan volume pembeli akibat promo (%)
+                
+                    // Keuntungan Baseline
+                    get baseProfit() {
+                        return this.baseRevenue - this.baseMaterial - this.baseFixedCost;
+                    },
+                
+                    // Keuntungan Simulasi Baru
+                    get simRevenue() {
+                        const effectivePriceRatio = 1 - (this.discountPct / 100);
+                        const volumeMultiplier = 1 + (this.salesVolumeBoostPct / 100);
+                        return Math.round(this.baseRevenue * effectivePriceRatio * volumeMultiplier);
+                    },
+                    get simMaterial() {
+                        const materialPriceMultiplier = 1 + (this.deltaMaterialPct / 100);
+                        const volumeMultiplier = 1 + (this.salesVolumeBoostPct / 100);
+                        return Math.round(this.baseMaterial * materialPriceMultiplier * volumeMultiplier);
+                    },
+                    get simProfit() {
+                        return this.simRevenue - this.simMaterial - this.baseFixedCost;
+                    },
+                    get deltaProfit() {
+                        return this.simProfit - this.baseProfit;
+                    }
+                }">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <!-- Left: Skenario Adjustments (7 Cols) -->
                     <div class="lg:col-span-7 space-y-6">
@@ -131,24 +144,21 @@
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                                 <div
                                     class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
-                                    <span
-                                        class="text-[#6E6E73] dark:text-[#86868B] block text-xs uppercase font-bold">Omzet
+                                    <span class="text-[#6E6E73] dark:text-[#86868B] block text-xs uppercase font-bold">Omzet
                                         Bulanan</span>
                                     <span class="font-mono font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm">Rp <span
                                             x-text="Number(baseRevenue).toLocaleString('id-ID')"></span></span>
                                 </div>
                                 <div
                                     class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
-                                    <span
-                                        class="text-[#6E6E73] dark:text-[#86868B] block text-xs uppercase font-bold">Biaya
+                                    <span class="text-[#6E6E73] dark:text-[#86868B] block text-xs uppercase font-bold">Biaya
                                         Bahan</span>
                                     <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A] text-sm">Rp <span
                                             x-text="Number(baseMaterial).toLocaleString('id-ID')"></span></span>
                                 </div>
                                 <div
                                     class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
-                                    <span
-                                        class="text-[#6E6E73] dark:text-[#86868B] block text-xs uppercase font-bold">Laba
+                                    <span class="text-[#6E6E73] dark:text-[#86868B] block text-xs uppercase font-bold">Laba
                                         Normal</span>
                                     <span class="font-mono font-bold text-[#34C759] dark:text-[#30D158] text-sm">Rp <span
                                             x-text="baseProfit.toLocaleString('id-ID')"></span></span>
@@ -163,8 +173,7 @@
                                 <label
                                     class="text-xs font-bold text-[#FF9500] dark:text-[#FF9F0A] uppercase tracking-wide">Skenario
                                     Kenaikan Harga Bahan Baku</label>
-                                <span
-                                    class="font-mono text-xs font-bold text-[#FF9500] dark:text-[#FF9F0A]">+<span
+                                <span class="font-mono text-xs font-bold text-[#FF9500] dark:text-[#FF9F0A]">+<span
                                         x-text="deltaMaterialPct"></span>%</span>
                             </div>
                             <input type="range" x-model.number="deltaMaterialPct" min="0" max="50"
@@ -180,8 +189,7 @@
                                 <label
                                     class="text-xs font-bold text-[#007AFF] dark:text-[#0A84FF] uppercase tracking-wide">Skenario
                                     Diskon Promo Penjualan</label>
-                                <span
-                                    class="font-mono text-xs font-bold text-[#007AFF] dark:text-[#0A84FF]"><span
+                                <span class="font-mono text-xs font-bold text-[#007AFF] dark:text-[#0A84FF]"><span
                                         x-text="discountPct"></span>% Diskon</span>
                             </div>
                             <input type="range" x-model.number="discountPct" min="0" max="40" step="5"
@@ -197,8 +205,7 @@
                                 <label
                                     class="text-xs font-bold text-[#34C759] dark:text-[#30D158] uppercase tracking-wide">Estimasi
                                     Lonjakan Volume Pembeli</label>
-                                <span
-                                    class="font-mono text-xs font-bold text-[#34C759] dark:text-[#30D158]">+<span
+                                <span class="font-mono text-xs font-bold text-[#34C759] dark:text-[#30D158]">+<span
                                         x-text="salesVolumeBoostPct"></span>% Volume</span>
                             </div>
                             <input type="range" x-model.number="salesVolumeBoostPct" min="0" max="100"
@@ -217,8 +224,7 @@
                                 <span
                                     class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Hasil
                                     Simulasi Laba</span>
-                                <span
-                                    class="text-xs font-bold text-[#6E6E73] dark:text-[#86868B]">Proyeksi</span>
+                                <span class="text-xs font-bold text-[#6E6E73] dark:text-[#86868B]">Proyeksi</span>
                             </div>
 
                             <!-- Perbandingan Laba -->

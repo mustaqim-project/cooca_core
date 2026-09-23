@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Kalkulator Harga Jual (Markup vs Margin) Online Gratis | Cooca')
-@section('description', 'Kalkulator penetapan harga jual produk online. Hitung perbandingan formula markup vs profit
+@section('description',
+    'Kalkulator penetapan harga jual produk online. Hitung perbandingan formula markup vs profit
     margin dan temukan harga jual psikologis (charm pricing) untuk meningkatkan penjualan.')
-@section('keywords', 'kalkulator harga jual, hitung markup dan margin, rumus harga jual barang, kalkulator harga
+@section('keywords',
+    'kalkulator harga jual, hitung markup dan margin, rumus harga jual barang, kalkulator harga
     psikologis, pricing calculator umkm')
 
 @section('content')
@@ -21,103 +23,114 @@
                 <span class="text-[#FF9500] dark:text-[#FF9F0A] font-semibold">Kalkulator Harga Jual</span>
             </nav>
 
-        <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
-            <!-- KIRI: Headline & Penjelasan (7 Cols) -->
-            <div class="lg:col-span-7 space-y-5 text-left">
-                <div class="space-y-2">
-                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A]">
-                        Strategi Penentuan Harga
+            <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+
+                <!-- KIRI: Headline & Penjelasan (7 Cols) -->
+                <div class="lg:col-span-7 space-y-5 text-left">
+                    <div class="space-y-2">
+                        <p
+                            class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A]">
+                            Strategi Penentuan Harga
+                        </p>
+                        <h1
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            Kalkulator Harga Jual &amp; <span class="text-[#FF9500] dark:text-[#FF9F0A]">Margin Laba</span>
+                        </h1>
+                    </div>
+
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                        Jangan sampai tertukar antara Markup dan Margin. Masukkan modal dasar Anda untuk melihat opsi harga
+                        jual yang menguntungkan dan aman saat promosi.
                     </p>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
-                        Kalkulator Harga Jual &amp; <span class="text-[#FF9500] dark:text-[#FF9F0A]">Margin Laba</span>
-                    </h1>
-                </div>
 
-                <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
-                    Jangan sampai tertukar antara Markup dan Margin. Masukkan modal dasar Anda untuk melihat opsi harga jual yang menguntungkan dan aman saat promosi.
-                </p>
-
-                <!-- Reassurance Points for UMKM 40-65 -->
-                <div class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Bandingkan Markup vs Margin</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Hitung Laba Bersih per Unit</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
-            <div class="lg:col-span-5">
-                <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
-                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                    <!-- Reassurance Points for UMKM 40-65 -->
+                    <div
+                        class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Bandingkan Markup vs Margin</span>
                         </div>
-                        <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Perbedaan Konsep</span>
-                        <div class="w-6"></div>
-                    </div>
-
-                    <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Markup (Ditambah ke Modal)</span>
-                            <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A]">Untung / HPP</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Margin (Porsi dari Harga Jual)</span>
-                            <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Untung / Harga Jual</span>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Hitung Laba Bersih per Unit</span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
-                        <span class="text-[#6E6E73] dark:text-[#86868B]">Catatan Penting:</span>
-                        <span class="font-bold text-[#34C759] dark:text-[#30D158]">Margin selalu &lt; Markup</span>
+                <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
+                <div class="lg:col-span-5">
+                    <div
+                        class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
+                        <div
+                            class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                            </div>
+                            <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Perbedaan Konsep</span>
+                            <div class="w-6"></div>
+                        </div>
+
+                        <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Markup (Ditambah ke Modal)</span>
+                                <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A]">Untung / HPP</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Margin (Porsi dari Harga Jual)</span>
+                                <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Untung / Harga
+                                    Jual</span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
+                            <span class="text-[#6E6E73] dark:text-[#86868B]">Catatan Penting:</span>
+                            <span class="font-bold text-[#34C759] dark:text-[#30D158]">Margin selalu &lt; Markup</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </section>
+            </section>
 
-        <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
-        <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]" x-data="{
-                costPrice: 50000,
-                percent: 30,
-            
-                get markupPrice() {
-                    return Math.round(this.costPrice * (1 + (this.percent / 100)));
-                },
-                get markupProfit() {
-                    return this.markupPrice - this.costPrice;
-                },
-                get markupRealMargin() {
-                    if (this.markupPrice <= 0) return 0;
-                    return Math.round((this.markupProfit / this.markupPrice) * 100);
-                },
-            
-                get marginPrice() {
-                    if (this.percent >= 100) return 0;
-                    return Math.round(this.costPrice / (1 - (this.percent / 100)));
-                },
-                get marginProfit() {
-                    return this.marginPrice - this.costPrice;
-                },
-                get marginRealMarkup() {
-                    if (this.costPrice <= 0) return 0;
-                    return Math.round((this.marginProfit / this.costPrice) * 100);
-                },
-            
-                get charmPrice() {
-                    const p = this.marginPrice;
-                    return Math.floor(p / 1000) * 1000 + 900;
-                }
-            }">
+            <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
+            <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]"
+                x-data="{
+                    costPrice: 50000,
+                    percent: 30,
+                
+                    get markupPrice() {
+                        return Math.round(this.costPrice * (1 + (this.percent / 100)));
+                    },
+                    get markupProfit() {
+                        return this.markupPrice - this.costPrice;
+                    },
+                    get markupRealMargin() {
+                        if (this.markupPrice <= 0) return 0;
+                        return Math.round((this.markupProfit / this.markupPrice) * 100);
+                    },
+                
+                    get marginPrice() {
+                        if (this.percent >= 100) return 0;
+                        return Math.round(this.costPrice / (1 - (this.percent / 100)));
+                    },
+                    get marginProfit() {
+                        return this.marginPrice - this.costPrice;
+                    },
+                    get marginRealMarkup() {
+                        if (this.costPrice <= 0) return 0;
+                        return Math.round((this.marginProfit / this.costPrice) * 100);
+                    },
+                
+                    get charmPrice() {
+                        const p = this.marginPrice;
+                        return Math.floor(p / 1000) * 1000 + 900;
+                    }
+                }">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <!-- Left: Apple Inset Input Controls (6 Kolom) -->
                     <div class="lg:col-span-6 space-y-4">
@@ -190,8 +203,7 @@
                         <!-- Skenario 2: Metode Markup -->
                         <div
                             class="p-5 rounded-[22px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                            <div
-                                class="text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] mb-1">
+                            <div class="text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] mb-1">
                                 Metode Markup Konvensional</div>
                             <div class="text-xs text-[#6E6E73] dark:text-[#86868B]">Harga Jual:</div>
                             <div class="text-xl sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">

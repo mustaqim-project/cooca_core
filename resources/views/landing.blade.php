@@ -130,323 +130,78 @@
             <div
                 class="max-w-[1150px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center lg:min-h-[560px]">
 
-
-                <!-- ===== LEFT: Hero Copy ===== -->
-                <div class="lg:col-span-7 flex flex-col justify-center text-left">
-
-                    <!-- Eyebrow -->
-                    <div class="mb-5">
-                        <span
-                            class="inline-flex items-center
-                   px-3.5 py-1.5
-                   rounded-full
-                   bg-[#00C4D8]/10
-                   border border-[#00C4D8]/20
-                   text-[11px] sm:text-xs
-                   font-bold
-                   tracking-[0.14em]
-                   uppercase
-                   text-[#00C4D8]">
-                            Business Operating System
-                        </span>
-                    </div>
+                <!-- ===== LEFT: Copy ===== -->
+                <div class="lg:col-span-7 flex flex-col justify-center space-y-5 text-left">
 
                     <!-- Headline -->
-                    <div class="mb-7">
-                        <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.5rem]
-                   font-extrabold
-                   text-white
-                   tracking-tight
-                   leading-[1.08]">
+                    <h1
+                        class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.5rem] font-extrabold text-white tracking-tight leading-[1.1]">
+                        Run Your Business.<br>
+                        <span class="text-[#00C4D8]">From One Operating System.</span>
+                    </h1>
 
-                            Run Your Business.
-                            <br>
-
-                            <span class="text-[#00C4D8]">
-                                From One Operating System.
-                            </span>
-
-                        </h1>
+                    <!-- Subtitle -->
+                    <div class="space-y-2">
+                        <p class="text-base sm:text-lg text-slate-300 max-w-xl leading-relaxed">
+                            COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social
+                            media, marketplace, dan automation dalam satu ekosistem.
+                            <span class="font-semibold text-white">Kelola Bisnis UMKM Lebih Cerdas &amp; Presisi.</span>
+                        </p>
+                        <p class="text-xs sm:text-sm font-bold tracking-wide text-[#00C4D8] uppercase">
+                            One Business. One System. One Control Center.
+                        </p>
                     </div>
 
-                    <!-- Description -->
-                    <div class="mb-8 max-w-2xl">
-
-                        <p class="text-base sm:text-lg
-                   text-slate-300
-                   leading-[1.8]">
-
-                            Kelola bisnis, media sosial, dan berbagai aktivitas operasional
-                            <span class="font-semibold text-white">
-                                dalam satu platform.
-                            </span>
-
-                            Hubungkan sistem, manfaatkan automation,
-                            dan biarkan COOCA membantu pekerjaan bisnis berjalan
-                            lebih cepat dan terintegrasi.
-
-                        </p>
-
-                        <p
-                            class="mt-4
-                   text-sm sm:text-base
-                   font-semibold
-                   text-white
-                   leading-relaxed">
-
-                            Satu platform untuk mengelola.
-                            <span class="text-[#00C4D8]">
-                                Automation untuk mempercepat.
-                            </span>
-
-                        </p>
-
-                    </div>
-
-                    <!-- CTA -->
-                    <div class="flex flex-wrap items-center gap-3 mb-8">
-
+                    <!-- CTAs -->
+                    <div class="flex flex-wrap items-center gap-3 pt-1">
                         @if (auth('admin')->check())
-                            <!-- Admin Dashboard -->
                             <a href="{{ route('admin.dashboard') }}"
-                                class="px-7 py-3.5
-                       rounded-[14px]
-                       bg-[#007AFF]
-                       hover:bg-[#0066DF]
-                       text-white
-                       font-semibold
-                       text-sm
-                       flex items-center
-                       gap-2.5
-                       shadow-[0_4px_16px_rgba(0,122,255,0.3)]
-                       hover:scale-[1.02]
-                       active:scale-[0.98]
-                       transition-all">
-
+                                class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Dashboard Admin</span>
-
-                                <i data-lucide="arrow-right" class="w-4 h-4">
-                                </i>
-
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @elseif (auth('web')->check())
-                            <!-- User Dashboard -->
                             <a href="{{ route('dashboard') }}"
-                                class="px-7 py-3.5
-                       rounded-[14px]
-                       bg-[#007AFF]
-                       hover:bg-[#0066DF]
-                       text-white
-                       font-semibold
-                       text-sm
-                       flex items-center
-                       gap-2.5
-                       shadow-[0_4px_16px_rgba(0,122,255,0.3)]
-                       hover:scale-[1.02]
-                       active:scale-[0.98]
-                       transition-all">
-
+                                class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Ke Dashboard</span>
-
-                                <i data-lucide="arrow-right" class="w-4 h-4">
-                                </i>
-
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @else
-                            <!-- Register / Google -->
                             <a href="{{ route('register') }}"
-                                class="px-7 py-3.5
-                       rounded-[14px]
-                       bg-[#007AFF]
-                       hover:bg-[#0066DF]
-                       text-white
-                       font-semibold
-                       text-sm sm:text-base
-                       flex items-center
-                       gap-2.5
-                       shadow-[0_4px_16px_rgba(0,122,255,0.35)]
-                       hover:scale-[1.02]
-                       active:scale-[0.98]
-                       transition-all">
-
-                                <!-- Google Logo -->
-                                <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-
-                                    <path fill="#EA4335" d="M12 10.2v4.1h5.8c-.25 1.32-1.78 3.87-5.8 3.87
-                            A6.17 6.17 0 0 1 5.83 12
-                            6.17 6.17 0 0 1 12 5.83
-                            c2.1 0 3.51.9 4.32 1.66l2.94-2.87
-                            C17.4 2.82 14.95 1.67 12 1.67
-                            6.3 1.67 1.67 6.3 1.67 12
-                            S6.3 22.33 12 22.33
-                            c6.1 0 10.17-4.28 10.17-10.33
-                            0-.7-.08-1.23-.18-1.8H12z" />
-
-                                    <path fill="#4285F4" d="M22.17 12c0-.7-.08-1.23-.18-1.8H12v4.1h5.8
-                            c-.28 1.4-1.03 2.59-2.18 3.37l3.52 2.73
-                            c2.05-1.89 3.03-4.68 3.03-8.4z" />
-
-                                    <path fill="#FBBC05" d="M5.83 14.28A6.17 6.17 0 0 1 5.83 9.72
-                            L2.31 6.99A10.33 10.33 0 0 0 1.67 12
-                            c0 1.66.4 3.23 1.1 4.61l3.06-2.33z" />
-
-                                    <path fill="#34A853" d="M12 22.33c2.95 0 5.43-.97 7.25-2.63l-3.52-2.73
-                            c-.98.66-2.24 1.2-3.73 1.2
-                            a6.17 6.17 0 0 1-6.17-4.1l-3.06 2.33
-                            A10.34 10.34 0 0 0 12 22.33z" />
-
-                                </svg>
-
+                                class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm sm:text-base flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Coba COOCA Gratis</span>
-
-                                <i data-lucide="arrow-right" class="w-4 h-4 ml-0.5">
-                                </i>
-
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
-
-                            <!-- How It Works -->
                             <a href="{{ route('public.bos.how-it-works') }}"
-                                class="px-6 py-3.5
-                       rounded-[14px]
-                       bg-white/10
-                       hover:bg-white/15
-                       border border-white/15
-                       text-white
-                       font-semibold
-                       text-sm sm:text-base
-                       flex items-center
-                       gap-2.5
-                       hover:scale-[1.02]
-                       active:scale-[0.98]
-                       transition-all">
-
+                                class="px-6 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm sm:text-base flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Lihat Cara Kerja</span>
-
-                                <i data-lucide="arrow-right" class="w-4 h-4">
-                                </i>
-
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @endif
-
                     </div>
 
-                    <!-- Positioning Statement -->
-                    <div class="mb-7">
-
-                        <p
-                            class="text-xs sm:text-sm
-                   font-bold
-                   tracking-[0.16em]
-                   text-[#00C4D8]
-                   uppercase
-                   leading-relaxed">
-
-                            One Business. One System. One Control Center.
-
-                        </p>
-
-                    </div>
 
                     <!-- 3-Metric Bento -->
                     <div
-                        class="max-w-lg
-               bg-white/[0.06]
-               backdrop-blur-xl
-               rounded-[18px]
-               p-4 sm:p-5
-               border border-white/10
-               shadow-[0_4px_20px_rgba(0,0,0,0.25)]
-               grid grid-cols-3
-               divide-x divide-white/10
-               text-center">
-
-                        <!-- Metric 1 -->
-                        <div class="px-3">
-
-                            <div
-                                class="text-xl sm:text-2xl
-                       font-extrabold
-                       text-white
-                       tabular-nums
-                       tracking-tight">
-
-                                1
-
+                        class="bg-white/[0.06] backdrop-blur-xl rounded-[18px] p-4 sm:p-5 border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.25)] grid grid-cols-3 divide-x divide-white/10 text-center max-w-lg">
+                        <div class="px-2">
+                            <div class="text-xl sm:text-2xl font-extrabold text-white tabular-nums tracking-tight">10.000+
                             </div>
-
-                            <div
-                                class="text-xs
-                       text-slate-400
-                       font-medium
-                       mt-1
-                       leading-relaxed">
-
-                                Platform
-
-                            </div>
-
+                            <div class="text-xs text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
                         </div>
-
-                        <!-- Metric 2 -->
-                        <div class="px-3">
-
-                            <div
-                                class="text-xl sm:text-2xl
-                       font-extrabold
-                       text-[#00C4D8]
-                       tabular-nums
-                       tracking-tight">
-
-                                Terintegrasi
-
-                            </div>
-
-                            <div
-                                class="text-xs
-                       text-slate-400
-                       font-medium
-                       mt-1
-                       leading-relaxed">
-
-                                Antar Aktivitas Bisnis
-
-                            </div>
-
+                        <div class="px-2">
+                            <div class="text-xl sm:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
+                                99.8%</div>
+                            <div class="text-xs text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
                         </div>
-
-                        <!-- Metric 3 -->
-                        <div class="px-3">
-
-                            <div
-                                class="text-xl sm:text-2xl
-                       font-extrabold
-                       text-white
-                       tabular-nums
-                       tracking-tight">
-
-                                24/7
-
+                        <div class="px-2">
+                            <div class="text-xl sm:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">100%
                             </div>
-
-                            <div
-                                class="text-xs
-                       text-slate-400
-                       font-medium
-                       mt-1
-                       leading-relaxed">
-
-                                Akses Bisnis
-
-                            </div>
-
+                            <div class="text-xs text-slate-400 font-medium mt-0.5">Gratis Selamanya</div>
                         </div>
-
                     </div>
 
                 </div>
-
-
 
                 <!-- ===== RIGHT: Dashboard Window ===== -->
                 <div class="lg:col-span-5 flex items-center justify-center lg:justify-end">
@@ -667,7 +422,7 @@
                         One Ecosystem for Your Business
                     </p>
                     <h2
-                        class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
+                        class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
                         Everything Your Business Needs. Connected.
                     </h2>
                     <p class="text-xs sm:text-sm font-semibold text-[#007AFF] uppercase tracking-wider">

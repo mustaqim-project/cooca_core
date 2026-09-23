@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Kalkulator Laba Bersih (Net Profit) Usaha Online Gratis | Cooca')
-@section('description', 'Kalkulator simulasi laba bersih (net profit) UMKM online. Hitung pendapatan kotor, HPP barang
+@section('description',
+    'Kalkulator simulasi laba bersih (net profit) UMKM online. Hitung pendapatan kotor, HPP barang
     terjual, biaya operasional, gaji, sewa, listrik, dan pajak untuk mengetahui laba bersih riil.')
-@section('keywords', 'kalkulator laba bersih, rumus net profit margin umkm, hitung keuntungan usaha bulanan, laporan
+@section('keywords',
+    'kalkulator laba bersih, rumus net profit margin umkm, hitung keuntungan usaha bulanan, laporan
     laba rugi sederhana, simulasi laba kotor bersih')
 
 @section('content')
@@ -21,106 +23,118 @@
                 <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold">Kalkulator Laba Bersih</span>
             </nav>
 
-        <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
-            <!-- KIRI: Headline & Penjelasan (7 Cols) -->
-            <div class="lg:col-span-7 space-y-5 text-left">
-                <div class="space-y-2">
-                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                        Simulasi Profitabilitas Riil
+            <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+
+                <!-- KIRI: Headline & Penjelasan (7 Cols) -->
+                <div class="lg:col-span-7 space-y-5 text-left">
+                    <div class="space-y-2">
+                        <p
+                            class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            Simulasi Profitabilitas Riil
+                        </p>
+                        <h1
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            Kalkulator Laba Bersih &amp; <span class="text-[#007AFF] dark:text-[#0A84FF]">Sisa Kas
+                                Usaha</span>
+                        </h1>
+                    </div>
+
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                        Omzet besar belum tentu untung besar. Masukkan pendapatan kotor dan seluruh pos pengeluaran
+                        operasional Anda untuk melihat berapa rupiah uang yang benar-benar bisa dibawa pulang.
                     </p>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
-                        Kalkulator Laba Bersih &amp; <span class="text-[#007AFF] dark:text-[#0A84FF]">Sisa Kas Usaha</span>
-                    </h1>
+
+                    <!-- Reassurance Points for UMKM 40-65 -->
+                    <div
+                        class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Hitung Laba Kotor (Gross Profit)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Potong Beban Operasional Lengkap</span>
+                        </div>
+                    </div>
                 </div>
 
-                <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
-                    Omzet besar belum tentu untung besar. Masukkan pendapatan kotor dan seluruh pos pengeluaran operasional Anda untuk melihat berapa rupiah uang yang benar-benar bisa dibawa pulang.
-                </p>
+                <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
+                <div class="lg:col-span-5">
+                    <div
+                        class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
+                        <div
+                            class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                            </div>
+                            <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Alur Laba Riil</span>
+                            <div class="w-6"></div>
+                        </div>
 
-                <!-- Reassurance Points for UMKM 40-65 -->
-                <div class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Hitung Laba Kotor (Gross Profit)</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Potong Beban Operasional Lengkap</span>
+                        <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Total Omzet Penjualan</span>
+                                <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Pendapatan</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Modal Pokok (HPP)</span>
+                                <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A]">- Biaya Bahan</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Gaji, Sewa, Listrik, Pajak</span>
+                                <span class="font-mono font-bold text-[#FF3B30] dark:text-[#FF453A]">- Beban Usaha</span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
+                            <span class="text-[#6E6E73] dark:text-[#86868B]">Hasil Akhir:</span>
+                            <span class="font-bold text-[#34C759] dark:text-[#30D158]">= Uang Masuk Bersih</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
-            <div class="lg:col-span-5">
-                <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
-                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
-                        </div>
-                        <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Alur Laba Riil</span>
-                        <div class="w-6"></div>
-                    </div>
+            </section>
 
-                    <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Total Omzet Penjualan</span>
-                            <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]">Pendapatan</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Modal Pokok (HPP)</span>
-                            <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A]">- Biaya Bahan</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Gaji, Sewa, Listrik, Pajak</span>
-                            <span class="font-mono font-bold text-[#FF3B30] dark:text-[#FF453A]">- Beban Usaha</span>
-                        </div>
-                    </div>
-
-                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
-                        <span class="text-[#6E6E73] dark:text-[#86868B]">Hasil Akhir:</span>
-                        <span class="font-bold text-[#34C759] dark:text-[#30D158]">= Uang Masuk Bersih</span>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
-        <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]" x-data="{
-                revenue: 35000000,
-                cogsRate: 55,
-                staffSalaries: 4000000,
-                rentExpense: 2000000,
-                utilityExpense: 1200000,
-                taxRate: 0.5,
-            
-                get totalCogs() {
-                    return Math.round(this.revenue * (this.cogsRate / 100));
-                },
-                get grossProfit() {
-                    return this.revenue - this.totalCogs;
-                },
-                get totalOpex() {
-                    return (parseFloat(this.staffSalaries) || 0) + (parseFloat(this.rentExpense) || 0) + (parseFloat(this.utilityExpense) || 0);
-                },
-                get operatingProfit() {
-                    return this.grossProfit - this.totalOpex;
-                },
-                get taxAmount() {
-                    return Math.round(this.revenue * (this.taxRate / 100));
-                },
-                get netProfit() {
-                    return this.operatingProfit - this.taxAmount;
-                },
-                get netMargin() {
-                    if (this.revenue <= 0) return 0;
-                    return Math.round((this.netProfit / this.revenue) * 100);
-                }
-            }">
+            <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
+            <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]"
+                x-data="{
+                    revenue: 35000000,
+                    cogsRate: 55,
+                    staffSalaries: 4000000,
+                    rentExpense: 2000000,
+                    utilityExpense: 1200000,
+                    taxRate: 0.5,
+                
+                    get totalCogs() {
+                        return Math.round(this.revenue * (this.cogsRate / 100));
+                    },
+                    get grossProfit() {
+                        return this.revenue - this.totalCogs;
+                    },
+                    get totalOpex() {
+                        return (parseFloat(this.staffSalaries) || 0) + (parseFloat(this.rentExpense) || 0) + (parseFloat(this.utilityExpense) || 0);
+                    },
+                    get operatingProfit() {
+                        return this.grossProfit - this.totalOpex;
+                    },
+                    get taxAmount() {
+                        return Math.round(this.revenue * (this.taxRate / 100));
+                    },
+                    get netProfit() {
+                        return this.operatingProfit - this.taxAmount;
+                    },
+                    get netMargin() {
+                        if (this.revenue <= 0) return 0;
+                        return Math.round((this.netProfit / this.revenue) * 100);
+                    }
+                }">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <!-- Left: Apple Inset Inputs (7 Kolom) -->
                     <div class="lg:col-span-7 space-y-4">

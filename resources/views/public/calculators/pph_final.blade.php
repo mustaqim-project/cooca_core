@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Kalkulator PPh Final UMKM 0.5% (PP 55/2022) Online Gratis | Cooca')
-@section('description', 'Kalkulator simulasi pajak PPh Final 0.5% UMKM online gratis sesuai UU HPP dan PP 55/2022.
+@section('description',
+    'Kalkulator simulasi pajak PPh Final 0.5% UMKM online gratis sesuai UU HPP dan PP 55/2022.
     Lengkap dengan perhitungan batas omzet Rp 500 juta bebas pajak per tahun.')
-@section('keywords', 'kalkulator pph final 0.5, hitung pajak umkm online, pp 55 2022 pajak umkm, batas omzet 500 juta
+@section('keywords',
+    'kalkulator pph final 0.5, hitung pajak umkm online, pp 55 2022 pajak umkm, batas omzet 500 juta
     bebas pajak, cara setor pph final bulanan')
 
 @section('content')
@@ -21,100 +23,111 @@
                 <span class="text-[#FF3B30] dark:text-[#FF453A] font-semibold">Kalkulator PPh Final</span>
             </nav>
 
-        <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
-            <!-- KIRI: Headline & Penjelasan (7 Cols) -->
-            <div class="lg:col-span-7 space-y-5 text-left">
-                <div class="space-y-2">
-                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#FF3B30] dark:text-[#FF453A]">
-                        Aturan Pajak Resmi PP 55/2022
+            <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+
+                <!-- KIRI: Headline & Penjelasan (7 Cols) -->
+                <div class="lg:col-span-7 space-y-5 text-left">
+                    <div class="space-y-2">
+                        <p
+                            class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#FF3B30] dark:text-[#FF453A]">
+                            Aturan Pajak Resmi PP 55/2022
+                        </p>
+                        <h1
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            Kalkulator PPh Final <span class="text-[#FF3B30] dark:text-[#FF453A]">UMKM 0.5%</span>
+                        </h1>
+                    </div>
+
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                        Ketahui kewajiban pajak resmi Anda tanpa salah hitung. Pemilik usaha perseorangan berhak atas
+                        fasilitas pembebasan pajak untuk omzet hingga <strong>Rp 500 Juta pertama</strong> per tahun.
                     </p>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
-                        Kalkulator PPh Final <span class="text-[#FF3B30] dark:text-[#FF453A]">UMKM 0.5%</span>
-                    </h1>
-                </div>
 
-                <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
-                    Ketahui kewajiban pajak resmi Anda tanpa salah hitung. Pemilik usaha perseorangan berhak atas fasilitas pembebasan pajak untuk omzet hingga <strong>Rp 500 Juta pertama</strong> per tahun.
-                </p>
-
-                <!-- Reassurance Points for UMKM 40-65 -->
-                <div class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Bebas Pajak s.d Omzet Rp 500 Juta</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>Tarif Ringan 0.5% dari Kelebihan Omzet</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
-            <div class="lg:col-span-5">
-                <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
-                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
-                            <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                    <!-- Reassurance Points for UMKM 40-65 -->
+                    <div
+                        class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Bebas Pajak s.d Omzet Rp 500 Juta</span>
                         </div>
-                        <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Fasilitas PP 55/2022</span>
-                        <div class="w-6"></div>
-                    </div>
-
-                    <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Omzet Kumulatif s.d 500 Juta</span>
-                            <span class="font-mono font-bold text-[#34C759] dark:text-[#30D158]">Tarif 0% (Bebas)</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
-                            <span class="font-medium">Omzet di Atas 500 Juta</span>
-                            <span class="font-mono font-bold text-[#FF3B30] dark:text-[#FF453A]">Tarif 0.5%</span>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <span>Tarif Ringan 0.5% dari Kelebihan Omzet</span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
-                        <span class="text-[#6E6E73] dark:text-[#86868B]">Badan Usaha (PT/CV):</span>
-                        <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Langsung 0.5%</span>
+                <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
+                <div class="lg:col-span-5">
+                    <div
+                        class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
+                        <div
+                            class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                            </div>
+                            <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Fasilitas PP
+                                55/2022</span>
+                            <div class="w-6"></div>
+                        </div>
+
+                        <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Omzet Kumulatif s.d 500 Juta</span>
+                                <span class="font-mono font-bold text-[#34C759] dark:text-[#30D158]">Tarif 0% (Bebas)</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                                <span class="font-medium">Omzet di Atas 500 Juta</span>
+                                <span class="font-mono font-bold text-[#FF3B30] dark:text-[#FF453A]">Tarif 0.5%</span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
+                            <span class="text-[#6E6E73] dark:text-[#86868B]">Badan Usaha (PT/CV):</span>
+                            <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Langsung 0.5%</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </section>
+            </section>
 
-        <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
-        <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]" x-data="{
-                taxpayerType: 'individual',
-                cumulativePriorRevenue: 350000000,
-                currentMonthRevenue: 45000000,
-            
-                get newCumulative() {
-                    return (parseFloat(this.cumulativePriorRevenue) || 0) + (parseFloat(this.currentMonthRevenue) || 0);
-                },
-                get taxableRevenue() {
-                    if (this.taxpayerType === 'corporate') {
-                        return parseFloat(this.currentMonthRevenue) || 0;
+            <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
+            <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]"
+                x-data="{
+                    taxpayerType: 'individual',
+                    cumulativePriorRevenue: 350000000,
+                    currentMonthRevenue: 45000000,
+                
+                    get newCumulative() {
+                        return (parseFloat(this.cumulativePriorRevenue) || 0) + (parseFloat(this.currentMonthRevenue) || 0);
+                    },
+                    get taxableRevenue() {
+                        if (this.taxpayerType === 'corporate') {
+                            return parseFloat(this.currentMonthRevenue) || 0;
+                        }
+                        const threshold = 500000000;
+                        const prior = parseFloat(this.cumulativePriorRevenue) || 0;
+                        const curr = parseFloat(this.currentMonthRevenue) || 0;
+                        const total = prior + curr;
+                
+                        if (total <= threshold) {
+                            return 0;
+                        } else if (prior < threshold && total > threshold) {
+                            return total - threshold;
+                        } else {
+                            return curr;
+                        }
+                    },
+                    get taxDue() {
+                        return Math.round(this.taxableRevenue * 0.005);
                     }
-                    const threshold = 500000000;
-                    const prior = parseFloat(this.cumulativePriorRevenue) || 0;
-                    const curr = parseFloat(this.currentMonthRevenue) || 0;
-                    const total = prior + curr;
-            
-                    if (total <= threshold) {
-                        return 0;
-                    } else if (prior < threshold && total > threshold) {
-                        return total - threshold;
-                    } else {
-                        return curr;
-                    }
-                },
-                get taxDue() {
-                    return Math.round(this.taxableRevenue * 0.005);
-                }
-            }">
+                }">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <!-- Left: Apple Inset Input Controls (7 Kolom) -->
                     <div class="lg:col-span-7 space-y-4">
