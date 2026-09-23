@@ -1,5 +1,36 @@
 @extends('public.storefront.layouts.app')
 
+@php
+    $articlesTitle = 'Artikel, Tips & Wawasan | ' . $business->name;
+    $articlesDesc = 'Kumpulan artikel informatif, tips praktis, panduan produk, serta kabar update resmi dan promo terbaru langsung dari ' . $business->name . '.';
+    $articlesCanonical = url('/' . $business->slug . '/artikel');
+    $articlesOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+@endphp
+
+@section('title', $articlesTitle)
+@section('description', $articlesDesc)
+@section('canonical', $articlesCanonical)
+@section('og_title', 'Artikel, Edukasi & Kabar Terbaru - ' . $business->name)
+@section('og_description', $articlesDesc)
+@section('og_image', $articlesOgImage)
+@section('og_type', 'website')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "{{ addslashes($articlesTitle) }}",
+  "description": "{{ addslashes($articlesDesc) }}",
+  "url": "{{ $articlesCanonical }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ addslashes($business->name) }}"
+  }
+}
+</script>
+@endpush
+
 @section('content')
     <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-10">
 

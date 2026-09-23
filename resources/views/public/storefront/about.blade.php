@@ -1,5 +1,36 @@
 @extends('public.storefront.layouts.app')
 
+@php
+    $aboutTitle = 'Tentang Kami | ' . $business->name;
+    $aboutDesc = 'Mengenal visi, komitmen mutu, dan perjalanan ' . $business->name . '. Kami berdedikasi memberikan produk dan layanan terpercaya dengan standar kepuasan terbaik.';
+    $aboutCanonical = url('/' . $business->slug . '/tentang-kami');
+    $aboutOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+@endphp
+
+@section('title', $aboutTitle)
+@section('description', $aboutDesc)
+@section('canonical', $aboutCanonical)
+@section('og_title', 'Tentang Kami - Dedikasi & Standar ' . $business->name)
+@section('og_description', $aboutDesc)
+@section('og_image', $aboutOgImage)
+@section('og_type', 'website')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "{{ addslashes($aboutTitle) }}",
+  "description": "{{ addslashes($aboutDesc) }}",
+  "url": "{{ $aboutCanonical }}",
+  "mainEntity": {
+    "@type": "Organization",
+    "name": "{{ addslashes($business->name) }}"
+  }
+}
+</script>
+@endpush
+
 @section('content')
     <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-16">
 

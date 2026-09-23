@@ -14,39 +14,40 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- SEO METADATA --}}
-    <title>{{ $landingPage->meta_title ?: $business->name }}</title>
-    @if ($landingPage->meta_description ?: $landingPage->subheadline)
-        <meta name="description" content="{{ $landingPage->meta_description ?: $landingPage->subheadline }}">
-    @endif
+    @php
+        $bizTitle = $landingPage->meta_title ?: ($business->name . ' - ' . ($landingPage->headline ?: 'Toko Online & Layanan Resmi'));
+        $rawBizDesc = $landingPage->meta_description ?: ($landingPage->subheadline ?: ($business->description ?: 'Selamat datang di website resmi ' . $business->name . '. Temukan aneka produk terbaik, kemudahan pemesanan, dan layanan pelanggan terpercaya.'));
+        $bizDesc = \Illuminate\Support\Str::limit(strip_tags((string) $rawBizDesc), 155);
+        $bizCanonical = (str_starts_with((string)$business->public_url, 'http://') || str_starts_with((string)$business->public_url, 'https://')) ? $business->public_url : url($business->public_url);
+        $canonicalBrandLogo = $business->logo_url ?: $landingPage->logo_url;
+        $bizRawOgImg = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($canonicalBrandLogo ?: asset('assets/image/cooca.png')));
+        $bizCanonicalOgImg = (str_starts_with((string)$bizRawOgImg, 'http://') || str_starts_with((string)$bizRawOgImg, 'https://')) ? $bizRawOgImg : url($bizRawOgImg);
+    @endphp
+
+    <title>{{ $bizTitle }}</title>
+    <meta name="description" content="{{ $bizDesc }}">
     @if ($landingPage->meta_keywords)
         <meta name="keywords" content="{{ $landingPage->meta_keywords }}">
     @endif
-    <link rel="canonical" href="{{ $business->public_url }}">
+    <link rel="canonical" href="{{ $bizCanonical }}">
 
-    {{-- Open Graph / Social Sharing --}}
-    <meta property="og:type" content="business.business">
-    <meta property="og:title" content="{{ $landingPage->meta_title ?: $business->name }}">
-    @if ($landingPage->meta_description ?: $landingPage->subheadline)
-        <meta property="og:description" content="{{ $landingPage->meta_description ?: $landingPage->subheadline }}">
-    @endif
-    <meta property="og:url" content="{{ $business->public_url }}">
+    {{-- Open Graph / Social Sharing (WhatsApp, Telegram, Facebook, LinkedIn) --}}
+    <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $business->name }}">
-    @php
-        $canonicalBrandLogo = $business->logo_url ?: $landingPage->logo_url;
-    @endphp
-    @if ($landingPage->og_image_url || $landingPage->hero_image_url || $canonicalBrandLogo)
-        <meta property="og:image"
-            content="{{ $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: $canonicalBrandLogo) }}">
-    @endif
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:url" content="{{ $bizCanonical }}">
+    <meta property="og:title" content="{{ $bizTitle }}">
+    <meta property="og:description" content="{{ $bizDesc }}">
+    <meta property="og:image" content="{{ $bizCanonicalOgImg }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ $bizTitle }}">
+
+    {{-- Twitter / X Metadata --}}
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $landingPage->meta_title ?: $business->name }}">
-    @if ($landingPage->meta_description ?: $landingPage->subheadline)
-        <meta name="twitter:description" content="{{ $landingPage->meta_description ?: $landingPage->subheadline }}">
-    @endif
-    @if ($landingPage->og_image_url || $landingPage->hero_image_url || $canonicalBrandLogo)
-        <meta name="twitter:image"
-            content="{{ $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: $canonicalBrandLogo) }}">
-    @endif
+    <meta name="twitter:title" content="{{ $bizTitle }}">
+    <meta name="twitter:description" content="{{ $bizDesc }}">
+    <meta name="twitter:image" content="{{ $bizCanonicalOgImg }}">
 
     {{-- Schema.org JSON-LD LocalBusiness Structured Data --}}
     @php

@@ -1,5 +1,20 @@
 @extends('public.storefront.layouts.app')
 
+@php
+    $checkoutTitle = 'Checkout Pesanan | ' . $business->name;
+    $checkoutDesc = 'Selesaikan pemesanan produk dan layanan di ' . $business->name . ' dengan aman. Pembayaran mudah, konfirmasi instan, dan opsi pengiriman terpercaya.';
+    $checkoutCanonical = url('/' . $business->slug . '/checkout');
+    $checkoutOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+@endphp
+
+@section('title', $checkoutTitle)
+@section('description', $checkoutDesc)
+@section('canonical', $checkoutCanonical)
+@section('og_title', 'Checkout & Pembayaran Pesanan - ' . $business->name)
+@section('og_description', $checkoutDesc)
+@section('og_image', $checkoutOgImage)
+@section('og_type', 'website')
+
 @section('content')
 
     {{-- Checkout payload is injected via a <script> block, NOT inside the x-data="..."
@@ -163,41 +178,30 @@
             </a>
         </div>
 
-        {{-- Customer Login Gate (Marketplace Scheme - wajib login untuk checkout) --}}
+        {{-- Optional Customer Login Banner for Guests --}}
         @if (auth('customer')->guest())
-            <div x-show="$store.cart.count() > 0" class="py-12 text-center space-y-5 max-w-md mx-auto">
-                <div class="w-16 h-16 rounded-full bg-[#007AFF]/10 text-[#007AFF] mx-auto flex items-center justify-center">
-                    <i data-lucide="user-check" class="w-8 h-8"></i>
+            <div x-show="$store.cart.count() > 0"
+                class="mb-6 p-4 rounded-[16px] bg-blue-50/80 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-neutral-900 dark:text-white">Punya Akun Pelanggan?</div>
+                        <div class="text-[11px] text-neutral-500">Masuk untuk mengisi data pengiriman secara otomatis &amp; mengumpulkan poin belanja.</div>
+                    </div>
                 </div>
-                <h2 class="font-heading font-bold text-xl text-neutral-800 dark:text-neutral-200">
-                    Masuk untuk Melanjutkan Checkout
-                </h2>
-                <p class="text-sm text-neutral-500 max-w-sm mx-auto leading-relaxed">
-                    Untuk memproses pesanan, Anda perlu masuk atau membuat akun terlebih dahulu. Data pesanan di keranjang
-                    Anda tetap tersimpan.
-                </p>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <div class="flex items-center gap-2">
                     <a href="{{ route('customer.login', ['store' => $business->slug, 'redirect' => url('/' . $business->slug . '/checkout')]) }}"
-                        class="inline-flex items-center gap-2 px-6 py-3.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0066CC] text-white font-semibold text-sm shadow-md active:scale-[0.98] transition min-h-[48px] w-full sm:w-auto justify-center">
-                        <i data-lucide="log-in" class="w-4 h-4"></i>
-                        <span>Masuk Akun</span>
-                    </a>
-                    <a href="{{ route('customer.register', ['store' => $business->slug, 'redirect' => url('/' . $business->slug . '/checkout')]) }}"
-                        class="inline-flex items-center gap-2 px-6 py-3.5 rounded-[12px] bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-black/10 dark:border-white/10 font-semibold text-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 active:scale-[0.98] transition min-h-[48px] w-full sm:w-auto justify-center">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        <span>Daftar Baru</span>
+                        class="px-4 py-2 rounded-xl bg-[#007AFF] hover:bg-[#0066CC] text-white text-xs font-semibold shadow-sm transition shrink-0">
+                        Masuk Akun
                     </a>
                 </div>
-                <p class="text-xs text-neutral-400 pt-2">
-                    <i data-lucide="info" class="w-3.5 h-3.5 inline-block mr-1"></i>
-                    Tenang, keranjang belanja Anda tetap tersimpan setelah masuk.
-                </p>
             </div>
         @endif
 
-        {{-- Dedicated 2-Column Standalone Checkout (Only shown for authenticated customers) --}}
-        @if (auth('customer')->check())
-            <div x-show="$store.cart.count() > 0" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        {{-- Dedicated 2-Column Standalone Checkout --}}
+        <div x-show="$store.cart.count() > 0" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
 
                 {{-- ================================================================= --}}
                 {{-- LEFT COLUMN: FORM DETAIL PENGIRIMAN & PEMBAYARAN                  --}}
@@ -529,7 +533,5 @@
                 </div>
 
             </div>
-        @endif
-
     </div>
 @endsection

@@ -1,5 +1,42 @@
 @extends('public.storefront.layouts.app')
 
+@php
+    $contactTitle = 'Kontak & Lokasi Cabang | ' . $business->name;
+    $contactDesc = 'Hubungi tim layanan pelanggan ' . $business->name . '. Temukan informasi alamat lengkap, jam operasional toko, nomor WhatsApp resmi, dan lokasi cabang terdekat.';
+    $contactCanonical = url('/' . $business->slug . '/kontak');
+    $contactOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+@endphp
+
+@section('title', $contactTitle)
+@section('description', $contactDesc)
+@section('canonical', $contactCanonical)
+@section('og_title', 'Kontak, Lokasi & Layanan Pelanggan - ' . $business->name)
+@section('og_description', $contactDesc)
+@section('og_image', $contactOgImage)
+@section('og_type', 'website')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "{{ addslashes($contactTitle) }}",
+  "description": "{{ addslashes($contactDesc) }}",
+  "url": "{{ $contactCanonical }}",
+  "mainEntity": {
+    "@type": "Organization",
+    "name": "{{ addslashes($business->name) }}",
+    "telephone": "{{ $landingPage->whatsapp_number ?: ($business->phone ?: '') }}",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "{{ addslashes($landingPage->contact_address ?: ($business->address ?: 'Indonesia')) }}",
+      "addressCountry": "ID"
+    }
+  }
+}
+</script>
+@endpush
+
 @section('content')
     <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-12">
 

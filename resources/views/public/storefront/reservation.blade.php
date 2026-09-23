@@ -1,5 +1,36 @@
 @extends('public.storefront.layouts.app')
 
+@php
+    $resTitle = 'Reservasi Meja & Layanan | ' . $business->name;
+    $resDesc = 'Booking meja makan, reservasi jadwal treatment atau konsultasi di ' . $business->name . ' secara praktis. Konfirmasi instan dan tanpa antre panjang.';
+    $resCanonical = url('/' . $business->slug . '/reservasi');
+    $resOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+@endphp
+
+@section('title', $resTitle)
+@section('description', $resDesc)
+@section('canonical', $resCanonical)
+@section('og_title', 'Reservasi Online - ' . $business->name)
+@section('og_description', $resDesc)
+@section('og_image', $resOgImage)
+@section('og_type', 'website')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "{{ addslashes($resTitle) }}",
+  "description": "{{ addslashes($resDesc) }}",
+  "url": "{{ $resCanonical }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ addslashes($business->name) }}"
+  }
+}
+</script>
+@endpush
+
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-10"
      x-data="{

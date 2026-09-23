@@ -22,6 +22,7 @@ use App\Models\ProductCategory;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -307,7 +308,8 @@ final class PublicStorefrontController extends Controller
         }
 
         $business = $context['business'];
-        $articles = Post::where('business_id', $business->id)
+        $hasBusinessId = Schema::hasColumn('posts', 'business_id');
+        $articles = Post::when($hasBusinessId, fn ($q) => $q->where('business_id', $business->id))
             ->where('is_published', true)
             ->latest('published_at')
             ->paginate(9)
@@ -327,14 +329,15 @@ final class PublicStorefrontController extends Controller
         }
 
         $business = $context['business'];
-        $article = Post::where('business_id', $business->id)
+        $hasBusinessId = Schema::hasColumn('posts', 'business_id');
+        $article = Post::when($hasBusinessId, fn ($q) => $q->where('business_id', $business->id))
             ->where('slug', $articleSlug)
             ->where('is_published', true)
             ->firstOrFail();
 
         $article->increment('views_count');
 
-        $relatedArticles = Post::where('business_id', $business->id)
+        $relatedArticles = Post::when($hasBusinessId, fn ($q) => $q->where('business_id', $business->id))
             ->where('id', '!=', $article->id)
             ->where('is_published', true)
             ->latest('published_at')

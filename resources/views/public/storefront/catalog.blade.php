@@ -1,5 +1,36 @@
 @extends('public.storefront.layouts.app')
 
+@php
+    $catTitle = 'Katalog Produk & Layanan | ' . $business->name;
+    $catDesc = 'Jelajahi seluruh koleksi produk dan layanan resmi ' . $business->name . '. Dapatkan penawaran harga terbaik, stok kasir terjamin, dan pengiriman aman.';
+    $catOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+    $catCanonical = url('/' . $business->slug . '/katalog');
+@endphp
+
+@section('title', $catTitle)
+@section('description', $catDesc)
+@section('canonical', $catCanonical)
+@section('og_title', 'Katalog Produk & Layanan - ' . $business->name)
+@section('og_description', $catDesc)
+@section('og_image', $catOgImage)
+@section('og_type', 'website')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "{{ addslashes($catTitle) }}",
+  "description": "{{ addslashes($catDesc) }}",
+  "url": "{{ $catCanonical }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ addslashes($business->name) }}"
+  }
+}
+</script>
+@endpush
+
 @section('content')
     <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
 

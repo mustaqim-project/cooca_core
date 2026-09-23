@@ -1,5 +1,46 @@
 @extends('public.storefront.layouts.app')
 
+@php
+    $artTitle = $article->title . ' | ' . $business->name;
+    $artRawDesc = strip_tags($article->excerpt ?: ($article->content ?: 'Baca artikel selengkapnya di ' . $business->name . '. Dapatkan wawasan menarik dan informasi terpercaya.'));
+    $artDesc = \Illuminate\Support\Str::limit($artRawDesc, 155);
+    $artCanonical = url('/' . $business->slug . '/artikel/' . $article->slug);
+    $artOgImage = $article->cover_image ?: ($landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png'))));
+@endphp
+
+@section('title', $artTitle)
+@section('description', $artDesc)
+@section('canonical', $artCanonical)
+@section('og_title', $article->title . ' - ' . $business->name)
+@section('og_description', $artDesc)
+@section('og_image', $artOgImage)
+@section('og_type', 'article')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ addslashes($article->title) }}",
+  "description": "{{ addslashes($artDesc) }}",
+  "image": ["{{ (str_starts_with((string)$artOgImage, 'http://') || str_starts_with((string)$artOgImage, 'https://')) ? $artOgImage : url($artOgImage) }}"],
+  "datePublished": "{{ optional($article->published_at)->toIso8601String() ?? now()->toIso8601String() }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ addslashes($article->author_name ?: $business->name) }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ addslashes($business->name) }}"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ $artCanonical }}"
+  }
+}
+</script>
+@endpush
+
 @section('content')
 <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-10"
          x-data="{

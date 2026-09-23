@@ -1,5 +1,46 @@
 @extends('public.storefront.layouts.app')
 
+@php
+    $pTitle = $product->name . ' | ' . $business->name;
+    $rawDesc = strip_tags($product->description ?: 'Beli ' . $product->name . ' original harga terbaik hanya di ' . $business->name . '. Kualitas terjamin, stok kasir resmi & pengiriman cepat.');
+    $pDesc = \Illuminate\Support\Str::limit($rawDesc, 155);
+    $pCanonical = url('/' . $business->slug . '/produk/' . ($product->slug ?: $product->id));
+    $pOgImage = $product->image_url ?: ($landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png'))));
+    $pPrice = (float) $product->selling_price;
+@endphp
+
+@section('title', $pTitle)
+@section('description', $pDesc)
+@section('canonical', $pCanonical)
+@section('og_title', $product->name . ' - ' . $business->name)
+@section('og_description', $pDesc)
+@section('og_image', $pOgImage)
+@section('og_type', 'product')
+@section('product_price', $pPrice)
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ addslashes($product->name) }}",
+  "image": ["{{ (str_starts_with((string)$pOgImage, 'http://') || str_starts_with((string)$pOgImage, 'https://')) ? $pOgImage : url($pOgImage) }}"],
+  "description": "{{ addslashes($pDesc) }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ $pCanonical }}",
+    "priceCurrency": "IDR",
+    "price": "{{ $pPrice }}",
+    "availability": "https://schema.org/InStock",
+    "seller": {
+      "@type": "Organization",
+      "name": "{{ addslashes($business->name) }}"
+    }
+  }
+}
+</script>
+@endpush
+
 @section('content')
     <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12" x-data="{
         quantity: 1,

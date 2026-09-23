@@ -1,5 +1,40 @@
 @extends('public.storefront.layouts.app')
 
+@php
+    $pageTitle = $landingPage->meta_title ?: ($business->name . ' - ' . ($landingPage->headline ?: 'Toko Online Resmi'));
+    $pageDesc = $landingPage->meta_description ?: ($landingPage->subheadline ?: ($business->description ?: 'Selamat datang di toko resmi ' . $business->name . '. Belanja aneka produk dan layanan berkualitas dengan transaksi aman.'));
+    $pageDesc = \Illuminate\Support\Str::limit(strip_tags((string) $pageDesc), 155);
+    $pageOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+    $pageCanonical = url('/' . $business->slug);
+@endphp
+
+@section('title', $pageTitle)
+@section('description', $pageDesc)
+@section('canonical', $pageCanonical)
+@section('og_title', $business->name . ' | ' . ($landingPage->headline ?: 'Toko Resmi Terverifikasi'))
+@section('og_description', $pageDesc)
+@section('og_image', $pageOgImage)
+@section('og_type', 'website')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "Store",
+  "name": "{{ addslashes($business->name) }}",
+  "description": "{{ addslashes($pageDesc) }}",
+  "url": "{{ $pageCanonical }}",
+  "telephone": "{{ $landingPage->whatsapp_number ?: ($business->phone ?: '') }}",
+  "image": "{{ (str_starts_with((string)$pageOgImage, 'http') ? $pageOgImage : url($pageOgImage)) }}",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "{{ addslashes($landingPage->contact_address ?: ($business->address ?: 'Indonesia')) }}",
+    "addressCountry": "ID"
+  }
+}
+</script>
+@endpush
+
 @section('content')
     <div class="space-y-16 sm:space-y-24 pb-20">
 
