@@ -66,132 +66,148 @@
 @endphp
 
 @section('content')
-    <div class="pt-6 sm:pt-10 pb-24 bg-[#F5F5F7] dark:bg-[#000000] min-h-screen">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
+<div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
+    {{-- Hero Section (Midnight #060B1E Full-Bleed) --}}
+    <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+        {{-- Dual Ambient Glows --}}
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
             {{-- Breadcrumb --}}
-            <nav class="flex items-center gap-2 text-xs text-[#6E6E73] dark:text-[#86868B]" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}" class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Beranda</a>
-                <span aria-hidden="true">/</span>
-                <a href="{{ route('marketplace.index') }}" class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Marketplace</a>
-                <span aria-hidden="true">/</span>
-                <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold" aria-current="page">Cakupan Wilayah</span>
+            <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <a href="{{ route('marketplace.index') }}" class="hover:text-white transition-colors">Marketplace</a>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <span class="text-[#00C4D8] font-semibold" aria-current="page">Cakupan Wilayah</span>
             </nav>
 
             {{-- Header & Search Bar --}}
             <div class="max-w-3xl space-y-4">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/15 border border-blue-500/20 text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
                     <i data-lucide="map-pin" class="w-3.5 h-3.5" aria-hidden="true"></i>
                     <span>Cakupan Wilayah Nusantara</span>
                 </div>
 
-                <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
-                    Temukan Bisnis & Toko Lokal di Kota Anda
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
+                    Temukan Bisnis & <span class="text-[#00C4D8]">Toko Lokal di Kota Anda</span>
                 </h1>
 
-                <p class="text-base text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
+                <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
                     Dukung pertumbuhan perputaran ekonomi daerah. Jelajahi ribuan pelaku usaha yang memiliki gerai fisik maupun etalase online di kota tempat tinggal Anda.
                 </p>
 
                 {{-- City Search Form --}}
                 <form method="GET" action="{{ route('marketplace.search') }}" class="pt-2">
-                    <div class="relative flex items-center bg-white dark:bg-[#1C1C1E] rounded-[16px] border border-neutral-200/80 dark:border-neutral-800 p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-[#007AFF] transition">
-                        <i data-lucide="map-pin" class="w-5 h-5 ml-3.5 text-[#6E6E73] dark:text-[#86868B] shrink-0" aria-hidden="true"></i>
-                        <input type="text" name="q" placeholder="Ketik nama kota, misalnya: Bandung, Surabaya, Solo..." class="w-full bg-transparent border-0 px-3.5 py-3 text-sm sm:text-base text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#6E6E73]/50 focus:outline-none">
-                        <button type="submit" class="shrink-0 h-11 px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-sm font-semibold shadow-sm active:scale-[0.98] transition">
+                    <div class="relative flex items-center bg-[#0E1E45]/80 rounded-[18px] border border-white/15 p-1.5 shadow-2xl backdrop-blur-md focus-within:ring-2 focus-within:ring-[#00C4D8] transition">
+                        <i data-lucide="map-pin" class="w-5 h-5 ml-3.5 text-slate-400 shrink-0" aria-hidden="true"></i>
+                        <input type="text" name="q" placeholder="Ketik nama kota, misalnya: Bandung, Surabaya, Solo..." class="w-full bg-transparent border-0 px-3.5 py-3 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none">
+                        <button type="submit" class="shrink-0 h-11 px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition">
                             Cari Kota
                         </button>
                     </div>
                 </form>
             </div>
+        </div>
+    </section>
 
-            {{-- Region Grid --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @foreach ($regions as $r)
-                    <div class="p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 hover:border-[#007AFF]/40 transition shadow-sm space-y-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
-                                <i data-lucide="map" class="w-5 h-5" aria-hidden="true"></i>
-                            </div>
-                            <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">
-                                {{ $r['region'] }}
-                            </h3>
+    {{-- Main Content Locations --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-12 sm:space-y-16">
+
+        {{-- Region Grid --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @foreach ($regions as $r)
+                <div class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-xl transition-all duration-300 shadow-sm space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                            <i data-lucide="map" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
-
-                        <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
-                            {{ $r['desc'] }}
-                        </p>
-
-                        {{-- City Pills --}}
-                        <div class="flex flex-wrap gap-2 pt-2">
-                            @foreach ($r['cities'] as $city)
-                                <a href="{{ route('marketplace.search', ['q' => $city]) }}" class="px-3 py-1.5 rounded-[10px] bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/60 dark:border-neutral-800 hover:border-[#007AFF]/40 hover:text-[#007AFF] text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] transition flex items-center gap-1">
-                                    <i data-lucide="map-pin" class="w-3 h-3 text-[#6E6E73]" aria-hidden="true"></i>
-                                    <span>{{ $city }}</span>
-                                </a>
-                            @endforeach
-                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                            {{ $r['region'] }}
+                        </h3>
                     </div>
-                @endforeach
+
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        {{ $r['desc'] }}
+                    </p>
+
+                    {{-- City Pills --}}
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        @foreach ($r['cities'] as $city)
+                            <a href="{{ route('marketplace.search', ['q' => $city]) }}" class="px-3 py-1.5 rounded-[10px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 hover:border-[#007AFF]/40 hover:text-[#007AFF] text-xs font-semibold text-slate-700 dark:text-slate-300 transition flex items-center gap-1">
+                                <i data-lucide="map-pin" class="w-3 h-3 text-slate-400" aria-hidden="true"></i>
+                                <span>{{ $city }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- Advantages of Local Buying Bento --}}
+        <section class="p-6 sm:p-10 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-6 shadow-sm">
+            <div class="max-w-2xl">
+                <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">Keuntungan Berbelanja Lokal</span>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">Mengapa Membeli dari UMKM di Kota Anda?</h2>
             </div>
 
-            {{-- Advantages of Local Buying Bento --}}
-            <section class="p-6 sm:p-10 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 space-y-6 shadow-sm">
-                <div class="max-w-2xl">
-                    <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#0A84FF] block">Keuntungan Berbelanja Lokal</span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-1">Mengapa Membeli dari UMKM di Kota Anda?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
+                    <div class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                        <i data-lucide="zap" class="w-5 h-5" aria-hidden="true"></i>
+                    </div>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Pengiriman Instan Cepat</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Pesan barang kebutuhan atau kuliner dengan kurir instan sameday, tiba di tangan Anda dalam beberapa jam saja.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="p-5 rounded-[18px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 space-y-2">
-                        <div class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                            <i data-lucide="zap" class="w-5 h-5" aria-hidden="true"></i>
-                        </div>
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Pengiriman Instan Cepat</h4>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">Pesan barang kebutuhan atau kuliner dengan kurir instan sameday, tiba di tangan Anda dalam beberapa jam saja.</p>
+                <div class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
+                    <div class="w-9 h-9 rounded-[10px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center">
+                        <i data-lucide="store" class="w-5 h-5" aria-hidden="true"></i>
                     </div>
-
-                    <div class="p-5 rounded-[18px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 space-y-2">
-                        <div class="w-9 h-9 rounded-[10px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center">
-                            <i data-lucide="store" class="w-5 h-5" aria-hidden="true"></i>
-                        </div>
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Ambil Sendiri (Self Pick-up)</h4>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">Pesan online lewat storefront penjual dan ambil paket pesanan langsung di toko fisik tanpa biaya kirim.</p>
-                    </div>
-
-                    <div class="p-5 rounded-[18px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 space-y-2">
-                        <div class="w-9 h-9 rounded-[10px] bg-purple-500/10 text-purple-600 flex items-center justify-center">
-                            <i data-lucide="coins" class="w-5 h-5" aria-hidden="true"></i>
-                        </div>
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Hemat Biaya Ongkos Kirim</h4>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">Jarak pengiriman yang lebih dekat memangkas biaya ekspedisi secara signifikan dibandingkan memesan dari luar pulau.</p>
-                    </div>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Ambil Sendiri (Self Pick-up)</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Pesan online lewat storefront penjual dan ambil paket pesanan langsung di toko fisik tanpa biaya kirim.</p>
                 </div>
-            </section>
 
-            {{-- Final CTA --}}
-            <section class="p-8 sm:p-12 rounded-[24px] bg-[#161618] border border-white/[0.08] text-white text-center space-y-5 shadow-sm">
-                <div class="text-xs font-semibold uppercase tracking-wider text-[#86868B] inline-flex items-center gap-1.5 mx-auto">
-                    <i data-lucide="map-pin" class="w-4 h-4 text-[#34C759]" aria-hidden="true"></i>
+                <div class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
+                    <div class="w-9 h-9 rounded-[10px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                        <i data-lucide="coins" class="w-5 h-5" aria-hidden="true"></i>
+                    </div>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Hemat Biaya Ongkos Kirim</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Jarak pengiriman yang lebih dekat memangkas biaya ekspedisi secara signifikan dibandingkan memesan dari luar pulau.</p>
+                </div>
+            </div>
+        </section>
+
+        {{-- Final CTA --}}
+        <section class="relative p-8 sm:p-14 rounded-[28px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden text-center space-y-5">
+            <div class="absolute top-0 right-1/4 w-72 h-72 bg-[#007AFF]/20 rounded-full blur-[100px] pointer-events-none"></div>
+            <div class="absolute bottom-0 left-1/4 w-72 h-72 bg-[#00C4D8]/15 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-5 max-w-2xl mx-auto">
+                <div class="text-xs font-semibold uppercase tracking-wider text-[#00C4D8] inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/15 border border-[#00C4D8]/30">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
                     <span>Jangkau Pembeli di Kota Anda</span>
                 </div>
                 <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                     Daftarkan Alamat Toko Fisik Anda Sekarang
                 </h3>
-                <p class="text-sm text-[#86868B] max-w-xl mx-auto leading-relaxed">
+                <p class="text-sm text-slate-300 leading-relaxed">
                     Daftar akun COOCA dan cantumkan lokasi cabang gerai Anda agar calon pembeli di sekitar kota Anda dapat menemukan toko Anda dengan mudah.
                 </p>
                 <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-                    <a href="{{ route('register') }}" class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-sm active:scale-95 transition-all">
+                    <a href="{{ route('register') }}" class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-95 transition-all">
                         <span>Buka Toko Gratis</span>
                         <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
                     </a>
-                    <a href="{{ route('marketplace.index') }}" class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all">
+                    <a href="{{ route('marketplace.index') }}" class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all backdrop-blur-sm">
                         <span>Beranda Marketplace</span>
                     </a>
                 </div>
-            </section>
+            </div>
+        </section>
 
-        </div>
     </div>
+</div>
 @endsection

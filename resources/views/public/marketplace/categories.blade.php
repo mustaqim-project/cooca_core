@@ -82,119 +82,135 @@
 @endphp
 
 @section('content')
-    <div class="pt-6 sm:pt-10 pb-24 bg-[#F5F5F7] dark:bg-[#000000] min-h-screen">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
+<div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
+    {{-- Hero Section (Midnight #060B1E Full-Bleed) --}}
+    <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+        {{-- Dual Ambient Glows --}}
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
             {{-- Breadcrumb --}}
-            <nav class="flex items-center gap-2 text-xs text-[#6E6E73] dark:text-[#86868B]" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}" class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Beranda</a>
-                <span aria-hidden="true">/</span>
-                <a href="{{ route('marketplace.index') }}" class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Marketplace</a>
-                <span aria-hidden="true">/</span>
-                <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold" aria-current="page">Kategori Usaha</span>
+            <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <a href="{{ route('marketplace.index') }}" class="hover:text-white transition-colors">Marketplace</a>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <span class="text-[#00C4D8] font-semibold" aria-current="page">Kategori Usaha</span>
             </nav>
 
             {{-- Header --}}
             <div class="max-w-3xl space-y-4">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/15 border border-blue-500/20 text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
                     <i data-lucide="layout-grid" class="w-3.5 h-3.5" aria-hidden="true"></i>
                     <span>Klasifikasi Sektor Bisnis</span>
                 </div>
 
-                <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
-                    Jelajahi Berbagai Kategori Produk & Layanan Bisnis
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
+                    Jelajahi Berbagai Kategori <span class="text-[#00C4D8]">Produk & Layanan Bisnis</span>
                 </h1>
 
-                <p class="text-base text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
+                <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
                     Setiap toko dan produk di COOCA dikelompokkan secara terstruktur berdasarkan sektor industri, memudahkan Anda menemukan barang kebutuhan harian maupun layanan profesional terdekat.
                 </p>
             </div>
+        </div>
+    </section>
 
-            {{-- Category Bento Cards --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach ($categoriesData as $key => $cat)
-                    <div class="p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 hover:border-[#007AFF]/40 transition shadow-sm space-y-5 flex flex-col justify-between group">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="w-12 h-12 rounded-[16px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
-                                    <i data-lucide="{{ $cat['icon'] }}" class="w-6 h-6" aria-hidden="true"></i>
-                                </div>
-                                <span class="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-mono font-semibold text-[#6E6E73] dark:text-[#86868B]">
-                                    {{ $cat['count'] }} Toko Terdaftar
-                                </span>
-                            </div>
+    {{-- Main Content Categories --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-12 sm:space-y-16">
 
-                            <div class="space-y-2">
-                                <h3 class="text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] transition">
-                                    {{ $cat['title'] }}
-                                </h3>
-                                <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
-                                    {{ $cat['desc'] }}
-                                </p>
+        {{-- Category Bento Cards --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach ($categoriesData as $key => $cat)
+                <div class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-xl transition-all duration-300 shadow-sm space-y-5 flex flex-col justify-between group">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="w-12 h-12 rounded-[16px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                                <i data-lucide="{{ $cat['icon'] }}" class="w-6 h-6" aria-hidden="true"></i>
                             </div>
-
-                            {{-- Popular Tags --}}
-                            <div class="flex flex-wrap gap-1.5 pt-2">
-                                @foreach ($cat['tags'] as $tag)
-                                    <span class="px-2.5 py-1 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-100 dark:border-neutral-800 text-[11px] text-[#6E6E73] dark:text-[#86868B]">
-                                        {{ $tag }}
-                                    </span>
-                                @endforeach
-                            </div>
+                            <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-white/10 text-xs font-mono font-semibold text-slate-600 dark:text-slate-300">
+                                {{ $cat['count'] }} Toko Terdaftar
+                            </span>
                         </div>
 
-                        <div class="pt-4 border-t border-neutral-100 dark:border-neutral-800/80">
-                            <a href="{{ route('marketplace.search', ['kategori' => $key]) }}" class="w-full h-11 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 hover:bg-[#007AFF] hover:text-white dark:hover:bg-[#007AFF] text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-center gap-2 transition">
-                                <span>Lihat Produk {{ $cat['title'] }}</span>
-                                <i data-lucide="arrow-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                            </a>
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                                {{ $cat['title'] }}
+                            </h3>
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                                {{ $cat['desc'] }}
+                            </p>
+                        </div>
+
+                        {{-- Popular Tags --}}
+                        <div class="flex flex-wrap gap-1.5 pt-2">
+                            @foreach ($cat['tags'] as $tag)
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 text-[11px] text-slate-600 dark:text-slate-300">
+                                    {{ $tag }}
+                                </span>
+                            @endforeach
                         </div>
                     </div>
-                @endforeach
-            </div>
 
-            {{-- Related Links --}}
-            <section class="border-t border-neutral-200/80 dark:border-neutral-800 pt-12 space-y-6">
-                <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Kanal Direktori Lainnya</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <a href="{{ route('marketplace.sub.businesses') }}" class="p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 hover:border-[#007AFF]/40 transition shadow-sm space-y-1 group">
-                        <span class="text-xs uppercase font-bold text-[#007AFF]">Direktori Toko</span>
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] transition">Semua Toko Terverifikasi</h4>
-                    </a>
-                    <a href="{{ route('marketplace.sub.products') }}" class="p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 hover:border-[#007AFF]/40 transition shadow-sm space-y-1 group">
-                        <span class="text-xs uppercase font-bold text-[#007AFF]">Katalog Produk</span>
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] transition">Semua Produk Unggulan</h4>
-                    </a>
-                    <a href="{{ route('marketplace.sub.locations') }}" class="p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 hover:border-[#007AFF]/40 transition shadow-sm space-y-1 group">
-                        <span class="text-xs uppercase font-bold text-[#007AFF]">Wilayah Kota</span>
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] transition">Cari Berdasarkan Kota</h4>
-                    </a>
+                    <div class="pt-4 border-t border-slate-100 dark:border-white/10">
+                        <a href="{{ route('marketplace.search', ['kategori' => $key]) }}" class="w-full h-11 rounded-[12px] bg-slate-100 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white dark:hover:bg-[#007AFF] text-xs font-semibold text-slate-900 dark:text-white flex items-center justify-center gap-2 transition">
+                            <span>Lihat Produk {{ $cat['title'] }}</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                        </a>
+                    </div>
                 </div>
-            </section>
+            @endforeach
+        </div>
 
-            {{-- Final CTA --}}
-            <section class="p-8 sm:p-12 rounded-[24px] bg-[#161618] border border-white/[0.08] text-white text-center space-y-5 shadow-sm">
-                <div class="text-xs font-semibold uppercase tracking-wider text-[#86868B] inline-flex items-center gap-1.5 mx-auto">
-                    <i data-lucide="store" class="w-4 h-4 text-[#34C759]" aria-hidden="true"></i>
+        {{-- Related Links --}}
+        <section class="border-t border-slate-200/80 dark:border-white/10 pt-12 space-y-6">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Kanal Direktori Lainnya</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <a href="{{ route('marketplace.sub.businesses') }}" class="p-5 rounded-[18px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-md transition shadow-sm space-y-1 group">
+                    <span class="text-xs uppercase font-bold text-[#007AFF]">Direktori Toko</span>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">Semua Toko Terverifikasi</h4>
+                </a>
+                <a href="{{ route('marketplace.sub.products') }}" class="p-5 rounded-[18px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-md transition shadow-sm space-y-1 group">
+                    <span class="text-xs uppercase font-bold text-[#007AFF]">Katalog Produk</span>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">Semua Produk Unggulan</h4>
+                </a>
+                <a href="{{ route('marketplace.sub.locations') }}" class="p-5 rounded-[18px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-md transition shadow-sm space-y-1 group">
+                    <span class="text-xs uppercase font-bold text-[#007AFF]">Wilayah Kota</span>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">Cari Berdasarkan Kota</h4>
+                </a>
+            </div>
+        </section>
+
+        {{-- Final CTA --}}
+        <section class="relative p-8 sm:p-14 rounded-[28px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden text-center space-y-5">
+            <div class="absolute top-0 right-1/4 w-72 h-72 bg-[#007AFF]/20 rounded-full blur-[100px] pointer-events-none"></div>
+            <div class="absolute bottom-0 left-1/4 w-72 h-72 bg-[#00C4D8]/15 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-5 max-w-2xl mx-auto">
+                <div class="text-xs font-semibold uppercase tracking-wider text-[#00C4D8] inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/15 border border-[#00C4D8]/30">
+                    <i data-lucide="store" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
                     <span>Tingkatkan Visibilitas Bisnis Anda</span>
                 </div>
                 <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                     Daftarkan Usaha Anda ke Kategori yang Sesuai
                 </h3>
-                <p class="text-sm text-[#86868B] max-w-xl mx-auto leading-relaxed">
+                <p class="text-sm text-slate-300 leading-relaxed">
                     Dapatkan calon pelanggan baru yang mencari produk atau layanan di industri Anda setiap hari melalui jaringan marketplace COOCA.
                 </p>
                 <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-                    <a href="{{ route('register') }}" class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-sm active:scale-95 transition-all">
+                    <a href="{{ route('register') }}" class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-95 transition-all">
                         <span>Buka Toko Gratis</span>
                         <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
                     </a>
-                    <a href="{{ route('marketplace.index') }}" class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all">
+                    <a href="{{ route('marketplace.index') }}" class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all backdrop-blur-sm">
                         <span>Beranda Marketplace</span>
                     </a>
                 </div>
-            </section>
+            </div>
+        </section>
 
-        </div>
     </div>
+</div>
 @endsection

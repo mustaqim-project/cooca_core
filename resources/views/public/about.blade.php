@@ -1,24 +1,22 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Tentang COOCA: Visi Business Operating System untuk UMKM Indonesia')
-@section('description', 'Kisah di balik COOCA: Dibangun untuk menyelesaikan masalah fragmentasi aplikasi bisnis,
-    menyatukan kasir, stok, keuangan, dan otomasi dalam satu ekosistem yang terhubung.')
-@section('keywords', 'tentang cooca, visi cooca, business operating system indonesia, software erp umkm lokal, filosofi
-    produk cooca')
+@section('description', 'Kisah di balik COOCA: Dibangun untuk menyelesaikan masalah fragmentasi aplikasi bisnis, menyatukan kasir, stok, keuangan, dan otomasi dalam satu ekosistem yang terhubung.')
+@section('keywords', 'tentang cooca, visi cooca, business operating system indonesia, software erp umkm lokal, filosofi produk cooca')
 
-    @push('seo')
-        <link rel="canonical" href="{{ route('public.about') }}">
-        <meta property="og:title" content="Tentang COOCA: Visi Business Operating System untuk UMKM Indonesia">
-        <meta property="og:description"
-            content="Mengapa COOCA dibangun: menyatukan operasional, penjualan, stok, dan pembukuan bisnis dalam satu sistem terpadu tanpa fragmentasi data.">
-        <meta property="og:url" content="{{ route('public.about') }}">
-        <meta property="og:type" content="website">
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Tentang COOCA: Visi Business Operating System untuk UMKM Indonesia">
-        <meta name="twitter:description"
-            content="Kisah, filosofi produk, dan komitmen COOCA memberdayakan pelaku usaha mandiri di seluruh Indonesia.">
+@push('seo')
+    <link rel="canonical" href="{{ route('public.about') }}">
+    <meta property="og:title" content="Tentang COOCA: Visi Business Operating System untuk UMKM Indonesia">
+    <meta property="og:description"
+        content="Mengapa COOCA dibangun: menyatukan operasional, penjualan, stok, dan pembukuan bisnis dalam satu sistem terpadu tanpa fragmentasi data.">
+    <meta property="og:url" content="{{ route('public.about') }}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tentang COOCA: Visi Business Operating System untuk UMKM Indonesia">
+    <meta name="twitter:description"
+        content="Kisah, filosofi produk, dan komitmen COOCA memberdayakan pelaku usaha mandiri di seluruh Indonesia.">
 
-        <script type="application/ld+json">
+    <script type="application/ld+json">
     {
       "@@context": "https://schema.org",
       "@type": "AboutPage",
@@ -27,44 +25,48 @@
       "url": "{{ route('public.about') }}"
     }
     </script>
-    @endpush
+@endpush
 
 @section('content')
-    <div class="pt-6 sm:pt-10 pb-24 bg-[#F5F5F7] dark:bg-[#000000] min-h-screen">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-24">
+<div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    {{-- HERO SECTION (Midnight #060B1E Full-Bleed) --}}
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+        {{-- Dual Ambient Glows --}}
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
             {{-- Breadcrumb --}}
-            <nav class="flex items-center gap-2 text-xs text-[#6E6E73] dark:text-[#86868B]" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}"
-                    class="hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors">Beranda</a>
-                <span aria-hidden="true">/</span>
+            <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                <span aria-hidden="true" class="text-white/20">/</span>
                 <span>Perusahaan</span>
-                <span aria-hidden="true">/</span>
-                <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold" aria-current="page">Tentang Kami</span>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <span class="text-[#00C4D8] font-semibold" aria-current="page">Tentang Kami</span>
             </nav>
 
-            {{-- Hero Section (2-Col Desktop) --}}
-            <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 {{-- Left: Origin & Mission --}}
                 <div class="lg:col-span-7 space-y-6">
-                    <div
-                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/15 border border-blue-500/20 text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
                         <i data-lucide="compass" class="w-3.5 h-3.5" aria-hidden="true"></i>
                         <span>Misi & Filosofi Kami</span>
                     </div>
 
-                    <h1
-                        class="text-3xl sm:text-4xl md:text-3xl lg:text-[2.75rem] xl:text-[3.25rem] font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
-                        Mengakhiri Fragmentasi Aplikasi Bisnis untuk Pemilik Usaha Indonesia
+                    <h1 class="text-3xl sm:text-4xl md:text-3xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                        Mengakhiri Fragmentasi Aplikasi Bisnis untuk <span class="text-[#00C4D8]">Pemilik Usaha Indonesia</span>
                     </h1>
 
-                    <p class="text-base sm:text-lg text-[#6E6E73] dark:text-[#86868B] leading-relaxed max-w-xl">
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
                         COOCA dibangun dari satu kegelisahan nyata: mengapa seorang pemilik bisnis harus berlangganan 5
                         aplikasi berbeda, mengetik ulang nota ke spreadsheet hingga larut malam, dan tetap tidak tahu persis
                         berapa keuntungan bersih usahanya di akhir bulan?
                     </p>
 
-                    <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B] leading-relaxed max-w-xl">
+                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
                         Kami percaya bahwa teknologi bisnis kelas dunia bukan hanya hak korporasi raksasa bermodal miliaran.
                         Setiap kafe, toko kelontong, bengkel, klinik, dan produsen UMKM berhak memiliki satu sistem operasi
                         terpadu yang sederhana, indah, dan saling terhubung.
@@ -72,12 +74,12 @@
 
                     <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
                         <a href="{{ route('register') }}"
-                            class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all">
+                            class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
                             <span>Mulai Coba COOCA Gratis</span>
                             <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
                         </a>
                         <a href="{{ route('public.bos.overview') }}"
-                            class="h-12 px-6 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-neutral-50 dark:hover:bg-neutral-800/50 text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98]">
+                            class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98] backdrop-blur-sm">
                             <span>Pelajari Arsitektur OS</span>
                         </a>
                     </div>
@@ -85,236 +87,212 @@
 
                 {{-- Right: Philosophy Diagram (Bento Apple HIG Card) --}}
                 <div class="lg:col-span-5">
-                    <div
-                        class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 p-6 sm:p-7 shadow-sm space-y-6">
-                        <div class="border-b border-neutral-100 dark:border-neutral-800/80 pb-4">
-                            <span class="text-xs uppercase font-mono font-bold text-[#007AFF] block">Satu Sumber Kebenaran
-                                Data</span>
-                            <h3 class="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5">Filosofi Ekosistem
-                                COOCA</h3>
+                    <div class="rounded-2xl bg-[#0E1E45]/80 p-6 sm:p-7 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-6">
+                        <div class="border-b border-white/10 pb-4">
+                            <span class="text-xs uppercase font-mono font-bold text-[#00C4D8] block">Satu Sumber Kebenaran Data</span>
+                            <h3 class="text-base font-bold text-white mt-0.5">Filosofi Ekosistem COOCA</h3>
                         </div>
 
                         <div class="space-y-3.5 text-xs">
-                            <div
-                                class="p-3.5 rounded-[16px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 flex items-center gap-3">
-                                <div
-                                    class="w-9 h-9 rounded-[10px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                            <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center shrink-0">
                                     <i data-lucide="shopping-cart" class="w-4 h-4" aria-hidden="true"></i>
                                 </div>
                                 <div class="min-w-0">
-                                    <p class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Channel Penjualan Terbuka</p>
-                                    <p class="text-[11px] text-[#6E6E73] dark:text-[#86868B]">POS Kasir Toko • Storefront
-                                        Online • WhatsApp</p>
+                                    <p class="font-bold text-white">Channel Penjualan Terbuka</p>
+                                    <p class="text-[11px] text-slate-300">POS Kasir Toko • Storefront Online • WhatsApp</p>
                                 </div>
                             </div>
 
-                            <div class="flex justify-center text-neutral-300 dark:text-neutral-700">
+                            <div class="flex justify-center text-slate-500">
                                 <i data-lucide="arrow-down" class="w-4 h-4" aria-hidden="true"></i>
                             </div>
 
-                            <div
-                                class="p-3.5 rounded-[16px] bg-neutral-900 text-white border border-neutral-800 flex items-center gap-3">
-                                <div
-                                    class="w-9 h-9 rounded-[10px] bg-white/10 text-emerald-400 flex items-center justify-center shrink-0">
+                            <div class="p-3.5 rounded-[16px] bg-[#060B1E]/90 border border-white/15 flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] bg-white/10 text-[#00C4D8] flex items-center justify-center shrink-0">
                                     <i data-lucide="cpu" class="w-4 h-4" aria-hidden="true"></i>
                                 </div>
                                 <div class="min-w-0">
                                     <p class="font-bold text-white">COOCA Business Operating Core</p>
-                                    <p class="text-[11px] text-neutral-400">Sinkronisasi Stok Gudang • Jurnal Kas • Otomasi
-                                        Pesanan</p>
+                                    <p class="text-[11px] text-slate-300">Sinkronisasi Stok Gudang • Jurnal Kas • Otomasi Pesanan</p>
                                 </div>
                             </div>
 
-                            <div class="flex justify-center text-neutral-300 dark:text-neutral-700">
+                            <div class="flex justify-center text-slate-500">
                                 <i data-lucide="arrow-down" class="w-4 h-4" aria-hidden="true"></i>
                             </div>
 
-                            <div
-                                class="p-3.5 rounded-[16px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 flex items-center gap-3">
-                                <div
-                                    class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                            <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
                                     <i data-lucide="line-chart" class="w-4 h-4" aria-hidden="true"></i>
                                 </div>
                                 <div class="min-w-0">
-                                    <p class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Kendali Pemilik Bisnis (Owner)
-                                    </p>
-                                    <p class="text-[11px] text-[#6E6E73] dark:text-[#86868B]">Laporan Laba Riil • Arus Kas
-                                        Bersih • Keputusan Cepat</p>
+                                    <p class="font-bold text-white">Kendali Pemilik Bisnis (Owner)</p>
+                                    <p class="text-[11px] text-slate-300">Laporan Laba Riil • Arus Kas Bersih • Keputusan Cepat</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="p-3 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] text-xs font-semibold text-center">
+                        <div class="p-3 rounded-[12px] bg-[#007AFF]/15 border border-[#007AFF]/30 text-[#00C4D8] text-xs font-semibold text-center">
                             Tanpa input ganda. Tanpa selisih data.
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </div>
+    </section>
 
-            {{-- 4 Core Product Principles --}}
-            <section class="space-y-8">
-                <div class="max-w-2xl space-y-2">
-                    <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#0A84FF] block">
-                        Prinsip Produk
-                    </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
-                        Empat Fondasi Utama di Setiap Baris Kode COOCA
-                    </h2>
+    {{-- Main Content Sections --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-16 sm:space-y-24">
+
+        {{-- 4 Core Product Principles --}}
+        <section class="space-y-8">
+            <div class="max-w-2xl space-y-2">
+                <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
+                    Prinsip Produk
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    Empat Fondasi Utama di Setiap Baris Kode COOCA
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
+                    <div class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center">
+                        <i data-lucide="layers" class="w-5 h-5" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">1. Ekosistem Terhubung, Bukan Tambal Sulam</h3>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Kami menolak pendekatan aplikasi terpisah yang memaksa Anda menghubungkan API rumit atau
+                        menyalin file CSV manual. Di COOCA, penjualan kasir, stok gudang, dan pembukuan jurnal adalah
+                        satu kesatuan sejak hari pertama.
+                    </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div
-                        class="p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 space-y-3 shadow-sm">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center">
-                            <i data-lucide="layers" class="w-5 h-5" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">1. Ekosistem Terhubung, Bukan
-                            Tambal Sulam</h3>
-                        <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
-                            Kami menolak pendekatan aplikasi terpisah yang memaksa Anda menghubungkan API rumit atau
-                            menyalin file CSV manual. Di COOCA, penjualan kasir, stok gudang, dan pembukuan jurnal adalah
-                            satu kesatuan sejak hari pertama.
-                        </p>
+                <div class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
+                    <div class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                        <i data-lucide="sparkles" class="w-5 h-5" aria-hidden="true"></i>
                     </div>
-
-                    <div
-                        class="p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 space-y-3 shadow-sm">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                            <i data-lucide="sparkles" class="w-5 h-5" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">2. Desain Humanis Tanpa Beban
-                            Belajar</h3>
-                        <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
-                            Terinspirasi oleh Apple Human Interface Guidelines, antarmuka COOCA dirancang agar kasir berusia
-                            18 tahun maupun pemilik usaha berusia 60 tahun dapat langsung menggunakannya dengan nyaman tanpa
-                            perlu membaca buku manual tebal.
-                        </p>
-                    </div>
-
-                    <div
-                        class="p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 space-y-3 shadow-sm">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-600 flex items-center justify-center">
-                            <i data-lucide="shield-check" class="w-5 h-5" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">3. Kedaulatan & Kerahasiaan Data
-                            Pemilik</h3>
-                        <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
-                            Formula resep, margin keuntungan, daftar supplier distributor, dan database pelanggan Anda
-                            adalah rahasia dapur bisnis Anda. Kami mengisolasi data tiap tenant secara ketat dan tidak
-                            pernah memonetisasi atau menjual data Anda ke pihak ketiga.
-                        </p>
-                    </div>
-
-                    <div
-                        class="p-7 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 space-y-3 shadow-sm">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 flex items-center justify-center">
-                            <i data-lucide="heart-handshake" class="w-5 h-5" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">4. Harga Jujur Tanpa Jebakan Fitur
-                            Terkunci</h3>
-                        <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
-                            Kami percaya pada transparansi harga. Fitur operasional esensial tersedia dapat diakses sejak
-                            awal agar usaha mikro dapat langsung beroperasi secara profesional tanpa dibebani biaya
-                            langganan yang mencekik modal awal.
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            {{-- Who We Serve (Target Audience) --}}
-            <section
-                class="p-6 sm:p-10 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-neutral-200/80 dark:border-neutral-800 space-y-8 shadow-sm">
-                <div class="max-w-2xl">
-                    <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#0A84FF] block">
-                        Siapa yang Kami Layani
-                    </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-1">
-                        Dirancang untuk Bisnis Mandiri yang Siap Naik Kelas
-                    </h2>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">2. Desain Humanis Tanpa Beban Belajar</h3>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Terinspirasi oleh Apple Human Interface Guidelines, antarmuka COOCA dirancang agar kasir berusia
+                        18 tahun maupun pemilik usaha berusia 60 tahun dapat langsung menggunakannya dengan nyaman tanpa
+                        perlu membaca buku manual tebal.
+                    </p>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <div
-                        class="p-5 rounded-[18px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 space-y-2">
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Kuliner & Restoran (F&B)</h4>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">Kedai kopi, kafe, resto
-                            keluarga, dan cloud kitchen yang ingin mengontrol HPP bahan baku dan cetak tiket dapur KOT
-                            otomatis.</p>
+                <div class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
+                    <div class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-5 h-5" aria-hidden="true"></i>
                     </div>
-
-                    <div
-                        class="p-5 rounded-[18px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 space-y-2">
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Toko Retail & Kelontong</h4>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">Minimarket dan toko fashion
-                            yang mengelola ribuan SKU barang, barcode scanner, multi-satuan dus/pcs, dan rekap kasbon.</p>
-                    </div>
-
-                    <div
-                        class="p-5 rounded-[18px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 space-y-2">
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Bengkel & Otomotif</h4>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">Bengkel motor dan mobil yang
-                            butuh SPK digital, lacak histori plat nomor, stok sparepart & oli, serta bagi hasil komisi
-                            montir.</p>
-                    </div>
-
-                    <div
-                        class="p-5 rounded-[18px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 space-y-2">
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Usaha Laundry</h4>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">Laundry kiloan dan dry
-                            cleaning yang memerlukan timbangan desimal akurat, nomor rak baju, dan notifikasi WA cucian siap
-                            jemput.</p>
-                    </div>
-
-                    <div
-                        class="p-5 rounded-[18px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 space-y-2">
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Manufaktur & Pabrikasi</h4>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">Konveksi, mebel, dan makanan
-                            olahan yang mengolah bahan mentah dengan formula Bill of Materials (BOM) dan kontrol HPP riil.
-                        </p>
-                    </div>
-
-                    <div
-                        class="p-5 rounded-[18px] bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 space-y-2">
-                        <h4 class="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Bisnis Jasa & Servis</h4>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">Salon, servis AC panggilan,
-                            studio foto, dan konsultan yang butuh booking kalender reservasi serta invoice termin DP
-                            bertahap.</p>
-                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">3. Kedaulatan & Kerahasiaan Data Pemilik</h3>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Formula resep, margin keuntungan, daftar supplier distributor, dan database pelanggan Anda
+                        adalah rahasia dapur bisnis Anda. Kami mengisolasi data tiap tenant secara ketat dan tidak
+                        pernah memonetisasi atau menjual data Anda ke pihak ketiga.
+                    </p>
                 </div>
-            </section>
 
-            {{-- Final CTA --}}
-            <section
-                class="p-8 sm:p-12 rounded-[24px] bg-[#161618] border border-white/[0.08] text-white text-center space-y-5 shadow-sm">
-                <div
-                    class="text-xs font-semibold uppercase tracking-wider text-[#86868B] inline-flex items-center gap-1.5 mx-auto">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759]" aria-hidden="true"></i>
+                <div class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
+                    <div class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                        <i data-lucide="heart-handshake" class="w-5 h-5" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">4. Harga Jujur Tanpa Jebakan Fitur Terkunci</h3>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Kami percaya pada transparansi harga. Fitur operasional esensial tersedia dapat diakses sejak
+                        awal agar usaha mikro dapat langsung beroperasi secara profesional tanpa dibebani biaya
+                        langganan yang mencekik modal awal.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        {{-- Who We Serve (Target Audience) --}}
+        <section class="p-6 sm:p-10 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-8 shadow-sm">
+            <div class="max-w-2xl">
+                <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
+                    Siapa yang Kami Layani
+                </span>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                    Dirancang untuk Bisnis Mandiri yang Siap Naik Kelas
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Kuliner & Restoran (F&B)</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Kedai kopi, kafe, resto
+                        keluarga, dan cloud kitchen yang ingin mengontrol HPP bahan baku dan cetak tiket dapur KOT
+                        otomatis.</p>
+                </div>
+
+                <div class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Toko Retail & Kelontong</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Minimarket dan toko fashion
+                        yang mengelola ribuan SKU barang, barcode scanner, multi-satuan dus/pcs, dan rekap kasbon.</p>
+                </div>
+
+                <div class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Bengkel & Otomotif</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Bengkel motor dan mobil yang
+                        butuh SPK digital, lacak histori plat nomor, stok sparepart & oli, serta bagi hasil komisi
+                        montir.</p>
+                </div>
+
+                <div class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Usaha Laundry</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Laundry kiloan dan dry
+                        cleaning yang memerlukan timbangan desimal akurat, nomor rak baju, dan notifikasi WA cucian siap
+                        jemput.</p>
+                </div>
+
+                <div class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Manufaktur & Pabrikasi</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Konveksi, mebel, dan makanan
+                        olahan yang mengolah bahan mentah dengan formula Bill of Materials (BOM) dan kontrol HPP riil.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Bisnis Jasa & Servis</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Salon, servis AC panggilan,
+                        studio foto, dan konsultan yang butuh booking kalender reservasi serta invoice termin DP
+                        bertahap.</p>
+                </div>
+            </div>
+        </section>
+
+        {{-- Final CTA --}}
+        <section class="relative p-8 sm:p-14 rounded-[28px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden text-center space-y-5">
+            <div class="absolute top-0 right-1/4 w-72 h-72 bg-[#007AFF]/20 rounded-full blur-[100px] pointer-events-none"></div>
+            <div class="absolute bottom-0 left-1/4 w-72 h-72 bg-[#00C4D8]/15 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-5 max-w-2xl mx-auto">
+                <div class="text-xs font-semibold uppercase tracking-wider text-[#00C4D8] inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/15 border border-[#00C4D8]/30">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
                     <span>Solusi Sistem Operasi Bisnis Indonesia</span>
                 </div>
                 <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                     Bersiap Mengambil Kendali Penuh Atas Bisnis Anda?
                 </h3>
-                <p class="text-sm text-[#86868B] max-w-xl mx-auto leading-relaxed">
+                <p class="text-sm text-slate-300 leading-relaxed">
                     Tinggalkan kerumitan spreadsheet dan nikmati kejelasan finansial bisnis Anda dengan ekosistem COOCA yang
                     saling terhubung.
                 </p>
                 <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                     <a href="{{ route('register') }}"
-                        class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-sm active:scale-95 transition-all">
+                        class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-95 transition-all">
                         <span>Mulai Pakai COOCA</span>
                         <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
                     </a>
                     <a href="{{ route('public.pricing') }}"
-                        class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all">
+                        class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all backdrop-blur-sm">
                         <span>Lihat Paket Harga</span>
                     </a>
                 </div>
-            </section>
+            </div>
+        </section>
 
-        </div>
     </div>
+</div>
 @endsection

@@ -252,4 +252,32 @@
     .markdown-body > *:first-child {
         margin-top: 0 !important;
     }
+
+    /* ==========================================================================
+       5. ANTI-OVERLAP & TEXT BALANCING UTILITIES
+       ========================================================================== */
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .text-pretty {
+        text-wrap: pretty;
+    }
+
+    .break-words {
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    /* Prevent awkward text collisions in flex rows */
+    .text-container-safe {
+        min-width: 0;
+        flex: 1 1 0%;
+        overflow-wrap: break-word;
+    }
+
+    /* Safe line-height for large titles */
+    .leading-title {
+        line-height: 1.22;
+    }
 </style>
