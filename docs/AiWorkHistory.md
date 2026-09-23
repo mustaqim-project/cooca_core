@@ -46,6 +46,59 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-23-107] Perataan Hero Section Grid Kiri-Kanan & Penyeimbangan Visual Podest Ekosistem COOCA
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Landing Page Public, Hero Section UI/UX, Bento Apple HIG
+* **Feature:**
+  1. **Penyeimbangan Kolom Grid Hero Section:**
+     - Mengubah proporsi grid desktop dari `lg:col-span-4` (terlalu sempit sehingga teks tertekan tinggi) dan `lg:col-span-8` menjadi `lg:col-span-5` dan `lg:col-span-7`.
+     - Menerapkan `items-center` pada container grid 12 kolom dan `flex flex-col justify-center` pada kolom kiri agar baseline teks, tombol CTA, dan feature tags horizontal sejajar secara proporsional dengan node ekosistem dan visual podest di kolom kanan.
+  2. **Perbaikan Keseimbangan Tag HTML (Zero Tag Leakage):**
+     - Mengeliminasi tag dangling `</div>` penutup liar pada hero section yang sebelumnya menyebabkan wrapper konten luar bocor/tertutup prematur dan merusak alur DOM browser.
+  3. **Penambahan Podest 3D Bertingkat (Stepped Isometric Podium Base):**
+     - Menambahkan podest 3D 2-tingkat (Platform pill "ERP" + balok "Data • Automation • AI" dengan facet aksen "Ai") di bawah box sentral COOCA.
+     - Penambahan ini mengisi 25% lower third dari SVG diagram interaktif, sehingga pusat massa visual kolom kanan setara dan berlabuh tepat sejajar dengan bottom feature tags di kolom kiri.
+  4. **Kepatuhan Bento Apple HIG & Zero-Emoji:**
+     - Memastikan seluruh ikon menggunakan SVG semantik murni / Lucide (`arrow-right`, `play`, `check`, dll.), zero Unicode emoji, dan kontras tajam ramah UMKM usia 40–65 tahun.
+* **Work Type:** UI/UX | Bug Fix | Bento Apple HIG
+
+#### 1. Business Context & Objective
+* **Konteks:** Hero section adalah impresi pertama calon tenant SaaS ERP COOCA. Ketidakseimbangan tinggi kolom kiri (terlalu panjang ke bawah karena kolom sempit) dan kolom kanan (grafik melayang dengan area bawah kosong) menimbulkan impresi visual yang tidak rapi dan tidak sejajar.
+* **Target:** Kolom kiri (headline, copy, dual CTA, feature chips) dan kolom kanan (hub interaktif ekosistem COOCA) sejajar simetris secara vertikal dan horizontal pada breakpoint desktop/tablet/mobile.
+
+#### 2. What Was Done
+* Mengaudit rasio kolom grid dan mendistribusikan ulang span kolom (5:7).
+* Memeriksa dan memvalidasi keutuhan tag pembuka/penutup `<div>` dan `<section>` menggunakan parser PHP CLI (`scratch/check_hero.php`).
+* Menambahkan basis podest bertingkat 3D SVG di bawah sentral COOCA box.
+* Memvalidasi sintaks blade, membersihkan cache view, dan menjalankan automated test suite.
+
+#### 3. Technical Changes
+* **Files Affected:** `resources/views/landing.blade.php`.
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+* **Workflow Impact:** Tidak ada perubahan alur kerja/bisnis.
+* **Business Rule Impact:** Tidak ada.
+* **Permission Impact:** Tidak ada.
+
+#### 5. Verification & Testing
+* `tests/Feature/PublicPagesStructureTest.php`: 10 passed.
+* `tests/Feature/PublicMarketplaceSearchTest.php`: 4 passed.
+* Total: **14 tests, 78 assertions passed (0 failures, 0 errors)**.
+* Validasi tag HTML: Open divs 37, Close divs 37 (100% seimbang).
+* Validasi emoji: 0 Unicode emoji terdeteksi pada landing page.
+
+#### 6. Important Decisions & Guardrails
+* Mempertahankan responsivitas mobile-first: pada layar smartphone (< 1024px), grid secara alami beralih ke stack vertikal (1 kolom) yang nyaman di-scroll.
+* Zero-emoji policy & Apple HIG glassmorphism dipertahankan secara utuh.
+
+#### 7. Documentation Promotion
+* Tercatat pada `docs/AiWorkHistory.md`.
+
+---
+
 ### [WORK-2026-09-21-106] Implementasi End-to-End Blueprint Tier Pricing & Limitasi COOCA v2.3, Tax Compliance DJP, Multi-Pricing Cabang & Zero-Emoji Bento Apple HIG
 * **Date:** 2026-09-21
 * **Status:** COMPLETED
