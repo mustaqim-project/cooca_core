@@ -340,7 +340,7 @@
                 </a>
 
                 <!-- Desktop Nav Menu (Apple HIG Navigation Bar Style) -->
-                <nav class="hidden lg:flex items-center gap-1.5 xl:gap-2.5 text-sm font-medium text-slate-300">
+                <nav class="hidden lg:flex items-center gap-1.5 xl:gap-2.5 text-sm font-large text-slate-300">
 
                     <!-- 1. Platform (Mega Dropdown) -->
                     <div class="relative"
