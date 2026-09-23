@@ -100,8 +100,7 @@
                             class="text-4xl sm:text-5xl lg:text-[3.3em] font-extrabold text-white tracking-tight leading-[1.12]">
                             Run Your Business.<br>
                             From <span
-                                class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One
-                                Operating<br class="hidden sm:inline"> System.</span>
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One Operating<br class="hidden sm:inline"> System.</span>
                         </h1>
 
                         <!-- Subtitle -->
