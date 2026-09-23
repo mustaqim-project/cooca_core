@@ -123,4 +123,25 @@ final class PublicViewsProductionReadinessTest extends TestCase
             $response->assertOk();
         }
     }
+
+    public function test_pricing_page_renders_with_bento_apple_hig_and_zero_emoji(): void
+    {
+        $response = $this->get('/pricing');
+        $response->assertOk();
+
+        // Check key copy elements for UMKM 40-65 y.o.
+        $response->assertSee('Investasi Jujur');
+        $response->assertSee('Tanpa Biaya Pasang');
+        $response->assertSee('Bebas Ikatan Kontrak');
+        $response->assertSee('Bandingkan Semua Fitur');
+        $response->assertSee('Standard');
+        $response->assertSee('Premium');
+        $response->assertSee('Prestige');
+
+        // Verify zero-emoji in pricing view
+        $content = $response->getContent();
+        // Common emoji regex range
+        $hasEmoji = preg_match('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F700}-\x{1F77F}\x{1F780}-\x{1F7FF}\x{1F800}-\x{1F8FF}\x{1F900}-\x{1F9FF}\x{1FA00}-\x{1FA6F}\x{1FA70}-\x{1FAFF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $content);
+        $this->assertEquals(0, $hasEmoji, 'Pricing page must have zero emoji as per Apple HIG guidelines');
+    }
 }
