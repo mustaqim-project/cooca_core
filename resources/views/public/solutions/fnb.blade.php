@@ -67,7 +67,7 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Dari Meja Tamu, Dapur, hingga Stok Resep <span class="text-[#00C4D8]">Terhubung Otomatis</span>
                         </h1>
 
@@ -80,25 +80,25 @@
 
                         {{-- Tangible Value Highlights --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Potong stok bahan baku per gram & ml</span>
+                                <span class="truncate">Potong stok bahan baku per gram & ml</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Cetak tiket KOT terpisah (Kitchen & Bar)</span>
+                                <span class="truncate">Cetak tiket KOT terpisah (Kitchen & Bar)</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Split bill & manajemen visual meja</span>
+                                <span class="truncate">Split bill & manajemen visual meja</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Pantau food cost & HPP porsi akurat</span>
+                                <span class="truncate">Pantau food cost & HPP porsi akurat</span>
                             </div>
                         </div>
 
@@ -122,13 +122,13 @@
                     <div class="lg:col-span-5">
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white">Meja #04 - Sedang Makan</span>
+                            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-4">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">Meja #04 - Sedang Makan</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full">
+                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
                                     4 Menu Aktif
                                 </span>
                             </div>
@@ -136,40 +136,38 @@
                             {{-- Order Line Items & BOM Recipe Deduction Preview --}}
                             <div class="space-y-3">
                                 <div class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-2">
-                                    <div class="flex justify-between items-start text-xs font-semibold text-white">
-                                        <div>
-                                            <p class="font-bold text-white">2x Iced Caramel Macchiato</p>
-                                            <p class="text-[11px] text-slate-300 font-normal">Less ice, oatmilk substitution
-                                            </p>
+                                    <div class="flex justify-between items-start gap-2 text-xs font-semibold text-white">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-bold text-white truncate">2x Iced Caramel Macchiato</p>
+                                            <p class="text-[11px] text-slate-300 font-normal truncate">Less ice, oatmilk substitution</p>
                                         </div>
-                                        <span class="font-mono text-slate-200">Rp 76.000</span>
+                                        <span class="font-mono text-slate-200 shrink-0">Rp 76.000</span>
                                     </div>
                                     <div
-                                        class="pt-2 border-t border-dashed border-white/10 flex items-center justify-between text-[11px] text-emerald-400 font-mono">
-                                        <span class="flex items-center gap-1">
-                                            <i data-lucide="layers" class="w-3 h-3" aria-hidden="true"></i>
-                                            BOM: Kopi 36g, Susu 300ml, Oatmilk
+                                        class="pt-2 border-t border-dashed border-white/10 flex items-center justify-between gap-2 text-[11px] text-emerald-400 font-mono">
+                                        <span class="flex items-center gap-1 min-w-0 flex-1 truncate">
+                                            <i data-lucide="layers" class="w-3 h-3 shrink-0" aria-hidden="true"></i>
+                                            <span class="truncate">BOM: Kopi 36g, Susu 300ml, Oatmilk</span>
                                         </span>
-                                        <span>Stok Potong Presisi</span>
+                                        <span class="shrink-0">Stok Potong</span>
                                     </div>
                                 </div>
 
                                 <div class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-2">
-                                    <div class="flex justify-between items-start text-xs font-semibold text-white">
-                                        <div>
-                                            <p class="font-bold text-white">1x Beef Truffle Pasta</p>
-                                            <p class="text-[11px] text-slate-300 font-normal">Tiket Dapur #KOT-082 Terkirim
-                                            </p>
+                                    <div class="flex justify-between items-start gap-2 text-xs font-semibold text-white">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-bold text-white truncate">1x Beef Truffle Pasta</p>
+                                            <p class="text-[11px] text-slate-300 font-normal truncate">Tiket Dapur #KOT-082</p>
                                         </div>
-                                        <span class="font-mono text-slate-200">Rp 68.000</span>
+                                        <span class="font-mono text-slate-200 shrink-0">Rp 68.000</span>
                                     </div>
                                     <div
-                                        class="pt-2 border-t border-dashed border-white/10 flex items-center justify-between text-[11px] text-amber-400 font-mono">
-                                        <span class="flex items-center gap-1">
-                                            <i data-lucide="chef-hat" class="w-3 h-3" aria-hidden="true"></i>
-                                            Status: Sedang Dimasak
+                                        class="pt-2 border-t border-dashed border-white/10 flex items-center justify-between gap-2 text-[11px] text-amber-400 font-mono">
+                                        <span class="flex items-center gap-1 min-w-0 flex-1 truncate">
+                                            <i data-lucide="chef-hat" class="w-3 h-3 shrink-0" aria-hidden="true"></i>
+                                            <span class="truncate">Status: Sedang Dimasak</span>
                                         </span>
-                                        <span>Estimasi 8 Menit</span>
+                                        <span class="shrink-0">Est. 8 Mnt</span>
                                     </div>
                                 </div>
                             </div>

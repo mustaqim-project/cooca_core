@@ -105,9 +105,8 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold tracking-tight text-white leading-[1.15]">
-                            Tayangkan Konten Promosi Tepat Waktu <span class="text-[#00C4D8]">Tanpa Perlu Unggah
-                                Manual</span>
+                            class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.2] text-balance break-words">
+                            Tayangkan Konten Promosi Tepat Waktu <span class="text-[#00C4D8]">Tanpa Perlu Unggah Manual</span>
                         </h1>
 
                         <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
@@ -130,18 +129,18 @@
                         </div>
 
                         {{-- Key Trust Specs --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-3 gap-4 text-left">
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Metode Publikasi</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Cloud Auto-Post</div>
+                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-left">
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Metode Publikasi</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Cloud Auto-Post</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Keandalan API</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Meta API Resmi</div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Keandalan API</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Meta API Resmi</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Penanganan Error</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Auto-Retry Cerdas</div>
+                            <div class="min-w-0 col-span-2 sm:col-span-1">
+                                <div class="text-xs text-slate-400 font-medium truncate">Penanganan Error</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Auto-Retry Cerdas</div>
                             </div>
                         </div>
                     </div>
@@ -152,20 +151,18 @@
                             class="relative rounded-2xl bg-[#0E1E45]/80 p-4 sm:p-5 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white">
 
                             {{-- Header Engine Status --}}
-                            <div class="flex items-center justify-between pb-3 border-b border-white/10 text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8]">
+                            <div class="flex items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                         <i data-lucide="cpu" class="w-4 h-4"></i>
                                     </span>
-                                    <div>
-                                        <div class="font-bold text-white">Mesin Antrean Publikasi Aktif</div>
-                                        <div class="text-[10px] text-slate-400">Kanal: Instagram Business & Facebook Page
-                                        </div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-white truncate">Mesin Antrean Publikasi Aktif</div>
+                                        <div class="text-[10px] text-slate-400 truncate">Instagram Business & Facebook Page</div>
                                     </div>
                                 </div>
                                 <span
-                                    class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold">Engine:
-                                    Siaga 24/7</span>
+                                    class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold shrink-0">Engine: Siaga 24/7</span>
                             </div>
 
                             {{-- Live Queue Dispatch Items --}}
@@ -173,72 +170,65 @@
 
                                 {{-- Post 1: Success Live --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-2.5">
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between gap-2.5">
+                                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                         <div
                                             class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                                             <i data-lucide="check" class="w-4 h-4"></i>
                                         </div>
-                                        <div>
-                                            <div class="font-medium text-white text-[11px]">Promo Kopi Susu Aren Pagi (Feed
-                                                IG + FB)</div>
-                                            <div class="text-[10px] text-slate-400">Tayang: 08:30 WIB • Sukses Diterbitkan
-                                                via API</div>
+                                        <div class="min-w-0">
+                                            <div class="font-medium text-white text-[11px] truncate">Promo Kopi Susu Aren Pagi (Feed IG + FB)</div>
+                                            <div class="text-[10px] text-slate-400 truncate">Tayang: 08:30 WIB • Sukses via API</div>
                                         </div>
                                     </div>
                                     <span
-                                        class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono">Tayang</span>
+                                        class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono shrink-0">Tayang</span>
                                 </div>
 
                                 {{-- Post 2: In Queue Today --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/95 border border-[#007AFF]/50 ring-1 ring-[#007AFF]/30 flex items-center justify-between">
-                                    <div class="flex items-center gap-2.5">
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/95 border border-[#007AFF]/50 ring-1 ring-[#007AFF]/30 flex items-center justify-between gap-2.5">
+                                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                         <div
                                             class="w-8 h-8 rounded-lg bg-[#007AFF]/20 border border-[#007AFF]/30 flex items-center justify-center text-[#00C4D8] shrink-0">
                                             <i data-lucide="clock" class="w-4 h-4 animate-spin"></i>
                                         </div>
-                                        <div>
-                                            <div class="font-medium text-white text-[11px]">Croissant Butter Beli 2 Gratis 1
-                                                (Story + Feed)</div>
-                                            <div class="text-[10px] text-[#00C4D8] font-mono">Jadwal: 15:30 WIB Hari Ini •
-                                                Antrean Terkunci</div>
+                                        <div class="min-w-0">
+                                            <div class="font-medium text-white text-[11px] truncate">Croissant Butter Beli 2 Gratis 1 (Feed)</div>
+                                            <div class="text-[10px] text-[#00C4D8] font-mono truncate">Jadwal: 15:30 WIB Hari Ini • Terkunci</div>
                                         </div>
                                     </div>
                                     <span
-                                        class="px-2 py-0.5 rounded bg-[#007AFF]/30 text-[#00C4D8] text-[10px] font-mono font-bold">Siap
-                                        Tayang</span>
+                                        class="px-2 py-0.5 rounded bg-[#007AFF]/30 text-[#00C4D8] text-[10px] font-mono font-bold shrink-0">Siap</span>
                                 </div>
 
                                 {{-- Post 3: Scheduled Future --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-2.5">
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between gap-2.5">
+                                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                         <div
                                             class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-slate-400 shrink-0">
                                             <i data-lucide="calendar" class="w-4 h-4"></i>
                                         </div>
-                                        <div>
-                                            <div class="font-medium text-slate-300 text-[11px]">Voucher Payday Spesial Akhir
-                                                Bulan (Member WA)</div>
-                                            <div class="text-[10px] text-slate-400">Jadwal: Jumat, 25 Sep • 19:00 WIB</div>
+                                        <div class="min-w-0">
+                                            <div class="font-medium text-slate-300 text-[11px] truncate">Voucher Payday Spesial (Member WA)</div>
+                                            <div class="text-[10px] text-slate-400 truncate">Jadwal: Jumat, 25 Sep • 19:00 WIB</div>
                                         </div>
                                     </div>
                                     <span
-                                        class="px-2 py-0.5 rounded bg-white/10 text-slate-400 text-[10px] font-mono">Terjadwal</span>
+                                        class="px-2 py-0.5 rounded bg-white/10 text-slate-400 text-[10px] font-mono shrink-0">Terjadwal</span>
                                 </div>
 
                             </div>
 
                             {{-- Technical Resilience Footer --}}
                             <div
-                                class="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
-                                <span class="flex items-center gap-1.5">
-                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                    Koneksi Resmi Token Meta Graph API: Aman
+                                class="pt-2 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400">
+                                <span class="flex items-center gap-1.5 min-w-0">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#00C4D8] shrink-0"></i>
+                                    <span class="truncate">Koneksi Resmi Token Meta Graph API: Aman</span>
                                 </span>
-                                <a href="{{ route('public.demo') }}" class="text-[#00C4D8] hover:underline font-medium">Buka
-                                    Log Dispatch →</a>
+                                <a href="{{ route('public.demo') }}" class="text-[#00C4D8] hover:underline font-medium shrink-0">Buka Log Dispatch →</a>
                             </div>
 
                         </div>
@@ -344,10 +334,10 @@
                     </div>
 
                     <div
-                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 flex items-center justify-between text-xs">
+                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                         <span class="text-slate-600 dark:text-slate-300 font-medium">Keandalan Penayangan:</span>
-                        <span class="text-[#007AFF] font-semibold flex items-center gap-1">
-                            <i data-lucide="check" class="w-4 h-4"></i> Tetap tayang saat smartphone dalam keadaan mati
+                        <span class="text-[#007AFF] font-semibold flex items-center gap-1 shrink-0">
+                            <i data-lucide="check" class="w-4 h-4"></i> Tetap tayang saat HP dalam keadaan mati
                         </span>
                     </div>
                 </div>
@@ -370,9 +360,9 @@
                     </div>
 
                     <div
-                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 text-xs flex items-center justify-between font-mono">
+                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono">
                         <span class="text-slate-500 dark:text-slate-400">Protokol Keamanan</span>
-                        <span class="text-indigo-500 font-bold">Log Status Real-Time</span>
+                        <span class="text-indigo-500 font-bold shrink-0">Log Status Real-Time</span>
                     </div>
                 </div>
 

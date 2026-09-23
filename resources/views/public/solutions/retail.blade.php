@@ -67,7 +67,7 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Kelola Ribuan SKU, Scan Barcode Kilat, & <span class="text-[#00C4D8]">Bebas Selisih Stok</span>
                         </h1>
 
@@ -79,25 +79,25 @@
 
                         {{-- Tangible Value Highlights --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Scan barcode USB & kamera smartphone</span>
+                                <span class="truncate">Scan barcode USB & kamera smartphone</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Multi-satuan otomatis (Karton → Slop → Pcs)</span>
+                                <span class="truncate">Multi-satuan (Karton → Slop → Pcs)</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Harga grosir otomatis per jumlah pembelian</span>
+                                <span class="truncate">Harga grosir otomatis per jumlah beli</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Rekap kasbon & pengingat via WhatsApp</span>
+                                <span class="truncate">Rekap kasbon & pengingat via WhatsApp</span>
                             </div>
                         </div>
 
@@ -121,63 +121,62 @@
                     <div class="lg:col-span-5">
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white">Kasir Kasir-01 - Siap Scan</span>
+                            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-4">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">Kasir-01 - Siap Scan</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-emerald-400 bg-emerald-400/15 border border-emerald-400/30 px-2.5 py-0.5 rounded-full">
+                                    class="text-[11px] font-semibold text-emerald-400 bg-emerald-400/15 border border-emerald-400/30 px-2.5 py-0.5 rounded-full shrink-0">
                                     Barcode Aktif
                                 </span>
                             </div>
 
                             {{-- Barcode Scanner Simulation Deck --}}
                             <div
-                                class="p-3.5 rounded-[14px] bg-[#060B1E] border border-white/10 flex items-center justify-between text-xs font-mono">
-                                <div class="flex items-center gap-2.5">
-                                    <i data-lucide="scan-barcode" class="w-5 h-5 text-[#00C4D8] animate-pulse"
+                                class="p-3.5 rounded-[14px] bg-[#060B1E] border border-white/10 flex items-center justify-between gap-2 text-xs font-mono">
+                                <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                    <i data-lucide="scan-barcode" class="w-5 h-5 text-[#00C4D8] animate-pulse shrink-0"
                                         aria-hidden="true"></i>
-                                    <div>
-                                        <p class="text-[10px] text-slate-400">Barcode EAN-13 Terdeteksi</p>
-                                        <p class="font-bold text-emerald-400">8992761001235</p>
+                                    <div class="min-w-0">
+                                        <p class="text-[10px] text-slate-400 truncate">Barcode EAN-13</p>
+                                        <p class="font-bold text-emerald-400 truncate">8992761001235</p>
                                     </div>
                                 </div>
-                                <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-slate-300">Auto Add</span>
+                                <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-slate-300 shrink-0">Auto Add</span>
                             </div>
 
                             {{-- Scanned Cart Items with Multi-Unit Trigger --}}
                             <div class="space-y-3">
                                 <div class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-2">
-                                    <div class="flex justify-between items-start text-xs font-semibold text-white">
-                                        <div>
-                                            <p class="font-bold text-white">Minyak Goreng Premium 2L</p>
-                                            <p class="text-[11px] text-slate-300 font-normal">Konversi: 1 Karton (6 Pouch) @
-                                                Rp 33.500</p>
+                                    <div class="flex justify-between items-start gap-2 text-xs font-semibold text-white">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-bold text-white truncate">Minyak Goreng Premium 2L</p>
+                                            <p class="text-[11px] text-slate-300 font-normal truncate">1 Karton (6 Pouch) @ Rp 33.500</p>
                                         </div>
-                                        <span class="font-mono text-emerald-400 font-bold">Rp 201.000</span>
+                                        <span class="font-mono text-emerald-400 font-bold shrink-0">Rp 201.000</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10">
-                                        <span>Tipe Harga: Grosir Kartonan</span>
-                                        <span class="text-[#00C4D8]">Sisa Gudang: 48 Karton</span>
+                                        class="flex items-center justify-between gap-2 text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10">
+                                        <span class="truncate">Harga: Grosir Karton</span>
+                                        <span class="text-[#00C4D8] shrink-0">Sisa: 48 Karton</span>
                                     </div>
                                 </div>
 
                                 <div class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-2">
-                                    <div class="flex justify-between items-start text-xs font-semibold text-white">
-                                        <div>
-                                            <p class="font-bold text-white">Sabun Cuci Piring Refill 750ml</p>
-                                            <p class="text-[11px] text-slate-300 font-normal">Qty: 3 Pcs (Tier Diskon Toko)
-                                            </p>
+                                    <div class="flex justify-between items-start gap-2 text-xs font-semibold text-white">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-bold text-white truncate">Sabun Cuci Piring Refill 750ml</p>
+                                            <p class="text-[11px] text-slate-300 font-normal truncate">Qty: 3 Pcs (Tier Diskon)</p>
                                         </div>
-                                        <span class="font-mono text-slate-200">Rp 40.500</span>
+                                        <span class="font-mono text-slate-200 shrink-0">Rp 40.500</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10">
-                                        <span class="text-amber-400">Hemat Rp 4.500 (Grosir 3+)</span>
-                                        <span>Sisa Rak: 18 Pcs</span>
+                                        class="flex items-center justify-between gap-2 text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10">
+                                        <span class="text-amber-400 truncate">Hemat Rp 4.500 (3+)</span>
+                                        <span class="shrink-0">Sisa: 18 Pcs</span>
                                     </div>
+                                </div>div>
                                 </div>
                             </div>
 

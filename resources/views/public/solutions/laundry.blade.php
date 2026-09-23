@@ -67,39 +67,37 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Timbangan Presisi, Rak Teratur, & <span class="text-[#00C4D8]">Notifikasi WA Selesai</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty">
                             Kendalikan operasional laundry kiloan maupun layanan satuan tanpa drama baju tertukar. Mulai
-                            dari
-                            timbang desimal presisi, penomoran hanger rak, pantau tahapan cuci-kering-setrika, hingga
-                            notifikasi
-                            WhatsApp otomatis saat cucian siap diambil.
+                            dari timbang desimal presisi, penomoran hanger rak, pantau tahapan cuci-kering-setrika, hingga
+                            notifikasi WhatsApp otomatis saat cucian siap diambil.
                         </p>
 
                         {{-- Tangible Value Highlights --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Input timbangan kiloan desimal (contoh: 4.85 kg)</span>
+                                <span class="truncate">Timbangan kiloan desimal (contoh: 4.85 kg)</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Penomoran rak & hanger anti baju tertukar</span>
+                                <span class="truncate">Penomoran rak & hanger anti baju tertukar</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Pesan WhatsApp otomatis saat selesai setrika</span>
+                                <span class="truncate">Pesan WhatsApp otomatis saat selesai</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Layanan khusus satuan: Jas, Sepatu, Bed Cover</span>
+                                <span class="truncate">Layanan satuan: Jas, Sepatu, Bed Cover</span>
                             </div>
                         </div>
 
@@ -108,12 +106,12 @@
                             <a href="{{ route('register') }}"
                                 class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
                                 <span>Mulai Coba Kasir Laundry</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20Laundry%20COOCA"
                                 target="_blank" rel="noopener"
                                 class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
-                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
+                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
                                 <span>Konsultasi Laundry via WA</span>
                             </a>
                         </div>
@@ -123,28 +121,27 @@
                     <div class="lg:col-span-5">
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white">Nota #LND-9012 - Ibu Maya</span>
+                            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-4">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">Nota #LND-9012 • Ibu Maya</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full">
-                                    Rak Simpan: B-04
+                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
+                                    Rak: B-04
                                 </span>
                             </div>
 
                             {{-- Digital Scale Readout Display --}}
                             <div
-                                class="p-4 rounded-[16px] bg-[#060B1E] border border-white/10 flex items-center justify-between">
-                                <div>
-                                    <span class="text-[10px] uppercase font-mono text-slate-400 block">Timbangan
-                                        Digital</span>
+                                class="p-4 rounded-[16px] bg-[#060B1E] border border-white/10 flex items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                    <span class="text-[10px] uppercase font-mono text-slate-400 block truncate">Timbangan Digital</span>
                                     <div class="text-2xl font-bold font-mono text-[#00C4D8]">4.85 <span
                                             class="text-sm text-slate-300">Kg</span></div>
                                 </div>
-                                <div class="text-right">
-                                    <span class="text-[10px] text-slate-400">Tarif / Kg</span>
+                                <div class="text-right shrink-0">
+                                    <span class="text-[10px] text-slate-400 block">Tarif / Kg</span>
                                     <p class="text-xs font-mono font-semibold text-white">Rp 8.000 / Kg</p>
                                 </div>
                             </div>
@@ -154,57 +151,55 @@
                                 <span class="text-[11px] font-semibold text-slate-300 block">Progres Pengerjaan:</span>
                                 <div class="grid grid-cols-4 gap-1.5 text-center text-[10px] font-semibold">
                                     <div
-                                        class="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                        class="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 truncate">
                                         1. Cuci ✓</div>
                                     <div
-                                        class="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                        class="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 truncate">
                                         2. Kering ✓</div>
-                                    <div class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] border border-[#00C4D8]/40">
+                                    <div class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] border border-[#00C4D8]/40 truncate">
                                         3. Setrika ⏳</div>
-                                    <div class="p-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400">4.
-                                        Selesai</div>
+                                    <div class="p-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 truncate">4. Selesai</div>
                                 </div>
                             </div>
 
                             {{-- Order Line Items --}}
                             <div class="space-y-2 text-xs">
                                 <div
-                                    class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex justify-between items-center">
-                                    <div>
-                                        <p class="font-bold text-white">Cuci Komplit Reguler (4.85 Kg)</p>
-                                        <p class="text-[11px] text-slate-300">Parfum: Lavender Floral • Selesai Besok 17:00
-                                        </p>
+                                    class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex justify-between items-center gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="font-bold text-white text-xs truncate">Cuci Komplit Reguler (4.85 Kg)</p>
+                                        <p class="text-[11px] text-slate-300 truncate">Parfum: Lavender Floral • Besok 17:00</p>
                                     </div>
-                                    <span class="font-mono font-bold text-emerald-400">Rp 38.800</span>
+                                    <span class="font-mono font-bold text-emerald-400 shrink-0 text-xs">Rp 38.800</span>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex justify-between items-center">
-                                    <div>
-                                        <p class="font-bold text-white">1x Bed Cover King Size (Satuan)</p>
-                                        <p class="text-[11px] text-slate-300">Plastik packing kedap udara</p>
+                                    class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex justify-between items-center gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="font-bold text-white text-xs truncate">1x Bed Cover King Size (Satuan)</p>
+                                        <p class="text-[11px] text-slate-300 truncate">Packing kedap udara</p>
                                     </div>
-                                    <span class="font-mono font-bold text-slate-200">Rp 35.000</span>
+                                    <span class="font-mono font-bold text-slate-200 shrink-0 text-xs">Rp 35.000</span>
                                 </div>
                             </div>
 
                             {{-- Total Summary --}}
                             <div class="p-4 rounded-[16px] bg-[#060B1E]/80 border border-white/10 space-y-2 text-xs">
-                                <div class="flex justify-between text-white font-bold">
-                                    <span>Total Tagihan (Status: Lunas)</span>
-                                    <span class="font-mono text-sm text-[#00C4D8]">Rp 73.800</span>
+                                <div class="flex justify-between items-center gap-2 text-white font-bold">
+                                    <span class="truncate">Total Tagihan (Status: Lunas)</span>
+                                    <span class="font-mono text-sm text-[#00C4D8] shrink-0 font-extrabold">Rp 73.800</span>
                                 </div>
                             </div>
 
                             {{-- WhatsApp Status Trigger --}}
                             <div
-                                class="p-3 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center justify-between">
-                                <span class="flex items-center gap-1.5">
-                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
-                                    Notifikasi WA "Siap Ambil" Otomatis
+                                class="p-3 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center justify-between gap-2 min-w-0">
+                                <span class="flex items-center gap-1.5 min-w-0 truncate">
+                                    <i data-lucide="message-circle" class="w-4 h-4 shrink-0"></i>
+                                    <span class="truncate">Notifikasi WA "Siap Ambil" Otomatis</span>
                                 </span>
                                 <span
-                                    class="text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded text-emerald-300">Aktif</span>
+                                    class="text-[10px] bg-emerald-500/20 px-2.5 py-0.5 rounded text-emerald-300 font-semibold shrink-0">Aktif</span>
                             </div>
                         </div>
                     </div>
@@ -222,7 +217,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 block">
                         Tantangan Operasional Laundry
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1 leading-snug text-balance break-words">
                         Kendala Khas Usaha Laundry yang Sering Merusak Reputasi
                     </h2>
                 </div>
@@ -235,7 +230,7 @@
                             01</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Pakaian Pelanggan Tertukar atau Hilang
                         </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Baju menumpuk tanpa sistem tagging nomor rak yang jelas, membuat kasir kebingungan mencari paket
                             cucian saat pelanggan datang menjemput.
                         </p>
@@ -248,7 +243,7 @@
                             02</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Pelanggan Bolak-Balik Tanya Status
                             Cuci</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             WhatsApp admin dibanjiri chat "Apakah cucian saya sudah selesai?", menyita waktu staf yang
                             seharusnya fokus menyetrika dan membungkus pakaian.
                         </p>
@@ -261,7 +256,7 @@
                             03</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Boros Deterjen & Bahan Kimia Parfum
                         </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Penggunaan konsentrat sabun dan bibit parfum tidak pernah dihitung takaran standarnya, membuat
                             biaya operasional membengkak tanpa disadari owner.
                         </p>
@@ -275,7 +270,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Kapabilitas Khusus Laundry
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug text-balance break-words">
                         Fitur Spesifik untuk Laundry Kiloan & Dry Cleaning Satuan
                     </h2>
                 </div>
@@ -374,7 +369,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#00C4D8] block">
                         Alur Ekosistem Laundry
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-1 leading-snug text-balance break-words">
                         Dari Penimbangan, Proses Cuci, Hingga Penjemputan Baju
                     </h2>
                 </div>
@@ -383,25 +378,25 @@
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-[#00C4D8]">Langkah 01</div>
                         <h4 class="text-sm font-bold text-white">Timbang & Cetak Nota</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Kasir timbang pakaian, pilih parfum, cetak label
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Kasir timbang pakaian, pilih parfum, cetak label
                             tag anti air.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-cyan-400">Langkah 02</div>
                         <h4 class="text-sm font-bold text-white">Proses Cuci & Kering</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Operator mengupdate status tahapan mesin secara
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Operator mengupdate status tahapan mesin secara
                             realtime.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-emerald-400">Langkah 03</div>
                         <h4 class="text-sm font-bold text-white">Setrika & Masuk Rak</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Pakaian diplastik rapi dan diletakkan di nomor
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Pakaian diplastik rapi dan diletakkan di nomor
                             slot rak tujuan.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-purple-400">Langkah 04</div>
                         <h4 class="text-sm font-bold text-white">Notifikasi WhatsApp</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Sistem kirim info siap ambil otomatis ke WhatsApp
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Sistem kirim info siap ambil otomatis ke WhatsApp
                             pelanggan.</p>
                     </div>
                 </div>
@@ -412,7 +407,7 @@
                 <div class="text-center space-y-2">
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">Tanya
                         Jawab</span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Pertanyaan Umum Seputar COOCA
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Pertanyaan Umum Seputar COOCA
                         Laundry</h2>
                 </div>
 
@@ -538,10 +533,10 @@
                         <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
                         <span>Tingkatkan Kepercayaan Pelanggan Usaha Laundry Anda</span>
                     </div>
-                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug text-balance break-words">
                         Mulai Kelola Laundry Lebih Rapi, Cepat, dan Bebas Drama
                     </h3>
-                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed text-pretty">
                         Daftar akun COOCA sekarang. Nikmati kemudahan input timbangan digital, penomoran rak baju, dan
                         notifikasi WhatsApp instan tanpa ribet.
                     </p>

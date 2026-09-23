@@ -105,7 +105,7 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold tracking-tight text-white leading-[1.15]">
+                            class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.2] text-balance break-words">
                             Ubah Produk & Menu Toko Menjadi <span class="text-[#00C4D8]">Konten Promosi yang Menjual</span>
                         </h1>
 
@@ -129,18 +129,18 @@
                         </div>
 
                         {{-- Key Trust Specs --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-3 gap-4 text-left">
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Sumber Konten</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Katalog Stok Riil</div>
+                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-left">
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Sumber Konten</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Katalog Stok Riil</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Format Keluaran</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Feed, Story, & Chat</div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Format Keluaran</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Feed, Story, & Chat</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Kendali Kualitas</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Alur Review Draf</div>
+                            <div class="min-w-0 col-span-2 sm:col-span-1">
+                                <div class="text-xs text-slate-400 font-medium truncate">Kendali Kualitas</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Alur Review Draf</div>
                             </div>
                         </div>
                     </div>
@@ -151,36 +151,34 @@
                             class="relative rounded-2xl bg-[#0E1E45]/80 p-4 sm:p-5 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white">
 
                             {{-- Studio Top Bar --}}
-                            <div class="flex items-center justify-between pb-3 border-b border-white/10 text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8]">
+                            <div class="flex items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                         <i data-lucide="pen-tool" class="w-4 h-4"></i>
                                     </span>
-                                    <div>
-                                        <div class="font-bold text-white">Studio Pembuatan Konten Produk</div>
-                                        <div class="text-[10px] text-slate-400">Sumber: Katalog POS • SKU-112</div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-white truncate">Studio Pembuatan Konten</div>
+                                        <div class="text-[10px] text-slate-400 truncate">Sumber: Katalog POS • SKU-112</div>
                                     </div>
                                 </div>
                                 <span
-                                    class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] font-mono font-bold">Status:
-                                    Draf Siap Review</span>
+                                    class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] font-mono font-bold shrink-0">Draf Siap Review</span>
                             </div>
 
                             {{-- Product Source Selector Pill --}}
                             <div
-                                class="p-2.5 my-3 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2.5">
+                                class="p-2.5 my-3 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between gap-2.5 text-xs">
+                                <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                     <div
                                         class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-amber-400 shrink-0">
                                         <i data-lucide="coffee" class="w-4 h-4"></i>
                                     </div>
-                                    <div>
-                                        <div class="font-semibold text-white text-[11px]">Croissant Butter Fresh Oven</div>
-                                        <div class="text-[10px] text-slate-400 font-mono">Rp 28.000 • Stok Toko Sudirman: 15
-                                            pcs</div>
+                                    <div class="min-w-0">
+                                        <div class="font-semibold text-white text-[11px] truncate">Croissant Butter Fresh Oven</div>
+                                        <div class="text-[10px] text-slate-400 font-mono truncate">Rp 28.000 • Stok Sudirman: 15 pcs</div>
                                     </div>
                                 </div>
-                                <span class="text-[10px] text-[#00C4D8] font-medium">Ganti Produk</span>
+                                <span class="text-[10px] text-[#00C4D8] font-medium shrink-0">Ganti Produk</span>
                             </div>
 
                             {{-- Multi-Channel Variant Generator Preview --}}
@@ -194,7 +192,7 @@
                                         <span class="font-bold text-[#00C4D8] flex items-center gap-1">
                                             <i data-lucide="instagram" class="w-3 h-3"></i> Instagram Feed & Caption
                                         </span>
-                                        <span class="text-slate-400">Tone: Hangat & Menggoda</span>
+                                        <span class="text-slate-400">Tone: Hangat</span>
                                     </div>
                                     <p class="text-[11px] text-slate-300 leading-relaxed font-sans">
                                         "Renyah di gigitan pertama, lembut dan wangi butter di dalam! 🥐 Temani secangkir
@@ -209,7 +207,7 @@
                                         <span class="font-bold text-emerald-400 flex items-center gap-1">
                                             <i data-lucide="message-circle" class="w-3 h-3"></i> Pesan Siaran WhatsApp
                                         </span>
-                                        <span class="text-slate-400">Format Singkat Ramah</span>
+                                        <span class="text-slate-400">Format Singkat</span>
                                     </div>
                                     <p class="text-[11px] text-slate-300 leading-relaxed font-sans">
                                         "Halo Kak! Promo kilat pagi ini: Beli 2 Croissant Butter gratis 1 Americano sebelum
@@ -219,9 +217,9 @@
                             </div>
 
                             {{-- Review & Approval Footer Action --}}
-                            <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs">
-                                <span class="text-slate-400 text-[10px]">Disusun oleh: Admin Sarah (10:15 WIB)</span>
-                                <div class="flex items-center gap-2">
+                            <div class="mt-3 pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                <span class="text-slate-400 text-[10px] truncate">Disusun: Admin Sarah (10:15 WIB)</span>
+                                <div class="flex items-center gap-2 shrink-0">
                                     <button
                                         class="px-2.5 py-1 rounded bg-white/10 text-slate-300 text-[10px] hover:bg-white/20">Revisi</button>
                                     <button
@@ -334,10 +332,10 @@
                     </div>
 
                     <div
-                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 flex items-center justify-between text-xs">
+                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                         <span class="text-slate-600 dark:text-slate-300 font-medium">Validasi Harga:</span>
-                        <span class="text-[#007AFF] font-semibold flex items-center gap-1">
-                            <i data-lucide="check" class="w-4 h-4"></i> Harga promosi selalu sesuai dengan sistem kasir
+                        <span class="text-[#007AFF] font-semibold flex items-center gap-1 shrink-0">
+                            <i data-lucide="check" class="w-4 h-4"></i> Harga promosi selalu sesuai sistem kasir
                         </span>
                     </div>
                 </div>
@@ -360,9 +358,9 @@
                     </div>
 
                     <div
-                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 text-xs flex items-center justify-between font-mono">
+                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono">
                         <span class="text-slate-500 dark:text-slate-400">Kualitas Terjaga</span>
-                        <span class="text-purple-500 font-bold">100% Konten Tersupervisi</span>
+                        <span class="text-purple-500 font-bold shrink-0">100% Konten Tersupervisi</span>
                     </div>
                 </div>
 

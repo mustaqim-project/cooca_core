@@ -67,11 +67,11 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Tinggalkan Nota Kertas Minyak. <span class="text-[#00C4D8]">Kendalikan SPK & Komisi</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty">
                             Ubah bengkel Anda menjadi lebih profesional. Mulai dari pendaftaran nomor polisi kendaraan,
                             penerbitan Surat Perintah Kerja (SPK), pemotongan stok suku cadang & oli otomatis, hingga hitung
                             bagi hasil jasa teknisi tanpa perdebatan di akhir bulan.
@@ -79,25 +79,25 @@
 
                         {{-- Tangible Value Highlights --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Database plat nomor & riwayat servis lengkap</span>
+                                <span class="truncate">Database plat nomor & riwayat servis</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Stok oli & suku cadang terpotong real-time</span>
+                                <span class="truncate">Stok oli & suku cadang real-time</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Kalkulasi komisi montir otomatis per job</span>
+                                <span class="truncate">Kalkulasi komisi montir otomatis</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Pengingat ganti oli berkala via WhatsApp</span>
+                                <span class="truncate">Pengingat servis berkala WhatsApp</span>
                             </div>
                         </div>
 
@@ -106,12 +106,12 @@
                             <a href="{{ route('register') }}"
                                 class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
                                 <span>Mulai Coba Sistem Bengkel</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20Bengkel%20COOCA"
                                 target="_blank" rel="noopener"
                                 class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
-                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
+                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
                                 <span>Tanya Solusi Bengkel</span>
                             </a>
                         </div>
@@ -121,92 +121,89 @@
                     <div class="lg:col-span-5">
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white">SPK #WO-8821 - Sedang
-                                        Pengerjaan</span>
+                            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-4">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">SPK #WO-8821 • Pengerjaan</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full">
-                                    Pit 02 (Mekanik: Doni)
+                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
+                                    Pit 02 (Doni)
                                 </span>
                             </div>
 
                             {{-- Vehicle Badge --}}
                             <div
-                                class="p-3.5 rounded-[14px] bg-[#060B1E] border border-white/10 flex items-center justify-between text-xs font-mono">
-                                <div class="flex items-center gap-2.5">
-                                    <i data-lucide="car" class="w-5 h-5 text-amber-400" aria-hidden="true"></i>
-                                    <div>
-                                        <p class="font-bold text-white tracking-wider">B 4821 KFA</p>
-                                        <p class="text-[10px] text-slate-400">Honda Vario 160 • Odo: 14.820 KM</p>
+                                class="p-3.5 rounded-[14px] bg-[#060B1E] border border-white/10 flex items-center justify-between gap-3 text-xs font-mono">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <i data-lucide="car" class="w-5 h-5 text-amber-400 shrink-0" aria-hidden="true"></i>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-white tracking-wider truncate">B 4821 KFA</p>
+                                        <p class="text-[10px] text-slate-400 truncate">Honda Vario 160 • 14.820 KM</p>
                                     </div>
                                 </div>
-                                <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-slate-300">Servis
-                                    Berkala</span>
+                                <span class="text-[10px] bg-white/10 px-2.5 py-1 rounded-md text-slate-300 font-semibold shrink-0">Servis Berkala</span>
                             </div>
 
                             {{-- Itemized Parts & Services List --}}
                             <div class="space-y-3 text-xs">
                                 <div class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-2">
-                                    <div class="flex justify-between items-start font-semibold text-white">
-                                        <div>
-                                            <p class="font-bold text-white">Oli Mesin Matic Fully Synthetic 0.8L</p>
-                                            <p class="text-[11px] text-slate-300 font-normal">Suku Cadang (Stok Potong Rak
-                                                B2)</p>
+                                    <div class="flex justify-between items-start gap-2 font-semibold text-white">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-bold text-white text-xs truncate">Oli Mesin Matic Full Synthetic 0.8L</p>
+                                            <p class="text-[11px] text-slate-300 font-normal truncate">Suku Cadang (Stok Potong Rak B2)</p>
                                         </div>
-                                        <span class="font-mono text-slate-200">Rp 65.000</span>
+                                        <span class="font-mono text-slate-200 shrink-0 text-xs">Rp 65.000</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-emerald-400 font-mono pt-1 border-t border-dashed border-white/10">
-                                        <span>HPP Part: Rp 48.000</span>
-                                        <span class="text-[#00C4D8]">Sisa Gudang: 12 Btl</span>
+                                        class="flex items-center justify-between gap-2 text-[11px] text-emerald-400 font-mono pt-1 border-t border-dashed border-white/10">
+                                        <span class="truncate">HPP Part: Rp 48.000</span>
+                                        <span class="text-[#00C4D8] shrink-0 font-semibold">Sisa: 12 Btl</span>
                                     </div>
                                 </div>
 
                                 <div class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-2">
-                                    <div class="flex justify-between items-start font-semibold text-white">
-                                        <div>
-                                            <p class="font-bold text-white">Jasa Servis CVT & Ganti Oli</p>
-                                            <p class="text-[11px] text-slate-300 font-normal">Biaya Jasa Bengkel</p>
+                                    <div class="flex justify-between items-start gap-2 font-semibold text-white">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-bold text-white text-xs truncate">Jasa Servis CVT & Ganti Oli</p>
+                                            <p class="text-[11px] text-slate-300 font-normal truncate">Biaya Jasa Teknisi</p>
                                         </div>
-                                        <span class="font-mono text-slate-200">Rp 55.000</span>
+                                        <span class="font-mono text-slate-200 shrink-0 text-xs">Rp 55.000</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-[#00C4D8] font-mono pt-1 border-t border-dashed border-white/10">
-                                        <span>Komisi Mekanik (40%): Rp 22.000</span>
-                                        <span class="text-slate-300">Tercatat ke Doni</span>
+                                        class="flex items-center justify-between gap-2 text-[11px] text-[#00C4D8] font-mono pt-1 border-t border-dashed border-white/10">
+                                        <span class="truncate">Komisi (40%): Rp 22.000</span>
+                                        <span class="text-slate-300 shrink-0">Tercatat ke Doni</span>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Calculation Breakdown --}}
                             <div class="p-4 rounded-[16px] bg-[#060B1E]/80 border border-white/10 space-y-2 text-xs">
-                                <div class="flex justify-between text-slate-300">
-                                    <span>Total Sparepart (1 Item)</span>
-                                    <span class="font-mono text-slate-200">Rp 65.000</span>
+                                <div class="flex justify-between items-center gap-2 text-slate-300">
+                                    <span class="truncate">Total Sparepart (1 Item)</span>
+                                    <span class="font-mono text-slate-200 shrink-0">Rp 65.000</span>
                                 </div>
-                                <div class="flex justify-between text-slate-300">
-                                    <span>Total Ongkos Jasa (1 Item)</span>
-                                    <span class="font-mono text-slate-200">Rp 55.000</span>
+                                <div class="flex justify-between items-center gap-2 text-slate-300">
+                                    <span class="truncate">Total Ongkos Jasa (1 Item)</span>
+                                    <span class="font-mono text-slate-200 shrink-0">Rp 55.000</span>
                                 </div>
-                                <div class="flex justify-between text-white font-bold pt-2 border-t border-white/10">
-                                    <span>Total Tagihan Pelanggan</span>
-                                    <span class="font-mono text-sm text-[#00C4D8]">Rp 120.000</span>
+                                <div class="flex justify-between items-center gap-2 text-white font-bold pt-2 border-t border-white/10">
+                                    <span class="truncate">Total Tagihan Pelanggan</span>
+                                    <span class="font-mono text-sm text-[#00C4D8] shrink-0 font-extrabold">Rp 120.000</span>
                                 </div>
                             </div>
 
                             {{-- Quick Operations Status --}}
                             <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="printer" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">Cetak SPK & Nota</span>
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center gap-2 min-w-0">
+                                    <i data-lucide="printer" class="w-4 h-4 text-[#00C4D8] shrink-0" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 truncate">Cetak SPK & Nota</span>
                                 </div>
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400"
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center gap-2 min-w-0">
+                                    <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 shrink-0"
                                         aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">WA Siap Ambil</span>
+                                    <span class="font-medium text-slate-200 truncate">WA Siap Ambil</span>
                                 </div>
                             </div>
                         </div>
@@ -225,7 +222,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 block">
                         Tantangan Pengelolaan Bengkel
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1 leading-snug text-balance break-words">
                         Masalah Klasik yang Kerap Menimbulkan Kerugian dan Salah Paham
                     </h2>
                 </div>
@@ -237,7 +234,7 @@
                             class="w-8 h-8 rounded-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center font-mono">
                             01</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Sparepart & Oli Bocor Tanpa Nota</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Mekanik mengambil busi, kampas rem, atau oli dari gudang tetapi lupa dicatat di nota kasir,
                             membuat stok fisik habis saat dibutuhkan pelanggan lain.
                         </p>
@@ -249,7 +246,7 @@
                             class="w-8 h-8 rounded-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center font-mono">
                             02</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Perselisihan Upah Komisi Montir</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Penghitungan komisi jasa mekanik manual di akhir bulan sering memicu kecurigaan antar montir
                             mengenai siapa yang mengerjakan servis tertentu.
                         </p>
@@ -261,7 +258,7 @@
                             class="w-8 h-8 rounded-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center font-mono">
                             03</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Pelanggan Hilang Setelah Servis</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Tidak adanya database histori nomor polisi membuat bengkel tidak tahu kapan jadwal ganti oli
                             pelanggan berikutnya, kehilangan peluang repeat order bernilai jutaan rupiah.
                         </p>
@@ -275,7 +272,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Kapabilitas Khusus Bengkel
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug text-balance break-words">
                         Fitur Spesifik untuk Operasional Bengkel Roda Dua & Empat
                     </h2>
                 </div>
@@ -376,7 +373,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#00C4D8] block">
                         Alur Ekosistem Bengkel
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-1 leading-snug text-balance break-words">
                         Bagaimana COOCA Menghubungkan Front Office, Gudang, & Teknisi
                     </h2>
                 </div>
@@ -385,25 +382,25 @@
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-[#00C4D8]">Langkah 01</div>
                         <h4 class="text-sm font-bold text-white">Input Plat & Keluhan</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Front desk mencatat KM kendaraan dan mencetak SPK
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Front desk mencatat KM kendaraan dan mencetak SPK
                             ke mekanik.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-amber-400">Langkah 02</div>
                         <h4 class="text-sm font-bold text-white">Pengambilan Sparepart</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Stok oli & part terpotong langsung dari gudang
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Stok oli & part terpotong langsung dari gudang
                             saat dipasang.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-emerald-400">Langkah 03</div>
                         <h4 class="text-sm font-bold text-white">Selesai & Kasir Cetak</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Pelanggan membayar invoice dan komisi montir
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Pelanggan membayar invoice dan komisi montir
                             otomatis tercatat.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-purple-400">Langkah 04</div>
                         <h4 class="text-sm font-bold text-white">Automated WA CRM</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Sistem menjadwalkan notifikasi WhatsApp servis
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Sistem menjadwalkan notifikasi WhatsApp servis
                             berkala secara cerdas.</p>
                     </div>
                 </div>
@@ -414,7 +411,7 @@
                 <div class="text-center space-y-2">
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">Tanya
                         Jawab</span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Pertanyaan Umum Seputar COOCA
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Pertanyaan Umum Seputar COOCA
                         Bengkel</h2>
                 </div>
 
@@ -540,13 +537,12 @@
                         <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
                         <span>Solusi Teruji untuk Ratusan Bengkel Motor & Mobil Indonesia</span>
                     </div>
-                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug text-balance break-words">
                         Mulai Operasikan Bengkel Anda dengan Standar Modern
                     </h3>
-                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed text-pretty">
                         Daftar akun COOCA hari ini dan rasakan kemudahan mengontrol SPK servis kendaraan, suku cadang, dan
-                        upah
-                        montir secara otomatis.
+                        upah montir secara otomatis.
                     </p>
                     <div class="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                         <a href="{{ route('register') }}"

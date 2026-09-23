@@ -67,38 +67,37 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Ubah Bahan Mentah Jadi Produk Jadi <span class="text-[#00C4D8]">dengan HPP Akurat</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty">
                             Dirancang untuk konveksi garmen, industri makanan olahan, bengkel fabrikasi kayu/besi, dan
                             manufaktur skala kecil menengah. Hubungkan formula Bill of Materials (BOM), jadwal perintah
-                            kerja
-                            produksi, upah tenaga kerja, hingga kontrol scrap barang cacat dalam satu sistem terpadu.
+                            kerja produksi, upah tenaga kerja, hingga kontrol scrap barang cacat dalam satu sistem terpadu.
                         </p>
 
                         {{-- Tangible Value Highlights --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Bill of Materials (BOM) multi-tingkat & kemasan</span>
+                                <span class="truncate">BOM multi-tingkat & kemasan</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Perintah Kerja Produksi (Work Order) batch</span>
+                                <span class="truncate">Perintah Kerja Produksi (WO) batch</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>HPP nyata: Bahan baku + Upah buruh + Overhead</span>
+                                <span class="truncate">HPP nyata: Bahan + Upah + Overhead</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Lacak nomor batch produksi & tanggal kedaluwarsa</span>
+                                <span class="truncate">Lacak batch & tanggal kedaluwarsa</span>
                             </div>
                         </div>
 
@@ -107,12 +106,12 @@
                             <a href="{{ route('register') }}"
                                 class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
                                 <span>Mulai Coba Modul Manufaktur</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20Manufaktur%20COOCA"
                                 target="_blank" rel="noopener"
                                 class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
-                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
+                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
                                 <span>Konsultasi Pabrikasi via WA</span>
                             </a>
                         </div>
@@ -122,30 +121,29 @@
                     <div class="lg:col-span-5">
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white">Work Order #WO-PROD-402</span>
+                            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-4">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">Work Order #WO-PROD-402</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full">
-                                    Lini Produksi A (Batch 200 Pcs)
+                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
+                                    Batch 200 Pcs
                                 </span>
                             </div>
 
                             {{-- Product Target Header --}}
                             <div
-                                class="p-3.5 rounded-[14px] bg-[#060B1E] border border-white/10 flex items-center justify-between text-xs font-mono">
-                                <div class="flex items-center gap-2.5">
-                                    <i data-lucide="shirt" class="w-5 h-5 text-indigo-400" aria-hidden="true"></i>
-                                    <div>
-                                        <p class="font-bold text-white">Kemeja Linen Pria Lengan Panjang</p>
-                                        <p class="text-[10px] text-slate-400">Target Output: 200 Pcs • Target Jadi: 28 Okt
-                                        </p>
+                                class="p-3.5 rounded-[14px] bg-[#060B1E] border border-white/10 flex items-center justify-between gap-3 text-xs font-mono">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <i data-lucide="shirt" class="w-5 h-5 text-indigo-400 shrink-0" aria-hidden="true"></i>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-white truncate">Kemeja Linen Pria Lengan Panjang</p>
+                                        <p class="text-[10px] text-slate-400 truncate">Target: 200 Pcs • Jadi: 28 Okt</p>
                                     </div>
                                 </div>
                                 <span
-                                    class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold">On
+                                    class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-md font-bold shrink-0">On
                                     Schedule</span>
                             </div>
 
@@ -155,54 +153,54 @@
                                     (BOM):</span>
 
                                 <div
-                                    class="p-2.5 rounded-[12px] bg-[#060B1E]/60 border border-white/10 flex justify-between items-center">
-                                    <div>
-                                        <p class="font-bold text-white">Kain Linen Premium 150gsm</p>
-                                        <p class="text-[10px] text-slate-300">320 Meter dialokasikan dari Gudang Utama</p>
+                                    class="p-2.5 rounded-[12px] bg-[#060B1E]/60 border border-white/10 flex justify-between items-center gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="font-bold text-white text-xs truncate">Kain Linen Premium 150gsm</p>
+                                        <p class="text-[10px] text-slate-300 truncate">320 Meter dari Gudang Utama</p>
                                     </div>
-                                    <span class="font-mono text-emerald-400 font-bold">Rp 9.600.000</span>
+                                    <span class="font-mono text-emerald-400 font-bold shrink-0 text-xs">Rp 9.600.000</span>
                                 </div>
 
                                 <div
-                                    class="p-2.5 rounded-[12px] bg-[#060B1E]/60 border border-white/10 flex justify-between items-center">
-                                    <div>
-                                        <p class="font-bold text-white">Kancing Batok & Benang Jahit</p>
-                                        <p class="text-[10px] text-slate-300">1.600 pcs kancing + 10 cone benang</p>
+                                    class="p-2.5 rounded-[12px] bg-[#060B1E]/60 border border-white/10 flex justify-between items-center gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="font-bold text-white text-xs truncate">Kancing Batok & Benang Jahit</p>
+                                        <p class="text-[10px] text-slate-300 truncate">1.600 kancing + 10 cone</p>
                                     </div>
-                                    <span class="font-mono text-emerald-400 font-bold">Rp 640.000</span>
+                                    <span class="font-mono text-emerald-400 font-bold shrink-0 text-xs">Rp 640.000</span>
                                 </div>
                             </div>
 
                             {{-- HPP Calculation Summary --}}
                             <div class="p-4 rounded-[16px] bg-[#060B1E]/80 border border-white/10 space-y-2 text-xs">
-                                <div class="flex justify-between text-slate-300">
-                                    <span>Total Bahan Mentah (Direct Material)</span>
-                                    <span class="font-mono text-slate-200">Rp 10.240.000</span>
+                                <div class="flex justify-between items-center gap-2 text-slate-300">
+                                    <span class="truncate">Total Bahan Mentah (Direct Material)</span>
+                                    <span class="font-mono text-slate-200 shrink-0">Rp 10.240.000</span>
                                 </div>
-                                <div class="flex justify-between text-slate-300">
-                                    <span>Ongkos Jahit / Buruh (Direct Labor)</span>
-                                    <span class="font-mono text-slate-200">Rp 3.000.000</span>
+                                <div class="flex justify-between items-center gap-2 text-slate-300">
+                                    <span class="truncate">Ongkos Jahit / Buruh (Direct Labor)</span>
+                                    <span class="font-mono text-slate-200 shrink-0">Rp 3.000.000</span>
                                 </div>
-                                <div class="flex justify-between text-slate-300">
-                                    <span>Alokasi Listrik & Kemasan (Overhead)</span>
-                                    <span class="font-mono text-slate-200">Rp 760.000</span>
+                                <div class="flex justify-between items-center gap-2 text-slate-300">
+                                    <span class="truncate">Alokasi Listrik & Kemasan (Overhead)</span>
+                                    <span class="font-mono text-slate-200 shrink-0">Rp 760.000</span>
                                 </div>
-                                <div class="flex justify-between text-white font-bold pt-2 border-t border-white/10">
-                                    <span>HPP Pokok Produk Jadi</span>
-                                    <span class="font-mono text-sm text-[#00C4D8]">Rp 70.000 / Pcs</span>
+                                <div class="flex justify-between items-center gap-2 text-white font-bold pt-2 border-t border-white/10">
+                                    <span class="truncate">HPP Pokok Produk Jadi</span>
+                                    <span class="font-mono text-sm text-[#00C4D8] shrink-0 font-extrabold">Rp 70.000 / Pcs</span>
                                 </div>
                             </div>
 
                             {{-- QC & Stock In Action --}}
                             <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="check-check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">QC: 198 Lolos (2 Reject)</span>
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center gap-2 min-w-0">
+                                    <i data-lucide="check-check" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 truncate">QC: 198 Lolos (2 Reject)</span>
                                 </div>
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="arrow-down-to-dot" class="w-4 h-4 text-[#00C4D8]"
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center gap-2 min-w-0">
+                                    <i data-lucide="arrow-down-to-dot" class="w-4 h-4 text-[#00C4D8] shrink-0"
                                         aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">Stok Jadi Masuk Gudang</span>
+                                    <span class="font-medium text-slate-200 truncate">Masuk Gudang Jadi</span>
                                 </div>
                             </div>
                         </div>
@@ -221,7 +219,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 block">
                         Tantangan Produksi UMKM
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1 leading-snug text-balance break-words">
                         Titik Rawan Kerugian pada Proses Manufaktur & Fabrikasi
                     </h2>
                 </div>
@@ -234,7 +232,7 @@
                             01</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">HPP Dihitung Berdasarkan Kira-Kira
                         </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Owner menetapkan harga jual tanpa menghitung persis sisa kain sisa, plastik bungkus, upah
                             borongan, dan biaya listrik mesin, berujung pada omzet besar tetapi kas kosong.
                         </p>
@@ -247,7 +245,7 @@
                             02</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Bahan Mentah Habis di Tengah Jalan
                         </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Produksi terhenti berhari-hari karena persediaan benang, resleting, atau bahan baku utama di
                             gudang ternyata sudah habis tanpa peringatan sistem sejak awal.
                         </p>
@@ -260,7 +258,7 @@
                             03</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Tingkat Reject Tinggi Tanpa Evaluasi
                         </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Barang cacat dan bahan terbuang (scrap) tidak pernah dicatat per operator mesin atau batch
                             produksi, sehingga sumber kebocoran produksi terus terulang tiap bulan.
                         </p>
@@ -274,7 +272,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Kapabilitas Khusus Manufaktur
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug text-balance break-words">
                         Fitur Lengkap untuk Mengendalikan Lini Produksi
                     </h2>
                 </div>
@@ -376,7 +374,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#00C4D8] block">
                         Alur Ekosistem Manufaktur
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-1 leading-snug text-balance break-words">
                         Siklus Dari Pengadaan Bahan Mentah Hingga Distribusi Barang Jadi
                     </h2>
                 </div>
@@ -385,25 +383,25 @@
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-[#00C4D8]">Langkah 01</div>
                         <h4 class="text-sm font-bold text-white">Pengadaan Raw Material</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">PO bahan mentah diterbitkan ke supplier dan masuk
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">PO bahan mentah diterbitkan ke supplier dan masuk
                             gudang material.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-indigo-400">Langkah 02</div>
                         <h4 class="text-sm font-bold text-white">Penerbitan Work Order</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">BOM formula ditarik dan bahan baku ditransfer ke
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">BOM formula ditarik dan bahan baku ditransfer ke
                             lini produksi.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-amber-400">Langkah 03</div>
                         <h4 class="text-sm font-bold text-white">Eksekusi & Inspeksi QC</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Barang diproses, diinspeksi, dan HPP final
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Barang diproses, diinspeksi, dan HPP final
                             terhitung otomatis.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-emerald-400">Langkah 04</div>
                         <h4 class="text-sm font-bold text-white">Siap Jual & Sinkron ERP</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Produk jadi siap dijual di seluruh channel
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Produk jadi siap dijual di seluruh channel
                             omnichannel bisnis.</p>
                     </div>
                 </div>
@@ -414,7 +412,7 @@
                 <div class="text-center space-y-2">
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">Tanya
                         Jawab</span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Pertanyaan Umum Seputar COOCA
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Pertanyaan Umum Seputar COOCA
                         Manufaktur</h2>
                 </div>
 
@@ -539,13 +537,12 @@
                         <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
                         <span>Tingkatkan Efisiensi Produksi & Margin Laba Pabrik Anda</span>
                     </div>
-                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug text-balance break-words">
                         Kendalikan Biaya Produksi Anda dengan Sistem Terpadu
                     </h3>
-                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed text-pretty">
                         Daftar akun COOCA hari ini dan bangun formula Bill of Materials, pantau perintah kerja produksi,
-                        serta
-                        hitung HPP riil tanpa ribet spreadsheet.
+                        serta hitung HPP riil tanpa ribet spreadsheet.
                     </p>
                     <div class="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                         <a href="{{ route('register') }}"

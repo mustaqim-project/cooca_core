@@ -105,7 +105,7 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold tracking-tight text-white leading-[1.15]">
+                            class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.2] text-balance break-words">
                             Ketahui Konten Mana yang Benar-Benar <span class="text-[#00C4D8]">Menghasilkan Penjualan</span>
                         </h1>
 
@@ -129,18 +129,18 @@
                         </div>
 
                         {{-- Key Trust Specs --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-3 gap-4 text-left">
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Metrik Utama</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Reach & Klik Order</div>
+                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-left">
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Metrik Utama</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Reach & Klik Order</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Korelasi Penjualan</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Terkait Omzet POS</div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Korelasi Penjualan</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Terkait Omzet POS</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Waktu Optimal</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Rekomendasi Jam Tayang</div>
+                            <div class="min-w-0 col-span-2 sm:col-span-1">
+                                <div class="text-xs text-slate-400 font-medium truncate">Waktu Optimal</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Rekomendasi Jam Tayang</div>
                             </div>
                         </div>
                     </div>
@@ -151,66 +151,61 @@
                             class="relative rounded-2xl bg-[#0E1E45]/80 p-4 sm:p-5 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white">
 
                             {{-- Dashboard Header --}}
-                            <div class="flex items-center justify-between pb-3 border-b border-white/10 text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8]">
+                            <div class="flex items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                         <i data-lucide="trending-up" class="w-4 h-4"></i>
                                     </span>
-                                    <div>
-                                        <div class="font-bold text-white">Performa Konten Pemasaran</div>
-                                        <div class="text-[10px] text-slate-400">30 Hari Terakhir • Seluruh Kanal Aktif</div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-white truncate">Performa Konten Pemasaran</div>
+                                        <div class="text-[10px] text-slate-400 truncate">30 Hari Terakhir • Seluruh Kanal</div>
                                     </div>
                                 </div>
                                 <span
-                                    class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold">+24.8%
-                                    Klik Toko</span>
+                                    class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold shrink-0">+24.8% Klik</span>
                             </div>
 
                             {{-- 4 Metric Tiles --}}
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 my-3">
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10">
-                                    <div class="text-[10px] text-slate-400">Total Jangkauan</div>
-                                    <div class="text-xs sm:text-sm font-bold text-white font-mono mt-0.5">184.2k</div>
-                                    <div class="text-[9px] text-emerald-400 mt-1">↑ 32% Akun Unik</div>
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 min-w-0">
+                                    <div class="text-[10px] text-slate-400 truncate">Total Reach</div>
+                                    <div class="text-xs sm:text-sm font-bold text-white font-mono mt-0.5 truncate">184.2k</div>
+                                    <div class="text-[9px] text-emerald-400 mt-1 truncate">↑ 32% Akun</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10">
-                                    <div class="text-[10px] text-slate-400">Engagement</div>
-                                    <div class="text-xs sm:text-sm font-bold text-pink-400 font-mono mt-0.5">4.6%</div>
-                                    <div class="text-[9px] text-slate-400 mt-1">Interaksi Sehat</div>
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 min-w-0">
+                                    <div class="text-[10px] text-slate-400 truncate">Engagement</div>
+                                    <div class="text-xs sm:text-sm font-bold text-pink-400 font-mono mt-0.5 truncate">4.6%</div>
+                                    <div class="text-[9px] text-slate-400 mt-1 truncate">Interaksi Sehat</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10">
-                                    <div class="text-[10px] text-slate-400">Klik Link Toko</div>
-                                    <div class="text-xs sm:text-sm font-bold text-[#00C4D8] font-mono mt-0.5">1.420</div>
-                                    <div class="text-[9px] text-slate-400 mt-1">Menuju Katalog</div>
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 min-w-0">
+                                    <div class="text-[10px] text-slate-400 truncate">Klik Link</div>
+                                    <div class="text-xs sm:text-sm font-bold text-[#00C4D8] font-mono mt-0.5 truncate">1.420</div>
+                                    <div class="text-[9px] text-slate-400 mt-1 truncate">Ke Katalog</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10">
-                                    <div class="text-[10px] text-slate-400">Konversi Penjualan</div>
-                                    <div class="text-xs sm:text-sm font-bold text-emerald-400 font-mono mt-0.5">Rp 42.8M
-                                    </div>
-                                    <div class="text-[9px] text-slate-400 mt-1">124 Transaksi POS</div>
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 min-w-0">
+                                    <div class="text-[10px] text-slate-400 truncate">Konversi POS</div>
+                                    <div class="text-xs sm:text-sm font-bold text-emerald-400 font-mono mt-0.5 truncate">Rp 42.8M</div>
+                                    <div class="text-[9px] text-slate-400 mt-1 truncate">124 Transaksi</div>
                                 </div>
                             </div>
 
                             {{-- Top Performing Posts List --}}
                             <div class="space-y-1.5 text-xs text-left">
-                                <div class="text-[10px] uppercase font-mono text-slate-400 px-1">Konten Penghasil Penjualan
-                                    Tertinggi:</div>
+                                <div class="text-[10px] uppercase font-mono text-slate-400 px-1">Konten Penghasil Penjualan Tertinggi:</div>
 
                                 {{-- Item 1 --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="p-1 rounded bg-[#007AFF]/20 text-[#00C4D8]">
+                                    class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        <span class="p-1 rounded bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                             <i data-lucide="video" class="w-3.5 h-3.5"></i>
                                         </span>
-                                        <div>
-                                            <div class="font-medium text-white text-[11px] truncate">Reels: Resep Kopi Susu
-                                                Aren Otentik</div>
-                                            <div class="text-[10px] text-slate-400">42.8k Tayang • 38 Pembelian Langsung di
-                                                POS</div>
+                                        <div class="min-w-0">
+                                            <div class="font-medium text-white text-[11px] truncate">Reels: Resep Kopi Susu Aren</div>
+                                            <div class="text-[10px] text-slate-400 truncate">42.8k Tayang • 38 Beli di POS</div>
                                         </div>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right shrink-0">
                                         <div class="font-bold text-emerald-400 font-mono text-[11px]">Rp 18.2M</div>
                                         <div class="text-[9px] text-slate-400">ROI Tertinggi</div>
                                     </div>
@@ -218,19 +213,17 @@
 
                                 {{-- Item 2 --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="p-1 rounded bg-blue-500/20 text-blue-400">
+                                    class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        <span class="p-1 rounded bg-blue-500/20 text-blue-400 shrink-0">
                                             <i data-lucide="image" class="w-3.5 h-3.5"></i>
                                         </span>
-                                        <div>
-                                            <div class="font-medium text-white text-[11px] truncate">Feed: Promo Beli 2
-                                                Croissant Gratis Kopi</div>
-                                            <div class="text-[10px] text-slate-400">28.1k Jangkauan • 52 Kupon Terpakai di
-                                                Kasir</div>
+                                        <div class="min-w-0">
+                                            <div class="font-medium text-white text-[11px] truncate">Feed: Promo Beli 2 Croissant</div>
+                                            <div class="text-[10px] text-slate-400 truncate">28.1k Jangkauan • 52 Kupon Kasir</div>
                                         </div>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right shrink-0">
                                         <div class="font-bold text-emerald-400 font-mono text-[11px]">Rp 15.6M</div>
                                         <div class="text-[9px] text-slate-400">Kupon Kasir</div>
                                     </div>
@@ -239,16 +232,15 @@
 
                             {{-- Best Time to Post Insight --}}
                             <div
-                                class="mt-3 p-2.5 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="clock" class="w-4 h-4 text-[#00C4D8]"></i>
-                                    <div>
-                                        <span class="text-white font-medium text-[11px]">Waktu Tayang Paling
-                                            Menghasilkan:</span>
-                                        <span class="text-slate-300 text-[10px]"> Rabu & Jumat jam 15:00 - 17:00 WIB</span>
+                                class="mt-3 p-2.5 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <i data-lucide="clock" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
+                                    <div class="min-w-0">
+                                        <span class="text-white font-medium text-[11px] block truncate">Waktu Tayang Paling Menghasilkan:</span>
+                                        <span class="text-slate-300 text-[10px] block truncate">Rabu & Jumat jam 15:00 - 17:00 WIB</span>
                                     </div>
                                 </div>
-                                <span class="text-[#00C4D8] text-[10px] font-mono">Berdasarkan Data Toko</span>
+                                <span class="text-[#00C4D8] text-[10px] font-mono shrink-0">Berdasarkan Data Toko</span>
                             </div>
 
                         </div>
@@ -355,9 +347,9 @@
                     </div>
 
                     <div
-                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 flex items-center justify-between text-xs">
+                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                         <span class="text-slate-600 dark:text-slate-300 font-medium">Transparansi Omzet:</span>
-                        <span class="text-[#007AFF] font-semibold flex items-center gap-1">
+                        <span class="text-[#007AFF] font-semibold flex items-center gap-1 shrink-0">
                             <i data-lucide="check" class="w-4 h-4"></i> Lacak rupiah penjualan per postingan promosi
                         </span>
                     </div>
@@ -381,9 +373,9 @@
                     </div>
 
                     <div
-                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 text-xs flex items-center justify-between font-mono">
+                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono">
                         <span class="text-slate-500 dark:text-slate-400">Rekomendasi Cerdas</span>
-                        <span class="text-pink-500 font-bold">Jam 15:00 - 17:00 Optimal</span>
+                        <span class="text-pink-500 font-bold shrink-0">Jam 15:00 - 17:00 Optimal</span>
                     </div>
                 </div>
 

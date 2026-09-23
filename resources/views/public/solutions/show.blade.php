@@ -65,35 +65,35 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             {{ $solution['headline'] }}
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty">
                             {{ $solution['subheadline'] }}
                         </p>
 
                         {{-- Tangible Operational Highlights --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Bisa dari HP Android, Tablet, atau Laptop</span>
+                                <span class="truncate">Android, Tablet, atau Laptop</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Cetak struk kasir via printer Bluetooth thermal</span>
+                                <span class="truncate">Printer Bluetooth Thermal</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Laporan laba bersih & stok otomatis terhubung</span>
+                                <span class="truncate">Laba bersih & stok otomatis</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Terhubung ke pembukuan finansial tanpa ribet</span>
+                                <span class="truncate">Sinkron pembukuan finansial</span>
                             </div>
                         </div>
 
@@ -102,12 +102,12 @@
                             <a href="{{ route('register') }}"
                                 class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
                                 <span>Mulai Coba Sekarang</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20{{ urlencode($solution['title']) }}"
                                 target="_blank" rel="noopener"
                                 class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
-                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
+                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
                                 <span>Konsultasi via WhatsApp</span>
                             </a>
                         </div>
@@ -117,58 +117,57 @@
                     <div class="lg:col-span-5">
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white">Terminal Kasir:
-                                        {{ $solution['badge'] }}</span>
+                            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-4">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">Terminal: {{ $solution['badge'] }}</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-emerald-400 bg-emerald-400/15 border border-emerald-400/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Kasir Siap
+                                    class="text-[11px] font-semibold text-emerald-400 bg-emerald-400/15 border border-emerald-400/30 px-2.5 py-0.5 rounded-full flex items-center gap-1 shrink-0">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span> Kasir Siap
                                 </span>
                             </div>
 
                             {{-- Simulated Active Ticket --}}
                             <div class="p-4 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-3">
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="font-bold text-white">Nota Transaksi #TRX-1049</span>
-                                    <span class="text-slate-400 font-mono">Hari Ini, 14:22</span>
+                                <div class="flex justify-between items-center gap-2 text-xs">
+                                    <span class="font-bold text-white truncate">Nota #TRX-1049</span>
+                                    <span class="text-slate-400 font-mono shrink-0">Hari Ini, 14:22</span>
                                 </div>
                                 <div class="space-y-2 text-xs">
-                                    <div class="flex justify-between text-slate-200">
-                                        <span>Paket Operasional {{ $solution['badge'] }} (1x)</span>
-                                        <span class="font-mono font-semibold text-white">Rp 45.000</span>
+                                    <div class="flex justify-between items-center gap-2 text-slate-200">
+                                        <span class="truncate">Paket {{ $solution['badge'] }} (1x)</span>
+                                        <span class="font-mono font-semibold text-white shrink-0">Rp 45.000</span>
                                     </div>
-                                    <div class="flex justify-between text-slate-300">
-                                        <span>HPP Terhitung Otomatis</span>
-                                        <span class="font-mono text-slate-400">Rp 22.500</span>
+                                    <div class="flex justify-between items-center gap-2 text-slate-300">
+                                        <span class="truncate">HPP Terhitung Otomatis</span>
+                                        <span class="font-mono text-slate-400 shrink-0">Rp 22.500</span>
                                     </div>
                                     <div
-                                        class="flex justify-between text-emerald-400 font-bold border-t border-dashed border-white/10 pt-2">
-                                        <span>Margin Keuntungan Bersih</span>
-                                        <span class="font-mono">+50.0% (Rp 22.500)</span>
+                                        class="flex justify-between items-center gap-2 text-emerald-400 font-bold border-t border-dashed border-white/10 pt-2">
+                                        <span class="truncate">Margin Keuntungan</span>
+                                        <span class="font-mono shrink-0">+50.0% (Rp 22.500)</span>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Hardware Integration Row --}}
                             <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="printer" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">Printer Siap</span>
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center gap-2 min-w-0">
+                                    <i data-lucide="printer" class="w-4 h-4 text-[#00C4D8] shrink-0" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 truncate">Printer Siap</span>
                                 </div>
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="qr-code" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">QRIS Dinamis</span>
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center gap-2 min-w-0">
+                                    <i data-lucide="qr-code" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 truncate">QRIS Dinamis</span>
                                 </div>
                             </div>
 
                             {{-- Action preview badge --}}
                             <div
-                                class="p-3 rounded-[12px] bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold text-center flex items-center justify-center gap-2">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
-                                <span>Stok & Pembukuan Langsung Sinkron Otomatis</span>
+                                class="p-3 rounded-[12px] bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold text-center flex items-center justify-center gap-2 min-w-0">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                <span class="truncate">Stok & Pembukuan Langsung Sinkron</span>
                             </div>
                         </div>
                     </div>
@@ -186,7 +185,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 block">
                         Tantangan Sehari-hari
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1 leading-snug text-balance break-words">
                         Sering Mengalami Kendala Ini di Usaha Anda?
                     </h2>
                 </div>
@@ -199,7 +198,7 @@
                                 class="w-8 h-8 rounded-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center font-mono">
                                 0{{ $index + 1 }}
                             </div>
-                            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed text-pretty">
                                 {{ $pain }}
                             </p>
                         </div>
@@ -213,7 +212,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Fitur Unggulan Spesifik
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug text-balance break-words">
                         Bagaimana COOCA Mempermudah Operasional Harian
                     </h2>
                 </div>
@@ -229,7 +228,7 @@
                             <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                                 {{ $feat['title'] }}
                             </h3>
-                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                                 {{ $feat['desc'] }}
                             </p>
                         </div>
@@ -295,13 +294,12 @@
                         <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
                         <span>Tersedia untuk Android, Tablet, Laptop, & Printer Bluetooth</span>
                     </div>
-                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug text-balance break-words">
                         Mulai Digitalisasi Usaha Anda Hari Ini
                     </h3>
-                    <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto leading-relaxed">
+                    <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto leading-relaxed text-pretty">
                         Tidak perlu beli mesin kasir mahal. Cukup gunakan HP Android, tablet, atau laptop yang sudah Anda
-                        miliki
-                        sekarang untuk mengelola bisnis lebih rapi.
+                        miliki sekarang untuk mengelola bisnis lebih rapi.
                     </p>
                     <div class="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                         <a href="{{ route('register') }}"

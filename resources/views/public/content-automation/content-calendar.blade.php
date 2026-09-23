@@ -105,9 +105,8 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold tracking-tight text-white leading-[1.15]">
-                            Rencanakan Pemasaran Sebulan Penuh <span class="text-[#00C4D8]">Dalam Satu Tampilan
-                                Visual</span>
+                            class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.2] text-balance break-words">
+                            Rencanakan Pemasaran Sebulan Penuh <span class="text-[#00C4D8]">Dalam Satu Tampilan Visual</span>
                         </h1>
 
                         <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
@@ -130,18 +129,18 @@
                         </div>
 
                         {{-- Key Trust Specs --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-3 gap-4 text-left">
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Rentang Pandang</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Bulanan & Mingguan</div>
+                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-left">
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Rentang Pandang</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Bulanan & Mingguan</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Pengaturan Waktu</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Drag & Drop Cepat</div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Pengaturan Waktu</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Drag & Drop Cepat</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Kanal Tayang</div>
-                                <div class="text-sm font-bold text-white mt-0.5">IG, FB, & WhatsApp</div>
+                            <div class="min-w-0 col-span-2 sm:col-span-1">
+                                <div class="text-xs text-slate-400 font-medium truncate">Kanal Tayang</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">IG, FB, & WhatsApp</div>
                             </div>
                         </div>
                     </div>
@@ -152,34 +151,31 @@
                             class="relative rounded-2xl bg-[#0E1E45]/80 p-4 sm:p-5 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white">
 
                             {{-- Calendar Header --}}
-                            <div class="flex items-center justify-between pb-3 border-b border-white/10 text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8]">
+                            <div class="flex items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                         <i data-lucide="calendar-range" class="w-4 h-4"></i>
                                     </span>
-                                    <div>
-                                        <div class="font-bold text-white">September 2026 — Jadwal Editorial</div>
-                                        <div class="text-[10px] text-slate-400">24 Konten Terjadwal • 4 Draf Review</div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-white truncate">September 2026 — Jadwal Editorial</div>
+                                        <div class="text-[10px] text-slate-400 truncate">24 Terjadwal • 4 Draf Review</div>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="px-2 py-0.5 rounded bg-white/10 text-slate-300 text-[10px]">Filter: Semua
-                                        Kanal</span>
-                                </div>
+                                <span class="px-2 py-0.5 rounded bg-white/10 text-slate-300 text-[10px] shrink-0">Semua Kanal</span>
                             </div>
 
                             {{-- Calendar Days Grid Simulation --}}
-                            <div class="grid grid-cols-3 gap-2 my-3 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 my-3 text-xs">
 
                                 {{-- Day 1 --}}
-                                <div class="p-2 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-1.5 text-left">
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-1.5 text-left min-w-0">
                                     <div class="flex justify-between items-center text-[10px] text-slate-400">
                                         <span class="font-bold text-white">Senin, 21</span>
                                         <span class="text-emerald-400 text-[9px]">Tayang</span>
                                     </div>
                                     <div class="p-1.5 rounded-lg bg-white/5 border border-white/10 space-y-1">
                                         <div class="flex items-center gap-1 text-[9px] text-[#00C4D8] font-semibold">
-                                            <i data-lucide="instagram" class="w-3 h-3"></i> 08:30 WIB
+                                            <i data-lucide="instagram" class="w-3 h-3 shrink-0"></i> <span>08:30 WIB</span>
                                         </div>
                                         <div class="text-[10px] text-slate-200 truncate">Kopi Pagi Semangat Kerja</div>
                                     </div>
@@ -187,29 +183,28 @@
 
                                 {{-- Day 2 (Highlighted Active) --}}
                                 <div
-                                    class="p-2 rounded-xl bg-[#060B1E]/95 border border-[#007AFF]/50 ring-1 ring-[#007AFF]/30 space-y-1.5 text-left">
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/95 border border-[#007AFF]/50 ring-1 ring-[#007AFF]/30 space-y-1.5 text-left min-w-0">
                                     <div class="flex justify-between items-center text-[10px] text-slate-400">
                                         <span class="font-bold text-[#00C4D8]">Hari Ini, 23</span>
                                         <span class="text-amber-400 text-[9px]">Antrean</span>
                                     </div>
                                     <div class="p-1.5 rounded-lg bg-[#007AFF]/15 border border-[#007AFF]/30 space-y-1">
                                         <div class="flex items-center gap-1 text-[9px] text-[#00C4D8] font-semibold">
-                                            <i data-lucide="instagram" class="w-3 h-3"></i> 15:30 WIB
+                                            <i data-lucide="instagram" class="w-3 h-3 shrink-0"></i> <span>15:30 WIB</span>
                                         </div>
-                                        <div class="text-[10px] text-white font-medium truncate">Croissant Butter Promo Beli
-                                            2</div>
+                                        <div class="text-[10px] text-white font-medium truncate">Croissant Butter Promo Beli 2</div>
                                     </div>
                                 </div>
 
                                 {{-- Day 3 --}}
-                                <div class="p-2 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-1.5 text-left">
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-1.5 text-left min-w-0">
                                     <div class="flex justify-between items-center text-[10px] text-slate-400">
                                         <span class="font-bold text-white">Jumat, 25</span>
                                         <span class="text-blue-400 text-[9px]">Gajian</span>
                                     </div>
                                     <div class="p-1.5 rounded-lg bg-white/5 border border-white/10 space-y-1">
                                         <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-                                            <i data-lucide="message-circle" class="w-3 h-3"></i> 19:00 WIB
+                                            <i data-lucide="message-circle" class="w-3 h-3 shrink-0"></i> <span>19:00 WIB</span>
                                         </div>
                                         <div class="text-[10px] text-slate-200 truncate">Voucher Payday VIP Member</div>
                                     </div>
@@ -219,31 +214,29 @@
 
                             {{-- Scheduled Content Card Detail --}}
                             <div
-                                class="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs text-left">
-                                <div class="flex items-center gap-2.5">
+                                class="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-2.5 text-xs text-left">
+                                <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                     <div
                                         class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-[#00C4D8] shrink-0">
                                         <i data-lucide="move" class="w-4 h-4"></i>
                                     </div>
-                                    <div>
-                                        <div class="font-medium text-white text-[11px]">Seret & Geser (Drag-and-Drop) Jadwal
-                                        </div>
-                                        <div class="text-[10px] text-slate-400">Pindahkan tanggal tayang promo akhir pekan
-                                            ke hari Sabtu</div>
+                                    <div class="min-w-0">
+                                        <div class="font-medium text-white text-[11px] truncate">Seret & Geser (Drag & Drop) Jadwal</div>
+                                        <div class="text-[10px] text-slate-400 truncate">Pindahkan tanggal tayang promo akhir pekan ke Sabtu</div>
                                     </div>
                                 </div>
-                                <span class="text-[#00C4D8] text-[10px] font-mono">Aktif</span>
+                                <span class="text-[#00C4D8] text-[10px] font-mono shrink-0">Aktif</span>
                             </div>
 
                             {{-- Footer Action Bar --}}
                             <div
-                                class="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
-                                <span class="flex items-center gap-1.5">
-                                    <i data-lucide="bell" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                    Notifikasi pengingat tayang aktif untuk staf
+                                class="mt-3 pt-2 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400">
+                                <span class="flex items-center gap-1.5 min-w-0">
+                                    <i data-lucide="bell" class="w-3.5 h-3.5 text-[#00C4D8] shrink-0"></i>
+                                    <span class="truncate">Notifikasi pengingat tayang aktif untuk staf</span>
                                 </span>
                                 <a href="{{ route('public.content.publishing') }}"
-                                    class="text-[#00C4D8] hover:underline font-medium">Buka Antrean Tayang →</a>
+                                    class="text-[#00C4D8] hover:underline font-medium shrink-0">Buka Antrean Tayang →</a>
                             </div>
 
                         </div>
@@ -349,9 +342,9 @@
                     </div>
 
                     <div
-                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 flex items-center justify-between text-xs">
+                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                         <span class="text-slate-600 dark:text-slate-300 font-medium">Perencanaan Cepat:</span>
-                        <span class="text-[#007AFF] font-semibold flex items-center gap-1">
+                        <span class="text-[#007AFF] font-semibold flex items-center gap-1 shrink-0">
                             <i data-lucide="check" class="w-4 h-4"></i> Susun 30 materi promosi dalam 1 hari kerja
                         </span>
                     </div>
@@ -375,9 +368,9 @@
                     </div>
 
                     <div
-                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 text-xs flex items-center justify-between font-mono">
+                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/80 border border-slate-200/80 dark:border-white/10 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono">
                         <span class="text-slate-500 dark:text-slate-400">Rescheduling Instan</span>
-                        <span class="text-purple-500 font-bold">Waktu Otomatis Disesuaikan</span>
+                        <span class="text-purple-500 font-bold shrink-0">Waktu Otomatis Disesuaikan</span>
                     </div>
                 </div>
 

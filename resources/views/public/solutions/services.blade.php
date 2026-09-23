@@ -67,40 +67,38 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Atur Booking Klien, Penugasan Staf, & <span class="text-[#00C4D8]">Invoice Termin Tanpa
                                 Bentrok</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty">
                             Kendalikan operasional barbershop, salon kecantikan, klinik, servis AC panggilan, konsultan,
-                            hingga
-                            studio foto. Hubungkan kalender reservasi janji temu, alokasi teknisi/terapis, penagihan uang
-                            muka
-                            (DP) dan pelunasan, serta reminder WhatsApp otomatis.
+                            hingga studio foto. Hubungkan kalender reservasi janji temu, alokasi teknisi/terapis, penagihan uang
+                            muka (DP) dan pelunasan, serta reminder WhatsApp otomatis.
                         </p>
 
                         {{-- Tangible Value Highlights --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Kalender reservasi anti bentrok jadwal</span>
+                                <span class="truncate">Kalender reservasi anti bentrok jadwal</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Distribusi tugas staf & teknisi lapangan</span>
+                                <span class="truncate">Distribusi tugas staf & teknisi</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Invoice bertahap: Down Payment (DP) & Pelunasan</span>
+                                <span class="truncate">Invoice termin: DP & Pelunasan</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Pengingat janji temu WhatsApp anti no-show</span>
+                                <span class="truncate">Pengingat janji temu WhatsApp</span>
                             </div>
                         </div>
 
@@ -109,12 +107,12 @@
                             <a href="{{ route('register') }}"
                                 class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
                                 <span>Mulai Coba Sistem Jasa</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20Bisnis%20Jasa%20COOCA"
                                 target="_blank" rel="noopener"
                                 class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
-                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
+                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
                                 <span>Tanya Solusi Jasa</span>
                             </a>
                         </div>
@@ -124,92 +122,89 @@
                     <div class="lg:col-span-5">
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-violet-400 animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white">Order Servis #SRV-7704</span>
+                            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-4">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-violet-400 animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">Order Servis #SRV-7704</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                                    class="text-[11px] font-semibold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 rounded-full shrink-0">
                                     DP 50% Diterima
                                 </span>
                             </div>
 
                             {{-- Appointment Slot Badge --}}
                             <div
-                                class="p-3.5 rounded-[14px] bg-[#060B1E] border border-white/10 flex items-center justify-between text-xs font-mono">
-                                <div class="flex items-center gap-2.5">
-                                    <i data-lucide="calendar" class="w-5 h-5 text-violet-400" aria-hidden="true"></i>
-                                    <div>
-                                        <p class="font-bold text-white">Senin, 10:00 - 12:00 WIB</p>
-                                        <p class="text-[10px] text-slate-400">Klien: PT Maju Bersama • Lokasi: Gd. Graha Lt.
-                                            4</p>
+                                class="p-3.5 rounded-[14px] bg-[#060B1E] border border-white/10 flex items-center justify-between gap-3 text-xs font-mono">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <i data-lucide="calendar" class="w-5 h-5 text-violet-400 shrink-0" aria-hidden="true"></i>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-white truncate">Senin, 10:00 - 12:00 WIB</p>
+                                        <p class="text-[10px] text-slate-400 truncate">Klien: PT Maju Bersama • Gd. Graha Lt. 4</p>
                                     </div>
                                 </div>
-                                <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-slate-300">Home Service</span>
+                                <span class="text-[10px] bg-white/10 px-2.5 py-1 rounded-md text-slate-300 font-semibold shrink-0">Home Service</span>
                             </div>
 
                             {{-- Technician & Service Line Items --}}
                             <div class="space-y-3 text-xs">
                                 <div class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-1.5">
-                                    <div class="flex justify-between items-start font-semibold text-white">
-                                        <div>
-                                            <p class="font-bold">Maintenance & Cuci AC Inverter (4 Unit)</p>
-                                            <p class="text-[11px] text-slate-300 font-normal">Teknisi: Aris Kurniawan (Lead)
-                                                + 1 Asisten</p>
+                                    <div class="flex justify-between items-start gap-2 font-semibold text-white">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-bold text-xs truncate">Maintenance & Cuci AC Inverter (4 Unit)</p>
+                                            <p class="text-[11px] text-slate-300 font-normal truncate">Teknisi: Aris Kurniawan (Lead) + 1 Asisten</p>
                                         </div>
-                                        <span class="font-mono text-slate-200">Rp 600.000</span>
+                                        <span class="font-mono text-slate-200 shrink-0 text-xs">Rp 600.000</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-violet-400 font-mono pt-1 border-t border-dashed border-white/10">
-                                        <span>Status: Teknisi Tiba di Lokasi</span>
-                                        <span class="text-[#00C4D8]">Komisi Jasa: Rp 180.000</span>
+                                        class="flex items-center justify-between gap-2 text-[11px] text-violet-400 font-mono pt-1 border-t border-dashed border-white/10">
+                                        <span class="truncate">Status: Teknisi Tiba di Lokasi</span>
+                                        <span class="text-[#00C4D8] shrink-0 font-semibold">Komisi: Rp 180.000</span>
                                     </div>
                                 </div>
 
                                 <div class="p-3 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-1.5">
-                                    <div class="flex justify-between items-start font-semibold text-white">
-                                        <div>
-                                            <p class="font-bold">Penggantian Kapasitor & Tambah Freon R32</p>
-                                            <p class="text-[11px] text-slate-300 font-normal">Material Part Tambahan
-                                                Disetujui Klien</p>
+                                    <div class="flex justify-between items-start gap-2 font-semibold text-white">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-bold text-xs truncate">Penggantian Kapasitor & Tambah Freon R32</p>
+                                            <p class="text-[11px] text-slate-300 font-normal truncate">Material Part Disetujui Klien</p>
                                         </div>
-                                        <span class="font-mono text-slate-200">Rp 350.000</span>
+                                        <span class="font-mono text-slate-200 shrink-0 text-xs">Rp 350.000</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-emerald-400 font-mono pt-1 border-t border-dashed border-white/10">
-                                        <span>Garansi Pengerjaan 30 Hari</span>
-                                        <span class="text-slate-300">Foto Bukti Terlampir</span>
+                                        class="flex items-center justify-between gap-2 text-[11px] text-emerald-400 font-mono pt-1 border-t border-dashed border-white/10">
+                                        <span class="truncate">Garansi Pengerjaan 30 Hari</span>
+                                        <span class="text-slate-300 shrink-0">Foto Bukti Terlampir</span>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Calculation Breakdown --}}
                             <div class="p-4 rounded-[16px] bg-[#060B1E]/80 border border-white/10 space-y-2 text-xs">
-                                <div class="flex justify-between text-slate-300">
-                                    <span>Total Tagihan Jasa & Material</span>
-                                    <span class="font-mono text-slate-200">Rp 950.000</span>
+                                <div class="flex justify-between items-center gap-2 text-slate-300">
+                                    <span class="truncate">Total Tagihan Jasa & Material</span>
+                                    <span class="font-mono text-slate-200 shrink-0">Rp 950.000</span>
                                 </div>
-                                <div class="flex justify-between text-emerald-400">
-                                    <span>Down Payment (DP) 50% Terbayar</span>
-                                    <span class="font-mono">- Rp 475.000</span>
+                                <div class="flex justify-between items-center gap-2 text-emerald-400">
+                                    <span class="truncate">Down Payment (DP) 50% Terbayar</span>
+                                    <span class="font-mono shrink-0">- Rp 475.000</span>
                                 </div>
-                                <div class="flex justify-between text-white font-bold pt-2 border-t border-white/10">
-                                    <span>Sisa Pelunasan Setelah Selesai</span>
-                                    <span class="font-mono text-sm text-[#00C4D8]">Rp 475.000</span>
+                                <div class="flex justify-between items-center gap-2 text-white font-bold pt-2 border-t border-white/10">
+                                    <span class="truncate">Sisa Pelunasan Setelah Selesai</span>
+                                    <span class="font-mono text-sm text-[#00C4D8] shrink-0 font-extrabold">Rp 475.000</span>
                                 </div>
                             </div>
 
                             {{-- Operational Trigger --}}
                             <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="file-check" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">Invoice Pelunasan</span>
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center gap-2 min-w-0">
+                                    <i data-lucide="file-check" class="w-4 h-4 text-[#00C4D8] shrink-0" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 truncate">Invoice Pelunasan</span>
                                 </div>
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="message-square" class="w-4 h-4 text-emerald-400"
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center gap-2 min-w-0">
+                                    <i data-lucide="message-square" class="w-4 h-4 text-emerald-400 shrink-0"
                                         aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">Kirim Kuitansi WA</span>
+                                    <span class="font-medium text-slate-200 truncate">Kirim Kuitansi WA</span>
                                 </div>
                             </div>
                         </div>
@@ -228,7 +223,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 block">
                         Tantangan Bisnis Jasa & Servis
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1 leading-snug text-balance break-words">
                         Kendala yang Menghambat Efisiensi dan Kepuasan Klien Layanan Anda
                     </h2>
                 </div>
@@ -240,7 +235,7 @@
                             class="w-8 h-8 rounded-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center font-mono">
                             01</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Jadwal Bentrok & No-Show Klien</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Mencatat janji temu via chat manual sering membuat dua klien memesan jam yang sama, atau klien
                             lupa datang sehingga slot waktu staf terbuang sia-sia tanpa omzet.
                         </p>
@@ -252,7 +247,7 @@
                             class="w-8 h-8 rounded-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center font-mono">
                             02</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Penagihan DP & Termin Berceceran</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Proyek jasa sudah selesai dikerjakan tetapi sisa pelunasan belum dibayar karena tidak ada
                             dokumen invoice resmi yang melacak status uang muka vs sisa tagihan.
                         </p>
@@ -265,7 +260,7 @@
                             03</div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Distribusi Kerja & Komisi Tidak Rata
                         </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Owner tidak memiliki visibilitas kapasitas teknisi/terapis yang sedang sibuk atau luang, serta
                             penghitungan bagi hasil jasa yang rawan menimbulkan kecemburuan internal.
                         </p>
@@ -279,7 +274,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Kapabilitas Khusus Bisnis Jasa
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug text-balance break-words">
                         Fitur Operasional yang Disesuaikan untuk Layanan Servis
                     </h2>
                 </div>
@@ -382,7 +377,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#00C4D8] block">
                         Alur Ekosistem Jasa
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-1 leading-snug text-balance break-words">
                         Siklus Booking, Pelaksanaan Servis, Hingga Pelunasan Invoice
                     </h2>
                 </div>
@@ -391,25 +386,25 @@
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-[#00C4D8]">Langkah 01</div>
                         <h4 class="text-sm font-bold text-white">Reservasi Jadwal</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Slot waktu diamankan dan invoice uang muka (DP)
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Slot waktu diamankan dan invoice uang muka (DP)
                             diterbitkan ke klien.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-violet-400">Langkah 02</div>
                         <h4 class="text-sm font-bold text-white">Penugasan Staf</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Teknisi atau staf menerima surat tugas digital
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Teknisi atau staf menerima surat tugas digital
                             dengan rincian kebutuhan.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-emerald-400">Langkah 03</div>
                         <h4 class="text-sm font-bold text-white">Eksekusi & Checklist</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Pekerjaan diselesaikan dengan bukti foto dan
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Pekerjaan diselesaikan dengan bukti foto dan
                             verifikasi kepuasan klien.</p>
                     </div>
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-amber-400">Langkah 04</div>
                         <h4 class="text-sm font-bold text-white">Pelunasan & Komisi</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">Tagihan lunas tercatat di kas dan komisi staf
+                        <p class="text-xs text-slate-300 leading-relaxed text-pretty">Tagihan lunas tercatat di kas dan komisi staf
                             masuk rekap otomatis.</p>
                     </div>
                 </div>
@@ -420,7 +415,7 @@
                 <div class="text-center space-y-2">
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">Tanya
                         Jawab</span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Pertanyaan Umum Seputar COOCA
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Pertanyaan Umum Seputar COOCA
                         Bisnis Jasa</h2>
                 </div>
 
@@ -544,13 +539,12 @@
                         <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
                         <span>Tingkatkan Profesionalitas dan Ketepatan Waktu Layanan Anda</span>
                     </div>
-                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug text-balance break-words">
                         Kelola Reservasi dan Tim Lapangan Anda dari Satu Sistem
                     </h3>
-                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed text-pretty">
                         Daftar akun COOCA hari ini dan nikmati kemudahan menjadwalkan booking klien, menerbitkan invoice
-                        termin,
-                        serta membagikan komisi staf secara transparan.
+                        termin, serta membagikan komisi staf secara transparan.
                     </p>
                     <div class="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                         <a href="{{ route('register') }}"
