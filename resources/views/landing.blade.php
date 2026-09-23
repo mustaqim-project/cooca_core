@@ -67,7 +67,8 @@
                             class="text-4xl sm:text-5xl lg:text-[3.5em] font-extrabold text-white tracking-tight leading-[1.12]">
                             Run Your Business.<br>
                             From <span
-                                class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One Operating<br class="hidden sm:inline"> System.</span>
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One
+                                Operating<br class="hidden sm:inline"> System.</span>
                         </h1>
 
                         <!-- Subtitle -->
@@ -212,14 +213,27 @@
                             <div class="absolute top-8 left-4 z-20 flex flex-col items-center">
                                 <div
                                     class="w-14 h-14 rounded-2xl bg-[#0c1b38]/90 border border-cyan-500/40 shadow-[0_4px_20px_rgba(0,194,255,0.25)] flex items-center justify-center gap-1.5 px-1 hover:scale-110 transition-transform">
-                                    <span class="w-3.5 h-3.5 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0">
-                                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="3.5"></circle></svg>
+                                    <span
+                                        class="w-3.5 h-3.5 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0">
+                                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5">
+                                            <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+                                            <circle cx="12" cy="12" r="3.5"></circle>
+                                        </svg>
                                     </span>
-                                    <span class="w-3.5 h-3.5 rounded-[4px] bg-black border border-white/20 flex items-center justify-center text-white shrink-0">
-                                        <svg class="w-2 h-2 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.93-4.49V8.6a8.18 8.18 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.93-.03z"/></svg>
+                                    <span
+                                        class="w-3.5 h-3.5 rounded-[4px] bg-black border border-white/20 flex items-center justify-center text-white shrink-0">
+                                        <svg class="w-2 h-2 fill-current" viewBox="0 0 24 24">
+                                            <path
+                                                d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.93-4.49V8.6a8.18 8.18 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.93-.03z" />
+                                        </svg>
                                     </span>
-                                    <span class="w-3.5 h-3.5 rounded-[4px] bg-[#1877F2] flex items-center justify-center text-white shrink-0">
-                                        <svg class="w-2 h-2 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                                    <span
+                                        class="w-3.5 h-3.5 rounded-[4px] bg-[#1877F2] flex items-center justify-center text-white shrink-0">
+                                        <svg class="w-2 h-2 fill-current" viewBox="0 0 24 24">
+                                            <path
+                                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                        </svg>
                                     </span>
                                 </div>
                                 <span class="mt-1 text-[11px] font-medium text-slate-300 text-center">Social Media</span>
@@ -239,7 +253,8 @@
                                 <div
                                     class="w-14 h-14 rounded-2xl bg-[#0c1b38]/90 border border-cyan-500/40 shadow-[0_4px_20px_rgba(0,194,255,0.25)] flex items-center justify-center hover:scale-110 transition-transform text-[#25D366]">
                                     <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                        <path
+                                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                                     </svg>
                                 </div>
                                 <span class="mt-1 text-[11px] font-medium text-slate-300 text-center">WhatsApp</span>
@@ -388,11 +403,20 @@
                         class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
                         <div
                             class="w-12 h-12 rounded-2xl bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-800/40 flex items-center justify-center gap-1.5 mb-4 group-hover:scale-110 transition-transform">
-                            <span class="w-4 h-4 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
-                                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="3.5"></circle></svg>
+                            <span
+                                class="w-4 h-4 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
+                                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+                                    <circle cx="12" cy="12" r="3.5"></circle>
+                                </svg>
                             </span>
-                            <span class="w-4 h-4 rounded-[4px] bg-[#1877F2] flex items-center justify-center text-white shrink-0 shadow-xs">
-                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                            <span
+                                class="w-4 h-4 rounded-[4px] bg-[#1877F2] flex items-center justify-center text-white shrink-0 shadow-xs">
+                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
+                                    <path
+                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                </svg>
                             </span>
                         </div>
                         <h3
@@ -907,57 +931,43 @@
                                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none">
                                         <defs>
                                             <radialGradient id="ig-grad-conv" cx="20%" cy="115%" r="130%">
-                                                <stop offset="0%" stop-color="#ffd600"/>
-                                                <stop offset="10%" stop-color="#ff7a00"/>
-                                                <stop offset="50%" stop-color="#ff0169"/>
-                                                <stop offset="100%" stop-color="#d300c5"/>
+                                                <stop offset="0%" stop-color="#ffd600" />
+                                                <stop offset="10%" stop-color="#ff7a00" />
+                                                <stop offset="50%" stop-color="#ff0169" />
+                                                <stop offset="100%" stop-color="#d300c5" />
                                             </radialGradient>
                                         </defs>
-                                        <rect x="2" y="2" width="20" height="20" rx="5.5" fill="url(#ig-grad-conv)"/>
-                                        <rect x="5.5" y="5.5" width="13" height="13" rx="3.5" stroke="white" stroke-width="1.8"/>
-                                        <circle cx="12" cy="12" r="3.2" stroke="white" stroke-width="1.8"/>
-                                        <circle cx="15.8" cy="8.2" r="0.9" fill="white"/>
+                                        <rect x="2" y="2" width="20" height="20" rx="5.5"
+                                            fill="url(#ig-grad-conv)" />
+                                        <rect x="5.5" y="5.5" width="13" height="13" rx="3.5"
+                                            stroke="white" stroke-width="1.8" />
+                                        <circle cx="12" cy="12" r="3.2" stroke="white"
+                                            stroke-width="1.8" />
+                                        <circle cx="15.8" cy="8.2" r="0.9" fill="white" />
                                     </svg>
                                 </div>
                                 <!-- TikTok -->
                                 <div
                                     class="w-11 h-11 rounded-2xl bg-black shadow-sm border border-slate-800 flex items-center justify-center hover:scale-110 transition-transform text-white">
                                     <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.93-4.49V8.6a8.18 8.18 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.93-.03z"/>
+                                        <path
+                                            d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.93-4.49V8.6a8.18 8.18 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.93-.03z" />
                                     </svg>
                                 </div>
                                 <!-- Facebook -->
                                 <div
                                     class="w-11 h-11 rounded-2xl bg-[#1877F2] shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-white">
                                     <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
-                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                        <path
+                                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                                     </svg>
                                 </div>
                                 <!-- WhatsApp -->
                                 <div
                                     class="w-11 h-11 rounded-2xl bg-[#25D366] shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-white">
                                     <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                                    </svg>
-                                </div>
-                                <!-- Shopee -->
-                                <div
-                                    class="w-11 h-11 rounded-2xl bg-[#EE4D2D] shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-white">
-                                    <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
-                                        <path d="M19.5 7.5h-2.25V6.75C17.25 3.85 14.9 1.5 12 1.5S6.75 3.85 6.75 6.75v.75H4.5C3.67 7.5 3 8.17 3 9v11.25C3 21.08 3.67 22.5 4.5 22.5h15c.83 0 1.5-1.42 1.5-2.25V9c0-.83-.67-1.5-1.5-1.5zm-11.25-.75c0-2.07 1.68-3.75 3.75-3.75s3.75 1.68 3.75 3.75v.75h-7.5v-.75zm6.47 8.38c-.14.86-.87 1.47-1.87 1.47-1.28 0-2.02-.91-2.02-2.08 0-1.41.97-2.14 2.12-2.45l.6-.16c.55-.14.81-.36.81-.72 0-.44-.39-.75-.98-.75-.62 0-1 .31-1.07.82h-1.35c.08-1.21.96-2.05 2.42-2.05 1.34 0 2.34.78 2.34 2 0 1.05-.62 1.76-1.83 2.08l-.66.17c-.69.18-.94.45-.94.88 0 .54.45.87 1.07.87.69 0 1.15-.37 1.22-.96h1.37z"/>
-                                    </svg>
-                                </div>
-                                <!-- Tokopedia -->
-                                <div
-                                    class="w-11 h-11 rounded-2xl bg-[#03AC0E] shadow-sm flex items-center justify-center hover:scale-110 transition-transform">
-                                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4.5 8.5C4.5 7.67 5.17 7 6 7H18C18.83 7 19.5 7.67 19.5 8.5V19C19.5 20.1 18.6 21 17.5 21H6.5C5.4 21 4.5 20.1 4.5 19V8.5Z" fill="white"/>
-                                        <path d="M8.5 7V5.5C8.5 3.57 10.07 2 12 2C13.93 2 15.5 3.57 15.5 5.5V7" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                                        <circle cx="9.2" cy="13" r="2.3" fill="#03AC0E"/>
-                                        <circle cx="14.8" cy="13" r="2.3" fill="#03AC0E"/>
-                                        <circle cx="9.8" cy="12.4" r="0.75" fill="white"/>
-                                        <circle cx="15.4" cy="12.4" r="0.75" fill="white"/>
-                                        <path d="M10.8 16.5C11.3 17 12.7 17 13.2 16.5" stroke="#03AC0E" stroke-width="1.2" stroke-linecap="round"/>
+                                        <path
+                                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                                     </svg>
                                 </div>
                                 <!-- Toko Fisik -->
@@ -1063,14 +1073,20 @@
                                 <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80"
                                     alt="Post Preview" class="w-full h-32 object-cover rounded-xl mb-2.5">
                                 <div class="flex items-center gap-2 mb-1.5">
-                                    <div class="w-5 h-5 rounded-md bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
-                                        <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <div
+                                        class="w-5 h-5 rounded-md bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
+                                        <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <rect x="2" y="2" width="20" height="20" rx="5"
+                                                ry="5"></rect>
                                             <circle cx="12" cy="12" r="3.5"></circle>
-                                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5"></line>
+                                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"
+                                                stroke-width="2.5"></line>
                                         </svg>
                                     </div>
-                                    <span class="text-[10px] font-bold text-slate-700 dark:text-slate-200">Kopi Susu Aren Spesial</span>
+                                    <span class="text-[10px] font-bold text-slate-700 dark:text-slate-200">Kopi Susu Aren
+                                        Spesial</span>
                                 </div>
                                 <p class="text-[9px] text-slate-500 dark:text-slate-400 line-clamp-2">
                                     Awali pagi harimu dengan sensasi creamy gula aren murni. Promo buy 1 get 1 hari ini!
@@ -1086,8 +1102,14 @@
                                     <div
                                         class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
                                         <div class="flex items-center gap-2">
-                                            <span class="w-4 h-4 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
-                                                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="3.5"></circle></svg>
+                                            <span
+                                                class="w-4 h-4 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
+                                                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2.5">
+                                                    <rect x="2" y="2" width="20" height="20" rx="5">
+                                                    </rect>
+                                                    <circle cx="12" cy="12" r="3.5"></circle>
+                                                </svg>
                                             </span>
                                             <span class="font-bold text-slate-700 dark:text-slate-200">Instagram</span>
                                         </div>
@@ -1096,8 +1118,12 @@
                                     <div
                                         class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
                                         <div class="flex items-center gap-2">
-                                            <span class="w-4 h-4 rounded-[4px] bg-[#1877F2] flex items-center justify-center text-white shrink-0 shadow-xs">
-                                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                                            <span
+                                                class="w-4 h-4 rounded-[4px] bg-[#1877F2] flex items-center justify-center text-white shrink-0 shadow-xs">
+                                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                                </svg>
                                             </span>
                                             <span class="font-bold text-slate-700 dark:text-slate-200">Facebook</span>
                                         </div>
@@ -1106,8 +1132,12 @@
                                     <div
                                         class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
                                         <div class="flex items-center gap-2">
-                                            <span class="w-4 h-4 rounded-[4px] bg-black flex items-center justify-center text-white shrink-0 shadow-xs">
-                                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.93-4.49V8.6a8.18 8.18 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.93-.03z"/></svg>
+                                            <span
+                                                class="w-4 h-4 rounded-[4px] bg-black flex items-center justify-center text-white shrink-0 shadow-xs">
+                                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.93-4.49V8.6a8.18 8.18 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.93-.03z" />
+                                                </svg>
                                             </span>
                                             <span class="font-bold text-slate-700 dark:text-slate-200">TikTok</span>
                                         </div>
@@ -1116,8 +1146,12 @@
                                     <div
                                         class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
                                         <div class="flex items-center gap-2">
-                                            <span class="w-4 h-4 rounded-[4px] bg-slate-900 dark:bg-slate-700 flex items-center justify-center text-white shrink-0 shadow-xs">
-                                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 192 192"><path d="M141.537 88.9883C140.71 88.5919 139.87 88.2104 139.019 87.8451C137.537 60.5382 122.616 44.905 97.5619 44.745C97.4484 44.7443 97.3355 44.7443 97.222 44.7443C82.2364 44.7443 69.7731 51.1409 62.102 62.7807L75.0592 71.3093C80.8988 62.4521 90.0768 59.8804 97.222 59.8804C108.685 59.8804 117.845 66.868 119.539 80.0827C114.733 79.5298 109.689 79.3149 104.423 79.4357C76.8532 80.0682 60.1009 94.6192 60.6276 114.947C61.1274 134.249 76.5414 147.256 95.8087 147.256C112.527 147.256 122.951 138.891 127.818 126.049C133.513 135.539 141.874 140.897 153.861 140.897C168.423 140.897 178.688 129.845 178.688 110.822C178.688 77.0864 153.255 46.7583 103.784 46.7583C61.4287 46.7583 31.7828 75.3129 31.7828 116.634C31.7828 157.069 60.2783 186.256 103.047 186.256C121.758 186.256 137.957 180.378 149.336 169.311L138.647 157.859C129.742 166.52 117.579 171.12 103.047 171.12C70.6205 171.12 47.0116 148.145 47.0116 116.634C47.0116 83.9877 70.1878 61.8944 103.784 61.8944C143.082 61.8944 163.552 86.8778 163.552 110.822C163.552 121.849 157.947 127.807 149.605 127.807C142.062 127.807 136.702 122.569 134.195 112.518C139.734 104.305 142.115 94.7578 141.537 88.9883ZM103.957 132.183C88.4279 132.183 75.8776 123.633 75.5256 110.027C75.1432 95.2476 87.2796 93.3087 104.225 93.3087C109.07 93.3087 113.673 93.6309 117.917 94.2755C115.656 118.91 106.671 132.183 103.957 132.183Z"/></svg>
+                                            <span
+                                                class="w-4 h-4 rounded-[4px] bg-slate-900 dark:bg-slate-700 flex items-center justify-center text-white shrink-0 shadow-xs">
+                                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 192 192">
+                                                    <path
+                                                        d="M141.537 88.9883C140.71 88.5919 139.87 88.2104 139.019 87.8451C137.537 60.5382 122.616 44.905 97.5619 44.745C97.4484 44.7443 97.3355 44.7443 97.222 44.7443C82.2364 44.7443 69.7731 51.1409 62.102 62.7807L75.0592 71.3093C80.8988 62.4521 90.0768 59.8804 97.222 59.8804C108.685 59.8804 117.845 66.868 119.539 80.0827C114.733 79.5298 109.689 79.3149 104.423 79.4357C76.8532 80.0682 60.1009 94.6192 60.6276 114.947C61.1274 134.249 76.5414 147.256 95.8087 147.256C112.527 147.256 122.951 138.891 127.818 126.049C133.513 135.539 141.874 140.897 153.861 140.897C168.423 140.897 178.688 129.845 178.688 110.822C178.688 77.0864 153.255 46.7583 103.784 46.7583C61.4287 46.7583 31.7828 75.3129 31.7828 116.634C31.7828 157.069 60.2783 186.256 103.047 186.256C121.758 186.256 137.957 180.378 149.336 169.311L138.647 157.859C129.742 166.52 117.579 171.12 103.047 171.12C70.6205 171.12 47.0116 148.145 47.0116 116.634C47.0116 83.9877 70.1878 61.8944 103.784 61.8944C143.082 61.8944 163.552 86.8778 163.552 110.822C163.552 121.849 157.947 127.807 149.605 127.807C142.062 127.807 136.702 122.569 134.195 112.518C139.734 104.305 142.115 94.7578 141.537 88.9883ZM103.957 132.183C88.4279 132.183 75.8776 123.633 75.5256 110.027C75.1432 95.2476 87.2796 93.3087 104.225 93.3087C109.07 93.3087 113.673 93.6309 117.917 94.2755C115.656 118.91 106.671 132.183 103.957 132.183Z" />
+                                                </svg>
                                             </span>
                                             <span class="font-bold text-slate-700 dark:text-slate-200">Threads</span>
                                         </div>
