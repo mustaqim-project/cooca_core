@@ -326,7 +326,7 @@
     @if (!($hideHeader ?? false))
         <header
             class="sticky top-0 z-50 backdrop-blur-2xl bg-[#060913]/95 text-white border-b border-white/10 transition-colors">
-            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+            <div class="max-w-[1150px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
 
                 <!-- Logo Cooca -->
                 <a href="{{ route('landing') }}" class="flex items-center gap-3 group shrink-0">
