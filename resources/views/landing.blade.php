@@ -75,8 +75,9 @@
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
-                            Satukan kasir POS kilat, inventaris resep bahan baku otomatis, pembukuan finansial real-time,
+                        <p
+                            class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
+                            Satukan kasir POS, inventaris resep bahan baku otomatis, pembukuan finansial real-time,
                             katalog toko online, hingga notifikasi WhatsApp tanpa mengetik ulang data secara manual.
                         </p>
 
@@ -129,15 +130,20 @@
                             <div
                                 class="bg-white/[0.05] backdrop-blur-xl rounded-[18px] p-3.5 sm:p-4 border border-white/10 shadow-lg grid grid-cols-3 divide-x divide-white/10 text-center max-w-md">
                                 <div class="px-2">
-                                    <div class="text-xl sm:text-2xl font-extrabold text-white tabular-nums tracking-tight">10.000+</div>
+                                    <div class="text-xl sm:text-2xl font-extrabold text-white tabular-nums tracking-tight">
+                                        10.000+</div>
                                     <div class="text-[11px] text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
                                 </div>
                                 <div class="px-2">
-                                    <div class="text-xl sm:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">99.8%</div>
+                                    <div
+                                        class="text-xl sm:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
+                                        99.8%</div>
                                     <div class="text-[11px] text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
                                 </div>
                                 <div class="px-2">
-                                    <div class="text-xl sm:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">100%</div>
+                                    <div
+                                        class="text-xl sm:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">
+                                        100%</div>
                                     <div class="text-[11px] text-slate-400 font-medium mt-0.5">Cloud Sync Aktif</div>
                                 </div>
                             </div>
@@ -156,7 +162,8 @@
                                     <span class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-inner"></span>
                                     <span class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner"></span>
                                     <span class="w-3 h-3 rounded-full bg-[#27C93F] shadow-inner"></span>
-                                    <span class="text-xs font-mono font-semibold text-slate-300 ml-2">cooca://core.os</span>
+                                    <span
+                                        class="text-xs font-mono font-semibold text-slate-300 ml-2">cooca.id/dashboard</span>
                                 </div>
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
@@ -180,13 +187,16 @@
                                 </div>
                                 <!-- Auto-deduct chips -->
                                 <div class="pt-1 flex flex-wrap gap-1.5 text-[10.5px]">
-                                    <span class="px-2 py-0.5 rounded-[6px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono">
+                                    <span
+                                        class="px-2 py-0.5 rounded-[6px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono">
                                         Stok Kopi -36g
                                     </span>
-                                    <span class="px-2 py-0.5 rounded-[6px] bg-sky-500/10 border border-sky-500/20 text-sky-300 font-mono">
+                                    <span
+                                        class="px-2 py-0.5 rounded-[6px] bg-sky-500/10 border border-sky-500/20 text-sky-300 font-mono">
                                         Susu Segar -180ml
                                     </span>
-                                    <span class="px-2 py-0.5 rounded-[6px] bg-amber-500/10 border border-amber-500/20 text-amber-300 font-mono">
+                                    <span
+                                        class="px-2 py-0.5 rounded-[6px] bg-amber-500/10 border border-amber-500/20 text-amber-300 font-mono">
                                         Gula Aren -40ml
                                     </span>
                                 </div>
@@ -204,7 +214,8 @@
                                 </div>
                                 <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
                                     <span class="text-[11px] text-slate-400 block font-medium">Laba Bersih Riil</span>
-                                    <div class="text-base sm:text-lg font-bold text-emerald-400 tabular-nums">Rp 1.940.000</div>
+                                    <div class="text-base sm:text-lg font-bold text-emerald-400 tabular-nums">Rp 1.940.000
+                                    </div>
                                     <span class="text-[10.5px] text-slate-400 block">
                                         Margin 40% bersih
                                     </span>
@@ -212,19 +223,23 @@
                             </div>
 
                             <!-- Bento Module 3: Instant WhatsApp Automated Notification -->
-                            <div class="p-3 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 flex items-center gap-2.5">
-                                <div class="w-7 h-7 rounded-[8px] bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
+                            <div
+                                class="p-3 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 flex items-center gap-2.5">
+                                <div
+                                    class="w-7 h-7 rounded-[8px] bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
                                     <i data-lucide="message-circle" class="w-4 h-4"></i>
                                 </div>
                                 <div class="min-w-0 flex-1 text-xs">
                                     <p class="font-bold text-white truncate">Nota WhatsApp Terkirim</p>
-                                    <p class="text-[11px] text-slate-300 truncate">Otomatis ke pelanggan tanpa nomor disimpan</p>
+                                    <p class="text-[11px] text-slate-300 truncate">Otomatis ke pelanggan tanpa nomor
+                                        disimpan</p>
                                 </div>
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                             </div>
 
                             <!-- Bento Module 4: Connected Multi-Outlet & Terminal Footer -->
-                            <div class="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-white/10 font-mono">
+                            <div
+                                class="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-white/10 font-mono">
                                 <span class="flex items-center gap-1.5">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                     Gerai Utama &bull; 2 Cabang Terhubung

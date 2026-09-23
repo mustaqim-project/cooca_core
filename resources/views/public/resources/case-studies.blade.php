@@ -16,46 +16,46 @@
 
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
+  "@@context": "https://schema.org",
+  "@@type": "CollectionPage",
   "name": "Studi Kasus & Kisah Sukses UMKM Indonesia - COOCA",
   "description": "Kumpulan studi kasus implementasi Business Operating System COOCA pada UMKM di berbagai sektor industri di Indonesia.",
   "url": "{{ route('public.resources.case-studies') }}",
   "provider": {
-    "@type": "Organization",
+    "@@type": "Organization",
     "name": "COOCA",
     "url": "{{ url('/') }}"
   },
   "mainEntity": {
-    "@type": "ItemList",
+    "@@type": "ItemList",
     "itemListElement": [
       {
-        "@type": "ListItem",
+        "@@type": "ListItem",
         "position": 1,
         "name": "Kopi Sudut Santai: Hemat Food Cost 12% dan Kontrol Resep Otomatis"
       },
       {
-        "@type": "ListItem",
+        "@@type": "ListItem",
         "position": 2,
         "name": "Toko Kelontong Berkah: Bon Hutang Nol Macet dan Kasir Kilat Barcode"
       },
       {
-        "@type": "ListItem",
+        "@@type": "ListItem",
         "position": 3,
         "name": "Bengkel Motor Perkasa: Tertib SPK Digital & Transparansi Komisi Montir"
       },
       {
-        "@type": "ListItem",
+        "@@type": "ListItem",
         "position": 4,
         "name": "Fresh Laundry Express: Zero Pakaian Tertukar dengan Tracking Barcode"
       },
       {
-        "@type": "ListItem",
+        "@@type": "ListItem",
         "position": 5,
         "name": "Boutique Hijab Syari: Sinkronisasi Stok Multi-Channel Toko Fisik dan Online"
       },
       {
-        "@type": "ListItem",
+        "@@type": "ListItem",
         "position": 6,
         "name": "Konveksi Maju Bersama: Presisi HPP Produksi dan Margin Terkunci"
       }

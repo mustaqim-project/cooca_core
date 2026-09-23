@@ -16,54 +16,54 @@
 
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
+  "@@context": "https://schema.org",
+  "@@type": "FAQPage",
   "mainEntity": [
     {
-      "@type": "Question",
+      "@@type": "Question",
       "name": "Apakah modul operasional esensial COOCA benar-benar gratis?",
       "acceptedAnswer": {
-        "@type": "Answer",
+        "@@type": "Answer",
         "text": "Ya. COOCA menyediakan modul esensial tanpa biaya bulanan yang mencakup Kasir POS, Manajemen Produk dasar, dan Laporan Rekap Penjualan Harian untuk membantu UMKM Indonesia memulai digitalisasi tanpa beban modal di awal."
       }
     },
     {
-      "@type": "Question",
+      "@@type": "Question",
       "name": "Perangkat apa saja yang didukung oleh aplikasi kasir COOCA?",
       "acceptedAnswer": {
-        "@type": "Answer",
+        "@@type": "Answer",
         "text": "COOCA berjalan secara modern berbasis web responsif pada smartphone Android, iPhone, tablet iPad/Android, laptop Windows/macOS, dan komputer desktop PC kasir all-in-one tanpa perlu instalasi aplikasi rumit."
       }
     },
     {
-      "@type": "Question",
+      "@@type": "Question",
       "name": "Printer kasir jenis apa saja yang bisa digunakan bersama COOCA?",
       "acceptedAnswer": {
-        "@type": "Answer",
+        "@@type": "Answer",
         "text": "COOCA mendukung hampir semua printer thermal mini standar pasar dengan koneksi Bluetooth (58mm dan 80mm), printer thermal LAN/Ethernet untuk pesanan dapur (Kitchen Order Ticket), serta printer kabel USB untuk kasir komputer PC."
       }
     },
     {
-      "@type": "Question",
+      "@@type": "Question",
       "name": "Bagaimana keamanan data transaksi dan keuangan bisnis saya?",
       "acceptedAnswer": {
-        "@type": "Answer",
+        "@@type": "Answer",
         "text": "Data Anda terisolasi secara ketat dalam arsitektur multi-tenant. Seluruh transfer data dienkripsi dengan SSL 256-bit dan disimpan di server cloud bersertifikasi dengan pencadangan (backup) berkala. Pemilik bisnis memiliki kepemilikan penuh 100% atas datanya."
       }
     },
     {
-      "@type": "Question",
+      "@@type": "Question",
       "name": "Apakah kasir tetap bisa melayani pembeli saat koneksi internet toko mati?",
       "acceptedAnswer": {
-        "@type": "Answer",
+        "@@type": "Answer",
         "text": "Ya. Modul kasir POS COOCA dirancang dengan kapabilitas offline fallback. Kasir tetap dapat memasukkan pesanan, menghitung kembalian uang tunai, dan mencetak struk belanja. Ketika koneksi internet menyala kembali, transaksi akan tersinkronisasi otomatis ke cloud."
       }
     },
     {
-      "@type": "Question",
+      "@@type": "Question",
       "name": "Bagaimana cara memindahkan daftar produk dan stok dari Excel lama?",
       "acceptedAnswer": {
-        "@type": "Answer",
+        "@@type": "Answer",
         "text": "Kami menyediakan template impor Excel resmi. Anda cukup mengisi kolom nama produk, harga jual, harga modal (HPP), dan stok awal, lalu mengunggahnya ke menu Produk COOCA dalam sekali klik."
       }
     }

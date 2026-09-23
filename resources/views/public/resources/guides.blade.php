@@ -16,31 +16,31 @@
 
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "HowTo",
+  "@@context": "https://schema.org",
+  "@@type": "HowTo",
   "name": "Cara Memulai dan Menyiapkan Sistem Kasir COOCA untuk Toko Baru",
   "description": "Panduan 4 langkah menyiapkan sistem operasional dan kasir COOCA mulai dari pendaftaran, impor data produk, hingga menghubungkan printer kasir Bluetooth.",
   "step": [
     {
-      "@type": "HowToStep",
+      "@@type": "HowToStep",
       "position": 1,
       "name": "Registrasi Akun dan Profil Gerai",
       "text": "Daftarkan akun bisnis Anda, masukkan nama usaha, alamat gerai, dan nomor WhatsApp resmi untuk pengiriman struk digital."
     },
     {
-      "@type": "HowToStep",
+      "@@type": "HowToStep",
       "position": 2,
       "name": "Impor Data Produk dan Stok via Excel",
       "text": "Unduh template spreadsheet resmi COOCA, salin daftar barang serta harga jual dan beli (HPP), lalu unggah untuk memuat seluruh katalog produk."
     },
     {
-      "@type": "HowToStep",
+      "@@type": "HowToStep",
       "position": 3,
       "name": "Hubungkan Printer Thermal Struk",
       "text": "Sambungkan printer thermal 58mm atau 80mm via Bluetooth atau kabel USB ke tablet/laptop kasir, lalu lakukan tes cetak struk pertama."
     },
     {
-      "@type": "HowToStep",
+      "@@type": "HowToStep",
       "position": 4,
       "name": "Jalankan Shift Kasir Pertama",
       "text": "Buka shift kasir dengan memasukkan nominal modal awal uang kembalian (float), lalu mulai layani transaksi pelanggan secara cepat."
