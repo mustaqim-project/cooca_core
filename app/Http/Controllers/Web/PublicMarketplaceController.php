@@ -85,7 +85,10 @@ final class PublicMarketplaceController extends Controller
         $search = trim((string) $request->query('q', ''));
         $category = trim((string) $request->query('kategori', ''));
         $priceRange = trim((string) $request->query('harga', ''));
+        $minPrice = $request->filled('min_harga') ? (float) str_replace(['.', ','], '', (string) $request->query('min_harga')) : null;
+        $maxPrice = $request->filled('max_harga') ? (float) str_replace(['.', ','], '', (string) $request->query('max_harga')) : null;
         $sort = trim((string) $request->query('urut', 'terbaru'));
+        $type = trim((string) $request->query('tipe', ''));
 
         $query = Product::where('is_active', true)
             ->where('show_in_website', true)
@@ -110,25 +113,47 @@ final class PublicMarketplaceController extends Controller
 
         // Category filter
         if ($category !== '' && $category !== 'semua') {
-            $query->whereHas('business', function ($q) use ($category): void {
-                $q->where('industry_category', $category)
-                  ->orWhere('template_code', 'like', "{$category}%");
+            $query->where(function ($q) use ($category): void {
+                $q->whereHas('business', function ($bq) use ($category): void {
+                    $bq->where('industry_category', $category)
+                      ->orWhere('template_code', 'like', "{$category}%");
+                })->orWhereHas('category', function ($cq) use ($category): void {
+                    $cq->where('name', 'like', "%{$category}%");
+                });
             });
         }
 
-        // Price range filter
-        match ($priceRange) {
-            'murah'  => $query->where('selling_price', '<', 50000),
-            'sedang' => $query->whereBetween('selling_price', [50000, 200000]),
-            'mahal'  => $query->where('selling_price', '>', 200000),
-            default  => null,
-        };
+        // Custom price range takes precedence if provided, otherwise check preset
+        if ($minPrice !== null && $minPrice > 0) {
+            $query->where('selling_price', '>=', $minPrice);
+        }
+        if ($maxPrice !== null && $maxPrice > 0) {
+            $query->where('selling_price', '<=', $maxPrice);
+        }
+        if ($minPrice === null && $maxPrice === null && $priceRange !== '') {
+            match ($priceRange) {
+                'murah'  => $query->where('selling_price', '<', 50000),
+                'sedang' => $query->whereBetween('selling_price', [50000, 200000]),
+                'mahal'  => $query->where('selling_price', '>', 200000),
+                default  => null,
+            };
+        }
+
+        // Product Type Filter
+        if ($type === 'goods') {
+            $query->where('type', Product::TYPE_GOODS);
+        } elseif ($type === 'service') {
+            $query->where('type', Product::TYPE_SERVICE);
+        } elseif ($type === 'preorder') {
+            $query->where('is_preorder', true);
+        }
 
         // Sort
         match ($sort) {
             'harga_rendah' => $query->orderBy('selling_price', 'asc'),
             'harga_tinggi' => $query->orderBy('selling_price', 'desc'),
             'nama'         => $query->orderBy('name', 'asc'),
+            'terpopuler'   => $query->orderByDesc('selling_price'),
             default        => $query->latest(),
         };
 
@@ -163,13 +188,16 @@ final class PublicMarketplaceController extends Controller
             'search',
             'category',
             'priceRange',
+            'minPrice',
+            'maxPrice',
             'sort',
+            'type',
             'categories'
         ));
     }
 
     /**
-     * Build category count data for filter pills.
+     * Build category count data for filter pills and sidebar tree.
      *
      * @return array<string, array<string, mixed>>
      */
@@ -180,28 +208,42 @@ final class PublicMarketplaceController extends Controller
 
         return [
             'fnb' => [
-                'label' => 'Kuliner',
+                'label' => 'Kuliner & F&B',
                 'icon'  => 'utensils',
                 'count' => Business::where($baseScope)
                     ->where(fn ($q) => $q->where('industry_category', 'fnb')->orWhere('template_code', 'like', 'fnb%'))
                     ->count(),
             ],
             'retail' => [
-                'label' => 'Ritel',
-                'icon'  => 'shopping-bag',
+                'label' => 'Ritel & Toko',
+                'icon'  => 'store',
                 'count' => Business::where($baseScope)
                     ->where(fn ($q) => $q->where('industry_category', 'retail')->orWhere('template_code', 'like', 'retail%'))
                     ->count(),
             ],
             'service' => [
-                'label' => 'Jasa',
-                'icon'  => 'sparkles',
+                'label' => 'Jasa & Layanan',
+                'icon'  => 'briefcase',
                 'count' => Business::where($baseScope)
                     ->where(fn ($q) => $q->where('industry_category', 'service')->orWhere('template_code', 'like', 'service%'))
                     ->count(),
             ],
+            'workshop' => [
+                'label' => 'Bengkel & Otomotif',
+                'icon'  => 'wrench',
+                'count' => Business::where($baseScope)
+                    ->where(fn ($q) => $q->where('industry_category', 'workshop')->orWhere('template_code', 'like', 'workshop%')->orWhere('template_code', 'like', 'bengkel%'))
+                    ->count(),
+            ],
+            'laundry' => [
+                'label' => 'Laundry & Cuci',
+                'icon'  => 'sparkles',
+                'count' => Business::where($baseScope)
+                    ->where(fn ($q) => $q->where('industry_category', 'laundry')->orWhere('template_code', 'like', 'laundry%'))
+                    ->count(),
+            ],
             'manufacture' => [
-                'label' => 'Produsen',
+                'label' => 'Produsen & Pabrik',
                 'icon'  => 'factory',
                 'count' => Business::where($baseScope)
                     ->where(fn ($q) => $q->where('industry_category', 'manufacture')->orWhere('template_code', 'like', 'mfg%'))

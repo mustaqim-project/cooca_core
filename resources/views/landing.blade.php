@@ -113,7 +113,6 @@
 
 @section('content')
     <div class="relative overflow-hidden w-full font-sans">
-
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 1. HERO SECTION (Dark Isometric Neon Ecosystem Hub) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
@@ -127,7 +126,7 @@
             <div
                 class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 <!-- Left Column: Copy & Value Proposition (Span 5 for balanced alignment) -->
-                <div class="lg:col-span-5 space-y-6 text-center lg:text-left flex flex-col justify-center">
+                <div class="lg:col-span-6 space-y-6 text-center lg:text-left flex flex-col justify-center">
                     <!-- Pill Badge -->
                     <div
                         class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold shadow-[0_0_15px_rgba(0,194,255,0.2)] w-fit mx-auto lg:mx-0">
@@ -138,9 +137,10 @@
                     <!-- Main Headline -->
                     <h1
                         class="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
-                        Run Your Business.<br>
+                        Run Your Business. <br>
                         From <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One Operating<br class="hidden sm:inline"> System.</span>
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One
+                            Operating<br class="hidden sm:inline"> System.</span>
                     </h1>
 
                     <!-- Subtitle -->
@@ -213,7 +213,7 @@
                 </div>
 
                 <!-- Right Column: Interactive 3D Neon Ecosystem Hub Grid (Span 7) -->
-                <div class="lg:col-span-7 relative flex items-center justify-center w-full overflow-visible"
+                <div class="lg:col-span-6 relative flex items-center justify-center w-full overflow-visible"
                     x-data="{ activeNode: null }">
                     <div
                         class="relative w-full max-w-[620px] aspect-[620/460] select-none mx-auto flex items-center justify-center">
