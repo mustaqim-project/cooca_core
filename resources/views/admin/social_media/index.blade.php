@@ -2,22 +2,27 @@
 @section('title', 'Media Sosial Platform Admin Center - COOCA')
 
 @section('content')
-    <div class="space-y-6 max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="adminSocialCenter()" x-init="init()">
+    <div class="space-y-6 max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="adminSocialCenter()"
+        x-init="init()">
 
         {{-- 1. BENTO HEADER --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-w-0">
             <div class="flex items-center gap-3.5 min-w-0 flex-1">
-                <div class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#1877F2] via-[#E1306C] to-[#000000] flex items-center justify-center shadow-md shadow-[#1877F2]/20 shrink-0 text-white">
+                <div
+                    class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#1877F2] via-[#E1306C] to-[#000000] flex items-center justify-center shadow-md shadow-[#1877F2]/20 shrink-0 text-white">
                     <i data-lucide="share-2" class="w-6 h-6"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight truncate">Media Sosial Platform Admin Center</h1>
-                    <p class="text-[12.5px] sm:text-[13px] text-black/55 dark:text-white/55 mt-0.5 truncate">Pusat publikasi konten resmi Cooca, kotak masuk interaksi, integrasi provider, dan pengawasan merchant</p>
+                    <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight truncate">Media
+                        Sosial Platform Admin Center</h1>
+                    <p class="text-[12.5px] sm:text-[13px] text-black/55 dark:text-white/55 mt-0.5 truncate">Pusat publikasi
+                        konten resmi Cooca, kotak masuk interaksi, integrasi provider, dan pengawasan merchant</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2.5 flex-wrap">
-                <span class="px-3.5 py-1.5 rounded-full text-[12px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25 flex items-center gap-1.5">
+                <span
+                    class="px-3.5 py-1.5 rounded-full text-[12px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25 flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
                     <span>Graph API {{ $platform['graph_version'] }}</span>
                 </span>
@@ -37,69 +42,96 @@
 
         {{-- 2. STATS KPI OVERVIEW --}}
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
-            <div class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Postingan Platform</span>
-                <p class="text-[22px] sm:text-[26px] font-bold text-[#007AFF] tabular-nums tracking-tight">{{ number_format($platformPosts->total()) }}</p>
+            <div
+                class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Postingan
+                    Platform</span>
+                <p class="text-[22px] sm:text-[26px] font-bold text-[#007AFF] tabular-nums tracking-tight">
+                    {{ number_format($platformPosts->total()) }}</p>
             </div>
-            <div class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Pengikut Instagram</span>
-                <p class="text-[22px] sm:text-[26px] font-bold text-[#E1306C] tabular-nums tracking-tight">{{ number_format($analytics['instagram']['profile']['followers_count'] ?? 612) }}</p>
+            <div
+                class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Pengikut
+                    Instagram</span>
+                <p class="text-[22px] sm:text-[26px] font-bold text-[#E1306C] tabular-nums tracking-tight">
+                    {{ number_format($analytics['instagram']['profile']['followers_count'] ?? 612) }}</p>
             </div>
-            <div class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Sisa Kuota Posting</span>
-                <p class="text-[22px] sm:text-[26px] font-bold text-[#34C759] tabular-nums tracking-tight">{{ $analytics['instagram']['quota_remaining'] ?? 24 }}<span class="text-[14px] text-black/40 dark:text-white/40 font-normal">/25</span></p>
+            <div
+                class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+                <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Sisa Kuota
+                    Posting</span>
+                <p class="text-[22px] sm:text-[26px] font-bold text-[#34C759] tabular-nums tracking-tight">
+                    {{ $analytics['instagram']['quota_remaining'] ?? 24 }}<span
+                        class="text-[14px] text-black/40 dark:text-white/40 font-normal">/25</span></p>
             </div>
-            <div class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+            <div
+                class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
                 <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Halaman Facebook</span>
-                <p class="text-[22px] sm:text-[26px] font-bold text-[#1877F2] tabular-nums tracking-tight">{{ number_format($summary['facebook_pages_count']) }}</p>
+                <p class="text-[22px] sm:text-[26px] font-bold text-[#1877F2] tabular-nums tracking-tight">
+                    {{ number_format($summary['facebook_pages_count']) }}</p>
             </div>
-            <div class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+            <div
+                class="p-4 sm:p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
                 <span class="text-[11.5px] font-semibold uppercase text-black/50 dark:text-white/50">Komentar Masuk</span>
-                <p class="text-[22px] sm:text-[26px] font-bold text-[#AF52DE] tabular-nums tracking-tight">{{ number_format($platformComments->total()) }}</p>
+                <p class="text-[22px] sm:text-[26px] font-bold text-[#AF52DE] tabular-nums tracking-tight">
+                    {{ number_format($platformComments->total()) }}</p>
             </div>
         </div>
 
         {{-- 3. SEGMENTED NAVIGATION TABS --}}
-        <div class="p-1.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-[16px] flex items-center gap-1.5 overflow-x-auto shadow-inner">
+        <div
+            class="p-1.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-[16px] flex items-center gap-1.5 overflow-x-auto shadow-inner">
             <button type="button" @click="activeTab = 'posts'"
-                :class="activeTab === 'posts' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                :class="activeTab === 'posts' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' :
+                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                 class="min-h-[40px] px-4 rounded-[11px] text-[13px] transition-all flex items-center gap-2 shrink-0">
                 <i data-lucide="layout-grid" class="w-4 h-4 text-[#007AFF]"></i>
                 <span>Kelola Konten Platform</span>
-                @if($platformPosts->total() > 0)
-                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#007AFF]/15 text-[#007AFF]">{{ $platformPosts->total() }}</span>
+                @if ($platformPosts->total() > 0)
+                    <span
+                        class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#007AFF]/15 text-[#007AFF]">{{ $platformPosts->total() }}</span>
                 @endif
             </button>
             <button type="button" @click="activeTab = 'analytics'"
-                :class="activeTab === 'analytics' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                :class="activeTab === 'analytics' ?
+                    'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' :
+                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                 class="min-h-[40px] px-4 rounded-[11px] text-[13px] transition-all flex items-center gap-2 shrink-0">
                 <i data-lucide="bar-chart-2" class="w-4 h-4 text-[#34C759]"></i>
                 <span>Analitik &amp; Performa</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">Organik</span>
+                <span
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">Organik</span>
             </button>
             <button type="button" @click="activeTab = 'inbox'"
-                :class="activeTab === 'inbox' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                :class="activeTab === 'inbox' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' :
+                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                 class="min-h-[40px] px-4 rounded-[11px] text-[13px] transition-all flex items-center gap-2 shrink-0">
                 <i data-lucide="message-square" class="w-4 h-4 text-[#AF52DE]"></i>
                 <span>Kotak Masuk Interaksi</span>
-                @if($platformComments->total() > 0)
-                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#AF52DE]/15 text-[#AF52DE]">{{ $platformComments->total() }}</span>
+                @if ($platformComments->total() > 0)
+                    <span
+                        class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#AF52DE]/15 text-[#AF52DE]">{{ $platformComments->total() }}</span>
                 @endif
             </button>
             <button type="button" @click="activeTab = 'settings'"
-                :class="activeTab === 'settings' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                :class="activeTab === 'settings' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' :
+                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                 class="min-h-[40px] px-4 rounded-[11px] text-[13px] transition-all flex items-center gap-2 shrink-0">
                 <i data-lucide="sliders" class="w-4 h-4 text-[#007AFF]"></i>
                 <span>Status Provider &amp; Integrasi</span>
             </button>
             <button type="button" @click="activeTab = 'merchants'"
-                :class="activeTab === 'merchants' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                :class="activeTab === 'merchants' ?
+                    'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' :
+                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                 class="min-h-[40px] px-4 rounded-[11px] text-[13px] transition-all flex items-center gap-2 shrink-0">
                 <i data-lucide="users" class="w-4 h-4 text-[#34C759]"></i>
                 <span>Pengawasan Merchant</span>
             </button>
             <button type="button" @click="activeTab = 'app_review'"
-                :class="activeTab === 'app_review' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                :class="activeTab === 'app_review' ?
+                    'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' :
+                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
                 class="min-h-[40px] px-4 rounded-[11px] text-[13px] transition-all flex items-center gap-2 shrink-0">
                 <i data-lucide="shield-alert" class="w-4 h-4 text-[#FF9500]"></i>
                 <span>Panduan Meta App Review</span>
@@ -109,30 +141,38 @@
         {{-- 4. TAB 1: KELOLA KONTEN PLATFORM (COOCA OFFICIAL POSTS) --}}
         <div x-show="activeTab === 'posts'" class="space-y-6">
             {{-- BENTO PROFILE SNAPSHOT & QUICK POST ACTION --}}
-            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div class="flex items-center gap-4 min-w-0">
-                        <div class="w-14 h-14 rounded-[20px] bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] p-0.5 shadow-md shrink-0 flex items-center justify-center">
-                            @if(!empty($platform['instagram_profile_picture_url']))
-                                <img src="{{ $platform['instagram_profile_picture_url'] }}" alt="Instagram Profile" class="w-full h-full object-cover rounded-[18px]">
+                        <div
+                            class="w-14 h-14 rounded-[20px] bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] p-0.5 shadow-md shrink-0 flex items-center justify-center">
+                            @if (!empty($platform['instagram_profile_picture_url']))
+                                <img src="{{ $platform['instagram_profile_picture_url'] }}" alt="Instagram Profile"
+                                    class="w-full h-full object-cover rounded-[18px]">
                             @else
-                                <div class="w-full h-full rounded-[18px] bg-white dark:bg-[#1C1C1E] flex items-center justify-center text-[#DD2A7B]">
+                                <div
+                                    class="w-full h-full rounded-[18px] bg-white dark:bg-[#1C1C1E] flex items-center justify-center text-[#DD2A7B]">
                                     <i data-lucide="instagram" class="w-7 h-7"></i>
                                 </div>
                             @endif
                         </div>
                         <div class="min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <h3 class="text-[17px] sm:text-[18px] font-bold text-black dark:text-white tracking-tight truncate">
+                                <h3
+                                    class="text-[17px] sm:text-[18px] font-bold text-black dark:text-white tracking-tight truncate">
                                     Cooca Official Media Hub
                                 </h3>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                <span
+                                    class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                     {{ $platform['instagram_account_type'] ?: 'MEDIA_CREATOR' }}
                                 </span>
                             </div>
                             <p class="text-[13px] font-mono text-[#007AFF] mt-0.5 truncate">
                                 @<span>{{ $platform['instagram_username'] ?: 'cooca.indonesia' }}</span>
-                                <span class="text-black/40 dark:text-white/40 font-sans ml-2 text-[12px]">• {{ $platform['instagram_media_count'] ?: '0' }} Konten Aktif</span>
+                                <span class="text-black/40 dark:text-white/40 font-sans ml-2 text-[12px]">•
+                                    {{ $platform['instagram_media_count'] ?: '0' }} Konten Aktif</span>
                             </p>
                         </div>
                     </div>
@@ -146,36 +186,47 @@
 
                 {{-- Status Channel Grid --}}
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-[12px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center shrink-0">
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-[12px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center shrink-0">
                             <i data-lucide="instagram" class="w-5 h-5"></i>
                         </div>
                         <div class="min-w-0">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Instagram</span>
+                            <span
+                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Instagram</span>
                             <div class="text-[13px] font-bold text-black dark:text-white truncate">
                                 @<span>{{ $platform['instagram_username'] ?: 'cooca.indonesia' }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-[12px] bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center shrink-0">
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-[12px] bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center shrink-0">
                             <i data-lucide="facebook" class="w-5 h-5"></i>
                         </div>
                         <div class="min-w-0">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Facebook Page</span>
+                            <span
+                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Facebook
+                                Page</span>
                             <div class="text-[13px] font-bold text-black dark:text-white truncate">
                                 {{ !empty($platform['app_id']) ? 'Meta Platform Active' : 'Belum Konfigurasi' }}
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-[12px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center shrink-0">
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-[12px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center shrink-0">
                             <i data-lucide="video" class="w-5 h-5"></i>
                         </div>
                         <div class="min-w-0">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">TikTok API</span>
+                            <span
+                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">TikTok
+                                API</span>
                             <div class="text-[13px] font-bold text-black dark:text-white truncate">
                                 {{ !empty($platform['tiktok_client_key']) ? 'OAuth 2.0 PKCE Siap' : 'Belum Konfigurasi' }}
                             </div>
@@ -185,20 +236,26 @@
             </div>
 
             {{-- DAFTAR POSTINGAN RESMI PLATFORM --}}
-            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5">
-                <div class="flex items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5">
+                <div
+                    class="flex items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div>
-                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Riwayat Postingan Resmi Platform</h3>
-                        <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Daftar konten yang dipublikasikan atau dijadwalkan oleh Administrator untuk akun Cooca</p>
+                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Riwayat
+                            Postingan Resmi Platform</h3>
+                        <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Daftar konten yang
+                            dipublikasikan atau dijadwalkan oleh Administrator untuk akun Cooca</p>
                     </div>
-                    <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Total {{ $platformPosts->total() }} Postingan</span>
+                    <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Total
+                        {{ $platformPosts->total() }} Postingan</span>
                 </div>
 
-                @if($platformPosts->count() > 0)
+                @if ($platformPosts->count() > 0)
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-[13px]">
                             <thead>
-                                <tr class="border-b border-black/[0.06] dark:border-white/[0.08] text-black/45 dark:text-white/45 text-[11px] uppercase tracking-wider bg-black/[0.01] dark:bg-white/[0.02]">
+                                <tr
+                                    class="border-b border-black/[0.06] dark:border-white/[0.08] text-black/45 dark:text-white/45 text-[11px] uppercase tracking-wider bg-black/[0.01] dark:bg-white/[0.02]">
                                     <th class="px-4 py-3 font-semibold">Media &amp; Konten</th>
                                     <th class="px-4 py-3 font-semibold">Saluran</th>
                                     <th class="px-4 py-3 font-semibold text-center">Status</th>
@@ -208,23 +265,30 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
-                                @foreach($platformPosts as $p)
+                                @foreach ($platformPosts as $p)
                                     <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.025] transition-colors">
                                         <td class="px-4 py-3.5 max-w-sm">
                                             <div class="flex items-start gap-3">
-                                                @if(!empty($p->media_urls) && is_array($p->media_urls) && count($p->media_urls) > 0)
-                                                    <div class="w-12 h-12 rounded-[10px] overflow-hidden bg-black/5 shrink-0 border border-black/10 dark:border-white/10">
-                                                        <img src="{{ $p->media_urls[0] }}" alt="Media thumbnail" class="w-full h-full object-cover">
+                                                @if (!empty($p->media_urls) && is_array($p->media_urls) && count($p->media_urls) > 0)
+                                                    <div
+                                                        class="w-12 h-12 rounded-[10px] overflow-hidden bg-black/5 shrink-0 border border-black/10 dark:border-white/10">
+                                                        <img src="{{ $p->media_urls[0] }}" alt="Media thumbnail"
+                                                            class="w-full h-full object-cover">
                                                     </div>
                                                 @else
-                                                    <div class="w-12 h-12 rounded-[10px] bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0 text-black/40 dark:text-white/40 border border-black/10 dark:border-white/10">
+                                                    <div
+                                                        class="w-12 h-12 rounded-[10px] bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0 text-black/40 dark:text-white/40 border border-black/10 dark:border-white/10">
                                                         <i data-lucide="file-text" class="w-5 h-5"></i>
                                                     </div>
                                                 @endif
                                                 <div class="min-w-0">
-                                                    <p class="font-medium text-black dark:text-white line-clamp-2 text-[12.5px]">{{ $p->content }}</p>
-                                                    @if($p->platform_post_id)
-                                                        <span class="text-[10.5px] font-mono text-black/40 dark:text-white/40 block mt-0.5">ID: {{ Str::limit($p->platform_post_id, 18) }}</span>
+                                                    <p
+                                                        class="font-medium text-black dark:text-white line-clamp-2 text-[12.5px]">
+                                                        {{ $p->content }}</p>
+                                                    @if ($p->platform_post_id)
+                                                        <span
+                                                            class="text-[10.5px] font-mono text-black/40 dark:text-white/40 block mt-0.5">ID:
+                                                            {{ Str::limit($p->platform_post_id, 18) }}</span>
                                                     @endif
                                                 </div>
                                             </div>
@@ -233,79 +297,94 @@
                                             @php
                                                 $targetChannels = $p->targets->pluck('channel')->filter()->unique();
                                             @endphp
-                                            @if($targetChannels->isNotEmpty())
+                                            @if ($targetChannels->isNotEmpty())
                                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                                    @foreach($targetChannels as $ch)
-                                                        @if($ch === 'instagram')
-                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#E1306C]/10 text-[#E1306C]">
+                                                    @foreach ($targetChannels as $ch)
+                                                        @if ($ch === 'instagram')
+                                                            <span
+                                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#E1306C]/10 text-[#E1306C]">
                                                                 <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
                                                                 <span>Instagram</span>
                                                             </span>
                                                         @elseif($ch === 'facebook')
-                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#1877F2]/10 text-[#1877F2]">
+                                                            <span
+                                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#1877F2]/10 text-[#1877F2]">
                                                                 <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
                                                                 <span>Facebook</span>
                                                             </span>
                                                         @elseif($ch === 'threads')
-                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/10">
+                                                            <span
+                                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/10">
                                                                 <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
                                                                 <span>Threads</span>
                                                             </span>
                                                         @elseif($ch === 'tiktok')
-                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/10 text-black dark:text-white">
+                                                            <span
+                                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/10 text-black dark:text-white">
                                                                 <i data-lucide="video" class="w-3.5 h-3.5"></i>
                                                                 <span>TikTok</span>
                                                             </span>
                                                         @else
-                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/5 text-black dark:text-white">
+                                                            <span
+                                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/5 text-black dark:text-white">
                                                                 <span>{{ ucfirst($ch) }}</span>
                                                             </span>
                                                         @endif
                                                     @endforeach
                                                 </div>
                                             @else
-                                                @if($p->platform === 'instagram')
-                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#E1306C]/10 text-[#E1306C]">
+                                                @if ($p->platform === 'instagram')
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#E1306C]/10 text-[#E1306C]">
                                                         <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
                                                         <span>Instagram</span>
                                                     </span>
                                                 @elseif($p->platform === 'facebook')
-                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#1877F2]/10 text-[#1877F2]">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#1877F2]/10 text-[#1877F2]">
                                                         <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
                                                         <span>Facebook</span>
                                                     </span>
                                                 @elseif($p->platform === 'threads')
-                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/10">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/10">
                                                         <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
                                                         <span>Threads</span>
                                                     </span>
                                                 @elseif($p->platform === 'tiktok')
-                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/10 text-black dark:text-white">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/10 text-black dark:text-white">
                                                         <i data-lucide="video" class="w-3.5 h-3.5"></i>
                                                         <span>TikTok</span>
                                                     </span>
                                                 @else
-                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/5 text-black dark:text-white">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/5 text-black dark:text-white">
                                                         <span>{{ ucfirst($p->platform) }}</span>
                                                     </span>
                                                 @endif
                                             @endif
                                         </td>
                                         <td class="px-4 py-3.5 text-center">
-                                            @if($p->status === 'published')
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                                            @if ($p->status === 'published')
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
                                                     Tayang
                                                 </span>
                                             @elseif($p->status === 'scheduled')
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#007AFF]/12 text-[#007AFF]">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#007AFF]/12 text-[#007AFF]">
                                                     Terjadwal
                                                 </span>
                                             @elseif($p->status === 'publishing')
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/12 text-[#FF9500]">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/12 text-[#FF9500]">
                                                     Memproses
                                                 </span>
                                             @else
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#FF3B30]" title="{{ $p->error_message }}">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#FF3B30]"
+                                                    title="{{ $p->error_message }}">
                                                     Gagal
                                                 </span>
                                             @endif
@@ -314,7 +393,7 @@
                                             {{ $p->admin?->name ?? 'Super Administrator' }}
                                         </td>
                                         <td class="px-4 py-3.5 text-black/60 dark:text-white/60 text-[12px] tabular-nums">
-                                            @if($p->published_at)
+                                            @if ($p->published_at)
                                                 {{ $p->published_at->format('d M Y, H:i') }} WIB
                                             @elseif($p->scheduled_at)
                                                 {{ $p->scheduled_at->format('d M Y, H:i') }} WIB (Jadwal)
@@ -324,8 +403,9 @@
                                         </td>
                                         <td class="px-4 py-3.5 text-right">
                                             <div class="flex items-center justify-end gap-1.5">
-                                                @if($p->status === 'failed')
-                                                    <form method="POST" action="{{ route('admin.social-media.posts.retry', $p) }}">
+                                                @if ($p->status === 'failed')
+                                                    <form method="POST"
+                                                        action="{{ route('admin.social-media.posts.retry', $p) }}">
                                                         @csrf
                                                         <button type="submit" title="Coba kirim ulang"
                                                             class="p-1.5 rounded-[8px] text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors">
@@ -333,7 +413,9 @@
                                                         </button>
                                                     </form>
                                                 @endif
-                                                <form method="POST" action="{{ route('admin.social-media.posts.destroy', $p) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus postingan platform ini?');">
+                                                <form method="POST"
+                                                    action="{{ route('admin.social-media.posts.destroy', $p) }}"
+                                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus postingan platform ini?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" title="Hapus postingan"
@@ -353,13 +435,18 @@
                         {{ $platformPosts->appends(['tab' => 'posts'])->links() }}
                     </div>
                 @else
-                    <div class="p-12 text-center space-y-3 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
-                        <div class="w-12 h-12 rounded-[16px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center mx-auto">
+                    <div
+                        class="p-12 text-center space-y-3 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
+                        <div
+                            class="w-12 h-12 rounded-[16px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center mx-auto">
                             <i data-lucide="feather" class="w-6 h-6"></i>
                         </div>
                         <div class="space-y-1">
-                            <h4 class="font-bold text-[15px] text-black dark:text-white">Belum Ada Postingan Resmi Platform</h4>
-                            <p class="text-[12.5px] text-black/50 dark:text-white/50 max-w-md mx-auto">Buat konten promosi atau pengumuman pertama Anda untuk dipublikasikan langsung ke akun Instagram, Facebook Page, atau TikTok resmi Cooca.</p>
+                            <h4 class="font-bold text-[15px] text-black dark:text-white">Belum Ada Postingan Resmi Platform
+                            </h4>
+                            <p class="text-[12.5px] text-black/50 dark:text-white/50 max-w-md mx-auto">Buat konten promosi
+                                atau pengumuman pertama Anda untuk dipublikasikan langsung ke akun Instagram, Facebook Page,
+                                atau TikTok resmi Cooca.</p>
                         </div>
                         <button type="button" @click="openCreatePostModal = true"
                             class="min-h-[40px] px-4 rounded-[11px] text-[12.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 shadow-sm">
@@ -374,23 +461,29 @@
         {{-- TAB: ANALITIK & PERFORMA ORGANIK (EKSKLUSI META ADS) --}}
         <div x-show="activeTab === 'analytics'" class="space-y-6" style="display: none;">
             {{-- Header & Quick Refresh Action --}}
-            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div class="flex items-center gap-3.5 min-w-0">
-                        <div class="w-12 h-12 rounded-[16px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center shrink-0">
+                        <div
+                            class="w-12 h-12 rounded-[16px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center shrink-0">
                             <i data-lucide="trending-up" class="w-6 h-6"></i>
                         </div>
                         <div class="min-w-0">
-                            <h3 class="text-[17px] sm:text-[18px] font-bold text-black dark:text-white tracking-tight">Analitik &amp; Pertumbuhan Organik Platform</h3>
+                            <h3 class="text-[17px] sm:text-[18px] font-bold text-black dark:text-white tracking-tight">
+                                Analitik &amp; Pertumbuhan Organik Platform</h3>
                             <p class="text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">
-                                Pantau metrik profil resmi, tingkat engagement, dan kuota publikasi Meta Graph API secara live.
+                                Pantau metrik profil resmi, tingkat engagement, dan kuota publikasi Meta Graph API secara
+                                live.
                             </p>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2.5 flex-wrap">
                         <span class="text-[11.5px] text-black/45 dark:text-white/45 tabular-nums">
-                            Sinkronisasi: {{ \Carbon\Carbon::parse($analytics['refreshed_at'] ?? now())->format('H:i:s') }} WIB
+                            Sinkronisasi: {{ \Carbon\Carbon::parse($analytics['refreshed_at'] ?? now())->format('H:i:s') }}
+                            WIB
                         </span>
                         <a href="{{ route('admin.social-media.index', ['tab' => 'analytics', 'refresh_analytics' => 1]) }}"
                             class="min-h-[38px] px-3.5 rounded-[11px] text-[12px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 shadow-sm">
@@ -401,14 +494,20 @@
                 </div>
 
                 {{-- Kebijakan Privasi & Pengecualian Meta Ads Notice --}}
-                <div class="p-4 rounded-[16px] bg-[#007AFF]/[0.06] dark:bg-[#007AFF]/[0.1] border border-[#007AFF]/20 flex items-start gap-3.5">
-                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
+                <div
+                    class="p-4 rounded-[16px] bg-[#007AFF]/[0.06] dark:bg-[#007AFF]/[0.1] border border-[#007AFF]/20 flex items-start gap-3.5">
+                    <div
+                        class="w-8 h-8 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
                         <i data-lucide="shield-check" class="w-4 h-4"></i>
                     </div>
                     <div class="min-w-0 flex-1 space-y-0.5">
-                        <h4 class="text-[13px] font-bold text-black dark:text-white">Fokus Penuh pada Pertumbuhan Organik (Eksklusi Meta Ads)</h4>
+                        <h4 class="text-[13px] font-bold text-black dark:text-white">Fokus Penuh pada Pertumbuhan Organik
+                            (Eksklusi Meta Ads)</h4>
                         <p class="text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
-                            Sistem ini dirancang khusus untuk mempublikasikan dan memantau performa konten murni secara organik (Postingan Feed, Reels Video, dan Story). Pengelolaan kampanye Meta Ads berbayar dan anggaran iklan secara terarah dikecualikan demi efisiensi operasional dan kepatuhan privasi data.
+                            Sistem ini dirancang khusus untuk mempublikasikan dan memantau performa konten murni secara
+                            organik (Postingan Feed, Reels Video, dan Story). Pengelolaan kampanye Meta Ads berbayar dan
+                            anggaran iklan secara terarah dikecualikan demi efisiensi operasional dan kepatuhan privasi
+                            data.
                         </p>
                     </div>
                 </div>
@@ -416,50 +515,72 @@
                 {{-- Primary KPI Bento Grid --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {{-- Card 1: Instagram Profile --}}
-                    <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                    <div
+                        class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Instagram Bisnis</span>
-                            <div class="w-7 h-7 rounded-[8px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center">
+                            <span
+                                class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Instagram
+                                Bisnis</span>
+                            <div
+                                class="w-7 h-7 rounded-[8px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center">
                                 <i data-lucide="instagram" class="w-4 h-4"></i>
                             </div>
                         </div>
                         <div>
-                            <div class="text-[26px] sm:text-[28px] font-bold text-black dark:text-white tabular-nums tracking-tight">
+                            <div
+                                class="text-[26px] sm:text-[28px] font-bold text-black dark:text-white tabular-nums tracking-tight">
                                 {{ number_format($analytics['instagram']['profile']['followers_count'] ?? 0) }}
                             </div>
-                            <span class="text-[12px] text-black/55 dark:text-white/55">Total Pengikut (@{{ $analytics['instagram']['profile']['username'] ?? 'cooca.indonesia' }})</span>
+                            <span class="text-[12px] text-black/55 dark:text-white/55">Total Pengikut
+                                (@{{ $analytics['instagram']['profile']['username'] ?? 'cooca.indonesia' }})</span>
                         </div>
-                        <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
-                            <span>Mengikuti: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['instagram']['profile']['follows_count'] ?? 0 }}</strong></span>
-                            <span>Konten: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['instagram']['profile']['media_count'] ?? 0 }}</strong></span>
+                        <div
+                            class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
+                            <span>Mengikuti: <strong
+                                    class="text-black dark:text-white tabular-nums">{{ $analytics['instagram']['profile']['follows_count'] ?? 0 }}</strong></span>
+                            <span>Konten: <strong
+                                    class="text-black dark:text-white tabular-nums">{{ $analytics['instagram']['profile']['media_count'] ?? 0 }}</strong></span>
                         </div>
                     </div>
 
                     {{-- Card 2: Publishing Limit Quota --}}
-                    <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                    <div
+                        class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Kuota Publikasi API</span>
-                            <div class="w-7 h-7 rounded-[8px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                            <span
+                                class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Kuota
+                                Publikasi API</span>
+                            <div
+                                class="w-7 h-7 rounded-[8px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
                                 <i data-lucide="gauge" class="w-4 h-4"></i>
                             </div>
                         </div>
                         <div>
                             <div class="text-[26px] sm:text-[28px] font-bold text-[#34C759] tabular-nums tracking-tight">
-                                {{ $analytics['instagram']['quota_remaining'] ?? 25 }} <span class="text-[14px] text-black/40 dark:text-white/40 font-normal">/ 25</span>
+                                {{ $analytics['instagram']['quota_remaining'] ?? 25 }} <span
+                                    class="text-[14px] text-black/40 dark:text-white/40 font-normal">/ 25</span>
                             </div>
-                            <span class="text-[12px] text-black/55 dark:text-white/55">Sisa kuota posting dalam 24 jam</span>
+                            <span class="text-[12px] text-black/55 dark:text-white/55">Sisa kuota posting dalam 24
+                                jam</span>
                         </div>
-                        <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
-                            <span>Terpakai: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['instagram']['quota_usage'] ?? 0 }}</strong> pos</span>
+                        <div
+                            class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
+                            <span>Terpakai: <strong
+                                    class="text-black dark:text-white tabular-nums">{{ $analytics['instagram']['quota_usage'] ?? 0 }}</strong>
+                                pos</span>
                             <span class="text-[#34C759] font-medium">Batas Aman</span>
                         </div>
                     </div>
 
                     {{-- Card 3: Engagement Rate --}}
-                    <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                    <div
+                        class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Engagement Rate</span>
-                            <div class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                            <span
+                                class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Engagement
+                                Rate</span>
+                            <div
+                                class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
                                 <i data-lucide="activity" class="w-4 h-4"></i>
                             </div>
                         </div>
@@ -467,67 +588,101 @@
                             <div class="text-[26px] sm:text-[28px] font-bold text-[#007AFF] tabular-nums tracking-tight">
                                 {{ $analytics['instagram']['engagement_rate'] ?? 0 }}%
                             </div>
-                            <span class="text-[12px] text-black/55 dark:text-white/55">Rata-rata interaksi per postingan</span>
+                            <span class="text-[12px] text-black/55 dark:text-white/55">Rata-rata interaksi per
+                                postingan</span>
                         </div>
-                        <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
-                            <span><strong class="text-black dark:text-white tabular-nums">{{ number_format($analytics['instagram']['total_likes'] ?? 0) }}</strong> Likes</span>
-                            <span><strong class="text-black dark:text-white tabular-nums">{{ number_format($analytics['instagram']['total_comments'] ?? 0) }}</strong> Komentar</span>
+                        <div
+                            class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
+                            <span><strong
+                                    class="text-black dark:text-white tabular-nums">{{ number_format($analytics['instagram']['total_likes'] ?? 0) }}</strong>
+                                Likes</span>
+                            <span><strong
+                                    class="text-black dark:text-white tabular-nums">{{ number_format($analytics['instagram']['total_comments'] ?? 0) }}</strong>
+                                Komentar</span>
                         </div>
                     </div>
 
                     {{-- Card 4: Facebook Page --}}
-                    <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                    <div
+                        class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Halaman Facebook</span>
-                            <div class="w-7 h-7 rounded-[8px] bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center">
+                            <span
+                                class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Halaman
+                                Facebook</span>
+                            <div
+                                class="w-7 h-7 rounded-[8px] bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center">
                                 <i data-lucide="facebook" class="w-4 h-4"></i>
                             </div>
                         </div>
                         <div>
-                            <div class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white truncate tracking-tight">
+                            <div
+                                class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white truncate tracking-tight">
                                 {{ $analytics['facebook']['page']['name'] ?? 'Cooca Indonesia' }}
                             </div>
-                            <span class="text-[12px] text-black/55 dark:text-white/55">{{ $analytics['facebook']['page']['category'] ?? 'Software Bisnis' }}</span>
+                            <span
+                                class="text-[12px] text-black/55 dark:text-white/55">{{ $analytics['facebook']['page']['category'] ?? 'Software Bisnis' }}</span>
                         </div>
-                        <div class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
-                            <span>Membicarakan: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['facebook']['page']['talking_about_count'] ?? 0 }}</strong></span>
-                            <span>Fans: <strong class="text-black dark:text-white tabular-nums">{{ $analytics['facebook']['page']['fan_count'] ?? 0 }}</strong></span>
+                        <div
+                            class="pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between text-[11.5px] text-black/50 dark:text-white/50">
+                            <span>Membicarakan: <strong
+                                    class="text-black dark:text-white tabular-nums">{{ $analytics['facebook']['page']['talking_about_count'] ?? 0 }}</strong></span>
+                            <span>Fans: <strong
+                                    class="text-black dark:text-white tabular-nums">{{ $analytics['facebook']['page']['fan_count'] ?? 0 }}</strong></span>
                         </div>
                     </div>
                 </div>
 
                 {{-- Content Formats Distribution Bento --}}
-                <div class="p-5 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/[0.06] space-y-3">
+                <div
+                    class="p-5 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/[0.06] space-y-3">
                     <div class="flex items-center justify-between">
-                        <h4 class="text-[13.5px] font-bold text-black dark:text-white">Sebaran Format Konten Terpublikasi</h4>
-                        <span class="text-[11.5px] text-black/45 dark:text-white/45">Berdasarkan 15 konten terakhir di Instagram</span>
+                        <h4 class="text-[13.5px] font-bold text-black dark:text-white">Sebaran Format Konten Terpublikasi
+                        </h4>
+                        <span class="text-[11.5px] text-black/45 dark:text-white/45">Berdasarkan 15 konten terakhir di
+                            Instagram</span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <div
+                            class="p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                            <div
+                                class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
                                 <i data-lucide="image" class="w-4 h-4"></i>
                             </div>
                             <div>
-                                <span class="text-[11px] font-bold uppercase text-black/50 dark:text-white/50 block">Postingan Feed &amp; Carousel</span>
-                                <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ $analytics['instagram']['feed_count'] ?? 0 }} Konten</span>
+                                <span
+                                    class="text-[11px] font-bold uppercase text-black/50 dark:text-white/50 block">Postingan
+                                    Feed &amp; Carousel</span>
+                                <span
+                                    class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ $analytics['instagram']['feed_count'] ?? 0 }}
+                                    Konten</span>
                             </div>
                         </div>
-                        <div class="p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-[10px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center shrink-0">
+                        <div
+                            class="p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                            <div
+                                class="w-9 h-9 rounded-[10px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center shrink-0">
                                 <i data-lucide="film" class="w-4 h-4"></i>
                             </div>
                             <div>
-                                <span class="text-[11px] font-bold uppercase text-black/50 dark:text-white/50 block">Reels Video</span>
-                                <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ $analytics['instagram']['reels_count'] ?? 0 }} Video</span>
+                                <span class="text-[11px] font-bold uppercase text-black/50 dark:text-white/50 block">Reels
+                                    Video</span>
+                                <span
+                                    class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ $analytics['instagram']['reels_count'] ?? 0 }}
+                                    Video</span>
                             </div>
                         </div>
-                        <div class="p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-[10px] bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center shrink-0">
+                        <div
+                            class="p-3.5 rounded-[14px] bg-white dark:bg-[#2C2C2E] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                            <div
+                                class="w-9 h-9 rounded-[10px] bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center shrink-0">
                                 <i data-lucide="history" class="w-4 h-4"></i>
                             </div>
                             <div>
-                                <span class="text-[11px] font-bold uppercase text-black/50 dark:text-white/50 block">Instagram Stories</span>
-                                <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">Aktif 24 Jam</span>
+                                <span
+                                    class="text-[11px] font-bold uppercase text-black/50 dark:text-white/50 block">Instagram
+                                    Stories</span>
+                                <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">Aktif 24
+                                    Jam</span>
                             </div>
                         </div>
                     </div>
@@ -535,43 +690,54 @@
             </div>
 
             {{-- Galeri Konten & Performa Live Instagram --}}
-            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5">
-                <div class="flex items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5">
+                <div
+                    class="flex items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div>
-                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Performa 15 Media Terbaru Instagram</h3>
-                        <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Daftar media yang dipublikasikan pada @cooca.indonesia beserta jumlah likes dan komentar terkini</p>
+                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Performa
+                            15 Media Terbaru Instagram</h3>
+                        <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Daftar media yang
+                            dipublikasikan pada @cooca.indonesia beserta jumlah likes dan komentar terkini</p>
                     </div>
                     <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">
                         {{ count($analytics['instagram']['recent_media'] ?? []) }} Media
                     </span>
                 </div>
 
-                @if(!empty($analytics['instagram']['recent_media']) && count($analytics['instagram']['recent_media']) > 0)
+                @if (!empty($analytics['instagram']['recent_media']) && count($analytics['instagram']['recent_media']) > 0)
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach($analytics['instagram']['recent_media'] as $item)
-                            <div class="p-4 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.08] space-y-3 flex flex-col justify-between hover:border-black/20 dark:hover:border-white/20 transition-all">
+                        @foreach ($analytics['instagram']['recent_media'] as $item)
+                            <div
+                                class="p-4 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.08] space-y-3 flex flex-col justify-between hover:border-black/20 dark:hover:border-white/20 transition-all">
                                 <div class="space-y-3">
-                                    <div class="relative w-full aspect-video rounded-[12px] overflow-hidden bg-black/5 dark:bg-white/5">
-                                        @if(!empty($item['thumbnail_url']) || !empty($item['media_url']))
-                                            <img src="{{ $item['thumbnail_url'] ?: $item['media_url'] }}" alt="Post Media" class="w-full h-full object-cover">
+                                    <div
+                                        class="relative w-full aspect-video rounded-[12px] overflow-hidden bg-black/5 dark:bg-white/5">
+                                        @if (!empty($item['thumbnail_url']) || !empty($item['media_url']))
+                                            <img src="{{ $item['thumbnail_url'] ?: $item['media_url'] }}"
+                                                alt="Post Media" class="w-full h-full object-cover">
                                         @else
-                                            <div class="w-full h-full flex items-center justify-center text-black/30 dark:text-white/30">
+                                            <div
+                                                class="w-full h-full flex items-center justify-center text-black/30 dark:text-white/30">
                                                 <i data-lucide="image" class="w-8 h-8"></i>
                                             </div>
                                         @endif
                                         <div class="absolute top-2 left-2">
-                                            @if($item['media_product_type'] === 'REELS' || $item['media_type'] === 'VIDEO')
-                                                <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
+                                            @if ($item['media_product_type'] === 'REELS' || $item['media_type'] === 'VIDEO')
+                                                <span
+                                                    class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
                                                     <i data-lucide="film" class="w-3 h-3 text-[#E1306C]"></i>
                                                     <span>REELS</span>
                                                 </span>
                                             @elseif($item['media_type'] === 'CAROUSEL_ALBUM')
-                                                <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
+                                                <span
+                                                    class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
                                                     <i data-lucide="layers" class="w-3 h-3 text-[#007AFF]"></i>
                                                     <span>CAROUSEL</span>
                                                 </span>
                                             @else
-                                                <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
+                                                <span
+                                                    class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/70 text-white backdrop-blur-xs flex items-center gap-1">
                                                     <i data-lucide="image" class="w-3 h-3 text-[#34C759]"></i>
                                                     <span>FEED</span>
                                                 </span>
@@ -584,19 +750,22 @@
                                     </p>
                                 </div>
 
-                                <div class="pt-3 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
+                                <div
+                                    class="pt-3 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
                                     <div class="flex items-center gap-3 text-[12px] text-black/60 dark:text-white/60">
                                         <span class="flex items-center gap-1">
                                             <i data-lucide="heart" class="w-3.5 h-3.5 text-[#E1306C]"></i>
-                                            <strong class="tabular-nums text-black dark:text-white">{{ number_format($item['like_count']) }}</strong>
+                                            <strong
+                                                class="tabular-nums text-black dark:text-white">{{ number_format($item['like_count']) }}</strong>
                                         </span>
                                         <span class="flex items-center gap-1">
                                             <i data-lucide="message-circle" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                            <strong class="tabular-nums text-black dark:text-white">{{ number_format($item['comments_count']) }}</strong>
+                                            <strong
+                                                class="tabular-nums text-black dark:text-white">{{ number_format($item['comments_count']) }}</strong>
                                         </span>
                                     </div>
 
-                                    @if(!empty($item['permalink']))
+                                    @if (!empty($item['permalink']))
                                         <a href="{{ $item['permalink'] }}" target="_blank" rel="noopener noreferrer"
                                             class="p-1.5 rounded-[8px] text-black/40 dark:text-white/40 hover:text-[#007AFF] dark:hover:text-[#007AFF] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                             title="Buka di Instagram">
@@ -608,9 +777,11 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="p-10 text-center space-y-2 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
+                    <div
+                        class="p-10 text-center space-y-2 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
                         <i data-lucide="image" class="w-8 h-8 text-black/30 dark:text-white/30 mx-auto"></i>
-                        <p class="text-[13px] text-black/50 dark:text-white/50">Belum ada media Instagram yang dapat dimuat atau token memerlukan izin akses.</p>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Belum ada media Instagram yang dapat dimuat
+                            atau token memerlukan izin akses.</p>
                     </div>
                 @endif
             </div>
@@ -618,41 +789,54 @@
 
         {{-- 5. TAB 2: KOTAK MASUK INTERAKSI (COMMENTS & ENGAGEMENT) --}}
         <div x-show="activeTab === 'inbox'" class="space-y-6">
-            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5">
-                <div class="flex items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5">
+                <div
+                    class="flex items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div>
-                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Komentar &amp; Interaksi Akun Resmi</h3>
-                        <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Kelola dan tanggapi komentar pengunjung pada postingan resmi media sosial Cooca</p>
+                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Komentar
+                            &amp; Interaksi Akun Resmi</h3>
+                        <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Kelola dan tanggapi
+                            komentar pengunjung pada postingan resmi media sosial Cooca</p>
                     </div>
-                    <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Total {{ $platformComments->total() }} Komentar</span>
+                    <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Total
+                        {{ $platformComments->total() }} Komentar</span>
                 </div>
 
-                @if($platformComments->count() > 0)
+                @if ($platformComments->count() > 0)
                     <div class="divide-y divide-black/[0.05] dark:divide-white/[0.06]">
-                        @foreach($platformComments as $c)
+                        @foreach ($platformComments as $c)
                             <div class="py-4 space-y-2.5">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="flex items-center gap-2.5">
-                                        <div class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-bold text-[13px] text-black/70 dark:text-white/70">
+                                        <div
+                                            class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-bold text-[13px] text-black/70 dark:text-white/70">
                                             {{ strtoupper(substr($c->from_name ?: 'User', 0, 1)) }}
                                         </div>
                                         <div>
                                             <div class="flex items-center gap-2">
-                                                <span class="font-bold text-[13px] text-black dark:text-white">{{ $c->from_name ?: 'Pengguna Media Sosial' }}</span>
-                                                <span class="text-[11px] font-mono text-black/40 dark:text-white/40">({{ $c->platform }})</span>
-                                                @if($c->status === 'replied')
-                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">Dibalas</span>
+                                                <span
+                                                    class="font-bold text-[13px] text-black dark:text-white">{{ $c->from_name ?: 'Pengguna Media Sosial' }}</span>
+                                                <span
+                                                    class="text-[11px] font-mono text-black/40 dark:text-white/40">({{ $c->platform }})</span>
+                                                @if ($c->status === 'replied')
+                                                    <span
+                                                        class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">Dibalas</span>
                                                 @else
-                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#FF9500]">Belum Dibalas</span>
+                                                    <span
+                                                        class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#FF9500]">Belum
+                                                        Dibalas</span>
                                                 @endif
                                             </div>
                                             <span class="text-[11px] text-black/45 dark:text-white/45 tabular-nums">
-                                                {{ $c->created_time ? $c->created_time->format('d M Y, H:i') : $c->created_at->format('d M Y, H:i') }} WIB
+                                                {{ $c->created_time ? $c->created_time->format('d M Y, H:i') : $c->created_at->format('d M Y, H:i') }}
+                                                WIB
                                             </span>
                                         </div>
                                     </div>
 
-                                    <button type="button" @click="openReplyModal('{{ $c->id }}', '{{ addslashes($c->from_name ?: 'User') }}', '{{ addslashes($c->message) }}')"
+                                    <button type="button"
+                                        @click="openReplyModal('{{ $c->id }}', '{{ addslashes($c->from_name ?: 'User') }}', '{{ addslashes($c->message) }}')"
                                         class="min-h-[32px] px-3 rounded-[9px] text-[12px] font-bold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.98] transition-all inline-flex items-center gap-1.5">
                                         <i data-lucide="reply" class="w-3.5 h-3.5"></i>
                                         <span>Balas</span>
@@ -660,12 +844,14 @@
                                 </div>
 
                                 <div class="pl-11">
-                                    <p class="text-[13px] text-black/85 dark:text-white/85 bg-black/[0.02] dark:bg-white/[0.03] p-3 rounded-[12px] border border-black/[0.04] dark:border-white/[0.05]">
+                                    <p
+                                        class="text-[13px] text-black/85 dark:text-white/85 bg-black/[0.02] dark:bg-white/[0.03] p-3 rounded-[12px] border border-black/[0.04] dark:border-white/[0.05]">
                                         {{ $c->message }}
                                     </p>
-                                    @if($c->post)
+                                    @if ($c->post)
                                         <p class="text-[11.5px] text-black/45 dark:text-white/45 mt-1 truncate">
-                                            Pada postingan: <span class="italic">"{{ Str::limit($c->post->content, 60) }}"</span>
+                                            Pada postingan: <span
+                                                class="italic">"{{ Str::limit($c->post->content, 60) }}"</span>
                                         </p>
                                     @endif
                                 </div>
@@ -677,9 +863,11 @@
                         {{ $platformComments->appends(['tab' => 'inbox'])->links() }}
                     </div>
                 @else
-                    <div class="p-10 text-center space-y-2.5 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
+                    <div
+                        class="p-10 text-center space-y-2.5 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
                         <i data-lucide="message-square" class="w-8 h-8 text-black/30 dark:text-white/30 mx-auto"></i>
-                        <p class="text-[13px] text-black/50 dark:text-white/50">Belum ada komentar yang masuk pada postingan resmi platform.</p>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Belum ada komentar yang masuk pada
+                            postingan resmi platform.</p>
                     </div>
                 @endif
             </div>
@@ -687,10 +875,13 @@
 
         {{-- 6. TAB 3: INTEGRATION HUB & CURRENT PROVIDER STATUS --}}
         <div x-show="activeTab === 'settings'" class="space-y-6">
-            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div class="flex items-start gap-3.5 min-w-0">
-                        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] bg-gradient-to-br from-[#1877F2] via-[#E1306C] to-[#000000] text-white flex items-center justify-center shadow-md shadow-[#1877F2]/20 shrink-0">
+                        <div
+                            class="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] bg-gradient-to-br from-[#1877F2] via-[#E1306C] to-[#000000] text-white flex items-center justify-center shadow-md shadow-[#1877F2]/20 shrink-0">
                             <i data-lucide="share-2" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
                         <div class="min-w-0">
@@ -698,12 +889,15 @@
                                 <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
                                     Pusat Konfigurasi Media Sosial Platform Terpadu
                                 </h3>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                <span
+                                    class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                     Terintegrasi
                                 </span>
                             </div>
                             <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5 max-w-2xl">
-                                Seluruh konfigurasi kredensial Meta App (Facebook &amp; Threads), Instagram Platform (Cooca-IG), dan TikTok Open API kini dikelola secara terpusat di <strong>Pengaturan Platform &amp; Sistem</strong>.
+                                Seluruh konfigurasi kredensial Meta App (Facebook &amp; Threads), Instagram Platform
+                                (Cooca-IG), dan TikTok Open API kini dikelola secara terpusat di <strong>Pengaturan Platform
+                                    &amp; Sistem</strong>.
                             </p>
                         </div>
                     </div>
@@ -718,60 +912,83 @@
 
                 {{-- Status Badges --}}
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="p-3.5 rounded-[14px] bg-[#1877F2]/8 border border-[#1877F2]/20 flex items-center justify-between">
+                    <div
+                        class="p-3.5 rounded-[14px] bg-[#1877F2]/8 border border-[#1877F2]/20 flex items-center justify-between">
                         <span class="text-[12px] font-semibold text-[#1877F2]">Meta App ID</span>
-                        <span class="text-[12px] font-mono font-bold text-[#1877F2]">{{ $platform['app_id'] ?: 'Belum Diisi' }}</span>
+                        <span
+                            class="text-[12px] font-mono font-bold text-[#1877F2]">{{ $platform['app_id'] ?: 'Belum Diisi' }}</span>
                     </div>
-                    <div class="p-3.5 rounded-[14px] bg-[#E1306C]/8 border border-[#E1306C]/20 flex items-center justify-between">
+                    <div
+                        class="p-3.5 rounded-[14px] bg-[#E1306C]/8 border border-[#E1306C]/20 flex items-center justify-between">
                         <span class="text-[12px] font-semibold text-[#E1306C]">Instagram Resmi</span>
-                        <span class="text-[12px] font-mono font-bold text-[#E1306C]">@{{ $platform['instagram_username'] ?: 'cooca.indonesia' }}</span>
+                        <span class="text-[12px] font-mono font-bold text-[#E1306C]">@{{ $platform['instagram_username'] ? : 'cooca.indonesia' }}</span>
                     </div>
-                    <div class="p-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between">
+                    <div
+                        class="p-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between">
                         <span class="text-[12px] font-semibold text-black dark:text-white">TikTok Client Key</span>
-                        <span class="text-[12px] font-mono font-bold text-black dark:text-white truncate max-w-[120px]">{{ $platform['tiktok_client_key'] ?: 'Belum Diisi' }}</span>
+                        <span
+                            class="text-[12px] font-mono font-bold text-black dark:text-white truncate max-w-[120px]">{{ $platform['tiktok_client_key'] ?: 'Belum Diisi' }}</span>
                     </div>
                 </div>
 
                 {{-- Current Settings Snapshot Grid --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta App Secret</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta
+                            App Secret</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ !empty($platform['app_secret']) ? '••••••••••••••••' : 'Belum Dikonfigurasi' }}
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Instagram App Name</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Instagram
+                            App Name</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $platform['instagram_app_name'] ?: 'Cooca-IG' }}
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Status Token Instagram</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Status
+                            Token Instagram</span>
                         <div class="text-[13px] font-bold text-[#248A3D] dark:text-[#30D158] flex items-center gap-1.5">
                             <i data-lucide="shield-check" class="w-4 h-4"></i>
                             <span>{{ !empty($platform['instagram_access_token']) ? 'Tersimpan Terenkripsi' : 'Belum Ada Token' }}</span>
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Webhook Verify Token</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Webhook
+                            Verify Token</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $platform['webhook_verify_token'] ?: 'cooca_meta_social_webhook_token' }}
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">TikTok Secret</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">TikTok
+                            Secret</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ !empty($platform['tiktok_client_secret']) ? '••••••••••••••••' : 'Belum Dikonfigurasi' }}
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Versi Graph API</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Versi
+                            Graph API</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $platform['graph_version'] ?: 'v26.0' }}
                         </div>
@@ -780,39 +997,53 @@
 
                 {{-- Endpoints & Callback URL --}}
                 <div class="space-y-3 pt-2">
-                    <h4 class="text-[13px] font-bold text-black dark:text-white tracking-tight">Endpoint Callback &amp; Webhook Resmi</h4>
+                    <h4 class="text-[13px] font-bold text-black dark:text-white tracking-tight">Endpoint Callback &amp;
+                        Webhook Resmi</h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
+                        <div
+                            class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Meta Webhook URL</span>
+                                <span
+                                    class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Meta
+                                    Webhook URL</span>
                                 <button type="button" @click="copyText('{{ $platform['webhook_url'] }}', 'meta_wh')"
                                     class="text-[11px] font-bold text-[#007AFF] hover:underline">
                                     <span x-text="copied === 'meta_wh' ? 'Tersalin' : 'Salin'"></span>
                                 </button>
                             </div>
-                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">{{ $platform['webhook_url'] }}</div>
+                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">
+                                {{ $platform['webhook_url'] }}</div>
                         </div>
 
-                        <div class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
+                        <div
+                            class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Instagram Redirect URI</span>
+                                <span
+                                    class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Instagram
+                                    Redirect URI</span>
                                 <button type="button" @click="copyText('{{ $platform['ig_redirect_uri'] }}', 'ig_uri')"
                                     class="text-[11px] font-bold text-[#007AFF] hover:underline">
                                     <span x-text="copied === 'ig_uri' ? 'Tersalin' : 'Salin'"></span>
                                 </button>
                             </div>
-                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">{{ $platform['ig_redirect_uri'] }}</div>
+                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">
+                                {{ $platform['ig_redirect_uri'] }}</div>
                         </div>
 
-                        <div class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
+                        <div
+                            class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">TikTok Redirect URI</span>
-                                <button type="button" @click="copyText('{{ $platform['tiktok_redirect_uri'] }}', 'tt_uri')"
+                                <span
+                                    class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">TikTok
+                                    Redirect URI</span>
+                                <button type="button"
+                                    @click="copyText('{{ $platform['tiktok_redirect_uri'] }}', 'tt_uri')"
                                     class="text-[11px] font-bold text-[#007AFF] hover:underline">
                                     <span x-text="copied === 'tt_uri' ? 'Tersalin' : 'Salin'"></span>
                                 </button>
                             </div>
-                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">{{ $platform['tiktok_redirect_uri'] }}</div>
+                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">
+                                {{ $platform['tiktok_redirect_uri'] }}</div>
                         </div>
                     </div>
                 </div>
@@ -821,20 +1052,26 @@
 
         {{-- 7. TAB 4: MERCHANTS OVERSIGHT --}}
         <div x-show="activeTab === 'merchants'" class="space-y-6">
-            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5">
-                <div class="flex items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5">
+                <div
+                    class="flex items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div>
-                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Status Koneksi Media Sosial Merchant</h3>
-                        <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Daftar toko/merchant yang mengaktifkan integrasi akun Facebook, Instagram, Threads, atau TikTok</p>
+                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Status
+                            Koneksi Media Sosial Merchant</h3>
+                        <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Daftar
+                            toko/merchant yang mengaktifkan integrasi akun Facebook, Instagram, Threads, atau TikTok</p>
                     </div>
-                    <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Total {{ $merchants->total() }} Merchant</span>
+                    <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Total
+                        {{ $merchants->total() }} Merchant</span>
                 </div>
 
                 @if ($merchants->count() > 0)
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-[13px]">
                             <thead>
-                                <tr class="border-b border-black/[0.06] dark:border-white/[0.08] text-black/45 dark:text-white/45 text-[11px] uppercase tracking-wider bg-black/[0.01] dark:bg-white/[0.02]">
+                                <tr
+                                    class="border-b border-black/[0.06] dark:border-white/[0.08] text-black/45 dark:text-white/45 text-[11px] uppercase tracking-wider bg-black/[0.01] dark:bg-white/[0.02]">
                                     <th class="px-4 py-3 font-semibold">Bisnis / Merchant</th>
                                     <th class="px-4 py-3 font-semibold">Kanal Terhubung</th>
                                     <th class="px-4 py-3 font-semibold text-center">Status</th>
@@ -846,20 +1083,24 @@
                                     <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.025] transition-colors">
                                         <td class="px-4 py-3.5">
                                             <div class="font-bold text-black dark:text-white">{{ $biz->name }}</div>
-                                            <div class="text-[11.5px] text-black/50 dark:text-white/50">ID: {{ Str::limit($biz->id, 8) }}</div>
+                                            <div class="text-[11.5px] text-black/50 dark:text-white/50">ID:
+                                                {{ Str::limit($biz->id, 8) }}</div>
                                         </td>
                                         <td class="px-4 py-3.5">
                                             <div class="flex items-center gap-1.5 flex-wrap">
                                                 @foreach ($biz->socialMediaAccounts as $acc)
-                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] text-[11.5px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-black/75 dark:text-white/75">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] text-[11.5px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-black/75 dark:text-white/75">
                                                         @if ($acc->platform === 'facebook')
                                                             <i data-lucide="facebook" class="w-3 h-3 text-[#1877F2]"></i>
                                                         @elseif ($acc->platform === 'instagram')
                                                             <i data-lucide="instagram" class="w-3 h-3 text-[#E1306C]"></i>
                                                         @elseif ($acc->platform === 'threads')
-                                                            <i data-lucide="at-sign" class="w-3 h-3 text-black dark:text-white"></i>
+                                                            <i data-lucide="at-sign"
+                                                                class="w-3 h-3 text-black dark:text-white"></i>
                                                         @elseif ($acc->platform === 'tiktok')
-                                                            <i data-lucide="video" class="w-3 h-3 text-black dark:text-white"></i>
+                                                            <i data-lucide="video"
+                                                                class="w-3 h-3 text-black dark:text-white"></i>
                                                         @else
                                                             <i data-lucide="globe" class="w-3 h-3 text-black/50"></i>
                                                         @endif
@@ -869,11 +1110,13 @@
                                             </div>
                                         </td>
                                         <td class="px-4 py-3.5 text-center">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
                                                 Aktif
                                             </span>
                                         </td>
-                                        <td class="px-4 py-3.5 text-right text-black/50 dark:text-white/50 text-[12px] tabular-nums">
+                                        <td
+                                            class="px-4 py-3.5 text-right text-black/50 dark:text-white/50 text-[12px] tabular-nums">
                                             {{ optional($biz->socialMediaAccounts->first()?->updated_at)->diffForHumans() }}
                                         </td>
                                     </tr>
@@ -886,9 +1129,11 @@
                         {{ $merchants->appends(['tab' => 'merchants'])->links() }}
                     </div>
                 @else
-                    <div class="p-10 text-center space-y-2.5 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
+                    <div
+                        class="p-10 text-center space-y-2.5 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
                         <i data-lucide="users" class="w-8 h-8 text-black/30 dark:text-white/30 mx-auto"></i>
-                        <p class="text-[13px] text-black/50 dark:text-white/50">Belum ada merchant yang mengaktifkan integrasi media sosial.</p>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Belum ada merchant yang mengaktifkan
+                            integrasi media sosial.</p>
                     </div>
                 @endif
             </div>
@@ -896,38 +1141,55 @@
 
         {{-- 8. TAB 5: APP REVIEW & COMPLIANCE GUIDE --}}
         <div x-show="activeTab === 'app_review'" class="space-y-6">
-            <div class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6">
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6">
                 <div class="pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
-                    <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Panduan Meta App Review &amp; Kepatuhan Kebijakan</h3>
-                    <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Panduan persyaratan untuk mengajukan izin permissions produksi ke Meta App Review</p>
+                    <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">Panduan Meta
+                        App Review &amp; Kepatuhan Kebijakan</h3>
+                    <p class="text-[12px] sm:text-[12.5px] text-black/50 dark:text-white/50 mt-0.5">Panduan persyaratan
+                        untuk mengajukan izin permissions produksi ke Meta App Review</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12.5px]">
-                    <div class="p-4.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2.5">
-                        <span class="font-bold text-black dark:text-white block text-[13.5px]">1. Permissions yang Diwajibkan</span>
+                    <div
+                        class="p-4.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2.5">
+                        <span class="font-bold text-black dark:text-white block text-[13.5px]">1. Permissions yang
+                            Diwajibkan</span>
                         <ul class="space-y-1.5 text-black/70 dark:text-white/70 list-disc list-inside">
-                            <li><code class="text-[#007AFF] font-mono">pages_manage_posts</code>: Membuat postingan feed di Facebook Page.</li>
-                            <li><code class="text-[#007AFF] font-mono">pages_read_engagement</code>: Membaca reaksi, komentar, dan metrik FB.</li>
-                            <li><code class="text-[#007AFF] font-mono">instagram_basic</code> &amp; <code class="text-[#007AFF] font-mono">instagram_content_publish</code>: Memposting foto ke akun Instagram Bisnis.</li>
-                            <li><code class="text-[#007AFF] font-mono">pages_messaging</code> &amp; <code class="text-[#007AFF] font-mono">instagram_manage_messages</code>: Balas komentar dan pesan.</li>
-                            <li><code class="text-[#007AFF] font-mono">threads_content_publish</code> &amp; <code class="text-[#007AFF] font-mono">threads_manage_replies</code>: Publikasi konten Threads.</li>
+                            <li><code class="text-[#007AFF] font-mono">pages_manage_posts</code>: Membuat postingan feed di
+                                Facebook Page.</li>
+                            <li><code class="text-[#007AFF] font-mono">pages_read_engagement</code>: Membaca reaksi,
+                                komentar, dan metrik FB.</li>
+                            <li><code class="text-[#007AFF] font-mono">instagram_basic</code> &amp; <code
+                                    class="text-[#007AFF] font-mono">instagram_content_publish</code>: Memposting foto ke
+                                akun Instagram Bisnis.</li>
+                            <li><code class="text-[#007AFF] font-mono">pages_messaging</code> &amp; <code
+                                    class="text-[#007AFF] font-mono">instagram_manage_messages</code>: Balas komentar dan
+                                pesan.</li>
+                            <li><code class="text-[#007AFF] font-mono">threads_content_publish</code> &amp; <code
+                                    class="text-[#007AFF] font-mono">threads_manage_replies</code>: Publikasi konten
+                                Threads.</li>
                         </ul>
                     </div>
 
-                    <div class="p-4.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2.5">
-                        <span class="font-bold text-black dark:text-white block text-[13.5px]">2. Skenario Rekaman Video Demo</span>
+                    <div
+                        class="p-4.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2.5">
+                        <span class="font-bold text-black dark:text-white block text-[13.5px]">2. Skenario Rekaman Video
+                            Demo</span>
                         <ol class="space-y-1.5 text-black/70 dark:text-white/70 list-decimal list-inside">
                             <li>Rekam login merchant ke dashboard COOCA.</li>
                             <li>Klik tombol <strong>Hubungkan Media Sosial</strong> hingga muncul popup Meta Login.</li>
                             <li>Pilih Facebook Page &amp; Akun Instagram yang dikelola.</li>
-                            <li>Tunjukkan cara membuat dan memposting gambar ke Instagram / Facebook dari halaman COOCA.</li>
+                            <li>Tunjukkan cara membuat dan memposting gambar ke Instagram / Facebook dari halaman COOCA.
+                            </li>
                             <li>Tunjukkan bukti postingan berhasil tayang di profil Facebook &amp; Instagram.</li>
                             <li>Tunjukkan cara membalas komentar masuk di Kotak Masuk COOCA.</li>
                         </ol>
                     </div>
                 </div>
 
-                <div class="p-4 rounded-[16px] bg-[#007AFF]/8 border border-[#007AFF]/20 text-[12px] text-black/70 dark:text-white/70 flex items-center justify-between gap-4">
+                <div
+                    class="p-4 rounded-[16px] bg-[#007AFF]/8 border border-[#007AFF]/20 text-[12px] text-black/70 dark:text-white/70 flex items-center justify-between gap-4">
                     <div class="flex items-center gap-2.5">
                         <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
                         <span>Dokumentasi Resmi: Meta App Review &amp; Facebook Login for Business</span>
@@ -941,12 +1203,9 @@
         </div>
 
         {{-- 9. MODAL BUAT POSTINGAN RESMI PLATFORM (APPLE HIG MODAL SHEET) --}}
-        <div x-show="openCreatePostModal"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100"
+        <div x-show="openCreatePostModal" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
             style="display: none;">
@@ -956,36 +1215,48 @@
 
                 <div class="flex items-center justify-between pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center">
+                        <div
+                            class="w-10 h-10 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center">
                             <i data-lucide="feather" class="w-5 h-5"></i>
                         </div>
                         <div>
                             <h3 class="text-[17px] font-bold text-black dark:text-white">Buat Postingan Resmi Cooca</h3>
-                            <p class="text-[12px] text-black/50 dark:text-white/50">Publikasikan konten resmi ke akun media sosial platform</p>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">Publikasikan konten resmi ke akun media
+                                sosial platform</p>
                         </div>
                     </div>
-                    <button type="button" @click="openCreatePostModal = false" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                    <button type="button" @click="openCreatePostModal = false"
+                        class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
 
-                <form method="POST" action="{{ route('admin.social-media.posts.store') }}" enctype="multipart/form-data" class="space-y-4">
+                <form method="POST" action="{{ route('admin.social-media.posts.store') }}"
+                    enctype="multipart/form-data" class="space-y-4">
                     @csrf
 
                     {{-- Pilihan Platform (Multi-Select Bento Tiles) --}}
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
-                            <label class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Pilih Saluran Publikasi Resmi Platform</label>
-                            <button type="button" @click="toggleAllPlatforms()" class="text-[11.5px] font-bold text-[#007AFF] hover:underline">
-                                <span x-text="selectedPlatforms.length === allPlatforms.length ? 'Pilih Instagram Saja' : 'Pilih Semua Saluran'"></span>
+                            <label
+                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Pilih
+                                Saluran Publikasi Resmi Platform</label>
+                            <button type="button" @click="toggleAllPlatforms()"
+                                class="text-[11.5px] font-bold text-[#007AFF] hover:underline">
+                                <span
+                                    x-text="selectedPlatforms.length === allPlatforms.length ? 'Pilih Instagram Saja' : 'Pilih Semua Saluran'"></span>
                             </button>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                             {{-- Instagram --}}
                             <label class="flex items-center gap-2 p-3 rounded-[14px] border cursor-pointer transition-all"
-                                :class="selectedPlatforms.includes('instagram') ? 'bg-[#E1306C]/10 border-[#E1306C] text-[#E1306C] font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="checkbox" name="platforms[]" value="instagram" x-model="selectedPlatforms" class="sr-only">
-                                <div class="w-7 h-7 rounded-[8px] bg-[#E1306C]/15 text-[#E1306C] flex items-center justify-center shrink-0">
+                                :class="selectedPlatforms.includes('instagram') ?
+                                    'bg-[#E1306C]/10 border-[#E1306C] text-[#E1306C] font-bold shadow-xs' :
+                                    'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="checkbox" name="platforms[]" value="instagram" x-model="selectedPlatforms"
+                                    class="sr-only">
+                                <div
+                                    class="w-7 h-7 rounded-[8px] bg-[#E1306C]/15 text-[#E1306C] flex items-center justify-center shrink-0">
                                     <i data-lucide="instagram" class="w-4 h-4"></i>
                                 </div>
                                 <div class="min-w-0">
@@ -996,9 +1267,13 @@
 
                             {{-- Facebook --}}
                             <label class="flex items-center gap-2 p-3 rounded-[14px] border cursor-pointer transition-all"
-                                :class="selectedPlatforms.includes('facebook') ? 'bg-[#1877F2]/10 border-[#1877F2] text-[#1877F2] font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="checkbox" name="platforms[]" value="facebook" x-model="selectedPlatforms" class="sr-only">
-                                <div class="w-7 h-7 rounded-[8px] bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center shrink-0">
+                                :class="selectedPlatforms.includes('facebook') ?
+                                    'bg-[#1877F2]/10 border-[#1877F2] text-[#1877F2] font-bold shadow-xs' :
+                                    'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="checkbox" name="platforms[]" value="facebook" x-model="selectedPlatforms"
+                                    class="sr-only">
+                                <div
+                                    class="w-7 h-7 rounded-[8px] bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center shrink-0">
                                     <i data-lucide="facebook" class="w-4 h-4"></i>
                                 </div>
                                 <div class="min-w-0">
@@ -1009,9 +1284,13 @@
 
                             {{-- Threads --}}
                             <label class="flex items-center gap-2 p-3 rounded-[14px] border cursor-pointer transition-all"
-                                :class="selectedPlatforms.includes('threads') ? 'bg-black/10 dark:bg-white/15 border-black dark:border-white text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="checkbox" name="platforms[]" value="threads" x-model="selectedPlatforms" class="sr-only">
-                                <div class="w-7 h-7 rounded-[8px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center shrink-0">
+                                :class="selectedPlatforms.includes('threads') ?
+                                    'bg-black/10 dark:bg-white/15 border-black dark:border-white text-black dark:text-white font-bold shadow-xs' :
+                                    'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="checkbox" name="platforms[]" value="threads" x-model="selectedPlatforms"
+                                    class="sr-only">
+                                <div
+                                    class="w-7 h-7 rounded-[8px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center shrink-0">
                                     <i data-lucide="at-sign" class="w-4 h-4"></i>
                                 </div>
                                 <div class="min-w-0">
@@ -1022,9 +1301,13 @@
 
                             {{-- TikTok --}}
                             <label class="flex items-center gap-2 p-3 rounded-[14px] border cursor-pointer transition-all"
-                                :class="selectedPlatforms.includes('tiktok') ? 'bg-black/10 dark:bg-white/15 border-black dark:border-white text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="checkbox" name="platforms[]" value="tiktok" x-model="selectedPlatforms" class="sr-only">
-                                <div class="w-7 h-7 rounded-[8px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center shrink-0">
+                                :class="selectedPlatforms.includes('tiktok') ?
+                                    'bg-black/10 dark:bg-white/15 border-black dark:border-white text-black dark:text-white font-bold shadow-xs' :
+                                    'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="checkbox" name="platforms[]" value="tiktok" x-model="selectedPlatforms"
+                                    class="sr-only">
+                                <div
+                                    class="w-7 h-7 rounded-[8px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center shrink-0">
                                     <i data-lucide="video" class="w-4 h-4"></i>
                                 </div>
                                 <div class="min-w-0">
@@ -1041,15 +1324,22 @@
                     {{-- Pilihan Format Konten (Bento Selector: Feed, Reels, Story) --}}
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
-                            <label class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Format Konten</label>
+                            <label
+                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Format
+                                Konten</label>
                             <span class="text-[11px] text-[#007AFF] font-semibold" x-text="postFormatLabel()"></span>
                         </div>
                         <div class="grid grid-cols-3 gap-2.5">
                             {{-- Feed Post --}}
-                            <label class="p-3 rounded-[14px] border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5"
-                                :class="postFormat === 'image' ? 'bg-[#007AFF]/10 border-[#007AFF] text-[#007AFF] font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="radio" name="media_type" value="image" x-model="postFormat" class="sr-only">
-                                <div class="w-8 h-8 rounded-[9px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
+                            <label
+                                class="p-3 rounded-[14px] border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5"
+                                :class="postFormat === 'image' ?
+                                    'bg-[#007AFF]/10 border-[#007AFF] text-[#007AFF] font-bold shadow-xs' :
+                                    'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="media_type" value="image" x-model="postFormat"
+                                    class="sr-only">
+                                <div
+                                    class="w-8 h-8 rounded-[9px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
                                     <i data-lucide="image" class="w-4 h-4"></i>
                                 </div>
                                 <div>
@@ -1059,10 +1349,15 @@
                             </label>
 
                             {{-- Reels Video --}}
-                            <label class="p-3 rounded-[14px] border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5"
-                                :class="postFormat === 'reels' ? 'bg-[#E1306C]/10 border-[#E1306C] text-[#E1306C] font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="radio" name="media_type" value="reels" x-model="postFormat" class="sr-only">
-                                <div class="w-8 h-8 rounded-[9px] bg-[#E1306C]/15 text-[#E1306C] flex items-center justify-center">
+                            <label
+                                class="p-3 rounded-[14px] border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5"
+                                :class="postFormat === 'reels' ?
+                                    'bg-[#E1306C]/10 border-[#E1306C] text-[#E1306C] font-bold shadow-xs' :
+                                    'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="media_type" value="reels" x-model="postFormat"
+                                    class="sr-only">
+                                <div
+                                    class="w-8 h-8 rounded-[9px] bg-[#E1306C]/15 text-[#E1306C] flex items-center justify-center">
                                     <i data-lucide="film" class="w-4 h-4"></i>
                                 </div>
                                 <div>
@@ -1072,10 +1367,15 @@
                             </label>
 
                             {{-- Instagram Story --}}
-                            <label class="p-3 rounded-[14px] border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5"
-                                :class="postFormat === 'story' ? 'bg-[#AF52DE]/10 border-[#AF52DE] text-[#AF52DE] font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="radio" name="media_type" value="story" x-model="postFormat" class="sr-only">
-                                <div class="w-8 h-8 rounded-[9px] bg-[#AF52DE]/15 text-[#AF52DE] flex items-center justify-center">
+                            <label
+                                class="p-3 rounded-[14px] border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5"
+                                :class="postFormat === 'story' ?
+                                    'bg-[#AF52DE]/10 border-[#AF52DE] text-[#AF52DE] font-bold shadow-xs' :
+                                    'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="media_type" value="story" x-model="postFormat"
+                                    class="sr-only">
+                                <div
+                                    class="w-8 h-8 rounded-[9px] bg-[#AF52DE]/15 text-[#AF52DE] flex items-center justify-center">
                                     <i data-lucide="history" class="w-4 h-4"></i>
                                 </div>
                                 <div>
@@ -1086,11 +1386,15 @@
                         </div>
 
                         {{-- Guidance helper for selected format --}}
-                        <div class="p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] text-[11px] text-black/60 dark:text-white/60 flex items-center gap-2">
+                        <div
+                            class="p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] text-[11px] text-black/60 dark:text-white/60 flex items-center gap-2">
                             <i data-lucide="info" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
-                            <span x-show="postFormat === 'image'">Format standar profil. Cocok untuk gambar infografis, pengumuman, atau promo produk.</span>
-                            <span x-show="postFormat === 'reels'" style="display: none;">Unggah video format vertikal 9:16 (MP4/MOV). Konten akan diterbitkan di Reels dan dibagikan ke Feed.</span>
-                            <span x-show="postFormat === 'story'" style="display: none;">Format Story tayang 24 jam. Pada Instagram API, Story tidak menyertakan caption teks.</span>
+                            <span x-show="postFormat === 'image'">Format standar profil. Cocok untuk gambar infografis,
+                                pengumuman, atau promo produk.</span>
+                            <span x-show="postFormat === 'reels'" style="display: none;">Unggah video format vertikal 9:16
+                                (MP4/MOV). Konten akan diterbitkan di Reels dan dibagikan ke Feed.</span>
+                            <span x-show="postFormat === 'story'" style="display: none;">Format Story tayang 24 jam. Pada
+                                Instagram API, Story tidak menyertakan caption teks.</span>
                         </div>
                     </div>
 
@@ -1099,18 +1403,23 @@
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">
                                 Caption / Isi Postingan
-                                <span x-show="postFormat === 'story'" class="text-[10.5px] font-normal lowercase opacity-70">(opsional untuk story)</span>
+                                <span x-show="postFormat === 'story'"
+                                    class="text-[10.5px] font-normal lowercase opacity-70">(opsional untuk story)</span>
                             </label>
-                            <span class="text-[11px] font-mono text-black/45 dark:text-white/45"><span x-text="postCaption.length"></span> / 2.200</span>
+                            <span class="text-[11px] font-mono text-black/45 dark:text-white/45"><span
+                                    x-text="postCaption.length"></span> / 2.200</span>
                         </div>
-                        <textarea name="content" x-model="postCaption" rows="4" :required="postFormat !== 'story'" maxlength="2200"
-                            :placeholder="postFormat === 'story' ? 'Caption opsional (Instagram Story memprioritaskan visual media)...' : 'Tuliskan caption postingan resmi Cooca... Jelaskan promo, pembaruan sistem, atau tips bisnis untuk UMKM.'"
+                        <textarea name="content" x-model="postCaption" rows="4" :required="postFormat !== 'story'"
+                            maxlength="2200"
+                            :placeholder="postFormat === 'story' ?
+                                'Caption opsional (Instagram Story memprioritaskan visual media)...' :
+                                'Tuliskan caption postingan resmi Cooca... Jelaskan promo, pembaruan sistem, atau tips bisnis untuk UMKM.'"
                             class="w-full bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] p-3 text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all"></textarea>
 
                         {{-- Chip Tagar --}}
                         <div class="flex flex-wrap gap-1.5 mt-2">
                             <span class="text-[11px] text-black/45 dark:text-white/45 self-center">Tagar cepat:</span>
-                            @foreach(['#CoocaERP', '#UMKMIndonesia', '#KasirDigital', '#BisnisSukses', '#SaaSMaju'] as $tag)
+                            @foreach (['#CoocaERP', '#UMKMIndonesia', '#KasirDigital', '#BisnisSukses', '#SaaSMaju'] as $tag)
                                 <button type="button" @click="insertHashtag('{{ $tag }}')"
                                     class="px-2 py-0.5 rounded-[7px] text-[11px] font-mono bg-black/[0.04] dark:bg-white/[0.06] text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors">
                                     {{ $tag }}
@@ -1121,16 +1430,24 @@
 
                     {{-- Unggah Berkas Media atau URL --}}
                     <div class="space-y-3">
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Media Gambar / Video</label>
-                        <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/[0.08] space-y-2.5">
+                        <label
+                            class="block text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Media
+                            Gambar / Video</label>
+                        <div
+                            class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/[0.08] space-y-2.5">
                             <div>
-                                <span class="text-[11.5px] font-medium text-black/70 dark:text-white/70 block mb-1">Unggah dari Perangkat (Foto/Video)</span>
-                                <input type="file" name="media_file" accept="image/jpeg,image/png,video/mp4,video/quicktime"
+                                <span class="text-[11.5px] font-medium text-black/70 dark:text-white/70 block mb-1">Unggah
+                                    dari Perangkat (Foto/Video)</span>
+                                <input type="file" name="media_file"
+                                    accept="image/jpeg,image/png,video/mp4,video/quicktime"
                                     class="w-full text-[12px] text-black/70 dark:text-white/70 file:mr-3 file:py-1.5 file:px-3 file:rounded-[8px] file:border-0 file:text-[12px] file:font-semibold file:bg-[#007AFF]/10 file:text-[#007AFF] hover:file:bg-[#007AFF]/15 cursor-pointer">
                             </div>
-                            <div class="text-center text-[11px] text-black/40 dark:text-white/40 font-bold uppercase">-- ATAU --</div>
+                            <div class="text-center text-[11px] text-black/40 dark:text-white/40 font-bold uppercase">--
+                                ATAU --</div>
                             <div>
-                                <span class="text-[11.5px] font-medium text-black/70 dark:text-white/70 block mb-1">Masukkan URL Media Publik</span>
+                                <span
+                                    class="text-[11.5px] font-medium text-black/70 dark:text-white/70 block mb-1">Masukkan
+                                    URL Media Publik</span>
                                 <input type="url" name="media_url" placeholder="https://domain.com/storage/post.jpg"
                                     class="w-full min-h-[38px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[10px] px-3 text-[12.5px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
                             </div>
@@ -1138,82 +1455,119 @@
                     </div>
 
                     {{-- Opsi Waktu Publikasi (Multi-Mode & Per-Channel Support) --}}
-                    <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/[0.08] space-y-3">
+                    <div
+                        class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/[0.08] space-y-3">
                         <div class="flex items-center justify-between">
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Waktu Publikasi Saluran</label>
-                            <span class="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#007AFF]/10 text-[#007AFF]">Fleksibel</span>
+                            <label
+                                class="block text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Waktu
+                                Publikasi Saluran</label>
+                            <span
+                                class="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#007AFF]/10 text-[#007AFF]">Fleksibel</span>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[12px]">
-                            <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
-                                :class="postPublishMode === 'now' ? 'bg-[#007AFF]/10 border-[#007AFF] text-black dark:text-white font-bold shadow-xs' : 'bg-white dark:bg-[#2C2C2E] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="radio" name="timing_mode" value="now" x-model="postPublishMode" class="sr-only">
+                            <label
+                                class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
+                                :class="postPublishMode === 'now' ?
+                                    'bg-[#007AFF]/10 border-[#007AFF] text-black dark:text-white font-bold shadow-xs' :
+                                    'bg-white dark:bg-[#2C2C2E] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="timing_mode" value="now" x-model="postPublishMode"
+                                    class="sr-only">
                                 <i data-lucide="zap" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                 <span>Semua Sekarang</span>
                             </label>
 
-                            <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
-                                :class="postPublishMode === 'schedule_all' ? 'bg-[#5856D6]/10 border-[#5856D6] text-black dark:text-white font-bold shadow-xs' : 'bg-white dark:bg-[#2C2C2E] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="radio" name="timing_mode" value="schedule_all" x-model="postPublishMode" class="sr-only">
+                            <label
+                                class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
+                                :class="postPublishMode === 'schedule_all' ?
+                                    'bg-[#5856D6]/10 border-[#5856D6] text-black dark:text-white font-bold shadow-xs' :
+                                    'bg-white dark:bg-[#2C2C2E] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="timing_mode" value="schedule_all" x-model="postPublishMode"
+                                    class="sr-only">
                                 <i data-lucide="clock" class="w-3.5 h-3.5 text-[#5856D6]"></i>
                                 <span>Jadwal Serentak</span>
                             </label>
 
-                            <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
-                                :class="postPublishMode === 'per_channel' ? 'bg-[#FF9500]/10 border-[#FF9500] text-black dark:text-white font-bold shadow-xs' : 'bg-white dark:bg-[#2C2C2E] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="radio" name="timing_mode" value="per_channel" x-model="postPublishMode" class="sr-only">
+                            <label
+                                class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
+                                :class="postPublishMode === 'per_channel' ?
+                                    'bg-[#FF9500]/10 border-[#FF9500] text-black dark:text-white font-bold shadow-xs' :
+                                    'bg-white dark:bg-[#2C2C2E] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="radio" name="timing_mode" value="per_channel" x-model="postPublishMode"
+                                    class="sr-only">
                                 <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                                 <span>Beda per Saluran</span>
                             </label>
                         </div>
 
                         {{-- Mode B: Jadwal Serentak --}}
-                        <div x-show="postPublishMode === 'schedule_all'" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-1.5" style="display: none;">
-                            <label class="block text-[11.5px] font-semibold text-black/70 dark:text-white/70">Pilih Tanggal &amp; Jam Penayangan Serentak</label>
+                        <div x-show="postPublishMode === 'schedule_all'"
+                            class="pt-2 border-t border-black/5 dark:border-white/5 space-y-1.5" style="display: none;">
+                            <label class="block text-[11.5px] font-semibold text-black/70 dark:text-white/70">Pilih Tanggal
+                                &amp; Jam Penayangan Serentak</label>
                             <input type="datetime-local" name="scheduled_at"
                                 class="w-full min-h-[38px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[10px] px-3 text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
                             <p class="text-[11px] text-black/50 dark:text-white/50">
-                                Seluruh saluran yang dipilih akan otomatis dipublikasikan bersamaan oleh cron scheduler saat waktu tiba.
+                                Seluruh saluran yang dipilih akan otomatis dipublikasikan bersamaan oleh cron scheduler saat
+                                waktu tiba.
                             </p>
                         </div>
 
                         {{-- Mode C: Beda Waktu per Saluran --}}
-                        <div x-show="postPublishMode === 'per_channel'" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-2.5" style="display: none;">
+                        <div x-show="postPublishMode === 'per_channel'"
+                            class="pt-2 border-t border-black/5 dark:border-white/5 space-y-2.5" style="display: none;">
                             <p class="text-[11.5px] text-black/60 dark:text-white/60">
-                                Atur waktu spesifik per media sosial (misal: Instagram langsung sekarang, Facebook jam 2 siang, Threads nanti malam, TikTok besok):
+                                Atur waktu spesifik per media sosial (misal: Instagram langsung sekarang, Facebook jam 2
+                                siang, Threads nanti malam, TikTok besok):
                             </p>
                             <div class="space-y-2">
                                 <template x-for="ch in selectedPlatforms" :key="ch">
-                                    <div class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 space-y-2">
+                                    <div
+                                        class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 space-y-2">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center gap-2">
                                                 <div class="w-6 h-6 rounded-[6px] flex items-center justify-center"
-                                                    :class="ch === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : (ch === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : 'bg-black/10 dark:bg-white/15 text-black dark:text-white')">
-                                                    <template x-if="ch === 'instagram'"><i data-lucide="instagram" class="w-3.5 h-3.5"></i></template>
-                                                    <template x-if="ch === 'facebook'"><i data-lucide="facebook" class="w-3.5 h-3.5"></i></template>
-                                                    <template x-if="ch === 'threads'"><i data-lucide="at-sign" class="w-3.5 h-3.5"></i></template>
-                                                    <template x-if="ch === 'tiktok'"><i data-lucide="video" class="w-3.5 h-3.5"></i></template>
+                                                    :class="ch === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : (
+                                                        ch === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' :
+                                                        'bg-black/10 dark:bg-white/15 text-black dark:text-white')">
+                                                    <template x-if="ch === 'instagram'"><i data-lucide="instagram"
+                                                            class="w-3.5 h-3.5"></i></template>
+                                                    <template x-if="ch === 'facebook'"><i data-lucide="facebook"
+                                                            class="w-3.5 h-3.5"></i></template>
+                                                    <template x-if="ch === 'threads'"><i data-lucide="at-sign"
+                                                            class="w-3.5 h-3.5"></i></template>
+                                                    <template x-if="ch === 'tiktok'"><i data-lucide="video"
+                                                            class="w-3.5 h-3.5"></i></template>
                                                 </div>
-                                                <span class="text-[12.5px] font-bold capitalize text-black dark:text-white" x-text="ch"></span>
+                                                <span class="text-[12.5px] font-bold capitalize text-black dark:text-white"
+                                                    x-text="ch"></span>
                                             </div>
-                                            <div class="inline-flex p-0.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[11px]">
+                                            <div
+                                                class="inline-flex p-0.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[11px]">
                                                 <button type="button" @click="channelTiming[ch] = 'now'"
-                                                    :class="channelTiming[ch] === 'now' ? 'bg-white dark:bg-[#1C1C1E] text-[#007AFF] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
+                                                    :class="channelTiming[ch] === 'now' ?
+                                                        'bg-white dark:bg-[#1C1C1E] text-[#007AFF] font-bold shadow-xs' :
+                                                        'text-black/60 dark:text-white/60'"
                                                     class="px-2.5 py-0.5 rounded-[6px] transition-colors">
                                                     Langsung
                                                 </button>
                                                 <button type="button" @click="channelTiming[ch] = 'schedule'"
-                                                    :class="channelTiming[ch] === 'schedule' ? 'bg-white dark:bg-[#1C1C1E] text-[#FF9500] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
+                                                    :class="channelTiming[ch] === 'schedule' ?
+                                                        'bg-white dark:bg-[#1C1C1E] text-[#FF9500] font-bold shadow-xs' :
+                                                        'text-black/60 dark:text-white/60'"
                                                     class="px-2.5 py-0.5 rounded-[6px] transition-colors">
                                                     Jadwalkan
                                                 </button>
                                             </div>
                                         </div>
 
-                                        <input type="hidden" :name="'platform_timing[' + ch + ']'" :value="channelTiming[ch]">
+                                        <input type="hidden" :name="'platform_timing[' + ch + ']'"
+                                            :value="channelTiming[ch]">
 
-                                        <div x-show="channelTiming[ch] === 'schedule'" class="pt-1.5 border-t border-black/5 dark:border-white/5">
-                                            <input type="datetime-local" :name="'platform_scheduled_at[' + ch + ']'" x-model="channelScheduledAt[ch]"
+                                        <div x-show="channelTiming[ch] === 'schedule'"
+                                            class="pt-1.5 border-t border-black/5 dark:border-white/5">
+                                            <input type="datetime-local" :name="'platform_scheduled_at[' + ch + ']'"
+                                                x-model="channelScheduledAt[ch]"
                                                 class="w-full h-8 px-2.5 rounded-[8px] text-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#FF9500]">
                                         </div>
                                     </div>
@@ -1222,7 +1576,8 @@
                         </div>
                     </div>
 
-                    <div class="pt-3 flex items-center justify-end gap-3 border-t border-black/[0.06] dark:border-white/[0.08]">
+                    <div
+                        class="pt-3 flex items-center justify-end gap-3 border-t border-black/[0.06] dark:border-white/[0.08]">
                         <button type="button" @click="openCreatePostModal = false"
                             class="min-h-[42px] px-4 rounded-[11px] text-[13px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                             Batal
@@ -1230,7 +1585,8 @@
                         <button type="submit" :disabled="selectedPlatforms.length === 0"
                             class="min-h-[42px] px-5 rounded-[11px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none transition-all inline-flex items-center gap-2 shadow-sm">
                             <i data-lucide="send" class="w-4 h-4"></i>
-                            <span x-text="postPublishMode !== 'now' ? 'Simpan Postingan & Jadwal' : 'Publikasikan Sekarang'"></span>
+                            <span
+                                x-text="postPublishMode !== 'now' ? 'Simpan Postingan & Jadwal' : 'Publikasikan Sekarang'"></span>
                         </button>
                     </div>
                 </form>
@@ -1238,12 +1594,9 @@
         </div>
 
         {{-- 10. MODAL BALAS KOMENTAR (APPLE HIG MODAL SHEET) --}}
-        <div x-show="replyModalOpen"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100"
+        <div x-show="replyModalOpen" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
             style="display: none;">
@@ -1253,34 +1606,42 @@
 
                 <div class="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div class="flex items-center gap-2.5">
-                        <div class="w-9 h-9 rounded-[12px] bg-[#AF52DE]/15 text-[#AF52DE] flex items-center justify-center">
+                        <div
+                            class="w-9 h-9 rounded-[12px] bg-[#AF52DE]/15 text-[#AF52DE] flex items-center justify-center">
                             <i data-lucide="reply" class="w-4 h-4"></i>
                         </div>
                         <div>
                             <h3 class="text-[16px] font-bold text-black dark:text-white">Balas Komentar</h3>
-                            <p class="text-[12px] text-black/50 dark:text-white/50">Kirim balasan resmi sebagai Cooca Indonesia</p>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">Kirim balasan resmi sebagai Cooca
+                                Indonesia</p>
                         </div>
                     </div>
-                    <button type="button" @click="replyModalOpen = false" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                    <button type="button" @click="replyModalOpen = false"
+                        class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
 
-                <div class="p-3.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                    <span class="text-[11px] font-bold text-black/50 dark:text-white/50" x-text="'Dari: ' + activeAuthor"></span>
+                <div
+                    class="p-3.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                    <span class="text-[11px] font-bold text-black/50 dark:text-white/50"
+                        x-text="'Dari: ' + activeAuthor"></span>
                     <p class="text-[12.5px] text-black dark:text-white" x-text="activeCommentText"></p>
                 </div>
 
                 <form method="POST" :action="replyActionUrl" class="space-y-4">
                     @csrf
                     <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 mb-1.5">Isi Balasan Anda</label>
+                        <label
+                            class="block text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 mb-1.5">Isi
+                            Balasan Anda</label>
                         <textarea name="message" rows="4" required maxlength="1000"
                             placeholder="Tuliskan balasan ramah dan solutif sebagai admin resmi Cooca Indonesia..."
                             class="w-full bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] p-3 text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all"></textarea>
                     </div>
 
-                    <div class="pt-2 flex items-center justify-end gap-3 border-t border-black/[0.06] dark:border-white/[0.08]">
+                    <div
+                        class="pt-2 flex items-center justify-end gap-3 border-t border-black/[0.06] dark:border-white/[0.08]">
                         <button type="button" @click="replyModalOpen = false"
                             class="min-h-[40px] px-4 rounded-[11px] text-[12.5px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                             Batal

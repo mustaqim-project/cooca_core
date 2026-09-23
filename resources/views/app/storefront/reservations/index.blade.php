@@ -1,16 +1,17 @@
 @extends('layouts.app', ['title' => 'Reservasi & Booking Jadwal - Cooca'])
 
 @section('content')
-    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 sm:pb-32 lg:pb-10" x-data="{
-        showAssignModal: false,
-        selectedReservation: null,
-        cancelModalOpen: false,
-        reservationToCancel: null,
-        openAssign(rsv) {
-            this.selectedReservation = rsv;
-            this.showAssignModal = true;
-        }
-    }">
+    <div class="space-y-6 max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 sm:pb-32 lg:pb-10"
+        x-data="{
+            showAssignModal: false,
+            selectedReservation: null,
+            cancelModalOpen: false,
+            reservationToCancel: null,
+            openAssign(rsv) {
+                this.selectedReservation = rsv;
+                this.showAssignModal = true;
+            }
+        }">
         {{-- UNIFIED STOREFRONT HUB NAVIGATION --}}
         @include('app.storefront.partials.navigation', ['title' => 'Reservasi Meja & Booking'])
 
@@ -178,8 +179,7 @@
 
                                     <td class="py-4 px-4 align-top font-semibold text-black dark:text-white">
                                         <span class="inline-flex items-center gap-1">
-                                            <i data-lucide="users"
-                                                class="w-3.5 h-3.5 text-black/40 dark:text-white/40"></i>
+                                            <i data-lucide="users" class="w-3.5 h-3.5 text-black/40 dark:text-white/40"></i>
                                             <span class="tabular-nums">{{ $rsv->guest_count }} Orang</span>
                                         </span>
                                     </td>
@@ -331,7 +331,8 @@
                                             class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-red-500/15 text-red-600">Batal</span>
                                     @elseif($rsv->status === 'no_show')
                                         <span
-                                            class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-gray-500/15 text-gray-600">No Show</span>
+                                            class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-gray-500/15 text-gray-600">No
+                                            Show</span>
                                     @else
                                         <span
                                             class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400">Menunggu</span>
@@ -370,7 +371,8 @@
                                             <span
                                                 class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/10 text-[#5856D6]">
                                                 <i data-lucide="layout-grid" class="w-3 h-3"></i>
-                                                <span>#{{ $rsv->posTable->table_number }} ({{ $rsv->posTable->name }})</span>
+                                                <span>#{{ $rsv->posTable->table_number }}
+                                                    ({{ $rsv->posTable->name }})</span>
                                             </span>
                                         @elseif($rsv->product)
                                             <span
@@ -477,7 +479,8 @@
 
                 <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                     <h3 class="text-base font-bold text-black dark:text-white">Alokasikan Meja Restoran</h3>
-                    <button type="button" @click="showAssignModal = false" class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white cursor-pointer">
+                    <button type="button" @click="showAssignModal = false"
+                        class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white cursor-pointer">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -528,21 +531,28 @@
             <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
                 @click.outside="cancelModalOpen = false">
                 <div class="flex items-start gap-3.5">
-                    <div class="w-10 h-10 rounded-[14px] bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
+                    <div
+                        class="w-10 h-10 rounded-[14px] bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
                         <i data-lucide="calendar-x" class="w-5 h-5"></i>
                     </div>
                     <div class="min-w-0">
-                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Batalkan Reservasi?</h3>
+                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Batalkan Reservasi?
+                        </h3>
                         <p class="text-[13px] text-black/60 dark:text-white/60 mt-1">
-                            Anda akan membatalkan reservasi <strong class="text-black dark:text-white font-semibold" x-text="reservationToCancel?.code"></strong> atas nama <span class="font-medium text-black dark:text-white" x-text="reservationToCancel?.customer_name"></span>.
+                            Anda akan membatalkan reservasi <strong class="text-black dark:text-white font-semibold"
+                                x-text="reservationToCancel?.code"></strong> atas nama <span
+                                class="font-medium text-black dark:text-white"
+                                x-text="reservationToCancel?.customer_name"></span>.
                         </p>
                     </div>
                 </div>
 
                 {{-- PENENANG JIWA MICROCOPY --}}
-                <div class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
+                <div
+                    class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
                     <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0 mt-0.5"></i>
-                    <span>Tenang: Riwayat data kontak dan catatan reservasi tamu ini tetap tersimpan aman di riwayat arsip reservasi.</span>
+                    <span>Tenang: Riwayat data kontak dan catatan reservasi tamu ini tetap tersimpan aman di riwayat arsip
+                        reservasi.</span>
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-2">

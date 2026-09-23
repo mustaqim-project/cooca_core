@@ -5,14 +5,13 @@
 ])
 
 @section('content')
-    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-28 sm:pb-32 lg:pb-10"
-        x-data="{
-            activeTab: '{{ request('tab', 'general') }}',
-            addMethodModalOpen: false,
-            methodType: 'bank_transfer',
-            deleteModalOpen: false,
-            methodToDelete: null
-        }">
+    <div class="space-y-6 max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-28 sm:pb-32 lg:pb-10" x-data="{
+        activeTab: '{{ request('tab', 'general') }}',
+        addMethodModalOpen: false,
+        methodType: 'bank_transfer',
+        deleteModalOpen: false,
+        methodToDelete: null
+    }">
 
         {{-- FLASH MESSAGES --}}
         @if (session('success'))
@@ -36,14 +35,18 @@
         {{-- BENTO OVERVIEW KPI METRIC CARDS --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
             {{-- Card 1: Status Toko --}}
-            <div class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+            <div
+                class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
                 <div class="flex items-center justify-between gap-3 mb-2">
-                    <span class="text-[12px] sm:text-[13px] font-medium text-black/55 dark:text-white/55 truncate">Status Etalase</span>
-                    <div class="w-8 h-8 rounded-full {{ $setting->is_storefront_enabled ? 'bg-emerald-50 dark:bg-emerald-950/30 text-[#34C759]' : 'bg-black/5 dark:bg-white/10 text-black/40' }} flex items-center justify-center shrink-0">
+                    <span class="text-[12px] sm:text-[13px] font-medium text-black/55 dark:text-white/55 truncate">Status
+                        Etalase</span>
+                    <div
+                        class="w-8 h-8 rounded-full {{ $setting->is_storefront_enabled ? 'bg-emerald-50 dark:bg-emerald-950/30 text-[#34C759]' : 'bg-black/5 dark:bg-white/10 text-black/40' }} flex items-center justify-center shrink-0">
                         <i data-lucide="store" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div class="text-xl sm:text-[22px] font-bold tracking-tight {{ $setting->is_storefront_enabled ? 'text-[#248A3D] dark:text-[#30D158]' : 'text-black/50 dark:text-white/50' }} truncate">
+                <div
+                    class="text-xl sm:text-[22px] font-bold tracking-tight {{ $setting->is_storefront_enabled ? 'text-[#248A3D] dark:text-[#30D158]' : 'text-black/50 dark:text-white/50' }} truncate">
                     {{ $setting->is_storefront_enabled ? 'Aktif (Publik)' : 'Dinonaktifkan' }}
                 </div>
                 <p class="text-[11.5px] text-black/45 dark:text-white/45 mt-1 truncate">
@@ -52,15 +55,20 @@
             </div>
 
             {{-- Card 2: Saldo Bersih Gateway --}}
-            <div @click="activeTab = 'payment'" class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] cursor-pointer hover:border-[#007AFF]/40 transition">
+            <div @click="activeTab = 'payment'"
+                class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] cursor-pointer hover:border-[#007AFF]/40 transition">
                 <div class="flex items-center justify-between gap-3 mb-2">
-                    <span class="text-[12px] sm:text-[13px] font-medium text-black/55 dark:text-white/55 truncate">Saldo Siap Cair</span>
-                    <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-[#34C759] flex items-center justify-center shrink-0">
+                    <span class="text-[12px] sm:text-[13px] font-medium text-black/55 dark:text-white/55 truncate">Saldo
+                        Siap Cair</span>
+                    <div
+                        class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-[#34C759] flex items-center justify-center shrink-0">
                         <i data-lucide="wallet" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div class="text-xl sm:text-[22px] font-bold tracking-tight text-[#248A3D] dark:text-[#30D158] tabular-nums truncate">
-                    {{ $business->currency_symbol ?? 'Rp' }} {{ number_format($unsettledData['summary']['total_net'] ?? 0, 0, ',', '.') }}
+                <div
+                    class="text-xl sm:text-[22px] font-bold tracking-tight text-[#248A3D] dark:text-[#30D158] tabular-nums truncate">
+                    {{ $business->currency_symbol ?? 'Rp' }}
+                    {{ number_format($unsettledData['summary']['total_net'] ?? 0, 0, ',', '.') }}
                 </div>
                 <p class="text-[11.5px] text-[#007AFF] font-medium mt-1 truncate flex items-center gap-1">
                     <span>{{ $paymentMethods->where('is_active', true)->count() }} Rekening &bull; Lihat Saldo</span>
@@ -69,10 +77,13 @@
             </div>
 
             {{-- Card 3: Pemenuhan Order --}}
-            <div class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+            <div
+                class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
                 <div class="flex items-center justify-between gap-3 mb-2">
-                    <span class="text-[12px] sm:text-[13px] font-medium text-black/55 dark:text-white/55 truncate">Opsi Pengiriman</span>
-                    <div class="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-950/30 text-[#5856D6] flex items-center justify-center shrink-0">
+                    <span class="text-[12px] sm:text-[13px] font-medium text-black/55 dark:text-white/55 truncate">Opsi
+                        Pengiriman</span>
+                    <div
+                        class="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-950/30 text-[#5856D6] flex items-center justify-center shrink-0">
                         <i data-lucide="truck" class="w-4 h-4"></i>
                     </div>
                 </div>
@@ -93,22 +104,35 @@
             </div>
 
             {{-- Card 4: Mode Transaksi --}}
-            <div class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+            <div
+                class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
                 <div class="flex items-center justify-between gap-3 mb-2">
-                    <span class="text-[12px] sm:text-[13px] font-medium text-black/55 dark:text-white/55 truncate">Mode Transaksi</span>
-                    <div class="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-950/30 text-[#FF9500] flex items-center justify-center shrink-0">
+                    <span class="text-[12px] sm:text-[13px] font-medium text-black/55 dark:text-white/55 truncate">Mode
+                        Transaksi</span>
+                    <div
+                        class="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-950/30 text-[#FF9500] flex items-center justify-center shrink-0">
                         <i data-lucide="sliders" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div class="text-xl sm:text-[22px] font-bold tracking-tight text-black dark:text-white tabular-nums truncate">
+                <div
+                    class="text-xl sm:text-[22px] font-bold tracking-tight text-black dark:text-white tabular-nums truncate">
                     @php
                         $activeModesCount = 0;
-                        if ($setting->allow_request_order ?? true) $activeModesCount++;
-                        if ($setting->allow_scheduled_order ?? true) $activeModesCount++;
-                        if ($setting->allow_customer_po ?? true) $activeModesCount++;
-                        if ($setting->allow_reservation ?? true) $activeModesCount++;
+                        if ($setting->allow_request_order ?? true) {
+                            $activeModesCount++;
+                        }
+                        if ($setting->allow_scheduled_order ?? true) {
+                            $activeModesCount++;
+                        }
+                        if ($setting->allow_customer_po ?? true) {
+                            $activeModesCount++;
+                        }
+                        if ($setting->allow_reservation ?? true) {
+                            $activeModesCount++;
+                        }
                     @endphp
-                    {{ $activeModesCount }} <span class="text-sm font-normal text-black/50 dark:text-white/50">Mode Aktif</span>
+                    {{ $activeModesCount }} <span class="text-sm font-normal text-black/50 dark:text-white/50">Mode
+                        Aktif</span>
                 </div>
                 <p class="text-[11.5px] text-black/45 dark:text-white/45 mt-1 truncate">
                     Kustom, PO, Jadwal &amp; Reservasi
@@ -118,46 +142,62 @@
 
         {{-- BENTO APPLE HIG MODULAR TAB BAR --}}
         <div class="w-full overflow-x-auto no-scrollbar py-1">
-            <div class="inline-flex p-1.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-[16px] border border-black/[0.04] dark:border-white/[0.06] gap-1.5 min-w-max">
+            <div
+                class="inline-flex p-1.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-[16px] border border-black/[0.04] dark:border-white/[0.06] gap-1.5 min-w-max">
                 {{-- Tab 1: General --}}
                 <button type="button" @click="activeTab = 'general'"
                     class="px-4 py-2 rounded-[12px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 cursor-pointer"
-                    :class="activeTab === 'general' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
-                    <i data-lucide="store" class="w-4 h-4" :class="activeTab === 'general' ? 'text-[#007AFF]' : 'opacity-70'"></i>
+                    :class="activeTab === 'general' ?
+                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' :
+                        'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
+                    <i data-lucide="store" class="w-4 h-4"
+                        :class="activeTab === 'general' ? 'text-[#007AFF]' : 'opacity-70'"></i>
                     <span>Operasional &amp; Toko</span>
                 </button>
 
                 {{-- Tab 2: Fulfillment --}}
                 <button type="button" @click="activeTab = 'fulfillment'"
                     class="px-4 py-2 rounded-[12px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 cursor-pointer"
-                    :class="activeTab === 'fulfillment' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
-                    <i data-lucide="package-check" class="w-4 h-4" :class="activeTab === 'fulfillment' ? 'text-[#34C759]' : 'opacity-70'"></i>
+                    :class="activeTab === 'fulfillment' ?
+                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' :
+                        'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
+                    <i data-lucide="package-check" class="w-4 h-4"
+                        :class="activeTab === 'fulfillment' ? 'text-[#34C759]' : 'opacity-70'"></i>
                     <span>Mode Pemenuhan</span>
                 </button>
 
                 {{-- Tab 3: Features --}}
                 <button type="button" @click="activeTab = 'features'"
                     class="px-4 py-2 rounded-[12px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 cursor-pointer"
-                    :class="activeTab === 'features' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
-                    <i data-lucide="layout-grid" class="w-4 h-4" :class="activeTab === 'features' ? 'text-[#5856D6]' : 'opacity-70'"></i>
+                    :class="activeTab === 'features' ?
+                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' :
+                        'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
+                    <i data-lucide="layout-grid" class="w-4 h-4"
+                        :class="activeTab === 'features' ? 'text-[#5856D6]' : 'opacity-70'"></i>
                     <span>Fitur 20 Industri</span>
                 </button>
 
                 {{-- Tab 4: Schedule --}}
                 <button type="button" @click="activeTab = 'schedule'"
                     class="px-4 py-2 rounded-[12px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 cursor-pointer"
-                    :class="activeTab === 'schedule' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
-                    <i data-lucide="clock" class="w-4 h-4" :class="activeTab === 'schedule' ? 'text-[#FF9500]' : 'opacity-70'"></i>
+                    :class="activeTab === 'schedule' ?
+                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' :
+                        'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
+                    <i data-lucide="clock" class="w-4 h-4"
+                        :class="activeTab === 'schedule' ? 'text-[#FF9500]' : 'opacity-70'"></i>
                     <span>Jam &amp; Slot Waktu</span>
                 </button>
 
                 {{-- Tab 5: Payment & Settlement --}}
                 <button type="button" @click="activeTab = 'payment'"
                     class="px-4 py-2 rounded-[12px] text-[13px] font-medium transition-all duration-150 flex items-center gap-2 cursor-pointer"
-                    :class="activeTab === 'payment' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
-                    <i data-lucide="wallet" class="w-4 h-4" :class="activeTab === 'payment' ? 'text-[#34C759]' : 'opacity-70'"></i>
+                    :class="activeTab === 'payment' ?
+                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-bold shadow-xs' :
+                        'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
+                    <i data-lucide="wallet" class="w-4 h-4"
+                        :class="activeTab === 'payment' ? 'text-[#34C759]' : 'opacity-70'"></i>
                     <span>Pembayaran &amp; Saldo Gateway</span>
-                    @if(($unsettledData['summary']['total_net'] ?? 0) > 0)
+                    @if (($unsettledData['summary']['total_net'] ?? 0) > 0)
                         <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
                     @endif
                 </button>
@@ -210,22 +250,29 @@
             <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-2xl border border-black/10 dark:border-white/10 space-y-4"
                 @click.outside="deleteModalOpen = false">
                 <div class="flex items-start gap-3.5">
-                    <div class="w-10 h-10 rounded-[14px] bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
+                    <div
+                        class="w-10 h-10 rounded-[14px] bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
                         <i data-lucide="info" class="w-5 h-5"></i>
                     </div>
                     <div class="min-w-0">
-                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Hapus Metode Pembayaran?</h3>
+                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Hapus Metode
+                            Pembayaran?</h3>
                         <p class="text-[13px] text-black/60 dark:text-white/60 mt-1">
-                            Anda akan menghapus rekening <strong class="text-black dark:text-white font-semibold" x-text="methodToDelete?.bank_name"></strong>
-                            <span x-show="methodToDelete?.account_number" class="font-mono text-xs text-black/70 dark:text-white/70" x-text="'(' + methodToDelete?.account_number + ')'"></span>.
+                            Anda akan menghapus rekening <strong class="text-black dark:text-white font-semibold"
+                                x-text="methodToDelete?.bank_name"></strong>
+                            <span x-show="methodToDelete?.account_number"
+                                class="font-mono text-xs text-black/70 dark:text-white/70"
+                                x-text="'(' + methodToDelete?.account_number + ')'"></span>.
                         </p>
                     </div>
                 </div>
 
                 {{-- PENENANG JIWA MICROCOPY --}}
-                <div class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
+                <div
+                    class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
                     <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0 mt-0.5"></i>
-                    <span>Riwayat pesanan dan bukti transfer pelanggan masa lalu yang pernah menggunakan rekening ini tetap aman tercatat di pembukuan.</span>
+                    <span>Riwayat pesanan dan bukti transfer pelanggan masa lalu yang pernah menggunakan rekening ini tetap
+                        aman tercatat di pembukuan.</span>
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-2">
@@ -234,7 +281,8 @@
                         Batal
                     </button>
                     <template x-if="methodToDelete">
-                        <form :action="'{{ url('/storefront/settings/payment-methods') }}/' + methodToDelete.id" method="POST">
+                        <form :action="'{{ url('/storefront/settings/payment-methods') }}/' + methodToDelete.id"
+                            method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
@@ -275,15 +323,18 @@
                     @csrf
 
                     <div>
-                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1.5">Tipe Pembayaran</label>
+                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1.5">Tipe
+                            Pembayaran</label>
                         <div class="grid grid-cols-2 gap-2">
                             <button type="button" @click="methodType = 'bank_transfer'"
-                                :class="methodType === 'bank_transfer' ? 'bg-[#007AFF] text-white' : 'bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                :class="methodType === 'bank_transfer' ? 'bg-[#007AFF] text-white' :
+                                    'bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
                                 class="py-2.5 rounded-[12px] text-[12.5px] font-bold transition cursor-pointer">
                                 Transfer Bank
                             </button>
                             <button type="button" @click="methodType = 'qris'"
-                                :class="methodType === 'qris' ? 'bg-[#007AFF] text-white' : 'bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
+                                :class="methodType === 'qris' ? 'bg-[#007AFF] text-white' :
+                                    'bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
                                 class="py-2.5 rounded-[12px] text-[12.5px] font-bold transition cursor-pointer">
                                 QRIS Toko
                             </button>
@@ -292,32 +343,37 @@
                     </div>
 
                     <div>
-                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Nama Bank / Penyedia <span class="text-red-500">*</span></label>
+                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Nama Bank /
+                            Penyedia <span class="text-red-500">*</span></label>
                         <input type="text" name="bank_name" required
                             placeholder="Contoh: BCA, Mandiri, BRI, QRIS Toko"
                             class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
 
                     <div x-show="methodType === 'bank_transfer'">
-                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Nomor Rekening</label>
+                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Nomor
+                            Rekening</label>
                         <input type="text" name="account_number" placeholder="Contoh: 1234567890"
                             class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] font-medium font-mono tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
 
                     <div x-show="methodType === 'bank_transfer'">
-                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Atas Nama Rekening</label>
+                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Atas Nama
+                            Rekening</label>
                         <input type="text" name="account_holder" placeholder="Contoh: PT Toko Berkah / Budi Santoso"
                             class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
 
                     <div x-show="methodType === 'qris'">
-                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Unggah Gambar QRIS (PNG / JPG)</label>
+                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Unggah Gambar
+                            QRIS (PNG / JPG)</label>
                         <input type="file" name="qris_image" accept="image/*"
                             class="w-full text-[12.5px] text-black/60 dark:text-white/60 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[12.5px] file:font-semibold file:bg-[#007AFF]/10 file:text-[#007AFF] hover:file:bg-[#007AFF]/20">
                     </div>
 
                     <div>
-                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Petunjuk Pembayaran (Opsional)</label>
+                        <label class="block text-[12px] font-semibold text-black/60 dark:text-white/60 mb-1">Petunjuk
+                            Pembayaran (Opsional)</label>
                         <textarea name="instructions" rows="2" placeholder="Contoh: Harap cantumkan nomor order pada berita transfer."
                             class="w-full p-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[12.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
                     </div>

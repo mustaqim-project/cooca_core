@@ -116,255 +116,293 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section
-            class="relative bg-[#F8F9FA] dark:bg-[#070A14] text-slate-900 dark:text-white py-12 lg:py-20 overflow-hidden border-b border-slate-200/60 dark:border-white/5 transition-colors">
+        <section class="relative bg-[#060B1E] text-white py-12 lg:py-16 overflow-hidden border-b border-white/10">
 
-            <!-- Subtle Radial Ambient Glow -->
+            <!-- Ambient Glows -->
             <div
-                class="absolute top-1/4 right-1/4 w-[450px] h-[450px] bg-blue-100/60 dark:bg-blue-900/10 rounded-full blur-[120px] pointer-events-none -z-0">
+                class="absolute -top-24 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
+            </div>
+            <div
+                class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
             </div>
 
-            <!-- Container Grid -->
+            <!-- Container -->
             <div
-                class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                class="max-w-[1150px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center lg:min-h-[560px]">
 
-                <!-- Left Column: Copy & Value Proposition -->
-                <div class="lg:col-span-6 space-y-6 text-left flex flex-col justify-center">
+                <!-- ===== LEFT: Copy ===== -->
+                <div class="lg:col-span-7 flex flex-col justify-center space-y-5 text-left">
 
-                    <!-- Eyebrow Pill -->
-                    <div
-                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 text-[#007AFF] text-xs font-semibold w-fit">
-                        <span>Business Operating System &bull; Omnichannel ERP</span>
-                    </div>
-
-                    <!-- Main Headline -->
+                    <!-- Headline -->
                     <h1
-                        class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
+                        class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.5rem] font-extrabold text-white tracking-tight leading-[1.1]">
                         Run Your Business.<br>
-                        <span class="text-[#007AFF]">From One Operating System.</span>
+                        <span class="text-[#00C4D8]">From One Operating System.</span>
                     </h1>
 
                     <!-- Subtitle -->
                     <div class="space-y-2">
-                        <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
+                        <p class="text-base sm:text-lg text-slate-300 max-w-xl leading-relaxed">
                             COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social
-                            media, marketplace, dan automation dalam satu ekosistem. <span
-                                class="font-semibold text-slate-900 dark:text-white">Kelola Bisnis UMKM Lebih Cerdas &amp;
-                                Presisi.</span>
+                            media, marketplace, dan automation dalam satu ekosistem.
+                            <span class="font-semibold text-white">Kelola Bisnis UMKM Lebih Cerdas &amp; Presisi.</span>
                         </p>
-                        <p class="text-xs sm:text-sm font-bold tracking-wide text-[#007AFF] uppercase">
+                        <p class="text-xs sm:text-sm font-bold tracking-wide text-[#00C4D8] uppercase">
                             One Business. One System. One Control Center.
                         </p>
                     </div>
 
-                    <!-- Dual CTAs (Auth-Aware) -->
+                    <!-- CTAs -->
                     <div class="flex flex-wrap items-center gap-3 pt-1">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}"
-                                class="px-7 py-3.5 rounded-full bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_14px_rgba(0,122,255,0.35)] hover:scale-105 active:scale-95 transition-all">
+                                class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Dashboard Admin</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @elseif (auth('web')->check())
                             <a href="{{ route('dashboard') }}"
-                                class="px-7 py-3.5 rounded-full bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_14px_rgba(0,122,255,0.35)] hover:scale-105 active:scale-95 transition-all">
+                                class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Ke Dashboard</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @else
                             <a href="{{ route('register') }}"
-                                class="px-7 py-3.5 rounded-full bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm sm:text-base flex items-center gap-2 shadow-[0_4px_14px_rgba(0,122,255,0.35)] hover:scale-105 active:scale-95 transition-all">
+                                class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm sm:text-base flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Coba COOCA Gratis</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                             <a href="{{ route('public.bos.how-it-works') }}"
-                                class="px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-200 dark:border-white/20 text-slate-800 dark:text-white font-semibold text-sm sm:text-base flex items-center gap-2.5 shadow-sm hover:scale-105 active:scale-95 transition-all">
+                                class="px-6 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm sm:text-base flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Lihat Cara Kerja</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @endif
                     </div>
 
-                    <!-- Tagline Pillar Badges -->
-                    <div
-                        class="flex flex-wrap items-center gap-2 pt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                        <span
-                            class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">ERP</span>
-                        <span>&bull;</span>
-                        <span
-                            class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">Omnichannel</span>
-                        <span>&bull;</span>
-                        <span
-                            class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">Automation</span>
-                        <span>&bull;</span>
-                        <span
-                            class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">Marketplace</span>
-                        <span>&bull;</span>
-                        <span
-                            class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">AI</span>
-                    </div>
 
-                    <!-- Trust Checklist Badges -->
-                    <div class="flex flex-wrap items-center gap-4 sm:gap-6 pt-1 text-xs text-slate-500 dark:text-slate-400">
-                        <span class="inline-flex items-center gap-1.5">
-                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i>
-                            <span>Tanpa Kartu Kredit</span>
-                        </span>
-                        <span class="inline-flex items-center gap-1.5">
-                            <i data-lucide="zap" class="w-4 h-4 text-amber-500"></i>
-                            <span>Setup Cepat 2 Menit</span>
-                        </span>
-                        <span class="inline-flex items-center gap-1.5">
-                            <i data-lucide="lock" class="w-4 h-4 text-[#007AFF]"></i>
-                            <span>Data Aman &amp; Terenkripsi</span>
-                        </span>
-                    </div>
-
-                    <!-- 3-Metric Social Proof Card -->
+                    <!-- 3-Metric Bento -->
                     <div
-                        class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] grid grid-cols-3 divide-x divide-slate-100 dark:divide-white/10 text-center max-w-lg mt-2">
+                        class="bg-white/[0.06] backdrop-blur-xl rounded-[18px] p-4 sm:p-5 border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.25)] grid grid-cols-3 divide-x divide-white/10 text-center max-w-lg">
                         <div class="px-2">
-                            <div class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">10.000+</div>
-                            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
+                            <div class="text-xl sm:text-2xl font-extrabold text-white tabular-nums tracking-tight">10.000+
+                            </div>
+                            <div class="text-xs text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
                         </div>
                         <div class="px-2">
-                            <div class="text-xl sm:text-2xl font-extrabold text-emerald-500">99.8%</div>
-                            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Akurasi Finansial
-                            </div>
+                            <div class="text-xl sm:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
+                                99.8%</div>
+                            <div class="text-xs text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
                         </div>
                         <div class="px-2">
-                            <div class="text-xl sm:text-2xl font-extrabold text-[#007AFF]">100%</div>
-                            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Gratis Selamanya
+                            <div class="text-xl sm:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">100%
                             </div>
+                            <div class="text-xs text-slate-400 font-medium mt-0.5">Gratis Selamanya</div>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- Right Column: macOS Executive Dashboard Window -->
-                <div class="lg:col-span-6 flex items-center justify-center lg:justify-end">
+                <!-- ===== RIGHT: Dashboard Window ===== -->
+                <div class="lg:col-span-5 flex items-center justify-center lg:justify-end">
                     <div class="w-full max-w-lg lg:max-w-xl group">
 
                         <div
-                            class="bg-white dark:bg-[#111827] rounded-3xl p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-slate-200/80 dark:border-white/10 space-y-4 transition-transform duration-300 group-hover:scale-[1.01]">
+                            class="bg-[#0B132B]/90 backdrop-blur-2xl rounded-[24px] p-4 sm:p-5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] border border-white/10 space-y-3.5 transition-all duration-300 group-hover:border-sky-400/40 group-hover:shadow-[0_30px_70px_-15px_rgba(0,196,216,0.2)]">
 
-                            <!-- Window Traffic Lights & Title -->
-                            <div class="flex items-center gap-2 pb-1">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="w-3 h-3 rounded-full bg-[#FF5F56]"></span>
-                                    <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
-                                    <span class="w-3 h-3 rounded-full bg-[#27C93F]"></span>
+                            <!-- Titlebar -->
+                            <div class="flex items-center justify-between pb-1 border-b border-white/[0.08]">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-1.5">
+                                        <span
+                                            class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]"></span>
+                                        <span
+                                            class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]"></span>
+                                        <span
+                                            class="w-3 h-3 rounded-full bg-[#27C93F] shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]"></span>
+                                    </div>
+                                    <span class="text-xs font-semibold text-slate-300 ml-1.5 tracking-tight">Cooca OS &bull;
+                                        Executive Dashboard</span>
                                 </div>
-                                <span class="text-xs text-slate-400 font-medium ml-2">Cooca OS &bull; Executive
-                                    Dashboard</span>
+                                <span
+                                    class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    <span>Kasir Buka</span>
+                                </span>
                             </div>
 
-                            <!-- 2x2 KPI Metrics Grid -->
-                            <div class="grid grid-cols-2 gap-3 sm:gap-4">
-                                <!-- Metric 1: Omzet Hari Ini -->
+                            <!-- Period Filter -->
+                            <div
+                                class="flex items-center justify-between gap-2 p-1 rounded-[10px] bg-white/[0.05] border border-white/[0.08] text-[11px] font-medium">
+                                <div class="inline-flex items-center gap-1">
+                                    <span class="px-2.5 py-1 rounded-[7px] bg-[#007AFF] text-white font-semibold">Hari
+                                        Ini</span>
+                                    <span class="px-2.5 py-1 text-slate-400">Minggu Ini</span>
+                                    <span class="px-2.5 py-1 text-slate-400">Bulan Ini</span>
+                                </div>
+                                <span class="text-[10.5px] text-slate-400 tabular-nums px-2 hidden sm:inline">Outlet
+                                    Utama</span>
+                            </div>
+
+                            <!-- 2x2 KPI Grid -->
+                            <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
                                 <div
-                                    class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-1">
-                                    <span
-                                        class="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wider uppercase block">OMZET
-                                        HARI INI</span>
+                                    class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-1 hover:bg-white/[0.07] transition-colors">
+                                    <div class="flex items-center justify-between">
+                                        <span
+                                            class="text-[10px] sm:text-[10.5px] font-bold text-slate-400 tracking-wider uppercase">OMZET
+                                            HARI INI</span>
+                                        <div
+                                            class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                                            <i data-lucide="coins" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                    </div>
                                     <div
-                                        class="text-lg sm:text-xl font-extrabold text-emerald-500 font-mono tracking-tight">
+                                        class="text-base sm:text-lg font-bold text-white font-mono tabular-nums tracking-tight">
                                         Rp 4.250.000</div>
                                     <div
-                                        class="text-[11px] sm:text-xs font-semibold text-emerald-500 flex items-center gap-1">
-                                        <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
-                                        <span>+14.8% vs kemarin</span>
+                                        class="text-[10.5px] sm:text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                                        <i data-lucide="trending-up" class="w-3 h-3"></i>
+                                        <span class="tabular-nums">+14.8% vs kemarin</span>
                                     </div>
                                 </div>
 
-                                <!-- Metric 2: Margin Laba Bersih -->
                                 <div
-                                    class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-1">
-                                    <span
-                                        class="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wider uppercase block">MARGIN
-                                        LABA BERSIH</span>
-                                    <div class="text-lg sm:text-xl font-extrabold text-[#007AFF] font-mono tracking-tight">
+                                    class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-1 hover:bg-white/[0.07] transition-colors">
+                                    <div class="flex items-center justify-between">
+                                        <span
+                                            class="text-[10px] sm:text-[10.5px] font-bold text-slate-400 tracking-wider uppercase">MARGIN
+                                            LABA BERSIH</span>
+                                        <div
+                                            class="w-6 h-6 rounded-lg bg-sky-500/15 text-[#00C4D8] flex items-center justify-center">
+                                            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="text-base sm:text-lg font-bold text-[#00C4D8] font-mono tabular-nums tracking-tight">
                                         32.4%</div>
-                                    <div class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Net Profit Rp
+                                    <div class="text-[10.5px] sm:text-[11px] text-slate-400 tabular-nums">Net Profit Rp
                                         1.377.000</div>
                                 </div>
 
-                                <!-- Metric 3: Stok Kritis Gudang -->
                                 <div
-                                    class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-1">
-                                    <span
-                                        class="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wider uppercase block">STOK
-                                        KRITIS GUDANG</span>
-                                    <div class="text-lg sm:text-xl font-extrabold text-amber-500 tracking-tight">3 Bahan
+                                    class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-1 hover:bg-white/[0.07] transition-colors">
+                                    <div class="flex items-center justify-between">
+                                        <span
+                                            class="text-[10px] sm:text-[10.5px] font-bold text-slate-400 tracking-wider uppercase">STOK
+                                            KRITIS GUDANG</span>
+                                        <div
+                                            class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
+                                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                        </div>
                                     </div>
-                                    <div class="text-[11px] sm:text-xs text-amber-500 font-medium flex items-center gap-1">
-                                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                    <div class="text-base sm:text-lg font-bold text-amber-400 tabular-nums tracking-tight">
+                                        3
+                                        Bahan</div>
+                                    <div
+                                        class="text-[10.5px] sm:text-[11px] text-amber-400 font-medium flex items-center gap-1">
+                                        <i data-lucide="alert-triangle" class="w-3 h-3"></i>
                                         <span>Segera restock</span>
                                     </div>
                                 </div>
 
-                                <!-- Metric 4: Transaksi POS -->
                                 <div
-                                    class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-1">
+                                    class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-1 hover:bg-white/[0.07] transition-colors">
+                                    <div class="flex items-center justify-between">
+                                        <span
+                                            class="text-[10px] sm:text-[10.5px] font-bold text-slate-400 tracking-wider uppercase">TRANSAKSI
+                                            POS</span>
+                                        <div
+                                            class="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
+                                            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                    </div>
+                                    <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">142
+                                        Struk</div>
+                                    <div class="text-[10.5px] sm:text-[11px] text-emerald-400 font-medium tabular-nums">AOV
+                                        Rp 29.900</div>
+                                </div>
+                            </div>
+
+                            <!-- Trend Chart -->
+                            <div
+                                class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-2.5">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-semibold text-slate-200">Tren Penjualan 7 Hari Terakhir</span>
                                     <span
-                                        class="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wider uppercase block">TRANSAKSI
-                                        POS</span>
-                                    <div
-                                        class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                                        142 Struk</div>
-                                    <div class="text-[11px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                                        AOV Rp 29.900</div>
+                                        class="font-bold text-emerald-400 tabular-nums text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded-full">+23.5%
+                                        minggu ini</span>
+                                </div>
+                                <div class="flex items-end justify-between gap-2 h-16 pt-1">
+                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                                        <div
+                                            class="w-full bg-sky-950/60 rounded-md h-[40%] transition-all hover:bg-sky-800">
+                                        </div>
+                                        <span class="text-[9px] font-medium text-slate-400">Sen</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                                        <div
+                                            class="w-full bg-sky-950/60 rounded-md h-[55%] transition-all hover:bg-sky-800">
+                                        </div>
+                                        <span class="text-[9px] font-medium text-slate-400">Sel</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                                        <div
+                                            class="w-full bg-sky-950/60 rounded-md h-[35%] transition-all hover:bg-sky-800">
+                                        </div>
+                                        <span class="text-[9px] font-medium text-slate-400">Rab</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                                        <div
+                                            class="w-full bg-sky-950/60 rounded-md h-[80%] transition-all hover:bg-sky-800">
+                                        </div>
+                                        <span class="text-[9px] font-medium text-slate-400">Kam</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                                        <div
+                                            class="w-full bg-sky-950/60 rounded-md h-[65%] transition-all hover:bg-sky-800">
+                                        </div>
+                                        <span class="text-[9px] font-medium text-slate-400">Jum</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                                        <div
+                                            class="w-full bg-[#007AFF] rounded-md h-[100%] shadow-[0_0_10px_rgba(0,122,255,0.4)]">
+                                        </div>
+                                        <span class="text-[9px] font-bold text-[#007AFF]">Sab</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                                        <div
+                                            class="w-full bg-[#007AFF] rounded-md h-[88%] shadow-[0_0_10px_rgba(0,122,255,0.4)]">
+                                        </div>
+                                        <span class="text-[9px] font-bold text-[#007AFF]">Min</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Tren Penjualan 7 Hari Terakhir (Bar Chart) -->
+                            <!-- AI Insight -->
                             <div
-                                class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-3">
-                                <div class="flex items-center justify-between text-xs sm:text-sm">
-                                    <span class="font-semibold text-slate-700 dark:text-slate-200">Tren Penjualan 7 Hari
-                                        Terakhir</span>
-                                    <span class="font-bold text-emerald-500">+23.5% minggu ini</span>
-                                </div>
-                                <!-- 7 Bars Chart Graphic -->
-                                <div class="flex items-end gap-2.5 h-16 pt-2">
-                                    <div
-                                        class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[40%] transition-all hover:bg-blue-400">
-                                    </div>
-                                    <div
-                                        class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[55%] transition-all hover:bg-blue-400">
-                                    </div>
-                                    <div
-                                        class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[35%] transition-all hover:bg-blue-400">
-                                    </div>
-                                    <div
-                                        class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[80%] transition-all hover:bg-blue-400">
-                                    </div>
-                                    <div
-                                        class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[65%] transition-all hover:bg-blue-400">
-                                    </div>
-                                    <div
-                                        class="w-full bg-[#007AFF] rounded-lg h-[100%] shadow-[0_0_12px_rgba(0,122,255,0.4)]">
-                                    </div>
-                                    <div
-                                        class="w-full bg-[#007AFF] rounded-lg h-[88%] shadow-[0_0_12px_rgba(0,122,255,0.4)]">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- AI Insight Capsule -->
-                            <div
-                                class="bg-[#EFF6FF] dark:bg-blue-950/40 rounded-2xl p-3 sm:p-3.5 border border-blue-100 dark:border-blue-900/40 flex items-center gap-3">
+                                class="bg-[#007AFF]/15 rounded-[14px] p-2.5 sm:p-3 border border-[#007AFF]/25 flex items-center gap-2.5">
                                 <div
-                                    class="w-8 h-8 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-sm">
-                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                    class="w-7 h-7 rounded-[8px] bg-[#007AFF] text-white flex items-center justify-center shrink-0">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                                 </div>
-                                <p class="text-xs sm:text-[13px] text-slate-800 dark:text-slate-200 leading-snug">
-                                    <span class="font-bold text-[#007AFF]">AI:</span> "Margin produk Kopi Susu naik 4%
+                                <p class="text-[11.5px] sm:text-xs text-slate-200 leading-snug">
+                                    <span class="font-bold text-[#00C4D8]">AI:</span> "Margin produk Kopi Susu naik 4%
                                     setelah revisi bahan baku."
                                 </p>
                             </div>
-                        </div>
 
+                            <!-- Footer Status -->
+                            <div
+                                class="flex items-center justify-between text-[10px] text-slate-400 px-1 pt-0.5 border-t border-white/[0.08]">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    <span>Cloud Sync Aktif &bull; Terhubung</span>
+                                </span>
+                                <span class="tabular-nums">Enkripsi Data 256-bit</span>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
 
@@ -375,16 +413,16 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
 
                 <!-- Section Header -->
-                <div class="text-center max-w-4xl mx-auto space-y-4">
-                    <div
-                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 text-[#007AFF] text-xs font-semibold">
-                        <span>One Ecosystem for Your Business</span>
-                    </div>
+                <div class="text-center max-w-4xl mx-auto space-y-3">
+                    <p
+                        class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                        One Ecosystem for Your Business
+                    </p>
                     <h2
-                        class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
                         Everything Your Business Needs. Connected.
                     </h2>
                     <p class="text-xs sm:text-sm font-semibold text-[#007AFF] uppercase tracking-wider">
@@ -392,13 +430,6 @@
                     </p>
                     <div
                         class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto space-y-2">
-                        <p class="font-medium text-slate-800 dark:text-slate-200">
-                            Bisnis tidak berjalan dalam satu aplikasi.
-                        </p>
-                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Penjualan terjadi di POS dan marketplace &bull; Customer datang dari WhatsApp dan social media
-                            &bull; Inventory berubah setiap ada transaksi &bull; Finance mengikuti setiap aktivitas bisnis.
-                        </p>
                         <p class="font-bold text-slate-900 dark:text-white pt-1">
                             COOCA menghubungkan semuanya.
                         </p>
@@ -406,20 +437,20 @@
                 </div>
 
                 <!-- 8 Bento Squircle Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 mt-14">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 xl:gap-6 mt-12">
 
                     <!-- 1. Sales -->
                     <a href="{{ route('public.erp.pos') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 border border-sky-100 dark:border-sky-800/40 text-sky-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            class="w-12 h-12 rounded-[14px] bg-sky-50 dark:bg-sky-950/60 border border-sky-100 dark:border-sky-800/40 text-[#007AFF] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                             <i data-lucide="shopping-cart" class="w-6 h-6"></i>
                         </div>
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
                             <span>Sales</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Kelola POS, order, quotation, invoice, dan penjualan.
@@ -428,16 +459,16 @@
 
                     <!-- 2. Inventory -->
                     <a href="{{ route('public.erp.inventory') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/40 text-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            class="w-12 h-12 rounded-[14px] bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/40 text-purple-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                             <i data-lucide="layers" class="w-6 h-6"></i>
                         </div>
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
                             <span>Inventory</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Pantau stok, warehouse, purchasing, material, hingga pergerakan inventory.
@@ -446,16 +477,16 @@
 
                     <!-- 3. Finance -->
                     <a href="{{ route('public.erp.finance') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/40 text-blue-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            class="w-12 h-12 rounded-[14px] bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/40 text-blue-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                             <i data-lucide="wallet" class="w-6 h-6"></i>
                         </div>
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
                             <span>Finance</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Hubungkan transaksi bisnis dengan finance dan accounting.
@@ -464,16 +495,16 @@
 
                     <!-- 4. Customer -->
                     <a href="{{ route('public.omnichannel.customer') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-2xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-100 dark:border-cyan-800/40 text-cyan-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            class="w-12 h-12 rounded-[14px] bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-100 dark:border-cyan-800/40 text-cyan-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                             <i data-lucide="users" class="w-6 h-6"></i>
                         </div>
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
                             <span>Customer</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Kelola customer, relationship, aktivitas, dan riwayat transaksi.
@@ -482,9 +513,9 @@
 
                     <!-- 5. Social Media -->
                     <a href="{{ route('public.omnichannel.social-media') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-2xl bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-800/40 flex items-center justify-center gap-1.5 mb-4 group-hover:scale-110 transition-transform">
+                            class="w-12 h-12 rounded-[14px] bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-800/40 flex items-center justify-center gap-1.5 mb-4 group-hover:scale-105 transition-transform">
                             <span
                                 class="w-4 h-4 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
                                 <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -505,7 +536,7 @@
                             class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
                             <span>Social Media</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Hubungkan akun social media dan kelola konten dari satu tempat.
@@ -514,16 +545,16 @@
 
                     <!-- 6. Content Automation -->
                     <a href="{{ route('public.content.creation') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-950/60 border border-fuchsia-100 dark:border-fuchsia-800/40 text-fuchsia-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            class="w-12 h-12 rounded-[14px] bg-fuchsia-50 dark:bg-fuchsia-950/60 border border-fuchsia-100 dark:border-fuchsia-800/40 text-fuchsia-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                             <i data-lucide="megaphone" class="w-6 h-6"></i>
                         </div>
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
                             <span>Content Automation</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Plan, schedule, publish, dan monitor konten bisnis.
@@ -532,16 +563,16 @@
 
                     <!-- 7. Marketplace -->
                     <a href="{{ route('marketplace.index') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/40 text-indigo-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            class="w-12 h-12 rounded-[14px] bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/40 text-indigo-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                             <i data-lucide="store" class="w-6 h-6"></i>
                         </div>
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
                             <span>Marketplace</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Hubungkan bisnis dengan customer dan channel penjualan.
@@ -550,16 +581,16 @@
 
                     <!-- 8. Analytics & AI -->
                     <a href="{{ route('public.erp.analytics') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-800/40 text-violet-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            class="w-12 h-12 rounded-[14px] bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-800/40 text-violet-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                             <i data-lucide="trending-up" class="w-6 h-6"></i>
                         </div>
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
                             <span>Analytics &amp; AI</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Ubah data bisnis menjadi insight untuk membantu pengambilan keputusan.
@@ -576,18 +607,18 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
                     <div class="lg:col-span-4 space-y-5 text-center lg:text-left">
-                        <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/40 text-sky-700 dark:text-sky-300 text-xs font-semibold">
-                            <span>From Attention to Transaction</span>
-                        </div>
+                        <p
+                            class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            From Attention to Transaction
+                        </p>
 
                         <h2
-                            class="text-3xl sm:text-3.5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                            class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
                             Your Business,<br class="hidden sm:inline"> Connected End-to-End
                         </h2>
 
@@ -599,7 +630,7 @@
 
                         <div>
                             <a href="{{ route('public.bos.how-it-works') }}"
-                                class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:scale-105 active:scale-95 transition-all">
+                                class="inline-flex items-center gap-2 px-6 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-sm shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Lihat Cara Kerja</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
@@ -612,7 +643,7 @@
 
                             <!-- Row 1: Acquisition to POS & Inventory -->
                             <div
-                                class="flex items-center justify-between gap-2 p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm">
+                                class="flex items-center justify-between gap-2 p-4 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-xs">
                                 <!-- Node 1: Social Media -->
                                 <div class="flex flex-col items-center text-center">
                                     <div
@@ -686,7 +717,7 @@
 
                             <!-- Row 2: Purchasing to Business Decision -->
                             <div
-                                class="flex items-center justify-between gap-2 p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm">
+                                class="flex items-center justify-between gap-2 p-4 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-xs">
                                 <!-- Node 7: Purchasing -->
                                 <div class="flex flex-col items-center text-center">
                                     <div
@@ -764,15 +795,15 @@
                 class="absolute top-1/2 left-1/3 w-96 h-96 bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 <!-- Section Heading -->
                 <div class="space-y-3 mb-14 text-center lg:text-left">
-                    <div
-                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold">
-                        <span>Business Operating System</span>
-                    </div>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    <p class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-cyan-400/90">
+                        Business Operating System
+                    </p>
+                    <h2
+                        class="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-white tracking-tight leading-[1.15]">
                         Lebih dari Sekadar ERP
                     </h2>
                     <div class="text-slate-400 text-sm sm:text-base max-w-2xl leading-relaxed mx-auto lg:mx-0 space-y-1">
@@ -785,89 +816,170 @@
                     </div>
                 </div>
 
-                <!-- Content Grid: 6 Pillars (Left) & Interactive Ecosystem Hub (Right) -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <!-- Content Grid: Architecture Guide (Left) & Interactive Ecosystem Hub (Right) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-12 items-center" x-data="{ activeNode: null }">
 
-                    <!-- Left: 6 Pillars (2x3 Grid) -->
-                    <div class="lg:col-span-5 grid grid-cols-2 gap-6">
+                    <!-- Left: Ecosystem Architecture Guide -->
+                    <div class="lg:col-span-5 space-y-3">
 
-                        <!-- 1. Operate -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="gauge" class="w-5 h-5"></i>
+                        <!-- 1. Central Core Card -->
+                        <div @mouseenter="activeNode = 'core'" @mouseleave="activeNode = null"
+                            :class="activeNode === 'core' ?
+                                'bg-cyan-500/[0.14] border-cyan-400 shadow-[0_0_25px_rgba(0,194,255,0.22)] ring-1 ring-cyan-400/30' :
+                                'bg-white/[0.04] border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.06]'"
+                            class="p-3.5 sm:p-4 rounded-[18px] border transition-all duration-200 cursor-pointer">
+                            <div class="flex items-center gap-3 mb-1.5">
+                                <div
+                                    class="w-8 h-8 rounded-[10px] bg-gradient-to-tr from-[#007AFF] to-[#00C2FF] flex items-center justify-center text-white shrink-0 shadow-sm">
+                                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-xs sm:text-sm font-bold text-white tracking-tight truncate">COOCA</h3>
+                                </div>
                             </div>
-                            <h4 class="text-sm font-bold text-white">Operate</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Kelola aktivitas operasional bisnis sehari-hari.
+                            <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed pl-11">
+                                Otak tunggal yang menyinkronkan 7 modul: satu transaksi kasir langsung memotong stok,
+                                membukukan jurnal, dan update analitik.
                             </p>
                         </div>
 
-                        <!-- 2. Sell -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="tag" class="w-5 h-5"></i>
+                        <!-- 2. Satellite Nodes Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+
+                            <!-- Operasional -->
+                            <div @mouseenter="activeNode = 'operasional'" @mouseleave="activeNode = null"
+                                :class="activeNode === 'operasional' ?
+                                    'bg-cyan-500/[0.14] border-cyan-400 shadow-[0_0_20px_rgba(0,194,255,0.2)] ring-1 ring-cyan-400/30' :
+                                    'bg-white/[0.03] border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.05]'"
+                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
+                                        <i data-lucide="package-check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white tracking-tight">Operasional &amp; HPP</h4>
+                                </div>
+                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                    Stok real-time, HPP presisi, restock otomatis.
+                                </p>
                             </div>
-                            <h4 class="text-sm font-bold text-white">Sell</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Kelola penjualan dari berbagai channel.
-                            </p>
+
+                            <!-- POS -->
+                            <div @mouseenter="activeNode = 'pos'" @mouseleave="activeNode = null"
+                                :class="activeNode === 'pos' ?
+                                    'bg-cyan-500/[0.14] border-cyan-400 shadow-[0_0_20px_rgba(0,194,255,0.2)] ring-1 ring-cyan-400/30' :
+                                    'bg-white/[0.03] border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.05]'"
+                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
+                                        <i data-lucide="store" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white tracking-tight">POS &amp; QRIS</h4>
+                                </div>
+                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                    Kasir cepat, struk thermal, bayar QRIS.
+                                </p>
+                            </div>
+
+                            <!-- WhatsApp -->
+                            <div @mouseenter="activeNode = 'whatsapp'" @mouseleave="activeNode = null"
+                                :class="activeNode === 'whatsapp' ?
+                                    'bg-emerald-500/[0.14] border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.2)] ring-1 ring-emerald-400/30' :
+                                    'bg-white/[0.03] border-white/10 hover:border-emerald-400/40 hover:bg-white/[0.05]'"
+                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white tracking-tight">WhatsApp</h4>
+                                </div>
+                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                    E-struk otomatis, bot pesanan, CS multi-agen.
+                                </p>
+                            </div>
+
+                            <!-- Social Media -->
+                            <div @mouseenter="activeNode = 'social'" @mouseleave="activeNode = null"
+                                :class="activeNode === 'social' ?
+                                    'bg-pink-500/[0.14] border-pink-400 shadow-[0_0_20px_rgba(244,114,182,0.2)] ring-1 ring-pink-400/30' :
+                                    'bg-white/[0.03] border-white/10 hover:border-pink-400/40 hover:bg-white/[0.05]'"
+                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 shrink-0">
+                                        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white tracking-tight">Social Media</h4>
+                                </div>
+                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                    Sinkron katalog ke IG, TikTok, FB, Threads.
+                                </p>
+                            </div>
+
+                            <!-- Website -->
+                            <div @mouseenter="activeNode = 'website'" @mouseleave="activeNode = null"
+                                :class="activeNode === 'website' ?
+                                    'bg-blue-500/[0.14] border-blue-400 shadow-[0_0_20px_rgba(96,165,250,0.2)] ring-1 ring-blue-400/30' :
+                                    'bg-white/[0.03] border-white/10 hover:border-blue-400/40 hover:bg-white/[0.05]'"
+                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                                        <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white tracking-tight">Website &amp; Self-Order</h4>
+                                </div>
+                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                    Order langsung, tanpa komisi pihak ketiga.
+                                </p>
+                            </div>
+
+                            <!-- Content AI -->
+                            <div @mouseenter="activeNode = 'automation'" @mouseleave="activeNode = null"
+                                :class="activeNode === 'automation' ?
+                                    'bg-purple-500/[0.14] border-purple-400 shadow-[0_0_20px_rgba(192,132,252,0.2)] ring-1 ring-purple-400/30' :
+                                    'bg-white/[0.03] border-white/10 hover:border-purple-400/40 hover:bg-white/[0.05]'"
+                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+                                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white tracking-tight">Content AI</h4>
+                                </div>
+                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                    Generate promo &amp; jadwal posting otomatis.
+                                </p>
+                            </div>
+
                         </div>
 
-                        <!-- 3. Engage -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="message-square" class="w-5 h-5"></i>
+                        <!-- 3. Customer CRM -->
+                        <div @mouseenter="activeNode = 'customer'" @mouseleave="activeNode = null"
+                            :class="activeNode === 'customer' ?
+                                'bg-cyan-500/[0.14] border-cyan-400 shadow-[0_0_25px_rgba(0,194,255,0.22)] ring-1 ring-cyan-400/30' :
+                                'bg-white/[0.04] border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.06]'"
+                            class="p-3.5 sm:p-4 rounded-[18px] border transition-all duration-200 cursor-pointer">
+                            <div class="flex items-center gap-3 mb-1.5">
+                                <div
+                                    class="w-8 h-8 rounded-[10px] bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shrink-0">
+                                    <i data-lucide="users" class="w-4 h-4"></i>
+                                </div>
+                                <h3 class="text-xs sm:text-sm font-bold text-white tracking-tight truncate">Customer CRM
+                                    &amp; Loyalty</h3>
                             </div>
-                            <h4 class="text-sm font-bold text-white">Engage</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Bangun hubungan dengan customer melalui berbagai channel.
-                            </p>
-                        </div>
-
-                        <!-- 4. Automate -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="zap" class="w-5 h-5"></i>
-                            </div>
-                            <h4 class="text-sm font-bold text-white">Automate</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Kurangi pekerjaan manual dengan automation.
-                            </p>
-                        </div>
-
-                        <!-- 5. Analyze -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="line-chart" class="w-5 h-5"></i>
-                            </div>
-                            <h4 class="text-sm font-bold text-white">Analyze</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Pahami kondisi bisnis melalui data dan analytics.
-                            </p>
-                        </div>
-
-                        <!-- 6. Decide -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="compass" class="w-5 h-5"></i>
-                            </div>
-                            <h4 class="text-sm font-bold text-white">Decide</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Gunakan informasi bisnis untuk membantu mengambil keputusan.
+                            <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed pl-11">
+                                Profil pelanggan tunggal dari POS, WA, website &amp; medsos — untuk loyalty, riwayat, dan
+                                repeat order otomatis.
                             </p>
                         </div>
 
                     </div>
 
                     <!-- Right Column: Interactive 3D Neon Ecosystem Hub Grid -->
-                    <div class="lg:col-span-7 relative flex items-center justify-center w-full overflow-visible"
-                        x-data="{ activeNode: null }">
+                    <div class="lg:col-span-7 relative flex items-center justify-center w-full overflow-visible">
                         <div
                             class="relative w-full max-w-[680px] xl:max-w-[740px] 2xl:max-w-[800px] aspect-[620/460] select-none mx-auto flex items-center justify-center">
 
@@ -1010,8 +1122,11 @@
                                 class="absolute left-1/2 top-[47%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center">
 
                                 <!-- Central Hologram Glass Box (COOCA Core) -->
-                                <div
-                                    class="relative w-44 sm:w-56 py-4 sm:py-5 px-3 sm:px-4 rounded-2xl sm:rounded-3xl bg-[#071329]/95 backdrop-blur-2xl border-2 border-[#00C2FF] shadow-[0_0_35px_rgba(0,194,255,0.45),inset_0_0_20px_rgba(0,194,255,0.2)] text-center group cursor-pointer hover:scale-105 transition-all duration-300">
+                                <div class="relative w-44 sm:w-56 py-4 sm:py-5 px-3 sm:px-4 rounded-2xl sm:rounded-3xl bg-[#071329]/95 backdrop-blur-2xl border-2 border-[#00C2FF] shadow-[0_0_35px_rgba(0,194,255,0.45),inset_0_0_20px_rgba(0,194,255,0.2)] text-center group cursor-pointer hover:scale-105 transition-all duration-300"
+                                    @mouseenter="activeNode = 'core'" @mouseleave="activeNode = null"
+                                    :class="activeNode === 'core' ?
+                                        'scale-105 !border-cyan-300 !shadow-[0_0_55px_rgba(0,194,255,0.85),inset_0_0_25px_rgba(0,194,255,0.45)] ring-2 ring-cyan-400' :
+                                        ''">
 
                                     <!-- 4 High-Tech Corner Brackets -->
                                     <div
@@ -1070,8 +1185,10 @@
                             <!-- Node 1: Operasional (Center Top) -->
                             <div class="absolute left-1/2 top-[11.5%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center group cursor-pointer hero-node-gear"
                                 @mouseenter="activeNode = 'operasional'" @mouseleave="activeNode = null">
-                                <div
-                                    class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2 sm:p-2.5 transition-all duration-300 group-hover:scale-110 text-cyan-400">
+                                <div class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2 sm:p-2.5 transition-all duration-300 group-hover:scale-110 text-cyan-400"
+                                    :class="activeNode === 'operasional' ?
+                                        'scale-115 !border-cyan-300 !shadow-[0_0_30px_rgba(0,194,255,0.85)] ring-2 ring-cyan-400' :
+                                        ''">
                                     <!-- Dual Gear SVG -->
                                     <svg class="w-6 h-6 sm:w-7 sm:h-7 gear-icon" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -1085,7 +1202,8 @@
                                     class="mt-1 text-[9px] sm:text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors text-center">Operasional</span>
                                 <!-- Hover Micro-Badge -->
                                 <span
-                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none">
+                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none"
+                                    :class="activeNode === 'operasional' ? '!opacity-100' : ''">
                                     Otomasi &amp; Inventory
                                 </span>
                             </div>
@@ -1093,8 +1211,10 @@
                             <!-- Node 2: Social Media (Top Left) -->
                             <div class="absolute left-[17.5%] top-[15%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center group cursor-pointer"
                                 @mouseenter="activeNode = 'social'" @mouseleave="activeNode = null">
-                                <div
-                                    class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] grid grid-cols-2 gap-1 p-1.5 sm:p-2 transition-all duration-300 group-hover:scale-110">
+                                <div class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] grid grid-cols-2 gap-1 p-1.5 sm:p-2 transition-all duration-300 group-hover:scale-110"
+                                    :class="activeNode === 'social' ?
+                                        'scale-115 !border-pink-400 !shadow-[0_0_30px_rgba(244,114,182,0.85)] ring-2 ring-pink-400' :
+                                        ''">
                                     <!-- Instagram -->
                                     <span
                                         class="rounded bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white">
@@ -1132,7 +1252,8 @@
                                     class="mt-1 text-[9px] sm:text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors text-center">Social
                                     Media</span>
                                 <span
-                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none">
+                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none"
+                                    :class="activeNode === 'social' ? '!opacity-100' : ''">
                                     IG, TikTok, FB, Threads
                                 </span>
                             </div>
@@ -1140,8 +1261,10 @@
                             <!-- Node 3: WhatsApp (Top Right) -->
                             <div class="absolute left-[82.5%] top-[15%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center group cursor-pointer"
                                 @mouseenter="activeNode = 'whatsapp'" @mouseleave="activeNode = null">
-                                <div
-                                    class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-[#25D366]">
+                                <div class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-[#25D366]"
+                                    :class="activeNode === 'whatsapp' ?
+                                        'scale-115 !border-emerald-400 !shadow-[0_0_30px_rgba(52,211,153,0.85)] ring-2 ring-emerald-400' :
+                                        ''">
                                     <svg class="w-6 h-6 sm:w-7 sm:h-7 fill-current" viewBox="0 0 24 24">
                                         <path
                                             d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
@@ -1150,7 +1273,8 @@
                                 <span
                                     class="mt-1 text-[9px] sm:text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors text-center">WhatsApp</span>
                                 <span
-                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none">
+                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none"
+                                    :class="activeNode === 'whatsapp' ? '!opacity-100' : ''">
                                     Multi-Agent &amp; Bot
                                 </span>
                             </div>
@@ -1158,8 +1282,10 @@
                             <!-- Node 4: POS (Middle Left) -->
                             <div class="absolute left-[12%] top-[46.7%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center group cursor-pointer"
                                 @mouseenter="activeNode = 'pos'" @mouseleave="activeNode = null">
-                                <div
-                                    class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-cyan-400">
+                                <div class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-cyan-400"
+                                    :class="activeNode === 'pos' ?
+                                        'scale-115 !border-cyan-300 !shadow-[0_0_30px_rgba(0,194,255,0.85)] ring-2 ring-cyan-400' :
+                                        ''">
                                     <!-- Sleek POS / EDC Terminal SVG -->
                                     <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="1.8">
@@ -1176,7 +1302,8 @@
                                 <span
                                     class="mt-1 text-[9px] sm:text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors text-center">POS</span>
                                 <span
-                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none">
+                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none"
+                                    :class="activeNode === 'pos' ? '!opacity-100' : ''">
                                     Kasir Toko &amp; QRIS
                                 </span>
                             </div>
@@ -1184,8 +1311,10 @@
                             <!-- Node 5: Content Automation (Middle Right) -->
                             <div class="absolute left-[88%] top-[46.7%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center group cursor-pointer"
                                 @mouseenter="activeNode = 'automation'" @mouseleave="activeNode = null">
-                                <div
-                                    class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-purple-400">
+                                <div class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-purple-400"
+                                    :class="activeNode === 'automation' ?
+                                        'scale-115 !border-purple-400 !shadow-[0_0_30px_rgba(192,132,252,0.85)] ring-2 ring-purple-400' :
+                                        ''">
                                     <!-- Robotic Arm Camera Mechanism SVG -->
                                     <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
@@ -1205,7 +1334,8 @@
                                     class="mt-1 text-[9px] sm:text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors text-center whitespace-nowrap">Content<br
                                         class="sm:hidden"> Automation</span>
                                 <span
-                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none">
+                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none"
+                                    :class="activeNode === 'automation' ? '!opacity-100' : ''">
                                     Auto-Post &amp; AI
                                 </span>
                             </div>
@@ -1213,8 +1343,10 @@
                             <!-- Node 6: Website (Bottom Left) -->
                             <div class="absolute left-[15.5%] top-[79.5%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center group cursor-pointer"
                                 @mouseenter="activeNode = 'website'" @mouseleave="activeNode = null">
-                                <div
-                                    class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-blue-400">
+                                <div class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-blue-400"
+                                    :class="activeNode === 'website' ?
+                                        'scale-115 !border-blue-400 !shadow-[0_0_30px_rgba(96,165,250,0.85)] ring-2 ring-blue-400' :
+                                        ''">
                                     <!-- Browser with Glowing Globe SVG -->
                                     <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="1.8">
@@ -1234,7 +1366,8 @@
                                 <span
                                     class="mt-1 text-[9px] sm:text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors text-center">Website</span>
                                 <span
-                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none">
+                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none"
+                                    :class="activeNode === 'website' ? '!opacity-100' : ''">
                                     Katalog &amp; Web Store
                                 </span>
                             </div>
@@ -1242,8 +1375,10 @@
                             <!-- Node 7: Customer (Bottom Right) -->
                             <div class="absolute left-[84.5%] top-[79.5%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center group cursor-pointer"
                                 @mouseenter="activeNode = 'customer'" @mouseleave="activeNode = null">
-                                <div
-                                    class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-cyan-300">
+                                <div class="w-12 h-12 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-[#09152e]/90 backdrop-blur-md border border-cyan-400/40 group-hover:border-cyan-300 shadow-[0_4px_20px_rgba(0,194,255,0.25)] group-hover:shadow-[0_0_25px_rgba(0,194,255,0.7)] flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-110 text-cyan-300"
+                                    :class="activeNode === 'customer' ?
+                                        'scale-115 !border-cyan-300 !shadow-[0_0_30px_rgba(0,194,255,0.85)] ring-2 ring-cyan-400' :
+                                        ''">
                                     <!-- Diverse Customer Avatars SVG -->
                                     <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
@@ -1260,7 +1395,8 @@
                                 <span
                                     class="mt-1 text-[9px] sm:text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors text-center">Customer</span>
                                 <span
-                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none">
+                                    class="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-0.5 rounded bg-[#00C2FF] text-slate-950 text-[9px] font-bold tracking-tight whitespace-nowrap shadow-md pointer-events-none"
+                                    :class="activeNode === 'customer' ? '!opacity-100' : ''">
                                     CRM &amp; Loyalty
                                 </span>
                             </div>
@@ -1278,15 +1414,15 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
                     <div class="lg:col-span-5 space-y-5 text-center lg:text-left">
-                        <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/40 text-sky-700 dark:text-sky-300 text-xs font-semibold">
-                            <span>Omnichannel Commerce</span>
-                        </div>
+                        <p
+                            class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            Omnichannel Commerce
+                        </p>
 
                         <h2
                             class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
@@ -1303,19 +1439,19 @@
                         <!-- Three Highlights -->
                         <div class="grid grid-cols-3 gap-2 py-1 max-w-md mx-auto lg:mx-0 text-left">
                             <div
-                                class="p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                class="p-2.5 rounded-[14px] bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                                 <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">One
                                     order.</span>
                                 <span class="text-[10px] text-slate-500">Tersentralisasi</span>
                             </div>
                             <div
-                                class="p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                class="p-2.5 rounded-[14px] bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                                 <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">One
                                     customer.</span>
                                 <span class="text-[10px] text-slate-500">Profil tunggal</span>
                             </div>
                             <div
-                                class="p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                class="p-2.5 rounded-[14px] bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                                 <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">One
                                     record.</span>
                                 <span class="text-[10px] text-slate-500">Business record</span>
@@ -1324,7 +1460,7 @@
 
                         <div class="pt-2">
                             <a href="{{ route('public.omnichannel.social-media') }}"
-                                class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:scale-105 active:scale-95 transition-all">
+                                class="inline-flex items-center gap-2 px-6 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-sm shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 <span>Explore Omnichannel</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
@@ -1453,7 +1589,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
                     <!-- ════ LEFT CARD: CONTENT AUTOMATION ════ -->
@@ -1474,7 +1610,7 @@
 
                         <div>
                             <a href="{{ route('public.content.creation') }}"
-                                class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs shadow-sm hover:scale-105 active:scale-95 transition-all">
+                                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-xs tracking-tight shadow-sm hover:shadow active:scale-[0.98] transition-all duration-200">
                                 <span>Explore Content Automation</span>
                                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                             </a>
@@ -1596,7 +1732,7 @@
 
                         <div>
                             <a href="{{ route('marketplace.index') }}"
-                                class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs shadow-sm hover:scale-105 active:scale-95 transition-all">
+                                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-xs tracking-tight shadow-sm hover:shadow active:scale-[0.98] transition-all duration-200">
                                 <span>Explore Marketplace</span>
                                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                             </a>
@@ -1813,16 +1949,17 @@
         <!-- ═══ 7. "COCOK UNTUK BERBAGAI JENIS BISNIS" (Solutions) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="bg-white dark:bg-[#070A14] py-20 lg:py-24 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
 
                 <!-- Section Header with Right-Aligned Button -->
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
                     <div class="space-y-2">
-                        <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 text-[#007AFF] text-xs font-semibold">
-                            <span>Tailored Industry Modules</span>
-                        </div>
-                        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        <p
+                            class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            Tailored Industry Modules
+                        </p>
+                        <h2
+                            class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
                             Built for Different Businesses
                         </h2>
                         <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
@@ -1831,7 +1968,7 @@
                     </div>
                     <div>
                         <a href="{{ route('public.solutions.fnb') }}"
-                            class="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_15px_rgba(0,194,255,0.35)] hover:scale-105 active:scale-95 transition-all">
+                            class="inline-flex items-center gap-2 px-6 py-3 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-sm shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                             <span>Explore Solutions</span>
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
@@ -1980,68 +2117,84 @@
                 class="absolute -top-24 right-1/4 w-[450px] h-[450px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-                    <!-- Left Column -->
+                    <!-- Left Column: Typography Hierarchy (Kicker, H2, H3, Body, 4-Step Ribbon, Dual CTAs) -->
                     <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
-                        <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold">
-                            <span>Saatnya Beralih ke COOCA</span>
-                        </div>
 
+                        <!-- Pure Typographic Overline Kicker -->
+                        <p class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-cyan-400">
+                            Saatnya Beralih ke COOCA
+                        </p>
+
+                        <!-- Main Headline (H2) -->
                         <h2
-                            class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white tracking-tight leading-tight">
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.12]">
                             Start Building Your Business Operating System.
                         </h2>
 
-                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0">
-                            Tidak perlu membangun semuanya sekaligus. Mulai dari kebutuhan bisnis Anda.
+                        <!-- Subheadline (H3) -->
+                        <h3 class="text-base sm:text-lg lg:text-xl font-semibold text-slate-200 tracking-tight">
+                            Satu Platform Terpadu untuk Menggerakkan Bisnis UMKM Lebih Cerdas &amp; Presisi
+                        </h3>
+
+                        <!-- Supporting Copy -->
+                        <p class="text-slate-400 text-sm sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0">
+                            Tidak perlu membangun semuanya sekaligus. Mulai dari kebutuhan bisnis Anda dan kembangkan modul
+                            sesuai skala usaha.
                         </p>
 
-                        <!-- 4 Step Flow Ribbon -->
-                        <div
-                            class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs font-semibold text-slate-300 text-left">
-                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                                <span class="text-[#00C2FF] font-bold block text-[10px]">01</span>
-                                <span>Create your business.</span>
+                        <!-- 4 Step Flow Ribbon (Bento Tiles) -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-left">
+                            <div
+                                class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 backdrop-blur-sm hover:bg-white/[0.08] transition-all group">
+                                <span class="text-cyan-400 font-bold block text-[11px] tabular-nums mb-1">01</span>
+                                <span class="text-xs font-semibold text-white/90 leading-snug block">Create your
+                                    business.</span>
                             </div>
-                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                                <span class="text-[#00C2FF] font-bold block text-[10px]">02</span>
-                                <span>Choose your modules.</span>
+                            <div
+                                class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 backdrop-blur-sm hover:bg-white/[0.08] transition-all group">
+                                <span class="text-cyan-400 font-bold block text-[11px] tabular-nums mb-1">02</span>
+                                <span class="text-xs font-semibold text-white/90 leading-snug block">Choose your
+                                    modules.</span>
                             </div>
-                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                                <span class="text-[#00C2FF] font-bold block text-[10px]">03</span>
-                                <span>Connect your channels.</span>
+                            <div
+                                class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 backdrop-blur-sm hover:bg-white/[0.08] transition-all group">
+                                <span class="text-cyan-400 font-bold block text-[11px] tabular-nums mb-1">03</span>
+                                <span class="text-xs font-semibold text-white/90 leading-snug block">Connect your
+                                    channels.</span>
                             </div>
-                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                                <span class="text-[#00C2FF] font-bold block text-[10px]">04</span>
-                                <span>Run your business.</span>
+                            <div
+                                class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 backdrop-blur-sm hover:bg-white/[0.08] transition-all group">
+                                <span class="text-cyan-400 font-bold block text-[11px] tabular-nums mb-1">04</span>
+                                <span class="text-xs font-semibold text-white/90 leading-snug block">Run your
+                                    business.</span>
                             </div>
                         </div>
 
-                        <!-- Auth-Aware Dual CTAs -->
+                        <!-- Auth-Aware Dual CTAs with Apple HIG Button Geometry -->
                         <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
                             @if (auth('admin')->check())
                                 <a href="{{ route('admin.dashboard') }}"
-                                    class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                    class="w-full sm:w-auto px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(0,122,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                     <span>Dashboard Admin</span>
                                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                 </a>
                             @elseif (auth('web')->check())
                                 <a href="{{ route('dashboard') }}"
-                                    class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                    class="w-full sm:w-auto px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(0,122,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                     <span>Ke Dashboard</span>
                                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                 </a>
                             @else
                                 <a href="{{ route('register') }}"
-                                    class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                    class="w-full sm:w-auto px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(0,122,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all">
                                     <span>Coba COOCA Gratis</span>
                                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                 </a>
                                 <a href="{{ route('public.demo') }}"
-                                    class="w-full sm:w-auto px-6 sm:px-7 py-3.5 sm:py-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
+                                    class="w-full sm:w-auto px-6 sm:px-7 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 hover:border-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all">
                                     <span>Lihat Demo</span>
                                     <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
                                 </a>
@@ -2070,7 +2223,7 @@
 
                             <!-- Desk Mockup Container -->
                             <div
-                                class="rounded-3xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-slate-900">
+                                class="rounded-[24px] overflow-hidden border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.5)] bg-slate-900/80 backdrop-blur-md">
                                 <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1000&q=80"
                                     alt="COOCA Workspace"
                                     class="w-full h-72 sm:h-80 object-cover opacity-90 hover:opacity-100 transition-opacity duration-300">

@@ -326,21 +326,21 @@
     @if (!($hideHeader ?? false))
         <header
             class="sticky top-0 z-50 backdrop-blur-2xl bg-[#060913]/95 text-white border-b border-white/10 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
 
                 <!-- Logo Cooca -->
                 <a href="{{ route('landing') }}" class="flex items-center gap-3 group shrink-0">
-                    @if(!empty($siteLogoDarkUrl))
+                    @if (!empty($siteLogoDarkUrl))
                         <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
                             class="h-7 sm:h-8 xl:h-9 w-auto object-contain transition-transform group-hover:scale-105">
                     @else
-                        <span class="font-black text-xl sm:text-2xl xl:text-3xl tracking-tighter text-white font-sans">COOCA</span>
+                        <span
+                            class="font-black text-xl sm:text-2xl xl:text-3xl tracking-tighter text-white font-sans">COOCA</span>
                     @endif
                 </a>
 
                 <!-- Desktop Nav Menu (Apple HIG Navigation Bar Style) -->
-                <nav
-                    class="hidden lg:flex items-center gap-1.5 xl:gap-2.5 text-sm font-medium text-slate-300">
+                <nav class="hidden lg:flex items-center gap-1.5 xl:gap-2.5 text-sm font-medium text-slate-300">
 
                     <!-- 1. Platform (Mega Dropdown) -->
                     <div class="relative"
@@ -356,60 +356,82 @@
                             x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
-                            style="background-color: #0B132B;"
+                            x-transition:leave-end="opacity-0" style="background-color: #0B132B;"
                             class="cooca-header-dropdown absolute top-full left-0 mt-2 w-[520px] p-4 rounded-[20px] shadow-2xl z-50 grid grid-cols-2 gap-3 text-white">
-                            
+
                             <!-- Col 1: Business Operating System -->
                             <div class="space-y-1">
-                                <span class="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#00C2FF] flex items-center gap-1.5">
+                                <span
+                                    class="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#00C2FF] flex items-center gap-1.5">
                                     <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
                                     <span>Operating System</span>
                                 </span>
-                                <a href="{{ route('public.bos.overview') }}" class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span class="font-semibold text-xs text-white group-hover:text-[#00C2FF] transition-colors block">Overview</span>
+                                <a href="{{ route('public.bos.overview') }}"
+                                    class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                    <span
+                                        class="font-semibold text-xs text-white group-hover:text-[#00C2FF] transition-colors block">Overview</span>
                                     <span class="text-[11px] text-slate-400 block">Pusat kendali bisnis</span>
                                 </a>
-                                <a href="{{ route('public.bos.how-it-works') }}" class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span class="font-semibold text-xs text-white group-hover:text-[#00C2FF] transition-colors block">How It Works</span>
+                                <a href="{{ route('public.bos.how-it-works') }}"
+                                    class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                    <span
+                                        class="font-semibold text-xs text-white group-hover:text-[#00C2FF] transition-colors block">How
+                                        It Works</span>
                                     <span class="text-[11px] text-slate-400 block">Alur otomatisasi</span>
                                 </a>
-                                <a href="{{ route('public.bos.why-cooca') }}" class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span class="font-semibold text-xs text-white group-hover:text-[#00C2FF] transition-colors block">Why COOCA</span>
+                                <a href="{{ route('public.bos.why-cooca') }}"
+                                    class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                    <span
+                                        class="font-semibold text-xs text-white group-hover:text-[#00C2FF] transition-colors block">Why
+                                        COOCA</span>
                                     <span class="text-[11px] text-slate-400 block">Keunggulan sistem</span>
                                 </a>
                             </div>
 
                             <!-- Col 2: Omnichannel ERP Core -->
                             <div class="space-y-1">
-                                <span class="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#34C759] flex items-center gap-1.5">
+                                <span
+                                    class="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#34C759] flex items-center gap-1.5">
                                     <i data-lucide="layers" class="w-3.5 h-3.5"></i>
                                     <span>Omnichannel ERP</span>
                                 </span>
-                                <a href="{{ route('public.erp.erp') }}" class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span class="font-semibold text-xs text-white group-hover:text-[#34C759] transition-colors block">ERP Core</span>
+                                <a href="{{ route('public.erp.erp') }}"
+                                    class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                    <span
+                                        class="font-semibold text-xs text-white group-hover:text-[#34C759] transition-colors block">ERP
+                                        Core</span>
                                     <span class="text-[11px] text-slate-400 block">Multi-cabang &amp; PO</span>
                                 </a>
-                                <a href="{{ route('public.erp.pos') }}" class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span class="font-semibold text-xs text-white group-hover:text-[#34C759] transition-colors block">POS Kasir</span>
+                                <a href="{{ route('public.erp.pos') }}"
+                                    class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                    <span
+                                        class="font-semibold text-xs text-white group-hover:text-[#34C759] transition-colors block">POS
+                                        Kasir</span>
                                     <span class="text-[11px] text-slate-400 block">Transaksi kilat &amp; QRIS</span>
                                 </a>
-                                <a href="{{ route('public.erp.inventory') }}" class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span class="font-semibold text-xs text-white group-hover:text-[#34C759] transition-colors block">Inventory</span>
+                                <a href="{{ route('public.erp.inventory') }}"
+                                    class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                    <span
+                                        class="font-semibold text-xs text-white group-hover:text-[#34C759] transition-colors block">Inventory</span>
                                     <span class="text-[11px] text-slate-400 block">Stok real-time &amp; HPP</span>
                                 </a>
-                                <a href="{{ route('public.erp.accounting') }}" class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span class="font-semibold text-xs text-white group-hover:text-[#34C759] transition-colors block">Accounting</span>
+                                <a href="{{ route('public.erp.accounting') }}"
+                                    class="group block px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                    <span
+                                        class="font-semibold text-xs text-white group-hover:text-[#34C759] transition-colors block">Accounting</span>
                                     <span class="text-[11px] text-slate-400 block">Jurnal otomatis</span>
                                 </a>
                             </div>
 
-                            <div class="col-span-2 border-t border-white/10 pt-2.5 mt-1 flex items-center justify-between text-xs px-2.5">
-                                <a href="{{ route('public.content.creation') }}" class="text-[#00C2FF] hover:text-[#38BDF8] font-semibold flex items-center gap-1.5 transition-colors">
+                            <div
+                                class="col-span-2 border-t border-white/10 pt-2.5 mt-1 flex items-center justify-between text-xs px-2.5">
+                                <a href="{{ route('public.content.creation') }}"
+                                    class="text-[#00C2FF] hover:text-[#38BDF8] font-semibold flex items-center gap-1.5 transition-colors">
                                     <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                                     <span>Content Automation AI →</span>
                                 </a>
-                                <a href="{{ route('public.erp.analytics') }}" class="text-slate-400 hover:text-white flex items-center gap-1 transition-colors">
+                                <a href="{{ route('public.erp.analytics') }}"
+                                    class="text-slate-400 hover:text-white flex items-center gap-1 transition-colors">
                                     <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
                                     <span>Analytics &amp; AI</span>
                                 </a>
@@ -430,61 +452,83 @@
                         <div x-show="solutionDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
                             x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                             style="background-color: #0B132B;"
                             class="cooca-header-dropdown absolute top-full left-0 mt-2 w-64 p-2 rounded-[18px] shadow-2xl space-y-0.5 z-50 text-white">
-                            <a href="{{ route('public.solutions.fnb') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#FF9500]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.solutions.fnb') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#FF9500]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="utensils" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#FF9500] transition-colors block">F&amp;B &amp; Resto</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#FF9500] transition-colors block">F&amp;B
+                                        &amp; Resto</span>
                                     <span class="text-[10px] text-slate-400 block">Meja, menu, dapur</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.solutions.retail') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.solutions.retail') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="store" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Retail &amp; Toko</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Retail
+                                        &amp; Toko</span>
                                     <span class="text-[10px] text-slate-400 block">Barcode &amp; multi-cabang</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.solutions.workshop') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#FF3B30]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.solutions.workshop') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#FF3B30]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="wrench" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#FF3B30] transition-colors block">Bengkel &amp; Otomotif</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#FF3B30] transition-colors block">Bengkel
+                                        &amp; Otomotif</span>
                                     <span class="text-[10px] text-slate-400 block">SPK &amp; riwayat servis</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.solutions.laundry') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.solutions.laundry') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#34C759]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#34C759] transition-colors block">Laundry</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#34C759] transition-colors block">Laundry</span>
                                     <span class="text-[10px] text-slate-400 block">Kiloan, satuan, rak</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.solutions.manufacturing') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#AF52DE]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.solutions.manufacturing') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#AF52DE]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="factory" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#AF52DE] transition-colors block">Manufacturing</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#AF52DE] transition-colors block">Manufacturing</span>
                                     <span class="text-[10px] text-slate-400 block">BOM &amp; produksi</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.solutions.services') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.solutions.services') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="briefcase" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Services &amp; Jasa</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Services
+                                        &amp; Jasa</span>
                                     <span class="text-[10px] text-slate-400 block">Booking &amp; invoicing</span>
                                 </div>
                             </a>
@@ -504,52 +548,71 @@
                         <div x-show="omniDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
                             x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                             style="background-color: #0B132B;"
                             class="cooca-header-dropdown absolute top-full left-0 mt-2 w-64 p-2 rounded-[18px] shadow-2xl space-y-0.5 z-50 text-white">
-                            <a href="{{ route('public.omnichannel.social-media') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#FF2D55]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.omnichannel.social-media') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#FF2D55]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="share-2" class="w-3.5 h-3.5 text-[#FF2D55]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#FF2D55] transition-colors block">Social Media</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#FF2D55] transition-colors block">Social
+                                        Media</span>
                                     <span class="text-[10px] text-slate-400 block">Jadwal &amp; multi-channel</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.omnichannel.whatsapp') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.omnichannel.whatsapp') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="message-square" class="w-3.5 h-3.5 text-[#34C759]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#34C759] transition-colors block">WhatsApp</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#34C759] transition-colors block">WhatsApp</span>
                                     <span class="text-[10px] text-slate-400 block">Broadcast &amp; multi-agent</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.omnichannel.marketplace') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#FF9500]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.omnichannel.marketplace') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#FF9500]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#FF9500] transition-colors block">Marketplace Hub</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#FF9500] transition-colors block">Marketplace
+                                        Hub</span>
                                     <span class="text-[10px] text-slate-400 block">Sinkronisasi stok</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.omnichannel.orders') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.omnichannel.orders') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Central Orders</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Central
+                                        Orders</span>
                                     <span class="text-[10px] text-slate-400 block">Satu inbox pesanan</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.omnichannel.customer') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#5856D6]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.omnichannel.customer') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#5856D6]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="user-check" class="w-3.5 h-3.5 text-[#5856D6]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#5856D6] transition-colors block">Customer Portal</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#5856D6] transition-colors block">Customer
+                                        Portal</span>
                                     <span class="text-[10px] text-slate-400 block">Loyalty &amp; poin</span>
                                 </div>
                             </a>
@@ -569,43 +632,56 @@
                         <div x-show="resourceDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
                             x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                             style="background-color: #0B132B;"
                             class="cooca-header-dropdown absolute top-full left-0 mt-2 w-60 p-2 rounded-[18px] shadow-2xl space-y-0.5 z-50 text-white">
-                            <a href="{{ route('blog.index') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('blog.index') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="book-open" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Blog</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Blog</span>
                                     <span class="text-[10px] text-slate-400 block">Artikel &amp; tips bisnis</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.resources.guides') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.resources.guides') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#34C759]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#34C759] transition-colors block">Guides</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#34C759] transition-colors block">Guides</span>
                                     <span class="text-[10px] text-slate-400 block">Panduan operasional</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.resources.case-studies') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#FF9500]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.resources.case-studies') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#FF9500]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="award" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#FF9500] transition-colors block">Case Studies</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#FF9500] transition-colors block">Case
+                                        Studies</span>
                                     <span class="text-[10px] text-slate-400 block">Cerita sukses UMKM</span>
                                 </div>
                             </a>
-                            <a href="{{ route('public.resources.faq') }}" class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-7 h-7 rounded-[9px] bg-[#AF52DE]/15 flex items-center justify-center shrink-0">
+                            <a href="{{ route('public.resources.faq') }}"
+                                class="group flex items-center gap-3 px-3 py-2 rounded-[12px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded-[9px] bg-[#AF52DE]/15 flex items-center justify-center shrink-0">
                                     <i data-lucide="help-circle" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold text-white group-hover:text-[#AF52DE] transition-colors block">FAQ</span>
+                                    <span
+                                        class="text-xs font-semibold text-white group-hover:text-[#AF52DE] transition-colors block">FAQ</span>
                                     <span class="text-[10px] text-slate-400 block">Pertanyaan umum</span>
                                 </div>
                             </a>
@@ -849,7 +925,7 @@
     @if (!($hideFooter ?? false))
         <footer
             class="border-t border-white/10 bg-[#060913] text-slate-400 mt-0 pt-16 pb-24 text-xs sm:text-sm transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10 pb-10">
 
                     <!-- Col 1: Brand & Contact (Full width on mobile/tablet, 2 cols on desktop) -->
@@ -910,8 +986,7 @@
                                     'handle' => \App\Models\SystemSetting::get('social_tiktok_handle', '@cooca.id'),
                                     'svg' =>
                                         '<path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>',
-                                    'hover' =>
-                                        'hover:bg-white/15 hover:text-white',
+                                    'hover' => 'hover:bg-white/15 hover:text-white',
                                 ],
                                 'linkedin' => [
                                     'active' => filter_var(
@@ -944,16 +1019,16 @@
                                     'handle' => \App\Models\SystemSetting::get('social_twitter_handle', '@cooca_id'),
                                     'svg' =>
                                         '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>',
-                                    'hover' =>
-                                        'hover:bg-white/15 hover:text-white',
+                                    'hover' => 'hover:bg-white/15 hover:text-white',
                                 ],
                             ];
                         @endphp
 
                         <div class="space-y-3">
                             <a href="{{ route('landing') }}" class="inline-block">
-                                @if(!empty($siteLogoDarkUrl))
-                                    <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}" class="h-8 w-auto object-contain">
+                                @if (!empty($siteLogoDarkUrl))
+                                    <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
+                                        class="h-8 w-auto object-contain">
                                 @else
                                     <span class="font-black text-2xl tracking-tight text-white font-sans">COOCA</span>
                                 @endif
@@ -962,7 +1037,8 @@
                                 Business Operating System &amp; Omnichannel ERP
                             </p>
                             <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
-                                Satu ekosistem untuk mengelola, menghubungkan, menghasilkan, dan mengembangkan bisnis Anda.
+                                Satu ekosistem untuk mengelola, menghubungkan, menghasilkan, dan mengembangkan bisnis
+                                Anda.
                             </p>
                             <div class="flex flex-wrap items-center gap-2 pt-1">
                                 @foreach ($footerSocialChannels as $key => $soc)
@@ -1083,7 +1159,7 @@
         <!-- ═══ APPLE FLOATING DOCK BOTTOM NAVBAR (MOBILE ONLY) ═══ -->
         <nav class="fixed bottom-0 inset-x-0 z-40 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] px-4 sm:px-6 lg:px-8 pointer-events-none lg:hidden"
             aria-label="Navigasi Bawah">
-            <div class="max-w-7xl mx-auto pointer-events-auto">
+            <div class="max-w-[1250px] mx-auto pointer-events-auto">
                 <div
                     class="w-full bg-[#060913]/90 backdrop-blur-2xl border border-white/10 rounded-[24px] sm:rounded-[28px] px-2 sm:px-6 lg:px-8 py-2 sm:py-2.5 shadow-[0_12px_40px_-6px_rgba(0,0,0,0.5)] transition-all duration-300">
                     <div class="grid grid-cols-5 items-center w-full">
@@ -1103,8 +1179,7 @@
                                 <span
                                     class="text-xs font-semibold tracking-tight mt-0.5 {{ $isHomeActive ? 'text-[#00C2FF]' : '' }}">Beranda</span>
                                 @if ($isHomeActive)
-                                    <span
-                                        class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
+                                    <span class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
@@ -1113,7 +1188,8 @@
 
                         <!-- 2. Platform -->
                         @php
-                            $isPlatformActive = request()->routeIs('public.bos.*') || request()->routeIs('public.erp.*');
+                            $isPlatformActive =
+                                request()->routeIs('public.bos.*') || request()->routeIs('public.erp.*');
                         @endphp
                         <div class="col-span-1 flex flex-col items-center justify-center">
                             <a href="{{ route('public.bos.overview') }}"
@@ -1126,8 +1202,7 @@
                                 <span
                                     class="text-xs font-semibold tracking-tight mt-0.5 {{ $isPlatformActive ? 'text-[#00C2FF]' : '' }}">Platform</span>
                                 @if ($isPlatformActive)
-                                    <span
-                                        class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
+                                    <span class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
@@ -1149,8 +1224,7 @@
                                 class="text-xs font-bold tracking-tight mt-1.5 {{ $isSolusiActive ? 'text-[#00C2FF]' : 'text-slate-300' }}">Solusi
                                 POS</span>
                             @if ($isSolusiActive)
-                                <span
-                                    class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
+                                <span class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
                             @else
                                 <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                             @endif
@@ -1174,8 +1248,7 @@
                                 <span
                                     class="text-xs font-semibold tracking-tight mt-0.5 {{ $isTemplateActive ? 'text-[#34C759]' : '' }}">Template</span>
                                 @if ($isTemplateActive)
-                                    <span
-                                        class="w-1 h-1 rounded-full bg-[#34C759] mt-0.5 opacity-60"></span>
+                                    <span class="w-1 h-1 rounded-full bg-[#34C759] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
@@ -1211,8 +1284,7 @@
                                 <span
                                     class="text-xs font-semibold tracking-tight mt-0.5 {{ $isAccountActive ? 'text-[#00C2FF]' : '' }}">{{ $tabLabel }}</span>
                                 @if ($isAccountActive)
-                                    <span
-                                        class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
+                                    <span class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif

@@ -46,6 +46,116 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-23-118] Penyelarasan Grid Kiri dengan Mockup Ekosistem Grid Kanan & Interaktivitas Sinkron pada Section 4 ("Lebih dari Sekadar ERP")
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Landing Page Section 4 ("Lebih dari Sekadar ERP"), Business Operating System, Bento Apple HIG, Interactive Ecosystem Hub
+* **Feature:**
+  1. **Transformasi Grid Kiri Menjadi Architecture & Capability Guide:**
+     - Menggantikan 6 pilar generik abstrak (`Operate`, `Sell`, `Engage`, `Automate`, `Analyze`, `Decide`) dengan arsitektur kapabilitas terstruktur yang menjelaskan secara presisi setiap komponen pada diagram visual grid kanan.
+     - **Card 1 (Pusat Kendali Inti / Middle Hub):** `COOCA Operating Engine (Pusat)` - Menjelaskan peran Cooca sebagai single source of truth yang mengorkestrasi 7 modul satelit secara real-time (otomasi jurnal, pemotongan stok instan dari kasir, dan analitik terpadu).
+     - **Card 2 (Node Atas):** `Operasional & HPP` - Manajemen inventori bahan baku, kalkulasi HPP otomatis, resep bertingkat, & notifikasi restock gudang tepat waktu.
+     - **Card 3 (Node Tengah Kiri):** `POS Kasir & QRIS` - Transaksi kasir fisik cepat, struk barcode/thermal, dan pembayaran QRIS instan yang langsung sinkron ke gudang.
+     - **Card 4 (Node Atas Kanan):** `WhatsApp Multi-Agent` - Notifikasi order otomatis, pengiriman e-struk ke WhatsApp pelanggan, dan CS multi-operator terpusat.
+     - **Card 5 (Node Atas Kiri):** `Social Media Hub` - Sinkronisasi katalog produk ke Instagram, TikTok, Facebook, dan Threads untuk penjualan omnichannel terpadu.
+     - **Card 6 (Node Bawah Kiri):** `Website & Self-Order` - Katalog digital dan toko online mandiri bebas komisi platform perantara.
+     - **Card 7 (Node Tengah Kanan):** `Content AI Automation` - Asisten AI perancang materi promosi dan penjadwalan konten otomatis langsung dari master produk.
+     - **Card 8 (Node Bawah Kanan):** `Customer CRM & Loyalty Hub` - Penyatuan data pelanggan lintas channel untuk program loyalitas, riwayat belanja, dan repeat order otomatis.
+  2. **Interaktivitas Dua Arah (Bidirectional Reactive Highlighting):**
+     - Mengangkat state Alpine.js `activeNode` ke parent grid wrapper sehingga membagi konteks state secara real-time antara grid kiri dan diagram neon grid kanan.
+     - Ketika pengguna mengarahkan kursor (*hover*) ke salah satu kartu di grid kiri, node satelit yang bersesuaian pada diagram kanan membesar (`scale-115`), menyala dengan ring warna neon (cyan/pink/emerald/purple/blue), dan kabel fiber optik serta tooltip badge otomatis aktif.
+     - Sebaliknya, ketika pengguna mengarahkan kursor ke node pada diagram visual sebelah kanan, kartu penjelasan yang bersesuaian di grid kiri otomatis menyala dengan aksen border cyan dan background highlight Apple HIG.
+* **Work Type:** UI/UX | Frontend Alignment | Bento Apple HIG | Interactive State Synchronization
+
+#### 1. Business Context & Objective
+* **Konteks:** Pengguna meminta: *"pada section 4. 'LEBIH DARI SEKADAR ERP' grid kiri harus bisa menjelaskan informasi pada grid kanan"*. Sebelumnya, grid kiri hanya memuat teks pilar generik yang terputus dari diagram visual ekosistem di sebelah kanan. Pengunjung membutuhkan penjelasan yang konkret tentang apa arti setiap icon satelit dan kabel fiber-optik pada diagram tersebut.
+* **Target:** Menciptakan keterhubungan 1:1 antara kartu penjelasan di sisi kiri dengan 7 satelit node + 1 central core di sisi kanan, lengkap dengan efek interaktif dua arah yang sinkron.
+
+#### 2. What Was Done
+* Merombak grid kiri menjadi Bento Architecture Guide dengan 8 kartu penjelasan terstruktur (1 Central Core Banner + 6 Satellite Cards dalam 2x3 Grid + 1 Customer Loyalty Footer Card).
+* Menghubungkan event `@mouseenter` dan `@mouseleave` pada setiap kartu kiri dengan nilai node (`core`, `operasional`, `social`, `whatsapp`, `pos`, `automation`, `website`, `customer`).
+* Menambahkan binding `:class` dinamis pada node satelit diagram kanan untuk memicu animasi scale, ring neon glow, dan penampakan tooltip badge saat kartu kiri di-hover.
+* Menjalankan PHP linter, `php artisan view:clear`, dan feature test suite (17 passed, 93 assertions).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/landing.blade.php`
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+* **Workflow Impact:** Section 4 kini memiliki kejelasan semantik yang sangat tinggi. Calon pengguna UMKM dapat langsung memahami bagaimana satu sistem COOCA menghubungkan kasir toko, WhatsApp, website, media sosial, inventori, dan otomasi konten dalam satu arsitektur operasional.
+* **Business Rule Impact:** Tidak ada.
+* **Permission Impact:** Publik.
+
+#### 5. Verification & Testing
+* `php -l resources/views/landing.blade.php` -> No syntax errors detected.
+* `php artisan view:clear` -> Compiled views cleared successfully.
+* `php artisan test --filter="LandingPageAuthTest|PublicPagesStructureTest|PublicMarketplaceSearchTest"` -> 17 tests passed (93 assertions).
+* Zero Unicode Emoji Check -> PASS (100% Lucide SVG icons).
+
+#### 6. Important Decisions & Guardrails
+* Menjaga responsivitas layout pada perangkat mobile (`grid-cols-1 sm:grid-cols-2`) sehingga tetap nyaman dibaca pada layar kecil tanpa merusak diagram visual.
+* Menggunakan token warna Apple Blue (`#007AFF`) dan Cyan (`#00C2FF`) yang konsisten dengan tema dark section.
+
+#### 7. Documentation Promotion
+* Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-118] dan `walkthrough.md`.
+
+### [WORK-2026-09-23-117] Redesign UI Landing Page ke Bento Apple HIG & Refinement Mockup Dashboard serta Bottom CTA Banner
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Landing Page, Bento Apple HIG, UI/UX Redesign, Executive Cockpit Mockup, Bottom CTA Banner
+* **Feature:**
+  1. **Hero Section Redesign ke Apple HIG Bento Grid:**
+     - Menghapus capsule badge/pill berlebihan pada eyebrow hero, digantikan overline kicker tipografi murni (`SYSTEM OPERASI UMKM TERPADU`) dengan tracking wide dan warna Apple Blue (`#007AFF`).
+     - Kolom kanan Hero: Menggantikan generic toy boxes dengan mockup interaktif/visual otentik **Cooca Executive Cockpit Dashboard** dalam macOS Sonoma frosted window. Dilengkapi window traffic lights (`#FF5F56`, `#FFBD2E`, `#27C93F`), status operasional `Kasir Buka`, segmented period switcher (`Hari Ini`, `Minggu Ini`, `Bulan Ini`), 4 kartu Bento KPI (Omzet `Rp 4.250.000` (+14.8%), Margin Laba Bersih `32.4%`, Stok Kritis Gudang `3 Bahan`, Transaksi POS `142 Struk`), bar chart 7-hari dengan label hari (`Sen` s/d `Min`), capsule AI Insight ("Margin produk Kopi Susu naik 4%"), dan cloud sync footer (`Encrypted & Synced`).
+     - Kolom kiri Hero: Tombol CTA Apple HIG tactile dengan radius squircle `rounded-[14px]`, micro-interaction `active:scale-[0.98]`, dan social proof card frosted glass (`backdrop-blur-md`, `tabular-nums`).
+  2. **Harmonisasi Seluruh Section (Section 2 - 7):**
+     - Eyebrow badges pill diganti dengan pure typographic overline kickers (misal: `FITUR EKOSISTEM`, `WORKFLOW OTOMATIS`, `BUSINESS OPERATING SYSTEM`, `OMNICHANNEL`, `KUSTOMISASI SEKTOR`).
+     - Card containers diperbarui menggunakan squircle radius Apple HIG (`rounded-[20px]`, `rounded-[22px]`, `rounded-[24px]`) dengan border kaca halus (`border-black/[0.06] dark:border-white/[0.08]`).
+     - Tombol CTA sekunder pada Section 3, Section 5, Section 6, dan Section 7 diseragamkan dengan radius squircle `rounded-[14px]` dan warna tema Apple Blue.
+  3. **Section 8 (Bottom CTA Banner) Typography & Layout Hierarchy:**
+     - Memperbaiki hierarki tipografi kolom kiri: Overline kicker `Saatnya Beralih ke COOCA` (uppercase, cyan/white), `<h1>` diganti `<h2>` semantik `Start Building Your Business Operating System.`, dan `<h3>` berbobot tebal `Satu Platform Terpadu untuk Menggerakkan Bisnis UMKM Lebih Cerdas & Presisi`.
+     - 4-step onboarding ribbon diubah dari strip padat menjadi Bento frosted glass tiles (`01`, `02`, `03`, `04` dalam badge cyan menyala, squircle `rounded-[14px]`, `backdrop-blur-md`).
+     - Dual CTA buttons disempurnakan dengan `rounded-[14px]`, hover shadow halus, dan `active:scale-[0.98]`.
+     - Kolom kanan mockup desk & visual visual diselaraskan dengan container squircle `rounded-[24px]` dan border kaca.
+* **Work Type:** UI/UX | Redesign | Bento Apple HIG | Typography Hierarchy | Taste Skill
+
+#### 1. Business Context & Objective
+* **Konteks:** Landing page utama Cooca membutuhkan peningkatan estetika visual sesuai standar desain kelas dunia (Apple Human Interface Guidelines & Bento Grid), bebas dari elemen AI-slop (eyebrow pills murahan, border tebal, warna norak). Pengguna secara spesifik meminta perombakan grid kanan hero menjadi mockup dashboard Cooca, serta perbaikan styling h1, h2, h3 pada grid kiri Bottom CTA Banner.
+* **Target:** Meningkatkan konversi dan kredibilitas brand Cooca dengan tampilan Executive Cockpit Dashboard yang otentik, tipografi Apple HIG yang berjarak lega, dan Bento card layout yang terstruktur rapi.
+
+#### 2. What Was Done
+* Mengaudit seluruh section `landing.blade.php` dan mereduksi visual noise sesuai arahan `ui-ux-pro-max`, `taste-skill`, dan `cooca-agent-directive`.
+* Mengimplementasikan mockup Executive Dashboard Cooca di Hero section kanan dengan layout window macOS Sonoma dan kartu KPI bento.
+* Merestrukturisasi tipografi H1/H2/H3 dan Bento onboarding steps pada Section 8 (Bottom CTA Banner).
+* Memperbarui seluruh tombol aksi menjadi tactile squircle button `rounded-[14px]` dengan `active:scale-[0.98]`.
+* Memastikan 100% kompatibilitas pengujian otomatis (`LandingPageAuthTest`, `PublicPagesStructureTest`, `PublicMarketplaceSearchTest`).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/landing.blade.php`
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+* **Workflow Impact:** Landing page memiliki daya tarik visual yang jauh lebih berkelas, modern, dan profesional bagi calon tenant dan merchant UMKM.
+* **Business Rule Impact:** Tidak ada. Logika autentikasi dan rute navigasi tetap terjaga 100%.
+* **Permission Impact:** Publik.
+
+#### 5. Verification & Testing
+* `php -l resources/views/landing.blade.php` -> No syntax errors detected.
+* `php artisan view:clear` -> Compiled views cleared successfully.
+* `php artisan test --filter="LandingPageAuthTest|PublicPagesStructureTest|PublicMarketplaceSearchTest"` -> 17 tests passed (93 assertions).
+* Zero Unicode Emoji Check -> PASS (100% Lucide SVG icons).
+
+#### 6. Important Decisions & Guardrails
+* Mempertahankan seluruh assertion string kunci dari `PublicPagesStructureTest` (termasuk tag SVG radialGradient `ig-grad-conv`, `Executive Dashboard`, `One System, Endless Possibilities`, `Saatnya Beralih ke COOCA`, dll).
+* Menjaga responsivitas layout dari resolusi layar mobile (360px) hingga widescreen (4K).
+
+#### 7. Documentation Promotion
+* Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-117] dan `walkthrough.md`.
+
 ### [WORK-2026-09-23-116] Implementasi Hero Section Presisi Sesuai Contoh Gambar: Executive Dashboard & UMKM OS
 * **Date:** 2026-09-23
 * **Status:** COMPLETED
@@ -68,7 +178,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
      - Kapsul AI Insight di bagian bawah: lingkaran biru dengan ikon `sparkles` dan teks `AI: "Margin produk Kopi Susu naik 4% setelah revisi bahan baku."`.
   3. **Latar Belakang & Jarak Samping:**
      - Menggunakan latar belakang cerah berkelas `bg-[#F8F9FA] dark:bg-[#070A14]` yang kontras dan bersih.
-     - Container tetap berada pada `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` dengan jarak tepi yang proporsional.
+     - Container tetap berada pada `max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8` dengan jarak tepi yang proporsional.
 * **Work Type:** UI/UX | Redesign | Frontend Alignment | Bento Apple HIG
 
 #### 1. Business Context & Objective
@@ -103,13 +213,13 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-116] dan `walkthrough.md`.
 
-### [WORK-2026-09-23-115] Pemulihan Jarak Pinggir Layout (Margin & Gutter) Standar Apple HIG `max-w-7xl` Ekosistem COOCA
+### [WORK-2026-09-23-115] Pemulihan Jarak Pinggir Layout (Margin & Gutter) Standar Apple HIG `max-w-[1250px]` Ekosistem COOCA
 * **Date:** 2026-09-23
 * **Status:** COMPLETED
 * **Module:** Public Marketing Layout, Container Margin & Gutter, Landing Page, Marketplace Search, Bento Apple HIG
 * **Feature:**
-  1. **Pemulihan Margin Tepi Layout (`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`):**
-     - Mengembalikan batasan lebar maksimum container dari `1640px` (yang menyebabkan konten tertarik hingga ke tepi monitor) kembali ke `max-w-7xl` (1280px) dengan padding standar responsif `px-4 sm:px-6 lg:px-8`.
+  1. **Pemulihan Margin Tepi Layout (`max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8`):**
+     - Mengembalikan batasan lebar maksimum container dari `1640px` (yang menyebabkan konten tertarik hingga ke tepi monitor) kembali ke `max-w-[1250px]` (1280px) dengan padding standar responsif `px-4 sm:px-6 lg:px-8`.
      - Memberikan jarak tepi yang lega, elegan, dan proporsional (*breathing room*) dari sisi kiri dan kanan monitor widescreen (1080p, 1440p, 4K), persis sesuai desain referensi.
   2. **Harmonisasi Seluruh Section & Layout Global:**
      - Header Navbar & Footer pada `resources/views/layouts/public_marketing.blade.php`.
@@ -122,10 +232,10 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 1. Business Context & Objective
 * **Konteks:** Pengguna melaporkan bahwa setelah layout diperluas ke 1640px, konten menjadi tertarik penuh ke pinggir monitor ("sekarang ketarik full layouts, saya mau seperti contoh gambar, memiliki jarak dari pinggir"). Diperlukan jarak/margin samping yang nyaman agar layout terpusat rapi dan berkelas sebagaimana standar website Apple.
-* **Target:** Mengembalikan batas lebar container ke 1280px (`max-w-7xl`) dengan margin samping otomatis (`mx-auto`) dan padding `px-8` di monitor desktop sehingga terdapat jarak tepi yang bersih dan seimbang di sisi kiri dan kanan.
+* **Target:** Mengembalikan batas lebar container ke 1280px (`max-w-[1250px]`) dengan margin samping otomatis (`mx-auto`) dan padding `px-8` di monitor desktop sehingga terdapat jarak tepi yang bersih dan seimbang di sisi kiri dan kanan.
 
 #### 2. What Was Done
-* Mengubah container pada `resources/views/layouts/public_marketing.blade.php`, `resources/views/landing.blade.php`, dan `resources/views/public/marketplace/search.blade.php` menjadi `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`.
+* Mengubah container pada `resources/views/layouts/public_marketing.blade.php`, `resources/views/landing.blade.php`, dan `resources/views/public/marketplace/search.blade.php` menjadi `max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8`.
 * Menyesuaikan proporsi Hero section ketinggian, tipografi, dan wadah mockup perangkat fisik.
 * Mengosongkan cache view blade (`php artisan view:clear`) dan memverifikasi seluruh test suite (17 passed, 93 assertions).
 
@@ -148,7 +258,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 * Zero-emoji validation: PASS (0 unicode emojis).
 
 #### 6. Important Decisions & Guardrails
-* Menggunakan standar industri SaaS premium (`max-w-7xl` = 1280px) yang terbukti memberikan pengalaman ergonomis terbaik untuk mata pembaca, menghindari konten yang terlalu membentang ke pinggir layar pada monitor beresolusi tinggi.
+* Menggunakan standar industri SaaS premium (`max-w-[1250px]` = 1280px) yang terbukti memberikan pengalaman ergonomis terbaik untuk mata pembaca, menghindari konten yang terlalu membentang ke pinggir layar pada monitor beresolusi tinggi.
 
 #### 7. Documentation Promotion
 * Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-115] dan `walkthrough.md`.
@@ -162,7 +272,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
      - Mengganti diagram/box CSS flat pada kolom kanan Hero Section dengan aset render 3D fotorealistik perangkat fisik: laptop silver MacBook Pro terbuka (dengan keyboard aluminium & trackpad fisik) yang menampilkan Dashboard ERP Analytics gelap COOCA, serta smartphone iPhone floating yang menampilkan aplikasi Mobile Point of Sale (POS) dengan tombol QRIS Kasir.
      - Menyematkan kartu overlay mengambang *AI Assistant* (`#0b1633/95`, backdrop-blur-2xl, border cyan) di sisi kiri bawah mockup perangkat dengan ringkasan performa penjualan bisnis.
   2. **Optimalisasi Skala Layout pada Zoom Normal 100% (`max-w-[1640px]`):**
-     - Memperlebar batas maksimal container pada `landing.blade.php`, `public_marketing.blade.php` (header & footer), dan `marketplace/search.blade.php` dari 1480px menjadi `max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14`.
+     - Memperlebar batas maksimal container pada `landing.blade.php`, `public_marketing.blade.php` (header & footer), dan `marketplace/search.blade.php` dari 1480px menjadi `max-w-[1250px] xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14`.
      - Layout pada zoom normal (100%) kini tampak padat, penuh, dan proporsional di monitor desktop widescreen (1920x1080 / 1440p) tanpa memerlukan zoom browser manual ke 125%.
   3. **Peningkatan Skala Tipografi & CTA Hero Section:**
      - Headline dinaikkan menjadi `text-4xl sm:text-5xl lg:text-5xl xl:text-6xl 2xl:text-[4.25rem] font-extrabold leading-[1.1]`.
@@ -216,25 +326,25 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
      - Memperluas definisi `maxWidth.7xl` dari default Tailwind 1280px menjadi 1440px (standar MacBook Pro 15/16" & monitor desktop 1080p).
      - Menambahkan breakpoint utilitas `8xl: 1536px` dan `screen-2xl: 1536px` untuk monitor desktop layar lebar (1920x1080, 2K/1440p, dan 4K).
   2. **Ekspansi Container Header & Footer (`public_marketing.blade.php`):**
-     - Mengubah container navbar header menjadi `max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12` dengan ketinggian `h-16 sm:h-20` dan font navigasi `text-sm font-medium`.
-     - Mengubah container footer dan mobile dock menjadi `max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12`.
+     - Mengubah container navbar header menjadi `max-w-[1250px] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12` dengan ketinggian `h-16 sm:h-20` dan font navigasi `text-sm font-medium`.
+     - Mengubah container footer dan mobile dock menjadi `max-w-[1250px] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12`.
   3. **Pembesaran Proporsi Hero Section & 3D Ecosystem Hub (`landing.blade.php`):**
-     - Container Hero diperluas menjadi `max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 gap-8 lg:gap-12 xl:gap-16`.
+     - Container Hero diperluas menjadi `max-w-[1250px] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 gap-8 lg:gap-12 xl:gap-16`.
      - Skala Interactive 3D Ecosystem Grid diperbesar dari `max-w-[620px]` menjadi `max-w-[680px] xl:max-w-[740px] 2xl:max-w-[800px]`, membuat seluruh SVG vector (Central COOCA box, 7 satellite nodes, efek cahaya kabel fiber optik) membesar secara proporsional dan tidak lagi tampak sempit/miniatur di layar besar.
      - Headline dinaikkan skalanya menjadi `text-4xl sm:text-5xl lg:text-[3.5rem] 2xl:text-[4.25rem]`, dan body copy menjadi `text-sm sm:text-base lg:text-lg max-w-2xl`.
   4. **Ekspansi Seluruh Section Landing Page (Section 2 - 8):**
-     - Memperbarui seluruh container Section 2 s/d 8 di `landing.blade.php` menggunakan `max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12`.
+     - Memperbarui seluruh container Section 2 s/d 8 di `landing.blade.php` menggunakan `max-w-[1250px] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12`.
      - Memperbesar grid 8 Bento Cards (Section 2) dengan `gap-6 xl:gap-8` dan tipografi yang lebih berwibawa.
-     - Memperbarui halaman pencarian Marketplace (`resources/views/public/marketplace/search.blade.php`) menggunakan `max-w-7xl 2xl:max-w-screen-2xl`.
+     - Memperbarui halaman pencarian Marketplace (`resources/views/public/marketplace/search.blade.php`) menggunakan `max-w-[1250px] 2xl:max-w-screen-2xl`.
 * **Work Type:** UI/UX | Bento Apple HIG | Responsive Design
 
 #### 1. Business Context & Objective
-* **Konteks:** Pada tampilan desktop widescreen (1920x1080 atau 1440p), pembatasan container pada `max-w-7xl` (1280px) menyebabkan lebih dari 33% area layar berupa ruang kosong hitam di sisi kiri dan kanan. Akibatnya, seluruh layout (header, diagram ekosistem 3D hero, dan kartu-kartu Bento) tampak terlalu kecil, terkumpul sempit di tengah, dan tidak memanfaatkan ruang layar secara optimal.
+* **Konteks:** Pada tampilan desktop widescreen (1920x1080 atau 1440p), pembatasan container pada `max-w-[1250px]` (1280px) menyebabkan lebih dari 33% area layar berupa ruang kosong hitam di sisi kiri dan kanan. Akibatnya, seluruh layout (header, diagram ekosistem 3D hero, dan kartu-kartu Bento) tampak terlalu kecil, terkumpul sempit di tengah, dan tidak memanfaatkan ruang layar secara optimal.
 * **Target:** Meningkatkan skala container dan komponen visual agar proporsional, lapang, dan megah di monitor widescreen tanpa merusak keterbacaan di layar laptop maupun mobile.
 
 #### 2. What Was Done
 * Mengonfigurasi `maxWidth` pada `tailwind.config` di `resources/views/layouts/public_marketing.blade.php`.
-* Memperbarui container header, footer, dan floating dock menjadi `max-w-7xl 2xl:max-w-screen-2xl` dengan padding `xl:px-12`.
+* Memperbarui container header, footer, dan floating dock menjadi `max-w-[1250px] 2xl:max-w-screen-2xl` dengan padding `xl:px-12`.
 * Memperbesar skala wadah interactive ecosystem hub grid di `landing.blade.php` menjadi hingga `800px` dan menyeimbangkan proporsi tipografi hero.
 * Menyelaraskan seluruh section di `landing.blade.php` dan `marketplace/search.blade.php`.
 
@@ -257,7 +367,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 * Pengujian regex zero-emoji -> PASS (0 emoji terdeteksi).
 
 #### 6. Important Decisions & Guardrails
-* Menggunakan pendekatan fluida `max-w-7xl 2xl:max-w-screen-2xl` dengan perluasan `7xl: 1440px` sehingga perangkat laptop tetap mendapatkan padding yang nyaman dan perangkat desktop widescreen (1920px+) mendapatkan bentangan visual hingga 1536px.
+* Menggunakan pendekatan fluida `max-w-[1250px] 2xl:max-w-screen-2xl` dengan perluasan `7xl: 1440px` sehingga perangkat laptop tetap mendapatkan padding yang nyaman dan perangkat desktop widescreen (1920px+) mendapatkan bentangan visual hingga 1536px.
 
 #### 7. Documentation Promotion
 * Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-110] dan `walkthrough.md`.
@@ -1876,7 +1986,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
    - Dilengkapi kartu status mode (Production Live vs Sandbox Uji Coba), kotak 1-klik salin Webhook Callback URL, radio environment switcher, toggler lihat/sembunyikan secret key, input platform fee, live tester AJAX terintegrasi, dan bento grid katalog kurir partner (JNE, J&T, SiCepat, Anteraja, GoSend, GrabExpress, Ninja, Lion Parcel, POS Indonesia, ID Express).
 4. **Refactoring Settings Hub View (`index.blade.php`):**
    - Menata ulang segmented tab bar menjadi 6 tab terpadu: (1) OAuth & Sistem, (2) Pembayaran TriPay, (3) WhatsApp Cloud API, (4) Media Sosial Meta & TikTok, (5) Logistik Biteship, (6) Server SMTP Email.
-   - Memperbaiki layout container menjadi safe area fluida `max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10 space-y-6`.
+   - Memperbaiki layout container menjadi safe area fluida `max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10 space-y-6`.
    - Menambahkan state Alpine.js dan handler AJAX `testBiteshipConfig()` serta clipboard helper `copyToClipboard(url, 'biteship')`.
 5. **Penyempurnaan Tab Media Sosial (`tab-social.blade.php`):**
    - Menambahkan input field untuk `social_media_graph_url`, `tiktok_api_url`, dan `tiktok_auth_url`.
@@ -1942,7 +2052,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
   2. Textarea konten artikel pada halaman create dan edit sebelumnya hanya berupa textarea polos mentah, menyulitkan penulis dalam memformat artikel kaya (formatting, heading, bullet list, table, media).
   3. Membutuhkan integrasi text editor kaya berbasis TinyMCE (paket Free CDN yang disediakan pengguna) dengan selector terarah `#post-content` dan auto-save ke form submission.
   4. Menyediakan antarmuka pengelolaan tabel Kategori dan Cluster dengan tab Apple Segmented Control pada `index.blade.php`, dilengkapi modal sheet tambah/edit kategori & cluster, serta tombol cepat inline `[ + ]` pada form create/edit artikel.
-  5. Menegakkan standar Bento Apple HIG v2.0, Zero Unicode Emoji, Anti-Pill-Abuse (max 1 status badge, tanpa animasi pulsing palsu), iOS anti-auto-zoom (`text-[16px] sm:text-[13px]`), dan fluid container (`max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10`).
+  5. Menegakkan standar Bento Apple HIG v2.0, Zero Unicode Emoji, Anti-Pill-Abuse (max 1 status badge, tanpa animasi pulsing palsu), iOS anti-auto-zoom (`text-[16px] sm:text-[13px]`), dan fluid container (`max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10`).
   6. Menjamin *backward compatibility* 100% dengan rute publik blog (`/blog`, `/blog/{slug}`, scopes `scopeTutorial`, `scopeEdukasi`) melalui mekanisme *dual-sync* antara `cluster_id`/`category_id` dan kolom string `cluster`/`category`.
 
 #### 2. What Was Done
@@ -2023,13 +2133,13 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 * **Masalah/Target:**
   1. Menghilangkan elemen template bot AI dan pelanggaran aturan Zero Unicode Emoji pada `index.blade.php` (khususnya emoji `💡` pada teks petunjuk promo harga 0 rupiah) serta menggantikannya dengan ikon resmi Lucide `<i data-lucide="info">`.
   2. Menerapkan disiplin **Anti-Pill-Abuse & Anti-AI-Template**: membatasi maksimal satu badge status resmi per kartu paket (`Aktif` vs `Nonaktif`), mengeliminasi titik pulsa palsu (*fake pulse dot*), dan menyajikan angka harga serta kuota dalam tipografi murni tebal dengan format angka `tabular-nums`.
-  3. Memastikan fluid container (`max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10`) untuk mencegah *horizontal overflow* dan memberikan ruang aman bagi navigasi mengambang (*floating bottom bar*) pada perangkat bergerak.
+  3. Memastikan fluid container (`max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10`) untuk mencegah *horizontal overflow* dan memberikan ruang aman bagi navigasi mengambang (*floating bottom bar*) pada perangkat bergerak.
   4. Menerapkan standar input iOS Safari anti auto-zoom (`text-[16px] sm:text-[13px]`) secara menyeluruh pada seluruh form input dan textarea di panel default pricing, form tambah paket, maupun modal edit paket.
   5. Mempertahankan 100% kompatibilitas pengujian fungsional otomatis (`BillingPackageCatalogTest`, `SubscriptionLifecycleAndNotificationTest`, `PatunganSubscriptionWorkflowTest`, `FreePromoTrialPackageActivationTest`).
 
 #### 2. What Was Done
 * **Refactoring `resources/views/admin/billing-packages/index.blade.php`:**
-  - Mengisolasi pembungkus halaman dengan container responsif `space-y-6 max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10`.
+  - Mengisolasi pembungkus halaman dengan container responsif `space-y-6 max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10`.
   - Memperbarui Bento Page Header dengan ikon badge `w-12 h-12 rounded-[16px] bg-[#007AFF]/10 text-[#007AFF]`, tipografi tebal jernih, dan counter badge katalog dengan `tabular-nums font-bold`.
   - Meremajakan tab navigasi Apple Pill Segmented Control (`rounded-[18px] bg-black/[0.04] dark:bg-white/[0.06]`) dengan counter `tabular-nums` dan feedback taktil `active:scale-[0.98]`.
   - Menyelaraskan kotak konfigurasi Single Source of Truth Default Pricing Cooca (Bulanan, Tahunan, Kuota Token AI, Badge Diskon, Top-up Token Instant, dan Kapasitas Dasar Owner).
@@ -2080,7 +2190,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 2. What Was Done
 * **Refactoring `index.blade.php`:**
-  - Mengisolasi kontainer utama dengan `max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10` untuk mencegah *horizontal overflow* di mobile dan memberikan ruang aman bagi *floating bottom bar*.
+  - Mengisolasi kontainer utama dengan `max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10` untuk mencegah *horizontal overflow* di mobile dan memberikan ruang aman bagi *floating bottom bar*.
   - Membersihkan 4 hero stat card (`Menunggu Review`, `Total Pengajuan`, `Disetujui Resmi`, `Permohonan Ditolak`) dari metric cluttering pill dan fake pulse dot; menerapkan tipografi murni tebal dengan angka `tabular-nums`.
   - Mengadopsi tabel responsif Apple: tampilan tabel desktop (`hidden md:block`) dengan kolom terstruktur rapi, serta deretan kartu ringkas mobile (`md:hidden`).
   - Menghadirkan pop-up modal sheet Full Layout XXL (`max-w-6xl`) interaktif berbasis Alpine.js di halaman index, memungkinkan verifikasi berkas dan eksekusi persetujuan/penolakan instan.
@@ -4287,7 +4397,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 2. What Was Done
 * **Standardisasi Modul Bahan Baku (`resources/views/app/materials/index.blade.php`):**
   - Toolbar Apple HIG terintegrasi dengan dynamic breadcrumb dan 4 kartu metrik Bento KPI (`rounded-[20px]`) bersquircle: *Total Bahan Baku*, *Kategori Bahan*, *Pemasok Vendor*, dan *Manajemen Susut Yield & Waste*.
-  - Meng-upgrade modal tambah bahan baku menjadi **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[90vh]`) pada desktop, 2-kolom pada tablet, dan **Apple Bottom Sheet** (`rounded-t-[28px] max-h-[94vh]`) pada mobile.
+  - Meng-upgrade modal tambah bahan baku menjadi **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] max-h-[90vh]`) pada desktop, 2-kolom pada tablet, dan **Apple Bottom Sheet** (`rounded-t-[28px] max-h-[94vh]`) pada mobile.
   - Arsitektur Bento 12 kolom: 7 kolom identitas & relasi master + 5 kolom rendemen (yield), susut (waste), harga beli, ongkir, diskon, dan kartu estimasi biaya efektif per unit live via Alpine.js.
   - Mengimplementasikan **Triple Inline Quick-Add AJAX `[ + ]`**: Kategori Bahan (`material-categories.store`), Satuan Beli (`units.store`), dan Supplier (`suppliers.store`) dapat dibuat instan via sub-modal AJAX tanpa reload atau kehilangan data input utama.
   - Dualitas tabel data desktop dan **Apple Grouped Inset Cards** pada smartphone (`< sm`).
@@ -4362,7 +4472,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 * **Standardisasi Halaman Indeks Produk (`resources/views/app/products/index.blade.php`):**
   - Mengganti banner gradasi dengan **Apple Segmented Control** terpadu (`[ Barang Fisik (Katalog) ] [ Jasa & Layanan ] [ Varian & Modifiers ]`) sesuai UI Unification Directive Section 16.
   - Mengimplementasikan kartu metrik Bento KPI (`rounded-[20px]`) dengan ikon squircle Lucide murni, tipografi angka tabular (`tabular-nums`), dan eliminasi seluruh badge pill dekoratif (Anti-Pill Mandate).
-  - Merombak total Modal Tambah & Edit Produk menjadi **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[90vh]`) dengan tata letak Bento Grid 12 kolom (7 kolom identitas produk & inventori + 5 kolom penetapan harga, foto produk, switches multi-kanal, dan preorder).
+  - Merombak total Modal Tambah & Edit Produk menjadi **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] max-h-[90vh]`) dengan tata letak Bento Grid 12 kolom (7 kolom identitas produk & inventori + 5 kolom penetapan harga, foto produk, switches multi-kanal, dan preorder).
   - Mengimplementasikan **Inline Quick-Add AJAX `[ + ]`** untuk Kategori dan Satuan Produk: menyimpan via background AJAX (`fetch()`), menginjeksi opsi baru ke `<select>`, dan memilihnya otomatis tanpa reload halaman maupun mereset draf produk yang sedang diketik.
   - Mempertahankan backward compatibility 100% pada quick toggle switches kanal (`products.toggle-setting`) dan fallback input `<input type="hidden" name="[field]" value="0">`.
   - Mengganti dialog hapus native dengan Apple Confirmation Dialog ber-squircle lengkap dengan pesan penenang jiwa berikon Lucide info murni (*"Tenang: Riwayat transaksi kasir, nota pesanan, dan pembukuan masa lalu yang menggunakan produk ini tetap aman tersimpan."*).
@@ -4484,9 +4594,9 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 * **Masalah/Target:** Ketentuan modal sebelumnya merekomendasikan ukuran modal sempit (`max-w-lg` 512px atau `max-w-xl` 576px) pada desktop. Ukuran ini membuat formulir terhimpit (*cramped*), memaksa tata letak 1-kolom memanjang vertikal dengan scroll berlebihan, memotong tabel rincian transaksi, dan menyia-nyiakan bentang layar monitor pengguna. Pengguna membutuhkan standardisasi modal pop-up yang memanfaatkan **Full Layout XXL** pada desktop dan responsif secara adaptif di tablet kasir serta smartphone mobile.
 
 #### 2. What Was Done
-* **Upgrade Standar Modal ke Full Layout XXL:** Menghapus batas sempit `max-w-lg`/`max-w-xl` dan menetapkan standar **Full Layout XXL (`max-w-5xl` s/d `max-w-7xl` / `max-w-[95vw]`)** untuk seluruh operasi Show (Detail), Create (Tambah Baru), dan Edit (Ubah) pada halaman index.
+* **Upgrade Standar Modal ke Full Layout XXL:** Menghapus batas sempit `max-w-lg`/`max-w-xl` dan menetapkan standar **Full Layout XXL (`max-w-5xl` s/d `max-w-[1250px]` / `max-w-[95vw]`)** untuk seluruh operasi Show (Detail), Create (Tambah Baru), dan Edit (Ubah) pada halaman index.
 * **Spesifikasi Matriks Responsivitas Multi-Device:**
-  1. **Desktop (>= 1024px):** Full Layout XXL Centered Bento Dialog (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl rounded-[24px] max-h-[90vh] flex flex-col`), mengakomodasi grid Bento multi-kolom (8 kolom area form/tabel utama + 4 kolom metrik ringkasan/kalkulasi), sticky header frosted glass, dan sticky footer.
+  1. **Desktop (>= 1024px):** Full Layout XXL Centered Bento Dialog (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] rounded-[24px] max-h-[90vh] flex flex-col`), mengakomodasi grid Bento multi-kolom (8 kolom area form/tabel utama + 4 kolom metrik ringkasan/kalkulasi), sticky header frosted glass, dan sticky footer.
   2. **Tablet Kasir & iPad (640px – 1023px):** Centered Responsive Bento Modal (`w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl rounded-[22px] max-h-[90vh] flex flex-col`), tata letak 2 kolom modular seimbang, touch-target tombol 44px–48px.
   3. **Smartphone Mobile (< 640px):** Apple Full-Responsive Bottom Sheet (`w-full inset-x-0 bottom-0 rounded-t-[28px] max-h-[94vh] flex flex-col overflow-hidden`), pegangan grab bar Apple (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5`), input form wajib minimal 16px (`text-[16px] sm:text-[14px]`) anti auto-zoom iOS, alur 1-kolom vertikal, dan sticky bottom action bar dengan safe area padding.
 * **Penyelarasan Dokumentasi Lintas Layer:** Memperbarui `docs/agent.md` (Mandat Utama, Section 17, dan DoD Checklist), `docs/prompt.md` (Section 13.6 dan Section 17), `docs/system/architecture/ui-ux-design-system.md` (Section 4 dan Section 11), dan `.agents/skills/cooca-agent-directive/references/design-system.md` (Section 14).
@@ -5149,7 +5259,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 * **Feature:** Mengatasi tuntas bug UI terpotong pada WhatsApp Admin Center dan Master Admin Layout (`resources/views/layouts/admin.blade.php`, `resources/views/admin/whatsapp/index.blade.php`, dan `resources/views/admin/whatsapp/blast_show.blade.php`):
   - **Akar Masalah (Flexbox Minimum Content Size Gotcha)**:
     * Segmented control tabs (baris 193) memiliki 4 tab `whitespace-nowrap shrink-0` dengan total lebar minimum ~650px.
-    * Karena kontainer induk flexbox (`max-w-7xl`, `<main>`, dan wrapper `lg:pl-72`) tidak memiliki `min-w-0`, browser memaksa lebar layout membesar hingga 650px+, melampaui lebar layar smartphone (360px atau 311px pada emulator), sehingga sisi kanan kartu KPI, tab, dan tombol aksi terpotong keluar layar (*horizontal blowout*).
+    * Karena kontainer induk flexbox (`max-w-[1250px]`, `<main>`, dan wrapper `lg:pl-72`) tidak memiliki `min-w-0`, browser memaksa lebar layout membesar hingga 650px+, melampaui lebar layar smartphone (360px atau 311px pada emulator), sehingga sisi kanan kartu KPI, tab, dan tombol aksi terpotong keluar layar (*horizontal blowout*).
     * Pada layar desktop/tablet, melebarnya dokumen memicu scroll horizontal global pada window. Karena `<aside>` (sidebar admin) berposisi `fixed left-0`, pergeseran scroll horizontal menggeser konten `<main>` ke kiri dan menyusup tepat di bawah sidebar fixed, sehingga sisi kiri konten (ikon WhatsApp dan teks awal kartu) tertutup/terpotong oleh sidebar.
   - **Perbaikan Master Layout (`resources/views/layouts/admin.blade.php`)**:
     * Menambahkan `overflow-x-hidden` pada tag `<html>` dan `<body>` untuk mencegah scrollbar horizontal global.
@@ -7040,7 +7150,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
    - Menyediakan empty state bersih dengan ikon `search-x` dan tombol reset filter jika kata kunci tidak ditemukan.
    - Mengirimkan `$serviceCategories` dari controller untuk mendukung filtering kategori pada layanan.
 6. **Full-Layout Catalog Modal (Desktop & Tablet):**
-   - Mengembangkan modal `w-[94vw] lg:w-[92vw] xl:max-w-7xl h-[90vh]` dengan pinned header, pinned search & category filter bar, serta area scroll internal dengan grid responsif (2–6 kolom).
+   - Mengembangkan modal `w-[94vw] lg:w-[92vw] xl:max-w-[1250px] h-[90vh]` dengan pinned header, pinned search & category filter bar, serta area scroll internal dengan grid responsif (2–6 kolom).
    - Menyediakan switcher tab Produk vs Layanan di dalam header modal untuk pengalaman browsing mulus tanpa perlu menutup dialog.
    - Mengunci scroll body halaman (`overflow-hidden`) ketika modal aktif (`$watch('activeModal')`).
 7. **Integritas Alur Transaksi:**
@@ -7390,7 +7500,7 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (*Single 
   1. Menyesuaikan skala visual antarmuka agar pada **zoom normal 100%** tampil optimal, padat, dan proporsional persis seperti pada Image 1 (yang sebelumnya hanya tercapai di zoom 125%).
   2. Memperbesar skala elemen laptop mockup (header bar, font ukuran metrik, tinggi chart multi-channel, dan AI assistant floating badge) agar tampak tegas, berwibawa, dan mudah dibaca di layar desktop.
   3. Memastikan Hero Section mengisi penuh layar pertama (`min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)] flex items-center`) tanpa membiarkan Section 2 mengintip di bawah secara canggung.
-  4. Menyelaraskan kontainer lebar grid ke `max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10` sehingga memiliki margin samping yang elegan (~11%) tanpa mepet ke tepi layar.
+  4. Menyelaraskan kontainer lebar grid ke `max-w-[1250px] xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10` sehingga memiliki margin samping yang elegan (~11%) tanpa mepet ke tepi layar.
 
 #### 2. What Was Done
 1. **Hero Right Column (Laptop Mockup) Scaled to Image 1 Perfection:**
@@ -7406,7 +7516,7 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (*Single 
    - Dual CTAs: Tombol `Coba COOCA Gratis` dan `Lihat Cara Kerja` diperlebar menjadi `px-7 sm:px-8 py-3.5 sm:py-4` dengan teks tebal `text-sm sm:text-base`.
    - Tag pills: `px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm`.
 3. **Container Consistency Across Layout & Landing:**
-   - Mengubah seluruh kontainer section di `landing.blade.php`, header navbar, dan footer di `layouts/public_marketing.blade.php` ke `max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10`.
+   - Mengubah seluruh kontainer section di `landing.blade.php`, header navbar, dan footer di `layouts/public_marketing.blade.php` ke `max-w-[1250px] xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10`.
 4. **Verification:**
    - Tag `<div>` seimbang (219 open vs 219 close).
    - Zero Unicode emoji verified.

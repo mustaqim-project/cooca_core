@@ -22,7 +22,8 @@
         $totalMerchantsCount = $merchantSummary['total'] ?? 0;
     @endphp
 
-    <div class="space-y-5 sm:space-y-6 max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="adminWaCenter()" x-init="init()">
+    <div class="space-y-5 sm:space-y-6 max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="adminWaCenter()"
+        x-init="init()">
 
         {{-- 1. BENTO HEADER --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 min-w-0">
@@ -32,8 +33,10 @@
                     <i data-lucide="shield-check" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-[18px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight truncate">WhatsApp Platform Admin Center</h1>
-                    <p class="text-[12px] sm:text-[13px] text-black/50 dark:text-white/50 mt-0.5 truncate">Pusat konfigurasi resmi Meta Tech Provider, gateway OTP keamanan, pengingat langganan, dan pengawasan merchant</p>
+                    <h1 class="text-[18px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight truncate">
+                        WhatsApp Platform Admin Center</h1>
+                    <p class="text-[12px] sm:text-[13px] text-black/50 dark:text-white/50 mt-0.5 truncate">Pusat konfigurasi
+                        resmi Meta Tech Provider, gateway OTP keamanan, pengingat langganan, dan pengawasan merchant</p>
                 </div>
             </div>
 
@@ -45,7 +48,8 @@
                         <span class="w-2 h-2 rounded-full bg-[#34C759] shrink-0"></span>
                         <span class="truncate">Meta Resmi Aktif</span>
                         <span class="text-black/30 dark:text-white/30">|</span>
-                        <span class="font-mono truncate" x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : 'Online'"></span>
+                        <span class="font-mono truncate"
+                            x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : 'Online'"></span>
                     </div>
                 </template>
                 <template x-if="status !== 'connected' && codeVerificationStatus === 'NOT_VERIFIED' && phone">
@@ -101,9 +105,11 @@
                 class="rounded-[18px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-w-0">
                 <div class="flex items-center justify-between gap-2 min-w-0">
                     <span
-                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Bot Platform</span>
+                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Bot
+                        Platform</span>
                     <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-[9px] sm:rounded-[10px] flex items-center justify-center shrink-0"
-                        :class="status === 'connected' ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40'">
+                        :class="status === 'connected' ? 'bg-[#34C759]/15 text-[#34C759]' :
+                            'bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40'">
                         <i data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
                 </div>
@@ -122,7 +128,8 @@
                 class="rounded-[18px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-w-0">
                 <div class="flex items-center justify-between gap-2 min-w-0">
                     <span
-                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Merchant WABA</span>
+                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Merchant
+                        WABA</span>
                     <div
                         class="w-7 h-7 sm:w-8 sm:h-8 rounded-[9px] sm:rounded-[10px] bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center shrink-0">
                         <i data-lucide="store" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
@@ -134,7 +141,8 @@
                         {{ $activeMerchantsCount }} <span
                             class="text-[11px] sm:text-[12px] font-medium text-black/45 dark:text-white/45">aktif</span>
                     </div>
-                    <p class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 mt-0.5 truncate tabular-nums">Total {{ $totalMerchantsCount }} toko terdaftar</p>
+                    <p class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 mt-0.5 truncate tabular-nums">
+                        Total {{ $totalMerchantsCount }} toko terdaftar</p>
                 </div>
             </div>
 
@@ -143,7 +151,8 @@
                 class="rounded-[18px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-w-0">
                 <div class="flex items-center justify-between gap-2 min-w-0">
                     <span
-                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Pengingat Tagihan</span>
+                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Pengingat
+                        Tagihan</span>
                     <div
                         class="w-7 h-7 sm:w-8 sm:h-8 rounded-[9px] sm:rounded-[10px] bg-[#FF9500]/15 text-[#FF9500] flex items-center justify-center shrink-0">
                         <i data-lucide="bell" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
@@ -155,7 +164,8 @@
                         {{ $pendingRemindersCount }} <span
                             class="text-[11px] sm:text-[12px] font-medium text-black/45 dark:text-white/45">pending</span>
                     </div>
-                    <p class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 mt-0.5 truncate tabular-nums">Total
+                    <p class="text-[11px] sm:text-[11.5px] text-black/50 dark:text-white/50 mt-0.5 truncate tabular-nums">
+                        Total
                         {{ $totalDueCount }} langganan</p>
                 </div>
             </div>
@@ -165,7 +175,8 @@
                 class="rounded-[18px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-w-0">
                 <div class="flex items-center justify-between gap-2 min-w-0">
                     <span
-                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Keberhasilan Kirim</span>
+                        class="text-[11px] sm:text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider truncate">Keberhasilan
+                        Kirim</span>
                     <div
                         class="w-7 h-7 sm:w-8 sm:h-8 rounded-[9px] sm:rounded-[10px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0">
                         <i data-lucide="check-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
@@ -206,7 +217,8 @@
                     <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
                     <span>Monitoring Merchant</span>
                     @if ($activeMerchantsCount > 0)
-                        <span class="px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-[11px] font-bold tabular-nums">
+                        <span
+                            class="px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-[11px] font-bold tabular-nums">
                             {{ $activeMerchantsCount }}
                         </span>
                     @endif
@@ -256,7 +268,8 @@
             {{-- 1. HERO CARD: LIVE STATUS BOT PLATFORM META --}}
             <div
                 class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
+                <div
+                    class="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div class="flex items-start gap-4 min-w-0 flex-1">
                         <div
                             class="w-12 h-12 sm:w-14 sm:h-14 rounded-[18px] bg-gradient-to-br from-[#1877F2] to-[#007AFF] text-white flex items-center justify-center shadow-lg shadow-[#1877F2]/25 shrink-0">
@@ -268,26 +281,33 @@
                                     Bot WhatsApp Platform Cooca
                                 </h2>
                                 <template x-if="status === 'connected'">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                         <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
                                         <span>Aktif Terhubung</span>
                                     </span>
                                 </template>
-                                <template x-if="status !== 'connected' && codeVerificationStatus === 'NOT_VERIFIED' && phone">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/25">
+                                <template
+                                    x-if="status !== 'connected' && codeVerificationStatus === 'NOT_VERIFIED' && phone">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/25">
                                         <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span>
                                         <span>Perlu Verifikasi Nomor</span>
                                     </span>
                                 </template>
-                                <template x-if="status !== 'connected' && (codeVerificationStatus !== 'NOT_VERIFIED' || !phone)">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/25">
+                                <template
+                                    x-if="status !== 'connected' && (codeVerificationStatus !== 'NOT_VERIFIED' || !phone)">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/25">
                                         <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span>
                                         <span>Belum Dikonfigurasi</span>
                                     </span>
                                 </template>
                             </div>
                             <p class="text-[12.5px] text-black/60 dark:text-white/60 leading-relaxed max-w-2xl">
-                                Kanal resmi Meta WhatsApp Cloud API (Graph API v26.0) tingkat induk (Parent). Digunakan untuk pengiriman OTP otentikasi login, reset PIN, verifikasi akun, dan pengingat tagihan langganan SaaS.
+                                Kanal resmi Meta WhatsApp Cloud API (Graph API v26.0) tingkat induk (Parent). Digunakan
+                                untuk pengiriman OTP otentikasi login, reset PIN, verifikasi akun, dan pengingat tagihan
+                                langganan SaaS.
                             </p>
                         </div>
                     </div>
@@ -303,33 +323,50 @@
 
                 {{-- Status Pills Grid --}}
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                    <div class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Nama Akun Bisnis</span>
-                        <div class="text-[13.5px] sm:text-[14px] font-bold text-black dark:text-white truncate" x-text="metaVerifyResult?.verified_name || '{{ $waStatus['verified_name'] ?? 'Cooca Platform' }}'">
+                    <div
+                        class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Nama
+                            Akun Bisnis</span>
+                        <div class="text-[13.5px] sm:text-[14px] font-bold text-black dark:text-white truncate"
+                            x-text="metaVerifyResult?.verified_name || '{{ $waStatus['verified_name'] ?? 'Cooca Platform' }}'">
                             {{ $waStatus['verified_name'] ?? 'Cooca Platform' }}
                         </div>
                     </div>
 
-                    <div class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Nomor Telepon Bot</span>
-                        <div class="text-[13.5px] sm:text-[14px] font-bold font-mono text-black dark:text-white truncate" x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : '{{ $waStatus['display_phone'] ?? '-' }}'">
+                    <div
+                        class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Nomor
+                            Telepon Bot</span>
+                        <div class="text-[13.5px] sm:text-[14px] font-bold font-mono text-black dark:text-white truncate"
+                            x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : '{{ $waStatus['display_phone'] ?? '-' }}'">
                             {{ $waStatus['display_phone'] ?? '-' }}
                         </div>
                     </div>
 
-                    <div class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Kualitas Nomor</span>
-                        <div class="text-[13.5px] sm:text-[14px] font-bold text-[#248A3D] dark:text-[#30D158] flex items-center gap-1.5 truncate">
+                    <div
+                        class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Kualitas
+                            Nomor</span>
+                        <div
+                            class="text-[13.5px] sm:text-[14px] font-bold text-[#248A3D] dark:text-[#30D158] flex items-center gap-1.5 truncate">
                             <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
-                            <span x-text="metaVerifyResult?.quality_rating || '{{ $waStatus['quality_rating'] ?? 'GREEN' }}'">
+                            <span
+                                x-text="metaVerifyResult?.quality_rating || '{{ $waStatus['quality_rating'] ?? 'GREEN' }}'">
                                 {{ $waStatus['quality_rating'] ?? 'GREEN' }}
                             </span>
                         </div>
                     </div>
 
-                    <div class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Limit Kuota Harian</span>
-                        <div class="text-[13.5px] sm:text-[14px] font-bold text-black dark:text-white truncate" x-text="metaVerifyResult?.messaging_tier || '{{ $waStatus['messaging_tier'] ?? 'TIER_1K' }}'">
+                    <div
+                        class="p-3.5 sm:p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider block">Limit
+                            Kuota Harian</span>
+                        <div class="text-[13.5px] sm:text-[14px] font-bold text-black dark:text-white truncate"
+                            x-text="metaVerifyResult?.messaging_tier || '{{ $waStatus['messaging_tier'] ?? 'TIER_1K' }}'">
                             {{ $waStatus['messaging_tier'] ?? 'TIER_1K' }}
                         </div>
                     </div>
@@ -338,18 +375,29 @@
 
             {{-- BANNER TINDAKAN: VERIFIKASI NOMOR META WHATSAPP MANAGER --}}
             <template x-if="status !== 'connected' && codeVerificationStatus === 'NOT_VERIFIED' && phone">
-                <div class="rounded-[22px] sm:rounded-[24px] bg-[#FF9500]/10 border border-[#FF9500]/25 p-5 sm:p-6 shadow-sm space-y-4">
+                <div
+                    class="rounded-[22px] sm:rounded-[24px] bg-[#FF9500]/10 border border-[#FF9500]/25 p-5 sm:p-6 shadow-sm space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div class="flex items-start gap-3.5 min-w-0">
-                            <div class="w-11 h-11 rounded-[14px] bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] flex items-center justify-center shrink-0">
+                            <div
+                                class="w-11 h-11 rounded-[14px] bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] flex items-center justify-center shrink-0">
                                 <i data-lucide="shield-alert" class="w-6 h-6"></i>
                             </div>
                             <div class="min-w-0">
                                 <h3 class="text-[15px] sm:text-[16px] font-bold text-black dark:text-white tracking-tight">
                                     Tindakan Diperlukan: Verifikasi Kepemilikan Nomor di Meta WhatsApp Manager
                                 </h3>
-                                <p class="text-[12px] sm:text-[12.5px] text-black/65 dark:text-white/65 mt-1 leading-relaxed max-w-3xl">
-                                    Nomor <strong class="font-mono text-black dark:text-white" x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : '+62 852-8786-4176'"></strong> telah terhubung ke WABA <em>Cooca ID</em>, tetapi status registrasi di server Meta masih <span class="font-mono font-bold text-[#D97706] dark:text-[#FFA114]" x-text="metaStatus + ' / ' + codeVerificationStatus">DISCONNECTED / NOT_VERIFIED</span>. Meta Cloud API menolak pengiriman pesan (<code class="text-[11px] bg-black/5 dark:bg-white/10 px-1 py-0.5 rounded font-mono">#133010 Account not registered</code>) hingga verifikasi SMS OTP diselesaikan langsung di Meta.
+                                <p
+                                    class="text-[12px] sm:text-[12.5px] text-black/65 dark:text-white/65 mt-1 leading-relaxed max-w-3xl">
+                                    Nomor <strong class="font-mono text-black dark:text-white"
+                                        x-text="phone ? (phone.startsWith('+') ? phone : '+' + phone) : '+62 852-8786-4176'"></strong>
+                                    telah terhubung ke WABA <em>Cooca ID</em>, tetapi status registrasi di server Meta masih
+                                    <span class="font-mono font-bold text-[#D97706] dark:text-[#FFA114]"
+                                        x-text="metaStatus + ' / ' + codeVerificationStatus">DISCONNECTED /
+                                        NOT_VERIFIED</span>. Meta Cloud API menolak pengiriman pesan (<code
+                                        class="text-[11px] bg-black/5 dark:bg-white/10 px-1 py-0.5 rounded font-mono">#133010
+                                        Account not registered</code>) hingga verifikasi SMS OTP diselesaikan langsung di
+                                    Meta.
                                 </p>
                             </div>
                         </div>
@@ -360,21 +408,26 @@
                         </a>
                     </div>
 
-                    <div class="pt-3 border-t border-[#FF9500]/20 text-[12px] text-black/70 dark:text-white/70 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <div
+                        class="pt-3 border-t border-[#FF9500]/20 text-[12px] text-black/70 dark:text-white/70 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                         <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">1</span>
+                            <span
+                                class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">1</span>
                             <span>Buka link WhatsApp Manager</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">2</span>
+                            <span
+                                class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">2</span>
                             <span>Cari nomor &amp; klik <strong>Verifikasi</strong></span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">3</span>
+                            <span
+                                class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">3</span>
                             <span>Input 6-digit SMS &amp; PIN 2FA</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">4</span>
+                            <span
+                                class="w-5 h-5 rounded-full bg-[#FF9500]/20 text-[#D97706] dark:text-[#FFA114] font-bold text-[11px] flex items-center justify-center shrink-0">4</span>
                             <span>Status aktif &amp; pesan siap terkirim</span>
                         </div>
                     </div>
@@ -382,10 +435,13 @@
             </template>
 
             {{-- 2. BENTO INTEGRATION HUB: PUSAT PENGATURAN TERPADU --}}
-            <div class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <div
+                class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-6 w-full min-w-0">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div class="flex items-start gap-3.5">
-                        <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <div
+                            class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0">
                             <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
                         </div>
                         <div>
@@ -393,12 +449,15 @@
                                 <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
                                     Kredensial Bot Induk Platform Meta
                                 </h3>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                <span
+                                    class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                     Terintegrasi
                                 </span>
                             </div>
                             <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5 max-w-2xl">
-                                Seluruh konfigurasi kredensial Meta App ID, Secret, WABA ID, Phone Number ID, Access Token, Webhook Verify Token, dan Embedded Signup Config ID kini dikelola secara terpusat di <strong>Pengaturan Platform &amp; Sistem</strong>.
+                                Seluruh konfigurasi kredensial Meta App ID, Secret, WABA ID, Phone Number ID, Access Token,
+                                Webhook Verify Token, dan Embedded Signup Config ID kini dikelola secara terpusat di
+                                <strong>Pengaturan Platform &amp; Sistem</strong>.
                             </p>
                         </div>
                     </div>
@@ -414,72 +473,99 @@
                 {{-- Current Settings Snapshot Grid --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                     {{-- 1. Meta App ID --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta App ID (META_WA_APP_ID)</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta
+                            App ID (META_WA_APP_ID)</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $platformApp['app_id'] ?: 'Belum Dikonfigurasi' }}
                         </div>
                     </div>
 
                     {{-- 2. Meta App Secret --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta App Secret (META_WA_APP_SECRET)</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta
+                            App Secret (META_WA_APP_SECRET)</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ !empty($platformApp['app_secret']) ? '••••••••••••••••' : 'Belum Dikonfigurasi' }}
                         </div>
                     </div>
 
                     {{-- 3. Embedded Signup Config ID --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Embedded Signup Config ID (META_WA_CONFIG_ID)</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Embedded
+                            Signup Config ID (META_WA_CONFIG_ID)</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $platformApp['config_id'] ?: 'Opsional / Default' }}
                         </div>
                     </div>
 
                     {{-- 4. Webhook Verify Token --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Webhook Verify Token (META_WA_WEBHOOK_VERIFY_TOKEN)</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Webhook
+                            Verify Token (META_WA_WEBHOOK_VERIFY_TOKEN)</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $platformApp['webhook_verify_token'] ?: 'Belum Dikonfigurasi' }}
                         </div>
                     </div>
 
                     {{-- 5. Graph API Version --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Graph API Version (META_WA_GRAPH_VERSION)</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Graph
+                            API Version (META_WA_GRAPH_VERSION)</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $platformApp['graph_version'] ?: 'v26.0' }}
                         </div>
                     </div>
 
                     {{-- 6. Graph API Base URL --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Graph API Base URL (META_WA_GRAPH_URL)</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Graph
+                            API Base URL (META_WA_GRAPH_URL)</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $platformApp['graph_url'] ?: 'https://graph.facebook.com' }}
                         </div>
                     </div>
 
                     {{-- 7. Phone Number ID --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Phone Number ID</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Phone
+                            Number ID</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $metaCreds['phone_number_id'] ?: 'Belum Dikonfigurasi' }}
                         </div>
                     </div>
 
                     {{-- 8. WhatsApp Business ID (WABA) --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">WhatsApp Business ID (WABA)</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">WhatsApp
+                            Business ID (WABA)</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
                             {{ $metaCreds['waba_id'] ?: 'Belum Dikonfigurasi' }}
                         </div>
                     </div>
 
                     {{-- 9. Meta System User Permanent Access Token --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
-                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta System User Permanent Access Token (META_WA_TOKEN)</span>
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
+                        <span
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Meta
+                            System User Permanent Access Token (META_WA_TOKEN)</span>
                         <div class="text-[13px] font-bold text-[#248A3D] dark:text-[#30D158] flex items-center gap-1.5">
                             <i data-lucide="shield-check" class="w-4 h-4"></i>
                             <span>{{ !empty($metaCreds['token']) ? 'Tersimpan Terenkripsi (AES-256)' : 'Belum Ada Token' }}</span>
@@ -488,16 +574,21 @@
                 </div>
 
                 {{-- Webhook Callback URL (Meta Webhook Endpoint) --}}
-                <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2">
+                <div
+                    class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">
                             Webhook Callback URL (Meta Webhook Endpoint)
                         </span>
-                        <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#34C759]">api/v1/wa/meta/webhook</span>
+                        <span
+                            class="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#34C759]">api/v1/wa/meta/webhook</span>
                     </div>
-                    <div class="flex items-center justify-between gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10">
-                        <code class="text-[12px] font-mono text-[#007AFF] break-all">{{ $platformApp['webhook_url'] }}</code>
-                        <button type="button" @click="copyToClipboard('{{ $platformApp['webhook_url'] }}', 'Webhook URL')"
+                    <div
+                        class="flex items-center justify-between gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10">
+                        <code
+                            class="text-[12px] font-mono text-[#007AFF] break-all">{{ $platformApp['webhook_url'] }}</code>
+                        <button type="button"
+                            @click="copyToClipboard('{{ $platformApp['webhook_url'] }}', 'Webhook URL')"
                             class="text-[11.5px] font-bold text-[#007AFF] hover:underline shrink-0">
                             Salin URL
                         </button>
@@ -508,7 +599,8 @@
             {{-- 4. CARD UJI KIRIM PESAN & WA OTP SIMULATOR (LIVE DIAGNOSTIC) --}}
             <div
                 class="rounded-[22px] sm:rounded-[24px] bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] shadow-sm p-5 sm:p-7 space-y-5 w-full min-w-0">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
                     <div class="flex items-center gap-3.5 min-w-0">
                         <div
                             class="w-10 h-10 sm:w-11 sm:h-11 rounded-[14px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0">
@@ -519,21 +611,27 @@
                                 Uji Kirim Pesan &amp; Simulator WhatsApp OTP
                             </h3>
                             <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
-                                Validasi respon gateway Meta Cloud API secara langsung untuk pesan teks biasa atau template OTP resmi
+                                Validasi respon gateway Meta Cloud API secara langsung untuk pesan teks biasa atau template
+                                OTP resmi
                             </p>
                         </div>
                     </div>
 
                     {{-- Mode Switcher --}}
-                    <div class="flex items-center gap-1.5 p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[13px] self-start sm:self-auto shrink-0 shadow-inner">
+                    <div
+                        class="flex items-center gap-1.5 p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[13px] self-start sm:self-auto shrink-0 shadow-inner">
                         <button type="button" @click="diagnosticMode = 'message'"
-                            :class="diagnosticMode === 'message' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/55 dark:text-white/55 font-medium'"
+                            :class="diagnosticMode === 'message' ?
+                                'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' :
+                                'text-black/55 dark:text-white/55 font-medium'"
                             class="min-h-[34px] px-3 rounded-[10px] text-[12px] transition-all flex items-center gap-1.5">
                             <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
                             <span>Pesan Teks</span>
                         </button>
                         <button type="button" @click="diagnosticMode = 'otp'; if(!otpCode) generateRandomOtp();"
-                            :class="diagnosticMode === 'otp' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/55 dark:text-white/55 font-medium'"
+                            :class="diagnosticMode === 'otp' ?
+                                'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' :
+                                'text-black/55 dark:text-white/55 font-medium'"
                             class="min-h-[34px] px-3 rounded-[10px] text-[12px] transition-all flex items-center gap-1.5">
                             <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                             <span>Kirim WA OTP</span>
@@ -546,7 +644,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                         <div>
                             <label
-                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nomor Ponsel Tujuan</label>
+                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nomor
+                                Ponsel Tujuan</label>
                             <input x-model="testPhone" type="tel"
                                 placeholder="Contoh: 081234567890 atau 6281234567890"
                                 class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition-all">
@@ -554,7 +653,8 @@
 
                         <div>
                             <label
-                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Isi Pesan Uji Coba</label>
+                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Isi
+                                Pesan Uji Coba</label>
                             <textarea x-model="testMessage" rows="2" placeholder="Pesan tes..."
                                 class="w-full bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] p-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#34C759]/50 transition-all resize-none"></textarea>
                         </div>
@@ -583,7 +683,9 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                         <div class="space-y-3.5">
                             <div>
-                                <label class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nomor Ponsel Tujuan OTP</label>
+                                <label
+                                    class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Nomor
+                                    Ponsel Tujuan OTP</label>
                                 <input x-model="otpPhone" type="tel"
                                     placeholder="Contoh: 081234567890 atau 6281234567890"
                                     class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
@@ -591,7 +693,9 @@
 
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
-                                    <label class="text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">Kode OTP 6-Digit</label>
+                                    <label
+                                        class="text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">Kode
+                                        OTP 6-Digit</label>
                                     <button type="button" @click="generateRandomOtp()"
                                         class="text-[11px] font-bold text-[#007AFF] hover:underline flex items-center gap-1">
                                         <i data-lucide="refresh-cw" class="w-3 h-3"></i>
@@ -599,30 +703,36 @@
                                     </button>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <input x-model="otpCode" type="text" maxlength="8"
-                                        placeholder="Contoh: 849201"
+                                    <input x-model="otpCode" type="text" maxlength="8" placeholder="Contoh: 849201"
                                         class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] font-mono font-bold tracking-widest text-[#007AFF] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
                                 </div>
                             </div>
                         </div>
 
                         {{-- Bubble Preview Template OTP --}}
-                        <div class="p-4 rounded-[16px] bg-[#007AFF]/5 border border-[#007AFF]/15 flex flex-col justify-between space-y-3">
+                        <div
+                            class="p-4 rounded-[16px] bg-[#007AFF]/5 border border-[#007AFF]/15 flex flex-col justify-between space-y-3">
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-[10.5px] font-bold uppercase tracking-wider text-[#007AFF] flex items-center gap-1">
+                                    <span
+                                        class="text-[10.5px] font-bold uppercase tracking-wider text-[#007AFF] flex items-center gap-1">
                                         <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                                        <span>Preview Template Meta OTP ({{ $metaCreds['otp_template'] ?: 'cooca_otp' }})</span>
+                                        <span>Preview Template Meta OTP
+                                            ({{ $metaCreds['otp_template'] ?: 'cooca_otp' }})</span>
                                     </span>
-                                    <span class="text-[10.5px] font-mono text-black/40 dark:text-white/40">Official Authentication</span>
+                                    <span class="text-[10.5px] font-mono text-black/40 dark:text-white/40">Official
+                                        Authentication</span>
                                 </div>
-                                <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] shadow-sm border border-black/5 dark:border-white/10 text-[12.5px] space-y-1.5">
+                                <div
+                                    class="p-3.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] shadow-sm border border-black/5 dark:border-white/10 text-[12.5px] space-y-1.5">
                                     <div class="font-bold text-black dark:text-white flex items-center gap-1.5">
                                         <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
                                         <span>COOCA Authentication Service</span>
                                     </div>
                                     <p class="text-black/75 dark:text-white/75">
-                                        Kode verifikasi masuk COOCA Anda adalah: <strong class="font-mono text-[14px] text-[#007AFF]" x-text="otpCode || '------'"></strong>
+                                        Kode verifikasi masuk COOCA Anda adalah: <strong
+                                            class="font-mono text-[14px] text-[#007AFF]"
+                                            x-text="otpCode || '------'"></strong>
                                     </p>
                                     <p class="text-[11px] text-black/45 dark:text-white/45">
                                         Berlaku 10 menit. Demi keamanan akun, jangan berikan kode ini kepada siapa pun.
@@ -631,11 +741,13 @@
                             </div>
 
                             <p class="text-[11px] text-black/50 dark:text-white/50 italic">
-                                *Pesan dikirimkan menggunakan template resmi yang telah disetujui oleh Meta WhatsApp Cloud API.
+                                *Pesan dikirimkan menggunakan template resmi yang telah disetujui oleh Meta WhatsApp Cloud
+                                API.
                             </p>
                         </div>
 
-                        <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-black/[0.04] dark:border-white/[0.06]">
+                        <div
+                            class="md:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-black/[0.04] dark:border-white/[0.06]">
                             <div class="flex-1 min-w-0">
                                 <div x-show="otpResult" class="p-3.5 rounded-[12px] text-[12px] font-medium"
                                     :class="otpOk ?
@@ -643,8 +755,7 @@
                                         'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/20'"
                                     x-text="otpResult"></div>
                             </div>
-                            <button type="button" @click="sendOtpLive()"
-                                :disabled="otpLoading || !otpPhone.trim()"
+                            <button type="button" @click="sendOtpLive()" :disabled="otpLoading || !otpPhone.trim()"
                                 class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-sm shrink-0">
                                 <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="otpLoading"></i>
                                 <i data-lucide="shield-check" class="w-4 h-4" x-show="!otpLoading"></i>
@@ -668,7 +779,8 @@
                 class="p-4 sm:p-6 rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full min-w-0">
                 <div class="min-w-0 flex-1">
                     <h2 class="text-[17px] font-bold text-black dark:text-white">Pengingat Masa Aktif Langganan</h2>
-                    <p class="text-[12px] sm:text-[13px] text-black/55 dark:text-white/55 mt-0.5">Sistem mengirimkan invoice perpanjangan secara bertahap pada periode H-7, H-3, H-1, dan Hari H</p>
+                    <p class="text-[12px] sm:text-[13px] text-black/55 dark:text-white/55 mt-0.5">Sistem mengirimkan
+                        invoice perpanjangan secara bertahap pada periode H-7, H-3, H-1, dan Hari H</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <form method="POST" action="{{ route('admin.whatsapp.reminders.send-all') }}"
@@ -787,9 +899,11 @@
                     class="px-5 sm:px-6 py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
                     <div>
                         <h3 class="text-[15px] font-bold text-black dark:text-white">Audit Log Pengingat Terkirim</h3>
-                        <p class="text-[12px] text-black/50 dark:text-white/50">Daftar rekaman riwayat pesan pengingat yang dieksekusi oleh bot admin</p>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">Daftar rekaman riwayat pesan pengingat yang
+                            dieksekusi oleh bot admin</p>
                     </div>
-                    <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Halaman {{ $recentReminders->currentPage() }} dari {{ $recentReminders->lastPage() }}</span>
+                    <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Halaman
+                        {{ $recentReminders->currentPage() }} dari {{ $recentReminders->lastPage() }}</span>
                 </div>
 
                 {{-- Mobile Card List View (< md) --}}
@@ -798,29 +912,37 @@
                         <div class="p-4 space-y-2.5">
                             <div class="flex items-start justify-between gap-2">
                                 <div class="min-w-0">
-                                    <div class="font-bold text-[13.5px] text-black dark:text-white truncate">{{ $log->business_name }}</div>
-                                    <div class="text-[11.5px] text-black/50 dark:text-white/50">{{ $log->owner_name }}</div>
+                                    <div class="font-bold text-[13.5px] text-black dark:text-white truncate">
+                                        {{ $log->business_name }}</div>
+                                    <div class="text-[11.5px] text-black/50 dark:text-white/50">{{ $log->owner_name }}
+                                    </div>
                                 </div>
                                 <div class="shrink-0">
                                     @if ($log->status === 'sent')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
                                             Terkirim
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]">
                                             Gagal
                                         </span>
                                     @endif
                                 </div>
                             </div>
-                            <div class="flex items-center justify-between text-[11.5px] text-black/60 dark:text-white/60 pt-1">
+                            <div
+                                class="flex items-center justify-between text-[11.5px] text-black/60 dark:text-white/60 pt-1">
                                 <div class="flex items-center gap-2">
-                                    <span class="font-mono text-[11px] font-bold uppercase text-black/60 dark:text-white/60 tracking-wider">
+                                    <span
+                                        class="font-mono text-[11px] font-bold uppercase text-black/60 dark:text-white/60 tracking-wider">
                                         {{ strtoupper($log->reminder_type) }}
                                     </span>
-                                    <span class="font-mono text-black/70 dark:text-white/70">{{ $log->recipient_phone }}</span>
+                                    <span
+                                        class="font-mono text-black/70 dark:text-white/70">{{ $log->recipient_phone }}</span>
                                 </div>
-                                <span class="tabular-nums text-[11px] text-black/45 dark:text-white/45">{{ optional($log->sent_at)->format('d M Y, H:i') }}</span>
+                                <span
+                                    class="tabular-nums text-[11px] text-black/45 dark:text-white/45">{{ optional($log->sent_at)->format('d M Y, H:i') }}</span>
                             </div>
                         </div>
                     @empty
@@ -836,11 +958,16 @@
                         <thead>
                             <tr
                                 class="border-b border-black/[0.06] dark:border-white/[0.08] text-black/45 dark:text-white/45 bg-black/[0.01] dark:bg-white/[0.02]">
-                                <th class="text-left px-5 sm:px-6 py-3 font-semibold text-[11px] uppercase tracking-wider">Nama Bisnis &amp; Owner</th>
-                                <th class="text-left px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">No. WhatsApp</th>
-                                <th class="text-left px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">Periode</th>
-                                <th class="text-center px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">Status</th>
-                                <th class="text-left px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">Waktu Eksekusi</th>
+                                <th class="text-left px-5 sm:px-6 py-3 font-semibold text-[11px] uppercase tracking-wider">
+                                    Nama Bisnis &amp; Owner</th>
+                                <th class="text-left px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">No.
+                                    WhatsApp</th>
+                                <th class="text-left px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">Periode
+                                </th>
+                                <th class="text-center px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">Status
+                                </th>
+                                <th class="text-left px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">Waktu
+                                    Eksekusi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -911,7 +1038,8 @@
                     class="lg:col-span-5 rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm p-4 sm:p-6 space-y-5 w-full min-w-0">
                     <div class="min-w-0">
                         <h2 class="text-[17px] font-bold text-black dark:text-white">Buat Broadcast Pesan Baru</h2>
-                        <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">Kirim pesan informasi pengumuman, promo, atau rilis fitur baru ke pemilik usaha</p>
+                        <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">Kirim pesan informasi pengumuman,
+                            promo, atau rilis fitur baru ke pemilik usaha</p>
                     </div>
 
                     {{-- Driver Active Indicator & Warning --}}
@@ -929,7 +1057,8 @@
                     @else
                         <div
                             class="p-3.5 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12px] text-[#C41E17] dark:text-[#FF453A]">
-                            <strong>Kanal Broadcast Belum Siap:</strong> Konfigurasi Token dan Phone Number ID Meta di tab Pengaturan Induk terlebih dahulu.
+                            <strong>Kanal Broadcast Belum Siap:</strong> Konfigurasi Token dan Phone Number ID Meta di tab
+                            Pengaturan Induk terlebih dahulu.
                         </div>
                     @endif
 
@@ -939,7 +1068,8 @@
 
                         <div>
                             <label
-                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Judul Broadcast</label>
+                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Judul
+                                Broadcast</label>
                             <input name="title" required maxlength="255"
                                 placeholder="Contoh: Promo Perpanjangan Langganan Spesial"
                                 class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
@@ -947,26 +1077,34 @@
 
                         <div>
                             <label
-                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Target Segmen Pemilik Usaha</label>
+                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">Target
+                                Segmen Pemilik Usaha</label>
                             <select name="target_filter"
                                 class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
-                                <option value="all_owners">Semua Bisnis Owner Terdaftar ({{ number_format($targetCounts['all_owners']) }} kontak)</option>
-                                <option value="active_subscribers">Pelanggan Paket Aktif ({{ number_format($targetCounts['active_subscribers']) }} kontak)</option>
-                                <option value="expiring_soon">Akan Jatuh Tempo Dalam 7 Hari ({{ number_format($targetCounts['expiring_soon']) }} kontak)</option>
-                                <option value="free_tier">Paket Gratis / Expired ({{ number_format($targetCounts['free_tier']) }} kontak)</option>
+                                <option value="all_owners">Semua Bisnis Owner Terdaftar
+                                    ({{ number_format($targetCounts['all_owners']) }} kontak)</option>
+                                <option value="active_subscribers">Pelanggan Paket Aktif
+                                    ({{ number_format($targetCounts['active_subscribers']) }} kontak)</option>
+                                <option value="expiring_soon">Akan Jatuh Tempo Dalam 7 Hari
+                                    ({{ number_format($targetCounts['expiring_soon']) }} kontak)</option>
+                                <option value="free_tier">Paket Gratis / Expired
+                                    ({{ number_format($targetCounts['free_tier']) }} kontak)</option>
                             </select>
                         </div>
 
                         <div>
                             <div class="flex items-center justify-between mb-1.5">
                                 <label
-                                    class="text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">Isi Pesan WhatsApp</label>
-                                <span class="text-[11px] text-black/45 dark:text-white/45 font-mono">Maks 3.000 karakter</span>
+                                    class="text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55">Isi
+                                    Pesan WhatsApp</label>
+                                <span class="text-[11px] text-black/45 dark:text-white/45 font-mono">Maks 3.000
+                                    karakter</span>
                             </div>
 
                             {{-- Chip Variabel Interaktif --}}
                             <div class="flex flex-wrap gap-1.5 mb-2">
-                                <span class="text-[11px] text-black/45 dark:text-white/45 self-center mr-1">Klik sisipkan:</span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45 self-center mr-1">Klik
+                                    sisipkan:</span>
                                 @foreach (['{owner}', '{bisnis}', '{paket}', '{tanggal_habis}'] as $v)
                                     <button type="button" @click="insertVariableToBlast('{{ $v }}')"
                                         class="px-2 py-0.5 rounded-[8px] text-[11px] font-mono bg-black/[0.05] dark:bg-white/[0.08] text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors">
@@ -982,7 +1120,8 @@
 
                         <div>
                             <label
-                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">URL Gambar Banner (Opsional)</label>
+                                class="block text-[11px] font-bold uppercase tracking-wider text-black/55 dark:text-white/55 mb-1.5">URL
+                                Gambar Banner (Opsional)</label>
                             <input name="media_url" type="url" placeholder="https://domain.com/banner-promo.jpg"
                                 class="w-full min-h-[46px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/15 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-all">
                         </div>
@@ -991,7 +1130,8 @@
                         <div
                             class="p-3.5 rounded-[14px] bg-[#007AFF]/8 border border-[#007AFF]/20 text-[12px] text-[#007AFF] dark:text-[#0A84FF] flex items-start gap-2.5">
                             <i data-lucide="shield-check" class="w-4 h-4 shrink-0 mt-0.5"></i>
-                            <span><strong>Pengiriman Aman:</strong> Pesan dikirim secara bertahap di latar belakang agar nomor WhatsApp tetap aman dan nyaman.</span>
+                            <span><strong>Pengiriman Aman:</strong> Pesan dikirim secara bertahap di latar belakang agar
+                                nomor WhatsApp tetap aman dan nyaman.</span>
                         </div>
 
                         <button type="submit" :disabled="status !== 'connected'"
@@ -1009,10 +1149,13 @@
                         <div
                             class="px-5 sm:px-6 py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
                             <div>
-                                <h2 class="text-[16px] font-bold text-black dark:text-white">Riwayat Broadcast WhatsApp</h2>
-                                <p class="text-[12px] text-black/50 dark:text-white/50">Daftar riwayat broadcast promosi dan pengumuman yang pernah dikirimkan</p>
+                                <h2 class="text-[16px] font-bold text-black dark:text-white">Riwayat Broadcast WhatsApp
+                                </h2>
+                                <p class="text-[12px] text-black/50 dark:text-white/50">Daftar riwayat broadcast promosi
+                                    dan pengumuman yang pernah dikirimkan</p>
                             </div>
-                            <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Total {{ $blasts->total() }} Pesan</span>
+                            <span class="text-[12px] text-black/45 dark:text-white/45 tabular-nums">Total
+                                {{ $blasts->total() }} Pesan</span>
                         </div>
 
                         {{-- Mobile Card List View (< md) --}}
@@ -1048,11 +1191,13 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="flex items-center justify-between text-[11.5px] text-black/60 dark:text-white/60 pt-1">
+                                    <div
+                                        class="flex items-center justify-between text-[11.5px] text-black/60 dark:text-white/60 pt-1">
                                         <div class="flex items-center gap-2">
                                             <span>{{ str_replace('_', ' ', ucfirst($b->target_filter)) }}</span>
                                             <span>&bull;</span>
-                                            <span class="tabular-nums font-semibold text-black dark:text-white">{{ $b->total_sent }}/{{ $b->total_recipients }}</span>
+                                            <span
+                                                class="tabular-nums font-semibold text-black dark:text-white">{{ $b->total_sent }}/{{ $b->total_recipients }}</span>
                                         </div>
                                         <a href="{{ route('admin.whatsapp.blasts.show', $b) }}"
                                             class="min-h-[32px] px-3 rounded-[8px] text-[11.5px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-all inline-flex items-center gap-1">
@@ -1074,11 +1219,20 @@
                                 <thead>
                                     <tr
                                         class="border-b border-black/[0.06] dark:border-white/[0.08] text-black/45 dark:text-white/45 bg-black/[0.01] dark:bg-white/[0.02]">
-                                        <th class="text-left px-5 sm:px-6 py-3 font-semibold text-[11px] uppercase tracking-wider">Judul Broadcast</th>
-                                        <th class="text-left px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">Target</th>
-                                        <th class="text-center px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">Keterkiriman</th>
-                                        <th class="text-center px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">Status</th>
-                                        <th class="text-right px-5 sm:px-6 py-3 font-semibold text-[11px] uppercase tracking-wider">Aksi</th>
+                                        <th
+                                            class="text-left px-5 sm:px-6 py-3 font-semibold text-[11px] uppercase tracking-wider">
+                                            Judul Broadcast</th>
+                                        <th class="text-left px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">
+                                            Target</th>
+                                        <th
+                                            class="text-center px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">
+                                            Keterkiriman</th>
+                                        <th
+                                            class="text-center px-4 py-3 font-semibold text-[11px] uppercase tracking-wider">
+                                            Status</th>
+                                        <th
+                                            class="text-right px-5 sm:px-6 py-3 font-semibold text-[11px] uppercase tracking-wider">
+                                            Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -1099,7 +1253,8 @@
                                             <td class="px-4 py-4 text-center tabular-nums">
                                                 <span
                                                     class="font-bold text-[#248A3D] dark:text-[#30D158]">{{ $b->total_sent }}</span>
-                                                <span class="text-black/40 dark:text-white/40">/ {{ $b->total_recipients }}</span>
+                                                <span class="text-black/40 dark:text-white/40">/
+                                                    {{ $b->total_recipients }}</span>
                                             </td>
                                             <td class="px-4 py-4 text-center">
                                                 @if ($b->status === 'completed')
@@ -1162,27 +1317,32 @@
             {{-- ----------------------------------------------------------------- --}}
             <div
                 class="rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm p-4 sm:p-7 space-y-6 w-full min-w-0">
-                
+
                 {{-- Header Subseksi --}}
                 <div
                     class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08] min-w-0">
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 mb-1">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF] animate-pulse"></span>
                                 Meta Graph API v26.0
                             </span>
-                            <span class="text-[12px] font-medium text-black/40 dark:text-white/40">WABA: {{ $metaCreds['waba_id'] ?: '37944837988498077' }}</span>
+                            <span class="text-[12px] font-medium text-black/40 dark:text-white/40">WABA:
+                                {{ $metaCreds['waba_id'] ?: '37944837988498077' }}</span>
                         </div>
-                        <h2 class="text-[17px] font-bold text-black dark:text-white">Katalog Template WhatsApp Business</h2>
-                        <p class="text-[12px] sm:text-[13px] text-black/50 dark:text-white/50 mt-0.5">Template pesan terdaftar dan terkurasi Meta untuk broadcast, OTP, dan pengingat langganan pelanggan</p>
+                        <h2 class="text-[17px] font-bold text-black dark:text-white">Katalog Template WhatsApp Business
+                        </h2>
+                        <p class="text-[12px] sm:text-[13px] text-black/50 dark:text-white/50 mt-0.5">Template pesan
+                            terdaftar dan terkurasi Meta untuk broadcast, OTP, dan pengingat langganan pelanggan</p>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2.5">
                         <button type="button" @click="syncMetaTemplates()" :disabled="templateSyncing"
                             class="min-h-[42px] px-4 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 dark:hover:bg-white/12 text-black dark:text-white text-[13px] font-semibold inline-flex items-center gap-2 transition-all disabled:opacity-50">
                             <i data-lucide="refresh-cw" class="w-4 h-4" :class="{ 'animate-spin': templateSyncing }"></i>
-                            <span x-text="templateSyncing ? 'Menyinkronkan...' : 'Sinkronkan dari Meta'">Sinkronkan dari Meta</span>
+                            <span x-text="templateSyncing ? 'Menyinkronkan...' : 'Sinkronkan dari Meta'">Sinkronkan dari
+                                Meta</span>
                         </button>
                         <button type="button" @click="openCreateTemplateModal()"
                             class="min-h-[42px] px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold inline-flex items-center gap-2 shadow-sm active:scale-[0.98] transition-all">
@@ -1195,74 +1355,92 @@
                 {{-- Bento Stats Grid --}}
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     {{-- Total --}}
-                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
                         <div>
                             <div class="text-[11px] font-semibold text-black/45 dark:text-white/45">Total Template</div>
-                            <div class="text-[22px] font-bold text-black dark:text-white font-mono mt-0.5" x-text="(metaTemplates || []).length">
+                            <div class="text-[22px] font-bold text-black dark:text-white font-mono mt-0.5"
+                                x-text="(metaTemplates || []).length">
                                 {{ count($metaTemplates) }}
                             </div>
                         </div>
-                        <div class="w-9 h-9 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60">
+                        <div
+                            class="w-9 h-9 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60">
                             <i data-lucide="file-text" class="w-4 h-4"></i>
                         </div>
                     </div>
 
                     {{-- Approved --}}
-                    <div class="p-4 rounded-[16px] bg-[#34C759]/[0.05] border border-[#34C759]/20 flex items-center justify-between">
+                    <div
+                        class="p-4 rounded-[16px] bg-[#34C759]/[0.05] border border-[#34C759]/20 flex items-center justify-between">
                         <div>
                             <div class="text-[11px] font-semibold text-[#34C759]">Disetujui (Approved)</div>
-                            <div class="text-[22px] font-bold text-[#34C759] font-mono mt-0.5" x-text="(metaTemplates || []).filter(t => (t.status || '').toUpperCase() === 'APPROVED').length">
+                            <div class="text-[22px] font-bold text-[#34C759] font-mono mt-0.5"
+                                x-text="(metaTemplates || []).filter(t => (t.status || '').toUpperCase() === 'APPROVED').length">
                                 {{ $metaTemplates->filter(fn($t) => strtoupper($t->status) === 'APPROVED')->count() }}
                             </div>
                         </div>
-                        <div class="w-9 h-9 rounded-[10px] bg-[#34C759]/15 flex items-center justify-center text-[#34C759]">
+                        <div
+                            class="w-9 h-9 rounded-[10px] bg-[#34C759]/15 flex items-center justify-center text-[#34C759]">
                             <i data-lucide="check-circle-2" class="w-4 h-4"></i>
                         </div>
                     </div>
 
                     {{-- Pending --}}
-                    <div class="p-4 rounded-[16px] bg-[#FF9500]/[0.05] border border-[#FF9500]/20 flex items-center justify-between">
+                    <div
+                        class="p-4 rounded-[16px] bg-[#FF9500]/[0.05] border border-[#FF9500]/20 flex items-center justify-between">
                         <div>
                             <div class="text-[11px] font-semibold text-[#FF9500]">Menunggu (Pending)</div>
-                            <div class="text-[22px] font-bold text-[#FF9500] font-mono mt-0.5" x-text="(metaTemplates || []).filter(t => (t.status || '').toUpperCase() === 'PENDING').length">
+                            <div class="text-[22px] font-bold text-[#FF9500] font-mono mt-0.5"
+                                x-text="(metaTemplates || []).filter(t => (t.status || '').toUpperCase() === 'PENDING').length">
                                 {{ $metaTemplates->filter(fn($t) => strtoupper($t->status) === 'PENDING')->count() }}
                             </div>
                         </div>
-                        <div class="w-9 h-9 rounded-[10px] bg-[#FF9500]/15 flex items-center justify-center text-[#FF9500]">
+                        <div
+                            class="w-9 h-9 rounded-[10px] bg-[#FF9500]/15 flex items-center justify-center text-[#FF9500]">
                             <i data-lucide="clock" class="w-4 h-4"></i>
                         </div>
                     </div>
 
                     {{-- Rejected / Other --}}
-                    <div class="p-4 rounded-[16px] bg-[#FF3B30]/[0.05] border border-[#FF3B30]/20 flex items-center justify-between">
+                    <div
+                        class="p-4 rounded-[16px] bg-[#FF3B30]/[0.05] border border-[#FF3B30]/20 flex items-center justify-between">
                         <div>
                             <div class="text-[11px] font-semibold text-[#FF3B30]">Ditolak / Masalah</div>
-                            <div class="text-[22px] font-bold text-[#FF3B30] font-mono mt-0.5" x-text="(metaTemplates || []).filter(t => ['REJECTED', 'PAUSED', 'DISABLED'].includes((t.status || '').toUpperCase())).length">
+                            <div class="text-[22px] font-bold text-[#FF3B30] font-mono mt-0.5"
+                                x-text="(metaTemplates || []).filter(t => ['REJECTED', 'PAUSED', 'DISABLED'].includes((t.status || '').toUpperCase())).length">
                                 {{ $metaTemplates->filter(fn($t) => in_array(strtoupper($t->status), ['REJECTED', 'PAUSED', 'DISABLED']))->count() }}
                             </div>
                         </div>
-                        <div class="w-9 h-9 rounded-[10px] bg-[#FF3B30]/15 flex items-center justify-center text-[#FF3B30]">
+                        <div
+                            class="w-9 h-9 rounded-[10px] bg-[#FF3B30]/15 flex items-center justify-center text-[#FF3B30]">
                             <i data-lucide="alert-circle" class="w-4 h-4"></i>
                         </div>
                     </div>
                 </div>
 
                 {{-- Template Card Grid --}}
-                <div x-show="(metaTemplates || []).length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                <div x-show="(metaTemplates || []).length > 0"
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                     <template x-for="tpl in metaTemplates" :key="tpl.id">
                         <div
                             class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-black/15 dark:hover:border-white/20 transition-all">
-                            
+
                             {{-- Top Header info --}}
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between gap-2">
                                     {{-- Category Badge --}}
                                     <span
                                         :class="{
-                                            'bg-[#007AFF]/15 text-[#007AFF]': (tpl.category || '').toUpperCase() === 'UTILITY',
-                                            'bg-[#34C759]/15 text-[#34C759]': (tpl.category || '').toUpperCase() === 'MARKETING',
-                                            'bg-[#AF52DE]/15 text-[#AF52DE]': (tpl.category || '').toUpperCase() === 'AUTHENTICATION',
-                                            'bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70': !['UTILITY', 'MARKETING', 'AUTHENTICATION'].includes((tpl.category || '').toUpperCase())
+                                            'bg-[#007AFF]/15 text-[#007AFF]': (tpl.category || '')
+                                            .toUpperCase() === 'UTILITY',
+                                            'bg-[#34C759]/15 text-[#34C759]': (tpl.category || '')
+                                            .toUpperCase() === 'MARKETING',
+                                            'bg-[#AF52DE]/15 text-[#AF52DE]': (tpl.category || '')
+                                            .toUpperCase() === 'AUTHENTICATION',
+                                            'bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70': ![
+                                                'UTILITY', 'MARKETING', 'AUTHENTICATION'
+                                            ].includes((tpl.category || '').toUpperCase())
                                         }"
                                         class="px-2.5 py-0.5 rounded-[6px] text-[10px] font-bold tracking-wide uppercase"
                                         x-text="tpl.category || 'UTILITY'">
@@ -1271,37 +1449,54 @@
                                     {{-- Status Badge --}}
                                     <span
                                         :class="{
-                                            'bg-[#34C759]/15 text-[#34C759] border-[#34C759]/30': (tpl.status || '').toUpperCase() === 'APPROVED',
-                                            'bg-[#FF9500]/15 text-[#FF9500] border-[#FF9500]/30': (tpl.status || '').toUpperCase() === 'PENDING',
-                                            'bg-[#FF3B30]/15 text-[#FF3B30] border-[#FF3B30]/30': ['REJECTED', 'PAUSED', 'DISABLED'].includes((tpl.status || '').toUpperCase()),
-                                            'bg-black/10 text-black/60 border-black/20': !['APPROVED', 'PENDING', 'REJECTED', 'PAUSED', 'DISABLED'].includes((tpl.status || '').toUpperCase())
+                                            'bg-[#34C759]/15 text-[#34C759] border-[#34C759]/30': (tpl.status || '')
+                                                .toUpperCase() === 'APPROVED',
+                                            'bg-[#FF9500]/15 text-[#FF9500] border-[#FF9500]/30': (tpl.status || '')
+                                                .toUpperCase() === 'PENDING',
+                                            'bg-[#FF3B30]/15 text-[#FF3B30] border-[#FF3B30]/30': ['REJECTED', 'PAUSED',
+                                                'DISABLED'
+                                            ].includes((tpl.status || '').toUpperCase()),
+                                            'bg-black/10 text-black/60 border-black/20': !['APPROVED', 'PENDING',
+                                                'REJECTED', 'PAUSED', 'DISABLED'
+                                            ].includes((tpl.status || '').toUpperCase())
                                         }"
                                         class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border">
                                         <span class="w-1.5 h-1.5 rounded-full"
                                             :class="{
                                                 'bg-[#34C759]': (tpl.status || '').toUpperCase() === 'APPROVED',
                                                 'bg-[#FF9500]': (tpl.status || '').toUpperCase() === 'PENDING',
-                                                'bg-[#FF3B30]': ['REJECTED', 'PAUSED', 'DISABLED'].includes((tpl.status || '').toUpperCase()),
-                                                'bg-black/40': !['APPROVED', 'PENDING', 'REJECTED', 'PAUSED', 'DISABLED'].includes((tpl.status || '').toUpperCase())
+                                                'bg-[#FF3B30]': ['REJECTED', 'PAUSED', 'DISABLED'].includes((tpl
+                                                    .status || '').toUpperCase()),
+                                                'bg-black/40': !['APPROVED', 'PENDING', 'REJECTED', 'PAUSED',
+                                                    'DISABLED'].includes((tpl.status || '').toUpperCase())
                                             }"></span>
                                         <span x-text="tpl.status"></span>
                                     </span>
                                 </div>
 
                                 <div>
-                                    <h3 class="text-[14px] font-bold text-black dark:text-white font-mono truncate" :title="tpl.name" x-text="tpl.name"></h3>
+                                    <h3 class="text-[14px] font-bold text-black dark:text-white font-mono truncate"
+                                        :title="tpl.name" x-text="tpl.name"></h3>
                                     <div class="flex items-center gap-2 mt-0.5">
-                                        <span class="text-[11px] text-black/45 dark:text-white/45 font-mono">Bahasa: <span class="uppercase font-semibold text-black/70 dark:text-white/70" x-text="tpl.language"></span></span>
-                                        <span x-show="tpl.quality_score" class="text-[11px] text-black/45 dark:text-white/45 font-mono">• Kualitas: <span class="font-semibold text-[#34C759]" x-text="tpl.quality_score"></span></span>
+                                        <span class="text-[11px] text-black/45 dark:text-white/45 font-mono">Bahasa: <span
+                                                class="uppercase font-semibold text-black/70 dark:text-white/70"
+                                                x-text="tpl.language"></span></span>
+                                        <span x-show="tpl.quality_score"
+                                            class="text-[11px] text-black/45 dark:text-white/45 font-mono">• Kualitas:
+                                            <span class="font-semibold text-[#34C759]"
+                                                x-text="tpl.quality_score"></span></span>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- WhatsApp Chat Bubble Preview (iOS WhatsApp Style) --}}
-                            <div class="rounded-[16px] bg-[#EFEAE2] dark:bg-[#0B141A] p-3 sm:p-3.5 border border-black/[0.04] dark:border-white/[0.04]">
-                                <div class="rounded-[14px] rounded-tl-none bg-white dark:bg-[#1F2C34] p-3 space-y-1.5 shadow-sm border border-black/[0.04] dark:border-white/[0.06] text-[12px]">
+                            <div
+                                class="rounded-[16px] bg-[#EFEAE2] dark:bg-[#0B141A] p-3 sm:p-3.5 border border-black/[0.04] dark:border-white/[0.04]">
+                                <div
+                                    class="rounded-[14px] rounded-tl-none bg-white dark:bg-[#1F2C34] p-3 space-y-1.5 shadow-sm border border-black/[0.04] dark:border-white/[0.06] text-[12px]">
                                     {{-- Header Preview --}}
-                                    <div x-show="getTemplateHeader(tpl)" class="font-bold text-[12px] text-black dark:text-white border-b border-black/[0.06] dark:border-white/[0.06] pb-1"
+                                    <div x-show="getTemplateHeader(tpl)"
+                                        class="font-bold text-[12px] text-black dark:text-white border-b border-black/[0.06] dark:border-white/[0.06] pb-1"
                                         x-text="getTemplateHeader(tpl)">
                                     </div>
 
@@ -1311,7 +1506,8 @@
                                     </div>
 
                                     {{-- Footer Preview --}}
-                                    <div x-show="getTemplateFooter(tpl)" class="text-[10px] text-black/45 dark:text-white/45 pt-1 border-t border-black/[0.04] dark:border-white/[0.04]"
+                                    <div x-show="getTemplateFooter(tpl)"
+                                        class="text-[10px] text-black/45 dark:text-white/45 pt-1 border-t border-black/[0.04] dark:border-white/[0.04]"
                                         x-text="getTemplateFooter(tpl)">
                                     </div>
                                 </div>
@@ -1319,7 +1515,8 @@
                                 {{-- Buttons Preview --}}
                                 <div x-show="getTemplateButtons(tpl).length > 0" class="mt-1.5 space-y-1">
                                     <template x-for="btn in getTemplateButtons(tpl)" :key="btn.text">
-                                        <div class="w-full py-1.5 px-3 rounded-[10px] bg-white dark:bg-[#1F2C34] text-center text-[11px] font-semibold text-[#007AFF] dark:text-[#3897F0] shadow-sm flex items-center justify-center gap-1.5">
+                                        <div
+                                            class="w-full py-1.5 px-3 rounded-[10px] bg-white dark:bg-[#1F2C34] text-center text-[11px] font-semibold text-[#007AFF] dark:text-[#3897F0] shadow-sm flex items-center justify-center gap-1.5">
                                             <i data-lucide="corner-up-right" class="w-3 h-3"></i>
                                             <span x-text="btn.text"></span>
                                         </div>
@@ -1328,7 +1525,8 @@
                             </div>
 
                             {{-- Rejection alert if any --}}
-                            <div x-show="tpl.rejected_reason" class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[11px] text-[#FF3B30] flex items-start gap-2">
+                            <div x-show="tpl.rejected_reason"
+                                class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[11px] text-[#FF3B30] flex items-start gap-2">
                                 <i data-lucide="alert-triangle" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i>
                                 <div class="min-w-0 flex-1">
                                     <div class="font-bold">Alasan Penolakan Meta:</div>
@@ -1337,8 +1535,11 @@
                             </div>
 
                             {{-- Bottom actions --}}
-                            <div class="flex items-center justify-between pt-2 border-t border-black/[0.06] dark:border-white/[0.08] text-[11px]">
-                                <span class="font-mono text-black/40 dark:text-white/40 truncate max-w-[140px]" :title="'ID Meta: ' + (tpl.meta_template_id || tpl.id)" x-text="'ID: ' + (tpl.meta_template_id ? tpl.meta_template_id.substring(0, 10) + '...' : '-')"></span>
+                            <div
+                                class="flex items-center justify-between pt-2 border-t border-black/[0.06] dark:border-white/[0.08] text-[11px]">
+                                <span class="font-mono text-black/40 dark:text-white/40 truncate max-w-[140px]"
+                                    :title="'ID Meta: ' + (tpl.meta_template_id || tpl.id)"
+                                    x-text="'ID: ' + (tpl.meta_template_id ? tpl.meta_template_id.substring(0, 10) + '...' : '-')"></span>
                                 <button type="button" @click="deleteMetaTemplate(tpl)"
                                     class="inline-flex items-center gap-1 text-[#FF3B30] hover:text-[#D70015] font-semibold p-1 rounded hover:bg-[#FF3B30]/10 transition-colors">
                                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -1352,12 +1553,14 @@
                 {{-- Empty State --}}
                 <div x-show="(metaTemplates || []).length === 0"
                     class="p-8 sm:p-12 text-center rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-dashed border-black/10 dark:border-white/10 space-y-4">
-                    <div class="w-12 h-12 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
+                    <div
+                        class="w-12 h-12 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
                         <i data-lucide="file-text" class="w-6 h-6"></i>
                     </div>
                     <div class="max-w-md mx-auto space-y-1">
                         <h4 class="text-[15px] font-bold text-black dark:text-white">Belum Ada Template Tersinkronkan</h4>
-                        <p class="text-[12px] text-black/50 dark:text-white/50">Sinkronkan katalog template resmi dari Meta Business Manager atau buat template baru yang akan diajukan ke Meta Cloud API v26.0.</p>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">Sinkronkan katalog template resmi dari Meta
+                            Business Manager atau buat template baru yang akan diajukan ke Meta Cloud API v26.0.</p>
                     </div>
                     <div class="flex items-center justify-center gap-3 pt-2">
                         <button type="button" @click="syncMetaTemplates()" :disabled="templateSyncing"
@@ -1380,27 +1583,23 @@
             {{-- ----------------------------------------------------------------- --}}
             <div x-show="showCreateTemplateModal" x-cloak
                 class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0">
+                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
                 <div @click.away="closeCreateTemplateModal()"
                     class="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden"
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 scale-95"
-                    x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 scale-100"
-                    x-transition:leave-end="opacity-0 scale-95">
+                    x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
 
                     {{-- Modal Header --}}
-                    <div class="px-6 py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0">
+                    <div
+                        class="px-6 py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0">
                         <div>
                             <h3 class="text-[17px] font-bold text-black dark:text-white">Buat Template Pesan Meta</h3>
-                            <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">Template akan langsung diajukan ke Meta Cloud API v26.0 untuk proses review otomatis</p>
+                            <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">Template akan langsung diajukan
+                                ke Meta Cloud API v26.0 untuk proses review otomatis</p>
                         </div>
                         <button type="button" @click="closeCreateTemplateModal()"
                             class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center text-black/60 dark:text-white/60 transition-colors">
@@ -1414,20 +1613,24 @@
                         <div class="lg:col-span-7 space-y-4">
                             {{-- Nama Template --}}
                             <div class="space-y-1.5">
-                                <label class="text-[12px] font-bold text-black dark:text-white flex items-center justify-between">
+                                <label
+                                    class="text-[12px] font-bold text-black dark:text-white flex items-center justify-between">
                                     <span>Nama Template <span class="text-[#FF3B30]">*</span></span>
-                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40">Huruf kecil & _ saja</span>
+                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40">Huruf kecil & _
+                                        saja</span>
                                 </label>
                                 <input type="text" x-model="newTemplate.name" required
                                     placeholder="contoh: notifikasi_pesanan_selesai"
                                     class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 py-2.5 text-[13px] font-mono text-black dark:text-white placeholder-black/30 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
-                                <p class="text-[11px] text-black/45 dark:text-white/45">Hanya gunakan huruf kecil (a-z), angka (0-9), dan garis bawah (_). Tidak boleh ada spasi.</p>
+                                <p class="text-[11px] text-black/45 dark:text-white/45">Hanya gunakan huruf kecil (a-z),
+                                    angka (0-9), dan garis bawah (_). Tidak boleh ada spasi.</p>
                             </div>
 
                             {{-- Kategori & Bahasa --}}
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div class="space-y-1.5">
-                                    <label class="text-[12px] font-bold text-black dark:text-white">Kategori <span class="text-[#FF3B30]">*</span></label>
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Kategori <span
+                                            class="text-[#FF3B30]">*</span></label>
                                     <select x-model="newTemplate.category"
                                         class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 py-2.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
                                         <option value="UTILITY">UTILITY (Transaksi & Pengingat)</option>
@@ -1436,7 +1639,8 @@
                                     </select>
                                 </div>
                                 <div class="space-y-1.5">
-                                    <label class="text-[12px] font-bold text-black dark:text-white">Bahasa <span class="text-[#FF3B30]">*</span></label>
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Bahasa <span
+                                            class="text-[#FF3B30]">*</span></label>
                                     <select x-model="newTemplate.language"
                                         class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 py-2.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
                                         <option value="id">Bahasa Indonesia (id)</option>
@@ -1448,8 +1652,10 @@
                             {{-- Header Teks --}}
                             <div class="space-y-1.5">
                                 <div class="flex items-center justify-between">
-                                    <label class="text-[12px] font-bold text-black dark:text-white">Teks Header (Opsional)</label>
-                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40" x-text="(newTemplate.header_text || '').length + '/60'"></span>
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Teks Header
+                                        (Opsional)</label>
+                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40"
+                                        x-text="(newTemplate.header_text || '').length + '/60'"></span>
                                 </div>
                                 <input type="text" x-model="newTemplate.header_text" maxlength="60"
                                     placeholder="contoh: Halo pelanggan setia"
@@ -1459,31 +1665,34 @@
                             {{-- Body Teks --}}
                             <div class="space-y-1.5">
                                 <div class="flex items-center justify-between">
-                                    <label class="text-[12px] font-bold text-black dark:text-white">Teks Pesan (Body) <span class="text-[#FF3B30]">*</span></label>
-                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40" x-text="(newTemplate.body_text || '').length + '/1024'"></span>
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Teks Pesan (Body) <span
+                                            class="text-[#FF3B30]">*</span></label>
+                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40"
+                                        x-text="(newTemplate.body_text || '').length + '/1024'"></span>
                                 </div>
                                 <textarea x-model="newTemplate.body_text" rows="5" maxlength="1024" required
-                                    placeholder="Halo @{{1}}, tagihan langganan @{{2}} sebesar Rp @{{3}} akan jatuh tempo pada @{{4}}..."
+                                    placeholder="Halo @{{ 1 }}, tagihan langganan @{{ 2 }} sebesar Rp @{{ 3 }} akan jatuh tempo pada @{{ 4 }}..."
                                     class="w-full bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[12px] p-3 text-[13px] text-black dark:text-white placeholder-black/30 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 leading-relaxed resize-y"></textarea>
-                                
+
                                 {{-- Quick Insert Placeholder Variables --}}
                                 <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                                    <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Sisipkan variabel:</span>
-                                    <button type="button" @click="insertVariableToNewTemplate('@{{1}}')"
+                                    <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Sisipkan
+                                        variabel:</span>
+                                    <button type="button" @click="insertVariableToNewTemplate('@{{ 1 }}')"
                                         class="px-2 py-0.5 rounded-[6px] text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors">
-                                        + @{{1}}
+                                        + @{{ 1 }}
                                     </button>
-                                    <button type="button" @click="insertVariableToNewTemplate('@{{2}}')"
+                                    <button type="button" @click="insertVariableToNewTemplate('@{{ 2 }}')"
                                         class="px-2 py-0.5 rounded-[6px] text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors">
-                                        + @{{2}}
+                                        + @{{ 2 }}
                                     </button>
-                                    <button type="button" @click="insertVariableToNewTemplate('@{{3}}')"
+                                    <button type="button" @click="insertVariableToNewTemplate('@{{ 3 }}')"
                                         class="px-2 py-0.5 rounded-[6px] text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors">
-                                        + @{{3}}
+                                        + @{{ 3 }}
                                     </button>
-                                    <button type="button" @click="insertVariableToNewTemplate('@{{4}}')"
+                                    <button type="button" @click="insertVariableToNewTemplate('@{{ 4 }}')"
                                         class="px-2 py-0.5 rounded-[6px] text-[11px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors">
-                                        + @{{4}}
+                                        + @{{ 4 }}
                                     </button>
                                 </div>
                             </div>
@@ -1491,8 +1700,10 @@
                             {{-- Footer Teks --}}
                             <div class="space-y-1.5">
                                 <div class="flex items-center justify-between">
-                                    <label class="text-[12px] font-bold text-black dark:text-white">Teks Footer (Opsional)</label>
-                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40" x-text="(newTemplate.footer_text || '').length + '/60'"></span>
+                                    <label class="text-[12px] font-bold text-black dark:text-white">Teks Footer
+                                        (Opsional)</label>
+                                    <span class="text-[11px] font-mono text-black/40 dark:text-white/40"
+                                        x-text="(newTemplate.footer_text || '').length + '/60'"></span>
                                 </div>
                                 <input type="text" x-model="newTemplate.footer_text" maxlength="60"
                                     placeholder="contoh: Balas STOP untuk berhenti berlangganan"
@@ -1507,14 +1718,18 @@
                                 <span>Live Chat Preview</span>
                             </label>
 
-                            <div class="rounded-[20px] bg-[#EFEAE2] dark:bg-[#0B141A] p-4 border border-black/[0.08] dark:border-white/[0.08] flex-1 flex flex-col justify-between space-y-4">
+                            <div
+                                class="rounded-[20px] bg-[#EFEAE2] dark:bg-[#0B141A] p-4 border border-black/[0.08] dark:border-white/[0.08] flex-1 flex flex-col justify-between space-y-4">
                                 {{-- Phone Topbar Sim --}}
-                                <div class="flex items-center gap-2.5 pb-3 border-b border-black/[0.06] dark:border-white/[0.06]">
-                                    <div class="w-8 h-8 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-[12px]">
+                                <div
+                                    class="flex items-center gap-2.5 pb-3 border-b border-black/[0.06] dark:border-white/[0.06]">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-[12px]">
                                         C
                                     </div>
                                     <div class="min-w-0 flex-1">
-                                        <div class="text-[12px] font-bold text-black dark:text-white flex items-center gap-1">
+                                        <div
+                                            class="text-[12px] font-bold text-black dark:text-white flex items-center gap-1">
                                             <span>Cooca Official</span>
                                             <i data-lucide="check-circle-2" class="w-3 h-3 text-[#34C759]"></i>
                                         </div>
@@ -1523,9 +1738,11 @@
                                 </div>
 
                                 {{-- WhatsApp Bubble Mock --}}
-                                <div class="rounded-[14px] rounded-tl-none bg-white dark:bg-[#1F2C34] p-3.5 space-y-2 shadow-sm border border-black/[0.04] dark:border-white/[0.06] text-[12px]">
+                                <div
+                                    class="rounded-[14px] rounded-tl-none bg-white dark:bg-[#1F2C34] p-3.5 space-y-2 shadow-sm border border-black/[0.04] dark:border-white/[0.06] text-[12px]">
                                     {{-- Live Header --}}
-                                    <div x-show="newTemplate.header_text" class="font-bold text-[12px] text-black dark:text-white border-b border-black/[0.06] dark:border-white/[0.06] pb-1"
+                                    <div x-show="newTemplate.header_text"
+                                        class="font-bold text-[12px] text-black dark:text-white border-b border-black/[0.06] dark:border-white/[0.06] pb-1"
                                         x-text="newTemplate.header_text"></div>
 
                                     {{-- Live Body --}}
@@ -1533,7 +1750,8 @@
                                         x-html="formatBodyPreview(newTemplate.body_text)"></div>
 
                                     {{-- Live Footer --}}
-                                    <div x-show="newTemplate.footer_text" class="text-[10px] text-black/45 dark:text-white/45 pt-1 border-t border-black/[0.04] dark:border-white/[0.04]"
+                                    <div x-show="newTemplate.footer_text"
+                                        class="text-[10px] text-black/45 dark:text-white/45 pt-1 border-t border-black/[0.04] dark:border-white/[0.04]"
                                         x-text="newTemplate.footer_text"></div>
                                 </div>
 
@@ -1545,7 +1763,8 @@
                     </div>
 
                     {{-- Modal Footer --}}
-                    <div class="px-6 py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0">
+                    <div
+                        class="px-6 py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0">
                         <button type="button" @click="closeCreateTemplateModal()"
                             class="min-h-[42px] px-5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 text-black dark:text-white text-[13px] font-semibold transition-colors">
                             Batal
@@ -1569,7 +1788,8 @@
                     class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/[0.06] dark:border-white/[0.08] min-w-0">
                     <div class="min-w-0 flex-1">
                         <h2 class="text-[17px] font-bold text-black dark:text-white">Template Pesan Pengingat Otomatis</h2>
-                        <p class="text-[12px] sm:text-[13px] text-black/50 dark:text-white/50 mt-0.5">Sesuaikan susunan kalimat dan placeholder variabel dinamis untuk setiap tahapan pengingat</p>
+                        <p class="text-[12px] sm:text-[13px] text-black/50 dark:text-white/50 mt-0.5">Sesuaikan susunan
+                            kalimat dan placeholder variabel dinamis untuk setiap tahapan pengingat</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="text-[11px] font-semibold text-black/45 dark:text-white/45">Variabel Didukung:</span>
@@ -1656,15 +1876,18 @@
                         <i data-lucide="store" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Monitoring Akun WhatsApp Merchant</h2>
+                        <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Monitoring Akun
+                            WhatsApp Merchant</h2>
                         <p class="text-[12px] sm:text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">
-                            Pengawasan sentral seluruh akun WhatsApp Business resmi (WABA) merchant yang terhubung melalui Embedded Signup
+                            Pengawasan sentral seluruh akun WhatsApp Business resmi (WABA) merchant yang terhubung melalui
+                            Embedded Signup
                         </p>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <span class="px-3.5 py-1.5 rounded-[12px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] text-[12px] font-bold border border-[#34C759]/20 tabular-nums">
+                    <span
+                        class="px-3.5 py-1.5 rounded-[12px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] text-[12px] font-bold border border-[#34C759]/20 tabular-nums">
                         {{ $activeMerchantsCount }} Akun Aktif
                     </span>
                 </div>
@@ -1672,26 +1895,36 @@
 
             {{-- 4 Metric Cards --}}
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
-                    <span class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider block">Total Merchant</span>
+                <div
+                    class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
+                    <span
+                        class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider block">Total
+                        Merchant</span>
                     <div class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tabular-nums">
                         {{ $merchantSummary['total'] ?? 0 }}
                     </div>
                 </div>
-                <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
-                    <span class="text-[11px] font-semibold text-[#248A3D] dark:text-[#30D158] uppercase tracking-wider block">Terhubung Aktif</span>
+                <div
+                    class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
+                    <span
+                        class="text-[11px] font-semibold text-[#248A3D] dark:text-[#30D158] uppercase tracking-wider block">Terhubung
+                        Aktif</span>
                     <div class="text-[20px] sm:text-[24px] font-bold text-[#248A3D] dark:text-[#30D158] tabular-nums">
                         {{ $merchantSummary['connected'] ?? 0 }}
                     </div>
                 </div>
-                <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
-                    <span class="text-[11px] font-semibold text-[#007AFF] uppercase tracking-wider block">Akun Mode Live</span>
+                <div
+                    class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
+                    <span class="text-[11px] font-semibold text-[#007AFF] uppercase tracking-wider block">Akun Mode
+                        Live</span>
                     <div class="text-[20px] sm:text-[24px] font-bold text-[#007AFF] tabular-nums">
                         {{ $merchantSummary['live_count'] ?? 0 }}
                     </div>
                 </div>
-                <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
-                    <span class="text-[11px] font-semibold text-[#FF9500] uppercase tracking-wider block">Sandbox / Draft</span>
+                <div
+                    class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-1">
+                    <span class="text-[11px] font-semibold text-[#FF9500] uppercase tracking-wider block">Sandbox /
+                        Draft</span>
                     <div class="text-[20px] sm:text-[24px] font-bold text-[#FF9500] tabular-nums">
                         {{ $merchantSummary['sandbox_count'] ?? 0 }}
                     </div>
@@ -1699,16 +1932,20 @@
             </div>
 
             {{-- Bento Table: Merchant Accounts --}}
-            <div class="rounded-[22px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm overflow-hidden">
-                <div class="p-4 sm:p-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+            <div
+                class="rounded-[22px] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] shadow-sm overflow-hidden">
+                <div
+                    class="p-4 sm:p-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
                     <h3 class="text-[15px] font-bold text-black dark:text-white">Daftar Akun WhatsApp Merchant</h3>
-                    <span class="text-[12px] text-black/50 dark:text-white/50 tabular-nums">Menampilkan {{ count($merchantSummary['accounts'] ?? []) }} akun</span>
+                    <span class="text-[12px] text-black/50 dark:text-white/50 tabular-nums">Menampilkan
+                        {{ count($merchantSummary['accounts'] ?? []) }} akun</span>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-[13px]">
                         <thead>
-                            <tr class="bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/[0.06] dark:border-white/[0.08] text-black/50 dark:text-white/50 text-[11px] font-bold uppercase tracking-wider">
+                            <tr
+                                class="bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/[0.06] dark:border-white/[0.08] text-black/50 dark:text-white/50 text-[11px] font-bold uppercase tracking-wider">
                                 <th class="py-3 px-4 sm:px-6">Nama Bisnis &amp; Pemilik</th>
                                 <th class="py-3 px-4">Nomor WhatsApp</th>
                                 <th class="py-3 px-4">WABA ID / Phone ID</th>
@@ -1721,12 +1958,18 @@
                             @forelse ($merchantSummary['accounts'] ?? [] as $acc)
                                 <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
                                     <td class="py-3.5 px-4 sm:px-6">
-                                        <div class="font-bold text-black dark:text-white">{{ $acc->business->name ?? 'Bisnis #' . $acc->business_id }}</div>
-                                        <div class="text-[11.5px] text-black/50 dark:text-white/50">{{ $acc->business->owner->name ?? '-' }} ({{ $acc->business->owner->email ?? '-' }})</div>
+                                        <div class="font-bold text-black dark:text-white">
+                                            {{ $acc->business->name ?? 'Bisnis #' . $acc->business_id }}</div>
+                                        <div class="text-[11.5px] text-black/50 dark:text-white/50">
+                                            {{ $acc->business->owner->name ?? '-' }}
+                                            ({{ $acc->business->owner->email ?? '-' }})</div>
                                     </td>
                                     <td class="py-3.5 px-4">
-                                        <div class="font-mono font-medium text-black dark:text-white">{{ $acc->display_phone_number ?: ($acc->phone_number ? '+' . $acc->phone_number : '-') }}</div>
-                                        <div class="text-[11px] text-black/40 dark:text-white/40">{{ $acc->verified_name ?: 'Nama Belum Terverifikasi' }}</div>
+                                        <div class="font-mono font-medium text-black dark:text-white">
+                                            {{ $acc->display_phone_number ?: ($acc->phone_number ? '+' . $acc->phone_number : '-') }}
+                                        </div>
+                                        <div class="text-[11px] text-black/40 dark:text-white/40">
+                                            {{ $acc->verified_name ?: 'Nama Belum Terverifikasi' }}</div>
                                     </td>
                                     <td class="py-3.5 px-4 font-mono text-[11.5px] text-black/70 dark:text-white/70">
                                         <div>WABA: {{ $acc->waba_id ?: '-' }}</div>
@@ -1734,36 +1977,44 @@
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         @if ($acc->status === 'connected')
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
                                                 <span>Aktif</span>
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50">
                                                 <span>{{ ucfirst($acc->status) }}</span>
                                             </span>
                                         @endif
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         @if ($acc->environment === 'live')
-                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/12 text-[#007AFF]">Live</span>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/12 text-[#007AFF]">Live</span>
                                         @else
-                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">Sandbox</span>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">Sandbox</span>
                                         @endif
                                     </td>
-                                    <td class="py-3.5 px-4 sm:px-6 text-right text-black/50 dark:text-white/50 text-[12px] tabular-nums">
+                                    <td
+                                        class="py-3.5 px-4 sm:px-6 text-right text-black/50 dark:text-white/50 text-[12px] tabular-nums">
                                         {{ $acc->created_at ? $acc->created_at->isoFormat('D MMM Y, HH:mm') : '-' }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="6" class="py-12 text-center text-black/45 dark:text-white/45">
-                                        <div class="w-12 h-12 rounded-[16px] bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40 flex items-center justify-center mx-auto mb-3">
+                                        <div
+                                            class="w-12 h-12 rounded-[16px] bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40 flex items-center justify-center mx-auto mb-3">
                                             <i data-lucide="store" class="w-6 h-6"></i>
                                         </div>
-                                        <div class="text-[14px] font-bold text-black dark:text-white">Belum Ada Merchant Terhubung</div>
+                                        <div class="text-[14px] font-bold text-black dark:text-white">Belum Ada Merchant
+                                            Terhubung</div>
                                         <p class="text-[12px] text-black/50 dark:text-white/50 max-w-sm mx-auto mt-1">
-                                            Merchant dapat menghubungkan akun WhatsApp resmi toko mereka secara mandiri melalui menu WhatsApp di dashboard pemilik toko.
+                                            Merchant dapat menghubungkan akun WhatsApp resmi toko mereka secara mandiri
+                                            melalui menu WhatsApp di dashboard pemilik toko.
                                         </p>
                                     </td>
                                 </tr>
@@ -1841,7 +2092,8 @@
                             });
                             const data = await response.json();
                             this.otpOk = response.ok && data.success === true;
-                            this.otpResult = data.message || (this.otpOk ? 'OTP berhasil dikirim!' : (data.error || 'Gagal mengirimkan OTP.'));
+                            this.otpResult = data.message || (this.otpOk ? 'OTP berhasil dikirim!' : (data.error ||
+                                'Gagal mengirimkan OTP.'));
                         } catch (error) {
                             this.otpOk = false;
                             this.otpResult = 'Terjadi kesalahan jaringan saat mengirimkan kode OTP.';
@@ -2062,7 +2314,11 @@
                         if (!tpl) return '';
                         let comps = tpl.components;
                         if (typeof comps === 'string') {
-                            try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+                            try {
+                                comps = JSON.parse(comps);
+                            } catch (e) {
+                                comps = [];
+                            }
                         }
                         if (!Array.isArray(comps)) comps = [];
                         const b = comps.find(c => String(c.type || '').toUpperCase() === 'BODY');
@@ -2073,7 +2329,11 @@
                         if (!tpl) return null;
                         let comps = tpl.components;
                         if (typeof comps === 'string') {
-                            try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+                            try {
+                                comps = JSON.parse(comps);
+                            } catch (e) {
+                                comps = [];
+                            }
                         }
                         if (!Array.isArray(comps)) comps = [];
                         const h = comps.find(c => String(c.type || '').toUpperCase() === 'HEADER');
@@ -2084,7 +2344,11 @@
                         if (!tpl) return null;
                         let comps = tpl.components;
                         if (typeof comps === 'string') {
-                            try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+                            try {
+                                comps = JSON.parse(comps);
+                            } catch (e) {
+                                comps = [];
+                            }
                         }
                         if (!Array.isArray(comps)) comps = [];
                         const f = comps.find(c => String(c.type || '').toUpperCase() === 'FOOTER');
@@ -2095,7 +2359,11 @@
                         if (!tpl) return [];
                         let comps = tpl.components;
                         if (typeof comps === 'string') {
-                            try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+                            try {
+                                comps = JSON.parse(comps);
+                            } catch (e) {
+                                comps = [];
+                            }
                         }
                         if (!Array.isArray(comps)) comps = [];
                         const btnComp = comps.find(c => String(c.type || '').toUpperCase() === 'BUTTONS');
@@ -2103,16 +2371,20 @@
                     },
 
                     formatBodyPreview(text) {
-                        if (!text) return '<span class="text-black/35 dark:text-white/35 italic">Ketik isi teks pesan untuk melihat preview...</span>';
+                        if (!text)
+                        return '<span class="text-black/35 dark:text-white/35 italic">Ketik isi teks pesan untuk melihat preview...</span>';
                         const escaped = String(text)
                             .replace(/&/g, '&amp;')
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;');
-                        return escaped.replace(/(\{\{\d+\}\})/g, '<span class="px-1.5 py-0.5 rounded-[4px] bg-[#007AFF]/15 text-[#007AFF] font-mono text-[11px] font-semibold">$1</span>');
+                        return escaped.replace(/(\{\{\d+\}\})/g,
+                            '<span class="px-1.5 py-0.5 rounded-[4px] bg-[#007AFF]/15 text-[#007AFF] font-mono text-[11px] font-semibold">$1</span>'
+                            );
                     },
 
                     insertVariableToNewTemplate(v) {
-                        this.newTemplate.body_text = (this.newTemplate.body_text || '') + (this.newTemplate.body_text ? ' ' : '') + v;
+                        this.newTemplate.body_text = (this.newTemplate.body_text || '') + (this.newTemplate.body_text ? ' ' :
+                            '') + v;
                     },
 
                     openCreateTemplateModal() {
@@ -2150,7 +2422,9 @@
                                 }
                                 this.copyToastMessage = data.message || 'Template berhasil disinkronkan dari Meta!';
                                 this.copyToast = true;
-                                setTimeout(() => { this.copyToast = false; }, 3500);
+                                setTimeout(() => {
+                                    this.copyToast = false;
+                                }, 3500);
                             } else {
                                 alert(data.message || 'Gagal menyinkronkan template dari Meta.');
                             }
@@ -2187,9 +2461,12 @@
                                 this.showCreateTemplateModal = false;
                                 this.copyToastMessage = data.message || 'Template berhasil diajukan ke Meta!';
                                 this.copyToast = true;
-                                setTimeout(() => { this.copyToast = false; }, 3500);
+                                setTimeout(() => {
+                                    this.copyToast = false;
+                                }, 3500);
                             } else {
-                                const errMsg = data.message || (data.errors ? Object.values(data.errors).flat().join('\n') : 'Gagal membuat template di Meta.');
+                                const errMsg = data.message || (data.errors ? Object.values(data.errors).flat().join('\n') :
+                                    'Gagal membuat template di Meta.');
                                 alert(errMsg);
                             }
                         } catch (err) {
@@ -2201,7 +2478,9 @@
                     },
 
                     async deleteMetaTemplate(tpl) {
-                        if (!confirm(`Hapus template '${tpl.name}' dari Meta Cloud API dan database lokal? Tindakan ini tidak dapat dibatalkan.`)) {
+                        if (!confirm(
+                                `Hapus template '${tpl.name}' dari Meta Cloud API dan database lokal? Tindakan ini tidak dapat dibatalkan.`
+                                )) {
                             return;
                         }
                         try {
@@ -2222,7 +2501,9 @@
                                 }
                                 this.copyToastMessage = data.message || 'Template berhasil dihapus.';
                                 this.copyToast = true;
-                                setTimeout(() => { this.copyToast = false; }, 3000);
+                                setTimeout(() => {
+                                    this.copyToast = false;
+                                }, 3000);
                             } else {
                                 alert(data.message || 'Gagal menghapus template pesan.');
                             }
