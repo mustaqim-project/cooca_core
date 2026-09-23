@@ -77,27 +77,31 @@
                             notifikasi WhatsApp otomatis saat cucian siap diambil.
                         </p>
 
-                        {{-- Tangible Value Highlights --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Timbangan kiloan desimal (contoh: 4.85 kg)</span>
+                        {{-- Tangible Value Highlights Bento Tiles --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
+                                    <i data-lucide="scale" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Timbangan kiloan desimal presisi</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Penomoran rak & hanger anti baju tertukar</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                                    <i data-lucide="tag" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Penomoran rak & hanger anti baju tertukar</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Pesan WhatsApp otomatis saat selesai</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 border border-amber-400/20">
+                                    <i data-lucide="message-circle" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Pesan WhatsApp otomatis saat selesai</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Layanan satuan: Jas, Sepatu, Bed Cover</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0 mt-0.5 border border-purple-400/20">
+                                    <i data-lucide="shirt" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Layanan satuan: Jas, Sepatu, Bed Cover</span>
                             </div>
                         </div>
 
@@ -151,14 +155,23 @@
                                 <span class="text-[11px] font-semibold text-slate-300 block">Progres Pengerjaan:</span>
                                 <div class="grid grid-cols-4 gap-1.5 text-center text-[10px] font-semibold">
                                     <div
-                                        class="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 truncate">
-                                        1. Cuci ✓</div>
+                                        class="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center gap-1 truncate">
+                                        <i data-lucide="check" class="w-3 h-3 shrink-0"></i>
+                                        <span>1. Cuci</span>
+                                    </div>
                                     <div
-                                        class="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 truncate">
-                                        2. Kering ✓</div>
-                                    <div class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] border border-[#00C4D8]/40 truncate">
-                                        3. Setrika ⏳</div>
-                                    <div class="p-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 truncate">4. Selesai</div>
+                                        class="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center gap-1 truncate">
+                                        <i data-lucide="check" class="w-3 h-3 shrink-0"></i>
+                                        <span>2. Kering</span>
+                                    </div>
+                                    <div
+                                        class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] border border-[#00C4D8]/40 flex items-center justify-center gap-1 truncate">
+                                        <i data-lucide="clock" class="w-3 h-3 shrink-0"></i>
+                                        <span>3. Setrika</span>
+                                    </div>
+                                    <div class="p-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 flex items-center justify-center truncate">
+                                        <span>4. Selesai</span>
+                                    </div>
                                 </div>
                             </div>
 

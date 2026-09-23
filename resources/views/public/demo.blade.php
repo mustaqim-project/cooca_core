@@ -72,27 +72,31 @@
                             porsi, dan jernihnya laporan keuangan COOCA langsung dari perangkat yang Anda gunakan saat ini.
                         </p>
 
-                        {{-- Tangible Highlights --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
-                                    aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Tanpa perlu kartu kredit atau komitmen bayar</span>
+                        {{-- Tangible Highlights Bento Tiles --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Tanpa kartu kredit atau komitmen bayar</span>
                             </div>
-                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
-                                    aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Bisa dicoba di HP Android, iPad, maupun laptop</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                                    <i data-lucide="smartphone" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Bisa dicoba di HP Android, iPad, & laptop</span>
                             </div>
-                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
-                                    aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Data simulasi siap pakai untuk berbagai industri</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 border border-amber-400/20">
+                                    <i data-lucide="boxes" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Data simulasi siap pakai multi-industri</span>
                             </div>
-                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
-                                    aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Data uji coba dapat direset bersih dengan 1 klik</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0 mt-0.5 border border-purple-400/20">
+                                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Data uji coba dapat direset bersih 1 klik</span>
                             </div>
                         </div>
 

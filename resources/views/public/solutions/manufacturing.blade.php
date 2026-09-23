@@ -77,27 +77,31 @@
                             kerja produksi, upah tenaga kerja, hingga kontrol scrap barang cacat dalam satu sistem terpadu.
                         </p>
 
-                        {{-- Tangible Value Highlights --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">BOM multi-tingkat & kemasan</span>
+                        {{-- Tangible Value Highlights Bento Tiles --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
+                                    <i data-lucide="layers" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">BOM multi-tingkat & kemasan</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Perintah Kerja Produksi (WO) batch</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                                    <i data-lucide="file-check" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Perintah Kerja Produksi (WO) batch</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">HPP nyata: Bahan + Upah + Overhead</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 border border-amber-400/20">
+                                    <i data-lucide="calculator" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">HPP nyata: Bahan + Upah + Overhead</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Lacak batch & tanggal kedaluwarsa</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0 mt-0.5 border border-purple-400/20">
+                                    <i data-lucide="barcode" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Lacak batch & tanggal kedaluwarsa</span>
                             </div>
                         </div>
 

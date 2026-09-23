@@ -195,7 +195,7 @@
                                         <span class="text-slate-400">Tone: Hangat</span>
                                     </div>
                                     <p class="text-[11px] text-slate-300 leading-relaxed font-sans">
-                                        "Renyah di gigitan pertama, lembut dan wangi butter di dalam! 🥐 Temani secangkir
+                                        "Renyah di gigitan pertama, lembut dan wangi butter di dalam! Temani secangkir
                                         kopi pagimu di Sudirman & Senopati. Dibuat fresh setiap pagi untuk harimu yang
                                         produktif..."
                                     </p>
@@ -211,7 +211,7 @@
                                     </div>
                                     <p class="text-[11px] text-slate-300 leading-relaxed font-sans">
                                         "Halo Kak! Promo kilat pagi ini: Beli 2 Croissant Butter gratis 1 Americano sebelum
-                                        jam 11:00. Tunjukkan pesan ini ke kasir ya! ✨"
+                                        jam 11:00. Tunjukkan pesan ini ke kasir ya!"
                                     </p>
                                 </div>
                             </div>

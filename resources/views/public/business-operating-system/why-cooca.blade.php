@@ -136,18 +136,24 @@
                                     </span>
                                     <span class="text-red-300 font-mono font-bold shrink-0">Rp 1.200.000+ /bln</span>
                                 </div>
-                                <ul class="space-y-2 text-xs text-slate-300">
-                                    <li class="flex items-start gap-2"><i data-lucide="x"
-                                            class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Langganan POS: Rp 250rb/bln</span></li>
-                                    <li class="flex items-start gap-2"><i data-lucide="x"
-                                            class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Software Gudang: Rp 350rb/bln</span>
-                                    </li>
-                                    <li class="flex items-start gap-2"><i data-lucide="x"
-                                            class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Software Akuntansi: Rp 300rb/bln</span>
-                                    </li>
-                                    <li class="flex items-start gap-2"><i data-lucide="x"
-                                            class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Rekonsiliasi manual 3 jam tiap malam</span></li>
-                                </ul>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                    <div class="p-2.5 rounded-[12px] bg-red-900/30 border border-red-500/20 flex items-start gap-2">
+                                        <i data-lucide="x" class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-300 font-medium leading-snug text-pretty">Langganan POS: Rp 250rb/bln</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-[12px] bg-red-900/30 border border-red-500/20 flex items-start gap-2">
+                                        <i data-lucide="x" class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-300 font-medium leading-snug text-pretty">Software Gudang: Rp 350rb/bln</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-[12px] bg-red-900/30 border border-red-500/20 flex items-start gap-2">
+                                        <i data-lucide="x" class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-300 font-medium leading-snug text-pretty">Software Akuntansi: Rp 300rb/bln</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-[12px] bg-red-900/30 border border-red-500/20 flex items-start gap-2">
+                                        <i data-lucide="x" class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-300 font-medium leading-snug text-pretty">Rekonsiliasi manual 3 jam tiap malam</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- COOCA Way Card -->
@@ -163,16 +169,24 @@
                                         Mulai Rp 0 - Rp 99rb /bln
                                     </span>
                                 </div>
-                                <ul class="space-y-2 text-xs text-slate-200">
-                                    <li class="flex items-start gap-2"><i data-lucide="check"
-                                            class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Kasir POS + Resep BOM + Gudang + Jurnal sudah include</span></li>
-                                    <li class="flex items-start gap-2"><i data-lucide="check"
-                                            class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Toko online mandiri & WA nota otomatis sudah include</span></li>
-                                    <li class="flex items-start gap-2"><i data-lucide="check"
-                                            class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Nol detik rekonsiliasi karena database real-time</span></li>
-                                    <li class="flex items-start gap-2"><i data-lucide="check"
-                                            class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Data bisnis milik Anda sepenuhnya dalam kontrol aman</span></li>
-                                </ul>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                    <div class="p-2.5 rounded-[12px] bg-white/[0.06] border border-white/10 flex items-start gap-2">
+                                        <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-100 font-medium leading-snug text-pretty">Kasir POS + Resep BOM + Gudang + Jurnal include</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-[12px] bg-white/[0.06] border border-white/10 flex items-start gap-2">
+                                        <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-100 font-medium leading-snug text-pretty">Toko online mandiri & WA nota otomatis include</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-[12px] bg-white/[0.06] border border-white/10 flex items-start gap-2">
+                                        <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-100 font-medium leading-snug text-pretty">Nol detik rekonsiliasi karena database real-time</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-[12px] bg-white/[0.06] border border-white/10 flex items-start gap-2">
+                                        <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-100 font-medium leading-snug text-pretty">Data bisnis milik Anda sepenuhnya dalam kontrol aman</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -277,9 +291,9 @@
                     </p>
                 </div>
 
-                <!-- Comparison Table Bento Style -->
+                <!-- Desktop & Tablet Comparison Table (hidden md:block) -->
                 <div
-                    class="rounded-[24px] bg-[#F5F5F7] dark:bg-[#161B26] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden shadow-sm">
+                    class="hidden md:block rounded-[24px] bg-[#F5F5F7] dark:bg-[#161B26] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden shadow-sm">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs sm:text-sm">
                             <thead>
@@ -332,6 +346,129 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Mobile Bento Comparison Cards (block md:hidden) -->
+                <div class="block md:hidden space-y-3.5">
+                    <!-- Item 1: Biaya -->
+                    <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3">
+                        <div class="flex items-center gap-2 font-bold text-sm text-[#1D1D1F] dark:text-[#F5F5F7]">
+                            <i data-lucide="wallet" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span>Biaya Berlangganan</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 rounded-[12px] bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 flex items-start gap-2">
+                                <i data-lucide="x" class="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-red-500">Aplikasi Terpisah</span>
+                                    <span class="leading-snug">Bayar 3-5 vendor berbeda (Rp 1.000.000+ /bln)</span>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 flex items-start gap-2">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">COOCA Business OS</span>
+                                    <span class="font-semibold leading-snug">1 Paket Terjangkau (Rp 0 - Rp 99rb /bln)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 2: Sinkronisasi Kasir & Gudang -->
+                    <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3">
+                        <div class="flex items-center gap-2 font-bold text-sm text-[#1D1D1F] dark:text-[#F5F5F7]">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span>Sinkronisasi Kasir &amp; Gudang</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 rounded-[12px] bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 flex items-start gap-2">
+                                <i data-lucide="x" class="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-red-500">Aplikasi Terpisah</span>
+                                    <span class="leading-snug">Manual rekap stok atau pakai API rumit</span>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 flex items-start gap-2">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">COOCA Business OS</span>
+                                    <span class="font-semibold leading-snug">Otomatis terpotong saat transaksi selesai</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 3: Pencatatan Jurnal Akuntansi -->
+                    <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3">
+                        <div class="flex items-center gap-2 font-bold text-sm text-[#1D1D1F] dark:text-[#F5F5F7]">
+                            <i data-lucide="book-open" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span>Pencatatan Jurnal Akuntansi</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 rounded-[12px] bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 flex items-start gap-2">
+                                <i data-lucide="x" class="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-red-500">Aplikasi Terpisah</span>
+                                    <span class="leading-snug">Ketik ulang nota bon ke buku kas / Excel</span>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 flex items-start gap-2">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">COOCA Business OS</span>
+                                    <span class="font-semibold leading-snug">Auto-Journal debit-kredit secara real-time</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 4: Waktu Rekonsiliasi Owner -->
+                    <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3">
+                        <div class="flex items-center gap-2 font-bold text-sm text-[#1D1D1F] dark:text-[#F5F5F7]">
+                            <i data-lucide="clock" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span>Waktu Rekonsiliasi Owner</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 rounded-[12px] bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 flex items-start gap-2">
+                                <i data-lucide="x" class="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-red-500">Aplikasi Terpisah</span>
+                                    <span class="leading-snug">2-3 jam setiap malam menjelang tutup toko</span>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 flex items-start gap-2">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">COOCA Business OS</span>
+                                    <span class="font-semibold leading-snug">0 menit (dashboard owner update seketika)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 5: Dukungan Multi-Outlet -->
+                    <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3">
+                        <div class="flex items-center gap-2 font-bold text-sm text-[#1D1D1F] dark:text-[#F5F5F7]">
+                            <i data-lucide="store" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span>Dukungan Multi-Outlet / Cabang</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 rounded-[12px] bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 flex items-start gap-2">
+                                <i data-lucide="x" class="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-red-500">Aplikasi Terpisah</span>
+                                    <span class="leading-snug">Biaya tambahan mahal per outlet baru</span>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 flex items-start gap-2">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold block text-[11px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">COOCA Business OS</span>
+                                    <span class="font-semibold leading-snug">Satu kontrol pusat untuk seluruh cabang toko</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

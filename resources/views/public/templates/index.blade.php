@@ -187,12 +187,13 @@
                                 </div>
 
                                 @if (!empty($tpl['highlights']))
-                                    <div class="space-y-2 pt-3 border-t border-slate-100 dark:border-white/10">
+                                    <div class="space-y-1.5 pt-3 border-t border-slate-100 dark:border-white/10">
                                         @foreach (array_slice($tpl['highlights'], 0, 3) as $highlight)
-                                            <div class="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
-                                                <i data-lucide="check"
-                                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i>
-                                                <span class="leading-tight">{{ $highlight }}</span>
+                                            <div class="p-2 rounded-[10px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.03] dark:border-white/[0.04] flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
+                                                <div class="w-4 h-4 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                                                    <i data-lucide="check" class="w-2.5 h-2.5"></i>
+                                                </div>
+                                                <span class="leading-snug truncate">{{ $highlight }}</span>
                                             </div>
                                         @endforeach
                                     </div>

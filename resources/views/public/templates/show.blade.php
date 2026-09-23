@@ -50,19 +50,21 @@
                             </p>
                         </div>
 
-                        <!-- Feature List Card -->
+                        <!-- Feature Bento Card -->
                         @if (!empty($template['highlights']))
                             <div
-                                class="p-6 sm:p-7 rounded-2xl bg-[#0E1E45]/80 border border-white/10 ring-1 ring-white/10 backdrop-blur-md space-y-4 shadow-xl">
-                                <h2 class="text-xs font-bold uppercase tracking-wider text-[#00C4D8]">
-                                    Keunggulan Formula Dalam Template Ini:
+                                class="p-6 sm:p-7 rounded-[22px] bg-[#0E1E45]/80 border border-white/10 ring-1 ring-white/10 backdrop-blur-md space-y-4 shadow-xl">
+                                <h2 class="text-xs font-bold uppercase tracking-wider text-[#00C4D8] flex items-center gap-2">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                    <span>Keunggulan Formula Dalam Template Ini:</span>
                                 </h2>
-                                <div class="space-y-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                     @foreach ($template['highlights'] as $hl)
-                                        <div class="flex items-start gap-3 text-sm text-slate-200">
-                                            <i data-lucide="check-circle-2"
-                                                class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                            <span class="leading-relaxed">{{ $hl }}</span>
+                                        <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                            <div class="w-6 h-6 rounded-[8px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
+                                                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                            </div>
+                                            <span class="text-xs sm:text-sm text-slate-200 leading-snug font-medium text-pretty">{{ $hl }}</span>
                                         </div>
                                     @endforeach
                                 </div>

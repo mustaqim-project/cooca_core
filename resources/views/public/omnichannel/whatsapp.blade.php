@@ -181,7 +181,7 @@
                                 <div
                                     class="max-w-[90%] sm:max-w-[85%] bg-[#005C4B] text-white p-3 rounded-2xl rounded-tl-none shadow-sm space-y-2 text-xs break-words">
                                     <div class="text-[11px] leading-relaxed">
-                                        Halo <strong>Kak Nadia Saraswati</strong>! ✨ Terima kasih telah berbelanja di
+                                        Halo <strong>Kak Nadia Saraswati</strong>! Terima kasih telah berbelanja di
                                         <strong>Kopi Seduh — Outlet Sudirman</strong>.
                                     </div>
 
@@ -226,7 +226,7 @@
                                 <div
                                     class="max-w-[90%] sm:max-w-[85%] bg-[#005C4B] text-white p-3 rounded-2xl rounded-tl-none shadow-sm space-y-1.5 text-xs break-words">
                                     <div class="text-[11px] leading-relaxed">
-                                        🔔 <strong>Update Pesanan:</strong> Kopi Susu Aren dan Croissant Butter Anda sedang
+                                        <strong>Update Pesanan:</strong> Kopi Susu Aren dan Croissant Butter Anda sedang
                                         disiapkan oleh Barista. Silakan ambil di konter saat nomor antrean
                                         <strong>#04</strong> dipanggil.
                                     </div>

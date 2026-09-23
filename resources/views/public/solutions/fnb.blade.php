@@ -78,27 +78,31 @@
                             menghitung laba bersih tanpa kalkulasi manual.
                         </p>
 
-                        {{-- Tangible Value Highlights --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Potong stok bahan baku per gram & ml</span>
+                        {{-- Tangible Value Highlights Bento Tiles --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
+                                    <i data-lucide="scale" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Potong stok bahan baku per gram & ml</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Cetak tiket KOT terpisah (Kitchen & Bar)</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                                    <i data-lucide="printer" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Cetak tiket KOT terpisah (Kitchen & Bar)</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Split bill & manajemen visual meja</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 border border-amber-400/20">
+                                    <i data-lucide="layout-grid" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Split bill & manajemen visual meja</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200 min-w-0">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
-                                    aria-hidden="true"></i>
-                                <span class="truncate">Pantau food cost & HPP porsi akurat</span>
+                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-[8px] bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0 mt-0.5 border border-purple-400/20">
+                                    <i data-lucide="pie-chart" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Pantau food cost & HPP porsi akurat</span>
                             </div>
                         </div>
 

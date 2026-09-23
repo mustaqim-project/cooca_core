@@ -176,24 +176,22 @@
                                 </span>
                             </div>
 
-                            <ul class="space-y-2.5">
+                            <div class="space-y-1.5">
                                 @foreach ($items as $item)
-                                    <li>
-                                        <a href="{{ $item['loc'] }}"
-                                            class="group flex items-start justify-between gap-2 text-xs text-[#6E6E73] dark:text-[#86868B] hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">
-                                            <span
-                                                class="min-w-0 flex-1 line-clamp-2 pr-2 leading-relaxed group-hover:translate-x-0.5 transition-transform break-words">
+                                    <a href="{{ $item['loc'] }}"
+                                        class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] hover:bg-[#007AFF]/10 dark:hover:bg-[#0A84FF]/15 border border-black/[0.03] dark:border-white/[0.05] hover:border-[#007AFF]/30 transition-all text-xs text-[#1D1D1F] dark:text-[#F5F5F7] min-h-[40px]">
+                                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                                            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-[#007AFF]/60 group-hover:text-[#007AFF] group-hover:translate-x-0.5 transition-all shrink-0"></i>
+                                            <span class="truncate font-medium group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors">
                                                 {{ $item['title'] }}
                                             </span>
-                                            <span
-                                                class="text-[9px] font-mono text-[#6E6E73]/60 dark:text-[#86868B]/60 shrink-0 mt-0.5"
-                                                title="Prioritas SEO">
-                                                P:{{ $item['priority'] }}
-                                            </span>
-                                        </a>
-                                    </li>
+                                        </div>
+                                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/[0.04] dark:bg-white/[0.06] text-[#6E6E73] dark:text-[#86868B] shrink-0" title="Prioritas SEO">
+                                            P:{{ $item['priority'] }}
+                                        </span>
+                                    </a>
                                 @endforeach
-                            </ul>
+                            </div>
                         </div>
                     </div>
                 @endforeach

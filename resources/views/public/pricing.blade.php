@@ -300,44 +300,44 @@
                             </div>
 
                             <!-- Features Checklist -->
-                            <ul class="space-y-2.5 pt-2 text-xs text-slate-700 dark:text-slate-300">
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">1 Business / User / Outlet</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">50 Produk</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">20 Material</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">30 Customer</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">20 Supplier</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">10 PO / bulan</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">10 Invoice / bulan</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">100 POS Transaction / bulan</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">3GB Storage / Owner</span>
-                                </li>
-                            </ul>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 pt-2">
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">1 Bisnis / User / Outlet</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">50 Produk &amp; 20 Material</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">30 Customer &amp; 20 Supplier</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">10 PO &amp; 10 Invoice / bln</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">100 Transaksi POS / bln</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">3GB Cloud Storage</span>
+                                </div>
+                            </div>
                         </div>
 
                         <a href="{{ route('register') }}"
@@ -382,32 +382,44 @@
                             </div>
 
                             <!-- Features Checklist -->
-                            <ul class="space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Multi User</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Multi Outlet &amp; Warehouse</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">B2B / B2C Sales</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Integrasi Marketplace &amp; WA</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Laporan &amp; Dashboard Lengkap</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Email Support</span>
-                                </li>
-                            </ul>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 pt-1">
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-[#00B4D8]/20 flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/15 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-800 dark:text-slate-200 font-medium leading-snug">Multi User &amp; Hak Akses</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-[#00B4D8]/20 flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/15 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-800 dark:text-slate-200 font-medium leading-snug">Multi Outlet &amp; Gudang</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-[#00B4D8]/20 flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/15 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-800 dark:text-slate-200 font-medium leading-snug">B2B / B2C Sales</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-[#00B4D8]/20 flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/15 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-800 dark:text-slate-200 font-medium leading-snug">Integrasi Marketplace &amp; WA</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-[#00B4D8]/20 flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/15 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-800 dark:text-slate-200 font-medium leading-snug">Laporan &amp; Dasbor Lengkap</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-[#00B4D8]/20 flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/15 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-800 dark:text-slate-200 font-medium leading-snug">Email &amp; Chat Support</span>
+                                </div>
+                            </div>
                         </div>
 
                         <a href="{{ route('register') }}"
@@ -443,32 +455,44 @@
                             </div>
 
                             <!-- Features Checklist -->
-                            <ul class="space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Content Automation</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Social Media Integration</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Advanced Analytics</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Integrasi Marketplace (Shopee, TikTok)</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">API &amp; Webhook</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Priority Support</span>
-                                </li>
-                            </ul>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 pt-1">
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">Content Automation</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">Social Media Integration</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">Advanced Analytics</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">Shopee &amp; TikTok Marketplace</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">API &amp; Webhook Integration</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">Priority Support</span>
+                                </div>
+                            </div>
                         </div>
 
                         <a href="{{ route('register') }}"
@@ -482,8 +506,8 @@
                         class="bg-white dark:bg-[#111827] rounded-[24px] border border-slate-200 dark:border-slate-800 p-6 sm:p-7 shadow-xs flex flex-col justify-between space-y-6 hover:shadow-md transition-all">
                         <div class="space-y-4">
                             <div>
-                                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                    <span class="text-amber-500">👑</span>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <i data-lucide="crown" class="w-5 h-5 text-amber-500 shrink-0"></i>
                                     <span>Prestige</span>
                                 </h3>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] leading-relaxed text-pretty">
@@ -507,32 +531,44 @@
                             </div>
 
                             <!-- Features Checklist -->
-                            <ul class="space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">AI Assistant (Chat &amp; Analytics)</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">AI Content Generation</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Advanced Inventory &amp; Manufacturing</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Multi-Branch &amp; Multi-Company</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Dedicated Account Manager</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
-                                    <span class="min-w-0 flex-1 leading-snug">Priority Support 24/7</span>
-                                </li>
-                            </ul>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 pt-1">
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">AI Assistant (Chat &amp; Analytics)</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">AI Content Generation</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">Advanced Manufacturing &amp; BOM</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">Multi-Branch &amp; Multi-Company</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">Dedicated Account Manager</span>
+                                </div>
+                                <div class="p-2.5 rounded-[12px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-[6px] bg-[#00B4D8]/10 text-[#00B4D8] flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug">Priority Support 24/7</span>
+                                </div>
+                            </div>
                         </div>
 
                         <a href="{{ route('register') }}"

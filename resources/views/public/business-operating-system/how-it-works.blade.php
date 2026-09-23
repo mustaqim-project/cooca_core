@@ -241,15 +241,20 @@
                             checkout di katalog online toko Anda, COOCA langsung mengunci pesanan tersebut ke dalam antrean
                             terenkripsi.
                         </p>
-                        <ul
-                            class="space-y-2 text-xs text-neutral-600 dark:text-neutral-400 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Dukungan pembayaran tunai, transfer, QRIS
-                                otomatis, dan kasbon pelanggan.</span></li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Cetak nota kasir via Bluetooth printer atau
-                                kirim nota digital via WhatsApp.</span></li>
-                        </ul>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
+                            <div class="p-3 rounded-[14px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs text-neutral-700 dark:text-neutral-300 leading-snug font-medium text-pretty">Dukungan pembayaran tunai, transfer, QRIS otomatis, dan kasbon pelanggan.</span>
+                            </div>
+                            <div class="p-3 rounded-[14px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs text-neutral-700 dark:text-neutral-300 leading-snug font-medium text-pretty">Cetak nota kasir via Bluetooth printer atau kirim nota digital via WhatsApp.</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Fase 2 -->
@@ -267,15 +272,20 @@
                             makanan/minuman, takaran bahan mentah (kopi, susu, cup, kemasan) dipotong otomatis dari
                             persediaan gudang outlet terkait.
                         </p>
-                        <ul
-                            class="space-y-2 text-xs text-neutral-600 dark:text-neutral-400 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Mutasi stok tercatat perpetual dengan
-                                penomoran dokumen batch.</span></li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Notifikasi otomatis menyala jika persediaan
-                                mendekati titik reorder (ROP).</span></li>
-                        </ul>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
+                            <div class="p-3 rounded-[14px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs text-neutral-700 dark:text-neutral-300 leading-snug font-medium text-pretty">Mutasi stok tercatat perpetual dengan penomoran dokumen batch.</span>
+                            </div>
+                            <div class="p-3 rounded-[14px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs text-neutral-700 dark:text-neutral-300 leading-snug font-medium text-pretty">Notifikasi otomatis menyala jika persediaan mendekati titik reorder (ROP).</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Fase 3 -->
@@ -293,15 +303,20 @@
                             jurnal ganda (double-entry bookkeeping) otomatis untuk pendapatan, kas/bank, potongan harga, dan
                             beban pokok penjualan (HPP).
                         </p>
-                        <ul
-                            class="space-y-2 text-xs text-neutral-600 dark:text-neutral-400 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Standar Akuntansi Keuangan Entitas Mikro
-                                Kecil Menengah (SAK EMKM).</span></li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Perhitungan margin laba kotor dan laba
-                                operasional bersih seketika.</span></li>
-                        </ul>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
+                            <div class="p-3 rounded-[14px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs text-neutral-700 dark:text-neutral-300 leading-snug font-medium text-pretty">Standar Akuntansi Keuangan Entitas Mikro Kecil Menengah (SAK EMKM).</span>
+                            </div>
+                            <div class="p-3 rounded-[14px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs text-neutral-700 dark:text-neutral-300 leading-snug font-medium text-pretty">Perhitungan margin laba kotor dan laba operasional bersih seketika.</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Fase 4 -->
@@ -319,15 +334,20 @@
                             omzet harian, sisa kas fisik di kasir tiap outlet, produk paling menguntungkan, dan peringatan
                             potensi kebocoran biaya.
                         </p>
-                        <ul
-                            class="space-y-2 text-xs text-neutral-600 dark:text-neutral-400 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Rekap harian otomatis terkirim tanpa harus
-                                menelepon staf kasir.</span></li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Rekomendasi stok cerdas untuk persiapan jam
-                                ramai akhir pekan.</span></li>
-                        </ul>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
+                            <div class="p-3 rounded-[14px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs text-neutral-700 dark:text-neutral-300 leading-snug font-medium text-pretty">Rekap harian otomatis terkirim tanpa harus menelepon staf kasir.</span>
+                            </div>
+                            <div class="p-3 rounded-[14px] bg-slate-50 dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs text-neutral-700 dark:text-neutral-300 leading-snug font-medium text-pretty">Rekomendasi stok cerdas untuk persiapan jam ramai akhir pekan.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
