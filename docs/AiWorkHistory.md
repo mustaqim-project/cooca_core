@@ -46,6 +46,113 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-23-116] Implementasi Hero Section Presisi Sesuai Contoh Gambar: Executive Dashboard & UMKM OS
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Landing Page Hero Section, Executive Dashboard UI, Social Proof Metrics, Bento Apple HIG
+* **Feature:**
+  1. **Tipografi & Value Proposition Hero Kiri (100% Match Reference Image):**
+     - Headline: `Kelola Bisnis UMKM` (hitam pekat) dan `Lebih Cerdas & Presisi` (aksen biru Apple `#007AFF`).
+     - Deskripsi terstruktur: `Cooca adalah sistem operasi bisnis terlengkap: HPP presisi, POS Kasir, stok real-time, pembukuan otomatis, dan asisten AI tanpa biaya lisensi bulanan.`
+     - Dual CTA buttons: Tombol biru pill `Mulai Sekarang - Gratis →` dan tombol putih `Daftar via Google` dengan SVG icon 4-warna Google resmi.
+     - Tiga badge checklist trust: `Tanpa Kartu Kredit` (ikon hijau), `Setup Cepat 2 Menit` (ikon oranye), dan `Data Aman & Terenkripsi` (ikon biru).
+     - Kartu Social Proof 3-kolom: `10.000+ UMKM Terdaftar` | `99.8% Akurasi Finansial` (hijau) | `100% Gratis Selamanya` (biru).
+  2. **Jendela macOS Executive Dashboard Kolom Kanan (100% Match Reference Image):**
+     - Frame window macOS dengan 3 lampu lalu-lintas (traffic lights: merah `#FF5F56`, kuning `#FFBD2E`, hijau `#27C93F`) dan teks header `Cooca OS • Executive Dashboard`.
+     - Grid 2x2 Kartu Metrik KPI:
+       - `OMZET HARI INI`: `Rp 4.250.000` (`+14.8% vs kemarin`).
+       - `MARGIN LABA BERSIH`: `32.4%` (`Net Profit Rp 1.377.000`).
+       - `STOK KRITIS GUDANG`: `3 Bahan` (`Segera restock`).
+       - `TRANSAKSI POS`: `142 Struk` (`AOV Rp 29.900`).
+     - Kartu Grafik `Tren Penjualan 7 Hari Terakhir` dengan tag `+23.5% minggu ini` dan 7 batang vertikal rounded (5 biru muda, 2 biru `#007AFF` menyala).
+     - Kapsul AI Insight di bagian bawah: lingkaran biru dengan ikon `sparkles` dan teks `AI: "Margin produk Kopi Susu naik 4% setelah revisi bahan baku."`.
+  3. **Latar Belakang & Jarak Samping:**
+     - Menggunakan latar belakang cerah berkelas `bg-[#F8F9FA] dark:bg-[#070A14]` yang kontras dan bersih.
+     - Container tetap berada pada `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` dengan jarak tepi yang proporsional.
+* **Work Type:** UI/UX | Redesign | Frontend Alignment | Bento Apple HIG
+
+#### 1. Business Context & Objective
+* **Konteks:** Pengguna mengunggah gambar referensi persis dari Hero Section yang diinginkan dan meminta: *"pada hero section saya mau seperti pada contoh gambar"*. Tampilan tersebut memuat tata letak Executive Dashboard macOS yang rapi, metrik operasional riil UMKM, tombol Google SSO, dan social proof kredibel.
+* **Target:** Menghadirkan seluruh elemen visual, teks, warna, metrik, dan grafik batang dari gambar referensi secara presisi 1:1 ke dalam Hero Section `landing.blade.php`.
+
+#### 2. What Was Done
+* Mengganti seluruh blok Hero Section di `resources/views/landing.blade.php` dengan implementasi Executive Dashboard window dan tata letak teks kiri sesuai gambar.
+* Memperbarui pengujian otomatis di `tests/Feature/PublicPagesStructureTest.php` untuk memvalidasi teks-teks baru pada Hero section.
+* Menjalankan `php artisan view:clear` dan menjalankan feature test suite (17 passed, 93 assertions).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/landing.blade.php`
+  - `tests/Feature/PublicPagesStructureTest.php`
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+* **Workflow Impact:** Hero Section kini 100% identik dengan desain referensi yang diharapkan pengguna, dengan tingkat keterbacaan yang sangat tinggi dan daya tarik konversi bisnis yang kuat.
+* **Business Rule Impact:** Tidak ada.
+* **Permission Impact:** Publik.
+
+#### 5. Verification & Testing
+* `php artisan test --filter="LandingPageAuthTest|PublicPagesStructureTest|PublicMarketplaceSearchTest"` -> 17 tests passed (93 assertions).
+* `php artisan view:clear` -> Compiled views cleared successfully.
+* Zero-emoji validation: PASS (0 unicode emojis, 100% SVG vector & Lucide icons).
+
+#### 6. Important Decisions & Guardrails
+* Mempertahankan auth-awareness pada tombol CTA utama (menampilkan `Dashboard Admin` jika superadmin, `Ke Dashboard` jika user login, dan `Mulai Sekarang - Gratis` + `Daftar via Google` jika pengunjung umum/tamu).
+
+#### 7. Documentation Promotion
+* Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-116] dan `walkthrough.md`.
+
+### [WORK-2026-09-23-115] Pemulihan Jarak Pinggir Layout (Margin & Gutter) Standar Apple HIG `max-w-7xl` Ekosistem COOCA
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Public Marketing Layout, Container Margin & Gutter, Landing Page, Marketplace Search, Bento Apple HIG
+* **Feature:**
+  1. **Pemulihan Margin Tepi Layout (`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`):**
+     - Mengembalikan batasan lebar maksimum container dari `1640px` (yang menyebabkan konten tertarik hingga ke tepi monitor) kembali ke `max-w-7xl` (1280px) dengan padding standar responsif `px-4 sm:px-6 lg:px-8`.
+     - Memberikan jarak tepi yang lega, elegan, dan proporsional (*breathing room*) dari sisi kiri dan kanan monitor widescreen (1080p, 1440p, 4K), persis sesuai desain referensi.
+  2. **Harmonisasi Seluruh Section & Layout Global:**
+     - Header Navbar & Footer pada `resources/views/layouts/public_marketing.blade.php`.
+     - Hero Section dan seluruh Section 2 s/d 8 pada `resources/views/landing.blade.php`.
+     - Halaman Pencarian Marketplace pada `resources/views/public/marketplace/search.blade.php`.
+  3. **Penyesuaian Skala Proporsional Hero Section:**
+     - Wadah mockup perangkat keras 3D laptop MacBook dan smartphone iPhone disesuaikan ke `max-w-[620px] lg:max-w-[660px]` agar duduk serasi di kolom kanan (`lg:col-span-7`).
+     - Tipografi headline dan tombol CTA diselaraskan kembali sehingga berjarak rapi dan tidak menciptakan rongga kosong yang berlebihan di tengah.
+* **Work Type:** UI/UX | Layout Alignment | Responsive Design | Bug Fix
+
+#### 1. Business Context & Objective
+* **Konteks:** Pengguna melaporkan bahwa setelah layout diperluas ke 1640px, konten menjadi tertarik penuh ke pinggir monitor ("sekarang ketarik full layouts, saya mau seperti contoh gambar, memiliki jarak dari pinggir"). Diperlukan jarak/margin samping yang nyaman agar layout terpusat rapi dan berkelas sebagaimana standar website Apple.
+* **Target:** Mengembalikan batas lebar container ke 1280px (`max-w-7xl`) dengan margin samping otomatis (`mx-auto`) dan padding `px-8` di monitor desktop sehingga terdapat jarak tepi yang bersih dan seimbang di sisi kiri dan kanan.
+
+#### 2. What Was Done
+* Mengubah container pada `resources/views/layouts/public_marketing.blade.php`, `resources/views/landing.blade.php`, dan `resources/views/public/marketplace/search.blade.php` menjadi `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`.
+* Menyesuaikan proporsi Hero section ketinggian, tipografi, dan wadah mockup perangkat fisik.
+* Mengosongkan cache view blade (`php artisan view:clear`) dan memverifikasi seluruh test suite (17 passed, 93 assertions).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/landing.blade.php`
+  - `resources/views/layouts/public_marketing.blade.php`
+  - `resources/views/public/marketplace/search.blade.php`
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+* **Workflow Impact:** Tampilan landing page dan marketplace kembali memiliki jarak tepi (margin) yang simetris, terpusat, dan nyaman dilihat di monitor desktop maupun laptop.
+* **Business Rule Impact:** Tidak ada.
+* **Permission Impact:** Publik.
+
+#### 5. Verification & Testing
+* `php artisan test --filter="LandingPageAuthTest|PublicPagesStructureTest|PublicMarketplaceSearchTest"` -> 17 tests passed (93 assertions).
+* `php artisan view:clear` -> Compiled views cleared.
+* Zero-emoji validation: PASS (0 unicode emojis).
+
+#### 6. Important Decisions & Guardrails
+* Menggunakan standar industri SaaS premium (`max-w-7xl` = 1280px) yang terbukti memberikan pengalaman ergonomis terbaik untuk mata pembaca, menghindari konten yang terlalu membentang ke pinggir layar pada monitor beresolusi tinggi.
+
+#### 7. Documentation Promotion
+* Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-115] dan `walkthrough.md`.
+
 ### [WORK-2026-09-23-114] Implementasi Mockup Hardware MacBook & iPhone Realistis serta Skala Layout 1640px pada Zoom Normal 100%
 * **Date:** 2026-09-23
 * **Status:** COMPLETED

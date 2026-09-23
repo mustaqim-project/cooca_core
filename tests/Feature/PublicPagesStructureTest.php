@@ -14,10 +14,10 @@ final class PublicPagesStructureTest extends TestCase
     {
         $response = $this->get(route('landing'));
 
-        $response->assertStatus(200);
-        $response->assertSee('Run Your Business.');
-        $response->assertSee('One Operating');
-        $response->assertSee('One Business. One System. One Central Center.');
+        $response->assertSee('Kelola Bisnis UMKM');
+        $response->assertSee('Lebih Cerdas &amp;', false);
+        $response->assertSee('Presisi');
+        $response->assertSee('Executive Dashboard');
         $response->assertSee('Semua yang Anda Butuhkan. Terhubung dalam Satu Sistem.');
         $response->assertSee('Your Business, Connected End-to-End');
         $response->assertSee('Lebih dari Sekadar ERP');

@@ -114,128 +114,175 @@
 @section('content')
     <div class="relative overflow-hidden w-full font-sans">
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION (Realistic MacBook & iPhone Showcase) ═══ -->
+        <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section class="relative bg-[#060913] text-white min-h-[calc(100vh-4.5rem)] sm:min-h-[calc(100vh-5.5rem)] flex items-center py-10 lg:py-16 xl:py-20 overflow-hidden">
-            <!-- Ambient Radial Glows -->
-            <div
-                class="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
-            </div>
+        <section class="relative bg-[#F8F9FA] dark:bg-[#070A14] text-slate-900 dark:text-white py-12 lg:py-20 overflow-hidden border-b border-slate-200/60 dark:border-white/5 transition-colors">
+            
+            <!-- Subtle Radial Ambient Glow -->
+            <div class="absolute top-1/4 right-1/4 w-[450px] h-[450px] bg-blue-100/60 dark:bg-blue-900/10 rounded-full blur-[120px] pointer-events-none -z-0"></div>
 
             <!-- Container Grid -->
-            <div
-                class="max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-center">
-                <!-- Left Column: Copy & Value Proposition (Span 5 for balanced alignment) -->
-                <div class="lg:col-span-5 space-y-6 text-center lg:text-left flex flex-col justify-center">
-                    <!-- Pill Badge -->
-                    <div
-                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold shadow-[0_0_15px_rgba(0,194,255,0.2)] w-fit mx-auto lg:mx-0">
-                        <span class="w-2 h-2 rounded-full bg-[#00C2FF] animate-pulse"></span>
-                        <span>Business Operating System &amp; Omnichannel ERP</span>
-                    </div>
-
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                
+                <!-- Left Column: Copy & Value Proposition -->
+                <div class="lg:col-span-6 space-y-6 text-left flex flex-col justify-center">
+                    
                     <!-- Main Headline -->
-                    <h1
-                        class="text-4xl sm:text-5xl lg:text-5xl xl:text-6xl 2xl:text-[4.25rem] font-extrabold text-white tracking-tight leading-[1.1]">
-                        Run Your Business. <br>
-                        From <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One Operating<br class="hidden sm:inline"> System.</span>
+                    <h1 class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
+                        Kelola Bisnis UMKM <br>
+                        <span class="text-[#007AFF]">Lebih Cerdas &amp;<br>Presisi</span>
                     </h1>
 
                     <!-- Subtitle -->
-                    <p class="text-base sm:text-lg xl:text-xl text-slate-300 max-w-xl xl:max-w-2xl leading-relaxed font-normal mx-auto lg:mx-0">
-                        COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social
-                        media, marketplace, dan automation dalam satu ekosistem.
-                    </p>
-
-                    <!-- Punchline -->
-                    <p class="text-sm sm:text-base xl:text-lg text-slate-400 font-semibold tracking-wide">
-                        One Business. One System. One Central Center.
+                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
+                        <strong class="font-bold text-slate-900 dark:text-white">Cooca</strong> adalah sistem operasi bisnis terlengkap: <span class="text-[#007AFF] font-medium">HPP presisi</span>, <span class="text-[#10B981] font-medium">POS Kasir</span>, stok real-time, pembukuan otomatis, dan asisten AI tanpa biaya lisensi bulanan.
                     </p>
 
                     <!-- Dual CTAs (Auth-Aware) -->
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                    <div class="flex flex-wrap items-center gap-3 pt-1">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}"
-                                class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                class="px-7 py-3.5 rounded-full bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_14px_rgba(0,122,255,0.35)] hover:scale-105 active:scale-95 transition-all">
                                 <span>Dashboard Admin</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @elseif (auth('web')->check())
                             <a href="{{ route('dashboard') }}"
-                                class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                class="px-7 py-3.5 rounded-full bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_14px_rgba(0,122,255,0.35)] hover:scale-105 active:scale-95 transition-all">
                                 <span>Ke Dashboard</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @else
                             <a href="{{ route('register') }}"
-                                class="w-full sm:w-auto px-8 sm:px-9 py-4 sm:py-4.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-base flex items-center justify-center gap-2.5 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:shadow-[0_0_35px_rgba(0,194,255,0.65)] hover:scale-105 active:scale-95 transition-all">
-                                <span>Coba COOCA Gratis</span>
+                                class="px-7 py-3.5 rounded-full bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm sm:text-base flex items-center gap-2 shadow-[0_4px_14px_rgba(0,122,255,0.35)] hover:scale-105 active:scale-95 transition-all">
+                                <span>Mulai Sekarang - Gratis</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
-                            <a href="{{ route('public.bos.how-it-works') }}"
-                                class="w-full sm:w-auto px-7 sm:px-8 py-4 sm:py-4.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-base flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
-                                <span>Lihat Cara Kerja</span>
-                                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                            <a href="{{ route('login') }}"
+                                class="px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-200 dark:border-white/20 text-slate-800 dark:text-white font-semibold text-sm sm:text-base flex items-center gap-2.5 shadow-sm hover:scale-105 active:scale-95 transition-all">
+                                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.665-5.17 3.665-9.12z"/>
+                                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.13C3.26 21.36 7.33 24 12 24z"/>
+                                    <path fill="#FBBC05" d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.13z"/>
+                                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.13c.95-2.83 3.6-4.96 6.72-4.96z"/>
+                                </svg>
+                                <span>Daftar via Google</span>
                             </a>
                         @endif
                     </div>
 
-                    <!-- Horizontal Feature Tags -->
-                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2">
-                        <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
-                            <span>ERP</span>
+                    <!-- Trust Checklist Badges -->
+                    <div class="flex flex-wrap items-center gap-4 sm:gap-6 pt-1 text-xs text-slate-500 dark:text-slate-400">
+                        <span class="inline-flex items-center gap-1.5">
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i>
+                            <span>Tanpa Kartu Kredit</span>
                         </span>
-                        <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
-                            <span>Omnichannel</span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <i data-lucide="zap" class="w-4 h-4 text-amber-500"></i>
+                            <span>Setup Cepat 2 Menit</span>
                         </span>
-                        <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
-                            <span>Automation</span>
-                        </span>
-                        <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
-                            <span>Marketplace</span>
-                        </span>
-                        <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
-                            <span>AI</span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <i data-lucide="lock" class="w-4 h-4 text-[#007AFF]"></i>
+                            <span>Data Aman &amp; Terenkripsi</span>
                         </span>
                     </div>
+
+                    <!-- 3-Metric Social Proof Card -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] grid grid-cols-3 divide-x divide-slate-100 dark:divide-white/10 text-center max-w-lg mt-2">
+                        <div class="px-2">
+                            <div class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">10.000+</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
+                        </div>
+                        <div class="px-2">
+                            <div class="text-xl sm:text-2xl font-extrabold text-emerald-500">99.8%</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
+                        </div>
+                        <div class="px-2">
+                            <div class="text-xl sm:text-2xl font-extrabold text-[#007AFF]">100%</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Gratis Selamanya</div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Right Column: Real Apple Devices Mockup (MacBook Desktop + iPhone Mobile) -->
-                <div class="lg:col-span-7 relative pb-12 lg:pb-0 flex items-center justify-center lg:justify-end">
-                    <div class="relative w-full max-w-[680px] xl:max-w-[800px] 2xl:max-w-[880px] group">
+                <!-- Right Column: macOS Executive Dashboard Window -->
+                <div class="lg:col-span-6 flex items-center justify-center lg:justify-end">
+                    <div class="w-full max-w-lg lg:max-w-xl group">
                         
-                        <!-- Ambient Radial Glow Behind Devices -->
-                        <div class="absolute -inset-4 bg-[#00C2FF]/15 blur-[80px] rounded-full pointer-events-none -z-0"></div>
-
-                        <!-- Real 3D Devices Mockup (MacBook + iPhone) -->
-                        <div class="relative z-10 overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.8)] bg-[#060913] transition-transform duration-500 group-hover:scale-[1.01]">
-                            <img src="{{ asset('assets/image/cooca_devices_mockup.jpg') }}"
-                                alt="COOCA ERP MacBook Laptop & iPhone Mobile POS Mockup"
-                                class="w-full h-auto object-cover block">
-                        </div>
-
-                        <!-- Floating AI Assistant Badge -->
-                        <div
-                            class="absolute -bottom-6 sm:-bottom-7 left-3 sm:left-6 z-20 p-4 sm:p-5 rounded-2xl bg-[#0b1633]/95 backdrop-blur-2xl border border-cyan-400/40 shadow-[0_15px_40px_rgba(0,194,255,0.35)] flex items-center gap-3.5 sm:gap-4 max-w-xs sm:max-w-sm xl:max-w-md">
-                            <div
-                                class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#00C2FF] text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_18px_rgba(0,194,255,0.65)]">
-                                <i data-lucide="sparkles" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                        <div class="bg-white dark:bg-[#111827] rounded-3xl p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-slate-200/80 dark:border-white/10 space-y-4 transition-transform duration-300 group-hover:scale-[1.01]">
+                            
+                            <!-- Window Traffic Lights & Title -->
+                            <div class="flex items-center gap-2 pb-1">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#FF5F56]"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27C93F]"></span>
+                                </div>
+                                <span class="text-xs text-slate-400 font-medium ml-2">Cooca OS &bull; Executive Dashboard</span>
                             </div>
-                            <div>
-                                <span class="text-xs sm:text-sm font-bold text-cyan-300 block">AI Assistant</span>
-                                <p class="text-xs text-slate-200 leading-snug">
-                                    Ringkasan penjualan hari ini meningkat 24% dibanding kemarin.
+
+                            <!-- 2x2 KPI Metrics Grid -->
+                            <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                                <!-- Metric 1: Omzet Hari Ini -->
+                                <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-1">
+                                    <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wider uppercase block">OMZET HARI INI</span>
+                                    <div class="text-lg sm:text-xl font-extrabold text-emerald-500 font-mono tracking-tight">Rp 4.250.000</div>
+                                    <div class="text-[11px] sm:text-xs font-semibold text-emerald-500 flex items-center gap-1">
+                                        <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                        <span>+14.8% vs kemarin</span>
+                                    </div>
+                                </div>
+
+                                <!-- Metric 2: Margin Laba Bersih -->
+                                <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-1">
+                                    <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wider uppercase block">MARGIN LABA BERSIH</span>
+                                    <div class="text-lg sm:text-xl font-extrabold text-[#007AFF] font-mono tracking-tight">32.4%</div>
+                                    <div class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Net Profit Rp 1.377.000</div>
+                                </div>
+
+                                <!-- Metric 3: Stok Kritis Gudang -->
+                                <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-1">
+                                    <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wider uppercase block">STOK KRITIS GUDANG</span>
+                                    <div class="text-lg sm:text-xl font-extrabold text-amber-500 tracking-tight">3 Bahan</div>
+                                    <div class="text-[11px] sm:text-xs text-amber-500 font-medium flex items-center gap-1">
+                                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                        <span>Segera restock</span>
+                                    </div>
+                                </div>
+
+                                <!-- Metric 4: Transaksi POS -->
+                                <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-1">
+                                    <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wider uppercase block">TRANSAKSI POS</span>
+                                    <div class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">142 Struk</div>
+                                    <div class="text-[11px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-medium">AOV Rp 29.900</div>
+                                </div>
+                            </div>
+
+                            <!-- Tren Penjualan 7 Hari Terakhir (Bar Chart) -->
+                            <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 border border-slate-100 dark:border-white/5 space-y-3">
+                                <div class="flex items-center justify-between text-xs sm:text-sm">
+                                    <span class="font-semibold text-slate-700 dark:text-slate-200">Tren Penjualan 7 Hari Terakhir</span>
+                                    <span class="font-bold text-emerald-500">+23.5% minggu ini</span>
+                                </div>
+                                <!-- 7 Bars Chart Graphic -->
+                                <div class="flex items-end gap-2.5 h-16 pt-2">
+                                    <div class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[40%] transition-all hover:bg-blue-400"></div>
+                                    <div class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[55%] transition-all hover:bg-blue-400"></div>
+                                    <div class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[35%] transition-all hover:bg-blue-400"></div>
+                                    <div class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[80%] transition-all hover:bg-blue-400"></div>
+                                    <div class="w-full bg-[#BFDBFE] dark:bg-blue-950/60 rounded-lg h-[65%] transition-all hover:bg-blue-400"></div>
+                                    <div class="w-full bg-[#007AFF] rounded-lg h-[100%] shadow-[0_0_12px_rgba(0,122,255,0.4)]"></div>
+                                    <div class="w-full bg-[#007AFF] rounded-lg h-[88%] shadow-[0_0_12px_rgba(0,122,255,0.4)]"></div>
+                                </div>
+                            </div>
+
+                            <!-- AI Insight Capsule -->
+                            <div class="bg-[#EFF6FF] dark:bg-blue-950/40 rounded-2xl p-3 sm:p-3.5 border border-blue-100 dark:border-blue-900/40 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-sm">
+                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                </div>
+                                <p class="text-xs sm:text-[13px] text-slate-800 dark:text-slate-200 leading-snug">
+                                    <span class="font-bold text-[#007AFF]">AI:</span> "Margin produk Kopi Susu naik 4% setelah revisi bahan baku."
                                 </p>
                             </div>
                         </div>
@@ -246,13 +293,11 @@
             </div>
         </section>
 
-
-        <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 2. FEATURE GRID ("Semua yang Anda Butuhkan...") ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 <!-- Section Header -->
                 <div class="text-center max-w-4xl mx-auto space-y-3">
@@ -436,7 +481,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
@@ -622,7 +667,7 @@
                 class="absolute top-1/2 left-1/3 w-96 h-96 bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 relative z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 <!-- Section Heading -->
                 <div class="space-y-3 mb-14 text-center lg:text-left">
@@ -1128,7 +1173,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
@@ -1280,7 +1325,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
                     <!-- ════ LEFT CARD: CONTENT AUTOMATION ════ -->
@@ -1637,7 +1682,7 @@
         <!-- ═══ 7. "COCOK UNTUK BERBAGAI JENIS BISNIS" (Solutions) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="bg-white dark:bg-[#070A14] py-20 lg:py-24 transition-colors">
-            <div class="max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 <!-- Section Header with Right-Aligned Button -->
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
@@ -1765,7 +1810,7 @@
                 class="absolute -top-24 right-1/4 w-[450px] h-[450px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
 
-            <div class="max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 relative z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
                     <!-- Left Column -->
@@ -1806,7 +1851,7 @@
                                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                 </a>
                                 <a href="{{ route('public.demo') }}"
-                                    class="w-full sm:w-auto px-7 sm:px-8 py-4 sm:py-4.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-base flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
+                                    class="w-full sm:w-auto px-6 sm:px-7 py-3.5 sm:py-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
                                     <span>Lihat Demo</span>
                                     <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
                                 </a>
