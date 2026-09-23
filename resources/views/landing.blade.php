@@ -403,10 +403,6 @@
                                         <span
                                             class="font-black text-xl sm:text-2xl tracking-wider text-white font-sans drop-shadow-[0_0_14px_rgba(0,194,255,0.85)]">COOCA</span>
                                     @endif
-                                    <p
-                                        class="text-[9px] sm:text-[10.5px] font-bold text-cyan-300 tracking-wider uppercase mt-1">
-                                        Business Operating System
-                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -1728,8 +1724,7 @@
                         <span>Saatnya Beralih ke COOCA</span>
                     </div>
 
-                    <h2
-                        class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white tracking-tight leading-tight">
+                    <h2 class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white tracking-tight leading-tight">
                         Kelola Bisnis Anda dengan Lebih Mudah, Terintegrasi, dan Cerdas.
                     </h2>
 
