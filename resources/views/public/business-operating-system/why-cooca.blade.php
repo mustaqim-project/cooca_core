@@ -7,7 +7,7 @@
 @push('seo')
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Mengapa Memilih COOCA Business Operating System",
         "description": "Perbandingan mendalam antara mengelola bisnis dengan software terpisah versus ekosistem terpadu COOCA.",
@@ -21,7 +21,7 @@
     </script>
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "BreadcrumbList",
         "itemListElement": [
             {

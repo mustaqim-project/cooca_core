@@ -16,7 +16,7 @@
 
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
+      "@@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "Kategori Marketplace UMKM COOCA",
       "description": "Klasifikasi industri dan kategori produk UMKM Indonesia.",

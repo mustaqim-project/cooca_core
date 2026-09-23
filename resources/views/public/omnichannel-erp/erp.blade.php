@@ -7,7 +7,7 @@
 @push('seo')
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "COOCA Omnichannel ERP",
         "applicationCategory": "BusinessApplication",
@@ -28,7 +28,7 @@
     </script>
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "BreadcrumbList",
         "itemListElement": [
             {

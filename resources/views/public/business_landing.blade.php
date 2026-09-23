@@ -61,7 +61,7 @@
         };
 
         $localBusinessSchema = [
-            '@context' => 'https://schema.org',
+            '@@context' => 'https://schema.org',
             '@type' => $schemaType,
             'name' => $business->name,
             'description' => $landingPage->meta_description ?: ($landingPage->subheadline ?: $business->description),

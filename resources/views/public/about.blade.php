@@ -16,7 +16,7 @@
 
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
+      "@@context": "https://schema.org",
       "@type": "AboutPage",
       "name": "Tentang COOCA",
       "description": "Filosofi, misi, dan latar belakang pengembangan COOCA sebagai Business Operating System terintegrasi untuk UMKM Indonesia.",

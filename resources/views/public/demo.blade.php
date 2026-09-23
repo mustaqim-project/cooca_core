@@ -16,7 +16,7 @@
 
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
+      "@@context": "https://schema.org",
       "@type": "WebPage",
       "name": "Live Demo COOCA",
       "description": "Simulasi interaktif kasir dan sistem operasi bisnis COOCA.",

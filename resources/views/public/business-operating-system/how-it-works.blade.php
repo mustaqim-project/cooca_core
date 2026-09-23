@@ -7,7 +7,7 @@
 @push('seo')
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Cara Kerja COOCA Business Operating System",
         "description": "Panduan langkah demi langkah bagaimana data transaksi masuk, memotong stok, membukukan jurnal keuangan, dan memperbarui analisis laba owner di COOCA.",
@@ -21,7 +21,7 @@
     </script>
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "BreadcrumbList",
         "itemListElement": [
             {

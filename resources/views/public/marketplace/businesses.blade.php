@@ -16,7 +16,7 @@
 
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
+      "@@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "Direktori Bisnis UMKM COOCA",
       "description": "Direktori bisnis dan toko online UMKM terverifikasi di seluruh Indonesia.",

@@ -16,7 +16,7 @@
 
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
+      "@@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "Katalog Produk UMKM COOCA",
       "description": "Katalog produk dan etalase barang/jasa UMKM Indonesia terhubung dengan stok kasir real-time.",

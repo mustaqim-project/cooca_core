@@ -16,7 +16,7 @@
 
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
+      "@@context": "https://schema.org",
       "@type": "ContactPage",
       "name": "Pusat Bantuan COOCA",
       "description": "Layanan bantuan teknis dan panduan operasional sistem operasi bisnis COOCA.",

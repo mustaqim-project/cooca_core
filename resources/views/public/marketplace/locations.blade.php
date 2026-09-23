@@ -16,7 +16,7 @@
 
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
+      "@@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "Direktori Lokasi Toko UMKM COOCA",
       "description": "Direktori pencarian toko dan bisnis UMKM berdasarkan cakupan wilayah dan kota di Indonesia.",
