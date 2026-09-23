@@ -1491,87 +1491,180 @@
                         </a>
                     </div>
 
-                    <!-- Visual UI Mockup (Search + Filter Pills + 3 Product Cards) -->
+                    <!-- Interactive Marketplace Search & Discovery -->
                     <div class="space-y-3 pt-2">
-                        <!-- Search & Filter Bar -->
-                        <div
-                            class="flex items-center gap-2 p-2 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-xs">
-                            <i data-lucide="search" class="w-4 h-4 text-slate-400 ml-1"></i>
-                            <span class="text-slate-400 text-[11px]">Cari produk atau bisnis...</span>
-                            <div
-                                class="ml-auto flex items-center gap-1 text-[10px] text-slate-500 bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-100 dark:border-white/5">
-                                <i data-lucide="map-pin" class="w-3 h-3 text-rose-500"></i>
-                                <span>Semua Kota</span>
+                        <!-- Search & Filter Bar with Autocomplete -->
+                        <div x-data="{
+                            query: '',
+                            results: [],
+                            loading: false,
+                            open: false,
+                            searchProducts() {
+                                if (this.query.trim().length < 2) {
+                                    this.results = [];
+                                    this.open = false;
+                                    return;
+                                }
+                                this.loading = true;
+                                fetch('{{ route('marketplace.search') }}?q=' + encodeURIComponent(this.query), {
+                                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    this.results = data.data || [];
+                                    this.open = true;
+                                    this.loading = false;
+                                })
+                                .catch(() => {
+                                    this.loading = false;
+                                });
+                            }
+                        }" @click.outside="open = false" class="relative">
+                            <form action="{{ route('marketplace.search') }}" method="GET" class="relative">
+                                <div
+                                    class="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-white/10 text-xs focus-within:border-[#00C2FF] focus-within:ring-2 focus-within:ring-[#00C2FF]/20 transition-all">
+                                    <i data-lucide="search" class="w-4 h-4 text-slate-400 ml-2 shrink-0"></i>
+                                    <input type="text" name="q" x-model="query" @input.debounce.300ms="searchProducts()"
+                                        placeholder="Cari produk atau bisnis..." autocomplete="off"
+                                        class="w-full bg-transparent border-0 text-[11px] sm:text-xs text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-0 p-1">
+                                    <button type="submit"
+                                        class="shrink-0 px-3 py-1.5 rounded-xl bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-[11px] shadow-sm hover:scale-105 active:scale-95 transition-all">
+                                        Cari
+                                    </button>
+                                    <div
+                                        class="hidden sm:flex items-center gap-1 text-[10px] text-slate-500 bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-100 dark:border-white/5 shrink-0">
+                                        <i data-lucide="map-pin" class="w-3 h-3 text-rose-500"></i>
+                                        <span>Semua Kota</span>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <!-- Instant Search Dropdown (Only show_in_website products) -->
+                            <div x-show="open && results.length > 0" x-cloak
+                                class="absolute left-0 right-0 top-full mt-2 z-30 bg-white dark:bg-[#151D2F] border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden divide-y divide-slate-100 dark:divide-white/5">
+                                <div class="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50/50 dark:bg-white/[0.02]">
+                                    Produk Terverifikasi
+                                </div>
+                                <div class="max-h-60 overflow-y-auto">
+                                    <template x-for="item in results" :key="item.id">
+                                        <a :href="item.url" class="flex items-center gap-2.5 p-2.5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                                            <img :src="item.image_url || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=100&q=80'"
+                                                :alt="item.name" class="w-9 h-9 rounded-lg object-cover bg-slate-100 dark:bg-slate-800 shrink-0">
+                                            <div class="min-w-0 flex-1">
+                                                <div class="text-xs font-semibold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]" x-text="item.name"></div>
+                                                <div class="flex items-center gap-2 text-[10px] text-slate-500">
+                                                    <span x-text="item.category"></span>
+                                                    <span>•</span>
+                                                    <span class="font-medium text-[#00C2FF]" x-text="item.formatted_price"></span>
+                                                </div>
+                                            </div>
+                                            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform shrink-0"></i>
+                                        </a>
+                                    </template>
+                                </div>
+                                <a :href="'{{ route('marketplace.search') }}?q=' + encodeURIComponent(query)"
+                                    class="block p-2 text-center text-[11px] font-bold text-[#00C2FF] hover:bg-[#00C2FF]/10 transition-colors">
+                                    Lihat Semua Hasil untuk "<span x-text="query"></span>" &rarr;
+                                </a>
                             </div>
                         </div>
 
                         <!-- Category Filter Chips -->
                         <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px]">
-                            <span class="px-2.5 py-1 rounded-full bg-[#00C2FF] text-white font-bold shrink-0">Semua</span>
-                            <span
-                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">F&amp;B</span>
-                            <span
-                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Retail</span>
-                            <span
-                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Workshop</span>
-                            <span
-                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Laundry</span>
-                            <span
-                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Lainnya</span>
+                            <a href="{{ route('marketplace.search') }}"
+                                class="px-2.5 py-1 rounded-full bg-[#00C2FF] text-white font-bold shrink-0 hover:bg-[#00B4D8] transition-colors">Semua</a>
+                            <a href="{{ route('marketplace.search', ['kategori' => 'fnb']) }}"
+                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0 hover:bg-[#00C2FF]/20 hover:text-[#00C2FF] transition-colors">F&amp;B</a>
+                            <a href="{{ route('marketplace.search', ['kategori' => 'retail']) }}"
+                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0 hover:bg-[#00C2FF]/20 hover:text-[#00C2FF] transition-colors">Retail</a>
+                            <a href="{{ route('marketplace.search', ['kategori' => 'service']) }}"
+                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0 hover:bg-[#00C2FF]/20 hover:text-[#00C2FF] transition-colors">Workshop</a>
+                            <a href="{{ route('marketplace.search', ['kategori' => 'service']) }}"
+                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0 hover:bg-[#00C2FF]/20 hover:text-[#00C2FF] transition-colors">Laundry</a>
+                            <a href="{{ route('marketplace.search') }}"
+                                class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0 hover:bg-[#00C2FF]/20 hover:text-[#00C2FF] transition-colors">Lainnya</a>
                         </div>
 
                         <!-- 3 Mini Product Cards -->
                         <div class="grid grid-cols-3 gap-2.5">
-                            <!-- Product 1: Nasi Bebek Jakarta -->
-                            <div
-                                class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left">
-                                <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80"
-                                    alt="Nasi Bebek" class="w-full h-16 object-cover rounded-lg mb-1.5">
-                                <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate">Nasi Bebek
-                                    Madura</div>
-                                <div class="text-[9px] text-slate-400">F&amp;B</div>
-                                <div
-                                    class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
-                                    <span class="flex items-center gap-0.5 text-amber-500">
-                                        <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.9
-                                    </span>
-                                    <span>Jakarta</span>
-                                </div>
-                            </div>
+                            @if (isset($previewProducts) && $previewProducts->isNotEmpty())
+                                @foreach ($previewProducts->take(3) as $product)
+                                    @php
+                                        $productUrl = url('/' . ($product->business?->slug ?? 'toko') . '/produk/' . ($product->slug ?: $product->id));
+                                        $productImage = $product->image_url ?: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80';
+                                    @endphp
+                                    <a href="{{ $productUrl }}"
+                                        class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left hover:border-[#00C2FF]/40 hover:shadow-sm transition-all group block">
+                                        <img src="{{ $productImage }}"
+                                            alt="{{ $product->name }}" class="w-full h-16 object-cover rounded-lg mb-1.5 group-hover:scale-[1.02] transition-transform">
+                                        <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
+                                            {{ $product->name }}
+                                        </div>
+                                        <div class="text-[9px] text-slate-400 truncate">
+                                            {{ $product->category?->name ?? 'Produk' }}
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                            <span class="flex items-center gap-0.5 text-[#00C2FF]">
+                                                Rp {{ number_format((float) $product->selling_price, 0, ',', '.') }}
+                                            </span>
+                                            <span class="truncate max-w-[45px] text-right">{{ $product->business?->storeSetting?->city ?? 'Lokal' }}</span>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            @else
+                                <!-- Fallback Curated Cards (links to search) -->
+                                <a href="{{ route('marketplace.search', ['q' => 'Nasi Bebek']) }}"
+                                    class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left hover:border-[#00C2FF]/40 hover:shadow-sm transition-all group block">
+                                    <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80"
+                                        alt="Nasi Bebek" class="w-full h-16 object-cover rounded-lg mb-1.5 group-hover:scale-[1.02] transition-transform">
+                                    <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
+                                        Nasi Bebek Madura
+                                    </div>
+                                    <div class="text-[9px] text-slate-400">F&amp;B</div>
+                                    <div
+                                        class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                        <span class="flex items-center gap-0.5 text-amber-500">
+                                            <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.9
+                                        </span>
+                                        <span>Jakarta</span>
+                                    </div>
+                                </a>
 
-                            <!-- Product 2: Kopi Susu Aren -->
-                            <div
-                                class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left">
-                                <img src="https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=400&q=80"
-                                    alt="Kopi Susu" class="w-full h-16 object-cover rounded-lg mb-1.5">
-                                <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate">Kopi Susu
-                                    Aren</div>
-                                <div class="text-[9px] text-slate-400">Minuman</div>
-                                <div
-                                    class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
-                                    <span class="flex items-center gap-0.5 text-amber-500">
-                                        <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.7
-                                    </span>
-                                    <span>Bandung</span>
-                                </div>
-                            </div>
+                                <a href="{{ route('marketplace.search', ['q' => 'Kopi Susu']) }}"
+                                    class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left hover:border-[#00C2FF]/40 hover:shadow-sm transition-all group block">
+                                    <img src="https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=400&q=80"
+                                        alt="Kopi Susu" class="w-full h-16 object-cover rounded-lg mb-1.5 group-hover:scale-[1.02] transition-transform">
+                                    <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
+                                        Kopi Susu Aren
+                                    </div>
+                                    <div class="text-[9px] text-slate-400">Minuman</div>
+                                    <div
+                                        class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                        <span class="flex items-center gap-0.5 text-amber-500">
+                                            <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.7
+                                        </span>
+                                        <span>Bandung</span>
+                                    </div>
+                                </a>
 
-                            <!-- Product 3: Service AC -->
-                            <div
-                                class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left">
-                                <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80"
-                                    alt="Service AC" class="w-full h-16 object-cover rounded-lg mb-1.5">
-                                <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate">Jasa Service
-                                    AC</div>
-                                <div class="text-[9px] text-slate-400">Jasa</div>
-                                <div
-                                    class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
-                                    <span class="flex items-center gap-0.5 text-amber-500">
-                                        <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.8
-                                    </span>
-                                    <span>Surabaya</span>
-                                </div>
-                            </div>
+                                <a href="{{ route('marketplace.search', ['q' => 'Service AC']) }}"
+                                    class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left hover:border-[#00C2FF]/40 hover:shadow-sm transition-all group block">
+                                    <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80"
+                                        alt="Service AC" class="w-full h-16 object-cover rounded-lg mb-1.5 group-hover:scale-[1.02] transition-transform">
+                                    <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
+                                        Jasa Service AC
+                                    </div>
+                                    <div class="text-[9px] text-slate-400">Jasa</div>
+                                    <div
+                                        class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                        <span class="flex items-center gap-0.5 text-amber-500">
+                                            <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.8
+                                        </span>
+                                        <span>Surabaya</span>
+                                    </div>
+                                </a>
+                            @endif
                         </div>
 
                     </div>

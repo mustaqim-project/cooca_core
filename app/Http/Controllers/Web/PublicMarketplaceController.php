@@ -80,7 +80,7 @@ final class PublicMarketplaceController extends Controller
     /**
      * Marketplace-wide product search across all discoverable stores.
      */
-    public function search(Request $request): View
+    public function search(Request $request): View|\Illuminate\Http\JsonResponse
     {
         $search = trim((string) $request->query('q', ''));
         $category = trim((string) $request->query('kategori', ''));
@@ -96,7 +96,7 @@ final class PublicMarketplaceController extends Controller
                         ->where('is_discoverable', true);
                   });
             })
-            ->with(['business', 'category']);
+            ->with(['business.storeSetting', 'category']);
 
         // Search with escaped LIKE wildcards (Security fix)
         if ($search !== '') {
@@ -133,6 +133,28 @@ final class PublicMarketplaceController extends Controller
         };
 
         $products = $query->paginate(24)->withQueryString();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'total' => $products->total(),
+                'data' => collect($products->items())->map(function (Product $product): array {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'price' => (float) $product->selling_price,
+                        'formatted_price' => 'Rp ' . number_format((float) $product->selling_price, 0, ',', '.'),
+                        'image_url' => $product->image_url,
+                        'category' => $product->category?->name ?? 'Produk',
+                        'business_name' => $product->business?->name,
+                        'business_slug' => $product->business?->slug,
+                        'city' => $product->business?->storeSetting?->city ?? 'Indonesia',
+                        'url' => url('/' . ($product->business?->slug ?? 'toko') . '/produk/' . ($product->slug ?: $product->id)),
+                    ];
+                })->all(),
+            ]);
+        }
 
         $categories = $this->buildCategoryData();
 
