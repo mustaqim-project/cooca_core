@@ -1,8 +1,5 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'COOCA - Business Operating System & Omnichannel ERP')
-@section('description', 'COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social media, marketplace, dan automation dalam satu ekosistem.')
-
 @push('seo')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,7 +54,7 @@
                     <!-- Pill Badge -->
                     <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold shadow-[0_0_15px_rgba(0,194,255,0.2)]">
                         <span class="w-2 h-2 rounded-full bg-[#00C2FF] animate-pulse"></span>
-                        <span>Business Operating System & Omnichannel ERP</span>
+                        <span>Business Operating System &amp; Omnichannel ERP</span>
                     </div>
 
                     <!-- Main Headline -->
@@ -76,7 +73,7 @@
                         One Business. One System. One Central Center.
                     </p>
 
-                    <!-- Dual CTAs -->
+                    <!-- Dual CTAs (Auth-Aware) -->
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}"
@@ -87,7 +84,7 @@
                         @elseif (auth('web')->check())
                             <a href="{{ route('dashboard') }}"
                                 class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
-                                <span>Buka Dashboard Bisnis</span>
+                                <span>Ke Dashboard</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @else
@@ -135,7 +132,6 @@
 
                         <!-- Neon Connection Lines (SVG) -->
                         <svg class="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 460 460" fill="none">
-                            <!-- Glow Filter -->
                             <defs>
                                 <filter id="cyanGlow" x="-20%" y="-20%" width="140%" height="140%">
                                     <feGaussianBlur stdDeviation="3" result="blur" />
@@ -173,7 +169,7 @@
                                 @if (!empty($siteLogoDarkUrl))
                                     <img src="{{ $siteLogoDarkUrl }}" alt="COOCA" class="h-8 w-auto object-contain mx-auto">
                                 @else
-                                    <span class="font-black text-2xl tracking-wider text-white font-sans">COOCA</span>
+                                    <span class="font-black text-2xl tracking-wider text-white font-sans drop-shadow-[0_0_12px_rgba(0,194,255,0.6)]">COOCA</span>
                                 @endif
                             </div>
                             <p class="text-[11px] font-semibold text-cyan-300 tracking-tight">Business Operating System</p>
@@ -374,7 +370,7 @@
                         <i data-lucide="trending-up" class="w-6 h-6"></i>
                     </div>
                     <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                        <span>Analytics & AI</span>
+                        <span>Analytics &amp; AI</span>
                         <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
                     </h3>
                     <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -940,7 +936,7 @@
                     <div>
                         <span class="text-xs font-bold text-[#00C2FF] uppercase tracking-wider block mb-1">Marketplace</span>
                         <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                            Temukan & Jual Lebih Mudah
+                            Temukan &amp; Jual Lebih Mudah
                         </h3>
                         <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2 leading-relaxed">
                             Jelajahi ribuan bisnis dan produk dari berbagai kategori dan lokasi. Dukung pertumbuhan bisnis lokal.
@@ -970,7 +966,7 @@
                         <!-- Category Filter Chips -->
                         <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px]">
                             <span class="px-2.5 py-1 rounded-full bg-[#00C2FF] text-white font-bold shrink-0">Semua</span>
-                            <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">F&B</span>
+                            <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">F&amp;B</span>
                             <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Retail</span>
                             <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Workshop</span>
                             <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Laundry</span>
@@ -984,7 +980,7 @@
                                 <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80"
                                     alt="Nasi Bebek" class="w-full h-16 object-cover rounded-lg mb-1.5">
                                 <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate">Nasi Bebek Madura</div>
-                                <div class="text-[9px] text-slate-400">F&B</div>
+                                <div class="text-[9px] text-slate-400">F&amp;B</div>
                                 <div class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
                                     <span class="flex items-center gap-0.5 text-amber-500">
                                         <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.9
@@ -1065,7 +1061,7 @@
                         alt="F&B Restoran" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
                     <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
-                        <span class="text-xs font-bold">F&B</span>
+                        <span class="text-xs font-bold">F&amp;B</span>
                         <i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
                     </div>
                 </a>
@@ -1159,17 +1155,32 @@
                         Mulai dari kebutuhan bisnis Anda. Pilih modul, hubungkan channel, dan jalankan bisnis Anda bersama COOCA.
                     </p>
 
+                    <!-- Auth-Aware Dual CTAs -->
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
-                        <a href="{{ route('register') }}"
-                            class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
-                            <span>Coba COOCA Gratis</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
-                        <a href="{{ route('public.demo') }}"
-                            class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
-                            <span>Lihat Demo</span>
-                            <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
-                        </a>
+                        @if (auth('admin')->check())
+                            <a href="{{ route('admin.dashboard') }}"
+                                class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                <span>Dashboard Admin</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                        @elseif (auth('web')->check())
+                            <a href="{{ route('dashboard') }}"
+                                class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                <span>Ke Dashboard</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                        @else
+                            <a href="{{ route('register') }}"
+                                class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                <span>Coba COOCA Gratis</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                            <a href="{{ route('public.demo') }}"
+                                class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
+                                <span>Lihat Demo</span>
+                                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
 
