@@ -122,7 +122,10 @@
             <div
                 class="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
             </div>
-            <div <!-- Left Column: Copy & Value Proposition (Span 5 for balanced breathing room) -->
+
+            <!-- Container Grid -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                <!-- Left Column: Copy & Value Proposition (Span 4 for balanced breathing room) -->
                 <div class="lg:col-span-4 space-y-6 text-center lg:text-left">
                     <!-- Pill Badge -->
                     <div
@@ -136,8 +139,7 @@
                         class="text-4xl sm:text-5xl lg:text-[3.3em] font-extrabold text-white tracking-tight leading-[1.12]">
                         Run Your Business.<br>
                         From <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One
-                            Operating<br class="hidden sm:inline"> System.</span>
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One Operating<br class="hidden sm:inline"> System.</span>
                     </h1>
 
                     <!-- Subtitle -->
