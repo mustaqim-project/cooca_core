@@ -124,37 +124,37 @@
             </div>
 
             <!-- Container Grid -->
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-                <!-- Left Column: Copy & Value Proposition (Span 4 for balanced breathing room) -->
-                <div class="lg:col-span-4 space-y-6 text-center lg:text-left">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                <!-- Left Column: Copy & Value Proposition (Span 5 for balanced alignment) -->
+                <div class="lg:col-span-5 space-y-6 text-center lg:text-left flex flex-col justify-center">
                     <!-- Pill Badge -->
                     <div
-                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold shadow-[0_0_15px_rgba(0,194,255,0.2)]">
+                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold shadow-[0_0_15px_rgba(0,194,255,0.2)] w-fit mx-auto lg:mx-0">
                         <span class="w-2 h-2 rounded-full bg-[#00C2FF] animate-pulse"></span>
                         <span>Business Operating System &amp; Omnichannel ERP</span>
                     </div>
 
                     <!-- Main Headline -->
                     <h1
-                        class="text-4xl sm:text-5xl lg:text-[3.3em] font-extrabold text-white tracking-tight leading-[1.12]">
+                        class="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
                         Run Your Business.<br>
                         From <span
                             class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One Operating<br class="hidden sm:inline"> System.</span>
                     </h1>
 
                     <!-- Subtitle -->
-                    <p class="text-base sm:text-lg text-slate-300 max-w-xl leading-relaxed font-normal mx-auto lg:mx-0">
+                    <p class="text-sm sm:text-base text-slate-300 max-w-xl leading-relaxed font-normal mx-auto lg:mx-0">
                         COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social
                         media, marketplace, dan automation dalam satu ekosistem.
                     </p>
 
                     <!-- Punchline -->
-                    <p class="text-sm text-slate-400 font-semibold tracking-wide">
+                    <p class="text-xs sm:text-sm text-slate-400 font-semibold tracking-wide">
                         One Business. One System. One Central Center.
                     </p>
 
                     <!-- Dual CTAs (Auth-Aware) -->
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}"
                                 class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
@@ -182,7 +182,7 @@
                     </div>
 
                     <!-- Horizontal Feature Tags -->
-                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-3">
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2">
                         <span
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
                             <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
@@ -212,7 +212,7 @@
                 </div>
 
                 <!-- Right Column: Interactive 3D Neon Ecosystem Hub Grid (Span 7) -->
-                <div class="lg:col-span-8 relative flex items-center justify-center py-6 lg:py-0 w-full overflow-visible"
+                <div class="lg:col-span-7 relative flex items-center justify-center w-full overflow-visible"
                     x-data="{ activeNode: null }">
                     <div
                         class="relative w-full max-w-[620px] aspect-[620/460] select-none mx-auto flex items-center justify-center">
